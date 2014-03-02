@@ -1,0 +1,2144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>704</width>
+    <height>1080</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Segoe UI</family>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>k-Wave visualiser </string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icons/images/icons_03.png</normaloff>icons/images/icons_03.png</iconset>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>32</width>
+    <height>32</height>
+   </size>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::VerticalTabs</set>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QDockWidget" name="dockWidget_3D">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="features">
+       <set>QDockWidget::NoDockWidgetFeatures</set>
+      </property>
+      <property name="allowedAreas">
+       <set>Qt::NoDockWidgetArea</set>
+      </property>
+      <property name="windowTitle">
+       <string>3D view</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_3D"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionLoad_output_HDF5_file"/>
+   <addaction name="actionLoad_sensor_mask"/>
+   <addaction name="actionLoad_CT"/>
+   <addaction name="separator"/>
+   <addaction name="actionXY_slice"/>
+   <addaction name="actionXZ_slice"/>
+   <addaction name="actionYZ_slice"/>
+   <addaction name="separator"/>
+   <addaction name="actionVolume_rendering"/>
+   <addaction name="action3D_XY_slice"/>
+   <addaction name="action3D_XZ_slice"/>
+   <addaction name="action3d_YZ_slice"/>
+   <addaction name="separator"/>
+   <addaction name="actionExport_image_from_3D_scene"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dockWidget_info">
+   <property name="minimumSize">
+    <size>
+     <width>220</width>
+     <height>112</height>
+    </size>
+   </property>
+   <property name="windowIcon">
+    <iconset>
+     <normaloff>icons/images/icons_03.png</normaloff>icons/images/icons_03.png</iconset>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>HDF5 Info</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_info">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;HDF5 info...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>704</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad_output_HDF5_file"/>
+    <addaction name="actionLoad_sensor_mask"/>
+    <addaction name="actionClose_HDF5_file"/>
+    <addaction name="actionExit"/>
+    <addaction name="actionLoad_CT"/>
+    <addaction name="actionExport_image_from_3D_scene"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionXY_slice"/>
+    <addaction name="actionXZ_slice"/>
+    <addaction name="actionYZ_slice"/>
+    <addaction name="action3D_XY_slice"/>
+    <addaction name="action3D_XZ_slice"/>
+    <addaction name="action3d_YZ_slice"/>
+    <addaction name="actionVolume_rendering"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionSettings"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_Z">
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 0, 255);</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>XY slice</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_Z">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="toolButton_Z_save">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons/images/icons_10.png</normaloff>icons/images/icons_10.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="CVImageWidget" name="imageWidget_Z" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>150</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_Z" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>3</number>
+           </property>
+           <property name="leftMargin">
+            <number>3</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>3</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item alignment="Qt::AlignHCenter">
+            <widget class="QSpinBox" name="spinBox_Z">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignHCenter">
+            <widget class="QSlider" name="verticalSlider_Z">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_X">
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 170, 0);</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>XZ slice</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_Y">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="toolButton_Y_save">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons/images/icons_10.png</normaloff>icons/images/icons_10.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget_2" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="CVImageWidget" name="imageWidget_Y" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>150</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_Y" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>3</number>
+           </property>
+           <property name="leftMargin">
+            <number>3</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>3</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item alignment="Qt::AlignHCenter">
+            <widget class="QSpinBox" name="spinBox_Y"/>
+           </item>
+           <item alignment="Qt::AlignHCenter">
+            <widget class="QSlider" name="verticalSlider_Y">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_Y">
+   <property name="styleSheet">
+    <string notr="true">color: rgb(255, 0, 0);</string>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>YZ slice</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_X">
+    <layout class="QVBoxLayout" name="verticalLayout_8">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="toolButton_X_save">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons/images/icons_10.png</normaloff>icons/images/icons_10.png</iconset>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget_3" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="CVImageWidget" name="imageWidget_X" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>150</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_X" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="spacing">
+            <number>3</number>
+           </property>
+           <property name="leftMargin">
+            <number>3</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>3</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item alignment="Qt::AlignHCenter">
+            <widget class="QSpinBox" name="spinBox_X"/>
+           </item>
+           <item alignment="Qt::AlignHCenter">
+            <widget class="QSlider" name="verticalSlider_X">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Datasets to view</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout_8">
+     <item row="2" column="2">
+      <widget class="QCheckBox" name="checkBox_6">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_18">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_19">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QRadioButton" name="radioButton_2">
+       <property name="text">
+        <string>p_max</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_15">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Selected dataset</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_16">
+       <property name="text">
+        <string>View</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="radioButton">
+       <property name="text">
+        <string>p</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QCheckBox" name="checkBox_5">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="radioButton_3">
+       <property name="text">
+        <string>p_max_all</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QCheckBox" name="checkBox_7">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_11"/>
+     </item>
+     <item row="3" column="4">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_12"/>
+     </item>
+     <item row="1" column="4">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_10"/>
+     </item>
+     <item row="1" column="5" colspan="2">
+      <widget class="QSlider" name="horizontalSlider_11">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5" colspan="2">
+      <widget class="QSlider" name="horizontalSlider_12">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="5" colspan="2">
+      <widget class="QSlider" name="horizontalSlider_13">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="7">
+      <widget class="QLabel" name="label_20">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4" colspan="3">
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>Alpha</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_2">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>CT</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout_7">
+     <item row="1" column="1">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_9"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QSlider" name="horizontalSlider_10">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="3">
+      <widget class="QCheckBox" name="checkBox_4">
+       <property name="text">
+        <string>View</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string>Alpha:</string>
+       </property>
+       <property name="buddy">
+        <cstring>doubleSpinBox_9</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>rotate about 90 degrees - orthogonal to Z axis</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons/images/icons_21.png</normaloff>icons/images/icons_21.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="3">
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>rotate about 90 degrees - orthogonal to Y axis</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons/images/icons_23.png</normaloff>icons/images/icons_23.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="3">
+      <widget class="QPushButton" name="pushButton">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>rotate about 90 degrees - orthogonal to X axis</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons/images/icons_22.png</normaloff>icons/images/icons_22.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="3">
+      <widget class="QLabel" name="label_21">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_3">
+   <property name="minimumSize">
+    <size>
+     <width>300</width>
+     <height>235</height>
+    </size>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Selected dataset</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QVBoxLayout" name="verticalLayout_9">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>292</width>
+          <height>751</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>9</number>
+         </property>
+         <property name="topMargin">
+          <number>9</number>
+         </property>
+         <property name="rightMargin">
+          <number>9</number>
+         </property>
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Info</string>
+           </property>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_23">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Name:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_24">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Type:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_25">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Size:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_26">
+              <property name="text">
+               <string>p</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="label_27">
+              <property name="text">
+               <string>sensor mask</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="label_28">
+              <property name="text">
+               <string>1 x 1000 x 16384</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="title">
+            <string>View settings</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+            <item row="7" column="0" colspan="3">
+             <widget class="QCheckBox" name="checkBox_3">
+              <property name="font">
+               <font>
+                <family>Segoe UI</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Use global values</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0" colspan="3">
+             <widget class="QGroupBox" name="groupBox_4">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(0, 170, 0);</string>
+              </property>
+              <property name="title">
+               <string>XZ slice</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_9">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>min:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>doubleSpinBox_5</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_12">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>max:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>doubleSpinBox_6</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QSlider" name="horizontalSlider_5">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_6">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QSlider" name="horizontalSlider_6">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="12" column="0" colspan="3">
+             <widget class="QGroupBox" name="groupBox_8">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(255, 0, 0);</string>
+              </property>
+              <property name="title">
+               <string>YZ slice</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_13">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>max:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>doubleSpinBox_8</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_8">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QSlider" name="horizontalSlider_3">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_10">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>min:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>doubleSpinBox_7</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QSlider" name="horizontalSlider_4">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_7">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="9" column="0" colspan="3">
+             <widget class="QGroupBox" name="groupBox_7">
+              <property name="font">
+               <font>
+                <family>Segoe UI</family>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: rgb(0, 0, 255)</string>
+              </property>
+              <property name="title">
+               <string>XY slice</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_5">
+               <item row="1" column="2">
+                <widget class="QSlider" name="horizontalSlider_7">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QSlider" name="horizontalSlider_8">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_11">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>max:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>doubleSpinBox_4</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="font">
+                  <font>
+                   <family>Segoe UI</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>min:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>doubleSpinBox_3</cstring>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="3">
+             <widget class="QToolButton" name="toolButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Local minimal and maximal values</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="toolButtonStyle">
+               <enum>Qt::ToolButtonTextBesideIcon</enum>
+              </property>
+              <property name="autoRaise">
+               <bool>false</bool>
+              </property>
+              <property name="arrowType">
+               <enum>Qt::DownArrow</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>max:</string>
+              </property>
+              <property name="buddy">
+               <cstring>doubleSpinBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Global minimal and maximal value:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="3">
+             <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Color spectrum:</string>
+              </property>
+              <property name="buddy">
+               <cstring>comboBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>min:</string>
+              </property>
+              <property name="buddy">
+               <cstring>doubleSpinBox_2</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="3">
+             <widget class="QComboBox" name="comboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentText">
+               <string>JET</string>
+              </property>
+              <property name="currentIndex">
+               <number>2</number>
+              </property>
+              <property name="maxVisibleItems">
+               <number>15</number>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>128</width>
+                <height>16</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string>AUTUMN</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_autumn.jpg</normaloff>icons/colorscale_autumn.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>BONE</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_bone.jpg</normaloff>icons/colorscale_bone.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>JET</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_jet.jpg</normaloff>icons/colorscale_jet.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>WINTER</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_winter.jpg</normaloff>icons/colorscale_winter.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>RAINBOW</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_rainbow.jpg</normaloff>icons/colorscale_rainbow.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>OCEAN</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_ocean.jpg</normaloff>icons/colorscale_ocean.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>SUMMER</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_summer.jpg</normaloff>icons/colorscale_summer.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>SPRING</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_spring.jpg</normaloff>icons/colorscale_spring.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>COOL</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_cool.jpg</normaloff>icons/colorscale_cool.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>HSV</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_hsv.jpg</normaloff>icons/colorscale_hsv.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>PINK</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_pink.jpg</normaloff>icons/colorscale_pink.jpg</iconset>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>HOT</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>icons/colorscale_hot.jpg</normaloff>icons/colorscale_hot.jpg</iconset>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QSlider" name="horizontalSlider_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QSlider" name="horizontalSlider">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>Time-varying series</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Step:</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinBox"/>
+            </item>
+            <item row="0" column="2" colspan="4">
+             <widget class="QSlider" name="horizontalSlider_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" rowspan="3" colspan="6">
+             <widget class="QWidget" name="widget_4" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QToolButton" name="toolButton_play">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>icons/images/icons_17.png</normaloff>
+                   <normalon>icons/images/icons_19.png</normalon>icons/images/icons_17.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="toolButton_start">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>icons/images/icons_20.png</normaloff>icons/images/icons_20.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="toolButton_end">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>icons/images/icons_18.png</normaloff>icons/images/icons_18.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="arrowType">
+                  <enum>Qt::NoArrow</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="6" alignment="Qt::AlignTop">
+             <widget class="QLabel" name="label_7">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Volume rendering</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Settings</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" alignment="Qt::AlignTop">
+             <widget class="QLabel" name="label_22">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionLoad_output_HDF5_file">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_01.png</normaloff>icons/images/icons_01.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load output HDF5 file </string>
+   </property>
+   <property name="toolTip">
+    <string>Load output HDF5 file</string>
+   </property>
+  </action>
+  <action name="actionLoad_sensor_mask">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_02.png</normaloff>icons/images/icons_02.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load sensor mask</string>
+   </property>
+   <property name="toolTip">
+    <string>Load sensor mask from input HDF5 file</string>
+   </property>
+  </action>
+  <action name="actionClose_HDF5_file">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_07.png</normaloff>icons/images/icons_07.png</iconset>
+   </property>
+   <property name="text">
+    <string>Close HDF5 file</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_08.png</normaloff>icons/images/icons_08.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_09.png</normaloff>icons/images/icons_09.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionXY_slice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_04.png</normaloff>icons/images/icons_04.png</iconset>
+   </property>
+   <property name="text">
+    <string>XY slice</string>
+   </property>
+   <property name="toolTip">
+    <string>View XY slice</string>
+   </property>
+  </action>
+  <action name="actionXZ_slice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_05.png</normaloff>icons/images/icons_05.png</iconset>
+   </property>
+   <property name="text">
+    <string>XZ slice</string>
+   </property>
+   <property name="toolTip">
+    <string>View XZ slice</string>
+   </property>
+  </action>
+  <action name="actionYZ_slice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_06.png</normaloff>icons/images/icons_06.png</iconset>
+   </property>
+   <property name="text">
+    <string>YZ slice</string>
+   </property>
+   <property name="toolTip">
+    <string>View YZ slice</string>
+   </property>
+  </action>
+  <action name="actionLoad_CT">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_16.png</normaloff>icons/images/icons_16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load CT</string>
+   </property>
+   <property name="toolTip">
+    <string>Load CT data</string>
+   </property>
+  </action>
+  <action name="action3D_XY_slice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_13.png</normaloff>icons/images/icons_13.png</iconset>
+   </property>
+   <property name="text">
+    <string>3D XY slice</string>
+   </property>
+  </action>
+  <action name="action3D_XZ_slice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_15.png</normaloff>icons/images/icons_15.png</iconset>
+   </property>
+   <property name="text">
+    <string>3D XZ slice</string>
+   </property>
+  </action>
+  <action name="action3d_YZ_slice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_14.png</normaloff>icons/images/icons_14.png</iconset>
+   </property>
+   <property name="text">
+    <string>3d YZ slice</string>
+   </property>
+  </action>
+  <action name="actionExport_image_from_3D_scene">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_10.png</normaloff>icons/images/icons_10.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export image from 3D scene</string>
+   </property>
+  </action>
+  <action name="actionVolume_rendering">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/images/icons_12.png</normaloff>icons/images/icons_12.png</iconset>
+   </property>
+   <property name="text">
+    <string>Volume rendering</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CVImageWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">cvimagewidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>imageResized()</signal>
+    <slot>reloadImage(int)</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>spinBox_Z</tabstop>
+  <tabstop>verticalSlider_Z</tabstop>
+  <tabstop>toolButton_Y_save</tabstop>
+  <tabstop>spinBox_Y</tabstop>
+  <tabstop>verticalSlider_Y</tabstop>
+  <tabstop>toolButton_X_save</tabstop>
+  <tabstop>spinBox_X</tabstop>
+  <tabstop>verticalSlider_X</tabstop>
+  <tabstop>toolButton_Z_save</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>330</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalSlider_X</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>imageWidget_X</receiver>
+   <slot>reloadImage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>1059</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>102</x>
+     <y>1059</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalSlider_Y</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>imageWidget_Y</receiver>
+   <slot>reloadImage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>726</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>149</x>
+     <y>454</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalSlider_Z</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>imageWidget_Z</receiver>
+   <slot>reloadImage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>149</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalSlider_Z</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_Z</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>231</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>127</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalSlider_Y</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_Y</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>726</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>449</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>verticalSlider_X</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_X</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>1059</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>792</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_Z</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>verticalSlider_Z</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_Y</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>verticalSlider_Y</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>449</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>726</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_X</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>verticalSlider_X</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>189</x>
+     <y>792</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>1059</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_7</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>567</x>
+     <y>814</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>587</x>
+     <y>864</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_4</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>628</x>
+     <y>815</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>596</x>
+     <y>954</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_8</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>628</x>
+     <y>807</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>1038</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_3</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_7</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>835</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>856</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_3</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_4</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>839</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>954</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_3</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_8</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>469</x>
+     <y>834</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>481</x>
+     <y>1044</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
