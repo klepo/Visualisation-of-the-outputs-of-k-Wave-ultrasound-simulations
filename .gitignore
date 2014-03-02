@@ -1,8 +1,5 @@
-# git ignore file
-Project1/Project1.opensdf
+build
 debug
 release
-/hdf5/build
-/gui/gui.pro.user
 /gui/vc110.pdb
-/hdf5/hdf5/hdf5.pro.user
+/gui/gui.pro.user
