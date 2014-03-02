@@ -1,5 +1,5 @@
-build
-debug
-release
+/hdf5/build
+/gui/debug
+/gui/release
 /gui/vc110.pdb
 /gui/gui.pro.user
