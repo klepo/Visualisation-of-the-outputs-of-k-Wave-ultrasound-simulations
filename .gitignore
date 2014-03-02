@@ -9,3 +9,8 @@
 /hdf5/Makefile.Debug
 /hdf5/Makefile.Release
 /hdf5/hdf5.pro.user
+/gui/gui_plugin_import.cpp
+/gui/Makefile
+/gui/Makefile.Debug
+/gui/Makefile.Release
+/gui/ui_mainwindow.h
