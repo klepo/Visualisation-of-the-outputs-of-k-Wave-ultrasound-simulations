@@ -18,13 +18,14 @@ int main(int argc, char *argv[])
     try {
 
         //hDF5File = new HDF5File("../../../data/input_data_128_128_128_case_1.h5");
-        hDF5File = new HDF5File("../../../data/output_data_128_128_128_case_1_no_compression.h5");
-        //hDF5File = new HDF5File("../../../data/output_data_256_256_256_case_1_no_compression.h5");
+        //hDF5File = new HDF5File("../../data/output_data_128_128_128_case_1_no_compression.h5");
+        hDF5File = new HDF5File("../../data/output_data_256_256_256_case_1_no_compression.h5");
         //hDF5File = new HDF5File("../../../data/output_data_512_512_512_case_1_no_compression.h5");
         //hDF5File = new HDF5File("../../../data/output_data_1024_1024_1024_case_1_no_compression.h5");
 
         //HDF5Dataset *dataset = hDF5File->getDataset(HDF5File::SENSOR_MASK_INDEX_DATASET);
-        HDF5Dataset *dataset = hDF5File->getDataset(HDF5File::P_DATASET);
+        //HDF5Dataset *dataset = hDF5File->getDataset(HDF5File::P_DATASET);
+        HDF5Dataset *dataset = hDF5File->getDataset(HDF5File::P_MAX_ALL_DATASET);
 
         H5T_class_t DataType = dataset->getDataType();
         if (DataType == H5T_INTEGER) {
