@@ -23,10 +23,10 @@ int main(int argc, char *argv[])
     HDF5File *hDF5File;
     try {
 
-        hDF5File = new HDF5File("../../data/input_data_128_128_128_case_1.h5");
+        //hDF5File = new HDF5File("../../data/input_data_128_128_128_case_1.h5");
         //hDF5File = new HDF5File("../../data/output_data_128_128_128_case_1_no_compression.h5");
         //hDF5File = new HDF5File("../../data/output_data_256_256_256_case_1_no_compression.h5");
-        //hDF5File = new HDF5File("../../data/output_data_512_512_512_case_1_no_compression.h5");
+        hDF5File = new HDF5File("../../data/output_data_512_512_512_case_1_no_compression.h5");
         //hDF5File = new HDF5File("../../data/output_data_1024_1024_1024_case_1_no_compression.h5");
         //hDF5File = new HDF5File("../../data/NewData/Data/kidney_output_data_sc_1_linear_single_source_sensor_mode_2.h5");
 
@@ -35,13 +35,14 @@ int main(int argc, char *argv[])
 
         //hDF5File->createDataset("pokus", datatype, dataspace);
         //hDF5File->createGroup("skupina");
-        //hsize_t size[3] = {5, 5, 5};
-        //hDF5File->createDatasetI("skupina/pokus2", 3, size);
+        hsize_t size[3] = {512, 512, 512};
+        hDF5File->createDatasetF("pokus7", 3, size);
 
         //for (int i = 1; i <= 1000; i++)
             //hDF5File->createGroup(std::string("skupina/") + std::to_string(i));
 
-        HDF5Dataset *dataset = hDF5File->getDataset(SENSOR_MASK_INDEX_DATASET);
+        HDF5Dataset *dataset = hDF5File->getDataset("p_max");
+        //HDF5Dataset *dataset = hDF5File->getDataset("pokus6");
 
         //std::cout << dataset->readAttributeI("uint64_t") << std::endl;
         //std::cout << dataset->readAttributeF("float") << std::endl;
@@ -65,16 +66,16 @@ int main(int argc, char *argv[])
             uint64_t minV;
             uint64_t maxV;
 
-            uint64_t *data = dataset->readDatasetI(0, 0, 0, 1, 1, size[2], minV, maxV);
+            //uint64_t *data = dataset->readDatasetI(0, 0, 0, 1, 1, size[2], minV, maxV);
 
-            std::cout << "minV: " << minV << "; maxV: " << maxV << std::endl;
+            //std::cout << "minV: " << minV << "; maxV: " << maxV << std::endl;
 
         } else if (DataType == H5T_FLOAT) {
             //std::cout << "min value: "  << dataset->getGlobalMinValueF() << std::endl;
             //std::cout << "max value: "  << dataset->getGlobalMaxValueF() << std::endl;
 
-            uint64_t height = 256;
-            uint64_t width = 256;
+            uint64_t height = 512;
+            uint64_t width = 512;
 
             float minV;// = dataset->getGlobalMinValueF();
             float maxV;// = dataset->getGlobalMaxValueF();
@@ -83,14 +84,17 @@ int main(int argc, char *argv[])
             size_t *size = dataset->getDims();
             //std::cout << "size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
 
-            float *data = dataset->readDatasetF(0, 100, 0, 1, 1, size[2], minV, maxV);
+            float *data = dataset->readDatasetF(0, 0, 0, 1, 1, size[2], minV, maxV);
 
+            //float *data = dataset->readDatasetF(100, 0, 0, 1, size[1], size[2], minV, maxV);
 
-            /*size_t *chunkSize = dataset->getChunkDims();
+            //dataset1->writeDataset(100, 0, 0, 1, 512, 512, data);
+
+            size_t *chunkSize = dataset->getChunkDims();
             if (chunkSize != NULL)
                 std::cout << "chunk size: " << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
             else
-                std::cout << "chunk size: NONE" << std::endl;*/
+                std::cout << "chunk size: NONE" << std::endl;
 
             //float *data;// = dataset->readSlabOfDatasetF(0, 50, height, width, minV, maxV);
             std::cout << "minV: " << minV << "; maxV: " << maxV << std::endl;

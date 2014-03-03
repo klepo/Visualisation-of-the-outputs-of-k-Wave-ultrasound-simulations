@@ -23,6 +23,8 @@ public:
     float *readDatasetF(hsize_t xO, hsize_t yO, hsize_t zO, hsize_t xC, hsize_t yC, hsize_t zC, float &minVF, float &maxVF);
     uint64_t *readDatasetI(hsize_t xO, hsize_t yO, hsize_t zO, hsize_t xC, hsize_t yC, hsize_t zC, uint64_t &minVI, uint64_t &maxVI);
 
+    void writeDataset(hsize_t xO, hsize_t yO, hsize_t zO, hsize_t xC, hsize_t yC, hsize_t zC, float *data);
+
     hsize_t getRank();
     hsize_t *getDims();
     hsize_t *getChunkDims();

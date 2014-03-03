@@ -163,8 +163,16 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
     try {
         const H5::DataSpace dataspace((int) rank, size);
         const H5::DataType datatype(H5::PredType::NATIVE_FLOAT);
+
+        const H5::DSetCreatPropList list = H5::DSetCreatPropList::DEFAULT;
+        hsize_t *chunk_dims = new hsize_t[rank];
+        chunk_dims[0] = 7;
+        chunk_dims[1] = 9;
+        chunk_dims[2] = 13;
+        list.setChunk(rank, chunk_dims);
+
         std::cout << "creating dataset " << datasetName;
-        H5::DataSet dataset = file.createDataSet(datasetName.c_str(), datatype, dataspace);
+        H5::DataSet dataset = file.createDataSet(datasetName.c_str(), datatype, dataspace, list);
         std::cout << " ... OK" << std::endl;
     }
     // catch failure caused by the H5File operations
@@ -467,6 +475,45 @@ float *HDF5Dataset::readDatasetF(hsize_t xO, hsize_t yO, hsize_t zO, hsize_t xC,
     }
 
     return data_out;
+}
+
+void HDF5Dataset::writeDataset(hsize_t xO, hsize_t yO, hsize_t zO, hsize_t xC, hsize_t yC, hsize_t zC, float *data)
+{
+    if (type_class != H5T_FLOAT) throw std::exception("Wrong data type of dataset (not float)");
+    HDF5Dataset::checkOffsetAndCountParams(xO, yO, zO, xC, yC, zC);
+
+    hsize_t offset[3];   // hyperslab offset in the file
+    hsize_t count[3];    // size of the hyperslab in the file
+    offset[0] = xO;
+    offset[1] = yO;
+    offset[2] = zO;
+    count[0] = xC;
+    count[1] = yC;
+    count[2] = zC;
+    hsize_t mem_offset[3];
+    mem_offset[0] = 0;
+    mem_offset[1] = 0;
+    mem_offset[2] = 0;
+
+    try {
+        dataspace.selectHyperslab(H5S_SELECT_SET, count, offset);
+
+        H5::DataSpace memspace(3, count);
+        memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
+
+        int t4 = clock();
+        //std::cout << "memory before dataset.read    " << ShowMemoryUsageInMB() << " MB" << std::endl;
+        dataset.write(data, typeF, memspace, dataspace);
+        //std::cout << "memory after dataset.read     " << ShowMemoryUsageInMB() << " MB" << std::endl;
+        int t5 = clock();
+        std::cout << "time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << "; count: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+    } catch(H5::DataSpaceIException error) {
+        error.printError();
+        throw std::exception(error.getCDetailMsg());
+    } catch(H5::DataSetIException error) {
+        error.printError();
+        throw std::exception(error.getCDetailMsg());
+    }
 }
 
 uint64_t *HDF5Dataset::readFullDatasetI()
