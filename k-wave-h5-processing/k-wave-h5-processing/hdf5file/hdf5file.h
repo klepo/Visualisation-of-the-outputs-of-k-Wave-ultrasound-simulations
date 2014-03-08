@@ -67,7 +67,7 @@ public:
     class HDF5Dataset : public HDF5Object
     {
     public:
-        HDF5Dataset(H5::DataSet dataset);
+        HDF5Dataset(H5::DataSet dataset, H5std_string name);
         ~HDF5Dataset();
 
         float *readFullDatasetF();
@@ -84,6 +84,8 @@ public:
         hsize_t getRank();
         hsize_t *getDims();
         hsize_t *getChunkDims();
+
+        H5std_string getName();
 
         void findAndSetGlobalMinAndMaxValue(bool reset = false);
 
@@ -120,6 +122,8 @@ public:
         hsize_t size;
         hsize_t downsampling;
 
+        H5std_string name;
+
         uint64_t maxVI;
         uint64_t minVI;
 
@@ -141,7 +145,11 @@ public:
         H5::Group group;
     };
 
-    HDF5Dataset *getDataset(const H5std_string datasetName);
+    HDF5Dataset *openDataset(const H5std_string datasetName);
+    HDF5Dataset *openDataset(hsize_t idx);
+
+    void closeDataset(const H5std_string datasetName);
+
     void createDatasetI(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = NULL);
     void createDatasetF(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = NULL);
 
@@ -150,12 +158,19 @@ public:
 
     void unlinkLocation(const H5std_string name);
 
+    hsize_t getNumObjs();
+
     static const H5std_string NT;
     static const H5std_string NX;
     static const H5std_string NY;
     static const H5std_string NZ;
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
+
+    uint64_t getNT();
+    uint64_t getNX();
+    uint64_t getNY();
+    uint64_t getNZ();
 
 protected:
     uint64_t nT;

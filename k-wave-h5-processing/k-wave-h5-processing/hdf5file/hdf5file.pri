@@ -1,0 +1,39 @@
+win32 {
+
+    INCLUDEPATH += "E:/HDF5-1.8.12-win64-static-with-zlib_szip/include"
+
+    CONFIG(debug, debug|release) {
+
+        LIBS += -L"E:/HDF5-1.8.12-win64-static-with-zlib_szip/lib" \
+            -llibhdf5_D \
+            -llibhdf5_cpp_D \
+            -llibzlib_D \
+            -llibszip_D
+
+    }
+
+    CONFIG(release, release|debug) {
+
+        LIBS += -L"E:/HDF5-1.8.12-win64-static-with-zlib_szip/lib" \
+            -llibhdf5 \
+            -llibhdf5_cpp \
+            -llibzlib \
+            -llibszip
+
+    }
+
+}
+
+unix {
+
+    QMAKE_CXXFLAGS += -std=c++0x
+
+    INCLUDEPATH += "/usr/local/hdf5-1.8.11-serial/include"
+
+    LIBS += -L"/usr/local/hdf5-1.8.11-serial/lib" \
+        -lhdf5 \
+        -lhdf5_cpp \
+        -lz \
+        -ldl
+
+}

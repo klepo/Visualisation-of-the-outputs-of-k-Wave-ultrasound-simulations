@@ -12,10 +12,6 @@
     #include <stdexcept>
 #endif
 
-# ifndef  UINT64_MAX
-    # define  UINT64_MAX 0xffffffffffffffffULL
-# endif
-
 double round(double number)
 {
     return number < 0.0 ? ceil(number - 0.5) : floor(number + 0.5);
@@ -48,8 +44,9 @@ HDF5File::HDF5Group::~HDF5Group()
     group.close();
 }
 
-HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet _dataset) : HDF5Object(&_dataset)
+HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet _dataset, H5std_string _name) : HDF5Object(&_dataset)
 {
+    name = _name;
     dataset = _dataset;
     object = &dataset;
     dataspace = dataset.getSpace();
@@ -73,11 +70,11 @@ HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet _dataset) : HDF5Object(&_dataset)
 
     downsampling = 1;
 
-    maxVF = FLT_MIN;
-    minVF = FLT_MAX;
+    maxVF = 0;
+    minVF = 0;
 
     maxVI = 0;
-    minVI = UINT64_MAX;
+    minVI = 0;
 
     dataI = NULL;
     dataF = NULL;
@@ -87,10 +84,12 @@ HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet _dataset) : HDF5Object(&_dataset)
 
 HDF5File::HDF5Dataset::~HDF5Dataset()
 {
+    std::cout << "Closing dataset \"" << name << "\"";
     delete [] dataI;
     delete [] dataF;
     delete [] dims;
     dataset.close();
+    std::cout << " ... OK" << std::endl;
 }
 
 HDF5File::HDF5File(std::string _filename, unsigned int flag)
@@ -109,21 +108,27 @@ HDF5File::HDF5File(std::string _filename, unsigned int flag)
             file = H5::H5File(filename, H5F_ACC_RDWR, create_plist, access_plist);
             std::cout << " ... OK " << std::endl;
 
-            HDF5File::insertDataset(HDF5File::NT);
-            HDF5File::insertDataset(HDF5File::NX);
-            HDF5File::insertDataset(HDF5File::NY);
-            HDF5File::insertDataset(HDF5File::NZ);
+            insertDataset(HDF5File::NT);
+            insertDataset(HDF5File::NX);
+            insertDataset(HDF5File::NY);
+            insertDataset(HDF5File::NZ);
 
             //Set dimensions
             uint64_t *data = NULL;
-            data = HDF5File::getDataset(HDF5File::NT)->readFullDatasetI();
+            data = HDF5File::openDataset(HDF5File::NT)->readFullDatasetI();
             nT = data[0];
-            data = HDF5File::getDataset(HDF5File::NX)->readFullDatasetI();
+            data = HDF5File::openDataset(HDF5File::NX)->readFullDatasetI();
             nX = data[0];
-            data = HDF5File::getDataset(HDF5File::NY)->readFullDatasetI();
+            data = HDF5File::openDataset(HDF5File::NY)->readFullDatasetI();
             nY = data[0];
-            data = HDF5File::getDataset(HDF5File::NZ)->readFullDatasetI();
+            data = HDF5File::openDataset(HDF5File::NZ)->readFullDatasetI();
             nZ = data[0];
+
+            closeDataset(HDF5File::NT);
+            closeDataset(HDF5File::NX);
+            closeDataset(HDF5File::NY);
+            closeDataset(HDF5File::NZ);
+
         } else if (flag == HDF5File::CREATE) {
             std::cout << "Creating file \"" << filename << "\"";
             file = H5::H5File(filename, H5F_ACC_TRUNC, create_plist, access_plist);
@@ -153,9 +158,7 @@ HDF5File::HDF5File(std::string _filename, unsigned int flag)
 HDF5File::~HDF5File()
 {
     for (std::map<const H5std_string, HDF5Dataset *>::iterator it = datasets.begin(); it != datasets.end(); ++it) {
-        std::cout << "Closing dataset \"" << it->first << "\"";
         delete it->second;
-        std::cout << " ... OK" << std::endl;
     }
     std::cout << "Closing file \"" << filename << "\"";
     file.close();
@@ -167,13 +170,12 @@ void HDF5File::insertDataset(const H5std_string datasetName)
 {
     try {
         std::cout << "Opening dataset \"" << datasetName << "\"";
-        HDF5Dataset *hDF5Dataset = new HDF5Dataset(file.openDataSet(datasetName));
+        HDF5Dataset *hDF5Dataset = new HDF5Dataset(file.openDataSet(datasetName), datasetName);
         std::cout << " ... OK" << std::endl;
         datasets.insert(std::pair<const H5std_string, HDF5Dataset*>(datasetName, hDF5Dataset));
-
     } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
-        error.printError();
+        //error.printError();
         throw std::runtime_error(std::string("Dataset \"" + datasetName + "\" does not exist").c_str());
     }
 }
@@ -185,10 +187,9 @@ void HDF5File::insertGroup(const H5std_string groupName)
         HDF5Group *hDF5Group = new HDF5Group(file.openGroup(groupName));
         std::cout << " ... OK" << std::endl;
         groups.insert(std::pair<const H5std_string, HDF5Group*>(groupName, hDF5Group));
-
     } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
-        error.printError();
+        //error.printError();
         throw std::runtime_error(std::string("Group \"" + groupName + "\" does not exist").c_str());
     }
 }
@@ -212,8 +213,7 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
-    }
-    catch(H5::GroupIException error) {
+    } catch(H5::GroupIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
@@ -239,8 +239,7 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
-    }
-    catch(H5::GroupIException error) {
+    } catch(H5::GroupIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
@@ -259,21 +258,48 @@ void HDF5File::createGroup(const H5std_string name)
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
-    }
-    catch(H5::GroupIException error) {
+    } catch(H5::GroupIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
     }
 }
 
-HDF5File::HDF5Dataset *HDF5File::getDataset(const H5std_string datasetName)
+HDF5File::HDF5Dataset *HDF5File::openDataset(hsize_t idx)
+{
+    H5std_string name;
+    try {
+        name = file.getObjnameByIdx(idx);
+    } catch(H5::FileIException error) {
+        error.printError();
+        throw std::runtime_error(error.getCDetailMsg());
+    } catch(H5::GroupIException error) {
+        error.printError();
+        throw std::runtime_error(error.getCDetailMsg());
+    }
+
+    if (datasets.find(name) == datasets.end()) {
+        HDF5File::insertDataset(name);
+        return HDF5File::openDataset(name);
+    } else
+        return datasets.find(name)->second;
+}
+
+HDF5File::HDF5Dataset *HDF5File::openDataset(const H5std_string datasetName)
 {
     if (datasets.find(datasetName) == datasets.end()) {
         HDF5File::insertDataset(datasetName);
-        return HDF5File::getDataset(datasetName);
+        return HDF5File::openDataset(datasetName);
     } else
         return datasets.find(datasetName)->second;
+}
+
+void HDF5File::closeDataset(const H5std_string datasetName)
+{
+    if (datasets.find(datasetName) != datasets.end()){
+        delete datasets.find(datasetName)->second;
+        datasets.erase(datasets.find(datasetName));
+    }
 }
 
 HDF5File::HDF5Group *HDF5File::getGroup(const H5std_string groupName)
@@ -296,6 +322,36 @@ void HDF5File::unlinkLocation(const H5std_string name)
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
     }
+}
+
+hsize_t HDF5File::getNumObjs()
+{
+    return file.getNumObjs();
+}
+
+uint64_t HDF5File::getNT()
+{
+    return nT;
+}
+
+uint64_t HDF5File::getNX()
+{
+    return nX;
+}
+
+uint64_t HDF5File::getNY()
+{
+    return nY;
+}
+
+uint64_t HDF5File::getNZ()
+{
+    return nZ;
+}
+
+H5std_string HDF5File::HDF5Dataset::getName()
+{
+    return name;
 }
 
 hsize_t HDF5File::HDF5Dataset::getRank()
