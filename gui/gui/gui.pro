@@ -24,7 +24,8 @@ HEADERS +=  mainwindow.h \
 
 FORMS   +=  mainwindow.ui
 
-INCLUDEPATH += "E:/opencv/build/include"
+INCLUDEPATH += "E:/opencv/build/include" \
+    .
 
 LIBS += -L"E:/opencv/build/x64/vc11/lib" \
     -lopencv_core246 \
@@ -39,3 +40,6 @@ LIBS += -L"C:/Program Files/HDF_Group/HDF5/1.8.11/lib" \
     -lhdf5_cpp \
     -lszip \
     -lzlib \
+
+RESOURCES += \
+    resources.qrc

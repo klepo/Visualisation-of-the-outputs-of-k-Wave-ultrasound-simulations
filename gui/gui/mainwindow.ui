@@ -746,8 +746,8 @@ p, li { white-space: pre-wrap; }
         <string>rotate about 90 degrees - orthogonal to Z axis</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>icons/images/icons_21.png</normaloff>icons/images/icons_21.png</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_21.png</normaloff>:/icons/icons/images/icons_21.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -766,8 +766,8 @@ p, li { white-space: pre-wrap; }
         <string>rotate about 90 degrees - orthogonal to Y axis</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>icons/images/icons_23.png</normaloff>icons/images/icons_23.png</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_23.png</normaloff>:/icons/icons/images/icons_23.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -786,8 +786,8 @@ p, li { white-space: pre-wrap; }
         <string>rotate about 90 degrees - orthogonal to X axis</string>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>icons/images/icons_22.png</normaloff>icons/images/icons_22.png</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_22.png</normaloff>:/icons/icons/images/icons_22.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -861,9 +861,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-85</y>
           <width>292</width>
-          <height>751</height>
+          <height>745</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -1360,10 +1360,10 @@ p, li { white-space: pre-wrap; }
                </sizepolicy>
               </property>
               <property name="currentText">
-               <string>JET</string>
+               <string>AUTUMN</string>
               </property>
               <property name="currentIndex">
-               <number>2</number>
+               <number>0</number>
               </property>
               <property name="maxVisibleItems">
                <number>15</number>
@@ -1379,8 +1379,8 @@ p, li { white-space: pre-wrap; }
                 <string>AUTUMN</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_autumn.jpg</normaloff>icons/colorscale_autumn.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_autumn.jpg</normaloff>:/colorscale/icons/colorscale_autumn.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1388,8 +1388,8 @@ p, li { white-space: pre-wrap; }
                 <string>BONE</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_bone.jpg</normaloff>icons/colorscale_bone.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_bone.jpg</normaloff>:/colorscale/icons/colorscale_bone.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1397,8 +1397,8 @@ p, li { white-space: pre-wrap; }
                 <string>JET</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_jet.jpg</normaloff>icons/colorscale_jet.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_jet.jpg</normaloff>:/colorscale/icons/colorscale_jet.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1406,8 +1406,8 @@ p, li { white-space: pre-wrap; }
                 <string>WINTER</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_winter.jpg</normaloff>icons/colorscale_winter.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_winter.jpg</normaloff>:/colorscale/icons/colorscale_winter.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1415,8 +1415,8 @@ p, li { white-space: pre-wrap; }
                 <string>RAINBOW</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_rainbow.jpg</normaloff>icons/colorscale_rainbow.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_rainbow.jpg</normaloff>:/colorscale/icons/colorscale_rainbow.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1424,8 +1424,8 @@ p, li { white-space: pre-wrap; }
                 <string>OCEAN</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_ocean.jpg</normaloff>icons/colorscale_ocean.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_ocean.jpg</normaloff>:/colorscale/icons/colorscale_ocean.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1433,8 +1433,8 @@ p, li { white-space: pre-wrap; }
                 <string>SUMMER</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_summer.jpg</normaloff>icons/colorscale_summer.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_summer.jpg</normaloff>:/colorscale/icons/colorscale_summer.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1442,8 +1442,8 @@ p, li { white-space: pre-wrap; }
                 <string>SPRING</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_spring.jpg</normaloff>icons/colorscale_spring.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_spring.jpg</normaloff>:/colorscale/icons/colorscale_spring.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1451,8 +1451,8 @@ p, li { white-space: pre-wrap; }
                 <string>COOL</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_cool.jpg</normaloff>icons/colorscale_cool.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_cool.jpg</normaloff>:/colorscale/icons/colorscale_cool.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1460,8 +1460,8 @@ p, li { white-space: pre-wrap; }
                 <string>HSV</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_hsv.jpg</normaloff>icons/colorscale_hsv.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_hsv.jpg</normaloff>:/colorscale/icons/colorscale_hsv.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1469,8 +1469,8 @@ p, li { white-space: pre-wrap; }
                 <string>PINK</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_pink.jpg</normaloff>icons/colorscale_pink.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_pink.jpg</normaloff>:/colorscale/icons/colorscale_pink.jpg</iconset>
                </property>
               </item>
               <item>
@@ -1478,8 +1478,8 @@ p, li { white-space: pre-wrap; }
                 <string>HOT</string>
                </property>
                <property name="icon">
-                <iconset>
-                 <normaloff>icons/colorscale_hot.jpg</normaloff>icons/colorscale_hot.jpg</iconset>
+                <iconset resource="resources.qrc">
+                 <normaloff>:/colorscale/icons/colorscale_hot.jpg</normaloff>:/colorscale/icons/colorscale_hot.jpg</iconset>
                </property>
               </item>
              </widget>
@@ -1569,9 +1569,9 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>icons/images/icons_17.png</normaloff>
-                   <normalon>icons/images/icons_19.png</normalon>icons/images/icons_17.png</iconset>
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/icons/icons/images/icons_17.png</normaloff>
+                   <normalon>:/icons/icons/images/icons_19.png</normalon>:/icons/icons/images/icons_17.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1599,8 +1599,8 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>icons/images/icons_20.png</normaloff>icons/images/icons_20.png</iconset>
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/icons/icons/images/icons_20.png</normaloff>:/icons/icons/images/icons_20.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1622,8 +1622,8 @@ p, li { white-space: pre-wrap; }
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
-                   <normaloff>icons/images/icons_18.png</normaloff>icons/images/icons_18.png</iconset>
+                  <iconset resource="resources.qrc">
+                   <normaloff>:/icons/icons/images/icons_18.png</normaloff>:/icons/icons/images/icons_18.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -1693,8 +1693,8 @@ p, li { white-space: pre-wrap; }
   </widget>
   <action name="actionLoad_output_HDF5_file">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_01.png</normaloff>icons/images/icons_01.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_01.png</normaloff>:/icons/icons/images/icons_01.png</iconset>
    </property>
    <property name="text">
     <string>Load output HDF5 file </string>
@@ -1705,8 +1705,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionLoad_sensor_mask">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_02.png</normaloff>icons/images/icons_02.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_02.png</normaloff>:/icons/icons/images/icons_02.png</iconset>
    </property>
    <property name="text">
     <string>Load sensor mask</string>
@@ -1717,8 +1717,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionClose_HDF5_file">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_07.png</normaloff>icons/images/icons_07.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_07.png</normaloff>:/icons/icons/images/icons_07.png</iconset>
    </property>
    <property name="text">
     <string>Close HDF5 file</string>
@@ -1726,8 +1726,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_08.png</normaloff>icons/images/icons_08.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_08.png</normaloff>:/icons/icons/images/icons_08.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -1735,8 +1735,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionSettings">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_09.png</normaloff>icons/images/icons_09.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_09.png</normaloff>:/icons/icons/images/icons_09.png</iconset>
    </property>
    <property name="text">
     <string>Settings</string>
@@ -1747,8 +1747,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_04.png</normaloff>icons/images/icons_04.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_04.png</normaloff>:/icons/icons/images/icons_04.png</iconset>
    </property>
    <property name="text">
     <string>XY slice</string>
@@ -1762,8 +1762,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_05.png</normaloff>icons/images/icons_05.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_05.png</normaloff>:/icons/icons/images/icons_05.png</iconset>
    </property>
    <property name="text">
     <string>XZ slice</string>
@@ -1777,8 +1777,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_06.png</normaloff>icons/images/icons_06.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_06.png</normaloff>:/icons/icons/images/icons_06.png</iconset>
    </property>
    <property name="text">
     <string>YZ slice</string>
@@ -1789,8 +1789,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionLoad_CT">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_16.png</normaloff>icons/images/icons_16.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_16.png</normaloff>:/icons/icons/images/icons_16.png</iconset>
    </property>
    <property name="text">
     <string>Load CT</string>
@@ -1804,8 +1804,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_13.png</normaloff>icons/images/icons_13.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_13.png</normaloff>:/icons/icons/images/icons_13.png</iconset>
    </property>
    <property name="text">
     <string>3D XY slice</string>
@@ -1816,8 +1816,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_15.png</normaloff>icons/images/icons_15.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_15.png</normaloff>:/icons/icons/images/icons_15.png</iconset>
    </property>
    <property name="text">
     <string>3D XZ slice</string>
@@ -1828,8 +1828,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_14.png</normaloff>icons/images/icons_14.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_14.png</normaloff>:/icons/icons/images/icons_14.png</iconset>
    </property>
    <property name="text">
     <string>3d YZ slice</string>
@@ -1837,8 +1837,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionExport_image_from_3D_scene">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_10.png</normaloff>icons/images/icons_10.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
    </property>
    <property name="text">
     <string>Export image from 3D scene</string>
@@ -1849,8 +1849,8 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>icons/images/icons_12.png</normaloff>icons/images/icons_12.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_12.png</normaloff>:/icons/icons/images/icons_12.png</iconset>
    </property>
    <property name="text">
     <string>Volume rendering</string>
@@ -1882,7 +1882,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>toolButton_Z_save</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>

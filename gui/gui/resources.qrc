@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/images/icons_01.png</file>
+        <file>icons/images/icons_02.png</file>
+        <file>icons/images/icons_03.png</file>
+        <file>icons/images/icons_04.png</file>
+        <file>icons/images/icons_05.png</file>
+        <file>icons/images/icons_06.png</file>
+        <file>icons/images/icons_07.png</file>
+        <file>icons/images/icons_08.png</file>
+        <file>icons/images/icons_09.png</file>
+        <file>icons/images/icons_10.png</file>
+        <file>icons/images/icons_11.png</file>
+        <file>icons/images/icons_12.png</file>
+        <file>icons/images/icons_13.png</file>
+        <file>icons/images/icons_14.png</file>
+        <file>icons/images/icons_15.png</file>
+        <file>icons/images/icons_16.png</file>
+        <file>icons/images/icons_17.png</file>
+        <file>icons/images/icons_18.png</file>
+        <file>icons/images/icons_19.png</file>
+        <file>icons/images/icons_20.png</file>
+        <file>icons/images/icons_21.png</file>
+        <file>icons/images/icons_22.png</file>
+        <file>icons/images/icons_23.png</file>
+    </qresource>
+    <qresource prefix="/colorscale">
+        <file>icons/colorscale_autumn.jpg</file>
+        <file>icons/colorscale_bone.jpg</file>
+        <file>icons/colorscale_cool.jpg</file>
+        <file>icons/colorscale_hot.jpg</file>
+        <file>icons/colorscale_hsv.jpg</file>
+        <file>icons/colorscale_jet.jpg</file>
+        <file>icons/colorscale_ocean.jpg</file>
+        <file>icons/colorscale_pink.jpg</file>
+        <file>icons/colorscale_rainbow.jpg</file>
+        <file>icons/colorscale_spring.jpg</file>
+        <file>icons/colorscale_summer.jpg</file>
+        <file>icons/colorscale_winter.jpg</file>
+    </qresource>
+</RCC>

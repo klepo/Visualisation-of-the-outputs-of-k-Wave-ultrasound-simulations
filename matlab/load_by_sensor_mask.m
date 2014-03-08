@@ -1,19 +1,19 @@
 clear
 
-%intput_filename = 'e:\FIT\MIT\3s\SEP\data\NewData\Data\kidney_input_data_sc_1_linear_single_source_sensor_mode_2.h5'
-%output_filename = 'e:\FIT\MIT\3s\SEP\data\NewData\Data\kidney_output_data_sc_1_linear_single_source_sensor_mode_2.h5'
+intput_filename = 'e:\FIT\MIT\3s\SEP\data\NewData\Data\kidney_input_data_sc_1_linear_single_source_sensor_mode_2.h5'
+output_filename = 'e:\FIT\MIT\3s\SEP\data\NewData\Data\kidney_output_data_sc_1_linear_single_source_sensor_mode_2.h5'
 
-%intput_filename = '..\data\input_data_256_256_256_case_1.h5';
-%output_filename = '..\data\output_data_256_256_256_case_1_no_compression.h5';
+%intput_filename = '..\..\data\input_data_256_256_256_case_1.h5';
+%output_filename = '..\..\data\output_data_256_256_256_case_1_no_compression.h5';
 
-%intput_filename = '..\data\input_data_512_512_512_case_1.h5';
-%output_filename = '..\data\output_data_512_512_512_case_1_no_compression.h5';
+intput_filename = '..\..\data\input_data_512_512_512_case_1.h5';
+output_filename = '..\..\data\output_data_512_512_512_case_1_no_compression.h5';
 
 %intput_filename = '..\data\input_data_1024_1024_1024_case_1.h5';
 %output_filename = '..\data\output_data_1024_1024_1024_case_1_no_compression.h5';
 
-intput_filename = '..\data\input_data_128_128_128_case_1.h5';
-output_filename = '..\data\output_data_128_128_128_case_1_no_compression.h5';
+%intput_filename = '..\..\data\input_data_128_128_128_case_1.h5';
+%output_filename = '..\..\data\output_data_128_128_128_case_1_no_compression.h5';
 
 Nt = double(hdf5read(intput_filename, 'Nt'));
 Nx = double(hdf5read(intput_filename, 'Nx'));
@@ -36,8 +36,8 @@ out_data = h5read(output_filename, '/p', [1 nt 1], [l 1 1]);
 %-------------
 % Downsampling sensor_mask_index
 
-%{
-smpl = 0.5;
+
+smpl = 1;
 
 Nx_d = ceil(Nx * smpl);
 Ny_d = ceil(Ny * smpl);
@@ -77,7 +77,7 @@ out_data = out_data_d;
 Nx = Nx_d;
 Ny = Ny_d;
 Nz = Nz_d;
-%}
+
 
 %%
 
@@ -193,7 +193,7 @@ for c = 1:count
         data(11, 54) = ma;
         %}
         %figure
-        clims = [mi ma];
+        clims = [0 ma];
         imagesc(data, clims);
         axis equal;
         %truesize;
