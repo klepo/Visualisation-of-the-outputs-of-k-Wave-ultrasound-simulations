@@ -15,9 +15,9 @@ TARGET = hdf5file
 #QMAKE_CXXFLAGS_DEBUG -= -MDd
 #QMAKE_CXXFLAGS_RELEASE -= -MD
 
-SOURCES += hdf5file.cpp
+SOURCES += HDF5File.cpp HDF5Object.cpp HDF5Dataset.cpp HDF5Group.cpp HDF5Attribute.cpp
 
-HEADERS += hdf5file.h
+HEADERS += HDF5File.h HDF5Object.h HDF5Dataset.h HDF5Group.h HDF5Attribute.h
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD

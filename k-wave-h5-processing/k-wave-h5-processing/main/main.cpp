@@ -1,6 +1,7 @@
 //#include <QCoreApplication>
 
-#include <hdf5file.h>
+#include <HDF5File.h>
+#include <HDF5Dataset.h>
 
 #include <iostream>
 #include <string>
@@ -20,7 +21,6 @@ const std::string SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
 
 #define MAX_SIZE 256;
 #define CHUNK_SIZE 10;
-#define SIZE_OF_DATA_PART 262144;
 
 std::string h5repackFilepath = "h5repack";
 std::string simulationOutputFilename = "";
@@ -112,7 +112,8 @@ int main(int argc, char **argv)
 {
     //QCoreApplication a(argc, argv);
 
-    getParams(argc, argv); // Load parameters
+     // Load parameters
+    getParams(argc, argv);
 
     if (simulationOutputFilename.empty()) {
         std::cerr << "Missing parameter -f (simulation output filename)" << std::endl;
@@ -163,6 +164,7 @@ int main(int argc, char **argv)
     uint64_t nY = hDF5SimulationOutputFile->getNY();
     uint64_t nZ = hDF5SimulationOutputFile->getNZ();
 
+    // Get sensor mask size
     uint64_t sensorMaskSize = 0;
     if (sensorMaskFlag){
         hsize_t *size = sensorMaskIndexDataset->getDims();
@@ -200,6 +202,24 @@ int main(int argc, char **argv)
 
     // Processing data stored using a mask
 
+
+    try {
+        //std::cout << "min value: "  << sensorMaskIndexDataset->getGlobalMinValueI(true) << std::endl;
+        //std::cout << "max value: "  << sensorMaskIndexDataset->getGlobalMaxValueI(true) << std::endl;
+        std::cout << "min value: "  << datasets_3D_type.find("p_final")->second->getGlobalMinValueF(true) << std::endl;
+        std::cout << "max value: "  << datasets_3D_type.find("p_final")->second->getGlobalMaxValueF(true) << std::endl;
+
+        uint64_t *data;
+        hsize_t real_size = 0;
+        data = sensorMaskIndexDataset->readDatasetI(0, 1, real_size);
+        std::cout << "first value: "  << data[0] << std::endl;
+        data = sensorMaskIndexDataset->readDatasetI(sensorMaskIndexDataset->getSize() - 1, 1, real_size);
+        std::cout << "last value: "  << data[0] << std::endl;
+
+    } catch(std::exception e) {
+        std::cerr << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
 
     return 0;
@@ -298,7 +318,7 @@ int main(int argc, char **argv)
             uint64_t height = size[2];
             uint64_t width = size[1];
 
-            float *data = dataset->readDatasetF(0, 0, 0, 1, size[1], size[2], minV, maxV);
+            float *data = dataset->read3DDataset(0, 0, 0, 1, size[1], size[2], minV, maxV);
 
             //float *data = dataset->readDatasetF(100, 0, 0, 1, size[1], size[2], minV, maxV);
 
@@ -333,7 +353,7 @@ int main(int argc, char **argv)
             std::string windowname = "My View";
             cv::imshow(windowname, image);
 
-            delete [] data;
+            //delete [] data;
         }
 
         delete hDF5File;
