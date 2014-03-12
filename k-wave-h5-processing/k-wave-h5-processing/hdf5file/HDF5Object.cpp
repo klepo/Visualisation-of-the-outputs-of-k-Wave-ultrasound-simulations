@@ -82,7 +82,9 @@ void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
 
     try {
         std::cout << "Creating attribute \"" << attribute->getName() << "\"";
-        object->createAttribute(attribute->getName(), attribute->getDataType(), attribute->getSpace()).write(attribute->getDataType() , attribute->getData());
+        H5::Attribute att = object->createAttribute(attribute->getName(), attribute->getDataType(), attribute->getSpace());
+        att.write(attribute->getDataType() , attribute->getData());
+        att.close();
         std::cout << " ... OK" << std::endl;
     } catch(H5::AttributeIException error) {
         std::cout << " ... error" << std::endl;

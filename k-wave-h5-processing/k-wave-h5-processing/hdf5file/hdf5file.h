@@ -49,7 +49,7 @@ public:
     static const H5std_string NZ;
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
-    static const uint64_t SIZE_OF_DATA_PART = 1024*1024;
+    static const uint64_t SIZE_OF_DATA_PART = 4096*4096;
     static hsize_t ZERO_CHUNK[3];
 
     uint64_t getNT();

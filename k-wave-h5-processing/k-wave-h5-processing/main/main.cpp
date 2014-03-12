@@ -71,7 +71,6 @@ std::string help = "\n"
                    "\n"
                    "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
                    "                                         and saves them to HDF5 simulation output or new file.\n"
-                   "                                         Not yet implemented.\n"
                    "\n"
                    "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
                    "\n"
@@ -249,28 +248,6 @@ int main(int argc, char **argv)
         std::exit(EXIT_FAILURE);
     }
 
-    // Create new file
-    if (flagReshape || flagRechunk) {
-        if (outputFilename.empty()) {
-            size_t lastindex = simulationOutputFilename.find_last_of(".");
-            std::string rawname = simulationOutputFilename.substr(0, lastindex);
-            outputFilename = rawname + "_modified.h5";
-        }
-        std::cout << std::endl << std::endl << "---- Create or open output file ----" << std::endl << std::endl << std::endl;
-        try {
-            hDF5OutputFile = new HDF5File(outputFilename, HDF5File::OPEN);
-            flagOF = true;
-        } catch(std::exception &e) {
-            try {
-                hDF5OutputFile = new HDF5File(outputFilename, HDF5File::CREATE);
-                flagOF = true;
-            } catch(std::exception &e) {
-                std::cerr << e.what() << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
-        }
-    }
-
     // Find and get sensor mask dataset
     if (flagReshape) {
         try {
@@ -346,6 +323,28 @@ int main(int argc, char **argv)
                 } catch(std::exception &e) {
                     std::cout << "Object " << i << " is not reshaped group" << std::endl;
                 }
+            }
+        }
+    }
+
+    // Create new file
+    if (flagReshape || flagRechunk) {
+        if (outputFilename.empty()) {
+            size_t lastindex = simulationOutputFilename.find_last_of(".");
+            std::string rawname = simulationOutputFilename.substr(0, lastindex);
+            outputFilename = rawname + "_modified.h5";
+        }
+        std::cout << std::endl << std::endl << "---- Create or open output file ----" << std::endl << std::endl << std::endl;
+        try {
+            hDF5OutputFile = new HDF5File(outputFilename, HDF5File::OPEN);
+            flagOF = true;
+        } catch(std::exception &e) {
+            try {
+                hDF5OutputFile = new HDF5File(outputFilename, HDF5File::CREATE);
+                flagOF = true;
+            } catch(std::exception &e) {
+                std::cerr << e.what() << std::endl;
+                std::exit(EXIT_FAILURE);
             }
         }
     }
@@ -429,6 +428,9 @@ int main(int argc, char **argv)
                     group->setAttribute("positionZ", (uint64_t) minZ);
                     group->setAttribute("positionY", (uint64_t) minY);
                     group->setAttribute("positionX", (uint64_t) minX);
+                    group->setAttribute("sizeZ", (uint64_t) datasetSize[0]);
+                    group->setAttribute("sizeY", (uint64_t) datasetSize[1]);
+                    group->setAttribute("sizeX", (uint64_t) datasetSize[2]);
 
                     hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(0), 3, datasetSize, chunkSize, true);
                     HDF5File::HDF5Dataset *actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(0));
@@ -598,9 +600,9 @@ int main(int argc, char **argv)
     if (flagDwnsmpl) {
         std::cout << std::endl << std::endl << "---- Downsampling ----" << std::endl << std::endl << std::endl;
         try {
-            if (datasets3DType.empty()) {
+            if (datasets3DType.empty() && datasetsGroupType.empty()) {
                 std::cout << "No dataset for downsampling in simulation output file" << std::endl;
-            } else if(std::max(std::max(nZ, nY), nX) <= maxSize) {
+            } else if (std::max(std::max(nZ, nY), nX) <= maxSize) {
                 // Check current size
                 std::cout << "No dataset for downsampling - max(nZ, nY, nX) == " + std::to_string(std::max(std::max(nZ, nY), nX)) + " <= " + std::to_string(maxSize) << std::endl;
             } else {
@@ -652,18 +654,97 @@ int main(int argc, char **argv)
                         dstDatasetFinal->write3DDataset(0, y, 0, nZd, 1, nXd, dstData);
                     }
                     dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
+                    dstDatasetFinal->setAttribute("dwnsmpl", (uint64_t) maxSize);
                 }
 
                 // For every reshaped mask type
                 for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsGroupType.begin(); it != datasetsGroupType.end(); ++it) {
+
                     HDF5File::HDF5Group *srcGroup = it->second;
+
                     tmpFile->createGroup(srcGroup->getName());
-                    HDF5File::HDF5Group *dstGroup = tmpFile->openDataset(srcDataset->getName());
+
+                    //HDF5File::HDF5Group *dstGroup = tmpFile->openGroup(srcGroup->getName());
+
+                    hDF5ViewFile->createGroup(srcGroup->getName() + "_" + std::to_string(maxSize), true);
+                    HDF5File::HDF5Group *dstGroupFinal = hDF5ViewFile->openGroup(srcGroup->getName() + "_" + std::to_string(maxSize));
+
                     hsize_t count = srcGroup->getNumObjs();
+
+                    float minVG, maxVG;
+
+                    // Compute new size
+                    HDF5File::HDF5Dataset *tmp = hDF5ViewFile->openDataset(srcGroup->getName() + "/0");
+                    hsize_t *dims = tmp->getDims();
+                    minVG = tmp->readAttributeF("min");
+                    maxVG = tmp->readAttributeF("max");
+                    hsize_t nX = dims[2];
+                    hsize_t nY = dims[1];
+                    hsize_t nZ = dims[0];
+                    hDF5ViewFile->closeDataset(srcGroup->getName() + "/0");
+
+                    if (std::max(std::max(dims[0], dims[1]), dims[2]) <= maxSize) {
+                        // Check current size
+                        std::cout << "No dataset for downsampling - " + std::to_string(std::max(std::max(dims[0], dims[1]), dims[2])) + " <= " + std::to_string(maxSize) << std::endl;
+                        break;
+                    }
+
+                    hsize_t nMax = std::max(std::max(nZ, nY), nX);
+                    double ratio = (double) maxSize / nMax;
+                    hsize_t nZd = (hsize_t) floor(nZ * ratio + 0.5); //floor( x + 0.5 )
+                    hsize_t nYd = (hsize_t) floor(nY * ratio + 0.5);
+                    hsize_t nXd = (hsize_t) floor(nX * ratio + 0.5);
+                    if (nZd < 1) nZd = 1;
+                    if (nYd < 1) nYd = 1;
+                    if (nXd < 1) nXd = 1;
+                    hsize_t newDatasetSize[3] = {nZd, nYd, nXd};
+                    hsize_t newTmpDatasetSize[3] = {nZ, nYd, nXd};
+                    hsize_t chunkSize[3] = {maxChunkSize, maxChunkSize, maxChunkSize};
+                    if (chunkSize[0] > nZd) chunkSize[0] = nZd;
+                    if (chunkSize[1] > nYd) chunkSize[1] = nYd;
+                    if (chunkSize[2] > nXd) chunkSize[2] = nXd;
+                    std::cout << "   new size:\t" << newDatasetSize[0] << " x " << newDatasetSize[1] << " x " << newDatasetSize[2] << std::endl;
+
                     // For every 3D type dataset
                     for (unsigned int i = 0; i < count; i++) {
+                        HDF5File::HDF5Dataset *srcDataset = hDF5ViewFile->openDataset(srcGroup->getName() + "/" + std::to_string(i));
+                        tmpFile->createDatasetF(srcDataset->getName(), srcDataset->getRank(), newTmpDatasetSize);
+                        HDF5File::HDF5Dataset *dstDataset = tmpFile->openDataset(srcDataset->getName());
+                        hDF5ViewFile->createDatasetF(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i), srcDataset->getRank(), newDatasetSize, chunkSize, true);
+                        HDF5File::HDF5Dataset *dstDatasetFinal = hDF5ViewFile->openDataset(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i));
 
+                        float *srcData;
+                        float *dstData;
+                        float minV, maxV;
+
+                        for (unsigned int z = 0; z < nZ; z++) {
+                            srcData = srcDataset->read3DDataset(z, 0, 0, 1, nY, nX, minV, maxV);
+                            cv::Mat image = cv::Mat((int) nY, (int) nX, CV_32FC1, srcData); // rows, cols (height, width)
+                            cv::resize(image, image, cv::Size((int) nXd, (int) nYd));
+                            dstData = (float *) image.data;
+                            dstDataset->write3DDataset(z, 0, 0, 1, nYd, nXd, dstData);
+                        }
+
+                        for (unsigned int y = 0; y < nYd; y++) {
+                            srcData = dstDataset->read3DDataset(0, y, 0, nZ, 1, nXd, minV, maxV);
+                            cv::Mat image = cv::Mat((int) nZ, (int) nXd, CV_32FC1, srcData); // rows, cols (height, width)
+                            cv::resize(image, image, cv::Size((int) nXd, (int) nZd));
+                            dstData = (float *) image.data;
+                            dstDatasetFinal->write3DDataset(0, y, 0, nZd, 1, nXd, dstData);
+                        }
+
+                        dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
+                        if (minVG > dstDatasetFinal->getGlobalMinValueF()) minVG = dstDatasetFinal->getGlobalMinValueF();
+                        if (maxVG < dstDatasetFinal->getGlobalMaxValueF()) maxVG = dstDatasetFinal->getGlobalMaxValueF();
+                        hDF5ViewFile->closeDataset(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i));
+                        hDF5ViewFile->closeDataset(srcDataset->getName());
                     }
+
+                    dstGroupFinal->setAttribute("count", (uint64_t) count);
+                    dstGroupFinal->setAttribute("dwnsmpl", (uint64_t) maxSize);
+                    dstGroupFinal->setAttribute("min", minVG);
+                    dstGroupFinal->setAttribute("max", maxVG);
+                    hDF5ViewFile->closeGroup(dstGroupFinal->getName());
                 }
 
                 delete tmpFile;
@@ -700,7 +781,7 @@ int main(int argc, char **argv)
                 cv::namedWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex));
                 cv::namedWindow(datasetName + " series global " + cutType + " " + std::to_string(cutIndex));
 
-                for (unsigned int i = 0; i < count; i++) {
+                for (uint64_t i = 0; i < count; i++) {
                     HDF5File::HDF5Dataset *dataset = hDF5ViewFile->openDataset(datasetName + "/" + std::to_string(i));
 
                     float minValueGlobal = dataset->getGlobalMinValueF();
@@ -710,7 +791,10 @@ int main(int argc, char **argv)
                     float maxValue = 0;
 
                     hsize_t *size = dataset->getDims();
-                    std::cout << "Dataset size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
+                    std::cout << "Dataset size:       " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
+                    hsize_t *chunkSize = dataset->getChunkDims();
+                    std::cout << "Dataset chunk size: " << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
+
 
                     float *data = NULL;
                     uint64_t height = 0;
@@ -737,9 +821,10 @@ int main(int argc, char **argv)
                     } else
                         throw std::runtime_error("Wrong cutType (cutType must be YX, ZX or ZY)");
 
-                    std::cout << "   minValueSeriesGlobal: " << minValueSeriesGlobal << "; maxValueSeriesGlobal: " << maxValueSeriesGlobal << std::endl;
-                    std::cout << "   minValueGlobal: " << minValueGlobal << "; maxValueGlobal: " << maxValueGlobal << std::endl;
-                    std::cout << "   minValue: " << minValue << "; maxValue: " << maxValue << std::endl;
+                    std::cout << "   minValueSeriesGlobal: " << minValueSeriesGlobal << "\tmaxValueSeriesGlobal: " << maxValueSeriesGlobal << std::endl;
+                    std::cout << "   minValueGlobal:       " << minValueGlobal <<       "\tmaxValueGlobal:      " << maxValueGlobal << std::endl;
+                    std::cout << "   minValue:             " << minValue <<             "\tmaxValue:            " << maxValue << std::endl;
+                    std::cout << "   width:                " << width <<                "\theight:              " << height << std::endl;
 
                     cv::Mat imageL = cv::Mat((int) height, (int) width, CV_32FC1, data); // rows, cols (height, width)
                     cv::Mat imageG;
@@ -751,14 +836,16 @@ int main(int argc, char **argv)
 
                     if (width > height) {
                         int dstWidth = 300;
-                        cv::resize(imageL, imageL, cv::Size(dstWidth, imageL.size().height * dstWidth / imageL.size().width));
-                        cv::resize(imageG, imageG, cv::Size(dstWidth, imageG.size().height * dstWidth / imageG.size().width));
-                        cv::resize(imageGG, imageGG, cv::Size(dstWidth, imageGG.size().height * dstWidth / imageGG.size().width));
+                        cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                        cv::resize(imageL, imageL, size);
+                        cv::resize(imageG, imageG, size);
+                        cv::resize(imageGG, imageGG, size);
                     } else {
                         int dstHeight = 300;
-                        cv::resize(imageL, imageL, cv::Size(imageL.size().width * dstHeight / imageL.size().height, dstHeight));
-                        cv::resize(imageG, imageG, cv::Size(imageG.size().width * dstHeight / imageG.size().height, dstHeight));
-                        cv::resize(imageGG, imageGG, cv::Size(imageGG.size().width * dstHeight / imageGG.size().height, dstHeight));
+                        cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                        cv::resize(imageL, imageL, size);
+                        cv::resize(imageG, imageG, size);
+                        cv::resize(imageGG, imageGG, size);
                     }
 
                     //cv::moveWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), 100, 50);
@@ -782,7 +869,9 @@ int main(int argc, char **argv)
                 float minValue = 0;
                 float maxValue = 0;
                 hsize_t *size = dataset->getDims();
-                std::cout << "Dataset size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
+                std::cout << "Dataset size:       " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
+                hsize_t *chunkSize = dataset->getChunkDims();
+                std::cout << "Dataset chunk size: " << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
 
                 float *data = NULL;
                 uint64_t height = 0;
@@ -809,8 +898,9 @@ int main(int argc, char **argv)
                 } else
                     throw std::runtime_error("Wrong cutType (cutType must be YX, ZX or ZY)");
 
-                std::cout << "   minValueGlobal: " << minValueGlobal << "; maxValueGlobal: " << maxValueGlobal << std::endl;
-                std::cout << "   minValue: " << minValue << "; maxValue: " << maxValue << std::endl;
+                std::cout << "   minValueGlobal: " << minValueGlobal << "\tmaxValueGlobal: " << maxValueGlobal << std::endl;
+                std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
+                std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
 
                 cv::Mat imageL = cv::Mat((int) height, (int) width, CV_32FC1, data); // rows, cols (height, width)
                 cv::Mat imageG;
@@ -843,8 +933,8 @@ int main(int argc, char **argv)
                 //cv::moveWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), 100, 50);
                 //cv::moveWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex), imageL.size().width + 50 + 100, 50);
 
-                cv::imwrite(datasetName + " local " + cutType + " " + std::to_string(cutIndex) + ".png", imageL);
-                cv::imwrite(datasetName + " global " + cutType + " " + std::to_string(cutIndex) + ".png", imageG);
+                //cv::imwrite(datasetName + " local " + cutType + " " + std::to_string(cutIndex) + ".png", imageL);
+                //cv::imwrite(datasetName + " global " + cutType + " " + std::to_string(cutIndex) + ".png", imageG);
             }
 
         } catch(std::exception &e) {

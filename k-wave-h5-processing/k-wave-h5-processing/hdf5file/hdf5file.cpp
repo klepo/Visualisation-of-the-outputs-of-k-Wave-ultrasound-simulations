@@ -78,6 +78,9 @@ HDF5File::~HDF5File()
     for (std::map<const H5std_string, HDF5Dataset *>::iterator it = datasets.begin(); it != datasets.end(); ++it) {
         delete it->second;
     }
+    for (std::map<const H5std_string, HDF5Group *>::iterator it = groups.begin(); it != groups.end(); ++it) {
+        delete it->second;
+    }
     std::cout << "Closing file \"" << filename << "\"";
     file.close();
     std::cout << " ... OK" << std::endl;
@@ -165,6 +168,7 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
             try {
                 file.unlink(datasetName);
                 std::cout << " ... rewrite";
+                closeDataset(datasetName);
             } catch(H5::FileIException error) {
             }
         }
@@ -191,6 +195,7 @@ void HDF5File::createGroup(const H5std_string name, bool rewrite)
             try {
                 file.unlink(name);
                 std::cout << " ... rewrite";
+                closeGroup(name);
             } catch(H5::FileIException error) {
             }
         }
@@ -285,7 +290,7 @@ void HDF5File::closeGroup(const H5std_string groupName)
     }
 }
 
-void HDF5File::unlinkLocation(const H5std_string name)
+/*void HDF5File::unlinkLocation(const H5std_string name)
 {
     try {
         std::cout << "Unlink location \"" << name << "\"";
@@ -296,7 +301,7 @@ void HDF5File::unlinkLocation(const H5std_string name)
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
     }
-}
+}*/
 
 hsize_t HDF5File::getNumObjs()
 {
