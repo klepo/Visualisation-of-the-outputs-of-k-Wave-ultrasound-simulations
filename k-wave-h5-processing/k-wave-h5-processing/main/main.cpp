@@ -762,6 +762,7 @@ int main(int argc, char **argv)
             HDF5File::HDF5Dataset *dataset;
             HDF5File::HDF5Group *group;
             bool flagGroup = false;
+            bool flagDataset = false;
 
             try {
                 group = hDF5ViewFile->openGroup(datasetName);
@@ -770,6 +771,11 @@ int main(int argc, char **argv)
                 //std::cerr << e.what() << std::endl;
                 std::cout << "Dataset is not a time series" << std::endl;
                 dataset = hDF5ViewFile->openDataset(datasetName);
+                hsize_t *size = dataset->getDims();
+                if (size[0] > nZ || size[1] > nY || size[1] > nX)
+                    std::cout << "Dataset is too large" << std::endl;
+                else
+                    flagDataset = true;
             }
 
             if (flagGroup) {
@@ -862,7 +868,7 @@ int main(int argc, char **argv)
 
                     cv::waitKey(0);
                 }
-            } else {
+            } else if (flagDataset) {
                 float minValueGlobal = dataset->getGlobalMinValueF();
                 float maxValueGlobal = dataset->getGlobalMaxValueF();
 
@@ -913,12 +919,14 @@ int main(int argc, char **argv)
 
                 if (width > height) {
                     int dstWidth = 300;
-                    cv::resize(imageL, imageLUP, cv::Size(dstWidth, imageL.size().height * dstWidth / imageL.size().width));
-                    cv::resize(imageG, imageGUP, cv::Size(dstWidth, imageG.size().height * dstWidth / imageG.size().width));
+                    cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                    cv::resize(imageL, imageLUP, size);
+                    cv::resize(imageG, imageGUP, size);
                 } else {
                     int dstHeight = 300;
-                    cv::resize(imageL, imageLUP, cv::Size(imageL.size().width * dstHeight / imageL.size().height, dstHeight));
-                    cv::resize(imageG, imageGUP, cv::Size(imageG.size().width * dstHeight / imageG.size().height, dstHeight));
+                    cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                    cv::resize(imageL, imageLUP, size);
+                    cv::resize(imageG, imageGUP, size);
                 }
 
                 cv::applyColorMap(imageL, imageL, cv::COLORMAP_JET);
@@ -935,8 +943,9 @@ int main(int argc, char **argv)
 
                 //cv::imwrite(datasetName + " local " + cutType + " " + std::to_string(cutIndex) + ".png", imageL);
                 //cv::imwrite(datasetName + " global " + cutType + " " + std::to_string(cutIndex) + ".png", imageG);
+            } else {
+                std::cout << "Dataset is not displayable" << std::endl;
             }
-
         } catch(std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);

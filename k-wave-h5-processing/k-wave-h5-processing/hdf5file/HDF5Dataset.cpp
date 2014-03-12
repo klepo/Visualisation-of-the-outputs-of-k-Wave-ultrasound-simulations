@@ -230,7 +230,7 @@ float *HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, 
         int t4 = clock();
         dataset.read(dataF, typeF, memspace, dataspace);
         int t5 = clock();
-        std::cout << name << "\tread time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        std::cout << name << "read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
         HDF5Dataset::getMinAndMaxValue(dataF, xC * yC * zC, minVF, maxVF);
     } catch(H5::DataSpaceIException error) {
@@ -282,7 +282,7 @@ uint64_t *HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t x
         int t4 = clock();
         dataset.read(dataI, typeI, memspace, dataspace);
         int t5 = clock();
-        std::cout << name << "\tread time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
         HDF5Dataset::getMinAndMaxValue(dataI, xC * yC * zC, minVI, maxVI);
     } catch(H5::DataSpaceIException error) {
