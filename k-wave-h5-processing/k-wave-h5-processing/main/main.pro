@@ -10,6 +10,15 @@ SOURCES += main.cpp
 
 TARGET = k-wave-h5-processing
 
+#QMAKE_CXXFLAGS_WARN_ON -= -W3
+#QMAKE_CXXFLAGS_WARN_ON += -W4
+
+#QMAKE_CFLAGS_WARN_ON -= -W3
+#QMAKE_CFLAGS_WARN_ON += -W4
+
+#QMAKE_CFLAGS_WARN_ON += -Wall
+#QMAKE_CXXFLAGS_WARN_ON += -Wall
+
 win32 {
 
     INCLUDEPATH += "E:/opencv-2.4.8/opencv/sources/new_build/install/include"
@@ -34,12 +43,12 @@ win32 {
             -lcomctl32 \
 #            -lole32 \
 #            -lvfw32 \
-#            -llibpngd \
-#            -llibtiffd \
+            -llibpngd \
+            -llibtiffd \
 #            -lzlibd \
-#            -lIlmImfd \
-#            -llibjasperd \
-#            -llibjpegd \
+            -lIlmImfd \
+            -llibjasperd \
+            -llibjpegd \
 
 
     }
@@ -55,6 +64,14 @@ win32 {
             -lgdi32 \
             -luser32 \
             -lcomctl32 \
+#            -lole32 \
+#            -lvfw32 \
+            -llibpng \
+            -llibtiff \
+#            -lzlibd \
+            -lIlmImf \
+            -llibjasper \
+            -llibjpeg \
     }
 
 }

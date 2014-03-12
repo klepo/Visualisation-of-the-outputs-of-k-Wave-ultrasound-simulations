@@ -26,18 +26,22 @@ public:
 
     void closeDataset(const H5std_string datasetName);
 
-    void createDatasetI(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = NULL);
-    void createDatasetF(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = NULL);
+    void createDatasetI(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);
+    void createDatasetF(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);
 
-    HDF5Group *getGroup(const H5std_string groupName);
-    void createGroup(const H5std_string groupName);
+    HDF5Group *openGroup(const H5std_string groupName);
+    HDF5Group *openGroup(hsize_t idx);
+
+    void closeGroup(const H5std_string groupName);
+
+    void createGroup(const H5std_string groupName, bool rewrite = false);
 
     void unlinkLocation(const H5std_string name);
 
     hsize_t getNumObjs();
 
-    void convertlinearTo3D(hsize_t index, hsize_t &x, hsize_t &y, hsize_t &z);
-    void convert3DToLinear(hsize_t &x, hsize_t &y, hsize_t &z, hsize_t index);
+    void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
+    void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
 
     static const H5std_string NT;
     static const H5std_string NX;
@@ -45,7 +49,8 @@ public:
     static const H5std_string NZ;
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
-    static const uint64_t HDF5File::SIZE_OF_DATA_PART = 1024*1024*5;
+    static const uint64_t SIZE_OF_DATA_PART = 1024*1024;
+    static hsize_t ZERO_CHUNK[3];
 
     uint64_t getNT();
     uint64_t getNX();

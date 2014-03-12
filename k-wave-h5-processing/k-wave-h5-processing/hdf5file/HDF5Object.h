@@ -21,9 +21,9 @@ public:
     uint64_t readAttributeI(const H5std_string name);
     H5std_string readAttributeS(const H5std_string name);
 
-    HDF5Attribute getAttribute(H5std_string name);
-    HDF5Attribute getAttribute(const unsigned int idx);
-    void setAttribute(HDF5Attribute attribute);
+    HDF5Attribute *getAttribute(H5std_string name);
+    HDF5Attribute *getAttribute(const unsigned int idx);
+    void setAttribute(HDF5Attribute *attribute);
 
     void removeAttribute(const unsigned int idx);
     void removeAttribute(H5std_string name);

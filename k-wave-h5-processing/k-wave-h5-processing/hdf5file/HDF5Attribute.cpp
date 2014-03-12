@@ -2,18 +2,17 @@
 
 HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(H5::Attribute attribute)
 {
-    type = attribute.getDataType();
-    size = attribute.getInMemDataSize();
-
     try {
+        type = attribute.getDataType();
+        size = attribute.getInMemDataSize();
         name = attribute.getName();
+        space = attribute.getSpace();
+        buffer = malloc(size);
+        attribute.read(type, buffer);
     } catch(H5::AttributeIException error) {
-        error.printError();
-        throw std::runtime_error(error.getCDetailMsg());
+           error.printError();
+           throw std::runtime_error(error.getCDetailMsg());
     }
-    space = attribute.getSpace();
-    buffer = malloc(size);
-    attribute.read(type, buffer);
 }
 
 HDF5File::HDF5Object::HDF5Attribute::~HDF5Attribute()

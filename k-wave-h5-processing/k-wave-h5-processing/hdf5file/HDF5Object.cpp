@@ -16,7 +16,7 @@ int HDF5File::HDF5Object::getNumAttrs()
     return object->getNumAttrs();
 }
 
-HDF5File::HDF5Object::HDF5Attribute HDF5File::HDF5Object::getAttribute(H5std_string name)
+HDF5File::HDF5Object::HDF5Attribute *HDF5File::HDF5Object::getAttribute(H5std_string name)
 {
     H5::Attribute attr;
     try {
@@ -28,10 +28,12 @@ HDF5File::HDF5Object::HDF5Attribute HDF5File::HDF5Object::getAttribute(H5std_str
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
     }
-    return HDF5Attribute(attr);
+    HDF5Attribute *at = new HDF5Attribute(attr);
+    attr.close();
+    return at;
 }
 
-HDF5File::HDF5Object::HDF5Attribute HDF5File::HDF5Object::getAttribute(const unsigned int idx)
+HDF5File::HDF5Object::HDF5Attribute *HDF5File::HDF5Object::getAttribute(const unsigned int idx)
 {
     H5::Attribute attr;
     try {
@@ -43,7 +45,9 @@ HDF5File::HDF5Object::HDF5Attribute HDF5File::HDF5Object::getAttribute(const uns
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
     }
-    return HDF5Attribute(attr);
+    HDF5Attribute *at = new HDF5Attribute(attr);
+    attr.close();
+    return at;
 }
 
 void HDF5File::HDF5Object::removeAttribute(const unsigned int idx)
@@ -68,11 +72,17 @@ void HDF5File::HDF5Object::removeAttribute(const H5std_string name)
     }
 }
 
-void HDF5File::HDF5Object::setAttribute(HDF5Attribute attribute)
+void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
 {
     try {
-        std::cout << "Creating attribute \"" << attribute.getName() << "\"";
-        object->createAttribute(attribute.getName(), attribute.getDataType(), attribute.getSpace()).write(attribute.getDataType() , attribute.getData());
+        object->removeAttr(attribute->getName());
+    } catch(H5::AttributeIException error) {
+
+    }
+
+    try {
+        std::cout << "Creating attribute \"" << attribute->getName() << "\"";
+        object->createAttribute(attribute->getName(), attribute->getDataType(), attribute->getSpace()).write(attribute->getDataType() , attribute->getData());
         std::cout << " ... OK" << std::endl;
     } catch(H5::AttributeIException error) {
         std::cout << " ... error" << std::endl;

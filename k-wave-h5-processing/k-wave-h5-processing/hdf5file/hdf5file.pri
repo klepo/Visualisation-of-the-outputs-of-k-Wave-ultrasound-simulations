@@ -27,7 +27,8 @@ win32 {
 unix {
 
     QMAKE_CXXFLAGS += -std=c++0x
-
+    QMAKE_LFLAGS += -Wl,-rpath,/usr/local/hdf5-1.8.11-serial/lib
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/hdf5-1.8.11-serial/lib
     INCLUDEPATH += "/usr/local/hdf5-1.8.11-serial/include"
 
     LIBS += -L"/usr/local/hdf5-1.8.11-serial/lib" \

@@ -6,10 +6,16 @@
 class HDF5File::HDF5Group : public HDF5File::HDF5Object
 {
 public:
-    HDF5Group(H5::Group group);
+    HDF5Group(H5::Group group, H5std_string name);
     ~HDF5Group();
+
+    H5std_string getName();
+    hsize_t getNumObjs();
+
 private:
     H5::Group group;
+    H5std_string name;
+
 };
 
 #endif // HDF5GROUP_H

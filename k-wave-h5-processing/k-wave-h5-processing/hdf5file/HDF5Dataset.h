@@ -15,17 +15,18 @@ public:
     float *read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float &minVF, float &maxVF);
     uint64_t *read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t &minVI, uint64_t &maxVI);
 
-    float *readDatasetF(hsize_t offset, hsize_t required_size, hsize_t &real_size);
-    uint64_t *readDatasetI(hsize_t offset, hsize_t required_size, hsize_t &real_size);
-
     void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data);
     void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data);
 
-    float *readBlockF(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float &minVFTmp, float &maxVFTmp);
+    float *readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float &minVFTmp, float &maxVFTmp);
+    uint64_t *readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
     void initBlockReading(hsize_t maxSize = HDF5File::SIZE_OF_DATA_PART);
+    void setOffset(hsize_t zO_, hsize_t yO_, hsize_t xO_);
 
     bool isLastBlock();
+
+    hsize_t getBlockSize();
 
     hsize_t getRank();
     hsize_t *getDims();
@@ -53,11 +54,14 @@ private:
 
     void checkOffsetAndCountParams(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
 
+    void recomputeBlock();
+
     hsize_t x,y,z;
     hsize_t xO, yO, zO;
     hsize_t xC, yC, zC;
     bool blockInitialized;
     bool lastBlock;
+    hsize_t blockSize;
 
     H5::DataSet dataset;
     H5::DataSpace dataspace;
