@@ -60,6 +60,11 @@ H5std_string HDF5File::HDF5Dataset::getName()
     return name;
 }
 
+hsize_t HDF5File::HDF5Dataset::getId()
+{
+    return dataset.getId();
+}
+
 hsize_t HDF5File::HDF5Dataset::getRank()
 {
     return rank;
@@ -138,8 +143,8 @@ float *HDF5File::HDF5Dataset::readFullDatasetF()
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " floats)"));
 
         try {
-            //delete [] dataF;
-            //dataF = NULL;
+            delete [] dataF;
+            dataF = NULL;
             dataF = new float[size](); // TODO kontrola dostupné paměti
         } catch (std::bad_alloc e) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " floats)").c_str());
@@ -150,7 +155,7 @@ float *HDF5File::HDF5Dataset::readFullDatasetF()
             int t4 = clock();
             dataset.read(dataF, typeF, memspace, dataspace);
             int t5 = clock();
-            std::cout << name << "\tread time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms;" << std::endl;
+            std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms;" << std::endl;
 
         } catch(H5::DataSetIException error) {
             error.printError();
@@ -170,8 +175,8 @@ uint64_t *HDF5File::HDF5Dataset::readFullDatasetI()
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " unsigned 64-bit integers)"));
 
         try {
-            //delete [] dataI;
-            //dataI = NULL;
+            delete [] dataI;
+            dataI = NULL;
             dataI = new uint64_t[size]();
         } catch (std::bad_alloc e) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " unsigned 64-bit integers)").c_str());
@@ -181,7 +186,7 @@ uint64_t *HDF5File::HDF5Dataset::readFullDatasetI()
             int t4 = clock();
             dataset.read(dataI, typeI, memspace, dataspace);
             int t5 = clock();
-            std::cout << name << "\tread time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms;" << std::endl;
+            std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms;" << std::endl;
 
         } catch(H5::DataSetIException error) {
             error.printError();
@@ -210,6 +215,8 @@ float *HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, 
     mem_offset[1] = 0;
     mem_offset[2] = 0;
 
+    float *dataF = NULL;
+
     if (xC * yC * zC > HDF5File::SIZE_OF_DATA_PART)
         throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " floats)"));
 
@@ -230,7 +237,7 @@ float *HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, 
         int t4 = clock();
         dataset.read(dataF, typeF, memspace, dataspace);
         int t5 = clock();
-        std::cout << name << "read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
         HDF5Dataset::getMinAndMaxValue(dataF, xC * yC * zC, minVF, maxVF);
     } catch(H5::DataSpaceIException error) {
@@ -261,6 +268,8 @@ uint64_t *HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t x
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
+
+    uint64_t *dataI = NULL;
 
     if (xC * yC * zC > HDF5File::SIZE_OF_DATA_PART)
         throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " unsigned 64-bit integers)"));
@@ -296,7 +305,7 @@ uint64_t *HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t x
     return dataI;
 }
 
-void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data)
+void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, bool log)
 {
     if (type_class != H5T_FLOAT) throw std::runtime_error("Wrong data type of dataset (not float)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
@@ -320,10 +329,14 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
         H5::DataSpace memspace(3, count);
         memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
 
-        int t4 = clock();
+        int t4, t5;
+        if (log)
+            t4 = clock();
         dataset.write(data, typeF, memspace, dataspace);
-        int t5 = clock();
-        std::cout << name << " write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        if (log)
+            t5 = clock();
+        if (log)
+            std::cout << name << " write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
     } catch(H5::DataSpaceIException error) {
         error.printError();
@@ -334,7 +347,7 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
     }
 }
 
-void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data)
+void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data, bool log)
 {
     if (type_class != H5T_INTEGER) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
@@ -358,10 +371,14 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
         H5::DataSpace memspace(3, count);
         memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
 
-        int t4 = clock();
+        int t4, t5;
+        if (log)
+            t4 = clock();
         dataset.write(data, typeI, memspace, dataspace);
-        int t5 = clock();
-        std::cout << name << " write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        if (log)
+            t5 = clock();
+        if (log)
+            std::cout << name << " write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
     } catch(H5::DataSpaceIException error) {
         error.printError();

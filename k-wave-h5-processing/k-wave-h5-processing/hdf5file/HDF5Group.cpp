@@ -14,6 +14,12 @@ HDF5File::HDF5Group::~HDF5Group()
 
 }
 
+hsize_t HDF5File::HDF5Group::getId()
+{
+    return group.getId();
+}
+
+
 H5std_string HDF5File::HDF5Group::getName()
 {
     return name;

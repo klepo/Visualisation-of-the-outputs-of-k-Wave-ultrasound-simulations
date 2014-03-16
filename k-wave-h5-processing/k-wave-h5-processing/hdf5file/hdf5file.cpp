@@ -19,12 +19,22 @@ HDF5File::HDF5File(std::string _filename, unsigned int flag)
         H5::FileAccPropList access_plist = H5::FileAccPropList::DEFAULT;
         H5::FileCreatPropList create_plist = H5::FileCreatPropList::DEFAULT;
         //list.setSieveBufSize(1048576);
-        //std::cout << "SieveBufSize: " << file.getAccessPlist().getSieveBufSize() << std::endl;
 
         if (flag == HDF5File::OPEN) {
             std::cout << "Opening file \"" << filename << "\"";
             file = H5::H5File(filename, H5F_ACC_RDWR, create_plist, access_plist);
             std::cout << " ... OK " << std::endl;
+
+            std::cout << "SieveBufSize: " << file.getAccessPlist().getSieveBufSize() << std::endl;
+            int mdc_nelmts;
+            size_t rdcc_nelmts;
+            size_t rdcc_nbytes;
+            double rdcc_w0;
+            file.getAccessPlist().getCache(mdc_nelmts, rdcc_nelmts, rdcc_nbytes, rdcc_w0);
+            std::cout << "mdc_nelmts: " << mdc_nelmts << std::endl;
+            std::cout << "rdcc_nelmts: " << rdcc_nelmts << std::endl;
+            std::cout << "rdcc_nbytes: " << rdcc_nbytes << std::endl;
+            std::cout << "rdcc_w0: " << rdcc_w0 << std::endl;
 
             insertDataset(HDF5File::NT);
             insertDataset(HDF5File::NX);

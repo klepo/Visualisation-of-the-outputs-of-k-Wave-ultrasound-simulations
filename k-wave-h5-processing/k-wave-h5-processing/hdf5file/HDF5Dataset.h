@@ -15,8 +15,8 @@ public:
     float *read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float &minVF, float &maxVF);
     uint64_t *read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t &minVI, uint64_t &maxVI);
 
-    void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data);
-    void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data);
+    void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, bool log = false);
+    void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data, bool log = false);
 
     float *readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float &minVFTmp, float &maxVFTmp);
     uint64_t *readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t &minVFTmp, uint64_t &maxVFTmp);
@@ -33,6 +33,7 @@ public:
     hsize_t *getChunkDims();
     hsize_t getSize();
 
+    hsize_t getId();
     H5std_string getName();
 
     void findAndSetGlobalMinAndMaxValue(bool reset = false);

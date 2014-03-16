@@ -5,14 +5,9 @@
 #include <QPainter>
 #include <opencv2/opencv.hpp>
 
-#include "dataset.h"
-#include "loadingthread.h"
-
-
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
-    isSetDataset = false;
-    thread = NULL;
+    clearFlag = false;
 }
 
 QSize CVImageWidget::sizeHint() const
@@ -43,64 +38,35 @@ void CVImageWidget::showImage(const cv::Mat &image)
     // (http://qt-project.org/doc/qt-4.8/qimage.html#QImage-6) is 3*width because each pixel
     // has three bytes.
     _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
-    if (width() > height())
-        _qimage = _qimage.scaledToWidth(height(), Qt::SmoothTransformation);
+    /*if (_tmp.cols > _tmp.rows)
+        _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
     else
-        _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
-
+        _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);*/
+    clearFlag = false;
     repaint();
 }
 
-void CVImageWidget::resizeEvent(QResizeEvent * event)
+void CVImageWidget::resizeEvent(QResizeEvent *)
 {
-
-    _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
-    if (width() > height())
-        _qimage = _qimage.scaledToWidth(height(), Qt::SmoothTransformation);
+    /*_qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
+    if (_tmp.cols > _tmp.rows)
+        _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
     else
-        _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
+        _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);*/
 }
 
-void CVImageWidget::setDataset(Dataset *dataset, int dim)
+void CVImageWidget::clearImage()
 {
-    _dataset = dataset;
-    isSetDataset = true;
-    _dim = dim; // TODO - check dim
-    if (thread != NULL && thread->isRunning()) {
-        //thread->terminate();
-        //thread->wait();
-        return;
-    }
-    thread = new LoadingThread(_dataset, _dim, 0);
-    qRegisterMetaType< cv::Mat >("cv::Mat");
-    connect(thread, SIGNAL(showImage(const cv::Mat &)), this, SLOT(showImage(const cv::Mat &)), Qt::QueuedConnection);
-    thread->start();
+    clearFlag = true;
+    repaint();
 }
 
-void CVImageWidget::unsetDataset()
-{
-    isSetDataset = false;
-}
-
-void CVImageWidget::reloadImage(int value)
-{
-    if (isSetDataset) {
-        if (thread != NULL && thread->isRunning()) {
-            //thread->terminate();
-            //thread->wait();
-            return;
-        }
-        thread = new LoadingThread(_dataset, _dim, value);
-        qRegisterMetaType< cv::Mat >("cv::Mat");
-        connect(thread, SIGNAL(showImage(const cv::Mat &)), this, SLOT(showImage(const cv::Mat &)), Qt::QueuedConnection);
-        thread->start();
-    }
-}
-
-void CVImageWidget::paintEvent(QPaintEvent* /*event*/)
+void CVImageWidget::paintEvent(QPaintEvent *)
 {
     // Display the image
     QPainter painter(this);
-    painter.drawImage(QPoint(0,0), _qimage);
+    painter.eraseRect(0, 0, width(), height());
+    if (!clearFlag)
+        painter.drawImage(QPoint(0,0), _qimage);
     painter.end();
 }

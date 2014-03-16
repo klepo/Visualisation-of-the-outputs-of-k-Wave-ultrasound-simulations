@@ -9,6 +9,7 @@ public:
     HDF5Group(H5::Group group, H5std_string name);
     ~HDF5Group();
 
+    hsize_t getId();
     H5std_string getName();
     hsize_t getNumObjs();
 
