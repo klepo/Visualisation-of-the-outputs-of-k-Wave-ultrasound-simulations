@@ -9,17 +9,17 @@ public:
     HDF5Dataset(H5::DataSet dataset, H5std_string name);
     ~HDF5Dataset();
 
-    float *readFullDatasetF();
-    uint64_t *readFullDatasetI();
+    void readFullDataset(float *&data);
+    void readFullDataset(uint64_t *&data);
 
-    float *read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float &minVF, float &maxVF);
-    uint64_t *read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t &minVI, uint64_t &maxVI);
+    void read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *&data, float &minVF, float &maxVF);
+    void read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI);
 
     void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, bool log = false);
     void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data, bool log = false);
 
-    float *readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float &minVFTmp, float &maxVFTmp);
-    uint64_t *readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t &minVFTmp, uint64_t &maxVFTmp);
+    void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
+    void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
     void initBlockReading(hsize_t maxSize = HDF5File::SIZE_OF_DATA_PART);
     void setOffset(hsize_t zO_, hsize_t yO_, hsize_t xO_);
@@ -29,9 +29,9 @@ public:
     hsize_t getBlockSize();
 
     hsize_t getRank();
+    hsize_t getSize();
     hsize_t *getDims();
     hsize_t *getChunkDims();
-    hsize_t getSize();
 
     hsize_t getId();
     H5std_string getName();
@@ -71,8 +71,8 @@ private:
     H5::FloatType typeF;
 
     hsize_t rank;
-    hsize_t *dims;
     hsize_t size;
+    hsize_t *dims;
     hsize_t *chunk_dims;
 
     H5std_string name;
@@ -82,9 +82,6 @@ private:
 
     float maxVF;
     float minVF;
-
-    uint64_t *dataI;
-    float *dataF;
 
     bool issetGlobalMinAndMaxValue;
 };

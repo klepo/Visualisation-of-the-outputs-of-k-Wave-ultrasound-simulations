@@ -97,9 +97,11 @@ private:
     float *dataYZ;
 
     uint64_t steps;
-    uint64_t currentStep;
 
     uint64_t sizeX, sizeY, sizeZ;
+    uint64_t posZ;
+    uint64_t posY;
+    uint64_t posX;
 
     int currentColormap;
 };

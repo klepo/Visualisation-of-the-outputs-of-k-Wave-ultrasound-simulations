@@ -8,6 +8,7 @@
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
     clearFlag = false;
+    point = QPoint(0, 0);
 }
 
 QSize CVImageWidget::sizeHint() const
@@ -20,8 +21,9 @@ QSize CVImageWidget::minimumSizeHint() const
     return _qimage.size();
 }
 
-void CVImageWidget::showImage(const cv::Mat &image)
+void CVImageWidget::showImage(const cv::Mat &image, QPoint _point)
 {
+    point = _point;
     // Convert the image to the RGB888 format
     switch (image.type()) {
     case CV_8UC1:
@@ -67,6 +69,6 @@ void CVImageWidget::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.eraseRect(0, 0, width(), height());
     if (!clearFlag)
-        painter.drawImage(QPoint(0,0), _qimage);
+        painter.drawImage(point, _qimage);
     painter.end();
 }

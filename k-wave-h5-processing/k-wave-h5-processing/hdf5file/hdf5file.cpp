@@ -43,14 +43,22 @@ HDF5File::HDF5File(std::string _filename, unsigned int flag)
 
             //Set dimensions
             uint64_t *data = NULL;
-            data = openDataset(HDF5File::NT)->readFullDatasetI();
+
+            openDataset(HDF5File::NT)->readFullDataset(data);
             nT = data[0];
-            data = openDataset(HDF5File::NX)->readFullDatasetI();
+            delete [] data;
+
+            openDataset(HDF5File::NX)->readFullDataset(data);
             nX = data[0];
-            data = openDataset(HDF5File::NY)->readFullDatasetI();
+            delete [] data;
+
+            openDataset(HDF5File::NY)->readFullDataset(data);
             nY = data[0];
-            data = openDataset(HDF5File::NZ)->readFullDatasetI();
+            delete [] data;
+
+            openDataset(HDF5File::NZ)->readFullDataset(data);
             nZ = data[0];
+            delete [] data;
 
             closeDataset(HDF5File::NT);
             closeDataset(HDF5File::NX);
@@ -130,13 +138,11 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
     try {
         H5::DataSpace dataspace((int) rank, size);
         H5::DataType datatype(H5::PredType::NATIVE_UINT64);
-
         H5::DSetCreatPropList list = H5::DSetCreatPropList::DEFAULT;
         if (chunk_size != HDF5File::ZERO_CHUNK)
             list.setChunk((int) rank, chunk_size);
         else
             list.setLayout(H5D_CONTIGUOUS);
-
         std::cout << "Creating dataset \"" << datasetName << "\"";
         if (rewrite) {
             try {
@@ -147,10 +153,7 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
         std::cout << " ... OK" << std::endl;
-
-    }
-    // catch failure caused by the H5File operations
-    catch(H5::FileIException error) {
+    } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
@@ -166,13 +169,11 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
     try {
         H5::DataSpace dataspace((int) rank, size);
         H5::DataType datatype(H5::PredType::NATIVE_FLOAT);
-
         H5::DSetCreatPropList list = H5::DSetCreatPropList::DEFAULT;
         if (chunk_size != HDF5File::ZERO_CHUNK)
             list.setChunk((int) rank, chunk_size);
         else
             list.setLayout(H5D_CONTIGUOUS);
-
         std::cout << "Creating dataset \"" << datasetName << "\"";
         if (rewrite) {
             try {
@@ -184,9 +185,7 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
         std::cout << " ... OK" << std::endl;
-    }
-    // catch failure caused by the H5File operations
-    catch (H5::FileIException error) {
+    } catch (H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());
@@ -211,9 +210,7 @@ void HDF5File::createGroup(const H5std_string name, bool rewrite)
         }
         file.createGroup(name);
         std::cout << " ... OK" << std::endl;
-    }
-    // catch failure caused by the H5File operations
-    catch(H5::FileIException error) {
+    } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
         throw std::runtime_error(error.getCDetailMsg());

@@ -52,8 +52,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     currentColormap = cv::COLORMAP_JET;
 
+    posZ = 0;
+    posY = 0;
+    posX = 0;
+
     steps = 0;
-    currentStep = 0;
 }
 
 MainWindow::~MainWindow()
@@ -170,6 +173,17 @@ void MainWindow::selectDataset()
     flagXZloaded = false;
     flagYZloaded = false;
 
+    ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
+    ui->groupBoxVolumeRendering->setEnabled(false);
+    ui->dockWidgetSelectedDataset->setEnabled(false);
+    ui->dockWidgetXY->setEnabled(false);
+    ui->dockWidgetXZ->setEnabled(false);
+    ui->dockWidgetYZ->setEnabled(false);
+
+    posZ = 0;
+    posY = 0;
+    posX = 0;
+
     // Find selected
     QList<QRadioButton *> list = ui->dockWidgetContentsDatasets->findChildren<QRadioButton *>();
     foreach(QRadioButton *rB, list) {
@@ -256,18 +270,22 @@ void MainWindow::selectDataset()
 
             steps = selectedGroup->readAttributeI("count");
 
-            ui->spinBoxSelectedDatasetStep->setMaximum(steps-1);
-            ui->spinBoxSelectedDatasetStep->setValue(0);
-            ui->horizontalSliderSelectedDatasetStep->setMaximum(steps-1);
-            ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Steps:"), new QLabel(QString::number(steps)));
 
             sizeZ = selectedGroup->readAttributeI("sizeZ");
             sizeY = selectedGroup->readAttributeI("sizeY");
             sizeX = selectedGroup->readAttributeI("sizeX");
+            posZ = selectedGroup->readAttributeI("positionZ");
+            posY = selectedGroup->readAttributeI("positionY");
+            posX = selectedGroup->readAttributeI("positionX");
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Size:"), new QLabel(QString::number(sizeZ) + " x " + QString::number(sizeY) + " x " + QString::number(sizeX)));
 
             selectedDataset = file->openDataset(selectedName + "/" + std::to_string(0));
+
+            ui->spinBoxSelectedDatasetStep->setMaximum(steps-1);
+            ui->spinBoxSelectedDatasetStep->setValue(0);
+            ui->horizontalSliderSelectedDatasetStep->setMaximum(steps-1);
+            ui->horizontalSliderSelectedDatasetStep->setValue(0);
 
             hsize_t *size;
             size = selectedDataset->getChunkDims();
@@ -287,6 +305,7 @@ void MainWindow::selectDataset()
             initSlices();
 
             ui->dockWidgetSelectedDataset->setEnabled(true);
+            ui->groupBoxSelectedDatasetTMSeries->setEnabled(true);
             ui->dockWidgetXY->setEnabled(true);
             ui->dockWidgetXZ->setEnabled(true);
             ui->dockWidgetYZ->setEnabled(true);
@@ -336,7 +355,9 @@ void MainWindow::loadXYSlice(hsize_t index)
     if (flagDatasetInitialized || flagGroupInitialized) {
         try {
             flagXYloaded = false;
-            dataXY = selectedDataset->read3DDataset(index, 0, 0, 1, sizeY, sizeX, minVXY, maxVXY);
+            delete [] dataXY;
+            dataXY = NULL;
+            selectedDataset->read3DDataset(index, 0, 0, 1, sizeY, sizeX, dataXY, minVXY, maxVXY);
             // TODO set min max sliders
             flagXYloaded = true;
             setImageXYFromData();
@@ -351,7 +372,9 @@ void MainWindow::loadXZSlice(hsize_t index)
     if (flagDatasetInitialized || flagGroupInitialized) {
         try {
             flagXZloaded = false;
-            dataXZ = selectedDataset->read3DDataset(0, index, 0, sizeZ, 1, sizeX, minVXZ, maxVXZ);
+            delete [] dataXZ;
+            dataXZ = NULL;
+            selectedDataset->read3DDataset(0, index, 0, sizeZ, 1, sizeX, dataXZ, minVXZ, maxVXZ);
             // TODO set min max sliders
             flagXZloaded = true;
             setImageXZFromData();
@@ -366,7 +389,9 @@ void MainWindow::loadYZSlice(hsize_t index)
     if (flagDatasetInitialized || flagGroupInitialized) {
         try {
             flagYZloaded = false;
-            dataYZ = selectedDataset->read3DDataset(0, 0, index, sizeZ, sizeY, 1, minVYZ, maxVYZ);
+            delete [] dataYZ;
+            dataYZ = NULL;
+            selectedDataset->read3DDataset(0, 0, index, sizeZ, sizeY, 1, dataYZ, minVYZ, maxVYZ);
             // TODO set min max sliders
             flagYZloaded = true;
             setImageYZFromData();
@@ -385,7 +410,7 @@ void MainWindow::setImageXYFromData()
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXY - minVXY), - minVXY * 255.0 /(maxVXY - minVXY));
         cv::applyColorMap(image, image, currentColormap);
-        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image);
+        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image, QPoint(posX, posY));
     }
 }
 
@@ -398,7 +423,7 @@ void MainWindow::setImageXZFromData()
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXZ - minVXZ), - minVXZ * 255.0 /(maxVXZ - minVXZ));
         cv::applyColorMap(image, image, currentColormap);
-        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image);
+        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image, QPoint(posX, posZ));
     }
 }
 
@@ -411,7 +436,7 @@ void MainWindow::setImageYZFromData()
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVYZ - minVYZ), - minVYZ * 255.0 /(maxVYZ - minVYZ));
         cv::applyColorMap(image, image, currentColormap);
-        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image);
+        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image, QPoint(posY, posZ));
     }
 }
 
@@ -425,6 +450,8 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     ui->dockWidgetSelectedDataset->setEnabled(false);
 
     ui->dockWidgetSelectedDataset->setEnabled(false);
+    ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
+    ui->groupBoxVolumeRendering->setEnabled(false);
     ui->dockWidget3D->setEnabled(false);
     ui->dockWidgetCT->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
@@ -467,7 +494,6 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     nZ = 0;
 
     steps = 0;
-    currentStep = 0;
 
     // Clear dataset info
     QLayoutItem* item;
@@ -528,7 +554,7 @@ void MainWindow::on_verticalSliderXZ_valueChanged(int value)
 void MainWindow::on_verticalSliderYZ_valueChanged(int value)
 {
     ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(value) + ")");
-    loadXYSlice(value);
+    loadYZSlice(value);
 
 }
 
@@ -640,9 +666,15 @@ void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
-    file->closeDataset(selectedDataset->getName());
-    selectedDataset = file->openDataset(selectedName + "/" + std::to_string(step));
-    loadXYSlice(ui->verticalSliderXY->value());
-    loadXZSlice(ui->verticalSliderXZ->value());
-    loadYZSlice(ui->verticalSliderXZ->value());
+    if (selectedGroup != NULL && selectedDataset != NULL) {
+        try {
+            file->closeDataset(selectedDataset->getName());
+            selectedDataset = file->openDataset(selectedName + "/" + std::to_string(step));
+            loadXYSlice(ui->verticalSliderXY->value());
+            loadXZSlice(ui->verticalSliderXZ->value());
+            loadYZSlice(ui->verticalSliderXZ->value());
+        } catch(std::exception &) {
+            std::cerr << "Wrong step" << std::endl;
+        }
+    }
 }

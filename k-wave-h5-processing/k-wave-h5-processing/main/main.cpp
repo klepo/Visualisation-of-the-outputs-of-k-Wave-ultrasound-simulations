@@ -69,7 +69,7 @@ std::string help = "\n"
                    "                                         the selected dimension.\n"
                    "\n"
                    "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
-                   "                                         and saves them to HDF5 simulation output or new file.\n"
+                   "                                         and saves them to new file.\n"
                    "\n"
                    "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
                    "\n"
@@ -257,7 +257,7 @@ int main(int argc, char **argv)
             std::cout << std::endl << std::endl << "---- Find and get sensor mask dataset ----" << std::endl << std::endl << std::endl;
             sensorMaskIndexDataset = hDF5SimulationOutputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
             sensorMaskFlag = true;
-        } catch(std::exception &e) {
+        } catch(std::exception &) {
             std::cout << "Sensor mask is not in simulation output file" << std::endl;
             // Try to load sensor mask from simulation input file
             if (simulationIutputFilename.empty()) {
@@ -271,7 +271,7 @@ int main(int argc, char **argv)
                     sensorMaskIndexDataset = hDF5SimulationInputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
                     if (sensorMaskIndexDataset->getDataType() == H5T_INTEGER)
                         sensorMaskFlag = true;
-                } catch(std::exception &e) {
+                } catch(std::exception &) {
                     //std::cerr << e.what() << std::endl;
                     std::cerr << "Sensor mask is not in simulation input file" << std::endl;
                     std::cout << help << std::endl;
@@ -308,7 +308,7 @@ int main(int argc, char **argv)
                     std::cout << "----> Mask type dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
                 } else
                     hDF5SimulationOutputFile->closeDataset(dataset->getName());
-            } catch(std::exception &e) {
+            } catch(std::exception &) {
                 std::cout << "Object " << i << " is not dataset" << std::endl;
                 // Reshaped mask type to group datasetsGroupType
                 try {
@@ -319,7 +319,7 @@ int main(int argc, char **argv)
                     uint64_t posZ = group->readAttributeI("positionZ");
                     datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
                     std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
-                } catch(std::exception &e) {
+                } catch(std::exception &) {
                     std::cout << "Object " << i << " is not reshaped group" << std::endl;
                 }
             }
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
         try {
             hDF5OutputFile = new HDF5File(outputFilename, HDF5File::OPEN);
             flagOF = true;
-        } catch(std::exception &e) {
+        } catch(std::exception &) {
             try {
                 hDF5OutputFile = new HDF5File(outputFilename, HDF5File::CREATE);
                 flagOF = true;
@@ -363,13 +363,14 @@ int main(int argc, char **argv)
                 hsize_t minZ = nZ;
                 hsize_t maxX = 0, maxY = 0, maxZ = 0;
                 sensorMaskIndexDataset->initBlockReading();
+
                 // Find min and max position
+                hsize_t index = 0, zM = 0, yM = 0, xM = 0;
                 do {
-                    data = sensorMaskIndexDataset->readBlock(zO, yO, xO, zC, yC, xC, minV, maxV);
+                    sensorMaskIndexDataset->readBlock(zO, yO, xO, zC, yC, xC, data, minV, maxV);
                     for (hsize_t z = 0; z < zC; z++)
                         for (hsize_t y = 0; y < yC; y++)
                             for (hsize_t x = 0; x < xC; x++) {
-                                hsize_t index = 0, zM = 0, yM = 0, xM = 0;
                                 index = data[x + y * xC + z * xC * yC];
                                 hDF5SimulationInputFile->convertlinearTo3D(index, zM, yM, xM);
                                 if (xM < minX) minX = xM;
@@ -381,14 +382,17 @@ int main(int argc, char **argv)
                             }
                     delete [] data;
                 } while (!sensorMaskIndexDataset->isLastBlock());
+
                 std::cout << "   min point:\t" << " z: " << minZ << "\ty: " << minY << "\tx: " << minX << std::endl;
                 std::cout << "   max point:\t" << " z: " << maxZ << "\ty: " << maxY << "\tx: " << maxX << std::endl;
 
+                // Find first and last point TODO
                 hsize_t *size = sensorMaskIndexDataset->getDims();
                 hsize_t firstX = 0, firstY = 0, firstZ = 0, lastX = 0, lastY = 0, lastZ = 0;
-                data = sensorMaskIndexDataset->read3DDataset(0, 0, 0, 1, 1, 1, minV, maxV);
+                sensorMaskIndexDataset->read3DDataset(0, 0, 0, 1, 1, 1, data, minV, maxV);
                 hDF5SimulationInputFile->convertlinearTo3D(data[0], firstZ, firstY, firstX);
-                data = sensorMaskIndexDataset->read3DDataset(size[0]-1, size[1]-1, size[2]-1, 1, 1, 1, minV, maxV);
+                delete [] data;
+                sensorMaskIndexDataset->read3DDataset(size[0]-1, size[1]-1, size[2]-1, 1, 1, 1, data, minV, maxV);
                 hDF5SimulationInputFile->convertlinearTo3D(data[0], lastZ, lastY, lastX);
                 delete [] data;
                 std::cout << "   first point:\t" << " z: " << firstZ << "\ty: " << firstY << "\tx: " << firstX << std::endl;
@@ -407,8 +411,6 @@ int main(int argc, char **argv)
                 // For every mask type dataset
                 for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsMaskType.begin(); it != datasetsMaskType.end(); ++it) {
                     HDF5File::HDF5Dataset *dataset = it->second;
-
-                    //if (dataset->getName() == "p") continue; // TODO
 
                     uint64_t *sensorMaskData;
                     float *datasetData;
@@ -433,6 +435,9 @@ int main(int argc, char **argv)
                     hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(0), 3, datasetSize, chunkSize, true);
                     HDF5File::HDF5Dataset *actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(0));
 
+                    hsize_t index = 0, zM = 0, yM = 0, xM = 0;
+                    float data[1];
+
                     do {
                         if (sensorMaskIndexDataset->isLastBlock()) {
                             if (MAX_NUMBER_OF_FRAMES > 0) // TODO
@@ -456,24 +461,25 @@ int main(int argc, char **argv)
                             actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO+1));
                         }
 
-                        sensorMaskData = sensorMaskIndexDataset->readBlock(zO, yMO, xO, zC, yC, xC, minVI, maxVI);
-                        datasetData = dataset->readBlock(zO, yDO, xO, zC, yC, xC, minVF, maxVF);
+                        sensorMaskIndexDataset->readBlock(zO, yMO, xO, zC, yC, xC, sensorMaskData, minVI, maxVI);
+                        dataset->readBlock(zO, yDO, xO, zC, yC, xC, datasetData, minVF, maxVF);
 
                         int t4 = clock();
                         for (hsize_t z = 0; z < zC; z++)
                             for (hsize_t y = 0; y < yC; y++)
                                 for (hsize_t x = 0; x < xC; x++) {
-                                    hsize_t index = 0, zM = 0, yM = 0, xM = 0;
                                     index = sensorMaskData[x + y * xC + z * xC * yC];
                                     hDF5SimulationInputFile->convertlinearTo3D(index, zM, yM, xM);
-                                    float data[1];
                                     data[0] = datasetData[x + y * xC + z * xC * yC];
                                     actualDataset->write3DDataset(zM - minZ, yM - minY, xM - minX, 1, 1, 1, data, false);
                                 }
                         int t5 = clock();
+
                         std::cout << "write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << std::endl;
+
                         delete [] sensorMaskData;
                         delete [] datasetData;
+
                     } while (!dataset->isLastBlock());
 
                     actualDataset->findAndSetGlobalMinAndMaxValue();
@@ -509,7 +515,7 @@ int main(int argc, char **argv)
                     uint64_t posZ = group->readAttributeI("positionZ");
                     datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
                     std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
-                } catch(std::exception &e) {
+                } catch(std::exception &) {
                     std::cout << "Object " << i << " is not reshaped group" << std::endl;
                 }
             }
@@ -538,8 +544,9 @@ int main(int argc, char **argv)
                     hsize_t xO, yO, zO, xC, yC, zC;
                     srcDataset->initBlockReading();
                     do {
-                        data = srcDataset->readBlock(zO, yO, xO, zC, yC, xC, minV, maxV);
+                        srcDataset->readBlock(zO, yO, xO, zC, yC, xC, data, minV, maxV);
                         dstDataset->write3DDataset(zO, yO, xO, zC, yC, xC, data);
+                        delete [] data;
                         if (first) {
                             minValueGlobal = minV;
                             maxValueGlobal = maxV;
@@ -547,7 +554,6 @@ int main(int argc, char **argv)
                         }
                         if (minValueGlobal > minV) minValueGlobal = minV;
                         if (maxValueGlobal < maxV) maxValueGlobal = maxV;
-                        delete [] data;
                     } while (!srcDataset->isLastBlock());
                     dstDataset->setAttribute("min", minValueGlobal);
                     dstDataset->setAttribute("max", maxValueGlobal);
@@ -642,43 +648,40 @@ int main(int argc, char **argv)
                     float minV, maxV;
 
                     for (unsigned int z = 0; z < nZ; z++) {
-                        srcData = srcDataset->read3DDataset(z, 0, 0, 1, nY, nX, minV, maxV);
+                        srcDataset->read3DDataset(z, 0, 0, 1, nY, nX, srcData, minV, maxV);
                         cv::Mat image = cv::Mat((int) nY, (int) nX, CV_32FC1, srcData); // rows, cols (height, width)
                         cv::resize(image, image, cv::Size((int) nXd, (int) nYd));
                         dstData = (float *) image.data;
                         dstDataset->write3DDataset(z, 0, 0, 1, nYd, nXd, dstData);
+                        image.release();
+                        delete [] srcData;
+                        delete [] dstData;
                     }
 
                     for (unsigned int y = 0; y < nYd; y++) {
-                        srcData = dstDataset->read3DDataset(0, y, 0, nZ, 1, nXd, minV, maxV);
+                        dstDataset->read3DDataset(0, y, 0, nZ, 1, nXd, srcData, minV, maxV);
                         cv::Mat image = cv::Mat((int) nZ, (int) nXd, CV_32FC1, srcData); // rows, cols (height, width)
                         cv::resize(image, image, cv::Size((int) nXd, (int) nZd));
                         dstData = (float *) image.data;
                         dstDatasetFinal->write3DDataset(0, y, 0, nZd, 1, nXd, dstData);
+                        image.release();
+                        delete [] srcData;
+                        delete [] dstData;
                     }
                     dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
                     dstDatasetFinal->setAttribute("dwnsmpl", (uint64_t) maxSize);
                     dstDatasetFinal->setAttribute("src_dataset_name", srcDataset->getName());
                     dstDatasetFinal->setAttribute("src_dataset_id", srcDataset->getId());
-                    delete [] srcData;
-                    delete [] dstData;
-
                 }
 
                 // For every reshaped mask type
                 for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsGroupType.begin(); it != datasetsGroupType.end(); ++it) {
-
                     HDF5File::HDF5Group *srcGroup = it->second;
-
                     tmpFile->createGroup(srcGroup->getName());
-
                     //HDF5File::HDF5Group *dstGroup = tmpFile->openGroup(srcGroup->getName());
-
                     hDF5OutputFile->createGroup(srcGroup->getName() + "_" + std::to_string(maxSize), true);
                     HDF5File::HDF5Group *dstGroupFinal = hDF5OutputFile->openGroup(srcGroup->getName() + "_" + std::to_string(maxSize));
-
                     hsize_t count = srcGroup->getNumObjs();
-
                     float minVG, maxVG;
 
                     // Compute new size
@@ -726,19 +729,25 @@ int main(int argc, char **argv)
                         float minV, maxV;
 
                         for (unsigned int z = 0; z < nZ; z++) {
-                            srcData = srcDataset->read3DDataset(z, 0, 0, 1, nY, nX, minV, maxV);
+                            srcDataset->read3DDataset(z, 0, 0, 1, nY, nX, srcData, minV, maxV);
                             cv::Mat image = cv::Mat((int) nY, (int) nX, CV_32FC1, srcData); // rows, cols (height, width)
                             cv::resize(image, image, cv::Size((int) nXd, (int) nYd));
                             dstData = (float *) image.data;
                             dstDataset->write3DDataset(z, 0, 0, 1, nYd, nXd, dstData);
+                            image.release();
+                            delete [] srcData;
+                            delete [] dstData;
                         }
 
                         for (unsigned int y = 0; y < nYd; y++) {
-                            srcData = dstDataset->read3DDataset(0, y, 0, nZ, 1, nXd, minV, maxV);
+                            dstDataset->read3DDataset(0, y, 0, nZ, 1, nXd, srcData, minV, maxV);
                             cv::Mat image = cv::Mat((int) nZ, (int) nXd, CV_32FC1, srcData); // rows, cols (height, width)
                             cv::resize(image, image, cv::Size((int) nXd, (int) nZd));
                             dstData = (float *) image.data;
                             dstDatasetFinal->write3DDataset(0, y, 0, nZd, 1, nXd, dstData);
+                            image.release();
+                            delete [] srcData;
+                            delete [] dstData;
                         }
 
                         dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
@@ -746,9 +755,6 @@ int main(int argc, char **argv)
                         if (maxVG < dstDatasetFinal->getGlobalMaxValueF()) maxVG = dstDatasetFinal->getGlobalMaxValueF();
                         hDF5OutputFile->closeDataset(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i));
                         hDF5OutputFile->closeDataset(srcDataset->getName());
-
-                        delete [] srcData;
-                        delete [] dstData;
                     }
 
                     dstGroupFinal->setAttribute("count", (uint64_t) count);
@@ -785,7 +791,7 @@ int main(int argc, char **argv)
             try {
                 group = hDF5ViewFile->openGroup(datasetName);
                 flagGroup = true;
-            } catch(std::exception &e) {
+            } catch(std::exception &) {
                 //std::cerr << e.what() << std::endl;
                 std::cout << "Dataset is not a time series" << std::endl;
                 dataset = hDF5ViewFile->openDataset(datasetName);
@@ -827,19 +833,19 @@ int main(int argc, char **argv)
                     if (cutType == "YX") {
                         if (cutIndex >= size[0])
                             throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex) + " >= " + std::to_string(size[0]));
-                        data = dataset->read3DDataset(cutIndex, 0, 0, 1, size[1], size[2], minValue, maxValue); // YX
+                        dataset->read3DDataset(cutIndex, 0, 0, 1, size[1], size[2], data, minValue, maxValue); // YX
                         height = size[1];
                         width = size[2];
                     } else if (cutType == "ZX") {
                         if (cutIndex >= size[1])
                             throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex) + " >= " + std::to_string(size[1]));
-                        data = dataset->read3DDataset(0, cutIndex, 0, size[0], 1, size[2], minValue, maxValue); // ZX
+                        dataset->read3DDataset(0, cutIndex, 0, size[0], 1, size[2], data, minValue, maxValue); // ZX
                         height = size[0];
                         width = size[2];
                     } else if (cutType == "ZY") {
                         if (cutIndex >= size[2])
                             throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex) + " >= " + std::to_string(size[2]));
-                        data = dataset->read3DDataset(0, 0, cutIndex, size[0], size[1], 1, minValue, maxValue); // ZY
+                        dataset->read3DDataset(0, 0, cutIndex, size[0], size[1], 1, data, minValue, maxValue); // ZY
                         height = size[0];
                         width = size[1];
                     } else
@@ -885,7 +891,9 @@ int main(int argc, char **argv)
                     cv::imshow(datasetName + " series global " + cutType + " " + std::to_string(cutIndex), imageGG);
 
                     cv::waitKey(0);
-
+                    imageL.release();
+                    imageGG.release();
+                    imageG.release();
                     delete [] data;
                 }
             } else if (flagDataset) {
@@ -906,19 +914,19 @@ int main(int argc, char **argv)
                 if (cutType == "YX") {
                     if (cutIndex >= size[0])
                         throw std::runtime_error("Wrong cutIndex - is too big");
-                    data = dataset->read3DDataset(cutIndex, 0, 0, 1, size[1], size[2], minValue, maxValue); // YX
+                    dataset->read3DDataset(cutIndex, 0, 0, 1, size[1], size[2], data, minValue, maxValue); // YX
                     height = size[1];
                     width = size[2];
                 } else if (cutType == "ZX") {
                     if (cutIndex >= size[1])
                         throw std::runtime_error("Wrong cutIndex - is too big");
-                    data = dataset->read3DDataset(0, cutIndex, 0, size[0], 1, size[2], minValue, maxValue); // ZX
+                    dataset->read3DDataset(0, cutIndex, 0, size[0], 1, size[2], data, minValue, maxValue); // ZX
                     height = size[0];
                     width = size[2];
                 } else if (cutType == "ZY") {
                     if (cutIndex >= size[2])
                         throw std::runtime_error("Wrong cutIndex - is too big");
-                    data = dataset->read3DDataset(0, 0, cutIndex, size[0], size[1], 1, minValue, maxValue); // ZY
+                    dataset->read3DDataset(0, 0, cutIndex, size[0], size[1], 1, data, minValue, maxValue); // ZY
                     height = size[0];
                     width = size[1];
                 } else
@@ -964,6 +972,10 @@ int main(int argc, char **argv)
                 //cv::imwrite(datasetName + " local " + cutType + " " + std::to_string(cutIndex) + ".png", imageL);
                 //cv::imwrite(datasetName + " global " + cutType + " " + std::to_string(cutIndex) + ".png", imageG);
 
+                imageLUP.release();
+                imageGUP.release();
+                imageG.release();
+                imageL.release();
                 delete [] data;
             } else {
                 std::cout << "Dataset is not displayable" << std::endl;

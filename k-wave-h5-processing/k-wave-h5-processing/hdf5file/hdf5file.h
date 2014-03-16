@@ -36,7 +36,7 @@ public:
 
     void createGroup(const H5std_string groupName, bool rewrite = false);
 
-    void unlinkLocation(const H5std_string name);
+    //void unlinkLocation(const H5std_string name);
 
     hsize_t getNumObjs();
 
