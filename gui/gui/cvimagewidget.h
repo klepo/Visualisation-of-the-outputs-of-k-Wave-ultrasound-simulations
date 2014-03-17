@@ -1,7 +1,7 @@
 #ifndef CVIMAGEWIDGET_H
 #define CVIMAGEWIDGET_H
 
-#include <QWidget>
+#include <QScrollArea>
 #include <QImage>
 #include <QPainter>
 #include <opencv2/opencv.hpp>
@@ -19,9 +19,10 @@ public:
 
 signals:
     void imageResized(int width, int height);
+    void clickedPointInImage(int x, int y);
 
 public slots:
-    void showImage(const cv::Mat& image, QPoint = QPoint(0,0));
+    void showImage(const cv::Mat& image, QPoint = QPoint(0,0), bool adjust = true);
     void clearImage();
 
 private:
@@ -30,9 +31,12 @@ private:
     cv::Mat _tmp;
     bool clearFlag;
     QPoint point;
+    bool adjustFlag;
     bool isSetImage;
     void resizeEvent(QResizeEvent *);
     void paintEvent(QPaintEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+
 };
 
 #endif // CVIMAGEWIDGET_H

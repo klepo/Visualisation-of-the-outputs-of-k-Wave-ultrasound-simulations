@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <opencv2/opencv.hpp>
 #include <QDebug>
+#include <QMouseEvent>
+#include <QToolTip>
 
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
@@ -23,9 +25,10 @@ QSize CVImageWidget::minimumSizeHint() const
     return _qimage.size();
 }
 
-void CVImageWidget::showImage(const cv::Mat &image, QPoint _point)
+void CVImageWidget::showImage(const cv::Mat &image, QPoint _point, bool adjust)
 {
     point = _point;
+    adjustFlag = adjust;
     // Convert the image to the RGB888 format
     switch (image.type()) {
     case CV_8UC1:
@@ -43,11 +46,18 @@ void CVImageWidget::showImage(const cv::Mat &image, QPoint _point)
     // has three bytes.
     _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
     isSetImage = true;
-    if (point.x() == 0 && point.y() == 0) {
+    if (point.x() == 0 && point.y() == 0 && adjustFlag) {
         if ((double) _tmp.cols / _tmp.rows >= (double) width() / height())
             _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
         else
             _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
+        setMinimumWidth(10);
+        setMinimumHeight(10);
+    } else {
+        if (_tmp.cols + point.x() > width())
+            setMinimumWidth(_tmp.cols + point.x());
+        if (_tmp.rows + point.y() > height())
+            setMinimumHeight(_tmp.rows + point.y());
     }
     clearFlag = false;
     repaint();
@@ -56,16 +66,38 @@ void CVImageWidget::showImage(const cv::Mat &image, QPoint _point)
 void CVImageWidget::resizeEvent(QResizeEvent *)
 {
     if (isSetImage) {
-        if (point.x() == 0 && point.y() == 0) {
+        if (point.x() == 0 && point.y() == 0 && adjustFlag) {
             _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
-            //qDebug() << (double) _tmp.cols / _tmp.rows << "   " <<  (double) width() / height();
             if ((double) _tmp.cols / _tmp.rows >= (double) width() / height())
                 _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
             else
                 _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
             //emit imageResized(_qimage.width(),_qimage.height());
+            setMinimumWidth(10);
+            setMinimumHeight(10);
+        } else {
+            if ((_tmp.cols + point.x()) > width())
+                setMinimumWidth(_tmp.cols + point.x());
+            if ((_tmp.rows + point.y()) > height())
+                setMinimumHeight(_tmp.rows + point.y());
         }
     }
+}
+
+void CVImageWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (isSetImage) {
+        //qDebug() << "orig:" << event->pos().x() << event->pos().y();
+        QPoint p;
+        p.setX((event->pos().x() - point.x()) * _tmp.cols / _qimage.width());
+        p.setY((event->pos().y() - point.y()) * _tmp.rows / _qimage.height());
+        //qDebug() << p.x() << p.y();
+        if (p.x() >= 0 && p.x() <= _tmp.cols && p.y() >= 0 && p.y() <= _tmp.rows) {
+            //QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this, rect());
+            emit clickedPointInImage(p.x(), p.y());
+        }
+    }
+    QWidget::mouseMoveEvent(event);
 }
 
 void CVImageWidget::clearImage()

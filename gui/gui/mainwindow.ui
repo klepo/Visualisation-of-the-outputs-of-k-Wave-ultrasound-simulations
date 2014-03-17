@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>964</width>
-    <height>667</height>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -53,9 +53,6 @@
         <width>244</width>
         <height>200</height>
        </size>
-      </property>
-      <property name="toolTip">
-       <string>Rotate about 90 degrees - orthogonal to Z axis</string>
       </property>
       <property name="features">
        <set>QDockWidget::AllDockWidgetFeatures</set>
@@ -191,6 +188,12 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>400</width>
+     <height>91</height>
+    </size>
+   </property>
    <property name="floating">
     <bool>false</bool>
    </property>
@@ -235,8 +238,8 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-300</y>
-          <width>399</width>
+          <y>-164</y>
+          <width>383</width>
           <height>632</height>
          </rect>
         </property>
@@ -418,6 +421,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="checkBoxUseGlobal">
+           <property name="text">
+            <string>Use global minimal and maximal values</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
             <string>Global minimal and maximal value:</string>
@@ -447,14 +457,20 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxMinGlobal">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMinGlobal">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxMaxGlobal">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMaxGlobal">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
@@ -512,13 +528,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxUseGlobal">
-           <property name="text">
-            <string>Use global values</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="groupBoxXY">
            <property name="font">
             <font>
@@ -544,14 +553,20 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxXYMax">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXYMax">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxXYMin">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXYMin">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
@@ -642,7 +657,10 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxXZMax">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXZMax">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
@@ -665,7 +683,10 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxXZMin">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXZMin">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
@@ -700,7 +721,10 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxYZMax">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxYZMax">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
@@ -737,7 +761,10 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxYZMin">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxYZMin">
+              <property name="decimals">
+               <number>4</number>
+              </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
               </property>
@@ -1053,7 +1080,23 @@ p, li { white-space: pre-wrap; }
      </sizepolicy>
     </property>
     <layout class="QGridLayout" name="gridLayoutCT">
-     <item row="3" column="2" colspan="3">
+     <item row="3" column="0">
+      <widget class="QLabel" name="labelCTAlpha">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Alpha:</string>
+       </property>
+       <property name="buddy">
+        <cstring>doubleSpinBoxCTAlpha</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2" colspan="4">
       <widget class="QSlider" name="horizontalSliderCTAlpha">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1085,110 +1128,118 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelCTAlpha">
+     <item row="0" column="5">
+      <widget class="QWidget" name="widget" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="text">
-        <string>Alpha:</string>
-       </property>
-       <property name="buddy">
-        <cstring>doubleSpinBoxCTAlpha</cstring>
-       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="pushButtonCTRotateX">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Rotate about 90 degrees - orthogonal to Z axis</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/icons/images/icons_21.png</normaloff>:/icons/icons/images/icons_21.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonCTRotateY">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Rotate about 90 degrees - orthogonal to Y axis</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/icons/images/icons_23.png</normaloff>:/icons/icons/images/icons_23.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonCTRotateZ">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Rotate about 90 degrees - orthogonal to X axis</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/icons/icons/images/icons_22.png</normaloff>:/icons/icons/images/icons_22.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pushButtonCTRotateX">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Rotate about 90 degrees - orthogonal to Z axis</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_21.png</normaloff>:/icons/icons/images/icons_21.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="pushButtonCTRotateY">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Rotate about 90 degrees - orthogonal to Y axis</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_23.png</normaloff>:/icons/icons/images/icons_23.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pushButtonCTRotateZ">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Rotate about 90 degrees - orthogonal to X axis</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_22.png</normaloff>:/icons/icons/images/icons_22.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
+     <item row="0" column="0" colspan="4">
       <widget class="QCheckBox" name="checkBoxCTView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1205,6 +1256,12 @@ p, li { white-space: pre-wrap; }
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetXY">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>150</height>
+    </size>
+   </property>
    <property name="font">
     <font>
      <weight>75</weight>
@@ -1243,39 +1300,15 @@ p, li { white-space: pre-wrap; }
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="toolButtonFillXY">
-       <property name="toolTip">
-        <string>Auto size of image</string>
-       </property>
-       <property name="text">
-        <string>Auto size of image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="4">
-      <widget class="CVImageWidget" name="imageWidgetXY" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>150</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3" colspan="2" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXY"/>
-     </item>
-     <item row="1" column="4">
+     <item row="1" column="5">
       <widget class="QSlider" name="verticalSliderXY">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
+     </item>
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxXY"/>
      </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonXYSave">
@@ -1294,6 +1327,23 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButtonFillXY">
+       <property name="toolTip">
+        <string>Auto size of image</string>
+       </property>
+       <property name="text">
+        <string>Auto size of image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="2">
       <widget class="QToolButton" name="toolButtonPositionXY">
        <property name="text">
@@ -1303,12 +1353,68 @@ p, li { white-space: pre-wrap; }
         <iconset resource="resources.qrc">
          <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
        </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="5">
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>178</width>
+          <height>174</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="CVImageWidget" name="imageWidgetXY" native="true">
+           <property name="cursor">
+            <cursorShape>CrossCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetXZ">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>150</height>
+    </size>
+   </property>
    <property name="font">
     <font>
      <weight>75</weight>
@@ -1347,23 +1453,7 @@ p, li { white-space: pre-wrap; }
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="2" column="0" colspan="4">
-      <widget class="CVImageWidget" name="imageWidgetXZ" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>150</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3" colspan="2" alignment="Qt::AlignRight">
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
       <widget class="QSpinBox" name="spinBoxXZ"/>
      </item>
      <item row="0" column="0">
@@ -1383,6 +1473,20 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButtonPositionXZ">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="QToolButton" name="toolButtonFillXZ">
        <property name="toolTip">
@@ -1395,30 +1499,75 @@ p, li { white-space: pre-wrap; }
         <iconset resource="resources.qrc">
          <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
        </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
-     <item row="2" column="4">
+     <item row="2" column="5">
       <widget class="QSlider" name="verticalSliderXZ">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="toolButtonPositionXZ">
-       <property name="text">
-        <string>...</string>
+     <item row="2" column="0" colspan="5">
+      <widget class="QScrollArea" name="scrollArea_2">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       <property name="widgetResizable">
+        <bool>true</bool>
        </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>178</width>
+          <height>106</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="CVImageWidget" name="imageWidgetXZ" native="true">
+           <property name="cursor">
+            <cursorShape>CrossCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetYZ">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>150</height>
+    </size>
+   </property>
    <property name="font">
     <font>
      <weight>75</weight>
@@ -1460,19 +1609,17 @@ p, li { white-space: pre-wrap; }
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="3" column="0" colspan="4">
-      <widget class="CVImageWidget" name="imageWidgetYZ" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButtonPositionYZ">
+       <property name="text">
+        <string>...</string>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>150</height>
-        </size>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1488,14 +1635,20 @@ p, li { white-space: pre-wrap; }
         <iconset resource="resources.qrc">
          <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
        </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
-     <item row="3" column="4">
+     <item row="3" column="5">
       <widget class="QSlider" name="verticalSliderYZ">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
+     </item>
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxYZ"/>
      </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonYZSave">
@@ -1514,18 +1667,51 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="3" colspan="2" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxYZ"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="toolButtonPositionYZ">
-       <property name="text">
-        <string>...</string>
+     <item row="3" column="0" colspan="5">
+      <widget class="QScrollArea" name="scrollArea_3">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       <property name="widgetResizable">
+        <bool>true</bool>
        </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>178</width>
+          <height>106</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="CVImageWidget" name="imageWidgetYZ" native="true">
+           <property name="cursor">
+            <cursorShape>CrossCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -1757,7 +1943,13 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
    <slots>
     <signal>imageResized(int,int)</signal>
+    <signal>clickedPointInImage(int,int)</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>QDoubleSpinBoxTS</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">qdoublespinboxts.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -1816,11 +2008,11 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
-     <y>314</y>
+     <x>225</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
-     <x>346</x>
+     <x>225</x>
      <y>105</y>
     </hint>
    </hints>
@@ -1832,12 +2024,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
-     <y>571</y>
+     <x>225</x>
+     <y>451</y>
     </hint>
     <hint type="destinationlabel">
-     <x>346</x>
-     <y>358</y>
+     <x>225</x>
+     <y>300</y>
     </hint>
    </hints>
   </connection>
@@ -1848,12 +2040,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
-     <y>824</y>
+     <x>225</x>
+     <y>646</y>
     </hint>
     <hint type="destinationlabel">
-     <x>346</x>
-     <y>615</y>
+     <x>225</x>
+     <y>495</y>
     </hint>
    </hints>
   </connection>
@@ -1864,12 +2056,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
+     <x>225</x>
      <y>105</y>
     </hint>
     <hint type="destinationlabel">
-     <x>346</x>
-     <y>314</y>
+     <x>225</x>
+     <y>256</y>
     </hint>
    </hints>
   </connection>
@@ -1880,12 +2072,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
-     <y>358</y>
+     <x>225</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
-     <x>346</x>
-     <y>571</y>
+     <x>225</x>
+     <y>451</y>
     </hint>
    </hints>
   </connection>
@@ -1896,12 +2088,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>346</x>
-     <y>615</y>
+     <x>225</x>
+     <y>495</y>
     </hint>
     <hint type="destinationlabel">
-     <x>346</x>
-     <y>824</y>
+     <x>225</x>
+     <y>646</y>
     </hint>
    </hints>
   </connection>
@@ -1912,12 +2104,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>59</y>
+     <x>937</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>929</x>
-     <y>167</y>
+     <x>937</x>
+     <y>357</y>
     </hint>
    </hints>
   </connection>
@@ -1928,12 +2120,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>59</y>
+     <x>937</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>929</x>
-     <y>252</y>
+     <x>937</x>
+     <y>442</y>
     </hint>
    </hints>
   </connection>
@@ -1944,12 +2136,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>59</y>
+     <x>937</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
-     <x>929</x>
-     <y>337</y>
+     <x>937</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -1960,12 +2152,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>82</y>
+     <x>937</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>929</x>
-     <y>167</y>
+     <x>937</x>
+     <y>357</y>
     </hint>
    </hints>
   </connection>
@@ -1976,12 +2168,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>82</y>
+     <x>937</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>929</x>
-     <y>252</y>
+     <x>937</x>
+     <y>442</y>
     </hint>
    </hints>
   </connection>
@@ -1992,12 +2184,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>82</y>
+     <x>937</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>929</x>
-     <y>337</y>
+     <x>937</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -2012,8 +2204,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>955</x>
-     <y>729</y>
+     <x>963</x>
+     <y>551</y>
     </hint>
    </hints>
   </connection>
@@ -2024,12 +2216,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>819</x>
-     <y>386</y>
+     <x>645</x>
+     <y>635</y>
     </hint>
     <hint type="destinationlabel">
-     <x>919</x>
-     <y>385</y>
+     <x>927</x>
+     <y>635</y>
     </hint>
    </hints>
   </connection>
@@ -2040,12 +2232,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>919</x>
-     <y>385</y>
+     <x>927</x>
+     <y>635</y>
     </hint>
     <hint type="destinationlabel">
-     <x>819</x>
-     <y>386</y>
+     <x>645</x>
+     <y>635</y>
     </hint>
    </hints>
   </connection>
@@ -2060,8 +2252,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>955</x>
-     <y>824</y>
+     <x>963</x>
+     <y>646</y>
     </hint>
    </hints>
   </connection>
@@ -2092,8 +2284,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>955</x>
-     <y>489</y>
+     <x>963</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -2125,7 +2317,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>824</y>
+     <y>646</y>
     </hint>
    </hints>
   </connection>
@@ -2145,5 +2337,106 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>toolButtonFillXY</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setImageXYFromData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>38</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>-7</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonPositionXY</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setImageXYFromData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonFillXZ</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setImageXZFromData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>372</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonPositionXZ</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setImageXZFromData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-7</x>
+     <y>257</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonFillYZ</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setImageYZFromData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>34</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>14</x>
+     <y>669</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonPositionYZ</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setImageYZFromData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>491</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>82</x>
+     <y>674</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>setImageXYFromData()</slot>
+  <slot>setImageXZFromData()</slot>
+  <slot>setImageYZFromData()</slot>
+ </slots>
 </ui>

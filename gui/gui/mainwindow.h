@@ -28,6 +28,10 @@ public slots:
     void setMinVG(float value);
     void setMaxVG(float value);
 
+    void setImageXYFromData();
+    void setImageXZFromData();
+    void setImageYZFromData();
+
 private slots:
     void on_verticalSliderXY_valueChanged(int value);
     void on_verticalSliderXZ_valueChanged(int value);
@@ -63,9 +67,7 @@ private slots:
     void on_spinBoxSelectedDatasetStep_valueChanged(int arg1);
 
     void on_imageWidgetXY_imageResized(int , int );
-
     void on_imageWidgetXZ_imageResized(int , int );
-
     void on_imageWidgetYZ_imageResized(int , int );
 
     void on_toolButtonPlay_clicked(bool checked);
@@ -73,20 +75,34 @@ private slots:
     void updateStep();
 
     void on_toolButtonStart_clicked();
-
     void on_toolButtonEnd_clicked();
 
-    void on_spinBoxTMIncrement_valueChanged(int arg1);
+    void on_spinBoxTMIncrement_valueChanged(int value);
+    void on_spinBoxTMInterval_valueChanged(int value);
 
-    void on_spinBoxTMInterval_valueChanged(int arg1);
+    void on_horizontalSliderXYMin_valueChanged(int value);
+    void on_doubleSpinBoxXYMin_valueChanged(double value);
+    void on_horizontalSliderXYMax_valueChanged(int value);
+    void on_doubleSpinBoxXYMax_valueChanged(double value);
+
+    void on_horizontalSliderXZMin_valueChanged(int value);
+    void on_doubleSpinBoxXZMin_valueChanged(double value);
+    void on_horizontalSliderXZMax_valueChanged(int value);
+    void on_doubleSpinBoxXZMax_valueChanged(double value);
+
+    void on_horizontalSliderYZMin_valueChanged(int value);
+    void on_doubleSpinBoxYZMin_valueChanged(double value);
+    void on_horizontalSliderYZMax_valueChanged(int value);
+    void on_doubleSpinBoxYZMax_valueChanged(double value);
+
+    void on_imageWidgetXY_clickedPointInImage(int x, int y);
+    void on_imageWidgetXZ_clickedPointInImage(int x, int y);
+    void on_imageWidgetYZ_clickedPointInImage(int x, int y);
 
 private:
     void repaintSlices();
 
     void initSlices();
-    void setImageXYFromData();
-    void setImageXZFromData();
-    void setImageYZFromData();
 
     Ui::MainWindow *ui;
 

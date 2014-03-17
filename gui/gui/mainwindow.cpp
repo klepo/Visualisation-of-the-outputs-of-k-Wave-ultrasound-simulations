@@ -14,6 +14,8 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QTimer>
+#include <QToolTip>
+#include <QLocale>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -51,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
 
+    tabifyDockWidget(ui->dockWidgetCT, ui->dockWidgetInfo);
+
     currentColormap = cv::COLORMAP_JET;
 
     posZ = 0;
@@ -63,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
     increment = ui->spinBoxTMIncrement->value();
     interval = ui->spinBoxTMInterval->value();
+
+    ui->doubleSpinBoxMaxGlobal->setLocale(QLocale::system());
 }
 
 MainWindow::~MainWindow()
@@ -245,8 +251,8 @@ void MainWindow::selectDataset()
         ui->doubleSpinBoxMaxGlobal->setRange((double) minVG, (double) maxVG);
         ui->doubleSpinBoxMinGlobal->setValue((double) minVG);
         ui->doubleSpinBoxMaxGlobal->setValue((double) maxVG);
-        ui->doubleSpinBoxMinGlobal->setSingleStep((maxVG - minVG) / 100);
-        ui->doubleSpinBoxMaxGlobal->setSingleStep((maxVG - minVG) / 100);
+        ui->doubleSpinBoxMinGlobal->setSingleStep((maxVG - minVG) / 1000);
+        ui->doubleSpinBoxMaxGlobal->setSingleStep((maxVG - minVG) / 1000);
 
         ui->horizontalSliderGlobalMin->setValue(ui->horizontalSliderGlobalMin->minimum());
         ui->horizontalSliderGlobalMax->setValue(ui->horizontalSliderGlobalMax->maximum());
@@ -288,6 +294,7 @@ void MainWindow::selectDataset()
             posY = selectedGroup->readAttributeI("positionY");
             posX = selectedGroup->readAttributeI("positionX");
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Size:"), new QLabel(QString::number(sizeZ) + " x " + QString::number(sizeY) + " x " + QString::number(sizeX)));
+            ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Position:"), new QLabel(QString::number(posZ) + " x " + QString::number(posY) + " x " + QString::number(posX)));
 
             selectedDataset = file->openDataset(selectedName + "/" + std::to_string(0));
 
@@ -368,6 +375,16 @@ void MainWindow::loadXYSlice(hsize_t index)
             dataXY = NULL;
             selectedDataset->read3DDataset(index, 0, 0, 1, sizeY, sizeX, dataXY, minVXY, maxVXY);
             // TODO set min max sliders
+            ui->doubleSpinBoxXYMin->setRange((double) minVXY, (double) maxVXY);
+            ui->doubleSpinBoxXYMax->setRange((double) minVXY, (double) maxVXY);
+            ui->doubleSpinBoxXYMin->setValue((double) minVXY);
+            ui->doubleSpinBoxXYMax->setValue((double) maxVXY);
+            ui->doubleSpinBoxXYMin->setSingleStep((maxVXY - minVXY) / 1000);
+            ui->doubleSpinBoxXYMax->setSingleStep((maxVXY - minVXY) / 1000);
+
+            ui->horizontalSliderXYMin->setValue(ui->horizontalSliderXYMin->minimum());
+            ui->horizontalSliderXYMax->setValue(ui->horizontalSliderXYMax->maximum());
+
             flagXYloaded = true;
             setImageXYFromData();
         } catch(std::exception &e) {
@@ -385,6 +402,16 @@ void MainWindow::loadXZSlice(hsize_t index)
             dataXZ = NULL;
             selectedDataset->read3DDataset(0, index, 0, sizeZ, 1, sizeX, dataXZ, minVXZ, maxVXZ);
             // TODO set min max sliders
+            ui->doubleSpinBoxXZMin->setRange((double) minVXZ, (double) maxVXZ);
+            ui->doubleSpinBoxXZMax->setRange((double) minVXZ, (double) maxVXZ);
+            ui->doubleSpinBoxXZMin->setValue((double) minVXZ);
+            ui->doubleSpinBoxXZMax->setValue((double) maxVXZ);
+            ui->doubleSpinBoxXZMin->setSingleStep((maxVXZ - minVXZ) / 1000);
+            ui->doubleSpinBoxXZMax->setSingleStep((maxVXZ - minVXZ) / 1000);
+
+            ui->horizontalSliderXZMin->setValue(ui->horizontalSliderXZMin->minimum());
+            ui->horizontalSliderXZMax->setValue(ui->horizontalSliderXZMax->maximum());
+
             flagXZloaded = true;
             setImageXZFromData();
         } catch(std::exception &e) {
@@ -402,6 +429,16 @@ void MainWindow::loadYZSlice(hsize_t index)
             dataYZ = NULL;
             selectedDataset->read3DDataset(0, 0, index, sizeZ, sizeY, 1, dataYZ, minVYZ, maxVYZ);
             // TODO set min max sliders
+            ui->doubleSpinBoxYZMin->setRange((double) minVYZ, (double) maxVYZ);
+            ui->doubleSpinBoxYZMax->setRange((double) minVYZ, (double) maxVYZ);
+            ui->doubleSpinBoxYZMin->setValue((double) minVYZ);
+            ui->doubleSpinBoxYZMax->setValue((double) maxVYZ);
+            ui->doubleSpinBoxYZMin->setSingleStep((maxVYZ - minVYZ) / 1000);
+            ui->doubleSpinBoxYZMax->setSingleStep((maxVYZ - minVYZ) / 1000);
+
+            ui->horizontalSliderYZMin->setValue(ui->horizontalSliderYZMin->minimum());
+            ui->horizontalSliderYZMax->setValue(ui->horizontalSliderYZMax->maximum());
+
             flagYZloaded = true;
             setImageYZFromData();
         } catch(std::exception &e) {
@@ -419,7 +456,10 @@ void MainWindow::setImageXYFromData()
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXY - minVXY), - minVXY * 255.0 /(maxVXY - minVXY));
         cv::applyColorMap(image, image, currentColormap);
-        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image, QPoint(posX, posY));
+        QPoint p = QPoint(posX, posY);
+        if (!ui->toolButtonPositionXY->isChecked())
+            p = QPoint(0, 0);
+        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image, p, ui->toolButtonFillXY->isChecked());
     }
 }
 
@@ -432,7 +472,10 @@ void MainWindow::setImageXZFromData()
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXZ - minVXZ), - minVXZ * 255.0 /(maxVXZ - minVXZ));
         cv::applyColorMap(image, image, currentColormap);
-        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image, QPoint(posX, posZ));
+        QPoint p = QPoint(posX, posZ);
+        if (!ui->toolButtonPositionXZ->isChecked())
+            p = QPoint(0, 0);
+        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image, p, ui->toolButtonFillXZ->isChecked());
     }
 }
 
@@ -445,7 +488,10 @@ void MainWindow::setImageYZFromData()
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVYZ - minVYZ), - minVYZ * 255.0 /(maxVYZ - minVYZ));
         cv::applyColorMap(image, image, currentColormap);
-        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image, QPoint(posY, posZ));
+        QPoint p = QPoint(posY, posZ);
+        if (!ui->toolButtonPositionYZ->isChecked())
+            p = QPoint(0, 0);
+        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image, p, ui->toolButtonFillYZ->isChecked());
     }
 }
 
@@ -506,7 +552,7 @@ void MainWindow::on_actionCloseHDF5File_triggered()
 
     // Clear dataset info
     QLayoutItem* item;
-    while ((item = ui->formLayoutSelectedDatasetInfo->takeAt( 0 )) != NULL)
+    while ((item = ui->formLayoutSelectedDatasetInfo->takeAt(0)) != NULL)
     {
         delete item->widget();
         delete item;
@@ -514,7 +560,7 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     //ui->groupBoxSelectedDatasetInfo->adjustSize();
 
     // Clear datasets
-    while ((item = ui->verticalLayoutDatasets->takeAt( 0 )) != NULL)
+    while ((item = ui->verticalLayoutDatasets->takeAt(0)) != NULL)
     {
         delete item->widget();
         delete item;
@@ -654,7 +700,9 @@ void MainWindow::on_horizontalSliderGlobalMax_valueChanged(int value)
 void MainWindow::on_doubleSpinBoxMinGlobal_valueChanged(double value)
 {
     if (flagDatasetInitialized) {
-        ui->horizontalSliderGlobalMin->setValue((int) 1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum()));
+        ui->horizontalSliderGlobalMin->setTracking(false);
+        ui->horizontalSliderGlobalMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
+        ui->horizontalSliderGlobalMin->setTracking(true);
         setMinVG(value);
     }
 }
@@ -662,8 +710,112 @@ void MainWindow::on_doubleSpinBoxMinGlobal_valueChanged(double value)
 void MainWindow::on_doubleSpinBoxMaxGlobal_valueChanged(double value)
 {
     if (flagDatasetInitialized) {
-        ui->horizontalSliderGlobalMax->setValue((int) 1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum()));
+        ui->horizontalSliderGlobalMax->setTracking(false);
+        ui->horizontalSliderGlobalMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
+        ui->horizontalSliderGlobalMax->setTracking(true);
         setMaxVG(value);
+    }
+}
+
+void MainWindow::on_horizontalSliderXYMin_valueChanged(int value)
+{
+    if (flagXYloaded)
+        ui->doubleSpinBoxXYMin->setValue((double) value / 1000 * (ui->doubleSpinBoxXYMin->maximum() - ui->doubleSpinBoxXYMin->minimum()) + ui->doubleSpinBoxXYMin->minimum());
+}
+
+void MainWindow::on_doubleSpinBoxXYMin_valueChanged(double value)
+{
+    if (flagXYloaded) {
+        ui->horizontalSliderXYMin->setTracking(false);
+        ui->horizontalSliderXYMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXYMin->minimum()) / (ui->doubleSpinBoxXYMin->maximum() - ui->doubleSpinBoxXYMin->minimum())));
+        ui->horizontalSliderXYMin->setTracking(true);
+        minVXY = value;
+        setImageXYFromData();
+    }
+}
+
+void MainWindow::on_horizontalSliderXYMax_valueChanged(int value)
+{
+    if (flagXYloaded)
+        ui->doubleSpinBoxXYMax->setValue((double) value / 1000 * (ui->doubleSpinBoxXYMax->maximum() - ui->doubleSpinBoxXYMax->minimum()) + ui->doubleSpinBoxXYMax->minimum());
+}
+
+void MainWindow::on_doubleSpinBoxXYMax_valueChanged(double value)
+{
+    if (flagXYloaded) {
+        ui->horizontalSliderXYMax->setTracking(false);
+        ui->horizontalSliderXYMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXYMax->minimum()) / (ui->doubleSpinBoxXYMax->maximum() - ui->doubleSpinBoxXYMax->minimum())));
+        ui->horizontalSliderXYMax->setTracking(true);
+        maxVXY = value;
+        setImageXYFromData();
+    }
+}
+
+void MainWindow::on_horizontalSliderXZMin_valueChanged(int value)
+{
+    if (flagXZloaded)
+        ui->doubleSpinBoxXZMin->setValue((double) value / 1000 * (ui->doubleSpinBoxXZMin->maximum() - ui->doubleSpinBoxXZMin->minimum()) + ui->doubleSpinBoxXZMin->minimum());
+}
+
+void MainWindow::on_doubleSpinBoxXZMin_valueChanged(double value)
+{
+    if (flagXZloaded) {
+        ui->horizontalSliderXZMin->setTracking(false);
+        ui->horizontalSliderXZMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXZMin->minimum()) / (ui->doubleSpinBoxXZMin->maximum() - ui->doubleSpinBoxXZMin->minimum())));
+        ui->horizontalSliderXZMin->setTracking(true);
+        minVXZ = value;
+        setImageXZFromData();
+    }
+}
+
+void MainWindow::on_horizontalSliderXZMax_valueChanged(int value)
+{
+    if (flagXZloaded)
+        ui->doubleSpinBoxXZMax->setValue((double) value / 1000 * (ui->doubleSpinBoxXZMax->maximum() - ui->doubleSpinBoxXZMax->minimum()) + ui->doubleSpinBoxXZMax->minimum());
+}
+
+void MainWindow::on_doubleSpinBoxXZMax_valueChanged(double value)
+{
+    if (flagXZloaded) {
+        ui->horizontalSliderXZMax->setTracking(false);
+        ui->horizontalSliderXZMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXZMax->minimum()) / (ui->doubleSpinBoxXZMax->maximum() - ui->doubleSpinBoxXZMax->minimum())));
+        ui->horizontalSliderXZMax->setTracking(true);
+        maxVXZ = value;
+        setImageXZFromData();
+    }
+}
+
+void MainWindow::on_horizontalSliderYZMin_valueChanged(int value)
+{
+    if (flagYZloaded)
+        ui->doubleSpinBoxYZMin->setValue((double) value / 1000 * (ui->doubleSpinBoxYZMin->maximum() - ui->doubleSpinBoxYZMin->minimum()) + ui->doubleSpinBoxYZMin->minimum());
+}
+
+void MainWindow::on_doubleSpinBoxYZMin_valueChanged(double value)
+{
+    if (flagYZloaded) {
+        ui->horizontalSliderYZMin->setTracking(false);
+        ui->horizontalSliderYZMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxYZMin->minimum()) / (ui->doubleSpinBoxYZMin->maximum() - ui->doubleSpinBoxYZMin->minimum())));
+        ui->horizontalSliderYZMin->setTracking(true);
+        minVYZ = value;
+        setImageYZFromData();
+    }
+}
+
+void MainWindow::on_horizontalSliderYZMax_valueChanged(int value)
+{
+    if (flagYZloaded)
+        ui->doubleSpinBoxYZMax->setValue((double) value / 1000 * (ui->doubleSpinBoxYZMax->maximum() - ui->doubleSpinBoxYZMax->minimum()) + ui->doubleSpinBoxYZMax->minimum());
+}
+
+void MainWindow::on_doubleSpinBoxYZMax_valueChanged(double value)
+{
+    if (flagYZloaded) {
+        ui->horizontalSliderYZMax->setTracking(false);
+        ui->horizontalSliderYZMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxYZMax->minimum()) / (ui->doubleSpinBoxYZMax->maximum() - ui->doubleSpinBoxYZMax->minimum())));
+        ui->horizontalSliderYZMax->setTracking(true);
+        maxVYZ = value;
+        setImageYZFromData();
     }
 }
 
@@ -750,4 +902,28 @@ void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
 {
     interval = value;
     timer->setInterval(value);
+}
+
+void MainWindow::on_imageWidgetXY_clickedPointInImage(int x, int y)
+{
+    if (flagXYloaded) {
+        float value = dataXY[x + sizeX * (y)];
+        QToolTip::showText(QCursor::pos(), locale().toString(value, 'f', 4));
+    }
+}
+
+void MainWindow::on_imageWidgetXZ_clickedPointInImage(int x, int y)
+{
+    if (flagXZloaded) {
+        float value = dataXZ[x + sizeX * (y)];
+        QToolTip::showText(QCursor::pos(), locale().toString(value, 'f', 4));
+    }
+}
+
+void MainWindow::on_imageWidgetYZ_clickedPointInImage(int x, int y)
+{
+    if (flagYZloaded) {
+        float value = dataYZ[x + sizeY * (y)];
+        QToolTip::showText(QCursor::pos(), locale().toString(value, 'f', 4));
+    }
 }

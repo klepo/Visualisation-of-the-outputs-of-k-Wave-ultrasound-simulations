@@ -17,14 +17,13 @@ DEPENDPATH += $$PWD
 SOURCES +=  main.cpp\
     mainwindow.cpp \
     cvimagewidget.cpp \
-    form.cpp
+    qdoublespinboxts.cpp
 
 HEADERS +=  mainwindow.h \
     cvimagewidget.h \
-    form.h
+    qdoublespinboxts.h
 
 FORMS   +=  mainwindow.ui \
-    form.ui
 
 
 win32 {
