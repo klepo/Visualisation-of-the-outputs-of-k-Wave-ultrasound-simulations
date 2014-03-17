@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1044</width>
+    <width>964</width>
     <height>667</height>
    </rect>
   </property>
@@ -111,7 +111,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1044</width>
+     <width>964</width>
      <height>21</height>
     </rect>
    </property>
@@ -235,8 +235,8 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-381</y>
-          <width>239</width>
+          <y>-300</y>
+          <width>399</width>
           <height>632</height>
          </rect>
         </property>
@@ -758,7 +758,7 @@
             <string>Time-varying series</string>
            </property>
            <layout class="QGridLayout" name="gridLayoutSelectedDatasetTMSeries">
-            <item row="1" column="0" rowspan="3" colspan="4" alignment="Qt::AlignLeft">
+            <item row="2" column="0" rowspan="3" colspan="4" alignment="Qt::AlignLeft">
              <widget class="QWidget" name="widgetSelectedDatasetTMButtons" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <property name="spacing">
@@ -813,7 +813,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/icons/images/icons_20.png</normaloff>:/icons/icons/images/icons_20.png</iconset>
+                   <normaloff>:/icons/icons/images/icons_18.png</normaloff>:/icons/icons/images/icons_18.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -836,7 +836,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="resources.qrc">
-                   <normaloff>:/icons/icons/images/icons_18.png</normaloff>:/icons/icons/images/icons_18.png</iconset>
+                   <normaloff>:/icons/icons/images/icons_20.png</normaloff>:/icons/icons/images/icons_20.png</iconset>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -852,8 +852,37 @@
               </layout>
              </widget>
             </item>
-            <item row="0" column="0">
+            <item row="0" column="2" rowspan="2" colspan="6">
+             <widget class="QSlider" name="horizontalSliderSelectedDatasetStep">
+              <property name="maximum">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" rowspan="2">
+             <widget class="QSpinBox" name="spinBoxSelectedDatasetStep">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximum">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" rowspan="2">
              <widget class="QLabel" name="labelSelectedDatasetStep">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>Step:</string>
               </property>
@@ -862,20 +891,61 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBoxSelectedDatasetStep">
-              <property name="maximum">
-               <number>0</number>
+            <item row="2" column="4" rowspan="3">
+             <widget class="QLabel" name="label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Step Increment:</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="2" colspan="2">
-             <widget class="QSlider" name="horizontalSliderSelectedDatasetStep">
-              <property name="maximum">
-               <number>0</number>
+            <item row="2" column="5" rowspan="3">
+             <widget class="QSpinBox" name="spinBoxTMIncrement">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="6" rowspan="3">
+             <widget class="QLabel" name="label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Interval (ms):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="7" rowspan="3">
+             <widget class="QSpinBox" name="spinBoxTMInterval">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>30</number>
+              </property>
+              <property name="maximum">
+               <number>5000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
               </property>
              </widget>
             </item>
@@ -1167,24 +1237,28 @@ p, li { white-space: pre-wrap; }
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <property name="spacing">
+     <property name="horizontalSpacing">
+      <number>3</number>
+     </property>
+     <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="1" column="2">
-      <widget class="QSlider" name="verticalSliderXY">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButtonFillXY">
+       <property name="toolTip">
+        <string>Auto size of image</string>
+       </property>
+       <property name="text">
+        <string>Auto size of image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
+     <item row="1" column="0" colspan="4">
       <widget class="CVImageWidget" name="imageWidgetXY" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
          <width>150</width>
@@ -1193,25 +1267,43 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+     <item row="0" column="3" colspan="2" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxXY"/>
+     </item>
+     <item row="1" column="4">
+      <widget class="QSlider" name="verticalSliderXY">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonXYSave">
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Export image</string>
+       </property>
        <property name="text">
-        <string/>
+        <string>Export image</string>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
        </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXY"/>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButtonPositionXY">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -1249,27 +1341,13 @@ p, li { white-space: pre-wrap; }
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <property name="spacing">
+     <property name="horizontalSpacing">
+      <number>3</number>
+     </property>
+     <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButtonXZSave">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
+     <item row="2" column="0" colspan="4">
       <widget class="CVImageWidget" name="imageWidgetXZ" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1285,15 +1363,57 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="0" column="3" colspan="2" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxXZ"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="toolButtonXZSave">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Export image</string>
+       </property>
+       <property name="text">
+        <string>Export image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButtonFillXZ">
+       <property name="toolTip">
+        <string>Auto size of image</string>
+       </property>
+       <property name="text">
+        <string>Auto size of image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
       <widget class="QSlider" name="verticalSliderXZ">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXZ"/>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButtonPositionXZ">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -1334,34 +1454,13 @@ p, li { white-space: pre-wrap; }
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <property name="spacing">
+     <property name="horizontalSpacing">
+      <number>3</number>
+     </property>
+     <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButtonYZSave">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QSlider" name="verticalSliderYZ">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
+     <item row="3" column="0" colspan="4">
       <widget class="CVImageWidget" name="imageWidgetYZ" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1377,8 +1476,57 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2" alignment="Qt::AlignRight">
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButtonFillYZ">
+       <property name="toolTip">
+        <string>Auto size of image</string>
+       </property>
+       <property name="text">
+        <string>Auto size of image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4">
+      <widget class="QSlider" name="verticalSliderYZ">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="toolButtonYZSave">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Export image</string>
+       </property>
+       <property name="text">
+        <string>Export image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3" colspan="2" alignment="Qt::AlignRight">
       <widget class="QSpinBox" name="spinBoxYZ"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButtonPositionYZ">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -1608,8 +1756,7 @@ p, li { white-space: pre-wrap; }
    <header location="global">cvimagewidget.h</header>
    <container>1</container>
    <slots>
-    <signal>imageResized()</signal>
-    <slot>reloadImage(int)</slot>
+    <signal>imageResized(int,int)</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -1669,11 +1816,11 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>256</y>
+     <x>346</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
+     <x>346</x>
      <y>105</y>
     </hint>
    </hints>
@@ -1685,12 +1832,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>451</y>
+     <x>346</x>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>300</y>
+     <x>346</x>
+     <y>358</y>
     </hint>
    </hints>
   </connection>
@@ -1701,12 +1848,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>646</y>
+     <x>346</x>
+     <y>824</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>495</y>
+     <x>346</x>
+     <y>615</y>
     </hint>
    </hints>
   </connection>
@@ -1717,12 +1864,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
+     <x>346</x>
      <y>105</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>256</y>
+     <x>346</x>
+     <y>314</y>
     </hint>
    </hints>
   </connection>
@@ -1733,12 +1880,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>300</y>
+     <x>346</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>451</y>
+     <x>346</x>
+     <y>571</y>
     </hint>
    </hints>
   </connection>
@@ -1749,12 +1896,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>495</y>
+     <x>346</x>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>646</y>
+     <x>346</x>
+     <y>824</y>
     </hint>
    </hints>
   </connection>
@@ -1765,12 +1912,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1017</x>
-     <y>378</y>
+     <x>929</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>486</y>
+     <x>929</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -1781,12 +1928,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1017</x>
-     <y>378</y>
+     <x>929</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>571</y>
+     <x>929</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>
@@ -1797,12 +1944,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1017</x>
-     <y>378</y>
+     <x>929</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>656</y>
+     <x>929</x>
+     <y>337</y>
     </hint>
    </hints>
   </connection>
@@ -1813,12 +1960,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1017</x>
-     <y>401</y>
+     <x>929</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>486</y>
+     <x>929</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -1829,12 +1976,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1017</x>
-     <y>401</y>
+     <x>929</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>571</y>
+     <x>929</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>
@@ -1845,12 +1992,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1017</x>
-     <y>401</y>
+     <x>929</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>656</y>
+     <x>929</x>
+     <y>337</y>
     </hint>
    </hints>
   </connection>
@@ -1865,8 +2012,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1043</x>
-     <y>551</y>
+     <x>955</x>
+     <y>729</y>
     </hint>
    </hints>
   </connection>
@@ -1877,12 +2024,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>863</x>
-     <y>705</y>
+     <x>819</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1007</x>
-     <y>704</y>
+     <x>919</x>
+     <y>385</y>
     </hint>
    </hints>
   </connection>
@@ -1893,12 +2040,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1007</x>
-     <y>704</y>
+     <x>919</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel">
-     <x>863</x>
-     <y>705</y>
+     <x>819</x>
+     <y>386</y>
     </hint>
    </hints>
   </connection>
@@ -1913,8 +2060,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1043</x>
-     <y>646</y>
+     <x>955</x>
+     <y>824</y>
     </hint>
    </hints>
   </connection>
@@ -1929,7 +2076,7 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1043</x>
+     <x>955</x>
      <y>102</y>
     </hint>
    </hints>
@@ -1945,8 +2092,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1043</x>
-     <y>456</y>
+     <x>955</x>
+     <y>489</y>
     </hint>
    </hints>
   </connection>
@@ -1978,7 +2125,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>547</y>
+     <y>824</y>
     </hint>
    </hints>
   </connection>

@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QRadioButton>
 #include <QScrollBar>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -57,6 +58,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     posX = 0;
 
     steps = 0;
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
+    increment = ui->spinBoxTMIncrement->value();
+    interval = ui->spinBoxTMInterval->value();
 }
 
 MainWindow::~MainWindow()
@@ -65,6 +71,7 @@ MainWindow::~MainWindow()
     delete ui;
     //if (file != NULL)
     //    delete file;
+    delete timer;
 }
 
 std::string replaceString(std::string subject, const std::string& search, const std::string& replace) {
@@ -183,6 +190,8 @@ void MainWindow::selectDataset()
     posZ = 0;
     posY = 0;
     posX = 0;
+
+    currentStep = 0;
 
     // Find selected
     QList<QRadioButton *> list = ui->dockWidgetContentsDatasets->findChildren<QRadioButton *>();
@@ -666,6 +675,7 @@ void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
+    currentStep = step;
     if (selectedGroup != NULL && selectedDataset != NULL) {
         try {
             file->closeDataset(selectedDataset->getName());
@@ -677,4 +687,67 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
             std::cerr << "Wrong step" << std::endl;
         }
     }
+}
+
+void MainWindow::updateStep()
+{
+    currentStep += increment;
+    if (currentStep >= steps) {
+        timer->stop();
+        ui->toolButtonPlay->setChecked(false);
+        currentStep = 0;
+    } else
+        ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
+}
+
+void MainWindow::on_imageWidgetXY_imageResized(int , int height)
+{
+    //ui->verticalSliderXY->setMaximumHeight(height);
+}
+
+void MainWindow::on_imageWidgetXZ_imageResized(int , int height)
+{
+    //ui->verticalSliderXZ->setMaximumHeight(height);
+}
+
+void MainWindow::on_imageWidgetYZ_imageResized(int , int height)
+{
+    //ui->verticalSliderYZ->setMaximumHeight(height);
+}
+
+void MainWindow::on_toolButtonPlay_clicked(bool checked)
+{
+    if (checked)
+        timer->start(interval);
+    else {
+        timer->stop();
+        //ui->toolButtonPlay->setChecked(false);
+    }
+}
+
+void MainWindow::on_toolButtonStart_clicked()
+{
+    timer->stop();
+    ui->toolButtonPlay->setChecked(false);
+    currentStep = 0;
+    ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
+}
+
+void MainWindow::on_toolButtonEnd_clicked()
+{
+    timer->stop();
+    ui->toolButtonPlay->setChecked(false);
+    currentStep = steps-1;
+    ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
+}
+
+void MainWindow::on_spinBoxTMIncrement_valueChanged(int value)
+{
+    increment = value;
+}
+
+void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
+{
+    interval = value;
+    timer->setInterval(value);
 }

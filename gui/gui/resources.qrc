@@ -23,6 +23,8 @@
         <file>icons/images/icons_21.png</file>
         <file>icons/images/icons_22.png</file>
         <file>icons/images/icons_23.png</file>
+        <file>icons/images/icons_24.png</file>
+        <file>icons/images/icons_25.png</file>
     </qresource>
     <qresource prefix="/colorscale">
         <file>icons/colorscale_autumn.jpg</file>

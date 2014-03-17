@@ -4,11 +4,13 @@
 #include <QImage>
 #include <QPainter>
 #include <opencv2/opencv.hpp>
+#include <QDebug>
 
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
     clearFlag = false;
     point = QPoint(0, 0);
+    isSetImage = false;
 }
 
 QSize CVImageWidget::sizeHint() const
@@ -40,21 +42,30 @@ void CVImageWidget::showImage(const cv::Mat &image, QPoint _point)
     // (http://qt-project.org/doc/qt-4.8/qimage.html#QImage-6) is 3*width because each pixel
     // has three bytes.
     _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
-    /*if (_tmp.cols > _tmp.rows)
-        _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
-    else
-        _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);*/
+    isSetImage = true;
+    if (point.x() == 0 && point.y() == 0) {
+        if ((double) _tmp.cols / _tmp.rows >= (double) width() / height())
+            _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
+        else
+            _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
+    }
     clearFlag = false;
     repaint();
 }
 
 void CVImageWidget::resizeEvent(QResizeEvent *)
 {
-    /*_qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
-    if (_tmp.cols > _tmp.rows)
-        _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
-    else
-        _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);*/
+    if (isSetImage) {
+        if (point.x() == 0 && point.y() == 0) {
+            _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
+            //qDebug() << (double) _tmp.cols / _tmp.rows << "   " <<  (double) width() / height();
+            if ((double) _tmp.cols / _tmp.rows >= (double) width() / height())
+                _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
+            else
+                _qimage = _qimage.scaledToHeight(height(), Qt::SmoothTransformation);
+            //emit imageResized(_qimage.width(),_qimage.height());
+        }
+    }
 }
 
 void CVImageWidget::clearImage()

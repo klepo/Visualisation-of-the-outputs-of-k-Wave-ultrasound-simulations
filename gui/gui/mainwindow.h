@@ -62,6 +62,24 @@ private slots:
 
     void on_spinBoxSelectedDatasetStep_valueChanged(int arg1);
 
+    void on_imageWidgetXY_imageResized(int , int );
+
+    void on_imageWidgetXZ_imageResized(int , int );
+
+    void on_imageWidgetYZ_imageResized(int , int );
+
+    void on_toolButtonPlay_clicked(bool checked);
+
+    void updateStep();
+
+    void on_toolButtonStart_clicked();
+
+    void on_toolButtonEnd_clicked();
+
+    void on_spinBoxTMIncrement_valueChanged(int arg1);
+
+    void on_spinBoxTMInterval_valueChanged(int arg1);
+
 private:
     void repaintSlices();
 
@@ -97,11 +115,16 @@ private:
     float *dataYZ;
 
     uint64_t steps;
+    uint64_t currentStep;
 
     uint64_t sizeX, sizeY, sizeZ;
     uint64_t posZ;
     uint64_t posY;
     uint64_t posX;
+
+    QTimer *timer;
+    int increment;
+    int interval;
 
     int currentColormap;
 };

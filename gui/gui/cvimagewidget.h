@@ -17,6 +17,9 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
+signals:
+    void imageResized(int width, int height);
+
 public slots:
     void showImage(const cv::Mat& image, QPoint = QPoint(0,0));
     void clearImage();
@@ -27,6 +30,7 @@ private:
     cv::Mat _tmp;
     bool clearFlag;
     QPoint point;
+    bool isSetImage;
     void resizeEvent(QResizeEvent *);
     void paintEvent(QPaintEvent *);
 };
