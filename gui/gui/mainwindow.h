@@ -7,6 +7,9 @@
 #include <HDF5File.h>
 #include <HDF5Group.h>
 #include <HDF5Dataset.h>
+#include <QThreadPool>
+
+#include "hdf5readingthread.h"
 
 namespace Ui
 {
@@ -31,6 +34,10 @@ public slots:
     void setImageXYFromData();
     void setImageXZFromData();
     void setImageYZFromData();
+
+    void setXYLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
+    void setXZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
+    void setYZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
 
 private slots:
     void on_verticalSliderXY_valueChanged(int value);
@@ -113,6 +120,7 @@ private:
     uint64_t nT, nX, nY, nZ;
 
     std::string selectedName;
+    std::string datasetName;
     HDF5File::HDF5Dataset *selectedDataset;
     HDF5File::HDF5Group *selectedGroup;
 
@@ -130,6 +138,8 @@ private:
     float *dataXZ;
     float *dataYZ;
 
+    bool currentYZloadedFlag;
+
     uint64_t steps;
     uint64_t currentStep;
 
@@ -143,6 +153,10 @@ private:
     int interval;
 
     int currentColormap;
+
+    //HDF5ReadingThread *thread;
+
+    //QThreadPool *threadPool;
 };
 
 #endif // MAINWINDOW_H

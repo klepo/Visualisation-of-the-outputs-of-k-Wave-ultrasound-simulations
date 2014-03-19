@@ -17,11 +17,13 @@ DEPENDPATH += $$PWD
 SOURCES +=  main.cpp\
     mainwindow.cpp \
     cvimagewidget.cpp \
-    qdoublespinboxts.cpp
+    qdoublespinboxts.cpp \
+    hdf5readingthread.cpp
 
 HEADERS +=  mainwindow.h \
     cvimagewidget.h \
-    qdoublespinboxts.h
+    qdoublespinboxts.h \
+    hdf5readingthread.h
 
 FORMS   +=  mainwindow.ui \
 

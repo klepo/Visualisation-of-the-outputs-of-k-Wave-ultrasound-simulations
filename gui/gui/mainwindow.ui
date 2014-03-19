@@ -55,7 +55,7 @@
        </size>
       </property>
       <property name="features">
-       <set>QDockWidget::AllDockWidgetFeatures</set>
+       <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
       </property>
       <property name="allowedAreas">
        <set>Qt::NoDockWidgetArea</set>
@@ -1342,6 +1342,9 @@ p, li { white-space: pre-wrap; }
        <property name="checkable">
         <bool>true</bool>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
@@ -1502,6 +1505,9 @@ p, li { white-space: pre-wrap; }
        <property name="checkable">
         <bool>true</bool>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="2" column="5">
@@ -1636,6 +1642,9 @@ p, li { white-space: pre-wrap; }
          <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
        </property>
        <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
