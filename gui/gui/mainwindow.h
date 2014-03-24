@@ -10,6 +10,7 @@
 #include <QThreadPool>
 
 #include "hdf5readingthread.h"
+#include "gwindow.h"
 
 namespace Ui
 {
@@ -106,15 +107,18 @@ private slots:
     void on_imageWidgetXZ_clickedPointInImage(int x, int y);
     void on_imageWidgetYZ_clickedPointInImage(int x, int y);
 
+public:
+    Ui::MainWindow *ui;
+
 private:
     void repaintSlices();
 
     void initSlices();
 
-    Ui::MainWindow *ui;
+    GWindow *gWindow;
 
     HDF5File *file;
-
+    std::string fileName;
     QString windowTitle;
 
     uint64_t nT, nX, nY, nZ;
@@ -127,7 +131,7 @@ private:
     bool flagDatasetInitialized;
     bool flagGroupInitialized;
     bool flagXYloaded, flagXZloaded, flagYZloaded;
-    bool flagUseGlobalValues;
+    //bool flagUseGlobalValues;
 
     float minVG, maxVG;
     float minVXY, maxVXY;
@@ -138,6 +142,8 @@ private:
     float *dataXZ;
     float *dataYZ;
 
+    bool currentXYloadedFlag;
+    bool currentXZloadedFlag;
     bool currentYZloadedFlag;
 
     uint64_t steps;
@@ -154,7 +160,10 @@ private:
 
     int currentColormap;
 
-    //HDF5ReadingThread *thread;
+    bool play;
+    HDF5ReadingThread *threadXY;
+    HDF5ReadingThread *threadXZ;
+    HDF5ReadingThread *threadYZ;
 
     //QThreadPool *threadPool;
 };

@@ -22,8 +22,9 @@ signals:
     void clickedPointInImage(int x, int y);
 
 public slots:
-    void showImage(const cv::Mat& image, QPoint = QPoint(0,0), bool adjust = true);
+    void showImage(const cv::Mat& image, QPoint = QPoint(0,0), bool adjust = true, std::string fileName = "");
     void clearImage();
+    void saveImage();
 
 private:
     int _dim;
@@ -33,6 +34,7 @@ private:
     QPoint point;
     bool adjustFlag;
     bool isSetImage;
+    std::string fileName;
     void resizeEvent(QResizeEvent *);
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);

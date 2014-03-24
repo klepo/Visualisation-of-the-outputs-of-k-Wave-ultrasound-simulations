@@ -18,12 +18,16 @@ SOURCES +=  main.cpp\
     mainwindow.cpp \
     cvimagewidget.cpp \
     qdoublespinboxts.cpp \
-    hdf5readingthread.cpp
+    hdf5readingthread.cpp \
+    openglwindow.cpp \
+    gwindow.cpp
 
 HEADERS +=  mainwindow.h \
     cvimagewidget.h \
     qdoublespinboxts.h \
-    hdf5readingthread.h
+    hdf5readingthread.h \
+    openglwindow.h \
+    gwindow.h
 
 FORMS   +=  mainwindow.ui \
 
@@ -115,3 +119,7 @@ DEPENDPATH += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/build/hdf5file/release/hdf5file.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/build/hdf5file/debug/hdf5file.lib
 else:unix: PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/build/hdf5file/libhdf5file.a
+
+OTHER_FILES += \
+    fragmentShader.frag \
+    vertexShader.vert

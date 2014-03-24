@@ -16,7 +16,7 @@ double QDoubleSpinBoxTS::valueFromText(const QString &text) const
 {
     QString str = text;
     str = str.remove(QWidget::locale().groupSeparator());
-    str = str.remove(" ");
+    //str = str.remove(" ");
     double d = QWidget::locale().toDouble(str);
     return d;
 }

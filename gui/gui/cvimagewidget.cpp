@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QToolTip>
+#include <QFileDialog>
+
 
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
@@ -25,8 +27,9 @@ QSize CVImageWidget::minimumSizeHint() const
     return _qimage.size();
 }
 
-void CVImageWidget::showImage(const cv::Mat &image, QPoint _point, bool adjust)
+void CVImageWidget::showImage(const cv::Mat &image, QPoint _point, bool adjust, std::string _fileName)
 {
+    fileName =  _fileName;
     point = _point;
     adjustFlag = adjust;
     // Convert the image to the RGB888 format
@@ -61,6 +64,15 @@ void CVImageWidget::showImage(const cv::Mat &image, QPoint _point, bool adjust)
     }
     clearFlag = false;
     repaint();
+}
+
+void CVImageWidget::saveImage()
+{
+    if (isSetImage) {
+        QString _fileName = QFileDialog::getSaveFileName(this, "Save image", QString::fromStdString(fileName + ".png"), "Image (*.png)");
+        if (_fileName != NULL)
+            _qimage.save(_fileName, 0, 100);
+    }
 }
 
 void CVImageWidget::resizeEvent(QResizeEvent *)

@@ -40,4 +40,8 @@
         <file>icons/colorscale_summer.jpg</file>
         <file>icons/colorscale_winter.jpg</file>
     </qresource>
+    <qresource prefix="/shaders">
+        <file>fragmentShader.frag</file>
+        <file>vertexShader.vert</file>
+    </qresource>
 </RCC>

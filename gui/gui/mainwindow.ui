@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>964</width>
-    <height>603</height>
+    <width>1129</width>
+    <height>627</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,9 @@
   <property name="windowIcon">
    <iconset resource="resources.qrc">
     <normaloff>:/icons/icons/images/icons_03.png</normaloff>:/icons/icons/images/icons_03.png</iconset>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <property name="iconSize">
    <size>
@@ -64,7 +67,23 @@
        <string>3D view</string>
       </property>
       <widget class="QWidget" name="dockWidgetContents3D">
-       <layout class="QVBoxLayout" name="verticalLayout_2"/>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -108,7 +127,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>964</width>
+     <width>1129</width>
      <height>21</height>
     </rect>
    </property>
@@ -238,7 +257,7 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-164</y>
+          <y>0</y>
           <width>383</width>
           <height>632</height>
          </rect>
@@ -435,17 +454,7 @@
            <property name="checkable">
             <bool>false</bool>
            </property>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <item row="2" column="0">
-             <widget class="QLabel" name="labelGlobalMax">
-              <property name="text">
-               <string>max:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxMaxGlobal</cstring>
-              </property>
-             </widget>
-            </item>
+           <layout class="QGridLayout" name="gridLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="labelGlobalMin">
               <property name="text">
@@ -466,16 +475,6 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMaxGlobal">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="2">
              <widget class="QSlider" name="horizontalSliderGlobalMin">
               <property name="maximum">
@@ -486,7 +485,24 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="2">
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelGlobalMax">
+              <property name="text">
+               <string>max:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMaxGlobal">
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
              <widget class="QSlider" name="horizontalSliderGlobalMax">
               <property name="maximum">
                <number>1000</number>
@@ -1013,8 +1029,8 @@
     <iconset>
      <normaloff>icons/images/icons_03.png</normaloff>icons/images/icons_03.png</iconset>
    </property>
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
+   <property name="floating">
+    <bool>false</bool>
    </property>
    <property name="allowedAreas">
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
@@ -1057,9 +1073,6 @@ p, li { white-space: pre-wrap; }
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetCT">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="floating">
     <bool>false</bool>
    </property>
@@ -1312,9 +1325,6 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonXYSave">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <property name="toolTip">
         <string>Export image</string>
        </property>
@@ -1375,7 +1385,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>178</width>
-          <height>174</height>
+          <height>136</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1461,9 +1471,6 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonXZSave">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <property name="toolTip">
         <string>Export image</string>
        </property>
@@ -1531,7 +1538,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>178</width>
-          <height>106</height>
+          <height>138</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1661,9 +1668,6 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonYZSave">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <property name="toolTip">
         <string>Export image</string>
        </property>
@@ -1690,7 +1694,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>178</width>
-          <height>106</height>
+          <height>136</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1953,6 +1957,7 @@ p, li { white-space: pre-wrap; }
    <slots>
     <signal>imageResized(int,int)</signal>
     <signal>clickedPointInImage(int,int)</signal>
+    <slot>saveImage()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2017,11 +2022,11 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>256</y>
+     <x>199</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
+     <x>199</x>
      <y>105</y>
     </hint>
    </hints>
@@ -2033,12 +2038,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>451</y>
+     <x>199</x>
+     <y>435</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>300</y>
+     <x>199</x>
+     <y>276</y>
     </hint>
    </hints>
   </connection>
@@ -2049,12 +2054,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>646</y>
+     <x>199</x>
+     <y>606</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>495</y>
+     <x>199</x>
+     <y>479</y>
     </hint>
    </hints>
   </connection>
@@ -2065,12 +2070,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
+     <x>199</x>
      <y>105</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>256</y>
+     <x>199</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -2081,12 +2086,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>300</y>
+     <x>199</x>
+     <y>276</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>451</y>
+     <x>199</x>
+     <y>435</y>
     </hint>
    </hints>
   </connection>
@@ -2097,12 +2102,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>495</y>
+     <x>199</x>
+     <y>479</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>646</y>
+     <x>199</x>
+     <y>606</y>
     </hint>
    </hints>
   </connection>
@@ -2113,12 +2118,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>937</x>
-     <y>329</y>
+     <x>927</x>
+     <y>10</y>
     </hint>
     <hint type="destinationlabel">
-     <x>937</x>
-     <y>357</y>
+     <x>927</x>
+     <y>95</y>
     </hint>
    </hints>
   </connection>
@@ -2129,12 +2134,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>937</x>
-     <y>329</y>
+     <x>927</x>
+     <y>10</y>
     </hint>
     <hint type="destinationlabel">
-     <x>937</x>
-     <y>442</y>
+     <x>927</x>
+     <y>180</y>
     </hint>
    </hints>
   </connection>
@@ -2145,12 +2150,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>937</x>
-     <y>329</y>
+     <x>927</x>
+     <y>10</y>
     </hint>
     <hint type="destinationlabel">
-     <x>937</x>
-     <y>527</y>
+     <x>927</x>
+     <y>265</y>
     </hint>
    </hints>
   </connection>
@@ -2161,12 +2166,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>937</x>
-     <y>221</y>
+     <x>927</x>
+     <y>-103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>937</x>
-     <y>357</y>
+     <x>927</x>
+     <y>95</y>
     </hint>
    </hints>
   </connection>
@@ -2177,12 +2182,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>937</x>
-     <y>221</y>
+     <x>927</x>
+     <y>-103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>937</x>
-     <y>442</y>
+     <x>927</x>
+     <y>180</y>
     </hint>
    </hints>
   </connection>
@@ -2193,12 +2198,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>937</x>
-     <y>221</y>
+     <x>927</x>
+     <y>-103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>937</x>
-     <y>527</y>
+     <x>927</x>
+     <y>265</y>
     </hint>
    </hints>
   </connection>
@@ -2213,8 +2218,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>963</x>
-     <y>551</y>
+     <x>953</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -2225,12 +2230,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>645</x>
-     <y>635</y>
+     <x>635</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>635</y>
+     <x>917</x>
+     <y>313</y>
     </hint>
    </hints>
   </connection>
@@ -2241,12 +2246,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>635</y>
+     <x>917</x>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
-     <x>645</x>
-     <y>635</y>
+     <x>635</x>
+     <y>314</y>
     </hint>
    </hints>
   </connection>
@@ -2261,8 +2266,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>963</x>
-     <y>646</y>
+     <x>953</x>
+     <y>606</y>
     </hint>
    </hints>
   </connection>
@@ -2277,7 +2282,7 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>955</x>
+     <x>953</x>
      <y>102</y>
     </hint>
    </hints>
@@ -2293,8 +2298,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>963</x>
-     <y>457</y>
+     <x>953</x>
+     <y>417</y>
     </hint>
    </hints>
   </connection>
@@ -2310,7 +2315,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>96</x>
-     <y>252</y>
+     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -2326,7 +2331,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>646</y>
+     <y>606</y>
     </hint>
    </hints>
   </connection>
@@ -2342,7 +2347,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>96</x>
-     <y>451</y>
+     <y>435</y>
     </hint>
    </hints>
   </connection>
@@ -2358,7 +2363,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
-     <y>-7</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -2374,7 +2379,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>236</x>
-     <y>-4</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -2385,12 +2390,12 @@ p, li { white-space: pre-wrap; }
    <slot>setImageXZFromData()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>31</x>
-     <y>290</y>
+     <x>35</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>372</x>
-     <y>-11</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -2401,11 +2406,11 @@ p, li { white-space: pre-wrap; }
    <slot>setImageXZFromData()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>291</y>
+     <x>73</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-7</x>
+     <x>0</x>
      <y>257</y>
     </hint>
    </hints>
@@ -2417,12 +2422,12 @@ p, li { white-space: pre-wrap; }
    <slot>setImageYZFromData()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>34</x>
-     <y>489</y>
+     <x>38</x>
+     <y>480</y>
     </hint>
     <hint type="destinationlabel">
      <x>14</x>
-     <y>669</y>
+     <y>626</y>
     </hint>
    </hints>
   </connection>
@@ -2433,12 +2438,60 @@ p, li { white-space: pre-wrap; }
    <slot>setImageYZFromData()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>491</y>
+     <x>74</x>
+     <y>480</y>
     </hint>
     <hint type="destinationlabel">
      <x>82</x>
-     <y>674</y>
+     <y>626</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonXYSave</sender>
+   <signal>clicked()</signal>
+   <receiver>imageWidgetXY</receiver>
+   <slot>saveImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>8</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>16</x>
+     <y>126</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonXZSave</sender>
+   <signal>clicked()</signal>
+   <receiver>imageWidgetXZ</receiver>
+   <slot>saveImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>13</x>
+     <y>267</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>13</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonYZSave</sender>
+   <signal>clicked()</signal>
+   <receiver>imageWidgetYZ</receiver>
+   <slot>saveImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>8</x>
+     <y>466</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>16</x>
+     <y>514</y>
     </hint>
    </hints>
   </connection>
