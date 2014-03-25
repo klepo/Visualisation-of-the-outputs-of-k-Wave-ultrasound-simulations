@@ -36,10 +36,22 @@ public slots:
     void setGreen(double);
     void setBlue(double);
 
+    void setViewFrame(bool);
+    void setViewVR(bool);
+    void setViewXYSlice(bool);
+    void setViewXZSlice(bool);
+    void setViewYZSlice(bool);
+
     void load3DTexture(HDF5File::HDF5Dataset *dataset, int colormap = cv::COLORMAP_JET);
     void changeColormap(int colormap = cv::COLORMAP_JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);
+
+    void setXYSlice(float *data, unsigned int width, unsigned int height, float index);
+    void setXZSlice(float *data, unsigned int width, unsigned int height, float index);
+    void setYZSlice(float *data, unsigned int width, unsigned int height, float index);
+
+    void saveImage(QString fileName);
 
 private slots:
     void setLoaded(hsize_t i, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *data, float, float);
@@ -90,14 +102,6 @@ private:
     float minG, maxG;
     int colormap;
 
-    GLint redC[256];
-    GLint greenC[256];
-    GLint blueC[256];
-
-    GLuint m_uRedC;
-    GLuint m_uGreenC;
-    GLuint m_uBlueC;
-
     GLuint m_uColormapSampler;
     GLuint colormapTexture;
 
@@ -105,6 +109,27 @@ private:
     GLuint m_uMax;
 
     bool texture3DInitialized;
+
+    bool volumeRendering;
+
+    bool sliceXY;
+    bool sliceXZ;
+    bool sliceYZ;
+
+    GLuint m_uSlices;
+    GLuint m_uSliceSampler;
+    GLuint textureXY;
+    GLuint textureXZ;
+    GLuint textureYZ;
+
+    float xYIndex;
+    float xZIndex;
+    float yZIndex;
+
+    std::string datasetName;
+
+    bool flagSave;
+    QString fileName;
 };
 
 #endif // GWINDOW_H

@@ -1842,6 +1842,9 @@ p, li { white-space: pre-wrap; }
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/icons/icons/images/icons_13.png</normaloff>:/icons/icons/images/icons_13.png</iconset>
@@ -1852,6 +1855,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="action3DXZ">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="icon">
@@ -1866,6 +1872,9 @@ p, li { white-space: pre-wrap; }
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/icons/icons/images/icons_14.png</normaloff>:/icons/icons/images/icons_14.png</iconset>
@@ -1876,7 +1885,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionExportImageFrom3DScene">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -1890,8 +1899,8 @@ p, li { white-space: pre-wrap; }
    <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled">
-    <bool>false</bool>
+   <property name="checked">
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">

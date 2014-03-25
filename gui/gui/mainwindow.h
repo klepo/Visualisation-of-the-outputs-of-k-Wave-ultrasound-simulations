@@ -107,6 +107,16 @@ private slots:
     void on_imageWidgetXZ_clickedPointInImage(int x, int y);
     void on_imageWidgetYZ_clickedPointInImage(int x, int y);
 
+    void on_actionVolumeRendering_toggled(bool arg1);
+
+    void on_action3DXY_toggled(bool arg1);
+
+    void on_action3DXZ_toggled(bool arg1);
+
+    void on_action3DYZ_toggled(bool arg1);
+
+    void on_actionExportImageFrom3DScene_triggered();
+
 public:
     Ui::MainWindow *ui;
 

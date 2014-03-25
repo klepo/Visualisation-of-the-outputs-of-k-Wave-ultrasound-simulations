@@ -95,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     gWindow = new GWindow();
     QWidget *widget3D = createWindowContainer(gWindow);
     ui->dockWidgetContents3D->layout()->addWidget(widget3D);
+    connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
 }
 
 MainWindow::~MainWindow()
@@ -108,7 +109,7 @@ MainWindow::~MainWindow()
     //thread->wait();
     //threadPool->waitForDone();
     //delete thread;
-    delete threadXY;
+    //delete threadXY;
     delete gWindow;
 }
 
@@ -511,7 +512,7 @@ void MainWindow::initSlices()
         loadYZSlice(0);
 
         if (gWindow != NULL)
-            gWindow->load3DTexture(selectedDataset);
+            gWindow->load3DTexture(selectedDataset, currentColormap);
 
     } else if (selectedGroup != NULL) {
 
@@ -660,12 +661,15 @@ void MainWindow::setYZLoaded(hsize_t, hsize_t, hsize_t xO, hsize_t zC, hsize_t y
 void MainWindow::setImageXYFromData()
 {
     if (flagXYloaded) {
+        if (gWindow != NULL)
+            gWindow->setXYSlice(dataXY, sizeX, sizeY, (float) ui->verticalSliderXY->value() / (sizeZ - 1));
         cv::Mat image = cv::Mat(sizeY, sizeX, CV_32FC1, dataXY); // rows, cols (height, width)
         if (ui->checkBoxUseGlobal->isChecked())
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXY - minVXY), - minVXY * 255.0 /(maxVXY - minVXY));
         cv::applyColorMap(image, image, currentColormap);
+        cv::flip(image, image, 0);
         QPoint p = QPoint(posX, posY);
         if (!ui->toolButtonPositionXY->isChecked())
             p = QPoint(0, 0);
@@ -676,6 +680,8 @@ void MainWindow::setImageXYFromData()
 void MainWindow::setImageXZFromData()
 {
     if (flagXZloaded) {
+        if (gWindow != NULL)
+            gWindow->setXZSlice(dataXZ, sizeX, sizeZ, (float) ui->verticalSliderXZ->value() / (sizeY - 1));
         cv::Mat image = cv::Mat(sizeZ, sizeX, CV_32FC1, dataXZ); // rows, cols (height, width)
         if (ui->checkBoxUseGlobal->isChecked())
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
@@ -692,12 +698,16 @@ void MainWindow::setImageXZFromData()
 void MainWindow::setImageYZFromData()
 {
     if (flagYZloaded) {
+        if (gWindow != NULL)
+            gWindow->setYZSlice(dataYZ, sizeY, sizeZ, (float) ui->verticalSliderYZ->value() / (sizeX - 1));
         cv::Mat image = cv::Mat(sizeZ, sizeY, CV_32FC1, dataYZ); // rows, cols (height, width)
         if (ui->checkBoxUseGlobal->isChecked())
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVYZ - minVYZ), - minVYZ * 255.0 /(maxVYZ - minVYZ));
         cv::applyColorMap(image, image, currentColormap);
+        cv::transpose(image, image);
+        cv::flip(image, image, 0);
         QPoint p = QPoint(posY, posZ);
         if (!ui->toolButtonPositionYZ->isChecked())
             p = QPoint(0, 0);
@@ -1065,23 +1075,62 @@ void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
 void MainWindow::on_imageWidgetXY_clickedPointInImage(int x, int y)
 {
     if (flagXYloaded) {
-        float value = dataXY[x + sizeX * (y)];
-        QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+        float value = dataXY[x + sizeX * (sizeY - y)];
+        //qDebug() << x << " " << y << " " << value;
+        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
+        //QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
     }
 }
 
-void MainWindow::on_imageWidgetXZ_clickedPointInImage(int x, int y)
+void MainWindow::on_imageWidgetXZ_clickedPointInImage(int x, int z)
 {
     if (flagXZloaded) {
-        float value = dataXZ[x + sizeX * (y)];
-        QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+        float value = dataXZ[x + sizeX * z];
+        //qDebug() << x << " " << z << " " << value;
+        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
+        //QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
     }
 }
 
-void MainWindow::on_imageWidgetYZ_clickedPointInImage(int x, int y)
+void MainWindow::on_imageWidgetYZ_clickedPointInImage(int y, int z)
 {
     if (flagYZloaded) {
-        float value = dataYZ[x + sizeY * (y)];
-        QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+        float value = dataYZ[(sizeZ - z) + sizeZ * y];
+        //qDebug() << y << " " << z << " " << value;
+        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
+        //QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+    }
+}
+
+void MainWindow::on_actionVolumeRendering_toggled(bool value)
+{
+    if (gWindow != NULL)
+        gWindow->setViewVR(value);
+}
+
+void MainWindow::on_action3DXY_toggled(bool value)
+{
+    if (gWindow != NULL)
+        gWindow->setViewXYSlice(value);
+}
+
+void MainWindow::on_action3DXZ_toggled(bool value)
+{
+    if (gWindow != NULL)
+        gWindow->setViewXZSlice(value);
+}
+
+void MainWindow::on_action3DYZ_toggled(bool value)
+{
+    if (gWindow != NULL)
+        gWindow->setViewYZSlice(value);
+}
+
+void MainWindow::on_actionExportImageFrom3DScene_triggered()
+{
+    if (gWindow != NULL) {
+        QString fileName = QFileDialog::getSaveFileName(this, "Save image", QString::fromStdString(replaceString(datasetName, "/", "-") + "_3Dscene.png"), "Image (*.png)");
+        if (fileName != NULL)
+            gWindow->saveImage(fileName);
     }
 }

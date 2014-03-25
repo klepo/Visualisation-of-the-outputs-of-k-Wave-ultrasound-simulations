@@ -104,7 +104,7 @@ void CVImageWidget::mouseMoveEvent(QMouseEvent *event)
         p.setX((event->pos().x() - point.x()) * _tmp.cols / _qimage.width());
         p.setY((event->pos().y() - point.y()) * _tmp.rows / _qimage.height());
         //qDebug() << p.x() << p.y();
-        if (p.x() >= 0 && p.x() <= _tmp.cols && p.y() >= 0 && p.y() <= _tmp.rows) {
+        if (p.x() >= 0 && p.x() < _tmp.cols && p.y() >= 0 && p.y() < _tmp.rows) {
             //QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this, rect());
             emit clickedPointInImage(p.x(), p.y());
         }
