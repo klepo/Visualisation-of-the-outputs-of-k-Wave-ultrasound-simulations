@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     flagYZloaded = false;
     //flagUseGlobalValues = false;
 
+    flagvRLoaded = false;
+
     dataXY = NULL;
     dataXZ = NULL;
     dataYZ = NULL;
@@ -96,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     QWidget *widget3D = createWindowContainer(gWindow);
     ui->dockWidgetContents3D->layout()->addWidget(widget3D);
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
+
+    connect(gWindow, SIGNAL(loaded(std::string)), this, SLOT(loaded3D(std::string)));
+
 }
 
 MainWindow::~MainWindow()
@@ -111,6 +116,9 @@ MainWindow::~MainWindow()
     //delete thread;
     //delete threadXY;
     delete gWindow;
+    threadXY->deleteLater();
+    threadXZ->deleteLater();
+    threadYZ->deleteLater();
 }
 
 std::string replaceString(std::string subject, const std::string& search, const std::string& replace) {
@@ -507,12 +515,18 @@ void MainWindow::initSlices()
         ui->spinBoxYZ->setValue(0);
 
         flagDatasetInitialized = true;
+        flagvRLoaded = false;
         loadXYSlice(0);
         loadXZSlice(0);
         loadYZSlice(0);
 
-        if (gWindow != NULL)
-            gWindow->load3DTexture(selectedDataset, currentColormap);
+        if (gWindow != NULL) {
+            gWindow->changeMinValue(ui->doubleSpinBoxMinGlobal->value());
+            gWindow->changeMinValue(ui->doubleSpinBoxMinGlobal->value());
+        }
+
+        if (gWindow != NULL && ui->actionVolumeRendering->isChecked())
+            gWindow->load3DTexture(selectedDataset, minVG, maxVG, currentColormap);
 
     } else if (selectedGroup != NULL) {
 
@@ -562,7 +576,7 @@ void MainWindow::setXYLoaded(hsize_t zO, hsize_t, hsize_t, hsize_t zC, hsize_t y
 
         flagXYloaded = true;
         setImageXYFromData();
-        if (play)
+        if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagvRLoaded))
             timer->start(interval);
     //}
 }
@@ -608,7 +622,7 @@ void MainWindow::setXZLoaded(hsize_t, hsize_t yO, hsize_t, hsize_t zC, hsize_t y
 
         flagXZloaded = true;
         setImageXZFromData();
-        if (play)
+        if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagvRLoaded))
             timer->start(interval);
     //}
 }
@@ -653,16 +667,27 @@ void MainWindow::setYZLoaded(hsize_t, hsize_t, hsize_t xO, hsize_t zC, hsize_t y
 
         flagYZloaded = true;
         setImageYZFromData();
-        if (play)
+        if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagvRLoaded))
             timer->start(interval);
     //}
+}
+
+void MainWindow::loaded3D(std::string _datasetName)
+{
+    flagvRLoaded = true;
+    if (play && flagXZloaded && flagYZloaded && flagXZloaded && flagvRLoaded && _datasetName == datasetName)
+        timer->start(interval);
 }
 
 void MainWindow::setImageXYFromData()
 {
     if (flagXYloaded) {
-        if (gWindow != NULL)
-            gWindow->setXYSlice(dataXY, sizeX, sizeY, (float) ui->verticalSliderXY->value() / (sizeZ - 1));
+        if (gWindow != NULL) {
+            if (sizeZ == 1)
+                gWindow->setXYSlice(dataXY, sizeX, sizeY, (float) 0.0);
+            else
+                gWindow->setXYSlice(dataXY, sizeX, sizeY, (float) ui->verticalSliderXY->value() / (sizeZ - 1));
+        }
         cv::Mat image = cv::Mat(sizeY, sizeX, CV_32FC1, dataXY); // rows, cols (height, width)
         if (ui->checkBoxUseGlobal->isChecked())
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
@@ -680,8 +705,12 @@ void MainWindow::setImageXYFromData()
 void MainWindow::setImageXZFromData()
 {
     if (flagXZloaded) {
-        if (gWindow != NULL)
-            gWindow->setXZSlice(dataXZ, sizeX, sizeZ, (float) ui->verticalSliderXZ->value() / (sizeY - 1));
+        if (gWindow != NULL) {
+            if (sizeY == 1)
+                gWindow->setXZSlice(dataXZ, sizeX, sizeZ, (float) 0);
+            else
+                gWindow->setXZSlice(dataXZ, sizeX, sizeZ, (float) ui->verticalSliderXZ->value() / (sizeY - 1));
+        }
         cv::Mat image = cv::Mat(sizeZ, sizeX, CV_32FC1, dataXZ); // rows, cols (height, width)
         if (ui->checkBoxUseGlobal->isChecked())
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
@@ -698,8 +727,13 @@ void MainWindow::setImageXZFromData()
 void MainWindow::setImageYZFromData()
 {
     if (flagYZloaded) {
-        if (gWindow != NULL)
-            gWindow->setYZSlice(dataYZ, sizeY, sizeZ, (float) ui->verticalSliderYZ->value() / (sizeX - 1));
+        if (gWindow != NULL) {
+            if (sizeX == 1)
+                gWindow->setYZSlice(dataYZ, sizeY, sizeZ, (float) 0);
+            else
+                gWindow->setYZSlice(dataYZ, sizeY, sizeZ, (float) ui->verticalSliderYZ->value() / (sizeX - 1));
+
+        }
         cv::Mat image = cv::Mat(sizeZ, sizeY, CV_32FC1, dataYZ); // rows, cols (height, width)
         if (ui->checkBoxUseGlobal->isChecked())
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
@@ -986,16 +1020,26 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
             threadXZ->wait();
             threadYZ->clearRequests();
             threadYZ->wait();
+            if (gWindow != NULL && ui->actionVolumeRendering->isChecked())
+            {
+                gWindow->getThread()->clearRequests();
+                gWindow->getThread()->wait();
+            }
             file->closeDataset(selectedDataset->getName());
             selectedDataset = file->openDataset(selectedName + "/" + std::to_string(step));
             datasetName = selectedName + "/" + std::to_string(step);
             currentXYloadedFlag = false;
             currentXZloadedFlag = false;
             currentYZloadedFlag = false;
+
+            flagvRLoaded = false;
+
+            if (gWindow != NULL && ui->actionVolumeRendering->isChecked())
+                gWindow->load3DTexture(selectedDataset, minVG, maxVG, currentColormap);
+
             loadXYSlice(ui->verticalSliderXY->value());
             loadXZSlice(ui->verticalSliderXZ->value());
             loadYZSlice(ui->verticalSliderYZ->value());
-            //gWindow->load3DTexture(selectedDataset);
         } catch(std::exception &) {
             std::cerr << "Wrong step" << std::endl;
         }

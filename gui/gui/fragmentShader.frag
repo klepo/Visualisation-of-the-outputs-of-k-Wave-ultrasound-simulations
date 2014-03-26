@@ -33,7 +33,7 @@ out vec4 colorOut;
 void main() {
    if (uFrame) {
 
-       colorOut = vec4(1.0, 1.0, 0.0, 1.0);
+       colorOut = vec4(0.5, 0.5, 0.5, 1.0);
 
    } else if (uSlices) {
 
@@ -41,7 +41,7 @@ void main() {
        float value = ((color.r - uMin) * 1.0) / (uMax - uMin);
        vec4 fColor = texture(uColormapSampler, value);
 
-       colorOut = vec4(fColor.rgb, 0.5);
+       colorOut = vec4(fColor.rgb, 0.9);
 
    } else {
 
@@ -54,10 +54,26 @@ void main() {
        if (vPosition.y > 1.0 + yT || vPosition.y < 0.0 - yT) discard;
        if (vPosition.z > 1.0 || vPosition.z < 0.0) discard;
 
-       //vec4 colorF = texture(uSampler, vPosition.xyz + (vPositionF.xyz));
+       //vec4 vector = mix(vPosition, vPositionL, 0.5);
+
+       //vec4 new = normalize(vPositionF) * distance(vPosition, vPositionL);
+
+       //vec4 vPositionN = vec4(vPositionL.xy, 0.0, vPositionL.w);
+
+       //vec4 colorL = texture(uSampler, vec3((vPositionN.x + xT) / xRatio, (vPositionN.y + yT) / yRatio, vPositionN.z));
        vec4 color = texture(uSampler, vec3((vPosition.x + xT) / xRatio, (vPosition.y + yT) / yRatio, vPosition.z));
 
-       //color = mix(color, colorF, 0.5);
+       //vec4 color = colorL;
+
+       /*for (float s = 0.0; s <= 1.0; s += 0.1) {
+           vec4 vPositionM = mix(vPositionN, vPositionL, s);
+           vec4 colorM = texture(uSampler, vec3((vPositionM.x + xT) / xRatio, (vPositionM.y + yT) / yRatio, vPositionM.z));
+           //color.r = color.r * (1 - uAlpha) + colorM.r * uAlpha;
+           color.r = max(color.r, colorM.r);
+       }*/
+       //vec4 color2 = texture(uSampler, vec3((vPositionL.x + xT) / xRatio, (vPositionL.y + yT) / yRatio, vPositionL.z - 0.5));
+
+       //color = mix(colorL, color2, 0.5);
 
       /* vec4 colorN;// = mix(color, colorM, 0.9);
        for (float s = 0.0; s <= 1.0; s += 0.5) {

@@ -17,7 +17,7 @@ out vec2 vTextureCoord;
 void main() {
    vPosition = uScaleMatrix * aPosition;
    gl_Position = uMatrix * uScaleMatrix * aPosition;
-   //vPositionL = uScalelMatrix * aPosition;
-   //vPositionF = uMatrix * uScaleMatrix * vec4(0, 0, 0, 1.0);
+   vPositionL = uScalelMatrix * aPosition;
+   //vPositionF = uMatrix * aPosition;
    vTextureCoord = aTextureCoord;
 }

@@ -40,6 +40,8 @@ public slots:
     void setXZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
     void setYZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
 
+    void loaded3D(std::string);
+
 private slots:
     void on_verticalSliderXY_valueChanged(int value);
     void on_verticalSliderXZ_valueChanged(int value);
@@ -142,6 +144,8 @@ private:
     bool flagGroupInitialized;
     bool flagXYloaded, flagXZloaded, flagYZloaded;
     //bool flagUseGlobalValues;
+
+    bool flagvRLoaded;
 
     float minVG, maxVG;
     float minVXY, maxVXY;

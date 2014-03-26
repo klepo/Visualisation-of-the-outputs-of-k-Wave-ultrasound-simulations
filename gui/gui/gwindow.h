@@ -26,6 +26,11 @@ public:
 
     bool event(QEvent *event);
 
+    HDF5ReadingThread *getThread();
+
+signals:
+    void loaded(std::string datasetName);
+
 public slots:
     void setAlpha(int);
     void setRed(int);
@@ -42,7 +47,7 @@ public slots:
     void setViewXZSlice(bool);
     void setViewYZSlice(bool);
 
-    void load3DTexture(HDF5File::HDF5Dataset *dataset, int colormap = cv::COLORMAP_JET);
+    void load3DTexture(HDF5File::HDF5Dataset *dataset, float min, float max, int colormap = cv::COLORMAP_JET);
     void changeColormap(int colormap = cv::COLORMAP_JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);
