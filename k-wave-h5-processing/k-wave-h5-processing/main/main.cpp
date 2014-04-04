@@ -671,7 +671,7 @@ int main(int argc, char **argv)
                     dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
                     dstDatasetFinal->setAttribute("dwnsmpl", (uint64_t) maxSize);
                     dstDatasetFinal->setAttribute("src_dataset_name", srcDataset->getName());
-                    dstDatasetFinal->setAttribute("src_dataset_id", srcDataset->getId());
+                    dstDatasetFinal->setAttribute("src_dataset_id", (uint64_t) srcDataset->getId());
                 }
 
                 // For every reshaped mask type
@@ -762,7 +762,7 @@ int main(int argc, char **argv)
                     dstGroupFinal->setAttribute("min", minVG);
                     dstGroupFinal->setAttribute("max", maxVG);
                     dstGroupFinal->setAttribute("src_group_name", srcGroup->getName());
-                    dstGroupFinal->setAttribute("src_group_id", srcGroup->getId());
+                    dstGroupFinal->setAttribute("src_group_id", (uint64_t) srcGroup->getId());
                     hDF5OutputFile->closeGroup(dstGroupFinal->getName());
                 }
 
