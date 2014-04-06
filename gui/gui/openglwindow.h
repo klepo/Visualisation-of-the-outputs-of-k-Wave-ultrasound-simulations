@@ -4,6 +4,7 @@
 #include <QtGui/QWindow>
 #include <QtGui/QOpenGLFunctions>
 #include <QTimer>
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 class QPainter;
@@ -54,6 +55,7 @@ private:
     QOpenGLPaintDevice *m_device;
     bool m_update_pending;
     float r;
+    //QThread *thread;
 
 };
 

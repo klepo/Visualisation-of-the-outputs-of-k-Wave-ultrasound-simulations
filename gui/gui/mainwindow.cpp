@@ -18,103 +18,49 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QLocale>
+#include <QMovie>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     file = NULL;
-    fileName = "";
-    windowTitle = "k-Wave HDF5 visualizer";
-    nT = 0;
-    nX = 0;
-    nY = 0;
-    nZ = 0;
-    setWindowTitle(windowTitle);
-    selectedDataset = NULL;
-    selectedGroup = NULL;
-    selectedName = "";
-    datasetName = "";
-
-    flagDatasetInitialized = false;
-    flagGroupInitialized = false;
-    flagXYloaded = false;
-    flagXZloaded = false;
-    flagYZloaded = false;
-    //flagUseGlobalValues = false;
-
-    flagvRLoaded = false;
-
     dataXY = NULL;
     dataXZ = NULL;
     dataYZ = NULL;
 
-    ui->dockWidgetSelectedDataset->setEnabled(false);
-    //ui->dockWidget3D->setEnabled(false);
-    ui->dockWidgetCT->setEnabled(false);
-    ui->dockWidgetDatasets->setEnabled(false);
-    ui->dockWidgetInfo->setEnabled(false);
-    ui->dockWidgetXY->setEnabled(false);
-    ui->dockWidgetXZ->setEnabled(false);
-    ui->dockWidgetYZ->setEnabled(false);
-
-
-    ui->checkBoxUseGlobal->setChecked(true);
-    ui->toolButtonLocalValues->setChecked(false);
-    ui->actionCT->setChecked(false);
-    ui->actionInfo->setChecked(false);
-    ui->dockWidgetCT->setVisible(false);
-    ui->dockWidgetInfo->setVisible(false);
-
-    //tabifyDockWidget(ui->dockWidgetCT, ui->dockWidgetInfo);
-
-    currentColormap = cv::COLORMAP_JET;
-
-    posZ = 0;
-    posY = 0;
-    posX = 0;
-
-    steps = 0;
+    windowTitle = "k-Wave HDF5 visualizer";
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
-    increment = ui->spinBoxTMIncrement->value();
-    interval = ui->spinBoxTMInterval->value();
-    play = false;
-    //thread = NULL;
-    //threadPool = NULL;
+
     qRegisterMetaType<hsize_t>("hsize_t");
     threadXY = new HDF5ReadingThread();
-    connect(threadXY, SIGNAL(sliceLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setXYLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
+    connect(threadXY, SIGNAL(dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setXYLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
     threadXZ = new HDF5ReadingThread();
-    connect(threadXZ, SIGNAL(sliceLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setXZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
+    connect(threadXZ, SIGNAL(dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setXZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
     threadYZ = new HDF5ReadingThread();
-    connect(threadYZ, SIGNAL(sliceLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setYZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
-    //threadXY->start();
-
+    connect(threadYZ, SIGNAL(dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setYZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
 
     gWindow = NULL;
     gWindow = new GWindow();
     QWidget *widget3D = createWindowContainer(gWindow);
     ui->dockWidgetContents3D->layout()->addWidget(widget3D);
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
-
     connect(gWindow, SIGNAL(loaded(std::string)), this, SLOT(loaded3D(std::string)));
 
+    movie = new QMovie(":/icons/icons/loading.gif");
+    movie->start();
+
+    clearGUI();
 }
 
 MainWindow::~MainWindow()
 {
     on_actionCloseHDF5File_triggered();
     delete ui;
-    //if (file != NULL)
-    //    delete file;
     delete timer;
-    //thread->terminate();
-    //thread->wait();
-    //threadPool->waitForDone();
-    //delete thread;
-    //delete threadXY;
     delete gWindow;
     threadXY->deleteLater();
     threadXZ->deleteLater();
@@ -138,13 +84,15 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
         try {
             on_actionCloseHDF5File_triggered();
 
+            file = new HDF5File(_fileName.toStdString());
+
             fileName = _fileName.toStdString();
             size_t lastindex = fileName.find_last_of(".");
             std::string rawname = fileName.substr(0, lastindex);
             fileName = rawname;
 
-            file = new HDF5File(_fileName.toStdString());
             setWindowTitle(windowTitle + " - " + _fileName);
+
             ui->actionCloseHDF5File->setEnabled(true);
             ui->dockWidgetDatasets->setEnabled(true);
             ui->dockWidgetInfo->setEnabled(true);
@@ -170,8 +118,6 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
             nY = file->getNY();
             nZ = file->getNZ();
 
-
-
             // Clear datasets
             QLayoutItem* item;
             while ((item = ui->verticalLayoutDatasets->takeAt(0)) != NULL)
@@ -182,7 +128,7 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
 
             int count = 0;
 
-            // FInd datasets for visualization
+            // Find datasets for visualization
             for (hsize_t i = 0; i < file->getNumObjs(); i++) {
                 try {
                     HDF5File::HDF5Dataset *dataset = file->openDataset(i);
@@ -222,31 +168,44 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
 
         } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
+            // TODO error dialog
         }
     }
 }
 
-void MainWindow::on_actionCloseHDF5File_triggered()
+void MainWindow::clearGUI()
 {
-    threadXY->clearRequests();
-    threadXY->wait();
-    threadXZ->clearRequests();
-    threadXZ->wait();
-    threadYZ->clearRequests();
-    threadYZ->wait();
-
     fileName = "";
 
-    if (file != NULL) {
-        delete file;
-        file = NULL;
-    }
+    nT = 0;
+    nX = 0;
+    nY = 0;
+    nZ = 0;
+
+    setWindowTitle(windowTitle);
+    selectedDataset = NULL;
+    selectedGroup = NULL;
+    selectedName = "";
+    datasetName = "";
+
+    flagDatasetInitialized = false;
+    flagGroupInitialized = false;
+    flagXYloaded = false;
+    flagXZloaded = false;
+    flagYZloaded = false;
+    flagVRLoaded = false;
+
+    ui->comboBoxColormap->setCurrentIndex(cv::COLORMAP_JET);
+
+    posZ = 0;
+    posY = 0;
+    posX = 0;
+
+    steps = 0;
+
+    play = false;
 
     ui->dockWidgetSelectedDataset->setEnabled(false);
-
-    ui->dockWidgetSelectedDataset->setEnabled(false);
-    ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
-    ui->groupBoxVolumeRendering->setEnabled(false);
     //ui->dockWidget3D->setEnabled(false);
     ui->dockWidgetCT->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
@@ -255,42 +214,29 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
 
-    if (dataXY != NULL) {
-        delete [] dataXY;
-        dataXY = NULL;
-    }
-    if (dataXZ != NULL) {
-        delete [] dataXZ;
-        dataXZ = NULL;
-    }
-    if (dataYZ != NULL) {
-        delete [] dataYZ;
-        dataYZ = NULL;
-    }
+    ui->verticalSliderXY->setValue(0);
+    ui->spinBoxXY->setValue(0);
+
+    ui->verticalSliderXZ->setValue(0);
+    ui->spinBoxXZ->setValue(0);
+
+    ui->verticalSliderYZ->setValue(0);
+    ui->spinBoxYZ->setValue(0);
+
+    ui->checkBoxUseGlobal->setChecked(true);
+    ui->toolButtonLocalValues->setChecked(false);
+    ui->actionCT->setChecked(false);
+    ui->actionInfo->setChecked(false);
+    ui->dockWidgetCT->setVisible(false);
+    ui->dockWidgetInfo->setVisible(false);
 
     ((CVImageWidget *) ui->imageWidgetXY)->clearImage();
     ((CVImageWidget *) ui->imageWidgetXZ)->clearImage();
     ((CVImageWidget *) ui->imageWidgetYZ)->clearImage();
 
-    flagDatasetInitialized = false;
-    flagGroupInitialized = false;
-    flagXYloaded = false;
-    flagXZloaded = false;
-    flagYZloaded = false;
-    //flagUseGlobalValues = false;
-    //ui->checkBoxUseGlobal->setChecked(false);
-
-    selectedDataset = NULL;
-    selectedGroup = NULL;
-    selectedName = "";
-    datasetName = "";
-
-    nT = 0;
-    nX = 0;
-    nY = 0;
-    nZ = 0;
-
-    steps = 0;
+    // TODO clear 3D scene
+    if (gWindow != NULL)
+        gWindow->unload3DTexture();
 
     // Clear dataset info
     QLayoutItem* item;
@@ -312,7 +258,43 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     ui->textBrowserInfo->clear();
 
     ui->actionCloseHDF5File->setEnabled(false);
-    setWindowTitle(windowTitle);
+
+}
+
+void MainWindow::on_actionCloseHDF5File_triggered()
+{
+    threadXY->clearRequests();
+    threadXY->wait();
+    threadXZ->clearRequests();
+    threadXZ->wait();
+    threadYZ->clearRequests();
+    threadYZ->wait();
+
+    if (gWindow != NULL)
+    {
+        gWindow->getThread()->clearRequests();
+        gWindow->getThread()->wait();
+    }
+
+    if (file != NULL) {
+        delete file;
+        file = NULL;
+    }
+    if (dataXY != NULL) {
+        delete [] dataXY;
+        dataXY = NULL;
+    }
+    if (dataXZ != NULL) {
+        delete [] dataXZ;
+        dataXZ = NULL;
+    }
+    if (dataYZ != NULL) {
+        delete [] dataYZ;
+        dataYZ = NULL;
+    }
+
+    clearGUI();
+
 }
 
 void MainWindow::selectDataset()
@@ -324,15 +306,28 @@ void MainWindow::selectDataset()
     threadYZ->clearRequests();
     threadYZ->wait();
 
+    ((CVImageWidget *) ui->imageWidgetXY)->clearImage();
+    ((CVImageWidget *) ui->imageWidgetXZ)->clearImage();
+    ((CVImageWidget *) ui->imageWidgetYZ)->clearImage();
+
+    if (gWindow != NULL)
+    {
+        gWindow->getThread()->clearRequests();
+        gWindow->getThread()->wait();
+        gWindow->unload3DTexture();
+        gWindow->clearSlices();
+    }
+
     flagDatasetInitialized = false;
     flagGroupInitialized = false;
     flagXYloaded = false;
     flagXZloaded = false;
     flagYZloaded = false;
+    flagVRLoaded = false;
 
-    ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
-    ui->groupBoxVolumeRendering->setEnabled(false);
+    //ui->groupBoxVolumeRendering->setEnabled(false);
     ui->dockWidgetSelectedDataset->setEnabled(false);
+    ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
@@ -343,23 +338,11 @@ void MainWindow::selectDataset()
     posY = 0;
     posX = 0;
 
+    steps = 0;
     play = false;
-
     currentStep = 0;
 
-    currentXYloadedFlag = false;
-    currentXZloadedFlag = false;
-    currentYZloadedFlag = false;
-
-    // Find selected
-    QList<QRadioButton *> list = ui->dockWidgetContentsDatasets->findChildren<QRadioButton *>();
-    foreach(QRadioButton *rB, list) {
-        if (rB->isChecked()) {
-            selectedName = rB->text().toStdString();
-            break;
-        }
-    }
-
+    // Close old dataset or group
     try {
         selectedDataset = NULL;
         file->closeDataset(selectedName);
@@ -372,25 +355,40 @@ void MainWindow::selectDataset()
         }
     }
 
+    // Clear dataset info
+    QLayoutItem* item;
+    while ((item = ui->formLayoutSelectedDatasetInfo->takeAt(0)) != NULL)
+    {
+        delete item->widget();
+        delete item;
+    }
+
+
+    // Find selected dataset or group
+    QList<QRadioButton *> list = ui->dockWidgetContentsDatasets->findChildren<QRadioButton *>();
+    foreach(QRadioButton *rB, list) {
+        if (rB->isChecked()) {
+            selectedName = rB->text().toStdString();
+            break;
+        }
+    }
+
+    // Try open dataset
     try {
         selectedDataset = file->openDataset(selectedName);
         datasetName = selectedName;
+
         std::cout << "--> Selected dataset " << selectedName << std::endl;
+
         minVG = selectedDataset->getGlobalMinValueF();
         maxVG = selectedDataset->getGlobalMaxValueF();
+
         std::cout << "minVG: " << minVG << " maxVG: " << maxVG << std::endl;
 
-        // Clear info
-        QLayoutItem* item;
-        while ((item = ui->formLayoutSelectedDatasetInfo->takeAt( 0 )) != NULL)
-        {
-            delete item->widget();
-            delete item;
-        }
-        //ui->groupBoxSelectedDatasetInfo->adjustSize();
+        // Set dataset info
         ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Name:"), new QLabel(QString::fromStdString(selectedName)));
         ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Type:"), new QLabel(QString("3D dataset")));
-
+        //ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Original size:"), new QLabel(QString::number(nZ) + " x " + QString::number(nY) + " x " + QString::number(nX)));
         hsize_t *size = selectedDataset->getDims();
         sizeZ = size[0];
         sizeY = size[1];
@@ -399,18 +397,15 @@ void MainWindow::selectDataset()
         size = selectedDataset->getChunkDims();
         ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Chunk size:"), new QLabel(QString::number(size[0]) + " x " + QString::number(size[1]) + " x " + QString::number(size[2])));
 
-        // TODO set min max sliders
+        // Init min and max controls
         ui->doubleSpinBoxMinGlobal->setRange((double) minVG, (double) maxVG);
         ui->doubleSpinBoxMaxGlobal->setRange((double) minVG, (double) maxVG);
         ui->doubleSpinBoxMinGlobal->setValue((double) minVG);
         ui->doubleSpinBoxMaxGlobal->setValue((double) maxVG);
         ui->doubleSpinBoxMinGlobal->setSingleStep((maxVG - minVG) / 1000);
         ui->doubleSpinBoxMaxGlobal->setSingleStep((maxVG - minVG) / 1000);
-
         ui->horizontalSliderGlobalMin->setValue(ui->horizontalSliderGlobalMin->minimum());
         ui->horizontalSliderGlobalMax->setValue(ui->horizontalSliderGlobalMax->maximum());
-
-        //file->closeDataset(selectedDataset->getName());
 
         initSlices();
 
@@ -420,62 +415,52 @@ void MainWindow::selectDataset()
         ui->dockWidgetYZ->setEnabled(true);
 
     } catch(std::exception &) {
+        // Try open group
         try {
             selectedGroup = file->openGroup(selectedName);
+            selectedDataset = file->openDataset(selectedName + "/" + std::to_string(0));
+            datasetName = selectedDataset->getName();
+
             std::cout << "--> Selected group " << selectedName << std::endl;
+
             minVG = selectedGroup->readAttributeF("min");
             maxVG = selectedGroup->readAttributeF("max");
+
             std::cout << "minVG: " << minVG << " maxVG: " << maxVG << std::endl;
 
-            // Clear info
-            QLayoutItem* item;
-            while ((item = ui->formLayoutSelectedDatasetInfo->takeAt( 0 )) != NULL)
-            {
-                delete item->widget();
-                delete item;
-            }
+            steps = selectedGroup->readAttributeI("count");
+            // Set series controls
+            ui->spinBoxSelectedDatasetStep->setMaximum(steps-1);
+            ui->spinBoxSelectedDatasetStep->setValue(0);
+            ui->horizontalSliderSelectedDatasetStep->setMaximum(steps-1);
+            ui->horizontalSliderSelectedDatasetStep->setValue(0);
 
+            // Set info
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Name:"), new QLabel(QString::fromStdString(selectedName)));
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Type:"), new QLabel(QString("Mask type")));
-
-            steps = selectedGroup->readAttributeI("count");
-
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Steps:"), new QLabel(QString::number(steps)));
-
             sizeZ = selectedGroup->readAttributeI("sizeZ");
             sizeY = selectedGroup->readAttributeI("sizeY");
             sizeX = selectedGroup->readAttributeI("sizeX");
             posZ = selectedGroup->readAttributeI("positionZ");
             posY = selectedGroup->readAttributeI("positionY");
             posX = selectedGroup->readAttributeI("positionX");
-            ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Size:"), new QLabel(QString::number(sizeZ) + " x " + QString::number(sizeY) + " x " + QString::number(sizeX)));
+            ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Size:"), new QLabel(QString::number(nZ) + " x " + QString::number(nY) + " x " + QString::number(nX)));
+            ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Mask size:"), new QLabel(QString::number(sizeZ) + " x " + QString::number(sizeY) + " x " + QString::number(sizeX)));
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Position:"), new QLabel(QString::number(posZ) + " x " + QString::number(posY) + " x " + QString::number(posX)));
-
-            selectedDataset = file->openDataset(selectedName + "/" + std::to_string(0));
-
-            datasetName = selectedDataset->getName();
-
-            ui->spinBoxSelectedDatasetStep->setMaximum(steps-1);
-            ui->spinBoxSelectedDatasetStep->setValue(0);
-            ui->horizontalSliderSelectedDatasetStep->setMaximum(steps-1);
-            ui->horizontalSliderSelectedDatasetStep->setValue(0);
-
             hsize_t *size;
             size = selectedDataset->getChunkDims();
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Chunk size:"), new QLabel(QString::number(size[0]) + " x " + QString::number(size[1]) + " x " + QString::number(size[2])));
 
-            // TODO set min max sliders
+            // Init min and max controls
             ui->doubleSpinBoxMinGlobal->setRange((double) minVG, (double) maxVG);
             ui->doubleSpinBoxMaxGlobal->setRange((double) minVG, (double) maxVG);
             ui->doubleSpinBoxMinGlobal->setValue((double) minVG);
             ui->doubleSpinBoxMaxGlobal->setValue((double) maxVG);
             ui->doubleSpinBoxMinGlobal->setSingleStep((maxVG - minVG) / 100);
             ui->doubleSpinBoxMaxGlobal->setSingleStep((maxVG - minVG) / 100);
-
             ui->horizontalSliderGlobalMin->setValue(ui->horizontalSliderGlobalMin->minimum());
             ui->horizontalSliderGlobalMax->setValue(ui->horizontalSliderGlobalMax->maximum());
-
-            //file->closeDataset(datasetName);
 
             initSlices();
 
@@ -493,191 +478,190 @@ void MainWindow::selectDataset()
 
 void MainWindow::initSlices()
 {
-    if (datasetName != "") {
-        ui->dockWidgetXY->setWindowTitle("XY slice (Z = 0)");
-        ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = 0)");
-        ui->dockWidgetYZ->setWindowTitle("YZ slice (X = 0)");
-        std::cout << "Dataset size: " << sizeZ << " x " << sizeY << " x " << sizeX << std::endl;
+    if (selectedDataset != NULL) {
+        //ui->dockWidgetXY->setWindowTitle("XY slice (Z = 0)");
+        //ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = 0)");
+        //ui->dockWidgetYZ->setWindowTitle("YZ slice (X = 0)");
 
+        // Set vertical sliders controls
         ui->verticalSliderXY->setMaximum(sizeZ-1);
-        ui->verticalSliderXY->setValue(0);
+        //ui->verticalSliderXY->setValue(0);
         ui->spinBoxXY->setMaximum(sizeZ-1);
-        ui->spinBoxXY->setValue(0);
+        //ui->spinBoxXY->setValue(0);
 
         ui->verticalSliderXZ->setMaximum(sizeY-1);
-        ui->verticalSliderXZ->setValue(0);
+        //ui->verticalSliderXZ->setValue(0);
         ui->spinBoxXZ->setMaximum(sizeY-1);
-        ui->spinBoxXZ->setValue(0);
+        //ui->spinBoxXZ->setValue(0);
 
         ui->verticalSliderYZ->setMaximum(sizeX-1);
-        ui->verticalSliderYZ->setValue(0);
+        //ui->verticalSliderYZ->setValue(0);
         ui->spinBoxYZ->setMaximum(sizeX-1);
-        ui->spinBoxYZ->setValue(0);
+        //ui->spinBoxYZ->setValue(0);
 
         flagDatasetInitialized = true;
-        flagvRLoaded = false;
-        loadXYSlice(0);
-        loadXZSlice(0);
-        loadYZSlice(0);
+        loadXYSlice(ui->verticalSliderXY->value());
+        loadXZSlice(ui->verticalSliderXZ->value());
+        loadYZSlice(ui->verticalSliderYZ->value());
 
         if (gWindow != NULL) {
             gWindow->changeMinValue(ui->doubleSpinBoxMinGlobal->value());
-            gWindow->changeMinValue(ui->doubleSpinBoxMinGlobal->value());
+            gWindow->changeMaxValue(ui->doubleSpinBoxMaxGlobal->value());
+            gWindow->changeColormap(ui->comboBoxColormap->currentIndex());
         }
 
         if (gWindow != NULL && ui->actionVolumeRendering->isChecked())
-            gWindow->load3DTexture(selectedDataset, minVG, maxVG, currentColormap);
-
-    } else if (selectedGroup != NULL) {
-
-    } else {
-        //clear
+            gWindow->load3DTexture(selectedDataset, minVG, maxVG, ui->comboBoxColormap->currentIndex());
     }
 }
+
+// Loading slices
 
 void MainWindow::loadXYSlice(hsize_t index)
 {
     if (flagDatasetInitialized || flagGroupInitialized) {
+        ui->labelXYLoading->setMovie(movie);
         threadXY->setParams(selectedDataset, index, 0, 0, 1, sizeY, sizeX);
-        if (!threadXY->isRunning())
-            threadXY->start();
+        //if (!threadXY->isRunning())
+        threadXY->start();
     }
 }
 
 void MainWindow::setXYLoaded(hsize_t zO, hsize_t, hsize_t, hsize_t zC, hsize_t yC, hsize_t xC, float *data, float min, float max)
 {
-    //if (!currentXYloadedFlag) {
-        ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(zO) + ")");
-        //if (zO == ui->verticalSliderXY->value())
-        //    currentXYloadedFlag = true;
-        flagXYloaded = false;
-        delete [] dataXY;
-        dataXY = NULL;
+    ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(zO) + ")");
+    flagXYloaded = false;
+    delete [] dataXY;
+    dataXY = NULL;
 
-        // TODO mutex
-        hsize_t size = zC * yC * xC;
-        dataXY = new float[size];
-        std::copy(data, data + size, dataXY);
-        delete [] data;
-        data = NULL;
+    if (zO == ui->verticalSliderXY->value()) ui->labelXYLoading->clear();
 
-        minVXY = min;
-        maxVXY = max;
+    // TODO mutex
+    hsize_t size = zC * yC * xC;
+    dataXY = new float[size];
+    std::copy(data, data + size, dataXY);
+    delete [] data;
+    data = NULL;
 
-        ui->doubleSpinBoxXYMin->setRange((double) minVXY, (double) maxVXY);
-        ui->doubleSpinBoxXYMax->setRange((double) minVXY, (double) maxVXY);
-        ui->doubleSpinBoxXYMin->setValue((double) minVXY);
-        ui->doubleSpinBoxXYMax->setValue((double) maxVXY);
-        ui->doubleSpinBoxXYMin->setSingleStep((maxVXY - minVXY) / 1000);
-        ui->doubleSpinBoxXYMax->setSingleStep((maxVXY - minVXY) / 1000);
+    minVXY = min;
+    maxVXY = max;
 
-        ui->horizontalSliderXYMin->setValue(ui->horizontalSliderXYMin->minimum());
-        ui->horizontalSliderXYMax->setValue(ui->horizontalSliderXYMax->maximum());
+    // Init local controls
+    ui->doubleSpinBoxXYMin->setRange((double) minVXY, (double) maxVXY);
+    ui->doubleSpinBoxXYMax->setRange((double) minVXY, (double) maxVXY);
+    ui->doubleSpinBoxXYMin->setValue((double) minVXY);
+    ui->doubleSpinBoxXYMax->setValue((double) maxVXY);
+    ui->doubleSpinBoxXYMin->setSingleStep((maxVXY - minVXY) / 1000);
+    ui->doubleSpinBoxXYMax->setSingleStep((maxVXY - minVXY) / 1000);
 
-        flagXYloaded = true;
-        setImageXYFromData();
-        if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagvRLoaded))
-            timer->start(interval);
-    //}
+    ui->horizontalSliderXYMin->setValue(ui->horizontalSliderXYMin->minimum());
+    ui->horizontalSliderXYMax->setValue(ui->horizontalSliderXYMax->maximum());
+
+    flagXYloaded = true;
+    setImageXYFromData();
+    if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
+        timer->start(ui->spinBoxTMInterval->value());
 }
 
 void MainWindow::loadXZSlice(hsize_t index)
 {
     if (flagDatasetInitialized || flagGroupInitialized) {
+        ui->labelXZLoading->setMovie(movie);
         threadXZ->setParams(selectedDataset, 0, index, 0, sizeZ, 1, sizeX);
-        if (!threadXZ->isRunning())
-            threadXZ->start();
+        //if (!threadXZ->isRunning())
+        threadXZ->start();
     }
 }
 
 void MainWindow::setXZLoaded(hsize_t, hsize_t yO, hsize_t, hsize_t zC, hsize_t yC, hsize_t xC, float *data, float min, float max)
 {
+    ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(yO) + ")");
+    flagXZloaded = false;
+    delete [] dataXZ;
+    dataXZ = NULL;
 
-    //if (!currentXZloadedFlag) {
-        ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(yO) + ")");
-        //if (yO == ui->verticalSliderXZ->value())
-        //    currentXZloadedFlag = true;
-        flagXZloaded = false;
-        delete [] dataXZ;
-        dataXZ = NULL;
+    if (yO == ui->verticalSliderXZ->value()) ui->labelXZLoading->clear();
 
-        hsize_t size = zC * yC * xC;
-        dataXZ = new float[size];
-        std::copy(data, data + size, dataXZ);
-        delete [] data;
-        data = NULL;
+    hsize_t size = zC * yC * xC;
+    dataXZ = new float[size];
+    std::copy(data, data + size, dataXZ);
+    delete [] data;
+    data = NULL;
 
-        minVXZ = min;
-        maxVXZ = max;
+    minVXZ = min;
+    maxVXZ = max;
 
-        ui->doubleSpinBoxXZMin->setRange((double) minVXZ, (double) maxVXZ);
-        ui->doubleSpinBoxXZMax->setRange((double) minVXZ, (double) maxVXZ);
-        ui->doubleSpinBoxXZMin->setValue((double) minVXZ);
-        ui->doubleSpinBoxXZMax->setValue((double) maxVXZ);
-        ui->doubleSpinBoxXZMin->setSingleStep((maxVXZ - minVXZ) / 1000);
-        ui->doubleSpinBoxXZMax->setSingleStep((maxVXZ - minVXZ) / 1000);
+    ui->doubleSpinBoxXZMin->setRange((double) minVXZ, (double) maxVXZ);
+    ui->doubleSpinBoxXZMax->setRange((double) minVXZ, (double) maxVXZ);
+    ui->doubleSpinBoxXZMin->setValue((double) minVXZ);
+    ui->doubleSpinBoxXZMax->setValue((double) maxVXZ);
+    ui->doubleSpinBoxXZMin->setSingleStep((maxVXZ - minVXZ) / 1000);
+    ui->doubleSpinBoxXZMax->setSingleStep((maxVXZ - minVXZ) / 1000);
 
-        ui->horizontalSliderXZMin->setValue(ui->horizontalSliderXZMin->minimum());
-        ui->horizontalSliderXZMax->setValue(ui->horizontalSliderXZMax->maximum());
+    ui->horizontalSliderXZMin->setValue(ui->horizontalSliderXZMin->minimum());
+    ui->horizontalSliderXZMax->setValue(ui->horizontalSliderXZMax->maximum());
 
-        flagXZloaded = true;
-        setImageXZFromData();
-        if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagvRLoaded))
-            timer->start(interval);
-    //}
+    flagXZloaded = true;
+    setImageXZFromData();
+    if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
+        timer->start(ui->spinBoxTMInterval->value());
 }
 
 void MainWindow::loadYZSlice(hsize_t index)
 {
     if (flagDatasetInitialized || flagGroupInitialized) {
+        ui->labelYZLoading->setMovie(movie);
         threadYZ->setParams(selectedDataset, 0, 0, index, sizeZ, sizeY, 1);
-        if (!threadYZ->isRunning())
-            threadYZ->start();
+        //if (!threadYZ->isRunning())
+        threadYZ->start();
     }
 }
 
 void MainWindow::setYZLoaded(hsize_t, hsize_t, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, float min, float max)
 {
-    //if (!currentYZloadedFlag) {
-        ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(xO) + ")");
-        //if (xO == ui->verticalSliderYZ->value())
-        //    currentYZloadedFlag = true;
-        flagYZloaded = false;
-        delete [] dataYZ;
-        dataYZ = NULL;
+    ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(xO) + ")");
+    flagYZloaded = false;
+    delete [] dataYZ;
+    dataYZ = NULL;
 
-        hsize_t size = zC * yC * xC;
-        dataYZ = new float[size];
-        std::copy(data, data + size, dataYZ);
-        delete [] data;
-        data = NULL;
+    if (xO == ui->verticalSliderYZ->value()) ui->labelYZLoading->clear();
 
-        minVYZ = min;
-        maxVYZ = max;
+    hsize_t size = zC * yC * xC;
+    dataYZ = new float[size];
+    std::copy(data, data + size, dataYZ);
+    delete [] data;
+    data = NULL;
 
-        ui->doubleSpinBoxYZMin->setRange((double) minVYZ, (double) maxVYZ);
-        ui->doubleSpinBoxYZMax->setRange((double) minVYZ, (double) maxVYZ);
-        ui->doubleSpinBoxYZMin->setValue((double) minVYZ);
-        ui->doubleSpinBoxYZMax->setValue((double) maxVYZ);
-        ui->doubleSpinBoxYZMin->setSingleStep((maxVYZ - minVYZ) / 1000);
-        ui->doubleSpinBoxYZMax->setSingleStep((maxVYZ - minVYZ) / 1000);
+    minVYZ = min;
+    maxVYZ = max;
 
-        ui->horizontalSliderYZMin->setValue(ui->horizontalSliderYZMin->minimum());
-        ui->horizontalSliderYZMax->setValue(ui->horizontalSliderYZMax->maximum());
+    ui->doubleSpinBoxYZMin->setRange((double) minVYZ, (double) maxVYZ);
+    ui->doubleSpinBoxYZMax->setRange((double) minVYZ, (double) maxVYZ);
+    ui->doubleSpinBoxYZMin->setValue((double) minVYZ);
+    ui->doubleSpinBoxYZMax->setValue((double) maxVYZ);
+    ui->doubleSpinBoxYZMin->setSingleStep((maxVYZ - minVYZ) / 1000);
+    ui->doubleSpinBoxYZMax->setSingleStep((maxVYZ - minVYZ) / 1000);
 
-        flagYZloaded = true;
-        setImageYZFromData();
-        if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagvRLoaded))
-            timer->start(interval);
-    //}
+    ui->horizontalSliderYZMin->setValue(ui->horizontalSliderYZMin->minimum());
+    ui->horizontalSliderYZMax->setValue(ui->horizontalSliderYZMax->maximum());
+
+    flagYZloaded = true;
+    setImageYZFromData();
+    if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
+        timer->start(ui->spinBoxTMInterval->value());
 }
+
+// 3D data loaded event
 
 void MainWindow::loaded3D(std::string _datasetName)
 {
-    flagvRLoaded = true;
-    if (play && flagXZloaded && flagYZloaded && flagXZloaded && flagvRLoaded && _datasetName == datasetName)
-        timer->start(interval);
+    flagVRLoaded = true;
+    // If animation is running...
+    if (play && flagXZloaded && flagYZloaded && flagXZloaded && flagVRLoaded && _datasetName == datasetName)
+        timer->start(ui->spinBoxTMInterval->value());
 }
+
+// Set new images from loaded slices
 
 void MainWindow::setImageXYFromData()
 {
@@ -693,7 +677,7 @@ void MainWindow::setImageXYFromData()
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXY - minVXY), - minVXY * 255.0 /(maxVXY - minVXY));
-        cv::applyColorMap(image, image, currentColormap);
+        cv::applyColorMap(image, image, ui->comboBoxColormap->currentIndex());
         cv::flip(image, image, 0);
         QPoint p = QPoint(posX, posY);
         if (!ui->toolButtonPositionXY->isChecked())
@@ -716,7 +700,7 @@ void MainWindow::setImageXZFromData()
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVXZ - minVXZ), - minVXZ * 255.0 /(maxVXZ - minVXZ));
-        cv::applyColorMap(image, image, currentColormap);
+        cv::applyColorMap(image, image, ui->comboBoxColormap->currentIndex());
         QPoint p = QPoint(posX, posZ);
         if (!ui->toolButtonPositionXZ->isChecked())
             p = QPoint(0, 0);
@@ -739,7 +723,7 @@ void MainWindow::setImageYZFromData()
             image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
         else
             image.convertTo(image, CV_8UC1, 255.0 / (maxVYZ - minVYZ), - minVYZ * 255.0 /(maxVYZ - minVYZ));
-        cv::applyColorMap(image, image, currentColormap);
+        cv::applyColorMap(image, image, ui->comboBoxColormap->currentIndex());
         cv::transpose(image, image);
         cv::flip(image, image, 0);
         QPoint p = QPoint(posY, posZ);
@@ -749,6 +733,8 @@ void MainWindow::setImageYZFromData()
     }
 }
 
+// Repaint slices
+
 void MainWindow::repaintSlices()
 {
     setImageXYFromData();
@@ -757,43 +743,24 @@ void MainWindow::repaintSlices()
     // TODO
 }
 
-void MainWindow::setMinVG(float value)
-{
-    minVG = value;
-    if (gWindow != NULL)
-        gWindow->changeMinValue(value);
-    repaintSlices();
-}
-
-void MainWindow::setMaxVG(float value)
-{
-    maxVG = value;
-    if (gWindow != NULL)
-        gWindow->changeMaxValue(value);
-    repaintSlices();
-}
+// Slices indices change
 
 void MainWindow::on_verticalSliderXY_valueChanged(int value)
 {
-    //ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(value) + ")");
-    currentXYloadedFlag = false;
     loadXYSlice(value);
 }
 
 void MainWindow::on_verticalSliderXZ_valueChanged(int value)
 {
-    //ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(value) + ")");
-    currentXZloadedFlag = false;
     loadXZSlice(value);
-
 }
 
 void MainWindow::on_verticalSliderYZ_valueChanged(int value)
 {
-    currentYZloadedFlag = false;
     loadYZSlice(value);
-
 }
+
+
 
 void MainWindow::on_horizontalSliderCTAlpha_valueChanged(int value)
 {
@@ -804,6 +771,8 @@ void MainWindow::on_doubleSpinBoxCTAlpha_valueChanged(double value)
 {
     ui->horizontalSliderCTAlpha->setValue(value * 1000);
 }
+
+// Visibility of docked panels
 
 void MainWindow::on_dockWidgetXY_visibilityChanged(bool /*visible*/)
 {
@@ -861,11 +830,15 @@ void MainWindow::on_dockWidgetSelectedDataset_visibilityChanged(bool /*visible*/
         ui->actionSelectedDataset->setChecked(false);
 }
 
+// Use global values settings
+
 void MainWindow::on_checkBoxUseGlobal_clicked(bool /*checked*/)
 {
     //flagUseGlobalValues = checked;
     repaintSlices();
 }
+
+// Global min and max values change
 
 void MainWindow::on_horizontalSliderGlobalMin_valueChanged(int value)
 {
@@ -885,7 +858,11 @@ void MainWindow::on_doubleSpinBoxMinGlobal_valueChanged(double value)
         ui->horizontalSliderGlobalMin->setTracking(false);
         ui->horizontalSliderGlobalMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
         ui->horizontalSliderGlobalMin->setTracking(true);
-        setMinVG(value);
+        //setMinVG(value);
+        minVG = value;
+        if (gWindow != NULL)
+            gWindow->changeMinValue(value);
+        repaintSlices();
     }
 }
 
@@ -895,9 +872,15 @@ void MainWindow::on_doubleSpinBoxMaxGlobal_valueChanged(double value)
         ui->horizontalSliderGlobalMax->setTracking(false);
         ui->horizontalSliderGlobalMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
         ui->horizontalSliderGlobalMax->setTracking(true);
-        setMaxVG(value);
+        //setMaxVG(value);
+        maxVG = value;
+        if (gWindow != NULL)
+            gWindow->changeMaxValue(value);
+        repaintSlices();
     }
 }
+
+// Local min and max values change
 
 void MainWindow::on_horizontalSliderXYMin_valueChanged(int value)
 {
@@ -1001,13 +984,16 @@ void MainWindow::on_doubleSpinBoxYZMax_valueChanged(double value)
     }
 }
 
+// Colormap change
+
 void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 {
-    currentColormap = index;
     if (gWindow != NULL)
-        gWindow->changeColormap(currentColormap);
+        gWindow->changeColormap(index);
     repaintSlices();
 }
+
+// time series buttons
 
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
@@ -1028,14 +1014,11 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
             file->closeDataset(selectedDataset->getName());
             selectedDataset = file->openDataset(selectedName + "/" + std::to_string(step));
             datasetName = selectedName + "/" + std::to_string(step);
-            currentXYloadedFlag = false;
-            currentXZloadedFlag = false;
-            currentYZloadedFlag = false;
 
-            flagvRLoaded = false;
+            flagVRLoaded = false;
 
             if (gWindow != NULL && ui->actionVolumeRendering->isChecked())
-                gWindow->load3DTexture(selectedDataset, minVG, maxVG, currentColormap);
+                gWindow->load3DTexture(selectedDataset, minVG, maxVG, ui->comboBoxColormap->currentIndex());
 
             loadXYSlice(ui->verticalSliderXY->value());
             loadXZSlice(ui->verticalSliderXZ->value());
@@ -1048,7 +1031,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 
 void MainWindow::updateStep()
 {
-    currentStep += increment;
+    currentStep += ui->spinBoxTMIncrement->value();
     if (currentStep >= steps) {
         timer->stop();
         play = false;
@@ -1060,25 +1043,10 @@ void MainWindow::updateStep()
     }
 }
 
-void MainWindow::on_imageWidgetXY_imageResized(int, int)
-{
-    //ui->verticalSliderXY->setMaximumHeight(height);
-}
-
-void MainWindow::on_imageWidgetXZ_imageResized(int, int)
-{
-    //ui->verticalSliderXZ->setMaximumHeight(height);
-}
-
-void MainWindow::on_imageWidgetYZ_imageResized(int, int)
-{
-    //ui->verticalSliderYZ->setMaximumHeight(height);
-}
-
 void MainWindow::on_toolButtonPlay_clicked(bool checked)
 {
     if (checked) {
-        timer->start(interval);
+        timer->start(ui->spinBoxTMInterval->value());
         play = true;
     } else {
         timer->stop();
@@ -1105,18 +1073,14 @@ void MainWindow::on_toolButtonEnd_clicked()
     ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
 }
 
-void MainWindow::on_spinBoxTMIncrement_valueChanged(int value)
-{
-    increment = value;
-}
-
 void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
 {
-    interval = value;
     timer->setInterval(value);
 }
 
-void MainWindow::on_imageWidgetXY_clickedPointInImage(int x, int y)
+// Select point on slices
+
+void MainWindow::on_imageWidgetXY_hoveredPointInImage(int x, int y)
 {
     if (flagXYloaded) {
         float value = dataXY[x + sizeX * (sizeY - y)];
@@ -1126,7 +1090,7 @@ void MainWindow::on_imageWidgetXY_clickedPointInImage(int x, int y)
     }
 }
 
-void MainWindow::on_imageWidgetXZ_clickedPointInImage(int x, int z)
+void MainWindow::on_imageWidgetXZ_hoveredPointInImage(int x, int z)
 {
     if (flagXZloaded) {
         float value = dataXZ[x + sizeX * z];
@@ -1136,7 +1100,7 @@ void MainWindow::on_imageWidgetXZ_clickedPointInImage(int x, int z)
     }
 }
 
-void MainWindow::on_imageWidgetYZ_clickedPointInImage(int y, int z)
+void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 {
     if (flagYZloaded) {
         float value = dataYZ[(sizeZ - z) + sizeZ * y];
@@ -1146,10 +1110,14 @@ void MainWindow::on_imageWidgetYZ_clickedPointInImage(int y, int z)
     }
 }
 
+// Toolbar 3D buttons
+
 void MainWindow::on_actionVolumeRendering_toggled(bool value)
 {
     if (gWindow != NULL)
         gWindow->setViewVR(value);
+    if (gWindow != NULL && ui->actionVolumeRendering->isChecked() && !gWindow->isTexture3DInitialized())
+        gWindow->load3DTexture(selectedDataset, minVG, maxVG, ui->comboBoxColormap->currentIndex());
 }
 
 void MainWindow::on_action3DXY_toggled(bool value)

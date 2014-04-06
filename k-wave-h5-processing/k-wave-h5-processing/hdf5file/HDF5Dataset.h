@@ -21,6 +21,9 @@ public:
     void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
     void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
+    void getMinAndMaxValue(float *data, hsize_t size, float &minVF, float &maxVF);
+    void getMinAndMaxValue(uint64_t *data, hsize_t size, uint64_t &minVI, uint64_t &maxVI);
+
     void initBlockReading(hsize_t maxSize = HDF5File::SIZE_OF_DATA_PART);
     void setOffset(hsize_t zO_, hsize_t yO_, hsize_t xO_);
 
@@ -47,9 +50,6 @@ public:
     H5T_class_t getDataType();
 
 private:
-    void getMinAndMaxValue(float *data, hsize_t size, float &minVF, float &maxVF);
-    void getMinAndMaxValue(uint64_t *data, hsize_t size, uint64_t &minVI, uint64_t &maxVI);
-
     void findGlobalMinAndMaxValueF();
     void findGlobalMinAndMaxValueI();
 

@@ -19,7 +19,7 @@ public:
 
 signals:
     void imageResized(int width, int height);
-    void clickedPointInImage(int x, int y);
+    void hoveredPointInImage(int x, int y);
 
 public slots:
     void showImage(const cv::Mat& image, QPoint = QPoint(0,0), bool adjust = true, std::string fileName = "");

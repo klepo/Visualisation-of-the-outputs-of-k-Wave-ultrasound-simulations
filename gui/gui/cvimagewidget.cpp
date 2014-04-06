@@ -106,7 +106,7 @@ void CVImageWidget::mouseMoveEvent(QMouseEvent *event)
         //qDebug() << p.x() << p.y();
         if (p.x() >= 0 && p.x() < _tmp.cols && p.y() >= 0 && p.y() < _tmp.rows) {
             //QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this, rect());
-            emit clickedPointInImage(p.x(), p.y());
+            emit hoveredPointInImage(p.x(), p.y());
         }
     }
     QWidget::mouseMoveEvent(event);

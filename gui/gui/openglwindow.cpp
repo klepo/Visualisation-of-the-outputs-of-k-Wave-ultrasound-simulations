@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <qDebug>
+#include <QThread>
 
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
@@ -32,6 +33,10 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(renderNow()));
     moveTimer = new QTimer(this);
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(clearDiff()));
+
+
+    //thread = new QThread();
+    //moveToThread(thread);
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -42,6 +47,7 @@ OpenGLWindow::~OpenGLWindow()
     delete moveTimer;
     delete m_context;
     delete m_device;
+    //thread->deleteLater();
 }
 
 void OpenGLWindow::render(QPainter *painter)
@@ -177,10 +183,10 @@ void OpenGLWindow::clearDiff()
     diffPos = QPointF(0,0);
 }
 
-void OpenGLWindow::mouseReleaseEvent(QMouseEvent * /* event */)
+void OpenGLWindow::mouseReleaseEvent(QMouseEvent */* event */)
 {
     if (currentPos + diffPos != lastPos) {
-        setAnimating(true);
+        //setAnimating(true);
     }
 
     mouseDown = false;

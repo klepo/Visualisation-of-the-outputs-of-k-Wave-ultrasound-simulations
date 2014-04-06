@@ -107,7 +107,7 @@ GWindow::GWindow()
     red = 0.2f;
     green = 0.2f;
     blue = 0.2f;
-    zoom = -25.0f;
+    zoom = -15.0f;
 
     imageWidth = 100;
     imageHeight = 100;
@@ -116,15 +116,13 @@ GWindow::GWindow()
     imageHeightDepthRatio = (float) imageHeight / (float) imageDepth;
     imageWidthDepthRatio = (float) imageWidth / (float) imageDepth;
 
-    thread = NULL;
-
     colormap = cv::COLORMAP_JET;
 
     datasetName = "no_dataset";
     flagSave = false;
 
     thread = new HDF5ReadingThread();
-    connect(thread, SIGNAL(sliceLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
+    connect(thread, SIGNAL(dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)), this, SLOT(setLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float)));
 
 }
 
@@ -147,10 +145,10 @@ void GWindow::initialize()
     emit setStatusMessage(QString("Slices: %1").arg(count));
 
     m_program = new QOpenGLShaderProgram(this);
-    //m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexShader.vert");
-    //m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentShader.frag");
-    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, "../gui/vertexShader.vert");
-    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, "../gui/fragmentShader.frag"); // TODO
+    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexShader.vert");
+    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentShader.frag");
+    //m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, "../gui/vertexShader.vert");
+    //m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, "../gui/fragmentShader.frag"); // TODO
     m_program->link();
 
     m_aPosition = m_program->attributeLocation("aPosition");
@@ -278,10 +276,19 @@ void GWindow::initialize()
     renderLater();
 }
 
+bool GWindow::isTexture3DInitialized()
+{
+    return texture3DInitialized;
+}
+
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset, float min, float max, int _colormap)
 {
+    thread->clearRequests();
+    thread->wait();
+
     colormap = _colormap;
     datasetName = dataset->getName();
+    selectedDataset = dataset;
     //textureMutex.lock();
     texture3DInitialized = false;
 
@@ -305,11 +312,8 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset, float min, float max
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 
-    thread->clearRequests();
-
-    for (unsigned int i = 0; i < imageDepth; i++) {
-        thread->setParams(dataset, i, 0, 0, 1, imageHeight, imageWidth, imageDepth);
-    }
+    //for (unsigned int i = 0; i < imageDepth; i++) {
+    //}
 
 
     imageHeightDepthRatio = (float) imageHeight / (float) imageDepth;
@@ -317,24 +321,30 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset, float min, float max
 
     renderLater();
 
-    if (!thread->isRunning())
+    thread->setParams(selectedDataset, 0, 0, 0, 1, imageHeight, imageWidth);
+    //if (!thread->isRunning())
         thread->start();
 
+}
+
+void GWindow::unload3DTexture()
+{
+    texture3DInitialized = false;
+    renderLater();
 }
 
 void GWindow::setLoaded(hsize_t i, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *data, float, float)
 {
     //textureMutex.lock();
+    texture3DInitialized = false;
     PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D = NULL;
     glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) wglGetProcAddress("glTexSubImage3D");
 
-    cv::Mat image = cv::Mat(imageHeight, imageWidth, CV_32FC1, data);
-
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, i, imageWidth, imageHeight, 1, GL_RED, GL_FLOAT, image.data);
+    glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, i, imageWidth, imageHeight, 1, GL_RED, GL_FLOAT, data);
 
-    image.release();
+    qDebug() << "Loaded slice: " << i;
     delete [] data;
     data = NULL;
 
@@ -346,6 +356,10 @@ void GWindow::setLoaded(hsize_t i, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, 
         changeColormap(colormap);
         renderLater();
         emit loaded(datasetName);
+    } else {
+        thread->setParams(selectedDataset, i + 1, 0, 0, 1, imageHeight, imageWidth);
+        if (!thread->isRunning())
+            thread->start();
     }
 }
 
@@ -379,9 +393,23 @@ void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, f
     renderLater();
 }
 
+void GWindow::clearSlices()
+{
+    glBindTexture(GL_TEXTURE_2D, textureXY);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+    glBindTexture(GL_TEXTURE_2D, textureXZ);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+    glBindTexture(GL_TEXTURE_2D, textureYZ);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+
+}
+
 void GWindow::changeColormap(int colormap)
 {
-    if (texture3DInitialized) {
+    //if (texture3DInitialized) {
 
         glBindTexture(GL_TEXTURE_1D, colormapTexture);
 
@@ -401,29 +429,29 @@ void GWindow::changeColormap(int colormap)
         m_program->release();
 
         renderLater();
-    }
+    //}
 }
 
 void GWindow::changeMinValue(float value)
 {
-    if (texture3DInitialized) {
+    //if (texture3DInitialized) {
         minG = value;
         m_program->bind();
         m_program->setUniformValue(m_uMin, minG);
         m_program->release();
         renderLater();
-    }
+    //}
 }
 
 void GWindow::changeMaxValue(float value)
 {
-    if (texture3DInitialized) {
+    //if (texture3DInitialized) {
         maxG = value;
         m_program->bind();
         m_program->setUniformValue(m_uMax, maxG);
         m_program->release();
         renderLater();
-    }
+    //}
 }
 
 void GWindow::render()
@@ -454,11 +482,11 @@ void GWindow::render()
     m_program->setUniformValue(m_uMatrix, matrix);
 
     //textureMutex.lock();
-    //if (texture3DInitialized) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, texture);
-    m_program->setUniformValue(m_uSampler, 0);
-    //}
+    if (texture3DInitialized) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, texture);
+        m_program->setUniformValue(m_uSampler, 0);
+    }
     //textureMutex.unlock();
 
     //mutex.lock();
@@ -506,7 +534,8 @@ void GWindow::render()
 
         QMatrix4x4 sMmatrix;
         sMmatrix.translate((1.0f - (float) imageWidthDepthRatio) / 2.0f, (1.0f - (float) imageHeightDepthRatio) / 2.0f, 0.0f);
-        sMmatrix.scale((float) imageWidthDepthRatio, (float) imageHeightDepthRatio, 1.0f);
+        QVector3D vecScale((float) imageWidthDepthRatio, (float) imageHeightDepthRatio, 1.0f);
+        sMmatrix.scale(vecScale);
         m_program->setUniformValue(m_uScaleMatrix, sMmatrix);
 
         glBegin(GL_LINE_LOOP);
@@ -609,7 +638,7 @@ void GWindow::render()
     //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     // VR
-    if (volumeRendering) {
+    if (texture3DInitialized && volumeRendering) {
         mutex.lock();
         glDepthMask(GL_FALSE);
         //glDisable(GL_CULL_FACE);
@@ -635,7 +664,8 @@ void GWindow::render()
             //qDebug() << "i:" << i;
             QMatrix4x4 sMmatrix;
             sMmatrix.translate(-(maxSize * 2 - 1.0f) / 2.0f, -(maxSize * 2 - 1.0f) / 2.0f, 0);
-            sMmatrix.scale((float) maxSize * 2, (float) maxSize * 2, 1);
+            QVector3D vecScale((float) maxSize * 2, (float) maxSize * 2, 1.0f);
+            sMmatrix.scale(vecScale);
             sMmatrix.translate(0, 0, i);
             /*QMatrix4x4 slMmatrix;
             slMmatrix.translate(-(maxSize * 2 - 1.0f) / 2.0f, -(maxSize * 2 - 1.0f) / 2.0f, 0);

@@ -8,6 +8,7 @@
 #include <HDF5Group.h>
 #include <HDF5Dataset.h>
 #include <QThreadPool>
+#include <QMovie>
 
 #include "hdf5readingthread.h"
 #include "gwindow.h"
@@ -29,8 +30,6 @@ public slots:
     void loadXYSlice(hsize_t index);
     void loadXZSlice(hsize_t index);
     void loadYZSlice(hsize_t index);
-    void setMinVG(float value);
-    void setMaxVG(float value);
 
     void setImageXYFromData();
     void setImageXZFromData();
@@ -76,10 +75,6 @@ private slots:
 
     void on_spinBoxSelectedDatasetStep_valueChanged(int arg1);
 
-    void on_imageWidgetXY_imageResized(int , int );
-    void on_imageWidgetXZ_imageResized(int , int );
-    void on_imageWidgetYZ_imageResized(int , int );
-
     void on_toolButtonPlay_clicked(bool checked);
 
     void updateStep();
@@ -87,7 +82,6 @@ private slots:
     void on_toolButtonStart_clicked();
     void on_toolButtonEnd_clicked();
 
-    void on_spinBoxTMIncrement_valueChanged(int value);
     void on_spinBoxTMInterval_valueChanged(int value);
 
     void on_horizontalSliderXYMin_valueChanged(int value);
@@ -105,9 +99,9 @@ private slots:
     void on_horizontalSliderYZMax_valueChanged(int value);
     void on_doubleSpinBoxYZMax_valueChanged(double value);
 
-    void on_imageWidgetXY_clickedPointInImage(int x, int y);
-    void on_imageWidgetXZ_clickedPointInImage(int x, int y);
-    void on_imageWidgetYZ_clickedPointInImage(int x, int y);
+    void on_imageWidgetXY_hoveredPointInImage(int x, int y);
+    void on_imageWidgetXZ_hoveredPointInImage(int x, int y);
+    void on_imageWidgetYZ_hoveredPointInImage(int x, int y);
 
     void on_actionVolumeRendering_toggled(bool arg1);
 
@@ -123,8 +117,8 @@ public:
     Ui::MainWindow *ui;
 
 private:
+    void clearGUI();
     void repaintSlices();
-
     void initSlices();
 
     GWindow *gWindow;
@@ -145,7 +139,7 @@ private:
     bool flagXYloaded, flagXZloaded, flagYZloaded;
     //bool flagUseGlobalValues;
 
-    bool flagvRLoaded;
+    bool flagVRLoaded;
 
     float minVG, maxVG;
     float minVXY, maxVXY;
@@ -180,6 +174,7 @@ private:
     HDF5ReadingThread *threadYZ;
 
     //QThreadPool *threadPool;
+    QMovie *movie;
 };
 
 #endif // MAINWINDOW_H

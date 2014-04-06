@@ -39,7 +39,7 @@ void HDF5ReadingThread::setParams(HDF5File::HDF5Dataset *dataset, hsize_t zO, hs
 
 HDF5ReadingThread::~HDF5ReadingThread()
 {
-    //delete [] data;
+    delete [] _data;
 }
 
 void HDF5ReadingThread::clearRequests()
@@ -69,7 +69,8 @@ void HDF5ReadingThread::run()
             //HDF5File::HDF5Dataset *dataset = r->file->openDataset(r->datasetName);
             r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, data, min, max);
             //r->file->closeDataset(r->datasetName);
-            emit sliceLoaded(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, data, min, max);
+            _data = data;
+            emit dataBlockLoaded(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, data, min, max);
             delete r;
         } catch(std::exception &e) {
             std::cerr << e.what() << std::endl;

@@ -22,21 +22,21 @@ public:
     HDF5ReadingThread(QObject *parent = 0);
     ~HDF5ReadingThread();
 
-    void setParams(HDF5File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 5);
+    void setParams(HDF5File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 0);
     void clearRequests();
 
 protected:
     virtual void run();
 
 signals:
-    void sliceLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
+    void dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
 
 public slots:
 
 private:
     static QMutex mutex;
     QMutex mutexQueue;
-    //float *data;
+    float *_data;
     QQueue<Request *> queue;
 };
 

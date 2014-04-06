@@ -78,7 +78,7 @@ win32 {
 
 unix {
 
-    QMAKE_CXXFLAGS += -std=c++0x
+    QMAKE_CXXFLAGS += -std=c++0x #`pkg-config --static --cflags --libs opencv`
 
     INCLUDEPATH += "/usr/include/opencv"
 

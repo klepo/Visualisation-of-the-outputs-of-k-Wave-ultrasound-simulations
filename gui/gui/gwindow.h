@@ -28,6 +28,8 @@ public:
 
     HDF5ReadingThread *getThread();
 
+    bool isTexture3DInitialized();
+
 signals:
     void loaded(std::string datasetName);
 
@@ -51,6 +53,9 @@ public slots:
     void changeColormap(int colormap = cv::COLORMAP_JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);
+
+    void unload3DTexture();
+    void clearSlices();
 
     void setXYSlice(float *data, unsigned int width, unsigned int height, float index);
     void setXZSlice(float *data, unsigned int width, unsigned int height, float index);
@@ -132,6 +137,7 @@ private:
     float yZIndex;
 
     std::string datasetName;
+    HDF5File::HDF5Dataset *selectedDataset;
 
     bool flagSave;
     QString fileName;
