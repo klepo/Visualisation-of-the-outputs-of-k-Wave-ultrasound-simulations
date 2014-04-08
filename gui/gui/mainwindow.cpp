@@ -97,44 +97,20 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
     QString _fileName = QFileDialog::getOpenFileName(this, "Open File", "", "HDF5 Files (*.h5)");
 
     if (_fileName != "") {
+
         try {
-            on_actionCloseHDF5File_triggered();
+            openedH5File = new OpenedH5File(_fileName);
 
-            file = new HDF5File(_fileName.toStdString());
-
-            fileName = _fileName.toStdString();
-            size_t lastindex = fileName.find_last_of(".");
-            std::string rawname = fileName.substr(0, lastindex);
-            fileName = rawname;
-
-            setWindowTitle(windowTitle + " - " + _fileName);
-
-            ui->actionCloseHDF5File->setEnabled(true);
-            ui->dockWidgetDatasets->setEnabled(true);
-            ui->dockWidgetInfo->setEnabled(true);
-
-            // Load info
-            try {
-                HDF5File::HDF5Group *group = file->openGroup("/");
-                for (int i = 0; i < group->getNumAttrs(); i++) {
-                    std::string value((char *) group->getAttribute(i)->getData(), group->getAttribute(i)->getSize());
-                    value = replaceString(value, "\n", "<br>");
-                    ui->textBrowserInfo->append(QString::fromStdString("<strong>" + group->getAttribute(i)->getName() + "</strong><br>" + value + "<br>"));
-                }
-            } catch(std::exception &e) {
-                std::cerr << e.what() << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
+            // Set info to GUI
+            ui->textBrowserInfo->clear();
+            foreach (QString key, openedH5File->getInfo().keys())
+                ui->textBrowserInfo->append("<strong>" + key + "</strong><br>" + openedH5File->getInfo().value(key) + "<br>");
             QScrollBar *v = ui->textBrowserInfo->verticalScrollBar();
             v->setValue(v->minimum());
 
-            // Load dimensions
-            nT = file->getNT();
-            nX = file->getNX();
-            nY = file->getNY();
-            nZ = file->getNZ();
+            setWindowTitle(windowTitle + " - " + openedH5File->getFilename());
 
-            // Clear datasets
+            // Clear datasets GUI
             QLayoutItem* item;
             while ((item = ui->verticalLayoutDatasets->takeAt(0)) != NULL)
             {
@@ -142,62 +118,42 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
                 delete item;
             }
 
-            int count = 0;
-
-            // Find datasets for visualization
-            for (hsize_t i = 0; i < file->getNumObjs(); i++) {
-                try {
-                    HDF5File::HDF5Dataset *dataset = file->openDataset(i);
-                    hsize_t *size = dataset->getDims();
-
-                    // 3D type
-                    if (dataset->getDataType() == H5T_FLOAT && dataset->getRank() == 3 && size[0] == nZ && size[1] == nY && size[2] == nX) {
-                        std::cout << "----> 3D type dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
-                        count++;
-                        QRadioButton *rB = new QRadioButton(QString::fromStdString(dataset->getName()));
-                        connect(rB, SIGNAL(clicked()), this, SLOT(selectDataset()));
-                        ui->verticalLayoutDatasets->addWidget(rB, count , 0);
-                    }
-
-                    file->closeDataset(dataset->getName());
-
-                } catch(std::exception &) {
-                    std::cout << "Object " << i << " is not dataset" << std::endl;
-                    // Reshaped mask type to group
-                    try {
-                        HDF5File::HDF5Group *group = file->openGroup(i);
-                        uint64_t count = group->readAttributeI("count");
-                        uint64_t posX = group->readAttributeI("positionX");
-                        uint64_t posY = group->readAttributeI("positionY");
-                        uint64_t posZ = group->readAttributeI("positionZ");
-                        std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
-                        count++;
-                        QRadioButton *rB = new QRadioButton(QString::fromStdString(group->getName()));
-                        connect(rB, SIGNAL(clicked()), this, SLOT(selectDataset()));
-                        ui->verticalLayoutDatasets->addWidget(rB, count , 0);
-                        file->closeGroup(group->getName());
-                    } catch(std::exception &) {
-                        std::cout << "Object " << i << " is not original reshaped group" << std::endl;
-                    }
+            // Fill datasets list
+            foreach (QString key, openedH5File->getObjects().keys()) {
+                qDebug() << key;
+                QWidget *widget = new QWidget();
+                widget->setLayout(new QHBoxLayout);
+                widget->layout()->setMargin(0);
+                QCheckBox *checkBox = new QCheckBox();
+                connect(checkBox, SIGNAL(clicked()), this, SLOT(selectDataset()));
+                QComboBox *comboBox = new QComboBox();
+                widget->layout()->addWidget(checkBox);
+                widget->layout()->addWidget(comboBox);
+                ui->verticalLayoutDatasets->addWidget(widget);
+                foreach (QString item, openedH5File->getObjects().value(key)->getNames()) {
+                    qDebug() << "->" << item;
+                    comboBox->addItem(item);
                 }
+                connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectDataset()));
+                //connect(comboBox, SIGNAL(currentIndexChanged(QString)), openedH5File->getObjects().value(key), SLOT(selectObject(QString)));
             }
+
+            file = openedH5File->getFile();
+
+            ui->actionCloseHDF5File->setEnabled(true);
+            ui->dockWidgetDatasets->setEnabled(true);
+            ui->dockWidgetInfo->setEnabled(true);
 
         } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
             // TODO error dialog
         }
+
     }
 }
 
 void MainWindow::clearGUI()
 {
-    fileName = "";
-
-    nT = 0;
-    nX = 0;
-    nY = 0;
-    nZ = 0;
-
     setWindowTitle(windowTitle);
     selectedDataset = NULL;
     selectedGroup = NULL;
@@ -298,6 +254,8 @@ void MainWindow::on_actionCloseHDF5File_triggered()
 
     if (file != NULL) {
         delete file;
+        delete openedH5File;
+        openedH5File = NULL;
         file = NULL;
     }
     if (dataXY != NULL) {
@@ -369,12 +327,12 @@ void MainWindow::selectDataset()
         selectedDataset = NULL;
         file->closeDataset(selectedName);
     } catch(std::exception &) {
-        try {
-            selectedGroup = NULL;
-            file->closeGroup(selectedName);
-        } catch(std::exception &) {
+    }
 
-        }
+    try {
+        selectedGroup = NULL;
+        file->closeGroup(selectedName);
+    } catch(std::exception &) {
     }
 
     // Clear dataset info
@@ -387,10 +345,11 @@ void MainWindow::selectDataset()
 
 
     // Find selected dataset or group
-    QList<QRadioButton *> list = ui->dockWidgetContentsDatasets->findChildren<QRadioButton *>();
-    foreach(QRadioButton *rB, list) {
-        if (rB->isChecked()) {
-            selectedName = rB->text().toStdString();
+    QList<QCheckBox *> list = ui->dockWidgetContentsDatasets->findChildren<QCheckBox *>();
+    foreach(QCheckBox *checkBox, list) {
+        if (checkBox->isChecked()) {
+            QComboBox *comboBox = checkBox->parent()->findChild<QComboBox *>();
+            selectedName = comboBox->currentText().toStdString();
             break;
         }
     }
@@ -467,7 +426,7 @@ void MainWindow::selectDataset()
             posZ = selectedGroup->readAttributeI("positionZ");
             posY = selectedGroup->readAttributeI("positionY");
             posX = selectedGroup->readAttributeI("positionX");
-            ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Size:"), new QLabel(QString::number(nZ) + " x " + QString::number(nY) + " x " + QString::number(nX)));
+            ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Size:"), new QLabel(QString::number(openedH5File->getNZ()) + " x " + QString::number(openedH5File->getNY()) + " x " + QString::number(openedH5File->getNX())));
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Mask size:"), new QLabel(QString::number(sizeZ) + " x " + QString::number(sizeY) + " x " + QString::number(sizeX)));
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel("Position:"), new QLabel(QString::number(posZ) + " x " + QString::number(posY) + " x " + QString::number(posX)));
             hsize_t *size;
@@ -530,7 +489,22 @@ void MainWindow::initSlices()
             gWindow->changeMinValue(ui->doubleSpinBoxMinGlobal->value());
             gWindow->changeMaxValue(ui->doubleSpinBoxMaxGlobal->value());
             gWindow->changeColormap(ui->comboBoxColormap->currentIndex());
-            gWindow->setMainSize(nZ, nY, nX);
+
+            try {
+                hsize_t dwnsmpl;
+                if (selectedGroup != NULL)
+                    dwnsmpl = selectedGroup->readAttributeI("dwnsmpl");
+                else
+                    dwnsmpl = selectedDataset->readAttributeI("dwnsmpl");
+                qDebug() << dwnsmpl;
+                hsize_t max = qMax(openedH5File->getNZ(), qMax(openedH5File->getNY(), openedH5File->getNX()));
+                qDebug() << max;
+                double ratio = (double) dwnsmpl / max;
+                qDebug() << ratio;
+                gWindow->setMainSize(qRound((double) openedH5File->getNZ() * ratio), qRound((double) openedH5File->getNY() * ratio), qRound((double) openedH5File->getNX() * ratio));
+            } catch(std::exception &) {
+                gWindow->setMainSize(openedH5File->getNZ(), openedH5File->getNY(), openedH5File->getNX());
+            }
             gWindow->setSize(sizeZ, sizeY, sizeX);
             gWindow->setPosition(posZ, posY, posX);
         }
@@ -712,7 +686,7 @@ void MainWindow::setImageXYFromData()
         QPoint p = QPoint(posX, posY);
         if (!ui->toolButtonPositionXY->isChecked())
             p = QPoint(0, 0);
-        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image, p, ui->toolButtonFillXY->isChecked(), fileName + "_-_" + replaceString(datasetName, "/", "-") + "_-_XY_" + std::to_string(ui->verticalSliderXY->value()));
+        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image, p, ui->toolButtonFillXY->isChecked(), openedH5File->getRawFilename().toStdString() + "_-_" + replaceString(datasetName, "/", "-") + "_-_XY_" + std::to_string(ui->verticalSliderXY->value()));
     }
 }
 
@@ -734,7 +708,7 @@ void MainWindow::setImageXZFromData()
         QPoint p = QPoint(posX, posZ);
         if (!ui->toolButtonPositionXZ->isChecked())
             p = QPoint(0, 0);
-        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image, p, ui->toolButtonFillXZ->isChecked(), fileName + "_-_" + replaceString(datasetName, "/", "-") + "_-_XZ_" + std::to_string(ui->verticalSliderXZ->value()));
+        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image, p, ui->toolButtonFillXZ->isChecked(), openedH5File->getRawFilename().toStdString() + "_-_" + replaceString(datasetName, "/", "-") + "_-_XZ_" + std::to_string(ui->verticalSliderXZ->value()));
     }
 }
 
@@ -760,7 +734,7 @@ void MainWindow::setImageYZFromData()
         QPoint p = QPoint(posY, posZ);
         if (!ui->toolButtonPositionYZ->isChecked())
             p = QPoint(0, 0);
-        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image, p, ui->toolButtonFillYZ->isChecked(), fileName + "_-_" + replaceString(datasetName, "/", "-") + "_-_YZ_" + std::to_string(ui->verticalSliderYZ->value()));
+        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image, p, ui->toolButtonFillYZ->isChecked(), openedH5File->getRawFilename().toStdString() + "_-_" + replaceString(datasetName, "/", "-") + "_-_YZ_" + std::to_string(ui->verticalSliderYZ->value()));
     }
 }
 

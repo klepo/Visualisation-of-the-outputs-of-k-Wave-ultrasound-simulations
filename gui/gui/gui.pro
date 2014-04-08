@@ -20,14 +20,18 @@ SOURCES +=  main.cpp\
     qdoublespinboxts.cpp \
     hdf5readingthread.cpp \
     openglwindow.cpp \
-    gwindow.cpp
+    gwindow.cpp \
+    openedh5file.cpp \
+    h5objecttovisualize.cpp
 
 HEADERS +=  mainwindow.h \
     cvimagewidget.h \
     qdoublespinboxts.h \
     hdf5readingthread.h \
     openglwindow.h \
-    gwindow.h
+    gwindow.h \
+    openedh5file.h \
+    h5objecttovisualize.h
 
 FORMS   +=  mainwindow.ui \
 

@@ -12,6 +12,8 @@
 
 #include "hdf5readingthread.h"
 #include "gwindow.h"
+#include "openedh5file.h"
+#include "h5objecttovisualize.h"
 
 namespace Ui
 {
@@ -132,13 +134,13 @@ private:
     void repaintSlices();
     void initSlices();
 
+    OpenedH5File *openedH5File;
+
+
     GWindow *gWindow;
 
     HDF5File *file;
-    std::string fileName;
     QString windowTitle;
-
-    uint64_t nT, nX, nY, nZ;
 
     std::string selectedName;
     std::string datasetName;

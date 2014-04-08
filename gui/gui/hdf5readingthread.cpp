@@ -96,9 +96,7 @@ void HDF5ReadingThread::run()
                 } while (!r->dataset->isLastBlock());
             } else {
                 float *data = NULL;
-                //HDF5File::HDF5Dataset *dataset = r->file->openDataset(r->datasetName);
                 r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, data, minV, maxV);
-                //r->file->closeDataset(r->datasetName);
                 _data = data;
                 emit dataLoaded(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, data, minV, maxV);
             }

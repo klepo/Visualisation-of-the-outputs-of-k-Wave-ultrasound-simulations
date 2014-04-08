@@ -315,6 +315,11 @@ hsize_t HDF5File::getNumObjs()
     return file.getNumObjs();
 }
 
+H5std_string HDF5File::getFilename()
+{
+    return filename;
+}
+
 uint64_t HDF5File::getNT()
 {
     return nT;

@@ -40,6 +40,8 @@ public:
 
     hsize_t getNumObjs();
 
+    H5std_string getFilename();
+
     void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
     void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
 

@@ -23,7 +23,7 @@ const std::string NZ_DATASET("Nz");
 #define MAX_SIZE 256
 #define MAX_CHUNK_SIZE 10
 
-#define MAX_NUMBER_OF_FRAMES 0 // TODO
+#define MAX_NUMBER_OF_FRAMES 1 // TODO
 
 std::string simulationOutputFilename = "";
 std::string simulationIutputFilename = "";
@@ -313,12 +313,17 @@ int main(int argc, char **argv)
                 // Reshaped mask type to group datasetsGroupType
                 try {
                     HDF5File::HDF5Group *group = hDF5SimulationOutputFile->openGroup(i);
-                    uint64_t count = group->readAttributeI("count");
-                    uint64_t posX = group->readAttributeI("positionX");
-                    uint64_t posY = group->readAttributeI("positionY");
-                    uint64_t posZ = group->readAttributeI("positionZ");
-                    datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
-                    std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
+                    try {
+                        group->readAttributeI("src_group_id");
+                        std::cout << "Object " << i << " is not original reshaped group" << std::endl;
+                    } catch(std::exception &) {
+                        uint64_t count = group->readAttributeI("count");
+                        uint64_t posX = group->readAttributeI("positionX");
+                        uint64_t posY = group->readAttributeI("positionY");
+                        uint64_t posZ = group->readAttributeI("positionZ");
+                        datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
+                        std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
+                    }
                 } catch(std::exception &) {
                     std::cout << "Object " << i << " is not reshaped group" << std::endl;
                 }
@@ -509,12 +514,17 @@ int main(int argc, char **argv)
                 // Reshaped mask type to group datasetsGroupType
                 try {
                     HDF5File::HDF5Group *group = hDF5OutputFile->openGroup(i);
-                    uint64_t count = group->readAttributeI("count");
-                    uint64_t posX = group->readAttributeI("positionX");
-                    uint64_t posY = group->readAttributeI("positionY");
-                    uint64_t posZ = group->readAttributeI("positionZ");
-                    datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
-                    std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
+                    try {
+                        group->readAttributeI("src_group_id");
+                        std::cout << "Object " << i << " is not original reshaped group" << std::endl;
+                    } catch(std::exception &) {
+                        uint64_t count = group->readAttributeI("count");
+                        uint64_t posX = group->readAttributeI("positionX");
+                        uint64_t posY = group->readAttributeI("positionY");
+                        uint64_t posZ = group->readAttributeI("positionZ");
+                        datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
+                        std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl;
+                    }
                 } catch(std::exception &) {
                     std::cout << "Object " << i << " is not reshaped group" << std::endl;
                 }
@@ -769,6 +779,24 @@ int main(int argc, char **argv)
                         hDF5OutputFile->closeDataset(srcDataset->getName());
                     }
 
+                    hsize_t newPositionZ = (hsize_t) floor((double) (srcGroup->readAttributeI("positionZ") + 1) * ratio + 0.5) - 1;
+                    hsize_t newPositionY = (hsize_t) floor((double) (srcGroup->readAttributeI("positionY") + 1) * ratio + 0.5) - 1;
+                    hsize_t newPositionX = (hsize_t) floor((double) (srcGroup->readAttributeI("positionX") + 1) * ratio + 0.5) - 1;
+                    hsize_t newSizeZ = (hsize_t) floor((double) (srcGroup->readAttributeI("sizeZ") + 1) * ratio + 0.5) - 1;
+                    hsize_t newSizeY = (hsize_t) floor((double) (srcGroup->readAttributeI("sizeY") + 1) * ratio + 0.5) - 1;
+                    hsize_t newSizeX = (hsize_t) floor((double) (srcGroup->readAttributeI("sizeX") + 1) * ratio + 0.5) - 1;
+                    if (newPositionZ < 0) newPositionZ = 0;
+                    if (newPositionY < 0) newPositionY = 0;
+                    if (newPositionX < 0) newPositionX = 0;
+                    if (newSizeZ < 1) newSizeZ = 1;
+                    if (newSizeY < 1) newSizeY = 1;
+                    if (newSizeX < 1) newSizeX = 1;
+                    dstGroupFinal->setAttribute("positionZ", (uint64_t) newPositionZ);
+                    dstGroupFinal->setAttribute("positionY", (uint64_t) newPositionY);
+                    dstGroupFinal->setAttribute("positionX", (uint64_t) newPositionX);
+                    dstGroupFinal->setAttribute("sizeZ", (uint64_t) newSizeZ);
+                    dstGroupFinal->setAttribute("sizeY", (uint64_t) newSizeY);
+                    dstGroupFinal->setAttribute("sizeX", (uint64_t) newSizeX);
                     dstGroupFinal->setAttribute("count", (uint64_t) count);
                     dstGroupFinal->setAttribute("dwnsmpl", (uint64_t) maxSize);
                     dstGroupFinal->setAttribute("min", minVG);
