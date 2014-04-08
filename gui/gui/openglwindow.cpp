@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <qDebug>
 #include <QThread>
+#include <QTime>
 
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
@@ -15,6 +16,8 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , m_device(0)
     , m_update_pending(false)
     , mouseDown(false)
+    , leftButton(false)
+    , rightButton(false)
     , wheelDelta(0)
     , r(1)
 {
@@ -107,6 +110,8 @@ void OpenGLWindow::renderLater()
 
 void OpenGLWindow::renderNow()
 {
+    QTime timer;
+    timer.start();
     if (!isExposed())
         return;
 
@@ -143,6 +148,7 @@ void OpenGLWindow::renderNow()
         lastPos = currentPos;
 
     m_context->swapBuffers(this);
+    qDebug() << "render time: " << timer.elapsed();
 }
 
 
@@ -159,6 +165,11 @@ void OpenGLWindow::setAnimating(bool animating)
 
 void OpenGLWindow::mousePressEvent(QMouseEvent *event)
 {
+    if (event->buttons() == Qt::RightButton)
+        rightButton = true;
+    if (event->buttons() == Qt::LeftButton)
+        leftButton = true;
+
     setAnimating(false);
     mouseDown = true;
     lastPos = event->pos();
@@ -183,12 +194,14 @@ void OpenGLWindow::clearDiff()
     diffPos = QPointF(0,0);
 }
 
-void OpenGLWindow::mouseReleaseEvent(QMouseEvent */* event */)
+void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
 {
     if (currentPos + diffPos != lastPos) {
         //setAnimating(true);
     }
 
+    rightButton = false;
+    leftButton = false;
     mouseDown = false;
     renderNow();
     moveTimer->stop();

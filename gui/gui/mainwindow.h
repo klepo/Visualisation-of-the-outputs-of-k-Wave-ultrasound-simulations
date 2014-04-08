@@ -106,12 +106,23 @@ private slots:
     void on_actionVolumeRendering_toggled(bool arg1);
 
     void on_action3DXY_toggled(bool arg1);
-
     void on_action3DXZ_toggled(bool arg1);
-
     void on_action3DYZ_toggled(bool arg1);
 
     void on_actionExportImageFrom3DScene_triggered();
+
+    void on_checkBoxVRFrame_clicked(bool checked);
+
+    void on_horizontalSliderVRSlices_valueChanged(int value);
+
+    void on_horizontalSliderVRAlpha_valueChanged(int value);
+    void on_horizontalSliderVRRed_valueChanged(int value);
+    void on_horizontalSliderVRGreen_valueChanged(int value);
+    void on_horizontalSliderVRBlue_valueChanged(int value);
+    void on_doubleSpinBoxVRAlpha_valueChanged(double value);
+    void on_doubleSpinBoxVRRed_valueChanged(double value);
+    void on_doubleSpinBoxVRGreen_valueChanged(double value);
+    void on_doubleSpinBoxVRBlue_valueChanged(double value);
 
 public:
     Ui::MainWindow *ui;

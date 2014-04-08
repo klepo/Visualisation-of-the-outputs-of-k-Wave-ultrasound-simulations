@@ -46,6 +46,8 @@ protected:
     QPointF currentPos;
     QPointF diffPos;
     bool mouseDown;
+    bool leftButton;
+    bool rightButton;
     int wheelDelta;
     QTimer *timer;
     QTimer *moveTimer;

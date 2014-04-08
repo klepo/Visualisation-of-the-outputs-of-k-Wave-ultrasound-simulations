@@ -32,6 +32,7 @@ public:
 
 signals:
     void loaded(std::string datasetName);
+    void partLoaded(int size);
 
 public slots:
     void setAlpha(int);
@@ -44,10 +45,17 @@ public slots:
     void setBlue(double);
 
     void setViewFrame(bool);
+    void setSlicesCount(int);
     void setViewVR(bool);
     void setViewXYSlice(bool);
     void setViewXZSlice(bool);
     void setViewYZSlice(bool);
+
+    void setTrim(bool);
+
+    void setMainSize(unsigned int depth, unsigned int height, unsigned int width);
+    void setSize(unsigned int depth, unsigned int height, unsigned int width);
+    void setPosition(unsigned int posZ, unsigned int posY, unsigned int posX);
 
     void load3DTexture(HDF5File::HDF5Dataset *dataset, float min, float max, int colormap = cv::COLORMAP_JET);
     void changeColormap(int colormap = cv::COLORMAP_JET);
@@ -61,12 +69,18 @@ public slots:
     void setXZSlice(float *data, unsigned int width, unsigned int height, float index);
     void setYZSlice(float *data, unsigned int width, unsigned int height, float index);
 
+    void alignToXY();
+    void alignToXZ();
+    void alignToYZ();
+
     void saveImage(QString fileName);
 
 private slots:
-    void setLoaded(hsize_t i, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *data, float, float);
+    void setLoaded(hsize_t i, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *data);
 
 private:
+    void renderFrame();
+
     GLuint m_uFrame;
     GLuint m_aPosition;
     GLuint m_aColor;
@@ -74,20 +88,33 @@ private:
     GLuint m_uMatrix;
     GLuint m_uScaleMatrix;
     GLuint m_uScalelMatrix;
-    GLuint m_uHeightDepthRatio;
-    GLuint m_uWidthDepthRatio;
     GLuint m_uSampler;
+
+    GLuint m_uHeight;
+    GLuint m_uWidth;
+    GLuint m_uDepth;
+
+    GLuint m_uPosX;
+    GLuint m_uPosY;
+    GLuint m_uPosZ;
 
     GLuint m_uAlpha;
     GLuint m_uRed;
     GLuint m_uGreen;
     GLuint m_uBlue;
 
-    QOpenGLShaderProgram *m_program;
     int m_frame;
+
+    GLuint m_uSlices;
+    GLuint m_uSliceSampler;
+
+    QOpenGLShaderProgram *m_program;
+
     QMatrix4x4 rotateXMatrix;
     QMatrix4x4 rotateYMatrix;
     float zoom;
+    QVector3D position;
+
     int count;
     bool frame;
 
@@ -102,6 +129,17 @@ private:
     unsigned int imageDepth;
     unsigned int imageWidth;
     unsigned int imageHeight;
+    unsigned int origImageDepth;
+    unsigned int origImageWidth;
+    unsigned int origImageHeight;
+
+    unsigned int fullDepth;
+    unsigned int fullWidth;
+    unsigned int fullHeight;
+
+    unsigned int posZ;
+    unsigned int posY;
+    unsigned int posX;
 
     float imageHeightDepthRatio;
     float imageWidthDepthRatio;
@@ -118,6 +156,9 @@ private:
     GLuint m_uMin;
     GLuint m_uMax;
 
+    GLuint m_uTrim;
+    bool trim;
+
     bool texture3DInitialized;
 
     bool volumeRendering;
@@ -126,8 +167,6 @@ private:
     bool sliceXZ;
     bool sliceYZ;
 
-    GLuint m_uSlices;
-    GLuint m_uSliceSampler;
     GLuint textureXY;
     GLuint textureXZ;
     GLuint textureYZ;
@@ -141,6 +180,8 @@ private:
 
     bool flagSave;
     QString fileName;
+
+    int lastI;
 };
 
 #endif // GWINDOW_H

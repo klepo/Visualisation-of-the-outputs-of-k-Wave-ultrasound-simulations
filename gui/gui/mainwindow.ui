@@ -115,6 +115,10 @@
    <addaction name="action3DXZ"/>
    <addaction name="action3DYZ"/>
    <addaction name="separator"/>
+   <addaction name="actionAlignToXY"/>
+   <addaction name="actionAlignToYZ"/>
+   <addaction name="actionAlignToXZ"/>
+   <addaction name="separator"/>
    <addaction name="actionExportImageFrom3DScene"/>
    <addaction name="separator"/>
    <addaction name="actionInfo"/>
@@ -259,7 +263,7 @@
           <x>0</x>
           <y>0</y>
           <width>383</width>
-          <height>632</height>
+          <height>789</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -455,7 +459,14 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelGlobalMax">
+              <property name="text">
+               <string>max:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QLabel" name="labelGlobalMin">
               <property name="text">
                <string>min:</string>
@@ -465,7 +476,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="1">
              <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMinGlobal">
               <property name="decimals">
                <number>4</number>
@@ -475,24 +486,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QSlider" name="horizontalSliderGlobalMin">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelGlobalMax">
-              <property name="text">
-               <string>max:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
+            <item row="2" column="1">
              <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMaxGlobal">
               <property name="decimals">
                <number>4</number>
@@ -502,13 +496,30 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
+            <item row="2" column="2">
              <widget class="QSlider" name="horizontalSliderGlobalMax">
               <property name="maximum">
                <number>1000</number>
               </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QSlider" name="horizontalSliderGlobalMin">
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="3">
+             <widget class="QCheckBox" name="checkBoxTrim">
+              <property name="text">
+               <string>Trim values in 3D view</string>
               </property>
              </widget>
             </item>
@@ -1006,11 +1017,182 @@
            <property name="title">
             <string>Volume rendering</string>
            </property>
-           <layout class="QGridLayout" name="gridLayoutVolumeRendering">
-            <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="2">
+             <widget class="QSlider" name="horizontalSliderVRAlpha">
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Settings</string>
+               <string>Red:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QSlider" name="horizontalSliderVRRed">
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Alpha:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Blue:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Green:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QSlider" name="horizontalSliderVRBlue">
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QSlider" name="horizontalSliderVRGreen">
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Slices:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="3">
+             <widget class="QCheckBox" name="checkBoxVRFrame">
+              <property name="text">
+               <string>View frame</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QSlider" name="horizontalSliderVRSlices">
+              <property name="minimum">
+               <number>3</number>
+              </property>
+              <property name="maximum">
+               <number>200</number>
+              </property>
+              <property name="value">
+               <number>50</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRAlpha">
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRRed">
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRGreen">
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRBlue">
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QSpinBox" name="spinBoxVRSlices">
+              <property name="minimum">
+               <number>3</number>
+              </property>
+              <property name="maximum">
+               <number>200</number>
+              </property>
+              <property name="value">
+               <number>50</number>
               </property>
              </widget>
             </item>
@@ -1392,6 +1574,9 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="0" column="2">
       <widget class="QToolButton" name="toolButtonPositionXY">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -1897,7 +2082,10 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/icons/icons/images/icons_14.png</normaloff>:/icons/icons/images/icons_14.png</iconset>
    </property>
    <property name="text">
-    <string>3d YZ slice</string>
+    <string>3D YZ slice</string>
+   </property>
+   <property name="toolTip">
+    <string>3D YZ slice</string>
    </property>
   </action>
   <action name="actionExportImageFrom3DScene">
@@ -1969,6 +2157,42 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Selected dataset</string>
+   </property>
+  </action>
+  <action name="actionAlignToXY">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_26.png</normaloff>:/icons/icons/images/icons_26.png</iconset>
+   </property>
+   <property name="text">
+    <string>Align to XY</string>
+   </property>
+   <property name="toolTip">
+    <string>Align to XY</string>
+   </property>
+  </action>
+  <action name="actionAlignToXZ">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_27.png</normaloff>:/icons/icons/images/icons_27.png</iconset>
+   </property>
+   <property name="text">
+    <string>Align to XZ</string>
+   </property>
+   <property name="toolTip">
+    <string>Align to XZ</string>
+   </property>
+  </action>
+  <action name="actionAlignToYZ">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/images/icons_28.png</normaloff>:/icons/icons/images/icons_28.png</iconset>
+   </property>
+   <property name="text">
+    <string>Align to YZ</string>
+   </property>
+   <property name="toolTip">
+    <string>Align to YZ</string>
    </property>
   </action>
   <zorder>dockWidgetCT</zorder>
@@ -2065,7 +2289,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>199</x>
-     <y>435</y>
+     <y>425</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
@@ -2085,7 +2309,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
-     <y>479</y>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -2117,7 +2341,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
-     <y>435</y>
+     <y>425</y>
     </hint>
    </hints>
   </connection>
@@ -2129,7 +2353,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>199</x>
-     <y>479</y>
+     <y>469</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
@@ -2144,12 +2368,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>10</y>
+     <x>1102</x>
+     <y>-145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>95</y>
+     <x>1102</x>
+     <y>-117</y>
     </hint>
    </hints>
   </connection>
@@ -2160,12 +2384,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>10</y>
+     <x>1102</x>
+     <y>-145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>180</y>
+     <x>1102</x>
+     <y>-32</y>
     </hint>
    </hints>
   </connection>
@@ -2176,12 +2400,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>10</y>
+     <x>1102</x>
+     <y>-145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>265</y>
+     <x>1102</x>
+     <y>53</y>
     </hint>
    </hints>
   </connection>
@@ -2192,12 +2416,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>-103</y>
+     <x>1102</x>
+     <y>-253</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>95</y>
+     <x>1102</x>
+     <y>-117</y>
     </hint>
    </hints>
   </connection>
@@ -2208,12 +2432,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>-103</y>
+     <x>1102</x>
+     <y>-253</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>180</y>
+     <x>1102</x>
+     <y>-32</y>
     </hint>
    </hints>
   </connection>
@@ -2224,12 +2448,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>-103</y>
+     <x>1102</x>
+     <y>-253</y>
     </hint>
     <hint type="destinationlabel">
-     <x>927</x>
-     <y>265</y>
+     <x>1102</x>
+     <y>53</y>
     </hint>
    </hints>
   </connection>
@@ -2256,12 +2480,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>635</x>
-     <y>314</y>
+     <x>810</x>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
-     <x>917</x>
-     <y>313</y>
+     <x>1092</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -2272,12 +2496,12 @@ p, li { white-space: pre-wrap; }
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>917</x>
-     <y>313</y>
+     <x>1092</x>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
-     <x>635</x>
-     <y>314</y>
+     <x>810</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -2373,7 +2597,7 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>96</x>
-     <y>435</y>
+     <y>425</y>
     </hint>
    </hints>
   </connection>
@@ -2448,8 +2672,8 @@ p, li { white-space: pre-wrap; }
    <slot>setImageYZFromData()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>38</x>
-     <y>480</y>
+     <x>44</x>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>14</x>
@@ -2465,7 +2689,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>74</x>
-     <y>480</y>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>82</x>
@@ -2518,6 +2742,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>16</x>
      <y>514</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderVRSlices</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxVRSlices</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>867</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>832</x>
+     <y>386</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxVRSlices</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalSliderVRSlices</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>824</x>
+     <y>395</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>878</x>
+     <y>395</y>
     </hint>
    </hints>
   </connection>

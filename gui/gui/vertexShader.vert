@@ -10,14 +10,14 @@ uniform mat4 uMatrix;
 uniform mat4 uScaleMatrix;
 uniform mat4 uScalelMatrix;
 out vec4 vPosition;
-out vec4 vPositionL;
-out vec4 vPositionF;
+//out vec4 vPositionL;
+//out vec4 vPositionF;
 out vec2 vTextureCoord;
 
 void main() {
-   vPosition = uScaleMatrix * aPosition;
+   vPosition = uScalelMatrix * aPosition;
    gl_Position = uMatrix * uScaleMatrix * aPosition;
-   vPositionL = uScalelMatrix * aPosition;
-   //vPositionF = uMatrix * aPosition;
+   //vPositionL = uScalelMatrix * aPosition;
+   //vPositionF = aPosition;
    vTextureCoord = aTextureCoord;
 }

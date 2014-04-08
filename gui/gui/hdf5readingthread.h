@@ -11,7 +11,9 @@ class Request
 {
 public:
     Request(HDF5File::HDF5Dataset *dataset, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t);
+    Request(HDF5File::HDF5Dataset *dataset);
     float zO, yO, xO, zC, yC, xC;
+    bool full;
     HDF5File::HDF5Dataset *dataset;
 };
 
@@ -23,13 +25,15 @@ public:
     ~HDF5ReadingThread();
 
     void setParams(HDF5File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 0);
+    void HDF5ReadingThread::setParams(HDF5File::HDF5Dataset *);
     void clearRequests();
 
 protected:
     virtual void run();
 
 signals:
-    void dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
+    void dataLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
+    void dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *);
 
 public slots:
 

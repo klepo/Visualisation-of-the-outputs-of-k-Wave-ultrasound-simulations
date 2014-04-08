@@ -26,6 +26,9 @@
         <file>icons/images/icons_24.png</file>
         <file>icons/images/icons_25.png</file>
         <file>icons/loading.gif</file>
+        <file>icons/images/icons_26.png</file>
+        <file>icons/images/icons_27.png</file>
+        <file>icons/images/icons_28.png</file>
     </qresource>
     <qresource prefix="/colorscale">
         <file>icons/colorscale_autumn.jpg</file>
