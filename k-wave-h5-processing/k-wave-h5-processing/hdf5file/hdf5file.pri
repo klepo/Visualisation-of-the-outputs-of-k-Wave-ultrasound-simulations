@@ -7,17 +7,17 @@ win32 {
         LIBS += -L"E:/HDF5-1.8.12-win64-static-with-zlib_szip/lib" \
             -llibhdf5_D \
             -llibhdf5_cpp_D \
-            -llibzlib_D \
+            #-llibzlib_D \
             -llibszip_D
 
     }
 
-    CONFIG(release, release|debug) {
+    CONFIG(release, debug|release) {
 
         LIBS += -L"E:/HDF5-1.8.12-win64-static-with-zlib_szip/lib" \
             -llibhdf5 \
             -llibhdf5_cpp \
-            -llibzlib \
+            #-llibzlib \
             -llibszip
 
     }

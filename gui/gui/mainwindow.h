@@ -29,27 +29,22 @@ public:
     ~MainWindow();
 
 public slots:
-    void loadXYSlice(hsize_t index);
-    void loadXZSlice(hsize_t index);
-    void loadYZSlice(hsize_t index);
+    void loadXYSlice(int index);
+    void loadXZSlice(int index);
+    void loadYZSlice(int index);
 
     void setImageXYFromData();
     void setImageXZFromData();
     void setImageYZFromData();
 
-    void setXYLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
-    void setXZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
-    void setYZLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
+    void setXYLoaded(Request *);
+    void setXZLoaded(Request *);
+    void setYZLoaded(Request *);
 
     void loaded3D(std::string);
 
 private slots:
-    void on_verticalSliderXY_valueChanged(int value);
-    void on_verticalSliderXZ_valueChanged(int value);
-    void on_verticalSliderYZ_valueChanged(int value);
-
     void on_horizontalSliderCTAlpha_valueChanged(int value);
-
     void on_doubleSpinBoxCTAlpha_valueChanged(double value);
 
     void on_dockWidgetXY_visibilityChanged(bool);
@@ -76,11 +71,8 @@ private slots:
     void on_comboBoxColormap_currentIndexChanged(int index);
 
     void on_spinBoxSelectedDatasetStep_valueChanged(int arg1);
-
     void on_toolButtonPlay_clicked(bool checked);
-
     void updateStep();
-
     void on_toolButtonStart_clicked();
     void on_toolButtonEnd_clicked();
 
@@ -107,15 +99,7 @@ private slots:
 
     void on_actionVolumeRendering_toggled(bool arg1);
 
-    void on_action3DXY_toggled(bool arg1);
-    void on_action3DXZ_toggled(bool arg1);
-    void on_action3DYZ_toggled(bool arg1);
-
     void on_actionExportImageFrom3DScene_triggered();
-
-    void on_checkBoxVRFrame_clicked(bool checked);
-
-    void on_horizontalSliderVRSlices_valueChanged(int value);
 
     void on_horizontalSliderVRAlpha_valueChanged(int value);
     void on_horizontalSliderVRRed_valueChanged(int value);
@@ -131,6 +115,7 @@ public:
 
 private:
     void clearGUI();
+    void clearRequestsAndWaitThreads();
     void repaintSlices();
     void initSlices();
 

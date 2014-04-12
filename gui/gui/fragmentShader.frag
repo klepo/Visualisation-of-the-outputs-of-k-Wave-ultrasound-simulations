@@ -4,8 +4,6 @@
 #define mediump
 #define lowp
 
-uniform float uFrame;
-
 uniform sampler3D uSampler;
 uniform float uAlpha;
 uniform float uRed;
@@ -18,6 +16,13 @@ in vec4 vPosition;
 //in vec4 vPositionL;
 //in vec4 vPositionF;
 
+uniform float uXMax;
+uniform float uYMax;
+uniform float uZMax;
+uniform float uXMin;
+uniform float uYMin;
+uniform float uZMin;
+
 uniform float uWidth;
 uniform float uHeight;
 uniform float uDepth;
@@ -25,9 +30,9 @@ uniform float uDepth;
 uniform float uMin;
 uniform float uMax;
 
-uniform float uSlices;
-
-uniform float uTrim;
+uniform bool uFrame;
+uniform bool uSlices;
+uniform bool uTrim;
 
 uniform sampler2D uSliceSampler;
 
@@ -69,22 +74,11 @@ void main() {
 
     } else {
 
-        if (vPosition.x > 0.5f + uWidth / 2.0f || vPosition.x < 0.5f - uWidth / 2.0f) discard;
-        if (vPosition.y > 0.5f + uHeight / 2.0f || vPosition.y < 0.5f - uHeight / 2.0f) discard;
-        if (vPosition.z > 0.5f + uDepth / 2.0f || vPosition.z < 0.5f - uDepth / 2.0f) discard;
+        if (vPosition.x > uXMax || vPosition.x < uXMin) discard;
+        if (vPosition.y > uYMax || vPosition.y < uYMin) discard;
+        if (vPosition.z > uZMax || vPosition.z < uZMin) discard;
 
-        float xT = (uWidth - 0.5f);
-        float yT = (uHeight - 0.5f);
-        float zT = (uDepth - 0.5f);
-
-        //vec4 vector = mix(vPosition, vPositionL, 0.5);
-
-        //vec4 new = normalize(vPositionF) * distance(vPosition, vPositionL);
-
-        //vec4 vPositionN = vec4(vPositionL.xy, 0.0, vPositionL.w);
-
-        //vec4 colorL = texture(uSampler, vec3((vPositionN.x + xT) / xRatio, (vPositionN.y + yT) / xRatio, vPositionN.z));
-        vec4 color = texture(uSampler, vec3((vPosition.x + xT) / uWidth - 0.5f, (vPosition.y + yT) / uHeight - 0.5f, (vPosition.z + zT) / uDepth - 0.5f));
+        vec4 color = texture(uSampler, vec3((vPosition.x - 0.5f) / uWidth + 0.5f, (vPosition.y - 0.5f) / uHeight + 0.5f, (vPosition.z - 0.5f) / uDepth + 0.5f));
 
         //vec4 color = colorL;
 
@@ -118,14 +112,7 @@ void main() {
 
         float value = ((color.r - uMin) * 1.0) / (uMax - uMin);
         vec4 fColor = texture(uColormapSampler, value);
-        //float red = fColor.r / 255.0;
-        //float green = fColor.g / 255;
-        //float blue = fColor.b / 255.0;
-        //gl_FragColor = vec4(red, green, blue, uAlpha + red * uRed + green * uGreen +  blue * uBlue);*/
-        //gl_FragColor = vec4(red, green, blue, 0.5);
-        //if (color.r > 500)
+
         colorOut = vec4(fColor.rgb, uAlpha + fColor.r * uRed + fColor.g * uGreen +  fColor.b * uBlue);
-        //else
-           //gl_FragColor = vec4(fColor.rgb, 0.15);
     }
 }

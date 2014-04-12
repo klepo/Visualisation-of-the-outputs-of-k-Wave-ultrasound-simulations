@@ -12,7 +12,7 @@ class QOpenGLContext;
 class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
-class OpenGLWindow : public QWindow, protected QOpenGLFunctions
+class OpenGLWindow : public QWindow, public QOpenGLFunctions
 {
     Q_OBJECT
 
@@ -22,7 +22,6 @@ public:
     virtual void render(QPainter *painter);
     virtual void render();
     virtual void initialize();
-    void setAnimating(bool animating);
     bool event(QEvent *event);
 
 public slots:
@@ -31,7 +30,7 @@ public slots:
     void clearDiff();
 
 signals:
-    void setStatusMessage(QString, int timeout = 0);
+    void setStatusMessage(QString, int timeout = 3000);
 
 protected:
     //bool event(QEvent *event);
@@ -42,23 +41,21 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
 
-    QPointF lastPos;
-    QPointF currentPos;
-    QPointF diffPos;
     bool mouseDown;
     bool leftButton;
     bool rightButton;
     int wheelDelta;
     QTimer *timer;
     QTimer *moveTimer;
+    QPointF lastPos;
+    QPointF currentPos;
+    QPointF diffPos;
 
 private:
     QOpenGLContext *m_context;
     QOpenGLPaintDevice *m_device;
     bool m_update_pending;
     float r;
-    //QThread *thread;
-
 };
 
 #endif // OPENGLWINDOW_H

@@ -32,7 +32,6 @@ public:
 
 signals:
     void loaded(std::string datasetName);
-    void partLoaded(int size);
 
 public slots:
     void setAlpha(int);
@@ -57,13 +56,12 @@ public slots:
     void setSize(unsigned int depth, unsigned int height, unsigned int width);
     void setPosition(unsigned int posZ, unsigned int posY, unsigned int posX);
 
-    void load3DTexture(HDF5File::HDF5Dataset *dataset, float min, float max, int colormap = cv::COLORMAP_JET);
+    void load3DTexture(HDF5File::HDF5Dataset *dataset);
     void changeColormap(int colormap = cv::COLORMAP_JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);
 
-    void unload3DTexture();
-    void clearSlices();
+    void clearData();
 
     void setXYSlice(float *data, unsigned int width, unsigned int height, float index);
     void setXZSlice(float *data, unsigned int width, unsigned int height, float index);
@@ -76,10 +74,12 @@ public slots:
     void saveImage(QString fileName);
 
 private slots:
-    void setLoaded(hsize_t i, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *data);
+    void setLoaded(Request *r);
 
 private:
     void renderFrame();
+    void unload3DTexture();
+    void clearSlices();
 
     GLuint m_uFrame;
     GLuint m_aPosition;
@@ -94,9 +94,15 @@ private:
     GLuint m_uWidth;
     GLuint m_uDepth;
 
-    GLuint m_uPosX;
-    GLuint m_uPosY;
-    GLuint m_uPosZ;
+    //GLuint m_uPosX;
+    //GLuint m_uPosY;
+    //GLuint m_uPosZ;
+    GLuint m_uXMax;
+    GLuint m_uXMin;
+    GLuint m_uYMax;
+    GLuint m_uYMin;
+    GLuint m_uZMax;
+    GLuint m_uZMin;
 
     GLuint m_uAlpha;
     GLuint m_uRed;
@@ -124,6 +130,7 @@ private:
     float blue;
 
     GLuint ibo_plane_elements;
+    GLuint ibo_cube_elements;
     GLuint texture;
 
     unsigned int imageDepth;
@@ -181,7 +188,7 @@ private:
     bool flagSave;
     QString fileName;
 
-    int lastI;
+    int initialized;
 };
 
 #endif // GWINDOW_H

@@ -12,9 +12,14 @@ class Request
 public:
     Request(HDF5File::HDF5Dataset *dataset, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t);
     Request(HDF5File::HDF5Dataset *dataset);
-    float zO, yO, xO, zC, yC, xC;
+    ~Request();
+    QString toQString();
+
+    hsize_t zO, yO, xO, zC, yC, xC;
+    float min, max;
     bool full;
     HDF5File::HDF5Dataset *dataset;
+    float *data;
 };
 
 class HDF5ReadingThread : public QThread
@@ -24,24 +29,25 @@ public:
     HDF5ReadingThread(QObject *parent = 0);
     ~HDF5ReadingThread();
 
-    void setParams(HDF5File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 0);
-    void HDF5ReadingThread::setParams(HDF5File::HDF5Dataset *);
-    void clearRequests();
-
 protected:
     virtual void run();
 
 signals:
-    void dataLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *, float, float);
-    void dataBlockLoaded(hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, float *);
+    void requestDone(Request *);
 
 public slots:
+    void createRequest(HDF5File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 0);
+    void createRequest(HDF5File::HDF5Dataset *);
+    void clearRequests();
+    void clearDoneRequests();
+    void deleteDoneRequest(Request *);
 
 private:
     static QMutex mutex;
-    QMutex mutexQueue;
+    QMutex mutexQueue, requestMutex;
     float *_data;
     QQueue<Request *> queue;
+    QList<Request *> doneRequests;
 };
 
 #endif // HDF5READINGTHREAD_H

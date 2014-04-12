@@ -40,6 +40,7 @@ public:
     H5std_string getName();
 
     void findAndSetGlobalMinAndMaxValue(bool reset = false);
+    void findGlobalMinAndMaxValue(bool reset = false);
 
     uint64_t getGlobalMaxValueI(bool reset = false);
     uint64_t getGlobalMinValueI(bool reset = false);

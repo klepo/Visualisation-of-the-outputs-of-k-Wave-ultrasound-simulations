@@ -4,9 +4,11 @@
 #
 #-------------------------------------------------
 
-QT  += core gui
+QT += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += console
 
 TARGET = k-wave-visualizer
 TEMPLATE = app
@@ -22,7 +24,7 @@ SOURCES +=  main.cpp\
     openglwindow.cpp \
     gwindow.cpp \
     openedh5file.cpp \
-    h5objecttovisualize.cpp
+    h5objecttovisualize.cpp \
 
 HEADERS +=  mainwindow.h \
     cvimagewidget.h \
@@ -31,9 +33,9 @@ HEADERS +=  mainwindow.h \
     openglwindow.h \
     gwindow.h \
     openedh5file.h \
-    h5objecttovisualize.h
+    h5objecttovisualize.h \
 
-FORMS   +=  mainwindow.ui \
+FORMS +=  mainwindow.ui \
 
 
 win32 {
@@ -62,7 +64,7 @@ win32 {
 #            -lvfw32 \
             -llibpngd \
             -llibtiffd \
-#            -lzlibd \
+            -lzlibd \
             -lIlmImfd \
             -llibjasperd \
             -llibjpegd \
@@ -85,7 +87,7 @@ win32 {
 #            -lvfw32 \
             -llibpng \
             -llibtiff \
-#            -lzlibd \
+            -lzlib \
             -lIlmImf \
             -llibjasper \
             -llibjpeg \

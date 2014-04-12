@@ -45,7 +45,7 @@ win32 {
 #            -lvfw32 \
             -llibpngd \
             -llibtiffd \
-#            -lzlibd \
+            -lzlibd \
             -lIlmImfd \
             -llibjasperd \
             -llibjpegd \
@@ -53,13 +53,13 @@ win32 {
 
     }
 
-    CONFIG(release, release|debug) {
+    CONFIG(release, debug|release) {
 
         LIBS += -L"E:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
             -lopencv_core248 \
-            -lopencv_imgproc248 \
-            -lopencv_highgui248 \
             -lopencv_contrib248 \
+            -lopencv_highgui248 \
+            -lopencv_imgproc248 \
             -lopengl32 \
             -lgdi32 \
             -luser32 \
@@ -68,7 +68,7 @@ win32 {
 #            -lvfw32 \
             -llibpng \
             -llibtiff \
-#            -lzlibd \
+            -lzlib \
             -lIlmImf \
             -llibjasper \
             -llibjpeg \

@@ -19,7 +19,6 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , leftButton(false)
     , rightButton(false)
     , wheelDelta(0)
-    , r(1)
 {
     //setOpacity(0.5);
     setSurfaceType(QWindow::OpenGLSurface);
@@ -36,10 +35,6 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(renderNow()));
     moveTimer = new QTimer(this);
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(clearDiff()));
-
-
-    //thread = new QThread();
-    //moveToThread(thread);
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -102,28 +97,27 @@ void OpenGLWindow::resizeEvent(QResizeEvent *event)
 
 void OpenGLWindow::renderLater()
 {
-    //if (!m_update_pending) {
-        //m_update_pending = true;
+    if (!m_update_pending) {
+        m_update_pending = true;
         QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
-    //}
+    }
 }
 
 void OpenGLWindow::renderNow()
 {
-    QTime timer;
-    timer.start();
+    //QTime timer;
+    //timer.start();
     if (!isExposed())
         return;
 
-    //m_update_pending = false;
+    m_update_pending = false;
 
     bool needsInitialize = false;
 
     if (!m_context) {
-        m_context = new QOpenGLContext(this);
+        m_context = new QOpenGLContext();
         m_context->setFormat(requestedFormat());
         m_context->create();
-
         needsInitialize = true;
     }
 
@@ -134,34 +128,13 @@ void OpenGLWindow::renderNow()
         initialize();
     }
 
-    if (r > 0) {
-        r *= 0.995f;
-        currentPos -= diffPos * r;
-        if (r < 0.01) {
-            setAnimating(false);
-        }
-    }
-
     render();
 
-    if (r > 0)
-        lastPos = currentPos;
 
     m_context->swapBuffers(this);
-    qDebug() << "render time: " << timer.elapsed();
+    //qDebug() << "render time: " << timer.elapsed();
 }
 
-
-void OpenGLWindow::setAnimating(bool animating)
-{
-    if (animating == true) {
-        r = 1;
-        timer->start(20);
-    } else {
-        r = 0;
-        timer->stop();
-    }
-}
 
 void OpenGLWindow::mousePressEvent(QMouseEvent *event)
 {
@@ -170,7 +143,6 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
     if (event->buttons() == Qt::LeftButton)
         leftButton = true;
 
-    setAnimating(false);
     mouseDown = true;
     lastPos = event->pos();
     currentPos = event->pos();

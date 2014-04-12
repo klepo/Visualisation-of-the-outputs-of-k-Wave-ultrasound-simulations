@@ -251,6 +251,55 @@ int main(int argc, char **argv)
         std::exit(EXIT_FAILURE);
     }
 
+    //
+
+    /*try {
+        //HDF5File *tmpFile = new HDF5File("tmp", HDF5File::CREATE);
+        hsize_t size[3];
+        size[0] = 1536;
+        size[1] = 1536;
+        size[2] = 2048;
+        hsize_t chunkSize[3] = {maxChunkSize, maxChunkSize, maxChunkSize};
+        hDF5SimulationOutputFile->createDatasetF("p_max_all", 3, size, chunkSize, true);
+        HDF5File::HDF5Dataset *s = hDF5SimulationOutputFile->openDataset("p_max");
+        HDF5File::HDF5Dataset *d = hDF5SimulationOutputFile->openDataset("p_max_all");
+
+        float *data;
+        float minV, maxV, minValueGlobal, maxValueGlobal;
+        bool first = true;
+        hsize_t xO, yO, zO, xC, yC, zC;
+        d->initBlockReading();
+        s->initBlockReading(d->getBlockSize());
+
+        do {
+            s->readBlock(zO, yO, xO, zC, yC, xC, data, minV, maxV);
+            hsize_t xO_, yO_, zO_;
+            hsize_t xC_, yC_, zC_;
+            //std::cout << zO << " " << yO << " " << xO << " " << zC << " " << yC << " " << xC << std::endl;
+            hDF5SimulationOutputFile->convertlinearTo3D(xO + 1, zO_, yO_, xO_);
+            hDF5SimulationOutputFile->convertlinearTo3D(zC * yC * xC, zC_, yC_, xC_);
+            //std::cout << zO_ << " " << yO_ << " " << xO_ << " " << zC_ << " " << yC_ << " " << xC_ << std::endl;
+            d->write3DDataset(zO_, yO_, xO_, zC_ + 1, yC_ + 1, xC_ + 1, data, true);
+            delete [] data;
+            if (first) {
+                minValueGlobal = minV;
+                maxValueGlobal = maxV;
+                first = false;
+            }
+            if (minValueGlobal > minV) minValueGlobal = minV;
+            if (maxValueGlobal < maxV) maxValueGlobal = maxV;
+        } while (!s->isLastBlock());
+
+        d->setAttribute("min", minValueGlobal);
+        d->setAttribute("max", maxValueGlobal);
+    } catch(std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }*/
+
+    //
+
+
     // Find and get sensor mask dataset
     if (flagReshape) {
         try {

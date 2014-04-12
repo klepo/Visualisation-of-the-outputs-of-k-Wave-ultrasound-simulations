@@ -95,7 +95,7 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
     if (type_class == H5T_FLOAT)
         throw std::runtime_error("Wrong data type of dataset (not integer)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findAndSetGlobalMinAndMaxValue(reset);
+        HDF5Dataset::findGlobalMinAndMaxValue(reset);
     return maxVI;
 }
 
@@ -104,7 +104,7 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
     if (type_class == H5T_FLOAT)
         throw std::runtime_error("Wrong data type of dataset (not integer)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findAndSetGlobalMinAndMaxValue(reset);
+        HDF5Dataset::findGlobalMinAndMaxValue(reset);
     return minVI;
 }
 
@@ -113,7 +113,7 @@ float HDF5File::HDF5Dataset::getGlobalMaxValueF(bool reset)
     if (type_class == H5T_INTEGER)
         throw std::runtime_error("Wrong data type of dataset (not float)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findAndSetGlobalMinAndMaxValue(reset);
+        HDF5Dataset::findGlobalMinAndMaxValue(reset);
     return maxVF;
 }
 
@@ -122,7 +122,7 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
     if (type_class == H5T_INTEGER)
         throw std::runtime_error("Wrong data type of dataset (not float)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findAndSetGlobalMinAndMaxValue(reset);
+        HDF5Dataset::findGlobalMinAndMaxValue(reset);
     return minVF;
 }
 
@@ -383,6 +383,45 @@ void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
     }
 }
 
+void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
+{
+    if (type_class == H5T_FLOAT) {
+        if (reset) {
+            HDF5Dataset::findGlobalMinAndMaxValueF();
+            //HDF5Dataset::setAttribute("min", minVF);
+            //HDF5Dataset::setAttribute("max", maxVF);
+        } else {
+            try {
+                H5::FloatType type(H5::PredType::NATIVE_FLOAT);
+                dataset.openAttribute("min").read(type, &minVF);
+                dataset.openAttribute("max").read(type, &maxVF);
+                issetGlobalMinAndMaxValue = true;
+            } catch(H5::AttributeIException error) {
+                HDF5Dataset::findGlobalMinAndMaxValueF();
+                //HDF5Dataset::setAttribute("min", minVF);
+                //HDF5Dataset::setAttribute("max", maxVF);
+            }
+        }
+    } else {
+        if (reset) {
+            HDF5Dataset::findGlobalMinAndMaxValueI();
+            //HDF5Dataset::setAttribute("min", minVI);
+            //HDF5Dataset::setAttribute("max", maxVI);
+        } else {
+            try {
+                H5::IntType type(H5::PredType::NATIVE_UINT64);
+                dataset.openAttribute("min").read(type, &minVI);
+                dataset.openAttribute("max").read(type, &maxVI);
+                issetGlobalMinAndMaxValue = true;
+            } catch(H5::AttributeIException error) {
+                HDF5Dataset::findGlobalMinAndMaxValueI();
+                //HDF5Dataset::setAttribute("min", minVI);
+                //HDF5Dataset::setAttribute("max", maxVI);
+            }
+        }
+    }
+}
+
 bool HDF5File::HDF5Dataset::isLastBlock()
 {
     return lastBlock;
@@ -509,45 +548,41 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t &zO_, hsize_t &yO_, hsize_t &xO_, 
 
 void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueF()
 {
-    float *data;
     hsize_t xO, yO, zO;
     hsize_t xC, yC, zC;
     float minVFTmp;
     float maxVFTmp;
     bool first = true;
     do {
+        float *data;
         readBlock(zO, yO, xO, zC, yC, xC, data, minVFTmp, maxVFTmp);
         if (first)
             minVF = maxVF = data[0];
         first = false;
-
         if (minVFTmp < minVF) minVF = minVFTmp;
         if (maxVFTmp > maxVF) maxVF = maxVFTmp;
-
+        delete [] data;
     } while (lastBlock == false);
-    delete [] data;
     issetGlobalMinAndMaxValue = true;
 }
 
 void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI()
 {
-    uint64_t *data;
     hsize_t xO, yO, zO;
     hsize_t xC, yC, zC;
     uint64_t minVITmp;
     uint64_t maxVITmp;
     bool first = true;
     do {
+        uint64_t *data;
         readBlock(zO, yO, xO, zC, yC, xC, data, minVITmp, maxVITmp);
         if (first)
             minVI = maxVI = data[0];
         first = false;
-
         if (minVITmp < minVI) minVI = minVITmp;
         if (maxVITmp > maxVI) maxVI = maxVITmp;
-
+        delete [] data; // !!!
     } while (lastBlock == false);
-    delete [] data; // !!!
     issetGlobalMinAndMaxValue = true;
 }
 

@@ -116,8 +116,8 @@
    <addaction name="action3DYZ"/>
    <addaction name="separator"/>
    <addaction name="actionAlignToXY"/>
-   <addaction name="actionAlignToYZ"/>
    <addaction name="actionAlignToXZ"/>
+   <addaction name="actionAlignToYZ"/>
    <addaction name="separator"/>
    <addaction name="actionExportImageFrom3DScene"/>
    <addaction name="separator"/>
@@ -1542,8 +1542,22 @@ p, li { white-space: pre-wrap; }
        </widget>
       </widget>
      </item>
-     <item row="0" column="4" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXY"/>
+     <item row="0" column="2">
+      <widget class="QToolButton" name="toolButtonPositionXY">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1">
       <widget class="QToolButton" name="toolButtonFillXY">
@@ -1565,32 +1579,15 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+     <item row="0" column="4" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxXY"/>
+     </item>
      <item row="1" column="6">
       <widget class="QSlider" name="verticalSliderXY">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="toolButtonPositionXY">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="labelXYLoading"/>
      </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonXYSave">
@@ -1605,6 +1602,9 @@ p, li { white-space: pre-wrap; }
          <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
        </property>
       </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="labelXYLoading"/>
      </item>
     </layout>
    </widget>
@@ -2045,7 +2045,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -2060,7 +2060,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -2075,7 +2075,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -2105,7 +2105,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -2174,7 +2174,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionAlignToXZ">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/icons/images/icons_27.png</normaloff>:/icons/icons/images/icons_27.png</iconset>
+     <normaloff>:/icons/icons/images/icons_28.png</normaloff>:/icons/icons/images/icons_28.png</iconset>
    </property>
    <property name="text">
     <string>Align to XZ</string>
@@ -2186,7 +2186,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionAlignToYZ">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/icons/images/icons_28.png</normaloff>:/icons/icons/images/icons_28.png</iconset>
+     <normaloff>:/icons/icons/images/icons_27.png</normaloff>:/icons/icons/images/icons_27.png</iconset>
    </property>
    <property name="text">
     <string>Align to YZ</string>
