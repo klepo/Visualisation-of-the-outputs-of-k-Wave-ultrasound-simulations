@@ -40,11 +40,11 @@ FORMS +=  mainwindow.ui \
 
 win32 {
 
-    INCLUDEPATH += "E:/opencv-2.4.8/opencv/sources/new_build/install/include"
+    INCLUDEPATH += "G:/opencv-2.4.8/opencv/sources/new_build/install/include"
 
     CONFIG(debug, debug|release) {
 
-        LIBS += -L"E:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
+        LIBS += -L"G:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
             -lopencv_core248d \
             -lopencv_contrib248d \
             -lopencv_highgui248d \
@@ -74,7 +74,7 @@ win32 {
 
     CONFIG(release, release|debug) {
 
-        LIBS += -L"E:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
+        LIBS += -L"G:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
             -lopencv_core248 \
             -lopencv_imgproc248 \
             -lopencv_highgui248 \

@@ -28,7 +28,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     surfaceFormat.setSamples(4);
-    surfaceFormat.setAlphaBufferSize(8);
+    //surfaceFormat.setAlphaBufferSize(8);
     setFormat(surfaceFormat);
 
     timer = new QTimer(this);

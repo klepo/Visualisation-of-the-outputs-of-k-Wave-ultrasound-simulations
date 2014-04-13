@@ -170,6 +170,7 @@ GWindow::GWindow()
 
     datasetName = "no_dataset";
     flagSave = false;
+    flagSave2 = false;
 
     thread = new HDF5ReadingThread();
     connect(thread, SIGNAL(requestDone(Request *)), this, SLOT(setLoaded(Request *)));
@@ -312,10 +313,14 @@ void GWindow::initialize()
     // Settings
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
     glClearColor((float) 16 / 17, (float) 16 / 17, (float) 16 / 17, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
+    //glBlendFunc(GL_ONE, GL_ONE);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     /*cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
@@ -572,9 +577,6 @@ void GWindow::render()
         actualCount = 30;
     }
 
-    if (flagSave)
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, width(), height());
 
@@ -805,14 +807,36 @@ void GWindow::render()
         mutex.unlock();
     }
 
+    if (flagSave2) {
+        flagSave2 = false;
+        uchar *data = new uchar[width() * height() * 4];
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
+        cv::Mat image = cv::Mat(height(), width(), CV_8UC4, saveData);
+        for (int i = 0; i < width() * height() * 4; i += 4) {
+            //qDebug() << data[i + 3];
+            saveData[i + 3] = data[i + 3];
+        }
+        cv::flip(image, image, 0);
+        //imshow("image", image);
+        imwrite(fileName.toStdString(), image);
+        delete [] saveData;
+        saveData = NULL;
+        delete [] data;
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        renderLater();
+    }
+
     if (flagSave) {
         flagSave = false;
-        uchar *data = new uchar[width() * height() * 3];
+        saveData = new uchar[width() * height() * 4];
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, data);
-        QImage qimage = QImage(data, width(), height(), width() * 3, QImage::Format_RGB888).mirrored();
-        qimage.save(fileName, 0, 100);
-        glClearColor((float) 16 / 17, (float) 16 / 17, (float) 16 / 17, 0.0f);
+        glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, saveData);
+        //QImage qimage = QImage(data, width(), height(), width() * 4, QImage::Format_ARGB32).mirrored();
+        //qimage.save(fileName, 0, 100);
+        //glClearColor((float) 16 / 17, (float) 16 / 17, (float) 16 / 17, 0.0f);
+        flagSave2 = true;
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         renderLater();
     }
 

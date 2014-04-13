@@ -186,6 +186,8 @@ private:
     HDF5File::HDF5Dataset *selectedDataset;
 
     bool flagSave;
+    bool flagSave2;
+    unsigned char *saveData;
     QString fileName;
 
     int initialized;
