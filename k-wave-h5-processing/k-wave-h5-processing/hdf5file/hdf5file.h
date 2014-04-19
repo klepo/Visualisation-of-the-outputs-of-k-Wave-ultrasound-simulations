@@ -12,6 +12,8 @@
 #include <stdexcept>
 #endif
 
+#include <mutex>
+
 class HDF5File
 {
 public:
@@ -65,6 +67,8 @@ protected:
     uint64_t nY;
     uint64_t nZ;
     H5std_string filename;
+
+    static std::mutex mutex;
 
     H5::H5File file;
     std::map<const H5std_string, HDF5Dataset *> datasets;

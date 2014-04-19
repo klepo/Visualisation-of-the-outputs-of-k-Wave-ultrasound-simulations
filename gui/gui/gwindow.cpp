@@ -181,9 +181,10 @@ GWindow::~GWindow()
     m_program->release();
     delete m_program;
     thread->clearRequests();
-    thread->clearDoneRequests();
+    //thread->clearDoneRequests();
+    QMetaObject::invokeMethod(thread, "stop");
     thread->wait();
-    delete thread;
+    thread->deleteLater();
     //thread->deleteLater();
 }
 
@@ -384,7 +385,7 @@ void GWindow::setPosition(unsigned int _posZ, unsigned int _posY, unsigned int _
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 {
     thread->clearRequests();
-    thread->wait();
+    //thread->wait();
     //thread->clearDoneRequests();
 
     datasetName = dataset->getName();
@@ -1079,6 +1080,24 @@ bool GWindow::event(QEvent *event)
              //rotateXMatrix.rotate(0, -1, 0, 0);
              rotateYMatrix.setToIdentity();
              rotateYMatrix.rotate(90, 0, -1, 0);
+         }
+         if (ke->key() == Qt::Key_B) {
+             rotateXMatrix.setToIdentity();
+             rotateXMatrix.rotate(180, -1, 0, 0);
+             rotateYMatrix.setToIdentity();
+             //rotateYMatrix.rotate(0, 0, -1, 0);
+         }
+         if (ke->key() == Qt::Key_G) {
+             rotateXMatrix.setToIdentity();
+             rotateXMatrix.rotate(90 + 180, 1, 0, 0);
+             rotateYMatrix.setToIdentity();
+             //rotateYMatrix.rotate(0, 0, -1, 0);
+         }
+         if (ke->key() == Qt::Key_R) {
+             rotateXMatrix.setToIdentity();
+             //rotateXMatrix.rotate(0, -1, 0, 0);
+             rotateYMatrix.setToIdentity();
+             rotateYMatrix.rotate(90 + 180, 0, -1, 0);
          }
          renderLater();
     }

@@ -1,19 +1,57 @@
 #include "h5objecttovisualize.h"
+#include "h5subobjecttovisualize.h"
 
-OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString _name, const int _type, OpenedH5File *_openedH5File, QObject *parent) : QObject(parent)
+OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, const int type, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
 {
-    openedH5File = _openedH5File;
-    name = _name;
-    type = _type;
-    selectedDataset = NULL;
-    selectedGroup = NULL;
+    // Params
+    this->openedH5File = openedH5File;
+    this->name = name;
+    this->type = type;
+
+    selectedSubobject = NULL;
+    selected = false;
 }
 
-void OpenedH5File::H5ObjectToVisualize::addName(QString name)
+OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
 {
-    names.append(name);
-    selectedName = name;
+
 }
+
+void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5File::HDF5Dataset *dataset)
+{
+    if (type == OpenedH5File::DATASET_TYPE && !subobjects.contains(QString::fromStdString(dataset->getName()))) {
+        H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(dataset, openedH5File);
+        subobjects.insert(QString::fromStdString(dataset->getName()), subobject);
+        selectedSubobject = subobject;
+    }
+}
+
+void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5File::HDF5Group *group)
+{
+    if (type == OpenedH5File::GROUP_TYPE && !subobjects.contains(QString::fromStdString(group->getName()))) {
+        H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(group, openedH5File);
+        subobjects.insert(QString::fromStdString(group->getName()), subobject);
+        selectedSubobject = subobject;
+    }
+}
+
+/*HDF5File::HDF5Dataset *OpenedH5File::H5ObjectToVisualize::getSelectedDataset()
+{
+    if ((type == OpenedH5File::DATASET_TYPE || type == GROUP_TYPE ) && selectedSubobject != NULL) {
+        return selectedSubobject->getDataset();
+    } else {
+        return NULL;
+    }
+}
+
+HDF5File::HDF5Group *OpenedH5File::H5ObjectToVisualize::getSelectedGroup()
+{
+    if (type = GROUP_TYPE && selectedSubobject != NULL) {
+        return selectedSubobject->getGroup();
+    } else {
+        return NULL;
+    }
+}*/
 
 QString OpenedH5File::H5ObjectToVisualize::getName()
 {
@@ -25,22 +63,44 @@ int OpenedH5File::H5ObjectToVisualize::getType()
     return type;
 }
 
-QList<QString> OpenedH5File::H5ObjectToVisualize::getNames()
+QList<QString> OpenedH5File::H5ObjectToVisualize::getSubobjectNames()
 {
-    return names;
+    return subobjects.keys();
 }
 
-void OpenedH5File::H5ObjectToVisualize::selectObject(QString name)
+QMap<QString, OpenedH5File::H5SubobjectToVisualize *> OpenedH5File::H5ObjectToVisualize::getSubobjects()
 {
-    if (names.contains(name)) {
-        if (type == DATASET_TYPE) {
-            if (selectedDataset != NULL) openedH5File->file->closeDataset(selectedName.toStdString());
-            selectedName = name;
-            selectedDataset = openedH5File->file->openDataset(selectedName.toStdString());
-        } else {
-            if (selectedGroup != NULL) openedH5File->file->closeGroup(selectedName.toStdString());
-            selectedName = name;
-            selectedGroup = openedH5File->file->openGroup(selectedName.toStdString());
-        }
+    return subobjects;
+}
+
+OpenedH5File::H5SubobjectToVisualize *OpenedH5File::H5ObjectToVisualize::getSelectedSubobject()
+{
+    return selectedSubobject;
+}
+
+
+void OpenedH5File::H5ObjectToVisualize::setSelectedSubobject(QString name)
+{
+    if (subobjects.contains(name)) {
+        selectedSubobject = subobjects.value(name);
     }
 }
+
+/*QString OpenedH5File::H5ObjectToVisualize::getSelectedSubobjectName()
+{
+    return selectedSubobject->getName();
+}*/
+
+void OpenedH5File::H5ObjectToVisualize::toogleSelected()
+{
+    if (selected)
+        selected = false;
+    else
+        selected = true;
+}
+
+void OpenedH5File::H5ObjectToVisualize::setSelected(bool value)
+{
+    selected = value;
+}
+

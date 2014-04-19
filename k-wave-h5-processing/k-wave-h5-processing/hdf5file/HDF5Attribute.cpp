@@ -3,15 +3,18 @@
 HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(H5::Attribute attribute)
 {
     try {
+        //mutex.lock();
         type = attribute.getDataType();
         size = attribute.getInMemDataSize();
         name = attribute.getName();
         space = attribute.getSpace();
         buffer = malloc(size);
         attribute.read(type, buffer);
+        //mutex.unlock();
     } catch(H5::AttributeIException error) {
-           error.printError();
-           throw std::runtime_error(error.getCDetailMsg());
+        error.printError();
+        //mutex.unlock();
+        throw std::runtime_error(error.getCDetailMsg());
     }
 }
 

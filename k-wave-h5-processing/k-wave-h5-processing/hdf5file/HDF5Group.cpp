@@ -1,9 +1,9 @@
 #include "HDF5Group.h"
 
-HDF5File::HDF5Group::HDF5Group(H5::Group _group, std::string _name) : HDF5Object(&_group) {
-    group = _group;
-    object = &group;
-    name = _name;
+HDF5File::HDF5Group::HDF5Group(H5::Group group, std::string name) : HDF5Object(&group) {
+    this->group = group;
+    object = &this->group;
+    this->name = name;
 }
 
 HDF5File::HDF5Group::~HDF5Group()
@@ -27,5 +27,8 @@ H5std_string HDF5File::HDF5Group::getName()
 
 hsize_t HDF5File::HDF5Group::getNumObjs()
 {
-    return group.getNumObjs();
+    //mutex.lock();
+    hsize_t num = group.getNumObjs();
+    //mutex.unlock();
+    return num;
 }

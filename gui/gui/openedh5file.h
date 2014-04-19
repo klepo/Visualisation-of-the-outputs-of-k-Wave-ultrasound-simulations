@@ -19,28 +19,43 @@ public:
     ~OpenedH5File();
 
     class H5ObjectToVisualize;
+    class H5SubobjectToVisualize;
 
     QMap<QString, H5ObjectToVisualize *> getObjects();
+
+    H5ObjectToVisualize *getObject(QString mainName);
+    H5ObjectToVisualize *getObjectBySubobjectName(QString name);
+
     QMap<QString, QString> getInfo();
+
     HDF5File *getFile();
 
     QString getFilename();
     QString getRawFilename();
+
     uint64_t getNT();
     uint64_t getNX();
     uint64_t getNY();
     uint64_t getNZ();
 
+    static const int DATASET_TYPE = 0;
+    static const int GROUP_TYPE = 1;
+
 signals:
 
 public slots:
+    void setSelectedSubobject(QString name);
+    void setObjectSelected(QString mainName, bool value);
+    void toogleObjectSelected(QString mainName);
 
-protected:
+private:
     HDF5File *file;
     uint64_t nT, nX, nY, nZ;
 
     QMap<QString, QString> info;
     QMap<QString, H5ObjectToVisualize *> objects;
+
+    H5ObjectToVisualize *selectedObject;
 };
 
 #endif // H5FILE_H

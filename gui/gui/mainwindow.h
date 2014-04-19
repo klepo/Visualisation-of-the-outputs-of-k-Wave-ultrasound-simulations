@@ -14,6 +14,7 @@
 #include "gwindow.h"
 #include "openedh5file.h"
 #include "h5objecttovisualize.h"
+#include "h5subobjecttovisualize.h"
 
 namespace Ui
 {
@@ -41,7 +42,11 @@ public slots:
     void setXZLoaded(Request *);
     void setYZLoaded(Request *);
 
-    void loaded3D(std::string);
+    void repaintXYImage(cv::Mat image);
+    void repaintXZImage(cv::Mat image);
+    void repaintYZImage(cv::Mat image);
+
+    void loaded3D(std::string datasetName);
 
 private slots:
     void on_horizontalSliderCTAlpha_valueChanged(int value);
@@ -110,6 +115,10 @@ private slots:
     void on_doubleSpinBoxVRGreen_valueChanged(double value);
     void on_doubleSpinBoxVRBlue_valueChanged(double value);
 
+    void on_verticalSliderXY_valueChanged(int value);
+    void on_verticalSliderXZ_valueChanged(int value);
+    void on_verticalSliderYZ_valueChanged(int value);
+
 public:
     Ui::MainWindow *ui;
 
@@ -119,23 +128,24 @@ private:
     void repaintSlices();
     void initSlices();
 
-    OpenedH5File *openedH5File;
+    void setControls();
 
+    OpenedH5File *openedH5File;
 
     GWindow *gWindow;
 
     HDF5File *file;
     QString windowTitle;
 
+    OpenedH5File::H5ObjectToVisualize *object;
+    OpenedH5File::H5SubobjectToVisualize *subobject;
+
     std::string selectedName;
     std::string datasetName;
-    HDF5File::HDF5Dataset *selectedDataset;
-    HDF5File::HDF5Group *selectedGroup;
 
     bool flagDatasetInitialized;
     bool flagGroupInitialized;
     bool flagXYloaded, flagXZloaded, flagYZloaded;
-    //bool flagUseGlobalValues;
 
     bool flagVRLoaded;
 
@@ -148,10 +158,6 @@ private:
     float *dataXZ;
     float *dataYZ;
 
-    bool currentXYloadedFlag;
-    bool currentXZloadedFlag;
-    bool currentYZloadedFlag;
-
     uint64_t steps;
     uint64_t currentStep;
 
@@ -161,17 +167,12 @@ private:
     uint64_t posX;
 
     QTimer *timer;
-    int increment;
-    int interval;
-
-    int currentColormap;
 
     bool play;
     HDF5ReadingThread *threadXY;
     HDF5ReadingThread *threadXZ;
     HDF5ReadingThread *threadYZ;
 
-    //QThreadPool *threadPool;
     QMovie *movie;
 };
 

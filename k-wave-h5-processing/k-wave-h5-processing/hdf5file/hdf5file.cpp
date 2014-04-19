@@ -10,9 +10,11 @@ const H5std_string HDF5File::NY("Ny");
 const H5std_string HDF5File::NZ("Nz");
 hsize_t HDF5File::ZERO_CHUNK[3];
 
-HDF5File::HDF5File(std::string _filename, unsigned int flag)
+std::mutex HDF5File::mutex;
+
+HDF5File::HDF5File(std::string filename, unsigned int flag)
 {
-    filename = _filename;
+    this->filename = filename;
     // Try block to detect exceptions raised by any of the calls inside it
     try {
         H5::Exception::dontPrint();
@@ -109,12 +111,16 @@ void HDF5File::insertDataset(const H5std_string datasetName)
 {
     try {
         std::cout << "Opening dataset \"" << datasetName << "\"";
-        HDF5Dataset *hDF5Dataset = new HDF5Dataset(file.openDataSet(datasetName), datasetName);
+        //mutex.lock();
+        H5::DataSet d = file.openDataSet(datasetName);
+        //mutex.unlock();
+        HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName);
         std::cout << " ... OK" << std::endl;
         datasets.insert(std::pair<const H5std_string, HDF5Dataset *>(datasetName, hDF5Dataset));
     } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         //error.printError();
+        //mutex.unlock();
         throw std::runtime_error(std::string("Dataset \"" + datasetName + "\" does not exist").c_str());
     }
 }
@@ -123,12 +129,16 @@ void HDF5File::insertGroup(const H5std_string groupName)
 {
     try {
         std::cout << "Opening group \"" << groupName << "\"";
-        HDF5Group *hDF5Group = new HDF5Group(file.openGroup(groupName), groupName);
+        //mutex.lock();
+        H5::Group g = file.openGroup(groupName);
+        //mutex.unlock();
+        HDF5Group *hDF5Group = new HDF5Group(g, groupName);
         std::cout << " ... OK" << std::endl;
         groups.insert(std::pair<const H5std_string, HDF5Group *>(groupName, hDF5Group));
     } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         //error.printError();
+        //mutex.unlock();
         throw std::runtime_error(std::string("Group \"" + groupName + "\" does not exist").c_str());
     }
 }
@@ -136,6 +146,7 @@ void HDF5File::insertGroup(const H5std_string groupName)
 void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
 {
     try {
+        //mutex.lock();
         H5::DataSpace dataspace((int) rank, size);
         H5::DataType datatype(H5::PredType::NATIVE_UINT64);
         H5::DSetCreatPropList list = H5::DSetCreatPropList::DEFAULT;
@@ -153,13 +164,16 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
         std::cout << " ... OK" << std::endl;
+        //mutex.unlock();
     } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     } catch(H5::GroupIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     }
 }
@@ -167,6 +181,7 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
 void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
 {
     try {
+        //mutex.lock();
         H5::DataSpace dataspace((int) rank, size);
         H5::DataType datatype(H5::PredType::NATIVE_FLOAT);
         H5::DSetCreatPropList list = H5::DSetCreatPropList::DEFAULT;
@@ -185,13 +200,16 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
         std::cout << " ... OK" << std::endl;
+        //mutex.unlock();
     } catch (H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     } catch(H5::GroupIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     }
 }
@@ -199,6 +217,7 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
 void HDF5File::createGroup(const H5std_string name, bool rewrite)
 {
     try {
+        //mutex.lock();
         std::cout << "Creating group \"" << name << "\"";
         if (rewrite) {
             try {
@@ -210,13 +229,16 @@ void HDF5File::createGroup(const H5std_string name, bool rewrite)
         }
         file.createGroup(name);
         std::cout << " ... OK" << std::endl;
+        //mutex.unlock();
     } catch(H5::FileIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     } catch(H5::GroupIException error) {
         std::cout << " ... error" << std::endl;
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     }
 }
@@ -225,12 +247,16 @@ HDF5File::HDF5Dataset *HDF5File::openDataset(hsize_t idx)
 {
     H5std_string name;
     try {
+        //mutex.lock();
         name = file.getObjnameByIdx(idx);
+        //mutex.unlock();
     } catch(H5::FileIException error) {
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     } catch(H5::GroupIException error) {
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     }
 
@@ -272,12 +298,16 @@ HDF5File::HDF5Group *HDF5File::openGroup(hsize_t idx)
 {
     H5std_string name;
     try {
+        //mutex.lock();
         name = file.getObjnameByIdx(idx);
+        //mutex.unlock();
     } catch(H5::FileIException error) {
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     } catch(H5::GroupIException error) {
         error.printError();
+        //mutex.unlock();
         throw std::runtime_error(error.getCDetailMsg());
     }
 
@@ -312,7 +342,10 @@ void HDF5File::closeGroup(const H5std_string groupName)
 
 hsize_t HDF5File::getNumObjs()
 {
-    return file.getNumObjs();
+    //mutex.lock();
+    hsize_t num = file.getNumObjs();
+    //mutex.unlock();
+    return num;
 }
 
 H5std_string HDF5File::getFilename()

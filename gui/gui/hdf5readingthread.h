@@ -41,6 +41,7 @@ public slots:
     void clearRequests();
     void clearDoneRequests();
     void deleteDoneRequest(Request *);
+    void stop();
 
 private:
     static QMutex mutex;
@@ -48,6 +49,9 @@ private:
     float *_data;
     QQueue<Request *> queue;
     QList<Request *> doneRequests;
+    bool stopFlag;
+    QMutex stopMutex;
+
 };
 
 #endif // HDF5READINGTHREAD_H

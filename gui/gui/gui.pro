@@ -25,6 +25,7 @@ SOURCES +=  main.cpp\
     gwindow.cpp \
     openedh5file.cpp \
     h5objecttovisualize.cpp \
+    h5subobjecttovisualize.cpp
 
 HEADERS +=  mainwindow.h \
     cvimagewidget.h \
@@ -34,6 +35,7 @@ HEADERS +=  mainwindow.h \
     gwindow.h \
     openedh5file.h \
     h5objecttovisualize.h \
+    h5subobjecttovisualize.h
 
 FORMS +=  mainwindow.ui \
 

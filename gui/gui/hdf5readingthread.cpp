@@ -46,6 +46,7 @@ HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
 {
     setTerminationEnabled(true);
     //_data = NULL;
+    stopFlag = false;
 }
 
 void HDF5ReadingThread::createRequest(HDF5File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, int limit)
@@ -112,41 +113,56 @@ void HDF5ReadingThread::deleteDoneRequest(Request *r)
     requestMutex.unlock();
 }
 
+void HDF5ReadingThread::stop()
+{
+    QMutexLocker locker(&stopMutex);
+    stopFlag = true;
+}
+
 void HDF5ReadingThread::run()
 {
+    stopFlag = false;
     while (1) {
+        QMutexLocker locker(&stopMutex);
+        if (stopFlag) break;
+
         QMutexLocker lock(&mutex);
+        Request *r = NULL;
         mutexQueue.lock();
-        if (queue.isEmpty()) {
+        /*if (queue.isEmpty()) {
             mutexQueue.unlock();
             break;
-        }
-        Request *r = queue.dequeue();
+        }*/
+        if (!queue.isEmpty())
+            r = queue.dequeue();
         mutexQueue.unlock();
-        try {
-            if (r->full) {
-                r->dataset->initBlockReading();
-                do {
-                    Request *newR = new Request(r->dataset);
-                    qDebug() << "start reading block... ";
-                    r->dataset->readBlock(newR->zO, newR->yO, newR->xO, newR->zC, newR->yC, newR->xC, newR->data, newR->min, newR->max);
+        if (r != NULL) {
+            try {
+                if (r->full) {
+                    r->dataset->initBlockReading();
+                    do {
+                        Request *newR = new Request(r->dataset);
+                        //qDebug() << "start reading block... ";
+                        r->dataset->readBlock(newR->zO, newR->yO, newR->xO, newR->zC, newR->yC, newR->xC, newR->data, newR->min, newR->max);
+                        requestMutex.lock();
+                        doneRequests.append(newR);
+                        requestMutex.unlock();
+                        emit requestDone(newR);
+                    } while (!r->dataset->isLastBlock());
+                    delete r;
+                } else {
+                    //qDebug() << "start reading 3D dataset... ";
+                    r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, r->data, r->min, r->max);
                     requestMutex.lock();
-                    doneRequests.append(newR);
+                    doneRequests.append(r);
                     requestMutex.unlock();
-                    emit requestDone(newR);
-                } while (!r->dataset->isLastBlock());
-                delete r;
-            } else {
-                qDebug() << "start reading 3D dataset... ";
-                r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, r->data, r->min, r->max);
-                requestMutex.lock();
-                doneRequests.append(r);
-                requestMutex.unlock();
-                emit requestDone(r);
+                    emit requestDone(r);
+                }
+                //delete r;
+            } catch(std::exception &e) {
+                std::cerr << e.what() << std::endl;
             }
-            //delete r;
-        } catch(std::exception &e) {
-            std::cerr << e.what() << std::endl;
         }
+        usleep(1000);
     }
 }
