@@ -4,6 +4,8 @@
 #include "hdf5readingthread.h"
 #include "gwindow.h"
 
+#include "ui_dialog.h"
+
 #include <HDF5File.h>
 #include <HDF5Dataset.h>
 #include <HDF5Group.h>
@@ -20,9 +22,11 @@
 #include <QLocale>
 #include <QMovie>
 #include <QSignalMapper>
+#include <QMessageBox>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -38,11 +42,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
 
-    // Slices indices change connect
-    //connect(ui->verticalSliderXY, SIGNAL(valueChanged(int)), this, SLOT(loadXYSlice(int)));
-    //connect(ui->verticalSliderXZ, SIGNAL(valueChanged(int)), this, SLOT(loadXZSlice(int)));
-    //connect(ui->verticalSliderYZ, SIGNAL(valueChanged(int)), this, SLOT(loadYZSlice(int)));
-
     // OpenGL window initialize
     gWindow = NULL;
     gWindow = new GWindow();
@@ -54,8 +53,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
     connect(gWindow, SIGNAL(loaded(std::string)), this, SLOT(loaded3D(std::string)));
-
-    //connect(gWindow, SIGNAL(partLoaded(int)), ui->progressBar3D, SLOT(setValue(int)));
 
     connect(ui->actionVolumeRendering, SIGNAL(toggled(bool)), gWindow, SLOT(setViewVR(bool)));
 
@@ -89,6 +86,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui->labelXZLoading->setMovie(movie);
     ui->labelYZLoading->setMovie(movie);
     clearGUI();
+
+    dialog = new QDialog(this, Qt::CustomizeWindowHint);
+    //dialog->setModal(true);
+    Ui::Dialog *dialogUi = new Ui::Dialog;
+    dialogUi->setupUi(dialog);
+    dialogUi->label->setText("Waiting for completion of reading the file...");
 }
 
 MainWindow::~MainWindow()
@@ -121,42 +124,39 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
             setWindowTitle(windowTitle + " - " + openedH5File->getFilename());
 
             // Clear datasets GUI
-            QLayoutItem* item;
-            while ((item = ui->verticalLayoutDatasets->takeAt(0)) != NULL)
-            {
-                delete item->widget();
-                delete item;
-            }
+            clearLayout(ui->gridLayoutDatasets);
 
-            // Fill datasets list
-            //QSignalMapper* signalMapper = new QSignalMapper(this);
-
+            int i = 0;
             foreach (QString key, openedH5File->getObjects().keys()) {
-                qDebug() << key;
-                QWidget *widget = new QWidget();
-                widget->setLayout(new QHBoxLayout);
-                widget->layout()->setMargin(0);
+                //qDebug() << key;
+
+                QGridLayout *gridLayout = ui->gridLayoutDatasets;
+
+                QRadioButton *radioButton = new QRadioButton(key);
                 QCheckBox *checkBox = new QCheckBox();
+                checkBox->setAccessibleName(key);
+                QComboBox *comboBox = new QComboBox();
 
-                //connect(checkBox, SIGNAL(clicked()), signalMapper, SLOT(map()));
-                //signalMapper->setMapping(checkBox, key);
-
+                connect(radioButton, SIGNAL(clicked()), this, SLOT(selectDataset()));
                 connect(checkBox, SIGNAL(clicked()), this, SLOT(selectDataset()));
 
-                QComboBox *comboBox = new QComboBox();
-                widget->layout()->addWidget(checkBox);
-                widget->layout()->addWidget(comboBox);
-                ui->verticalLayoutDatasets->addWidget(widget);
+                radioButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+                checkBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+                gridLayout->addWidget(radioButton, i, 0);
+                gridLayout->addWidget(checkBox, i, 1);
+                gridLayout->addWidget(comboBox, i, 2);
+
+                i++;
+
                 foreach (QString item, openedH5File->getObjects().value(key)->getSubobjectNames()) {
-                    qDebug() << "->" << item;
+                    //qDebug() << "->" << item;
                     comboBox->addItem(item);
                     comboBox->setCurrentText(item);
                 }
-                //connect(comboBox, SIGNAL(currentIndexChanged(QString)), openedH5File, SLOT(setSelectedSubobject(QString)));
+
                 connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectDataset()));
             }
-
-            //connect(signalMapper, SIGNAL(mapped(QString)), openedH5File, SLOT(toogleObjectSelected(QString)));
 
             file = openedH5File->getFile();
 
@@ -164,13 +164,10 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
             ui->dockWidgetDatasets->setEnabled(true);
             ui->dockWidgetInfo->setEnabled(true);
 
-            //threadXY->start();
-            //threadXZ->start();
-            //threadYZ->start();
-
         } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
-            // TODO error dialog
+            QMessageBox messageBox;
+            messageBox.critical(0, "Error", "Wrong HDF5 file!");
         }
 
     }
@@ -178,10 +175,15 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
 
 void MainWindow::on_actionCloseHDF5File_triggered()
 {
+    dialog->show();
+    QApplication::processEvents();
+
     clearRequestsAndWaitThreads();
 
     delete openedH5File;
     openedH5File = NULL;
+
+    dialog->hide();
 
     object = NULL;
     subobject = NULL;
@@ -193,9 +195,6 @@ void MainWindow::clearGUI()
 {
     setWindowTitle(windowTitle);
 
-    flagXYloaded = false;
-    flagXZloaded = false;
-    flagYZloaded = false;
     flagVRLoaded = false;
 
     ui->comboBoxColormap->setCurrentIndex(cv::COLORMAP_JET);
@@ -203,8 +202,6 @@ void MainWindow::clearGUI()
     play = false;
 
     ui->dockWidgetSelectedDataset->setEnabled(false);
-    //ui->dockWidget3D->setEnabled(false);
-    ui->dockWidgetCT->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
     ui->dockWidgetInfo->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
@@ -222,9 +219,7 @@ void MainWindow::clearGUI()
 
     ui->checkBoxUseGlobal->setChecked(true);
     ui->toolButtonLocalValues->setChecked(false);
-    ui->actionCT->setChecked(false);
     ui->actionInfo->setChecked(false);
-    ui->dockWidgetCT->setVisible(false);
     ui->dockWidgetInfo->setVisible(false);
 
     ui->imageWidgetXY->clearImage();
@@ -236,24 +231,14 @@ void MainWindow::clearGUI()
         gWindow->clearData();
     }
 
-    //ui->progressBar3D->setVisible(false);
-
     // Clear dataset info
-    QLayoutItem* item;
-    while ((item = ui->formLayoutSelectedDatasetInfo->takeAt(0)) != NULL)
-    {
-        delete item->widget();
-        delete item;
-    }
-    //ui->groupBoxSelectedDatasetInfo->adjustSize();
+    clearLayout(ui->formLayoutSelectedDatasetInfo);
 
     // Clear datasets
-    while ((item = ui->verticalLayoutDatasets->takeAt(0)) != NULL)
-    {
-        delete item->widget();
-        delete item;
-    }
+    clearLayout(ui->gridLayoutDatasets);
+
     ui->dockWidgetContentsDatasets->adjustSize();
+
     // Clear info
     ui->textBrowserInfo->clear();
 
@@ -261,12 +246,20 @@ void MainWindow::clearGUI()
 
 }
 
+void MainWindow::clearLayout(QLayout *layout)
+{
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != NULL) {
+        delete item->widget();
+        delete item;
+    }
+}
+
 void MainWindow::clearRequestsAndWaitThreads()
 {
     if (gWindow != NULL)
     {
         gWindow->getThread()->clearRequests();
-        //QMetaObject::invokeMethod(gWindow->getThread(), "stop");
         gWindow->getThread()->wait();
         //gWindow->getThread()->clearDoneRequests();
     }
@@ -274,20 +267,29 @@ void MainWindow::clearRequestsAndWaitThreads()
 
 void MainWindow::selectDataset()
 {
-    QString selectedName = "";
+    QString selectedObjectName = "";
+    QString selectedSubobjectName = "";
 
-    // Find selected dataset or group
-    QList<QCheckBox *> list = ui->dockWidgetContentsDatasets->findChildren<QCheckBox *>();
-    foreach (QCheckBox *checkBox, list) {
-        if (checkBox->isChecked()) {
-            QComboBox *comboBox = checkBox->parent()->findChild<QComboBox *>();
-            selectedName = comboBox->currentText();
+    // Find selected datasets or groups
+    QList<QCheckBox *> checkBoxes = ui->dockWidgetContentsDatasets->findChildren<QCheckBox *>();
+    foreach (QCheckBox *checkBox, checkBoxes) {
+        openedH5File->setObjectSelected(checkBox->accessibleName(), checkBox->isChecked());
+    }
+
+    // Select one object
+    QList<QRadioButton *> radioButtons = ui->dockWidgetContentsDatasets->findChildren<QRadioButton *>();
+    foreach (QRadioButton *radioButton, radioButtons) {
+        if (radioButton->isChecked()) {
+            selectedObjectName = radioButton->text();
             break;
         }
     }
 
-    if (subobject != NULL && selectedName == subobject->getName())
-        return;
+    // Select one subobject
+    QList<QComboBox *> comboBoxes = ui->dockWidgetContentsDatasets->findChildren<QComboBox *>();
+    foreach (QComboBox *comboBox, comboBoxes) {
+        openedH5File->setSelectedSubobject(comboBox->currentText());
+    }
 
     if (gWindow != NULL)
         gWindow->getThread()->clearRequests();
@@ -300,15 +302,9 @@ void MainWindow::selectDataset()
         gWindow->clearData();
     }
 
-    //ui->progressBar3D->setVisible(false);
-
     flagDatasetInitialized = false;
-    flagXYloaded = false;
-    flagXZloaded = false;
-    flagYZloaded = false;
     flagVRLoaded = false;
 
-    //ui->groupBoxVolumeRendering->setEnabled(false);
     ui->dockWidgetSelectedDataset->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
@@ -317,11 +313,7 @@ void MainWindow::selectDataset()
     play = false;
 
     // Clear dataset info
-    QLayoutItem* item;
-    while ((item = ui->formLayoutSelectedDatasetInfo->takeAt(0)) != NULL) {
-        delete item->widget();
-        delete item;
-    }
+    clearLayout(ui->formLayoutSelectedDatasetInfo);
 
     // Disconnect all
     foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
@@ -329,18 +321,19 @@ void MainWindow::selectDataset()
             disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
             disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
             disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
-            //qDebug() << subobject->getName();
         }
     }
 
     object = NULL;
     subobject = NULL;
 
-    if (selectedName == "")
+    if (selectedObjectName == "")
         return;
 
-    object = openedH5File->getObjectBySubobjectName(selectedName);
-    openedH5File->setSelectedSubobject(selectedName);
+    selectedSubobjectName = openedH5File->getObject(selectedObjectName)->getSelectedSubobject()->getName();
+
+    object = openedH5File->getObject(selectedObjectName);
+    openedH5File->setSelectedSubobject(selectedSubobjectName);
     if (object != NULL)
         subobject = object->getSelectedSubobject();
 
@@ -372,12 +365,6 @@ void MainWindow::selectDataset()
         ui->dockWidgetXZ->setEnabled(true);
         ui->dockWidgetYZ->setEnabled(true);
 
-        if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
-            //ui->progressBar3D->setValue(0);
-            //ui->progressBar3D->setVisible(true);
-            gWindow->load3DTexture(subobject->getDataset());
-        }
-
         if (gWindow != NULL) {
             gWindow->changeMinValue(subobject->getMinVG());
             gWindow->changeMaxValue(subobject->getMaxVG());
@@ -385,6 +372,15 @@ void MainWindow::selectDataset()
             gWindow->setMainSize(subobject->getFrameSize()[0], subobject->getFrameSize()[1], subobject->getFrameSize()[2]);
             gWindow->setSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
             gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
+
+            gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
+            gWindow->setPosition(0, 0, 0);
+        }
+
+        if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
+            //ui->progressBar3D->setValue(0);
+            //ui->progressBar3D->setVisible(true);
+            gWindow->load3DTexture(subobject->getDataset());
         }
 
         subobject->setGUIInitialized(true);
@@ -416,9 +412,9 @@ void MainWindow::repaintXYImage(cv::Mat image, int index)
 
         if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
             timer->start(ui->spinBoxTMInterval->value());
-    }
-    if (index == ui->verticalSliderXY->value()) ui->labelXYLoading->setVisible(false);
 
+        if (subobject->isCurrentXYLoaded()) ui->labelXYLoading->setVisible(false);
+    }
 }
 
 void MainWindow::repaintXZImage(cv::Mat image, int index)
@@ -446,8 +442,9 @@ void MainWindow::repaintXZImage(cv::Mat image, int index)
 
         if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
             timer->start(ui->spinBoxTMInterval->value());
+
+        if (subobject->isCurrentXZLoaded()) ui->labelXZLoading->setVisible(false);
     }
-    if (index == ui->verticalSliderXZ->value()) ui->labelXZLoading->setVisible(false);
 }
 
 void MainWindow::repaintYZImage(cv::Mat image, int index)
@@ -475,8 +472,9 @@ void MainWindow::repaintYZImage(cv::Mat image, int index)
 
         if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
             timer->start(ui->spinBoxTMInterval->value());
+
+        if (subobject->isCurrentYZLoaded()) ui->labelYZLoading->setVisible(false);
     }
-    if (index == ui->verticalSliderYZ->value()) ui->labelYZLoading->setVisible(false);
 }
 
 void MainWindow::initControls()
@@ -519,6 +517,10 @@ void MainWindow::initControls()
         ui->checkBoxUseGlobal->setChecked(subobject->getUseGlobal());
 
         ui->comboBoxColormap->setCurrentIndex(subobject->getColormap());
+
+        ui->labelXYLoading->setVisible(true);
+        ui->labelXZLoading->setVisible(true);
+        ui->labelYZLoading->setVisible(true);
     }
 }
 
@@ -577,13 +579,13 @@ void MainWindow::on_dockWidgetDatasets_visibilityChanged(bool)
         ui->actionDatasets->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetCT_visibilityChanged(bool)
+/*void MainWindow::on_dockWidgetCT_visibilityChanged(bool)
 {
     if (ui->dockWidgetCT->isVisible())
         ui->actionCT->setChecked(true);
     else
         ui->actionCT->setChecked(false);
-}
+}*/
 
 void MainWindow::on_dockWidgetSelectedDataset_visibilityChanged(bool)
 {
@@ -839,7 +841,7 @@ void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 
 void MainWindow::on_actionVolumeRendering_toggled(bool value)
 {
-    if (gWindow != NULL && subobject != NULL && value && !gWindow->isTexture3DInitialized()) {
+    if (gWindow != NULL && subobject != NULL && value/*&& !gWindow->isTexture3DInitialized()*/) {
         //ui->progressBar3D->setValue(0);
         //ui->progressBar3D->setVisible(true);
         gWindow->load3DTexture(subobject->getDataset());

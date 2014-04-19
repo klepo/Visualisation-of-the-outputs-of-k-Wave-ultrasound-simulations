@@ -373,6 +373,9 @@ void GWindow::setSize(unsigned int depth, unsigned int height, unsigned int widt
     imageDepth = depth;
     imageHeight = height;
     imageWidth = width;
+    origImageWidth = imageWidth;
+    origImageHeight = imageHeight;
+    origImageDepth = imageDepth;
 }
 
 void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int posX)
@@ -384,6 +387,9 @@ void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int pos
 
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 {
+    if (selectedDataset == dataset)
+        return;
+
     thread->clearRequests();
     thread->wait();
     //thread->clearDoneRequests();
@@ -393,12 +399,9 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 
     texture3DInitialized = false;
 
-    imageWidth = dataset->getDims()[2];
+    /*imageWidth = dataset->getDims()[2];
     imageHeight = dataset->getDims()[1];
-    imageDepth = dataset->getDims()[0];
-    origImageWidth = imageWidth;
-    origImageHeight = imageHeight;
-    origImageDepth = imageDepth;
+    imageDepth = dataset->getDims()[0];*/
 
     PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
     glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
@@ -440,6 +443,9 @@ void GWindow::clearData()
         changeMaxValue(0.0f);
         clearSlices();
         unload3DTexture();
+
+        selectedDataset = NULL;
+
         renderLater();
     }
 }

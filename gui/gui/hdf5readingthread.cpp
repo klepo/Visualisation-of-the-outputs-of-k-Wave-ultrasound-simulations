@@ -113,6 +113,7 @@ void HDF5ReadingThread::run()
 {
     //stopFlag = false;
     while (1) {
+        QMutexLocker lock(&mutex);
         Request *r = NULL;
         queueMutex.lock();
         if (!queue.isEmpty())
@@ -125,29 +126,22 @@ void HDF5ReadingThread::run()
 
         if (r != NULL) {
             try {
-                QMutexLocker lock(&mutex);
                 if (r->full) {
                     r->dataset->initBlockReading();
                     do {
                         Request *newR = new Request(r->dataset);
                         qDebug() << "start reading block... ";
-
                         r->dataset->readBlock(newR->zO, newR->yO, newR->xO, newR->zC, newR->yC, newR->xC, newR->data, newR->min, newR->max);
-
                         QMutexLocker locker(&requestMutex);
                         doneRequests.append(newR);
-
                         emit requestDone(newR);
                     } while (!r->dataset->isLastBlock());
                     delete r;
                 } else {
                     qDebug() << "start reading 3D dataset... ";
-
                     r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, r->data, r->min, r->max);
-
                     QMutexLocker locker(&requestMutex);
                     doneRequests.append(r);
-
                     emit requestDone(r);
                 }
                 //delete r;

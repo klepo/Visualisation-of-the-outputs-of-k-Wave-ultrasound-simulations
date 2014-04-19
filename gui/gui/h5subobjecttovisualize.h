@@ -147,6 +147,14 @@ private:
     uint64_t xIndex;
     uint64_t yIndex;
     uint64_t zIndex;
+    uint64_t lastLoadedXIndex;
+    uint64_t lastLoadedYIndex;
+    uint64_t lastLoadedZIndex;
+
+    QMutex mutexXY;
+    QMutex mutexXZ;
+    QMutex mutexYZ;
+
 
     HDF5ReadingThread *threadXY;
     HDF5ReadingThread *threadXZ;

@@ -14,7 +14,7 @@ HDF5File::HDF5Object::~HDF5Object()
 int HDF5File::HDF5Object::getNumAttrs()
 {
     //mutex.lock();
-    hsize_t num = object->getNumAttrs();
+    int num = (int) object->getNumAttrs();
     //mutex.unlock();
     return num;
 }

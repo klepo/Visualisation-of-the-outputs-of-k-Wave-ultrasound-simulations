@@ -38,6 +38,7 @@ HEADERS +=  mainwindow.h \
     h5subobjecttovisualize.h
 
 FORMS +=  mainwindow.ui \
+    dialog.ui
 
 
 win32 {

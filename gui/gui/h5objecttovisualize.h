@@ -47,8 +47,6 @@ private:
 
     bool selected;
 
-
-
 };
 
 #endif // H5OBJECTTOVISUALIZE_H

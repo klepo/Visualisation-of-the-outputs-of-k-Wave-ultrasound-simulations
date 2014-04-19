@@ -42,7 +42,7 @@ private slots:
     void on_dockWidgetYZ_visibilityChanged(bool);
 
     void on_dockWidgetInfo_visibilityChanged(bool);
-    void on_dockWidgetCT_visibilityChanged(bool);
+    //void on_dockWidgetCT_visibilityChanged(bool);
     void on_dockWidgetDatasets_visibilityChanged(bool);
     void on_dockWidgetSelectedDataset_visibilityChanged(bool);
 
@@ -110,9 +110,8 @@ public:
 private:
     void clearGUI();
     void clearRequestsAndWaitThreads();
-    void initSlices();
-
     void initControls();
+    void clearLayout(QLayout *layout);
 
     OpenedH5File *openedH5File;
 
@@ -125,7 +124,6 @@ private:
     OpenedH5File::H5SubobjectToVisualize *subobject;
 
     bool flagDatasetInitialized;
-    bool flagXYloaded, flagXZloaded, flagYZloaded;
 
     bool flagVRLoaded;
 
@@ -134,6 +132,8 @@ private:
     bool play;
 
     QMovie *movie;
+
+    QDialog *dialog;
 };
 
 #endif // MAINWINDOW_H

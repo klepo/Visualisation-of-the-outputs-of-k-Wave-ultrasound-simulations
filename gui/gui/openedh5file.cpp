@@ -177,9 +177,9 @@ void OpenedH5File::toogleObjectSelected(QString mainName)
 
 OpenedH5File::~OpenedH5File()
 {
-    delete file;
     foreach (QString key, objects.keys())
         delete objects.value(key);
+    delete file;
 }
 
 uint64_t OpenedH5File::getNT()

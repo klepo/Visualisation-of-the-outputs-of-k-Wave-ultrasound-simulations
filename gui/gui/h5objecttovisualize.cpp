@@ -14,7 +14,8 @@ OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, const int t
 
 OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
 {
-
+    foreach (QString key, subobjects.keys())
+        delete subobjects.value(key);
 }
 
 void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5File::HDF5Dataset *dataset)
