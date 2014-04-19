@@ -33,27 +33,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     openedH5File = NULL;
 
-    dataXY = NULL;
-    dataXZ = NULL;
-    dataYZ = NULL;
-
     windowTitle = "k-Wave HDF5 visualizer";
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
-
-    qRegisterMetaType<hsize_t>("hsize_t");
-    threadXY = new HDF5ReadingThread();
-    connect(threadXY, SIGNAL(requestDone(Request *)), this, SLOT(setXYLoaded(Request *)));
-    //threadXY->start();
-    threadXZ = new HDF5ReadingThread();
-    connect(threadXZ, SIGNAL(requestDone(Request *)), this, SLOT(setXZLoaded(Request *)));
-    //threadXZ->start();
-    threadYZ = new HDF5ReadingThread();
-    connect(threadYZ, SIGNAL(requestDone(Request *)), this, SLOT(setYZLoaded(Request *)));
-    //threadYZ->start();
-
-    qRegisterMetaType<cv::Mat>("cv::Mat");
 
     // Slices indices change connect
     //connect(ui->verticalSliderXY, SIGNAL(valueChanged(int)), this, SLOT(loadXYSlice(int)));
@@ -96,10 +79,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
     //ui->progressBar3D->setVisible(false);
 
-    ui->toolButtonPositionXY->setVisible(false);
-    ui->toolButtonPositionXZ->setVisible(false);
-    ui->toolButtonPositionYZ->setVisible(false);
-
     movie = new QMovie(":/icons/icons/loading.gif");
     movie->setCacheMode(QMovie::CacheAll);
     movie->start();
@@ -119,9 +98,6 @@ MainWindow::~MainWindow()
     delete timer;
     if (gWindow != NULL)
         delete gWindow;
-    delete threadXY;
-    delete threadXZ;
-    delete threadYZ;
 }
 
 void MainWindow::on_actionLoadOutputHDF5File_triggered()
@@ -207,15 +183,6 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     delete openedH5File;
     openedH5File = NULL;
 
-    delete [] dataXY;
-    dataXY = NULL;
-
-    delete [] dataXZ;
-    dataXZ = NULL;
-
-    delete [] dataYZ;
-    dataYZ = NULL;
-
     object = NULL;
     subobject = NULL;
 
@@ -226,20 +193,12 @@ void MainWindow::clearGUI()
 {
     setWindowTitle(windowTitle);
 
-    flagDatasetInitialized = false;
-    flagGroupInitialized = false;
     flagXYloaded = false;
     flagXZloaded = false;
     flagYZloaded = false;
     flagVRLoaded = false;
 
     ui->comboBoxColormap->setCurrentIndex(cv::COLORMAP_JET);
-
-    posZ = 0;
-    posY = 0;
-    posX = 0;
-
-    steps = 0;
 
     play = false;
 
@@ -304,25 +263,10 @@ void MainWindow::clearGUI()
 
 void MainWindow::clearRequestsAndWaitThreads()
 {
-    threadXY->clearRequests();
-    QMetaObject::invokeMethod(threadXY, "stop");
-    threadXY->wait();
-    //threadXY->clearDoneRequests();
-
-    threadXZ->clearRequests();
-    QMetaObject::invokeMethod(threadXZ, "stop");
-    threadXZ->wait();
-    //threadXZ->clearDoneRequests();
-
-    threadYZ->clearRequests();
-    QMetaObject::invokeMethod(threadYZ, "stop");
-    threadYZ->wait();
-    //threadYZ->clearDoneRequests();
-
     if (gWindow != NULL)
     {
         gWindow->getThread()->clearRequests();
-        QMetaObject::invokeMethod(gWindow->getThread(), "stop");
+        //QMetaObject::invokeMethod(gWindow->getThread(), "stop");
         gWindow->getThread()->wait();
         //gWindow->getThread()->clearDoneRequests();
     }
@@ -345,14 +289,8 @@ void MainWindow::selectDataset()
     if (subobject != NULL && selectedName == subobject->getName())
         return;
 
-
-    //clearRequestsAndWaitThreads();
-    threadXY->clearRequests();
-    threadXZ->clearRequests();
-    threadYZ->clearRequests();
     if (gWindow != NULL)
         gWindow->getThread()->clearRequests();
-
 
     ui->imageWidgetXY->clearImage();
     ui->imageWidgetXZ->clearImage();
@@ -365,7 +303,6 @@ void MainWindow::selectDataset()
     //ui->progressBar3D->setVisible(false);
 
     flagDatasetInitialized = false;
-    flagGroupInitialized = false;
     flagXYloaded = false;
     flagXZloaded = false;
     flagYZloaded = false;
@@ -377,13 +314,7 @@ void MainWindow::selectDataset()
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
 
-    posZ = 0;
-    posY = 0;
-    posX = 0;
-
-    steps = 0;
     play = false;
-    currentStep = 0;
 
     // Clear dataset info
     QLayoutItem* item;
@@ -395,13 +326,12 @@ void MainWindow::selectDataset()
     // Disconnect all
     foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
         foreach (OpenedH5File::H5SubobjectToVisualize *subobject, object->getSubobjects()) {
-            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat)), 0, 0);
-            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat)), 0, 0);
-            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat)), 0, 0);
-            qDebug() << subobject->getName();
+            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
+            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
+            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
+            //qDebug() << subobject->getName();
         }
     }
-
 
     object = NULL;
     subobject = NULL;
@@ -418,39 +348,24 @@ void MainWindow::selectDataset()
 
         qDebug() << "--> Selected dataset" << subobject->getName();
 
-        minVG = subobject->getMinVG();
-        maxVG = subobject->getMaxVG();
+        subobject->setGUIInitialized(false);
 
         // Set dataset info
         QList<QPair<QString, QString>> info = subobject->getInfo();
         for(int i = 0; i < info.count(); ++i)
             ui->formLayoutSelectedDatasetInfo->addRow(new QLabel(info[i].first + ":"), new QLabel(info[i].second));
 
-        hsize_t *size = subobject->getSize();
-        sizeZ = size[0];
-        sizeY = size[1];
-        sizeX = size[2];
-
-        steps = subobject->getSteps();
-
-        hsize_t *pos = subobject->getPos();
-        posZ = pos[0];
-        posY = pos[1];
-        posX = pos[2];
-
         // Init GUI controls
-        setControls();
+        initControls();
 
         //initSlices();
         subobject->setXIndex(subobject->getXIndex());
         subobject->setYIndex(subobject->getYIndex());
         subobject->setZIndex(subobject->getZIndex());
 
-
-        connect(subobject, SIGNAL(imageXYChanged(cv::Mat)), this, SLOT(repaintXYImage(cv::Mat)));
-        connect(subobject, SIGNAL(imageXZChanged(cv::Mat)), this, SLOT(repaintXZImage(cv::Mat)));
-        connect(subobject, SIGNAL(imageYZChanged(cv::Mat)), this, SLOT(repaintYZImage(cv::Mat)));
-
+        connect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), this, SLOT(repaintXYImage(cv::Mat, int)));
+        connect(subobject, SIGNAL(imageXZChanged(cv::Mat, int)), this, SLOT(repaintXZImage(cv::Mat, int)));
+        connect(subobject, SIGNAL(imageYZChanged(cv::Mat, int)), this, SLOT(repaintYZImage(cv::Mat, int)));
 
         ui->dockWidgetSelectedDataset->setEnabled(true);
         ui->dockWidgetXY->setEnabled(true);
@@ -472,11 +387,11 @@ void MainWindow::selectDataset()
             gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
         }
 
-        flagDatasetInitialized = true;
+        subobject->setGUIInitialized(true);
     }
 }
 
-void MainWindow::repaintXYImage(cv::Mat image)
+void MainWindow::repaintXYImage(cv::Mat image, int index)
 {
     if (subobject != NULL) {
         if (gWindow != NULL) {
@@ -486,16 +401,27 @@ void MainWindow::repaintXYImage(cv::Mat image)
                 gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize()[2], subobject->getSize()[1], (float) ui->verticalSliderXY->value() / (subobject->getSize()[0] - 1));
         }
         QPoint p = QPoint(subobject->getPos()[2], subobject->getPos()[1]);
-        if (!ui->toolButtonPositionXY->isChecked())
-            p = QPoint(0, 0);
-        ui->imageWidgetXY->showImage(image, p, ui->toolButtonFillXY->isChecked(), openedH5File->getRawFilename().toStdString() + "_-_" + subobject->getName().toStdString() + "_-_XY_" + std::to_string(ui->verticalSliderXY->value()));
-        ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(subobject->getZIndex()) + ")");
+        p = QPoint(0, 0);
+        ui->imageWidgetXY->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(index) + ")");
+
+        subobject->setGUIXYInitialized(false);
+        ui->doubleSpinBoxXYMin->setRange(subobject->getOriginalMinVXY(), subobject->getOriginalMaxVXY());
+        ui->doubleSpinBoxXYMax->setRange(subobject->getOriginalMinVXY(), subobject->getOriginalMaxVXY());
+        ui->doubleSpinBoxXYMin->setValue(subobject->getMinVXY());
+        ui->doubleSpinBoxXYMax->setValue(subobject->getMaxVXY());
+        ui->doubleSpinBoxXYMin->setSingleStep((subobject->getOriginalMaxVXY() - subobject->getOriginalMinVXY()) / 1000);
+        ui->doubleSpinBoxXYMax->setSingleStep((subobject->getOriginalMaxVXY() - subobject->getOriginalMinVXY()) / 1000);
+        subobject->setGUIXYInitialized(true);
+
+        if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
+            timer->start(ui->spinBoxTMInterval->value());
     }
-    //if (r->zO == ui->verticalSliderXY->value()) ui->labelXYLoading->setVisible(false);
+    if (index == ui->verticalSliderXY->value()) ui->labelXYLoading->setVisible(false);
 
 }
 
-void MainWindow::repaintXZImage(cv::Mat image)
+void MainWindow::repaintXZImage(cv::Mat image, int index)
 {
     if (subobject != NULL) {
         if (gWindow != NULL) {
@@ -505,14 +431,26 @@ void MainWindow::repaintXZImage(cv::Mat image)
                 gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize()[2], subobject->getSize()[0], (float) ui->verticalSliderXZ->value() / (subobject->getSize()[1] - 1));
         }
         QPoint p = QPoint(subobject->getPos()[2], subobject->getPos()[0]);
-        if (!ui->toolButtonPositionXZ->isChecked())
-            p = QPoint(0, 0);
-        ui->imageWidgetXZ->showImage(image, p, ui->toolButtonFillXY->isChecked(), openedH5File->getRawFilename().toStdString() + "_-_" + subobject->getName().toStdString() + "_-_XY_" + std::to_string(ui->verticalSliderXY->value()));
-        ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(subobject->getYIndex()) + ")");
+        p = QPoint(0, 0);
+        ui->imageWidgetXZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(index) + ")");
+
+        subobject->setGUIXZInitialized(false);
+        ui->doubleSpinBoxXZMin->setRange(subobject->getOriginalMinVXZ(), subobject->getOriginalMaxVXZ());
+        ui->doubleSpinBoxXZMax->setRange(subobject->getOriginalMinVXZ(), subobject->getOriginalMaxVXZ());
+        ui->doubleSpinBoxXZMin->setValue(subobject->getMinVXZ());
+        ui->doubleSpinBoxXZMax->setValue(subobject->getMaxVXZ());
+        ui->doubleSpinBoxXZMin->setSingleStep((subobject->getOriginalMaxVXZ() - subobject->getOriginalMinVXZ()) / 1000);
+        ui->doubleSpinBoxXZMax->setSingleStep((subobject->getOriginalMaxVXZ() - subobject->getOriginalMinVXZ()) / 1000);
+        subobject->setGUIXZInitialized(true);
+
+        if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
+            timer->start(ui->spinBoxTMInterval->value());
     }
+    if (index == ui->verticalSliderXZ->value()) ui->labelXZLoading->setVisible(false);
 }
 
-void MainWindow::repaintYZImage(cv::Mat image)
+void MainWindow::repaintYZImage(cv::Mat image, int index)
 {
     if (subobject != NULL) {
         if (gWindow != NULL) {
@@ -522,14 +460,26 @@ void MainWindow::repaintYZImage(cv::Mat image)
                 gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize()[1], subobject->getSize()[0], (float) ui->verticalSliderYZ->value() / (subobject->getSize()[2] - 1));
         }
         QPoint p = QPoint(subobject->getPos()[1], subobject->getPos()[0]);
-        if (!ui->toolButtonPositionYZ->isChecked())
-            p = QPoint(0, 0);
-        ui->imageWidgetYZ->showImage(image, p, ui->toolButtonFillXY->isChecked(), openedH5File->getRawFilename().toStdString() + "_-_" + subobject->getName().toStdString() + "_-_XY_" + std::to_string(ui->verticalSliderXY->value()));
-        ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(subobject->getXIndex()) + ")");
+        p = QPoint(0, 0);
+        ui->imageWidgetYZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(index) + ")");
+
+        subobject->setGUIYZInitialized(false);
+        ui->doubleSpinBoxYZMin->setRange(subobject->getOriginalMinVYZ(), subobject->getOriginalMaxVYZ());
+        ui->doubleSpinBoxYZMax->setRange(subobject->getOriginalMinVYZ(), subobject->getOriginalMaxVYZ());
+        ui->doubleSpinBoxYZMin->setValue(subobject->getMinVYZ());
+        ui->doubleSpinBoxYZMax->setValue(subobject->getMaxVYZ());
+        ui->doubleSpinBoxYZMin->setSingleStep((subobject->getOriginalMaxVYZ() - subobject->getOriginalMinVYZ()) / 1000);
+        ui->doubleSpinBoxYZMax->setSingleStep((subobject->getOriginalMaxVYZ() - subobject->getOriginalMinVYZ()) / 1000);
+        subobject->setGUIYZInitialized(true);
+
+        if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
+            timer->start(ui->spinBoxTMInterval->value());
     }
+    if (index == ui->verticalSliderYZ->value()) ui->labelYZLoading->setVisible(false);
 }
 
-void MainWindow::setControls()
+void MainWindow::initControls()
 {
     if (subobject != NULL) {
         // Init min and max controls
@@ -566,167 +516,10 @@ void MainWindow::setControls()
         ui->spinBoxYZ->setMaximum(subobject->getSize()[2] - 1);
         ui->spinBoxYZ->setValue(subobject->getXIndex());
 
+        ui->checkBoxUseGlobal->setChecked(subobject->getUseGlobal());
+
         ui->comboBoxColormap->setCurrentIndex(subobject->getColormap());
     }
-}
-
-void MainWindow::initSlices()
-{
-    if (subobject != NULL && subobject->getDataset() != NULL) {
-
-        if (gWindow != NULL) {
-            gWindow->changeMinValue(subobject->getMinVG());
-            gWindow->changeMaxValue(subobject->getMaxVG());
-            gWindow->changeColormap(subobject->getColormap());
-            gWindow->setMainSize(subobject->getFrameSize()[0], subobject->getFrameSize()[1], subobject->getFrameSize()[2]);
-            gWindow->setSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
-            gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
-        }
-
-        flagDatasetInitialized = true;
-        loadXYSlice(ui->verticalSliderXY->value());
-        loadXZSlice(ui->verticalSliderXZ->value());
-        loadYZSlice(ui->verticalSliderYZ->value());
-
-        if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
-            //ui->progressBar3D->setValue(0);
-            //ui->progressBar3D->setVisible(true);
-            gWindow->load3DTexture(subobject->getDataset());
-        }
-    }
-}
-
-// Loading slices
-
-void MainWindow::loadXYSlice(int index)
-{
-    if (flagDatasetInitialized && subobject != NULL && subobject->getDataset() != NULL) {
-        ui->labelXYLoading->setVisible(true);
-        threadXY->createRequest(subobject->getDataset(), index, 0, 0, 1, sizeY, sizeX);
-        //if (!threadXY->isRunning())
-        //threadXY->start();
-    }
-}
-
-void MainWindow::setXYLoaded(Request *r)
-{
-    ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(r->zO) + ")");
-    flagXYloaded = false;
-    delete [] dataXY;
-    dataXY = NULL;
-
-    if (r->zO == ui->verticalSliderXY->value()) ui->labelXYLoading->setVisible(false);
-
-    // TODO mutex
-    hsize_t size = r->zC * r->yC * r->xC;
-    dataXY = new float[size];
-    memcpy(dataXY, r->data, size * sizeof(float));
-    threadXY->deleteDoneRequest(r);
-
-    minVXY = r->min;
-    maxVXY = r->max;
-
-    // Init local controls
-    ui->doubleSpinBoxXYMin->setRange((double) minVXY, (double) maxVXY);
-    ui->doubleSpinBoxXYMax->setRange((double) minVXY, (double) maxVXY);
-    ui->doubleSpinBoxXYMin->setValue((double) minVXY);
-    ui->doubleSpinBoxXYMax->setValue((double) maxVXY);
-    ui->doubleSpinBoxXYMin->setSingleStep((maxVXY - minVXY) / 1000);
-    ui->doubleSpinBoxXYMax->setSingleStep((maxVXY - minVXY) / 1000);
-
-    ui->horizontalSliderXYMin->setValue(ui->horizontalSliderXYMin->minimum());
-    ui->horizontalSliderXYMax->setValue(ui->horizontalSliderXYMax->maximum());
-
-    flagXYloaded = true;
-    setImageXYFromData();
-    if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
-        timer->start(ui->spinBoxTMInterval->value());
-}
-
-void MainWindow::loadXZSlice(int index)
-{
-    if (flagDatasetInitialized && subobject != NULL && subobject->getDataset() != NULL) {
-        ui->labelXZLoading->setVisible(true);
-        threadXZ->createRequest(subobject->getDataset(), 0, index, 0, sizeZ, 1, sizeX);
-        //if (!threadXZ->isRunning())
-        //threadXZ->start();
-    }
-}
-
-void MainWindow::setXZLoaded(Request *r)
-{
-    ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(r->yO) + ")");
-    flagXZloaded = false;
-    delete [] dataXZ;
-    dataXZ = NULL;
-
-    if (r->yO == ui->verticalSliderXZ->value()) ui->labelXZLoading->setVisible(false);
-
-    hsize_t size = r->zC * r->yC * r->xC;
-    dataXZ = new float[size];
-    memcpy(dataXZ, r->data, size * sizeof(float));
-    threadXZ->deleteDoneRequest(r);
-
-    minVXZ = r->min;
-    maxVXZ = r->max;
-
-    ui->doubleSpinBoxXZMin->setRange((double) minVXZ, (double) maxVXZ);
-    ui->doubleSpinBoxXZMax->setRange((double) minVXZ, (double) maxVXZ);
-    ui->doubleSpinBoxXZMin->setValue((double) minVXZ);
-    ui->doubleSpinBoxXZMax->setValue((double) maxVXZ);
-    ui->doubleSpinBoxXZMin->setSingleStep((maxVXZ - minVXZ) / 1000);
-    ui->doubleSpinBoxXZMax->setSingleStep((maxVXZ - minVXZ) / 1000);
-
-    ui->horizontalSliderXZMin->setValue(ui->horizontalSliderXZMin->minimum());
-    ui->horizontalSliderXZMax->setValue(ui->horizontalSliderXZMax->maximum());
-
-    flagXZloaded = true;
-    setImageXZFromData();
-    if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
-        timer->start(ui->spinBoxTMInterval->value());
-}
-
-void MainWindow::loadYZSlice(int index)
-{
-    if (flagDatasetInitialized && subobject != NULL && subobject->getDataset() != NULL) {
-        ui->labelYZLoading->setVisible(true);
-        threadYZ->createRequest(subobject->getDataset(), 0, 0, index, sizeZ, sizeY, 1);
-        //if (!threadYZ->isRunning())
-        //threadYZ->start();
-    }
-}
-
-void MainWindow::setYZLoaded(Request *r)
-{
-    ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(r->xO) + ")");
-    flagYZloaded = false;
-    delete [] dataYZ;
-    dataYZ = NULL;
-
-    if (r->xO == ui->verticalSliderYZ->value()) ui->labelYZLoading->setVisible(false);
-
-    hsize_t size = r->zC * r->yC * r->xC;
-    dataYZ = new float[size];
-    memcpy(dataYZ, r->data, size * sizeof(float));
-    threadYZ->deleteDoneRequest(r);
-
-    minVYZ = r->min;
-    maxVYZ = r->max;
-
-    ui->doubleSpinBoxYZMin->setRange((double) minVYZ, (double) maxVYZ);
-    ui->doubleSpinBoxYZMax->setRange((double) minVYZ, (double) maxVYZ);
-    ui->doubleSpinBoxYZMin->setValue((double) minVYZ);
-    ui->doubleSpinBoxYZMax->setValue((double) maxVYZ);
-    ui->doubleSpinBoxYZMin->setSingleStep((maxVYZ - minVYZ) / 1000);
-    ui->doubleSpinBoxYZMax->setSingleStep((maxVYZ - minVYZ) / 1000);
-
-    ui->horizontalSliderYZMin->setValue(ui->horizontalSliderYZMin->minimum());
-    ui->horizontalSliderYZMax->setValue(ui->horizontalSliderYZMax->maximum());
-
-    flagYZloaded = true;
-    setImageYZFromData();
-    if (play && flagXZloaded && flagYZloaded && flagXZloaded && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
-        timer->start(ui->spinBoxTMInterval->value());
 }
 
 // 3D data loaded event
@@ -736,110 +529,15 @@ void MainWindow::loaded3D(std::string datasetName)
     flagVRLoaded = true;
     //ui->progressBar3D->setVisible(false);
     //ui->progressBar3D->setValue(0);
+    if (subobject != NULL && subobject->getGroup() != NULL)
     // If animation is running...
-    if (play && flagXZloaded && flagYZloaded && flagXZloaded && flagVRLoaded && datasetName == subobject->getDataset()->getName())
+    if (play && subobject->areCurrentSlicesLoaded() && datasetName == subobject->getDataset()->getName())
         timer->start(ui->spinBoxTMInterval->value());
 }
 
-// Set new images from loaded slices
-
-void MainWindow::setImageXYFromData()
-{
-    if (flagXYloaded) {
-        if (gWindow != NULL) {
-            if (sizeZ == 1)
-                gWindow->setXYSlice(dataXY, sizeX, sizeY, (float) 0.0);
-            else
-                gWindow->setXYSlice(dataXY, sizeX, sizeY, (float) ui->verticalSliderXY->value() / (sizeZ - 1));
-        }
-        cv::Mat image = cv::Mat(sizeY, sizeX, CV_32FC1, dataXY); // rows, cols (height, width)
-        if (ui->checkBoxUseGlobal->isChecked())
-            image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
-        else
-            image.convertTo(image, CV_8UC1, 255.0 / (maxVXY - minVXY), - minVXY * 255.0 /(maxVXY - minVXY));
-        cv::applyColorMap(image, image, ui->comboBoxColormap->currentIndex());
-        cv::flip(image, image, 0);
-        QPoint p = QPoint(posX, posY);
-        if (!ui->toolButtonPositionXY->isChecked())
-            p = QPoint(0, 0);
-        ((CVImageWidget *) ui->imageWidgetXY)->showImage(image, p, ui->toolButtonFillXY->isChecked(), openedH5File->getRawFilename().toStdString() + "__" + std::to_string(ui->verticalSliderXY->value()));
-    }
-}
-
-void MainWindow::setImageXZFromData()
-{
-    if (flagXZloaded) {
-        if (gWindow != NULL) {
-            if (sizeY == 1)
-                gWindow->setXZSlice(dataXZ, sizeX, sizeZ, (float) 0);
-            else
-                gWindow->setXZSlice(dataXZ, sizeX, sizeZ, (float) ui->verticalSliderXZ->value() / (sizeY - 1));
-        }
-        cv::Mat image = cv::Mat(sizeZ, sizeX, CV_32FC1, dataXZ); // rows, cols (height, width)
-        if (ui->checkBoxUseGlobal->isChecked())
-            image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
-        else
-            image.convertTo(image, CV_8UC1, 255.0 / (maxVXZ - minVXZ), - minVXZ * 255.0 /(maxVXZ - minVXZ));
-        cv::applyColorMap(image, image, ui->comboBoxColormap->currentIndex());
-        QPoint p = QPoint(posX, posZ);
-        if (!ui->toolButtonPositionXZ->isChecked())
-            p = QPoint(0, 0);
-        ((CVImageWidget *) ui->imageWidgetXZ)->showImage(image, p, ui->toolButtonFillXZ->isChecked(), openedH5File->getRawFilename().toStdString() + "__" + std::to_string(ui->verticalSliderXZ->value()));
-    }
-}
-
-void MainWindow::setImageYZFromData()
-{
-    if (flagYZloaded) {
-        if (gWindow != NULL) {
-            if (sizeX == 1)
-                gWindow->setYZSlice(dataYZ, sizeY, sizeZ, (float) 0);
-            else
-                gWindow->setYZSlice(dataYZ, sizeY, sizeZ, (float) ui->verticalSliderYZ->value() / (sizeX - 1));
-
-        }
-        cv::Mat image = cv::Mat(sizeZ, sizeY, CV_32FC1, dataYZ); // rows, cols (height, width)
-        if (ui->checkBoxUseGlobal->isChecked())
-            image.convertTo(image, CV_8UC1, 255.0 / (maxVG - minVG), - minVG * 255.0 /(maxVG - minVG));
-        else
-            image.convertTo(image, CV_8UC1, 255.0 / (maxVYZ - minVYZ), - minVYZ * 255.0 /(maxVYZ - minVYZ));
-        cv::applyColorMap(image, image, ui->comboBoxColormap->currentIndex());
-        cv::transpose(image, image);
-        cv::flip(image, image, 0);
-        cv::flip(image, image, 1);
-        QPoint p = QPoint(posY, posZ);
-        if (!ui->toolButtonPositionYZ->isChecked())
-            p = QPoint(0, 0);
-        ((CVImageWidget *) ui->imageWidgetYZ)->showImage(image, p, ui->toolButtonFillYZ->isChecked(), openedH5File->getRawFilename().toStdString() + "__" + std::to_string(ui->verticalSliderYZ->value()));
-    }
-}
-
-// Repaint slices
-
-void MainWindow::repaintSlices()
-{
-    setImageXYFromData();
-    setImageXZFromData();
-    setImageYZFromData();
-    // TODO
-}
-
-
-void MainWindow::on_horizontalSliderCTAlpha_valueChanged(int value)
-{
-    ui->doubleSpinBoxCTAlpha->setValue((double) value / 1000);
-}
-
-void MainWindow::on_doubleSpinBoxCTAlpha_valueChanged(double value)
-{
-    ui->horizontalSliderCTAlpha->setValue(value * 1000);
-}
-
-
-
 // Visibility of docked panels
 
-void MainWindow::on_dockWidgetXY_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetXY_visibilityChanged(bool)
 {
     if (ui->dockWidgetXY->isVisible())
         ui->actionXY->setChecked(true);
@@ -847,7 +545,7 @@ void MainWindow::on_dockWidgetXY_visibilityChanged(bool /*visible*/)
         ui->actionXY->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetXZ_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetXZ_visibilityChanged(bool)
 {
     if (ui->dockWidgetXZ->isVisible())
         ui->actionXZ->setChecked(true);
@@ -855,7 +553,7 @@ void MainWindow::on_dockWidgetXZ_visibilityChanged(bool /*visible*/)
         ui->actionXZ->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetYZ_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetYZ_visibilityChanged(bool)
 {
     if (ui->dockWidgetYZ->isVisible())
         ui->actionYZ->setChecked(true);
@@ -863,7 +561,7 @@ void MainWindow::on_dockWidgetYZ_visibilityChanged(bool /*visible*/)
         ui->actionYZ->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetInfo_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetInfo_visibilityChanged(bool)
 {
     if (ui->dockWidgetInfo->isVisible())
         ui->actionInfo->setChecked(true);
@@ -871,7 +569,7 @@ void MainWindow::on_dockWidgetInfo_visibilityChanged(bool /*visible*/)
         ui->actionInfo->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetDatasets_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetDatasets_visibilityChanged(bool)
 {
     if (ui->dockWidgetDatasets->isVisible())
         ui->actionDatasets->setChecked(true);
@@ -879,7 +577,7 @@ void MainWindow::on_dockWidgetDatasets_visibilityChanged(bool /*visible*/)
         ui->actionDatasets->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetCT_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetCT_visibilityChanged(bool)
 {
     if (ui->dockWidgetCT->isVisible())
         ui->actionCT->setChecked(true);
@@ -887,7 +585,7 @@ void MainWindow::on_dockWidgetCT_visibilityChanged(bool /*visible*/)
         ui->actionCT->setChecked(false);
 }
 
-void MainWindow::on_dockWidgetSelectedDataset_visibilityChanged(bool /*visible*/)
+void MainWindow::on_dockWidgetSelectedDataset_visibilityChanged(bool)
 {
     if (ui->dockWidgetSelectedDataset->isVisible())
         ui->actionSelectedDataset->setChecked(true);
@@ -897,10 +595,11 @@ void MainWindow::on_dockWidgetSelectedDataset_visibilityChanged(bool /*visible*/
 
 // Use global values settings
 
-void MainWindow::on_checkBoxUseGlobal_clicked(bool /*checked*/)
+void MainWindow::on_checkBoxUseGlobal_clicked(bool checked)
 {
-    //flagUseGlobalValues = checked;
-    repaintSlices();
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        subobject->setUseGlobal(checked);
+    }
 }
 
 // Global min and max values change
@@ -917,7 +616,7 @@ void MainWindow::on_horizontalSliderGlobalMax_valueChanged(int value)
 
 void MainWindow::on_doubleSpinBoxMinGlobal_valueChanged(double value)
 {
-    if (subobject != NULL && flagDatasetInitialized) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
         subobject->setMinVG(value);
     }
     ui->horizontalSliderGlobalMin->setTracking(false);
@@ -930,7 +629,7 @@ void MainWindow::on_doubleSpinBoxMinGlobal_valueChanged(double value)
 
 void MainWindow::on_doubleSpinBoxMaxGlobal_valueChanged(double value)
 {
-    if (subobject != NULL && flagDatasetInitialized) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
         subobject->setMaxVG(value);
     }
     ui->horizontalSliderGlobalMax->setTracking(false);
@@ -945,104 +644,92 @@ void MainWindow::on_doubleSpinBoxMaxGlobal_valueChanged(double value)
 
 void MainWindow::on_horizontalSliderXYMin_valueChanged(int value)
 {
-    if (flagXYloaded)
-        ui->doubleSpinBoxXYMin->setValue((double) value / 1000 * (ui->doubleSpinBoxXYMin->maximum() - ui->doubleSpinBoxXYMin->minimum()) + ui->doubleSpinBoxXYMin->minimum());
+    ui->doubleSpinBoxXYMin->setValue((double) value / 1000 * (ui->doubleSpinBoxXYMin->maximum() - ui->doubleSpinBoxXYMin->minimum()) + ui->doubleSpinBoxXYMin->minimum());
 }
 
 void MainWindow::on_doubleSpinBoxXYMin_valueChanged(double value)
 {
-    if (flagXYloaded) {
-        ui->horizontalSliderXYMin->setTracking(false);
-        ui->horizontalSliderXYMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXYMin->minimum()) / (ui->doubleSpinBoxXYMin->maximum() - ui->doubleSpinBoxXYMin->minimum())));
-        ui->horizontalSliderXYMin->setTracking(true);
-        minVXY = value;
-        setImageXYFromData();
+    if (subobject != NULL && subobject->isGUIXYInitialized()) {
+        subobject->setMinVXY(value);
     }
+    ui->horizontalSliderXYMin->setTracking(false);
+    ui->horizontalSliderXYMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXYMin->minimum()) / (ui->doubleSpinBoxXYMin->maximum() - ui->doubleSpinBoxXYMin->minimum())));
+    ui->horizontalSliderXYMin->setTracking(true);
 }
 
 void MainWindow::on_horizontalSliderXYMax_valueChanged(int value)
 {
-    if (flagXYloaded)
-        ui->doubleSpinBoxXYMax->setValue((double) value / 1000 * (ui->doubleSpinBoxXYMax->maximum() - ui->doubleSpinBoxXYMax->minimum()) + ui->doubleSpinBoxXYMax->minimum());
+    ui->doubleSpinBoxXYMax->setValue((double) value / 1000 * (ui->doubleSpinBoxXYMax->maximum() - ui->doubleSpinBoxXYMax->minimum()) + ui->doubleSpinBoxXYMax->minimum());
 }
 
 void MainWindow::on_doubleSpinBoxXYMax_valueChanged(double value)
 {
-    if (flagXYloaded) {
-        ui->horizontalSliderXYMax->setTracking(false);
-        ui->horizontalSliderXYMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXYMax->minimum()) / (ui->doubleSpinBoxXYMax->maximum() - ui->doubleSpinBoxXYMax->minimum())));
-        ui->horizontalSliderXYMax->setTracking(true);
-        maxVXY = value;
-        setImageXYFromData();
+    if (subobject != NULL && subobject->isGUIXYInitialized()) {
+        subobject->setMaxVXY(value);
     }
+    ui->horizontalSliderXYMax->setTracking(false);
+    ui->horizontalSliderXYMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXYMax->minimum()) / (ui->doubleSpinBoxXYMax->maximum() - ui->doubleSpinBoxXYMax->minimum())));
+    ui->horizontalSliderXYMax->setTracking(true);
 }
 
 void MainWindow::on_horizontalSliderXZMin_valueChanged(int value)
 {
-    if (flagXZloaded)
-        ui->doubleSpinBoxXZMin->setValue((double) value / 1000 * (ui->doubleSpinBoxXZMin->maximum() - ui->doubleSpinBoxXZMin->minimum()) + ui->doubleSpinBoxXZMin->minimum());
+    ui->doubleSpinBoxXZMin->setValue((double) value / 1000 * (ui->doubleSpinBoxXZMin->maximum() - ui->doubleSpinBoxXZMin->minimum()) + ui->doubleSpinBoxXZMin->minimum());
 }
 
 void MainWindow::on_doubleSpinBoxXZMin_valueChanged(double value)
 {
-    if (flagXZloaded) {
-        ui->horizontalSliderXZMin->setTracking(false);
-        ui->horizontalSliderXZMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXZMin->minimum()) / (ui->doubleSpinBoxXZMin->maximum() - ui->doubleSpinBoxXZMin->minimum())));
-        ui->horizontalSliderXZMin->setTracking(true);
-        minVXZ = value;
-        setImageXZFromData();
+    if (subobject != NULL && subobject->isGUIXZInitialized()) {
+        subobject->setMinVXZ(value);
     }
+    ui->horizontalSliderXZMin->setTracking(false);
+    ui->horizontalSliderXZMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXZMin->minimum()) / (ui->doubleSpinBoxXZMin->maximum() - ui->doubleSpinBoxXZMin->minimum())));
+    ui->horizontalSliderXZMin->setTracking(true);
 }
 
 void MainWindow::on_horizontalSliderXZMax_valueChanged(int value)
 {
-    if (flagXZloaded)
-        ui->doubleSpinBoxXZMax->setValue((double) value / 1000 * (ui->doubleSpinBoxXZMax->maximum() - ui->doubleSpinBoxXZMax->minimum()) + ui->doubleSpinBoxXZMax->minimum());
+    ui->doubleSpinBoxXZMax->setValue((double) value / 1000 * (ui->doubleSpinBoxXZMax->maximum() - ui->doubleSpinBoxXZMax->minimum()) + ui->doubleSpinBoxXZMax->minimum());
 }
 
 void MainWindow::on_doubleSpinBoxXZMax_valueChanged(double value)
 {
-    if (flagXZloaded) {
-        ui->horizontalSliderXZMax->setTracking(false);
-        ui->horizontalSliderXZMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXZMax->minimum()) / (ui->doubleSpinBoxXZMax->maximum() - ui->doubleSpinBoxXZMax->minimum())));
-        ui->horizontalSliderXZMax->setTracking(true);
-        maxVXZ = value;
-        setImageXZFromData();
+    if (subobject != NULL && subobject->isGUIXZInitialized()) {
+        subobject->setMaxVXZ(value);
     }
+    ui->horizontalSliderXZMax->setTracking(false);
+    ui->horizontalSliderXZMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxXZMax->minimum()) / (ui->doubleSpinBoxXZMax->maximum() - ui->doubleSpinBoxXZMax->minimum())));
+    ui->horizontalSliderXZMax->setTracking(true);
 }
 
 void MainWindow::on_horizontalSliderYZMin_valueChanged(int value)
 {
-    if (flagYZloaded)
-        ui->doubleSpinBoxYZMin->setValue((double) value / 1000 * (ui->doubleSpinBoxYZMin->maximum() - ui->doubleSpinBoxYZMin->minimum()) + ui->doubleSpinBoxYZMin->minimum());
+    ui->doubleSpinBoxYZMin->setValue((double) value / 1000 * (ui->doubleSpinBoxYZMin->maximum() - ui->doubleSpinBoxYZMin->minimum()) + ui->doubleSpinBoxYZMin->minimum());
 }
 
 void MainWindow::on_doubleSpinBoxYZMin_valueChanged(double value)
 {
-    if (flagYZloaded) {
-        ui->horizontalSliderYZMin->setTracking(false);
-        ui->horizontalSliderYZMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxYZMin->minimum()) / (ui->doubleSpinBoxYZMin->maximum() - ui->doubleSpinBoxYZMin->minimum())));
-        ui->horizontalSliderYZMin->setTracking(true);
-        minVYZ = value;
-        setImageYZFromData();
+    if (subobject != NULL && subobject->isGUIYZInitialized()) {
+        subobject->setMinVYZ(value);
     }
+    ui->horizontalSliderYZMin->setTracking(false);
+    ui->horizontalSliderYZMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxYZMin->minimum()) / (ui->doubleSpinBoxYZMin->maximum() - ui->doubleSpinBoxYZMin->minimum())));
+    ui->horizontalSliderYZMin->setTracking(true);
 }
 
 void MainWindow::on_horizontalSliderYZMax_valueChanged(int value)
 {
-    if (flagYZloaded)
-        ui->doubleSpinBoxYZMax->setValue((double) value / 1000 * (ui->doubleSpinBoxYZMax->maximum() - ui->doubleSpinBoxYZMax->minimum()) + ui->doubleSpinBoxYZMax->minimum());
+    ui->doubleSpinBoxYZMax->setValue((double) value / 1000 * (ui->doubleSpinBoxYZMax->maximum() - ui->doubleSpinBoxYZMax->minimum()) + ui->doubleSpinBoxYZMax->minimum());
 }
 
 void MainWindow::on_doubleSpinBoxYZMax_valueChanged(double value)
 {
-    if (flagYZloaded) {
-        ui->horizontalSliderYZMax->setTracking(false);
-        ui->horizontalSliderYZMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxYZMax->minimum()) / (ui->doubleSpinBoxYZMax->maximum() - ui->doubleSpinBoxYZMax->minimum())));
-        ui->horizontalSliderYZMax->setTracking(true);
-        maxVYZ = value;
-        setImageYZFromData();
+    if (subobject != NULL && subobject->isGUIYZInitialized()) {
+        subobject->setMaxVYZ(value);
     }
+    ui->horizontalSliderYZMax->setTracking(false);
+    ui->horizontalSliderYZMax->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxYZMax->minimum()) / (ui->doubleSpinBoxYZMax->maximum() - ui->doubleSpinBoxYZMax->minimum())));
+    ui->horizontalSliderYZMax->setTracking(true);
 }
 
 // Colormap change
@@ -1051,83 +738,73 @@ void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 {
     if (gWindow != NULL)
         gWindow->changeColormap(index);
-    //repaintSlices();
-    if (subobject != NULL && flagDatasetInitialized) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
         subobject->setColormap(index);
     }
 }
 
-// time series buttons
+// Time series controls
 
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
-    currentStep = step;
     if (subobject->getGroup() != NULL) {
-        try {
-            clearRequestsAndWaitThreads();
-
-            /*file->closeDataset(object->getSelectedDataset()->getName());
-            selectedDataset = file->openDataset(selectedName + "/" + std::to_string(step));
-            datasetName = selectedName + "/" + std::to_string(step);
-
-            flagVRLoaded = false;
-
-            if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
-                //ui->progressBar3D->setValue(0);
-                //ui->progressBar3D->setVisible(true);
-                gWindow->load3DTexture(object->getSelectedDataset());
-            }
-            loadXYSlice(ui->verticalSliderXY->value());
-            loadXZSlice(ui->verticalSliderXZ->value());
-            loadYZSlice(ui->verticalSliderYZ->value());*/
-        } catch(std::exception &) {
-            std::cerr << "Wrong step" << std::endl;
+        subobject->setCurrentStep(step, gWindow->getThread());
+        if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
+            //ui->progressBar3D->setValue(0);
+            //ui->progressBar3D->setVisible(true);
+            gWindow->load3DTexture(subobject->getDataset());
         }
     }
 }
 
 void MainWindow::updateStep()
 {
-    currentStep += ui->spinBoxTMIncrement->value();
-    if (currentStep >= steps) {
-        timer->stop();
-        play = false;
-        ui->toolButtonPlay->setChecked(false);
-        currentStep = 0;
-    } else {
-        timer->stop();
-        ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
+    if (subobject->getGroup() != NULL) {
+        uint64_t step = subobject->getCurrentStep();
+        step += ui->spinBoxTMIncrement->value();
+        if (step >= subobject->getSteps()) {
+            timer->stop();
+            play = false;
+            ui->toolButtonPlay->setChecked(false);
+            ui->horizontalSliderSelectedDatasetStep->setValue(subobject->getSteps() - 1);
+        } else {
+            timer->stop();
+            ui->horizontalSliderSelectedDatasetStep->setValue(step);
+        }
     }
 }
 
 void MainWindow::on_toolButtonPlay_clicked(bool checked)
 {
-    if (checked) {
-        timer->start(ui->spinBoxTMInterval->value());
-        play = true;
-    } else {
-        timer->stop();
-        play = false;
-        //ui->toolButtonPlay->setChecked(false);
+    if (subobject->getGroup() != NULL) {
+        if (checked) {
+            timer->start(ui->spinBoxTMInterval->value());
+            play = true;
+        } else {
+            timer->stop();
+            play = false;
+        }
     }
 }
 
 void MainWindow::on_toolButtonStart_clicked()
 {
-    timer->stop();
-    play = false;
-    ui->toolButtonPlay->setChecked(false);
-    currentStep = 0;
-    ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
+    if (subobject->getGroup() != NULL) {
+        timer->stop();
+        play = false;
+        ui->toolButtonPlay->setChecked(false);
+        ui->horizontalSliderSelectedDatasetStep->setValue(0);
+    }
 }
 
 void MainWindow::on_toolButtonEnd_clicked()
 {
-    timer->stop();
-    play = false;
-    ui->toolButtonPlay->setChecked(false);
-    currentStep = steps-1;
-    ui->horizontalSliderSelectedDatasetStep->setValue(currentStep);
+    if (subobject->getGroup() != NULL) {
+        timer->stop();
+        play = false;
+        ui->toolButtonPlay->setChecked(false);
+        ui->horizontalSliderSelectedDatasetStep->setValue(subobject->getSteps() - 1);
+    }
 }
 
 void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
@@ -1139,31 +816,22 @@ void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
 
 void MainWindow::on_imageWidgetXY_hoveredPointInImage(int x, int y)
 {
-    if (flagXYloaded) {
-        float value = dataXY[x + sizeX * (sizeY - y)];
-        //qDebug() << x << " " << y << " " << value;
-        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
-        //QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(subobject->getValueAtPointFromXY(x, y), 'f', 4), 3000);
     }
 }
 
 void MainWindow::on_imageWidgetXZ_hoveredPointInImage(int x, int z)
 {
-    if (flagXZloaded) {
-        float value = dataXZ[x + sizeX * z];
-        //qDebug() << x << " " << z << " " << value;
-        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
-        //QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(subobject->getValueAtPointFromXZ(x, z), 'f', 4), 3000);
     }
 }
 
 void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 {
-    if (flagYZloaded) {
-        float value = dataYZ[(sizeZ - z) + sizeZ * (sizeY - y)];
-        //qDebug() << y << " " << z << " " << value;
-        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
-        //QToolTip::showText(QCursor::pos(), QWidget::locale().toString(value, 'f', 4));
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        ui->statusBar->showMessage("Value: " + QWidget::locale().toString(subobject->getValueAtPointFromYZ(y, z), 'f', 4), 3000);
     }
 }
 
@@ -1171,7 +839,7 @@ void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 
 void MainWindow::on_actionVolumeRendering_toggled(bool value)
 {
-    if (gWindow != NULL && subobject != NULL && subobject->getDataset() != NULL && value && !gWindow->isTexture3DInitialized()) {
+    if (gWindow != NULL && subobject != NULL && value && !gWindow->isTexture3DInitialized()) {
         //ui->progressBar3D->setValue(0);
         //ui->progressBar3D->setVisible(true);
         gWindow->load3DTexture(subobject->getDataset());
@@ -1231,24 +899,28 @@ void MainWindow::on_doubleSpinBoxVRBlue_valueChanged(double value)
     ui->horizontalSliderVRBlue->setValue((int) (value * 1000));
 }
 
+// Index sliders
 
 void MainWindow::on_verticalSliderXY_valueChanged(int value)
 {
-    if (subobject != NULL && flagDatasetInitialized) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        ui->labelXYLoading->setVisible(true);
         subobject->setZIndex(value);
     }
 }
 
 void MainWindow::on_verticalSliderXZ_valueChanged(int value)
 {
-    if (subobject != NULL && flagDatasetInitialized) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        ui->labelXZLoading->setVisible(true);
         subobject->setYIndex(value);
     }
 }
 
 void MainWindow::on_verticalSliderYZ_valueChanged(int value)
 {
-    if (subobject != NULL && flagDatasetInitialized) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
+        ui->labelYZLoading->setVisible(true);
         subobject->setXIndex(value);
     }
 }

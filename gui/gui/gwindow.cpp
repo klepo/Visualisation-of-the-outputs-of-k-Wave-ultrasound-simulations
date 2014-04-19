@@ -182,7 +182,7 @@ GWindow::~GWindow()
     delete m_program;
     thread->clearRequests();
     //thread->clearDoneRequests();
-    QMetaObject::invokeMethod(thread, "stop");
+    //QMetaObject::invokeMethod(thread, "stop");
     thread->wait();
     thread->deleteLater();
     //thread->deleteLater();
@@ -361,31 +361,31 @@ bool GWindow::isTexture3DInitialized()
     return texture3DInitialized;
 }
 
-void GWindow::setMainSize(unsigned int _depth, unsigned int _height, unsigned int _width)
+void GWindow::setMainSize(unsigned int depth, unsigned int height, unsigned int width)
 {
-    fullWidth = _width;
-    fullHeight = _height;
-    fullDepth = _depth;
+    fullWidth = width;
+    fullHeight = height;
+    fullDepth = depth;
 }
 
-void GWindow::setSize(unsigned int _depth, unsigned int _height, unsigned int _width)
+void GWindow::setSize(unsigned int depth, unsigned int height, unsigned int width)
 {
-    imageDepth = _depth;
-    imageHeight = _height;
-    imageWidth = _width;
+    imageDepth = depth;
+    imageHeight = height;
+    imageWidth = width;
 }
 
-void GWindow::setPosition(unsigned int _posZ, unsigned int _posY, unsigned int _posX)
+void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int posX)
 {
-    posZ = _posZ;
-    posY = _posY;
-    posX = _posX;
+    this->posZ = posZ;
+    this->posY = posY;
+    this->posX = posX;
 }
 
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 {
     thread->clearRequests();
-    //thread->wait();
+    thread->wait();
     //thread->clearDoneRequests();
 
     datasetName = dataset->getName();

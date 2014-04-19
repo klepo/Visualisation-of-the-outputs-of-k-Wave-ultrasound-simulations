@@ -30,28 +30,13 @@ public:
     ~MainWindow();
 
 public slots:
-    void loadXYSlice(int index);
-    void loadXZSlice(int index);
-    void loadYZSlice(int index);
-
-    void setImageXYFromData();
-    void setImageXZFromData();
-    void setImageYZFromData();
-
-    void setXYLoaded(Request *);
-    void setXZLoaded(Request *);
-    void setYZLoaded(Request *);
-
-    void repaintXYImage(cv::Mat image);
-    void repaintXZImage(cv::Mat image);
-    void repaintYZImage(cv::Mat image);
+    void repaintXYImage(cv::Mat image, int index);
+    void repaintXZImage(cv::Mat image, int index);
+    void repaintYZImage(cv::Mat image, int index);
 
     void loaded3D(std::string datasetName);
 
 private slots:
-    void on_horizontalSliderCTAlpha_valueChanged(int value);
-    void on_doubleSpinBoxCTAlpha_valueChanged(double value);
-
     void on_dockWidgetXY_visibilityChanged(bool);
     void on_dockWidgetXZ_visibilityChanged(bool);
     void on_dockWidgetYZ_visibilityChanged(bool);
@@ -125,10 +110,9 @@ public:
 private:
     void clearGUI();
     void clearRequestsAndWaitThreads();
-    void repaintSlices();
     void initSlices();
 
-    void setControls();
+    void initControls();
 
     OpenedH5File *openedH5File;
 
@@ -140,38 +124,14 @@ private:
     OpenedH5File::H5ObjectToVisualize *object;
     OpenedH5File::H5SubobjectToVisualize *subobject;
 
-    std::string selectedName;
-    std::string datasetName;
-
     bool flagDatasetInitialized;
-    bool flagGroupInitialized;
     bool flagXYloaded, flagXZloaded, flagYZloaded;
 
     bool flagVRLoaded;
 
-    float minVG, maxVG;
-    float minVXY, maxVXY;
-    float minVXZ, maxVXZ;
-    float minVYZ, maxVYZ;
-
-    float *dataXY;
-    float *dataXZ;
-    float *dataYZ;
-
-    uint64_t steps;
-    uint64_t currentStep;
-
-    uint64_t sizeX, sizeY, sizeZ;
-    uint64_t posZ;
-    uint64_t posY;
-    uint64_t posX;
-
     QTimer *timer;
 
     bool play;
-    HDF5ReadingThread *threadXY;
-    HDF5ReadingThread *threadXZ;
-    HDF5ReadingThread *threadYZ;
 
     QMovie *movie;
 };

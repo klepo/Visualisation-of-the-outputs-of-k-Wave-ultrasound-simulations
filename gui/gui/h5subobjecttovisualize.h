@@ -41,9 +41,13 @@ public:
 
     QList<QPair<QString, QString>> getInfo();
 
-    float *OpenedH5File::H5SubobjectToVisualize::getDataXY();
-    float *OpenedH5File::H5SubobjectToVisualize::getDataXZ();
-    float *OpenedH5File::H5SubobjectToVisualize::getDataYZ();
+    float *getDataXY();
+    float *getDataXZ();
+    float *getDataYZ();
+
+    float getValueAtPointFromXY(int x, int y);
+    float getValueAtPointFromXZ(int x, int z);
+    float getValueAtPointFromYZ(int y, int z);
 
     QString getName();
     int getType();
@@ -67,10 +71,21 @@ public:
     float getBlue();
     int getCount();
 
+    bool isGUIInitialized();
+    bool isGUIXYInitialized();
+    bool isGUIXZInitialized();
+    bool isGUIYZInitialized();
+
+    bool isCurrentXYLoaded();
+    bool isCurrentXZLoaded();
+    bool isCurrentYZLoaded();
+
+    bool areCurrentSlicesLoaded();
+
 signals:
-    void imageXYChanged(cv::Mat);
-    void imageXZChanged(cv::Mat);
-    void imageYZChanged(cv::Mat);
+    void imageXYChanged(cv::Mat, int index);
+    void imageXZChanged(cv::Mat, int index);
+    void imageYZChanged(cv::Mat, int index);
 
 private slots:
     void sliceXYLoaded(Request *r);
@@ -101,7 +116,14 @@ public slots:
     void setBlue(float value);
     void setCount(int value);
 
-    void setCurrentStep(uint64_t value);
+    void setCurrentStep(uint64_t value, HDF5ReadingThread *thread3D);
+
+    void setGUIInitialized(bool value);
+    void setGUIXYInitialized(bool value);
+    void setGUIXZInitialized(bool value);
+    void setGUIYZInitialized(bool value);
+
+    void reloadImages();
 
 private:
     void loadObjectData();
@@ -164,6 +186,14 @@ private:
     uint64_t dwnsmpl;
     uint64_t currentStep;
 
+    bool GUIInitialized;
+    bool GUIXYInitialized;
+    bool GUIXZInitialized;
+    bool GUIYZInitialized;
+
+    bool currentXYLodaded;
+    bool currentXZLodaded;
+    bool currentYZLodaded;
 };
 
 #endif // H5SUBOBJECTTOVISUALIZE_H

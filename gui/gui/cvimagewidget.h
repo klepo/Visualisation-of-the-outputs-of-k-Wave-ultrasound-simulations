@@ -22,11 +22,17 @@ signals:
     void hoveredPointInImage(int x, int y);
 
 public slots:
-    void showImage(const cv::Mat& image, QPoint = QPoint(0,0), bool adjust = true, std::string fileName = "");
+    void showImage(const cv::Mat& image, QPoint = QPoint(0,0), QString fileName = "");
     void clearImage();
     void saveImage();
+    void setAdjust(bool adjust);
+    void refreshImage();
 
 private:
+    void resizeEvent(QResizeEvent *);
+    void paintEvent(QPaintEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+
     int _dim;
     QImage _qimage;
     cv::Mat _tmp;
@@ -34,10 +40,7 @@ private:
     QPoint point;
     bool adjustFlag;
     bool isSetImage;
-    std::string fileName;
-    void resizeEvent(QResizeEvent *);
-    void paintEvent(QPaintEvent *);
-    void mouseMoveEvent(QMouseEvent *);
+    QString fileName;
 
 };
 

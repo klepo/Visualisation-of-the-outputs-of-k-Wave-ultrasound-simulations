@@ -45,13 +45,12 @@ QString Request::toQString()
 HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
 {
     setTerminationEnabled(true);
-    //_data = NULL;
-    stopFlag = false;
+    //stopFlag = false;
 }
 
 void HDF5ReadingThread::createRequest(HDF5File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, int limit)
 {
-    mutexQueue.lock();
+    QMutexLocker locker(&queueMutex);
     if (queue.size() > limit) {
         while (!queue.isEmpty()) {
             Request *r = queue.dequeue();
@@ -59,103 +58,96 @@ void HDF5ReadingThread::createRequest(HDF5File::HDF5Dataset *dataset, hsize_t zO
         }
     }
     queue.enqueue(new Request(dataset, zO, yO, xO, zC, yC, xC));
-    mutexQueue.unlock();
 }
 
 void HDF5ReadingThread::createRequest(HDF5File::HDF5Dataset *dataset)
 {
-    mutexQueue.lock();
+    QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
     }
     queue.enqueue(new Request(dataset));
-    mutexQueue.unlock();
 }
 
 HDF5ReadingThread::~HDF5ReadingThread()
 {
     clearRequests();
-    requestMutex.lock();
-    qDeleteAll(doneRequests);
-    doneRequests.clear();
-    requestMutex.unlock();
+    clearDoneRequests();
 }
 
 void HDF5ReadingThread::clearDoneRequests()
 {
-    requestMutex.lock();
+    QMutexLocker locker(&requestMutex);
     qDeleteAll(doneRequests);
     doneRequests.clear();
-    requestMutex.unlock();
 }
 
 void HDF5ReadingThread::clearRequests()
 {
-    mutexQueue.lock();
+    QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
     }
-    mutexQueue.unlock();
 }
 
 QMutex HDF5ReadingThread::mutex;
 
 void HDF5ReadingThread::deleteDoneRequest(Request *r)
 {
-    requestMutex.lock();
+    QMutexLocker locker(&requestMutex);
     if(doneRequests.contains(r)) {
         doneRequests.removeOne(r);
-        //qDebug() << "delete done request... " << r->toQString();
         delete r;
     }
-    requestMutex.unlock();
 }
 
-void HDF5ReadingThread::stop()
+/*void HDF5ReadingThread::stop()
 {
     QMutexLocker locker(&stopMutex);
     stopFlag = true;
-}
+}*/
 
 void HDF5ReadingThread::run()
 {
-    stopFlag = false;
+    //stopFlag = false;
     while (1) {
-        QMutexLocker locker(&stopMutex);
-        if (stopFlag) break;
-
-        QMutexLocker lock(&mutex);
         Request *r = NULL;
-        mutexQueue.lock();
-        /*if (queue.isEmpty()) {
-            mutexQueue.unlock();
-            break;
-        }*/
+        queueMutex.lock();
         if (!queue.isEmpty())
             r = queue.dequeue();
-        mutexQueue.unlock();
+        else {
+            queueMutex.unlock();
+            break;
+        }
+        queueMutex.unlock();
+
         if (r != NULL) {
             try {
+                QMutexLocker lock(&mutex);
                 if (r->full) {
                     r->dataset->initBlockReading();
                     do {
                         Request *newR = new Request(r->dataset);
-                        //qDebug() << "start reading block... ";
+                        qDebug() << "start reading block... ";
+
                         r->dataset->readBlock(newR->zO, newR->yO, newR->xO, newR->zC, newR->yC, newR->xC, newR->data, newR->min, newR->max);
-                        requestMutex.lock();
+
+                        QMutexLocker locker(&requestMutex);
                         doneRequests.append(newR);
-                        requestMutex.unlock();
+
                         emit requestDone(newR);
                     } while (!r->dataset->isLastBlock());
                     delete r;
                 } else {
-                    //qDebug() << "start reading 3D dataset... ";
+                    qDebug() << "start reading 3D dataset... ";
+
                     r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, r->data, r->min, r->max);
-                    requestMutex.lock();
+
+                    QMutexLocker locker(&requestMutex);
                     doneRequests.append(r);
-                    requestMutex.unlock();
+
                     emit requestDone(r);
                 }
                 //delete r;
@@ -163,6 +155,11 @@ void HDF5ReadingThread::run()
                 std::cerr << e.what() << std::endl;
             }
         }
-        usleep(1000);
+
+        /*QMutexLocker locker(&stopMutex);
+        if (stopFlag)
+            break;
+
+        usleep(1000);*/
     }
 }

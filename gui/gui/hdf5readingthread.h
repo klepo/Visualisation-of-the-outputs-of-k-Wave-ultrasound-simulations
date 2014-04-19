@@ -41,15 +41,14 @@ public slots:
     void clearRequests();
     void clearDoneRequests();
     void deleteDoneRequest(Request *);
-    void stop();
+    //void stop();
 
 private:
     static QMutex mutex;
-    QMutex mutexQueue, requestMutex;
-    float *_data;
+    QMutex queueMutex, requestMutex;
     QQueue<Request *> queue;
     QList<Request *> doneRequests;
-    bool stopFlag;
+    //bool stopFlag;
     QMutex stopMutex;
 
 };

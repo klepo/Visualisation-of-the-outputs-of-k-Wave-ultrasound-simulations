@@ -93,6 +93,15 @@ void OpenedH5File::H5SubobjectToVisualize::initialize()
     dwnsmpl = 0;
     currentStep = 0;
 
+    GUIInitialized = false;
+    GUIXYInitialized = false;
+    GUIXZInitialized = false;
+    GUIYZInitialized = false;
+
+    currentXYLodaded = false;
+    currentXZLodaded = false;
+    currentYZLodaded = false;
+
     // Create threads
     threadXY = new HDF5ReadingThread();
     connect(threadXY, SIGNAL(requestDone(Request *)), this, SLOT(sliceXYLoaded(Request *)));
@@ -100,11 +109,6 @@ void OpenedH5File::H5SubobjectToVisualize::initialize()
     connect(threadXZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceXZLoaded(Request *)));
     threadYZ = new HDF5ReadingThread();
     connect(threadYZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceYZLoaded(Request *)));
-
-    threadXY->start();
-    threadXZ->start();
-    threadYZ->start();
-
 }
 
 OpenedH5File::H5SubobjectToVisualize::~H5SubobjectToVisualize()
@@ -127,6 +131,46 @@ OpenedH5File::H5SubobjectToVisualize::~H5SubobjectToVisualize()
     delete [] dataXY;
     delete [] dataXZ;
     delete [] dataYZ;
+}
+
+void OpenedH5File::H5SubobjectToVisualize::setGUIInitialized(bool value)
+{
+    GUIInitialized = value;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isGUIInitialized()
+{
+    return GUIInitialized;
+}
+
+void OpenedH5File::H5SubobjectToVisualize::setGUIXYInitialized(bool value)
+{
+    GUIXYInitialized = value;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isGUIXYInitialized()
+{
+    return GUIXYInitialized;
+}
+
+void OpenedH5File::H5SubobjectToVisualize::setGUIXZInitialized(bool value)
+{
+    GUIXZInitialized = value;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isGUIXZInitialized()
+{
+    return GUIXZInitialized;
+}
+
+void OpenedH5File::H5SubobjectToVisualize::setGUIYZInitialized(bool value)
+{
+    GUIYZInitialized = value;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isGUIYZInitialized()
+{
+    return GUIYZInitialized;
 }
 
 QString OpenedH5File::H5SubobjectToVisualize::getName()
@@ -250,9 +294,16 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 
 void OpenedH5File::H5SubobjectToVisualize::changeImages()
 {
-    emit imageXYChanged(createImageXY());
-    emit imageXZChanged(createImageXZ());
-    emit imageYZChanged(createImageYZ());
+    emit imageXYChanged(createImageXY(), zIndex);
+    emit imageXZChanged(createImageXZ(), yIndex);
+    emit imageYZChanged(createImageYZ(), xIndex);
+}
+
+void OpenedH5File::H5SubobjectToVisualize::reloadImages()
+{
+    setZIndex(zIndex);
+    setYIndex(yIndex);
+    setXIndex(xIndex);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
@@ -264,13 +315,17 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
     hsize_t size = r->zC * r->yC * r->xC;
     dataXY = new float[size];
     memcpy(dataXY, r->data, size * sizeof(float));
-    threadXY->deleteDoneRequest(r);
 
     minVXY = r->min;
+    originalMinVXY = minVXY;
     maxVXY = r->max;
+    originalMaxVXY = maxVXY;
 
     XYloadedFlag = true;
-    emit imageXYChanged(createImageXY());
+    if (zIndex == r->zO)
+        currentXYLodaded = true;
+    emit imageXYChanged(createImageXY(), r->zO);
+    threadXY->deleteDoneRequest(r);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
@@ -282,14 +337,17 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
     hsize_t size = r->zC * r->yC * r->xC;
     dataXZ = new float[size];
     memcpy(dataXZ, r->data, size * sizeof(float));
-    threadXZ->deleteDoneRequest(r);
 
     minVXZ = r->min;
+    originalMinVXZ = minVXZ;
     maxVXZ = r->max;
+    originalMaxVXZ = maxVXZ;
 
     XZloadedFlag = true;
-    emit imageXZChanged(createImageXZ());
-
+    if (zIndex == r->yO)
+        currentXZLodaded = true;
+    emit imageXZChanged(createImageXZ(), r->yO);
+    threadXZ->deleteDoneRequest(r);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
@@ -301,13 +359,40 @@ void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
     hsize_t size = r->zC * r->yC * r->xC;
     dataYZ = new float[size];
     memcpy(dataYZ, r->data, size * sizeof(float));
-    threadYZ->deleteDoneRequest(r);
 
     minVYZ = r->min;
+    originalMinVYZ = minVYZ;
     maxVYZ = r->max;
+    originalMaxVYZ = maxVYZ;
 
     YZloadedFlag = true;
-    emit imageYZChanged(createImageYZ());
+    if (zIndex == r->xO)
+        currentYZLodaded = true;
+    emit imageYZChanged(createImageYZ(), r->xO);
+    threadYZ->deleteDoneRequest(r);
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isCurrentXYLoaded()
+{
+    return currentXYLodaded;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isCurrentXZLoaded()
+{
+    return currentXZLodaded;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::isCurrentYZLoaded()
+{
+    return currentYZLodaded;
+}
+
+bool OpenedH5File::H5SubobjectToVisualize::areCurrentSlicesLoaded()
+{
+    if (currentXYLodaded && currentXZLodaded && currentYZLodaded)
+        return true;
+    else
+        return false;
 }
 
 cv::Mat OpenedH5File::H5SubobjectToVisualize::createImageXY()
@@ -389,19 +474,25 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getZIndex()
 void OpenedH5File::H5SubobjectToVisualize::setXIndex(uint64_t value)
 {
     xIndex = value;
+    currentXYLodaded = false;
     threadYZ->createRequest(dataset, 0, 0, xIndex, size[0], size[1], 1);
+    threadYZ->start();
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setYIndex(uint64_t value)
 {
     yIndex = value;
+    currentXZLodaded = false;
     threadXZ->createRequest(dataset, 0, yIndex, 0, size[0], 1, size[2]);
+    threadXZ->start();
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setZIndex(uint64_t value)
 {
     zIndex = value;
+    currentYZLodaded = false;
     threadXY->createRequest(dataset, zIndex, 0, 0, 1, size[1], size[2]);
+    threadXY->start();
 }
 
 float OpenedH5File::H5SubobjectToVisualize::getAlpha()
@@ -494,9 +585,31 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
     return currentStep;
 }
 
-void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value)
+void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value, HDF5ReadingThread *thread3D)
 {
-    currentStep = value;
+    if (type == OpenedH5File::GROUP_TYPE) {
+        try {
+            threadXY->clearRequests();
+            threadXY->wait();
+
+            threadXZ->clearRequests();
+            threadXZ->wait();
+
+            threadYZ->clearRequests();
+            threadYZ->wait();
+
+            thread3D->clearRequests();
+            thread3D->wait();
+
+            openedH5File->file->closeDataset(this->dataset->getName());
+            this->dataset = openedH5File->file->openDataset(name.toStdString() + "/" + std::to_string(value));
+            currentStep = value;
+
+            reloadImages();
+        } catch(std::exception &) {
+            std::cerr << "Wrong step" << std::endl;
+        }
+    }
 }
 
 int OpenedH5File::H5SubobjectToVisualize::getColormap()
@@ -536,37 +649,37 @@ void OpenedH5File::H5SubobjectToVisualize::setMaxVG(float value)
 void OpenedH5File::H5SubobjectToVisualize::setMinVXY(float value)
 {
     minVXY = value;
-    changeImages();
+    emit imageXYChanged(createImageXY(), zIndex);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setMaxVXY(float value)
 {
     maxVXY = value;
-    changeImages();
+    emit imageXYChanged(createImageXY(), zIndex);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setMinVXZ(float value)
 {
     minVXZ = value;
-    changeImages();
+    emit imageXZChanged(createImageXZ(), yIndex);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setMaxVXZ(float value)
 {
     maxVXZ = value;
-    changeImages();
+    emit imageXZChanged(createImageXZ(), yIndex);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setMinVYZ(float value)
 {
     minVYZ = value;
-    changeImages();
+    emit imageYZChanged(createImageYZ(), xIndex);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::setMaxVYZ(float value)
 {
     maxVYZ = value;
-    changeImages();
+    emit imageYZChanged(createImageYZ(), xIndex);
 }
 
 float OpenedH5File::H5SubobjectToVisualize::getMinVG()
@@ -647,6 +760,30 @@ float OpenedH5File::H5SubobjectToVisualize::getOriginalMinVYZ()
 float OpenedH5File::H5SubobjectToVisualize::getOriginalMaxVYZ()
 {
     return originalMaxVYZ;
+}
+
+float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY(int x, int y)
+{
+    if (XYloadedFlag)
+        return dataXY[x + size[2] * (size[1] - y)];
+    else
+        return 0;
+}
+
+float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXZ(int x, int z)
+{
+    if (XZloadedFlag)
+        return dataXZ[x + size[2] * z];
+    else
+        return 0;
+}
+
+float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromYZ(int y, int z)
+{
+    if (YZloadedFlag)
+        return dataYZ[(size[0] - z) + size[0] * (size[1] - y)];
+    else
+        return 0;
 }
 
 QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()

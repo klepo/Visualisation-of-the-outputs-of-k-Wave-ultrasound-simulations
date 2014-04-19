@@ -261,9 +261,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-563</y>
+          <y>-81</y>
           <width>383</width>
-          <height>789</height>
+          <height>817</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -444,13 +444,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxUseGlobal">
-           <property name="text">
-            <string>Use global minimal and maximal values</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
             <string>Global minimal and maximal value:</string>
@@ -524,6 +517,13 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBoxUseGlobal">
+           <property name="text">
+            <string>Use global minimal and maximal values</string>
+           </property>
           </widget>
          </item>
          <item>
@@ -1495,7 +1495,27 @@ p, li { white-space: pre-wrap; }
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="1" column="0" colspan="6">
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButtonFillXY">
+       <property name="toolTip">
+        <string>Auto size of image</string>
+       </property>
+       <property name="text">
+        <string>Auto size of image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="5">
       <widget class="QScrollArea" name="scrollArea">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
@@ -1508,7 +1528,7 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>178</width>
+          <width>175</width>
           <height>136</height>
          </rect>
         </property>
@@ -1542,47 +1562,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="toolButtonPositionXY">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="toolButtonFillXY">
-       <property name="toolTip">
-        <string>Auto size of image</string>
-       </property>
-       <property name="text">
-        <string>Auto size of image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXY"/>
-     </item>
-     <item row="1" column="6">
+     <item row="1" column="5">
       <widget class="QSlider" name="verticalSliderXY">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -1603,8 +1583,11 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="2">
       <widget class="QLabel" name="labelXYLoading"/>
+     </item>
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxXY"/>
      </item>
     </layout>
    </widget>
@@ -1654,7 +1637,7 @@ p, li { white-space: pre-wrap; }
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="2" column="0" colspan="6">
+     <item row="2" column="0" colspan="5">
       <widget class="QScrollArea" name="scrollArea_2">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
@@ -1667,7 +1650,7 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>178</width>
+          <width>175</width>
           <height>138</height>
          </rect>
         </property>
@@ -1701,37 +1684,6 @@ p, li { white-space: pre-wrap; }
        </widget>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="toolButtonPositionXZ">
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXZ"/>
-     </item>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButtonXZSave">
-       <property name="toolTip">
-        <string>Export image</string>
-       </property>
-       <property name="text">
-        <string>Export image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QToolButton" name="toolButtonFillXZ">
        <property name="toolTip">
@@ -1752,14 +1704,31 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="2" column="6">
+     <item row="2" column="5">
       <widget class="QSlider" name="verticalSliderXZ">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="0">
+      <widget class="QToolButton" name="toolButtonXZSave">
+       <property name="toolTip">
+        <string>Export image</string>
+       </property>
+       <property name="text">
+        <string>Export image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxXZ"/>
+     </item>
+     <item row="0" column="2">
       <widget class="QLabel" name="labelXZLoading">
        <property name="text">
         <string/>
@@ -1817,7 +1786,7 @@ p, li { white-space: pre-wrap; }
      <property name="verticalSpacing">
       <number>0</number>
      </property>
-     <item row="3" column="0" colspan="6">
+     <item row="3" column="0" colspan="5">
       <widget class="QScrollArea" name="scrollArea_3">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
@@ -1830,7 +1799,7 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>178</width>
+          <width>175</width>
           <height>136</height>
          </rect>
         </property>
@@ -1864,6 +1833,9 @@ p, li { white-space: pre-wrap; }
        </widget>
       </widget>
      </item>
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBoxYZ"/>
+     </item>
      <item row="0" column="0">
       <widget class="QToolButton" name="toolButtonYZSave">
        <property name="toolTip">
@@ -1875,30 +1847,6 @@ p, li { white-space: pre-wrap; }
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="toolButtonPositionYZ">
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_25.png</normaloff>:/icons/icons/images/icons_25.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxYZ"/>
-     </item>
-     <item row="3" column="6">
-      <widget class="QSlider" name="verticalSliderYZ">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -1922,10 +1870,17 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="2">
       <widget class="QLabel" name="labelYZLoading">
        <property name="text">
         <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="5">
+      <widget class="QSlider" name="verticalSliderYZ">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -2208,6 +2163,7 @@ p, li { white-space: pre-wrap; }
     <signal>imageResized(int,int)</signal>
     <signal>clickedPointInImage(int,int)</signal>
     <slot>saveImage()</slot>
+    <slot>setAdjust(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2604,96 +2560,48 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>toolButtonFillXY</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setImageXYFromData()</slot>
+   <receiver>imageWidgetXY</receiver>
+   <slot>setAdjust(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>38</x>
      <y>98</y>
     </hint>
     <hint type="destinationlabel">
-     <x>4</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonPositionXY</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setImageXYFromData()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>64</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>236</x>
-     <y>0</y>
+     <x>87</x>
+     <y>174</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>toolButtonFillXZ</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setImageXZFromData()</slot>
+   <receiver>imageWidgetXZ</receiver>
+   <slot>setAdjust(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>35</x>
      <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonPositionXZ</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setImageXZFromData()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>73</x>
-     <y>277</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>257</y>
+     <x>87</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>toolButtonFillYZ</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setImageYZFromData()</slot>
+   <receiver>imageWidgetYZ</receiver>
+   <slot>setAdjust(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>44</x>
      <y>470</y>
     </hint>
     <hint type="destinationlabel">
-     <x>14</x>
-     <y>626</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonPositionYZ</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setImageYZFromData()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>74</x>
-     <y>470</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>82</x>
-     <y>626</y>
+     <x>87</x>
+     <y>538</y>
     </hint>
    </hints>
   </connection>
