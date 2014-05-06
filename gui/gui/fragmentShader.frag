@@ -31,6 +31,10 @@ uniform float uMin;
 uniform float uMax;
 
 uniform bool uFrame;
+uniform bool uXYBorder;
+uniform bool uXZBorder;
+uniform bool uYZBorder;
+
 uniform bool uSlices;
 uniform bool uTrim;
 
@@ -44,6 +48,18 @@ void main() {
     if (uFrame) {
 
         colorOut = vec4(0.5, 0.5, 0.5, 1.0);
+
+    } else if (uXYBorder) {
+
+        colorOut = vec4(0.0, 0.0, 0.8, 1.0);
+
+    } else if (uXZBorder) {
+
+        colorOut = vec4(0.0, 0.8, 0.0, 1.0);
+
+    } else if (uYZBorder) {
+
+        colorOut = vec4(0.8, 0.0, 0.0, 1.0);
 
     } else if (uSlices) {
         vec4 color = texture(uSliceSampler, vTextureCoord);

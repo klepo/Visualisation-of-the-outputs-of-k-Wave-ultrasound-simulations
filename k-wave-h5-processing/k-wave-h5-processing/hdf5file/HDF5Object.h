@@ -28,6 +28,8 @@ public:
     void removeAttribute(const unsigned int idx);
     void removeAttribute(H5std_string name);
 
+    bool hasAttribute(H5std_string name);
+
     int getNumAttrs();
 
 protected:

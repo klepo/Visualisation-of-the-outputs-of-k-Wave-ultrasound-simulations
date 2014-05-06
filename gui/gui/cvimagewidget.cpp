@@ -13,6 +13,7 @@
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
     clearFlag = false;
+    adjustFlag = true;
     point = QPoint(0, 0);
     isSetImage = false;
 }
@@ -30,13 +31,14 @@ QSize CVImageWidget::minimumSizeHint() const
 void CVImageWidget::setAdjust(bool adjust)
 {
     adjustFlag = adjust;
+    refreshImage();
 }
 
 void CVImageWidget::refreshImage()
 {
     if (isSetImage) {
+        _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
         if (point.x() == 0 && point.y() == 0 && adjustFlag) {
-            _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
             if ((double) _tmp.cols / _tmp.rows >= (double) width() / height())
                 _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
             else
@@ -73,7 +75,7 @@ void CVImageWidget::showImage(const cv::Mat &image, QPoint point, QString fileNa
     // Assign OpenCV's image buffer to the QImage. Note that the bytesPerLine parameter
     // (http://qt-project.org/doc/qt-4.8/qimage.html#QImage-6) is 3*width because each pixel
     // has three bytes.
-    _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
+    //_qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
     isSetImage = true;
     clearFlag = false;
     refreshImage();

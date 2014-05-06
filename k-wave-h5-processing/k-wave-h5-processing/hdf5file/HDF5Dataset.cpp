@@ -214,7 +214,12 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
         int t4 = clock();
         dataset.read(data, typeF, memspace, dataspace);
         int t5 = clock();
-        std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        //std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        int r = 0;
+        if (count[0] == 1) r = 0;
+        if (count[1] == 1) r = 1;
+        if (count[2] == 1) r = 2;
+        std::cout << (t5-t4) / (CLOCKS_PER_SEC / 1000) << ";"<< offset[0] << ";" << offset[1] << ";" << offset[2] << ";" << r << std::endl;
         HDF5Dataset::getMinAndMaxValue(data, xC * yC * zC, minVF, maxVF);
         mutex.unlock();
     } catch(H5::DataSpaceIException error) {

@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QFileDialog>
 #include <QTime>
+#include <QMouseEvent>
 
 #include <HDF5File.h>
 #include <HDF5Group.h>
@@ -206,6 +207,9 @@ void GWindow::initialize()
     m_aTextureCoord = m_program->attributeLocation("aTextureCoord");
 
     m_uFrame = m_program->uniformLocation("uFrame");
+    m_uXYBorder = m_program->uniformLocation("uXYBorder");
+    m_uXZBorder = m_program->uniformLocation("uXZBorder");
+    m_uYZBorder = m_program->uniformLocation("uYZBorder");
 
     m_uMatrix = m_program->uniformLocation("uMatrix");
     m_uScaleMatrix = m_program->uniformLocation("uScaleMatrix");
@@ -319,6 +323,13 @@ void GWindow::initialize()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
+
+
+    glLineWidth(3);
+
     //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
     //glBlendFunc(GL_ONE, GL_ONE);
@@ -333,8 +344,8 @@ void GWindow::initialize()
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);*/
     changeColormap();
 
-    rotateXMatrix.rotate(-30, -1, 0, 0);
-    rotateYMatrix.rotate(-15, 0, -1, 0);
+    //rotateXMatrix.rotate(-20, -1, 0, 0);
+    rotateYMatrix.rotate(-60, 0, 1, 0);
 
     m_program->bind();
 
@@ -349,6 +360,10 @@ void GWindow::initialize()
 
     m_program->setUniformValue(m_uFrame, false);
     m_program->setUniformValue(m_uSlices, false);
+
+    m_program->setUniformValue(m_uXYBorder, false);
+    m_program->setUniformValue(m_uXZBorder, false);
+    m_program->setUniformValue(m_uYZBorder, false);
 
     m_program->release();
 
@@ -684,7 +699,6 @@ void GWindow::render()
             renderFrame();
         }
 
-
         m_program->setUniformValue(m_uFrame, false);
         mutex.unlock();
     }
@@ -701,6 +715,16 @@ void GWindow::render()
         QMatrix4x4 sMmatrix;
         sMmatrix.translate((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax);
         sMmatrix.scale(vecScale);
+
+        QMatrix4x4 s2Mmatrix;
+        s2Mmatrix.scale(1.02f);
+        QMatrix4x4 s2XYMmatrix, s2XZMmatrix, s2YZMmatrix;
+        s2XYMmatrix = s2Mmatrix;
+        s2XZMmatrix = s2Mmatrix;
+        s2YZMmatrix = s2Mmatrix;
+        s2XYMmatrix.translate(-0.01f, -0.01f, 0);
+        s2XZMmatrix.translate(-0.01f, 0, -0.01f);
+        s2YZMmatrix.translate(0, -0.01f, -0.01f);
 
         QMatrix4x4 xYMmatrix;
         xYMmatrix.translate(0, 0, xYIndex);
@@ -721,7 +745,13 @@ void GWindow::render()
             glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, sliceXYVertices);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureXY);
+            // Because some bug
+            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            m_program->setUniformValue(m_uXYBorder, true);
+            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xYMmatrix * s2XYMmatrix);
+            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            m_program->setUniformValue(m_uXYBorder, false);
         }
 
         if (sliceXZ) {
@@ -729,7 +759,13 @@ void GWindow::render()
             glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, sliceXZVertices);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureXZ);
+            // Because some bug
+            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            m_program->setUniformValue(m_uXZBorder, true);
+            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xZMmatrix * s2XZMmatrix);
+            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            m_program->setUniformValue(m_uXZBorder, false);
         }
 
         if (sliceYZ) {
@@ -737,8 +773,13 @@ void GWindow::render()
             glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, sliceYZVertices);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureYZ);
+            // Because some bug
+            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-        }
+            m_program->setUniformValue(m_uYZBorder, true);
+            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * yZMmatrix * s2YZMmatrix);
+            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            m_program->setUniformValue(m_uYZBorder, false);}
 
         glDisableVertexAttribArray(m_aTextureCoord);
         glDisableVertexAttribArray(m_aPosition);
@@ -765,10 +806,15 @@ void GWindow::render()
         //textureMutex.unlock();
 
         // Recompute alpha and set alpha + colors
-        m_program->setUniformValue(m_uAlpha, 1.0f - pow(1.0f - alpha, 10.0f / (float) actualCount));
-        m_program->setUniformValue(m_uRed, 1.0f - pow(1.0f - red, 10.0f / (float) actualCount));
-        m_program->setUniformValue(m_uGreen, 1.0f - pow(1.0f - green, 10.0f / (float) actualCount));
-        m_program->setUniformValue(m_uBlue, 1.0f - pow(1.0f - blue, 10.0f / (float) actualCount));
+        m_program->setUniformValue(m_uAlpha, 1.0f - pow(1.0f - alpha, 5.0f / (float) actualCount));
+        m_program->setUniformValue(m_uRed, 1.0f - pow(1.0f - red, 5.0f / (float) actualCount));
+        m_program->setUniformValue(m_uGreen, 1.0f - pow(1.0f - green, 5.0f / (float) actualCount));
+        m_program->setUniformValue(m_uBlue, 1.0f - pow(1.0f - blue, 5.0f / (float) actualCount));
+
+        //m_program->setUniformValue(m_uRed, red);
+        //m_program->setUniformValue(m_uGreen, green);
+        //m_program->setUniformValue(m_uBlue, blue);
+
 
         glEnableVertexAttribArray(m_aPosition);
         glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, planeVertices);
@@ -814,36 +860,16 @@ void GWindow::render()
         mutex.unlock();
     }
 
-    if (flagSave2) {
-        flagSave2 = false;
+    if (flagSave) {
+        flagSave = false;
         uchar *data = new uchar[width() * height() * 4];
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
-        cv::Mat image = cv::Mat(height(), width(), CV_8UC4, saveData);
-        for (int i = 0; i < width() * height() * 4; i += 4) {
-            //qDebug() << data[i + 3];
-            saveData[i + 3] = data[i + 3];
-        }
+        cv::Mat image = cv::Mat(height(), width(), CV_8UC4, data);
         cv::flip(image, image, 0);
         //imshow("image", image);
         imwrite(fileName.toStdString(), image);
-        delete [] saveData;
-        saveData = NULL;
         delete [] data;
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        renderLater();
-    }
-
-    if (flagSave) {
-        flagSave = false;
-        saveData = new uchar[width() * height() * 4];
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, saveData);
-        //QImage qimage = QImage(data, width(), height(), width() * 4, QImage::Format_ARGB32).mirrored();
-        //qimage.save(fileName, 0, 100);
-        //glClearColor((float) 16 / 17, (float) 16 / 17, (float) 16 / 17, 0.0f);
-        flagSave2 = true;
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         renderLater();
     }
 
@@ -966,9 +992,7 @@ void GWindow::setTrim(bool value)
 void GWindow::alignToXY()
 {
     rotateXMatrix.setToIdentity();
-    //rotateXMatrix.rotate(0, -1, 0, 0);
     rotateYMatrix.setToIdentity();
-    //rotateYMatrix.rotate(0, 0, -1, 0);
     renderLater();
 }
 
@@ -977,16 +1001,38 @@ void GWindow::alignToXZ()
     rotateXMatrix.setToIdentity();
     rotateXMatrix.rotate(90, 1, 0, 0);
     rotateYMatrix.setToIdentity();
-    //rotateYMatrix.rotate(0, 0, -1, 0);
     renderLater();
 }
 
 void GWindow::alignToYZ()
 {
     rotateXMatrix.setToIdentity();
-    //rotateXMatrix.rotate(0, -1, 0, 0);
     rotateYMatrix.setToIdentity();
     rotateYMatrix.rotate(90, 0, -1, 0);
+    renderLater();
+}
+
+void GWindow::alignToXYFromBack()
+{
+    rotateXMatrix.setToIdentity();
+    rotateXMatrix.rotate(180, 0, -1, 0);
+    rotateYMatrix.setToIdentity();
+    renderLater();
+}
+
+void GWindow::alignToXZFromBack()
+{
+    rotateXMatrix.setToIdentity();
+    rotateXMatrix.rotate(90 + 180, 1, 0, 0);
+    rotateYMatrix.setToIdentity();
+    renderLater();
+}
+
+void GWindow::alignToYZFromBack()
+{
+    rotateXMatrix.setToIdentity();
+    rotateYMatrix.setToIdentity();
+    rotateYMatrix.rotate(90 + 180, 0, -1, 0);
     renderLater();
 }
 
@@ -1071,41 +1117,43 @@ bool GWindow::event(QEvent *event)
          }
          if (ke->key() == Qt::Key_Z) {
              rotateXMatrix.setToIdentity();
-             //rotateXMatrix.rotate(0, -1, 0, 0);
              rotateYMatrix.setToIdentity();
-             //rotateYMatrix.rotate(0, 0, -1, 0);
          }
          if (ke->key() == Qt::Key_Y) {
              rotateXMatrix.setToIdentity();
              rotateXMatrix.rotate(90, 1, 0, 0);
              rotateYMatrix.setToIdentity();
-             //rotateYMatrix.rotate(0, 0, -1, 0);
          }
          if (ke->key() == Qt::Key_X) {
              rotateXMatrix.setToIdentity();
-             //rotateXMatrix.rotate(0, -1, 0, 0);
              rotateYMatrix.setToIdentity();
              rotateYMatrix.rotate(90, 0, -1, 0);
          }
          if (ke->key() == Qt::Key_B) {
              rotateXMatrix.setToIdentity();
-             rotateXMatrix.rotate(180, -1, 0, 0);
+             rotateXMatrix.rotate(180, 0, -1, 0);
              rotateYMatrix.setToIdentity();
-             //rotateYMatrix.rotate(0, 0, -1, 0);
          }
          if (ke->key() == Qt::Key_G) {
              rotateXMatrix.setToIdentity();
              rotateXMatrix.rotate(90 + 180, 1, 0, 0);
              rotateYMatrix.setToIdentity();
-             //rotateYMatrix.rotate(0, 0, -1, 0);
          }
          if (ke->key() == Qt::Key_R) {
              rotateXMatrix.setToIdentity();
-             //rotateXMatrix.rotate(0, -1, 0, 0);
              rotateYMatrix.setToIdentity();
              rotateYMatrix.rotate(90 + 180, 0, -1, 0);
          }
+         if (ke->key() == Qt::Key_C) {
+             position.setX(0);
+             position.setY(0);
+         }
          renderLater();
+    }
+
+    if (event->type() == QEvent::MouseButtonPress && ((QMouseEvent *) event)->buttons() == Qt::MiddleButton){
+        position.setX(0);
+        position.setY(0);
     }
 
     if (event->type() == QEvent::UpdateRequest)

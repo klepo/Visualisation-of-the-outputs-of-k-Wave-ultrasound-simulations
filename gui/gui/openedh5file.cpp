@@ -34,10 +34,10 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
 
     // Find datasets for visualization
     for (hsize_t i = 0; i < file->getNumObjs(); i++) {
-        try {
+        H5G_obj_t type = file->getObjTypeById(i);
+        if (type == H5G_DATASET) {
             HDF5File::HDF5Dataset *dataset = file->openDataset(i);
             hsize_t *size = dataset->getDims();
-
             // 3D type
             if (dataset->getDataType() == H5T_FLOAT && dataset->getRank() == 3 && size[0] == nZ && size[1] == nY && size[2] == nX) {
                 QString name = QString::fromStdString(dataset->getName());
@@ -51,41 +51,29 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
                     objects[name]->addSubobject(dataset);
                 }
             }
-
             // Downsampled 3D type
-            else if (dataset->getDataType() == H5T_FLOAT) {
-                try {
-                    QString name = QString::fromStdString(dataset->readAttributeS("src_dataset_name"));
-                    dataset->readAttributeI("src_dataset_id"); // Check
-                    // TODO Check other attributes...
+            else if (dataset->getDataType() == H5T_FLOAT && dataset->hasAttribute("dwnsmpl")) {
+                QString name = QString::fromStdString(dataset->readAttributeS("src_dataset_name"));
+                // TODO Check other attributes...
 
-                    qDebug() << "----> 3D type dataset (downsampled): " << name << "; size: " << size[0] << " x " << size[1] << " x " << size[2];
+                qDebug() << "----> 3D type dataset (downsampled): " << name << "; size: " << size[0] << " x " << size[1] << " x " << size[2];
 
-                    if (!objects.contains(name)) {
-                        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, OpenedH5File::DATASET_TYPE, this));
-                        objects[name]->addSubobject(dataset);
-                    } else {
-                        objects[name]->addSubobject(dataset);
-                    }
-                } catch(std::exception &) {
-                    file->closeDataset(dataset->getName());
+                if (!objects.contains(name)) {
+                    objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, OpenedH5File::DATASET_TYPE, this));
+                    objects[name]->addSubobject(dataset);
+                } else {
+                    objects[name]->addSubobject(dataset);
                 }
             } else
                 file->closeDataset(dataset->getName());
 
-        } catch(std::exception &) {
-
-            std::cout << "Object " << i << " is not dataset" << std::endl;
-
+        } else if (type == H5G_GROUP) {
             // Reshaped mask type group
             try {
                 HDF5File::HDF5Group *group = file->openGroup(i);
-
                 // Downsampled reshaped mask type group
-                try {
-                    group->readAttributeI("src_group_id");
+                if (group->hasAttribute("src_group_name") && group->hasAttribute("count")) {
                     // TODO Check other attributes...
-                    group->readAttributeI("count");
 
                     QString name = QString::fromStdString(group->readAttributeS("src_group_name"));
 
@@ -98,29 +86,22 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
                         objects[name]->addSubobject(group);
                     }
                 }
-
                 // Original reshaped mask type group
-                catch(std::exception &) {
-                    try {
-                        group->readAttributeI("count");
+                else if (group->hasAttribute("count")) {
+                    QString name = QString::fromStdString(group->getName());
 
-                        QString name = QString::fromStdString(group->getName());
+                    qDebug() << "----> Reshaped mask type group: "<< name;
 
-                        qDebug() << "----> Reshaped mask type group: "<< name;
-
-                        if (!objects.contains(name)) {
-                            objects.insert(name, new H5ObjectToVisualize(name, OpenedH5File::GROUP_TYPE, this));
-                            objects[name]->addSubobject(group);
-                        } else {
-                            objects[name]->addSubobject(group);
-                        }
-                    } catch(std::exception &) {
-                        file->closeGroup(group->getName());
+                    if (!objects.contains(name)) {
+                        objects.insert(name, new H5ObjectToVisualize(name, OpenedH5File::GROUP_TYPE, this));
+                        objects[name]->addSubobject(group);
+                    } else {
+                        objects[name]->addSubobject(group);
                     }
                 }
-
             } catch(std::exception &) {
-                std::cout << "Object " << i << " is not original reshaped group" << std::endl;
+                std::cout << "Object " << file->getObjNameById(i) << " is reshaped group" << std::endl;
+                file->closeGroup(group->getName());
             }
         }
     }

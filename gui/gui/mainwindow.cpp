@@ -61,7 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->action3DYZ, SIGNAL(toggled(bool)), gWindow, SLOT(setViewYZSlice(bool)));
 
     connect(ui->horizontalSliderVRSlices, SIGNAL(valueChanged(int)), gWindow, SLOT(setSlicesCount(int)));
-    connect(ui->checkBoxVRFrame, SIGNAL(clicked(bool)), gWindow, SLOT(setViewFrame(bool)));
+
+    connect(ui->actionViewFrame, SIGNAL(toggled(bool)), gWindow, SLOT(setViewFrame(bool)));
 
     connect(ui->horizontalSliderVRAlpha, SIGNAL(valueChanged(int)), gWindow, SLOT(setAlpha(int)));
     connect(ui->horizontalSliderVRRed, SIGNAL(valueChanged(int)), gWindow, SLOT(setRed(int)));
@@ -71,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAlignToXY, SIGNAL(triggered()), gWindow, SLOT(alignToXY()));
     connect(ui->actionAlignToXZ, SIGNAL(triggered()), gWindow, SLOT(alignToXZ()));
     connect(ui->actionAlignToYZ, SIGNAL(triggered()), gWindow, SLOT(alignToYZ()));
+    connect(ui->actionAlignToXYFromBack, SIGNAL(triggered()), gWindow, SLOT(alignToXYFromBack()));
+    connect(ui->actionAlignToXZFromBack, SIGNAL(triggered()), gWindow, SLOT(alignToXZFromBack()));
+    connect(ui->actionAlignToYZFromBack, SIGNAL(triggered()), gWindow, SLOT(alignToYZFromBack()));
 
     connect(ui->checkBoxTrim, SIGNAL(toggled(bool)), gWindow, SLOT(setTrim(bool)));
 
@@ -373,13 +377,17 @@ void MainWindow::selectDataset()
             gWindow->setSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
             gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
 
-            gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
-            gWindow->setPosition(0, 0, 0);
+            if (ui->actionFillSpace->isChecked()) {
+                gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
+                gWindow->setPosition(0, 0, 0);
+            }
         }
 
         if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
             //ui->progressBar3D->setValue(0);
             //ui->progressBar3D->setVisible(true);
+            //if (!gWindow->isTexture3DInitialized())
+            ui->label3DLoading->setMovie(movie);
             gWindow->load3DTexture(subobject->getDataset());
         }
 
@@ -529,6 +537,8 @@ void MainWindow::initControls()
 void MainWindow::loaded3D(std::string datasetName)
 {
     flagVRLoaded = true;
+    ui->label3DLoading->clear();
+
     //ui->progressBar3D->setVisible(false);
     //ui->progressBar3D->setValue(0);
     if (subobject != NULL && subobject->getGroup() != NULL)
@@ -754,6 +764,8 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
         if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
             //ui->progressBar3D->setValue(0);
             //ui->progressBar3D->setVisible(true);
+            //if (!gWindow->isTexture3DInitialized())
+            ui->label3DLoading->setMovie(movie);
             gWindow->load3DTexture(subobject->getDataset());
         }
     }
@@ -845,6 +857,8 @@ void MainWindow::on_actionVolumeRendering_toggled(bool value)
         //ui->progressBar3D->setValue(0);
         //ui->progressBar3D->setVisible(true);
         gWindow->load3DTexture(subobject->getDataset());
+        if (!gWindow->isTexture3DInitialized())
+            ui->label3DLoading->setMovie(movie);
     }
 }
 
@@ -853,7 +867,9 @@ void MainWindow::on_actionVolumeRendering_toggled(bool value)
 void MainWindow::on_actionExportImageFrom3DScene_triggered()
 {
     if (gWindow != NULL) {
-        QString fileName = QFileDialog::getSaveFileName(this, "Save image", subobject->getName() + "_3Dscene.png", "Image (*.png)");
+        QString name = "no_name";
+        if (subobject != NULL) name = subobject->getName();
+        QString fileName = QFileDialog::getSaveFileName(this, "Save image", name + "_3Dscene.png", "Image (*.png)");
         if (fileName != NULL)
             gWindow->saveImage(fileName);
     }
@@ -927,3 +943,19 @@ void MainWindow::on_verticalSliderYZ_valueChanged(int value)
     }
 }
 
+// Fill 3D space
+
+void MainWindow::on_actionFillSpace_toggled(bool value)
+{
+    if (subobject != NULL) {
+        if (value == true) {
+            gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
+            gWindow->setPosition(0, 0, 0);
+            gWindow->renderLater();
+        } else {
+            gWindow->setMainSize(subobject->getFrameSize()[0], subobject->getFrameSize()[1], subobject->getFrameSize()[2]);
+            gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
+            gWindow->renderLater();
+        }
+    }
+}

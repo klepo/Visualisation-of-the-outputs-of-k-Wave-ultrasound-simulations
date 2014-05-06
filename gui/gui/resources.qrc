@@ -29,6 +29,12 @@
         <file>icons/images/icons_26.png</file>
         <file>icons/images/icons_27.png</file>
         <file>icons/images/icons_28.png</file>
+        <file>icons/images/icons_29.png</file>
+        <file>icons/images/icons_30.png</file>
+        <file>icons/images/icons_31.png</file>
+        <file>icons/images/icons_32.png</file>
+        <file>icons/images/icons_33.png</file>
+        <file>icons/images/icons_34.png</file>
     </qresource>
     <qresource prefix="/colorscale">
         <file>icons/colorscale_autumn.jpg</file>

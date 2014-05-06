@@ -20,7 +20,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag)
         H5::Exception::dontPrint();
         H5::FileAccPropList access_plist = H5::FileAccPropList::DEFAULT;
         H5::FileCreatPropList create_plist = H5::FileCreatPropList::DEFAULT;
-        //list.setSieveBufSize(1048576);
+        //access_plist.setSieveBufSize(1024 * 1024 * 4);
 
         if (flag == HDF5File::OPEN) {
             std::cout << "Opening file \"" << filename << "\"";
@@ -347,6 +347,17 @@ hsize_t HDF5File::getNumObjs()
     //mutex.unlock();
     return num;
 }
+
+H5std_string HDF5File::getObjNameById(hsize_t id)
+{
+    return file.getObjnameByIdx(id);
+}
+
+H5G_obj_t HDF5File::getObjTypeById(hsize_t id)
+{
+    return file.getObjTypeByIdx(id);
+}
+
 
 H5std_string HDF5File::getFilename()
 {

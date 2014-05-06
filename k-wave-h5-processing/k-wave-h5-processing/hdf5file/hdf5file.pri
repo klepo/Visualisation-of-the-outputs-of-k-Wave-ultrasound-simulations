@@ -1,10 +1,10 @@
 win32 {
 
-    INCLUDEPATH += "G:/HDF5-1.8.12-win64-static-with-zlib_szip/include"
+    INCLUDEPATH += "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"
 
     CONFIG(debug, debug|release) {
 
-        LIBS += -L"G:/HDF5-1.8.12-win64-static-with-zlib_szip/lib" \
+        LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
             -llibhdf5_D \
             -llibhdf5_cpp_D \
             #-llibzlib_D \
@@ -14,7 +14,7 @@ win32 {
 
     CONFIG(release, debug|release) {
 
-        LIBS += -L"G:/HDF5-1.8.12-win64-static-with-zlib_szip/lib" \
+        LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
             -llibhdf5 \
             -llibhdf5_cpp \
             #-llibzlib \

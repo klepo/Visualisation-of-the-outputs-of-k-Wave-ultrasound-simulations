@@ -21,11 +21,11 @@ TARGET = k-wave-h5-processing
 
 win32 {
 
-    INCLUDEPATH += "G:/opencv-2.4.8/opencv/sources/new_build/install/include"
+    INCLUDEPATH += "D:/opencv-2.4.8/opencv/sources/new_build/install/include"
 
     CONFIG(debug, debug|release) {
 
-        LIBS += -L"G:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
+        LIBS += -L"D:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
             -lopencv_core248d \
             -lopencv_contrib248d \
             -lopencv_highgui248d \
@@ -55,7 +55,7 @@ win32 {
 
     CONFIG(release, debug|release) {
 
-        LIBS += -L"G:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
+        LIBS += -L"D:/opencv-2.4.8/opencv/sources/new_build/install/x64/vc11/staticlib" \
             -lopencv_core248 \
             -lopencv_contrib248 \
             -lopencv_highgui248 \

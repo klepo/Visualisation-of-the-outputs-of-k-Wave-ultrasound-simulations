@@ -104,6 +104,8 @@ private slots:
     void on_verticalSliderXZ_valueChanged(int value);
     void on_verticalSliderYZ_valueChanged(int value);
 
+    void on_actionFillSpace_toggled(bool arg1);
+
 public:
     Ui::MainWindow *ui;
 

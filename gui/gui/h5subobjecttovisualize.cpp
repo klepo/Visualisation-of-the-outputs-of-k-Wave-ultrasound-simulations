@@ -11,6 +11,9 @@ OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5File::HDF5Datas
     this->type = OpenedH5File::DATASET_TYPE;
     initialize();
     loadObjectData();
+    dataXY = new float[size[1] * size[2]];
+    dataXZ = new float[size[0] * size[2]];
+    dataYZ = new float[size[0] * size[1]];
 }
 
 OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5File::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
@@ -23,6 +26,9 @@ OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5File::HDF5Group
     this->type = OpenedH5File::GROUP_TYPE;
     initialize();
     loadObjectData();
+    dataXY = new float[size[1] * size[2]];
+    dataXZ = new float[size[0] * size[2]];
+    dataYZ = new float[size[0] * size[1]];
 }
 
 void OpenedH5File::H5SubobjectToVisualize::initialize()
@@ -200,9 +206,9 @@ HDF5File::HDF5Group *OpenedH5File::H5SubobjectToVisualize::getGroup()
 void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 {
     if (type == OpenedH5File::DATASET_TYPE &&  dataset != NULL) {
-        try {
+        if (dataset->hasAttribute("dwnsmpl")) {
             dwnsmpl =  dataset->readAttributeI("dwnsmpl");
-        } catch(std::exception &) {
+        } else {
             dwnsmpl = 0;
             std::cout << "No downsampling" << std::endl;
         }
@@ -235,9 +241,9 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         originalMaxVG =  dataset->getGlobalMaxValueF();
         steps = 1;
     } else if (type = OpenedH5File::GROUP_TYPE &&  group != NULL &&  dataset != NULL) {
-        try {
+        if (group->hasAttribute("dwnsmpl")) {
             dwnsmpl =  group->readAttributeI("dwnsmpl");
-        } catch(std::exception &) {
+        } else {
             dwnsmpl = 0;
             std::cout << "No downsampling" << std::endl;
         }
@@ -312,14 +318,14 @@ void OpenedH5File::H5SubobjectToVisualize::reloadImages()
 
 void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
 {
-    QMutexLocker lock(&mutexXY);
+    //QMutexLocker lock(&mutexXY);
     XYloadedFlag = false;
-    delete [] dataXY;
-    dataXY = NULL;
+    //delete [] dataXY;
+    //dataXY = NULL;
 
-    hsize_t size = r->zC * r->yC * r->xC;
-    dataXY = new float[size];
-    memcpy(dataXY, r->data, size * sizeof(float));
+    //hsize_t size = r->zC * r->yC * r->xC;
+    //dataXY = new float[size];
+    memcpy(dataXY, r->data, size[1] * size[2] * sizeof(float));
 
     minVXY = r->min;
     originalMinVXY = minVXY;
@@ -327,23 +333,25 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
     originalMaxVXY = maxVXY;
 
     XYloadedFlag = true;
-    lock.unlock();
+    //lock.unlock();
     if (zIndex == r->zO)
         currentXYLodaded = true;
+    else
+        currentXYLodaded = false;
     emit imageXYChanged(createImageXY(), r->zO);
     threadXY->deleteDoneRequest(r);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
 {
-    QMutexLocker lock(&mutexXZ);
+    //QMutexLocker lock(&mutexXZ);
     XZloadedFlag = false;
-    delete [] dataXZ;
-    dataXZ = NULL;
+    //delete [] dataXZ;
+    //dataXZ = NULL;
 
-    hsize_t size = r->zC * r->yC * r->xC;
-    dataXZ = new float[size];
-    memcpy(dataXZ, r->data, size * sizeof(float));
+    //hsize_t size = r->zC * r->yC * r->xC;
+    //dataXZ = new float[size];
+    memcpy(dataXZ, r->data, size[0] * size[2] * sizeof(float));
 
     minVXZ = r->min;
     originalMinVXZ = minVXZ;
@@ -351,23 +359,25 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
     originalMaxVXZ = maxVXZ;
 
     XZloadedFlag = true;
-    lock.unlock();
+    //lock.unlock();
     if (yIndex == r->yO)
         currentXZLodaded = true;
+    else
+        currentXZLodaded = false;
     emit imageXZChanged(createImageXZ(), r->yO);
     threadXZ->deleteDoneRequest(r);
 }
 
 void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
 {
-    QMutexLocker lock(&mutexYZ);
+    //QMutexLocker lock(&mutexYZ);
     YZloadedFlag = false;
-    delete [] dataYZ;
-    dataYZ = NULL;
+    //delete [] dataYZ;
+    //dataYZ = NULL;
 
-    hsize_t size = r->zC * r->yC * r->xC;
-    dataYZ = new float[size];
-    memcpy(dataYZ, r->data, size * sizeof(float));
+    //hsize_t size = r->zC * r->yC * r->xC;
+    //dataYZ = new float[size];
+    memcpy(dataYZ, r->data, size[0] * size[1] * sizeof(float));
 
     minVYZ = r->min;
     originalMinVYZ = minVYZ;
@@ -375,9 +385,11 @@ void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
     originalMaxVYZ = maxVYZ;
 
     YZloadedFlag = true;
-    lock.unlock();
+    //lock.unlock();
     if (xIndex == r->xO)
         currentYZLodaded = true;
+    else
+        currentYZLodaded = false;
     emit imageYZChanged(createImageYZ(), r->xO);
     threadYZ->deleteDoneRequest(r);
 }
@@ -407,7 +419,7 @@ bool OpenedH5File::H5SubobjectToVisualize::areCurrentSlicesLoaded()
 
 cv::Mat OpenedH5File::H5SubobjectToVisualize::createImageXY()
 {
-    QMutexLocker lock(&mutexXY);
+    //QMutexLocker lock(&mutexXY);
     cv::Mat image;
     if (XYloadedFlag) {
         image = cv::Mat(size[1], size[2], CV_32FC1, dataXY); // rows, cols (height, width)
@@ -423,7 +435,7 @@ cv::Mat OpenedH5File::H5SubobjectToVisualize::createImageXY()
 
 cv::Mat OpenedH5File::H5SubobjectToVisualize::createImageXZ()
 {
-    QMutexLocker lock(&mutexXZ);
+    //QMutexLocker lock(&mutexXZ);
     cv::Mat image;
     if (XZloadedFlag) {
         image = cv::Mat(size[0], size[2], CV_32FC1, dataXZ); // rows, cols (height, width)
@@ -438,7 +450,7 @@ cv::Mat OpenedH5File::H5SubobjectToVisualize::createImageXZ()
 
 cv::Mat OpenedH5File::H5SubobjectToVisualize::createImageYZ()
 {
-    QMutexLocker lock(&mutexYZ);
+    //QMutexLocker lock(&mutexYZ);
     cv::Mat image;
     if (YZloadedFlag) {
         image = cv::Mat(size[0], size[1], CV_32FC1, dataYZ); // rows, cols (height, width)
@@ -777,27 +789,27 @@ float OpenedH5File::H5SubobjectToVisualize::getOriginalMaxVYZ()
 
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY(int x, int y)
 {
-    QMutexLocker lock(&mutexXY);
+    //QMutexLocker lock(&mutexXY);
     if (XYloadedFlag)
-        return dataXY[x + size[2] * (size[1] - y)];
+        return dataXY[x + size[2] - 1 * (size[1] - 1 - y)];
     else
         return 0.0;
 }
 
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXZ(int x, int z)
 {
-    QMutexLocker lock(&mutexXZ);
+    //QMutexLocker lock(&mutexXZ);
     if (XZloadedFlag)
-        return dataXZ[x + size[2] * z];
+        return dataXZ[x + size[2] - 1 * z];
     else
         return 0.0;
 }
 
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromYZ(int y, int z)
 {
-    QMutexLocker lock(&mutexYZ);
+    //QMutexLocker lock(&mutexYZ);
     if (YZloadedFlag)
-        return dataYZ[(size[0] - z) + size[0] * (size[1] - y)];
+        return dataYZ[(size[0] - 1 - z) + size[0] - 1 * (size[1] - 1 - y)];
     else
         return 0.0;
 }

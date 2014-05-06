@@ -70,6 +70,9 @@ public slots:
     void alignToXY();
     void alignToXZ();
     void alignToYZ();
+    void alignToXYFromBack();
+    void alignToXZFromBack();
+    void alignToYZFromBack();
 
     void saveImage(QString fileName);
 
@@ -173,6 +176,10 @@ private:
     bool sliceXY;
     bool sliceXZ;
     bool sliceYZ;
+
+    GLuint m_uXYBorder;
+    GLuint m_uXZBorder;
+    GLuint m_uYZBorder;
 
     GLuint textureXY;
     GLuint textureXZ;
