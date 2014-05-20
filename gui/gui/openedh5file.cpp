@@ -7,7 +7,7 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     QObject(parent)
 {
     // Open HDF5 file
-    file = new HDF5File(fileName.toStdString());
+    file = new HDF5File(fileName.toStdString(), HDF5File::OPEN);
 
     selectedObject = NULL;
 

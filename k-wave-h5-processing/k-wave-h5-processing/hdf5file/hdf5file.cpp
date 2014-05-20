@@ -2,6 +2,9 @@
 #include "HDF5Dataset.h"
 #include "HDF5Group.h"
 
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 const H5std_string HDF5File::NT("Nt");
@@ -12,7 +15,7 @@ hsize_t HDF5File::ZERO_CHUNK[3];
 
 std::mutex HDF5File::mutex;
 
-HDF5File::HDF5File(std::string filename, unsigned int flag)
+HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 {
     this->filename = filename;
     // Try block to detect exceptions raised by any of the calls inside it
@@ -21,6 +24,17 @@ HDF5File::HDF5File(std::string filename, unsigned int flag)
         H5::FileAccPropList access_plist = H5::FileAccPropList::DEFAULT;
         H5::FileCreatPropList create_plist = H5::FileCreatPropList::DEFAULT;
         //access_plist.setSieveBufSize(1024 * 1024 * 4);
+        //access_plist.setCache(0, 1048576 * 4, 1048576 * 16, 0.75);
+        //access_plist.setCache(0, 1048576 / 4, 1048576, 0.75);
+        access_plist.setCache(0, 1048576, 64 * 64 * 64 * 32 * 8 * 2, 0.75);
+        //access_plist.setCache(0, 0, 0, 0.75);
+
+        // Create log file
+        if (log) {
+            //std::srand((unsigned int) time(NULL));
+            logFileStream.open(filename + "_" + std::to_string(time(NULL)) + ".log");
+            logFileStream << filename << std::endl;
+        }
 
         if (flag == HDF5File::OPEN) {
             std::cout << "Opening file \"" << filename << "\"";
@@ -37,6 +51,13 @@ HDF5File::HDF5File(std::string filename, unsigned int flag)
             std::cout << "rdcc_nelmts: " << rdcc_nelmts << std::endl;
             std::cout << "rdcc_nbytes: " << rdcc_nbytes << std::endl;
             std::cout << "rdcc_w0: " << rdcc_w0 << std::endl;
+
+            if (log) {
+                logFileStream << "mdc_nelmts: " << mdc_nelmts << std::endl;
+                logFileStream << "rdcc_nelmts: " << rdcc_nelmts << std::endl;
+                logFileStream << "rdcc_nbytes: " << rdcc_nbytes << std::endl;
+                logFileStream << "rdcc_w0: " << rdcc_w0 << std::endl;
+            }
 
             insertDataset(HDF5File::NT);
             insertDataset(HDF5File::NX);
@@ -101,10 +122,16 @@ HDF5File::~HDF5File()
     for (std::map<const H5std_string, HDF5Group *>::iterator it = groups.begin(); it != groups.end(); ++it) {
         delete it->second;
     }
+    logFileStream.close();
     std::cout << "Closing file \"" << filename << "\"";
     file.close();
     std::cout << " ... OK" << std::endl;
 
+}
+
+std::ofstream *HDF5File::getLogFileStream()
+{
+    return &logFileStream;
 }
 
 void HDF5File::insertDataset(const H5std_string datasetName)
@@ -114,7 +141,7 @@ void HDF5File::insertDataset(const H5std_string datasetName)
         //mutex.lock();
         H5::DataSet d = file.openDataSet(datasetName);
         //mutex.unlock();
-        HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName);
+        HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName, this);
         std::cout << " ... OK" << std::endl;
         datasets.insert(std::pair<const H5std_string, HDF5Dataset *>(datasetName, hDF5Dataset));
     } catch(H5::FileIException error) {
@@ -132,7 +159,7 @@ void HDF5File::insertGroup(const H5std_string groupName)
         //mutex.lock();
         H5::Group g = file.openGroup(groupName);
         //mutex.unlock();
-        HDF5Group *hDF5Group = new HDF5Group(g, groupName);
+        HDF5Group *hDF5Group = new HDF5Group(g, groupName, this);
         std::cout << " ... OK" << std::endl;
         groups.insert(std::pair<const H5std_string, HDF5Group *>(groupName, hDF5Group));
     } catch(H5::FileIException error) {

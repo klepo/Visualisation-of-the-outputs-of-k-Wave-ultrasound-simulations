@@ -148,8 +148,8 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
                 checkBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
                 gridLayout->addWidget(radioButton, i, 0);
-                gridLayout->addWidget(checkBox, i, 1);
-                gridLayout->addWidget(comboBox, i, 2);
+                //gridLayout->addWidget(checkBox, i, 1);
+                gridLayout->addWidget(comboBox, i, 1);
 
                 i++;
 
@@ -204,6 +204,9 @@ void MainWindow::clearGUI()
     ui->comboBoxColormap->setCurrentIndex(cv::COLORMAP_JET);
 
     play = false;
+
+    ui->actionFillSpace->setEnabled(false);
+    ui->actionFillSpace->setChecked(false);
 
     ui->dockWidgetSelectedDataset->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
@@ -369,6 +372,14 @@ void MainWindow::selectDataset()
         ui->dockWidgetXZ->setEnabled(true);
         ui->dockWidgetYZ->setEnabled(true);
 
+        if (subobject->getGroup() != NULL) {
+            ui->groupBoxSelectedDatasetTMSeries->setEnabled(true);
+            ui->actionFillSpace->setEnabled(true);
+        } else {
+            ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
+            ui->actionFillSpace->setEnabled(false);
+        }
+
         if (gWindow != NULL) {
             gWindow->changeMinValue(subobject->getMinVG());
             gWindow->changeMaxValue(subobject->getMaxVG());
@@ -383,12 +394,24 @@ void MainWindow::selectDataset()
             }
         }
 
-        if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
+        /*if (subobject->getSize()[0] > 600 || subobject->getSize()[1] > 600 || subobject->getSize()[2] > 600) {
+            ui->actionVolumeRendering->setEnabled(false);
+            ui->actionVolumeRendering->setChecked(false);
+            ui->groupBoxVolumeRendering->setEnabled(false);
+            qDebug() << "Dataset is too big for Volume Rendering (> 600).";
+            QMessageBox messageBox;
+            messageBox.information(0, "Info", "Dataset is too big for Volume Rendering (> 600).");
+        } else */if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
+            ui->actionVolumeRendering->setEnabled(true);
+            ui->groupBoxVolumeRendering->setEnabled(true);
             //ui->progressBar3D->setValue(0);
             //ui->progressBar3D->setVisible(true);
             //if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
             gWindow->load3DTexture(subobject->getDataset());
+        } else {
+            ui->actionVolumeRendering->setEnabled(true);
+            ui->groupBoxVolumeRendering->setEnabled(true);
         }
 
         subobject->setGUIInitialized(true);
@@ -958,4 +981,18 @@ void MainWindow::on_actionFillSpace_toggled(bool value)
             gWindow->renderLater();
         }
     }
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+   QTextEdit* help = new QTextEdit();
+   help->setWindowFlags(Qt::Window); //or Qt::Tool, Qt::Dialog if you like
+   help->setReadOnly(true);
+   help->setWindowModality(Qt::ApplicationModal);
+   help->setFixedSize(400, 200);
+   QFile file(":/html/help.html");
+   file.open(QIODevice::ReadOnly);
+   QByteArray dump = file.readAll();
+   help->setHtml(dump);
+   help->show();
 }

@@ -20,7 +20,7 @@ const std::string NX_DATASET("Nx");
 const std::string NY_DATASET("Ny");
 const std::string NZ_DATASET("Nz");
 
-#define MAX_SIZE 256
+#define MAX_SIZE 512
 #define MAX_CHUNK_SIZE 64
 
 #define MAX_NUMBER_OF_FRAMES 0 // TODO
@@ -915,7 +915,11 @@ int main(int argc, char **argv)
                 for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsGroupType.begin(); it != datasetsGroupType.end(); ++it) {
                     HDF5File::HDF5Group *srcGroup = it->second;
                     hsize_t count = srcGroup->getNumObjs();
-                    hDF5OutputFile->createGroup(srcGroup->getName());
+                    try {
+                        hDF5OutputFile->createGroup(srcGroup->getName());
+                    } catch(std::exception &) {
+
+                    }
                     HDF5File::HDF5Group *dstGroup = hDF5OutputFile->openGroup(srcGroup->getName());
                     // Copy attributes
                     for (int i = 0; i < srcGroup->getNumAttrs(); i++) {
@@ -935,7 +939,11 @@ int main(int argc, char **argv)
                 for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsGroupTypeDwnsmpl.begin(); it != datasetsGroupTypeDwnsmpl.end(); ++it) {
                     HDF5File::HDF5Group *srcGroup = it->second;
                     hsize_t count = srcGroup->getNumObjs();
-                    hDF5OutputFile->createGroup(srcGroup->getName(), true);
+                    try {
+                        hDF5OutputFile->createGroup(srcGroup->getName());
+                    } catch(std::exception &) {
+
+                    }
                     HDF5File::HDF5Group *dstGroup = hDF5OutputFile->openGroup(srcGroup->getName());
                     // Copy attributes
                     for (int i = 0; i < srcGroup->getNumAttrs(); i++) {

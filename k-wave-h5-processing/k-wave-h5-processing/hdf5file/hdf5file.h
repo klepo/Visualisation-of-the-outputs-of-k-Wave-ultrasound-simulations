@@ -6,6 +6,7 @@
 #include <stdint.h> // int64_t
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <map>
 
 #ifdef __unix
@@ -17,7 +18,7 @@
 class HDF5File
 {
 public:
-    HDF5File(std::string filename, unsigned int flag = HDF5File::OPEN);
+    HDF5File(std::string filename, unsigned int flag = HDF5File::OPEN, bool log = false);
     ~HDF5File();
 
     class HDF5Dataset;
@@ -63,12 +64,16 @@ public:
     uint64_t getNY();
     uint64_t getNZ();
 
+    std::ofstream *getLogFileStream();
+
 protected:
     uint64_t nT;
     uint64_t nX;
     uint64_t nY;
     uint64_t nZ;
     H5std_string filename;
+
+    std::ofstream logFileStream;
 
     static std::mutex mutex;
 

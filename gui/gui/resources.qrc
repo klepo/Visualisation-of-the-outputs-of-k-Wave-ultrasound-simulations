@@ -54,4 +54,7 @@
         <file>fragmentShader.frag</file>
         <file>vertexShader.vert</file>
     </qresource>
+    <qresource prefix="/html">
+        <file>help.html</file>
+    </qresource>
 </RCC>

@@ -113,7 +113,7 @@ void HDF5ReadingThread::run()
 {
     //stopFlag = false;
     while (1) {
-        //QMutexLocker lock(&mutex);
+        QMutexLocker lock(&mutex);
         Request *r = NULL;
         queueMutex.lock();
         if (!queue.isEmpty())

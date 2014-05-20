@@ -6,7 +6,7 @@
 class HDF5File::HDF5Dataset : public HDF5File::HDF5Object
 {
 public:
-    HDF5Dataset(H5::DataSet dataset, H5std_string name);
+    HDF5Dataset(H5::DataSet dataset, H5std_string name, HDF5File *hDF5File);
     ~HDF5Dataset();
 
     void readFullDataset(float *&data);

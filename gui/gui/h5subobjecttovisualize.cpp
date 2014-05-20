@@ -235,6 +235,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         chunkSize[0] = sizeD[0];
         chunkSize[1] = sizeD[1];
         chunkSize[2] = sizeD[2];
+        dataset->findAndSetGlobalMinAndMaxValue();
         minVG =  dataset->getGlobalMinValueF();
         maxVG =  dataset->getGlobalMaxValueF();
         originalMinVG =  dataset->getGlobalMinValueF();
@@ -614,6 +615,9 @@ void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value, HDF5Re
 {
     if (type == OpenedH5File::GROUP_TYPE) {
         try {
+            thread3D->clearRequests();
+            thread3D->wait();
+
             threadXY->clearRequests();
             threadXY->wait();
 
@@ -622,9 +626,6 @@ void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value, HDF5Re
 
             threadYZ->clearRequests();
             threadYZ->wait();
-
-            thread3D->clearRequests();
-            thread3D->wait();
 
             openedH5File->file->closeDataset(this->dataset->getName());
             this->dataset = openedH5File->file->openDataset(name.toStdString() + "/" + std::to_string(value));

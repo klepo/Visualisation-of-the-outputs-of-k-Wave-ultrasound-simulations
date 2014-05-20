@@ -1,6 +1,7 @@
 #include "HDF5Group.h"
 
-HDF5File::HDF5Group::HDF5Group(H5::Group group, std::string name) : HDF5Object(&group) {
+HDF5File::HDF5Group::HDF5Group(H5::Group group, std::string name, HDF5File *hDF5File) : HDF5Object(&group) {
+    this->hDF5File = hDF5File;
     this->group = group;
     object = &this->group;
     this->name = name;

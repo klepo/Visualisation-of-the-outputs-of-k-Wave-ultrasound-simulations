@@ -15,6 +15,7 @@
 #include <QFileDialog>
 #include <QTime>
 #include <QMouseEvent>
+#include <QMessageBox>
 
 #include <HDF5File.h>
 #include <HDF5Group.h>
@@ -101,29 +102,43 @@ float round(float f,float pres)
     return (float) (floor(f*(1.0f/pres) + 0.5)/(1.0f/pres));
 }
 
-void checkGlError()
+GLenum checkGlError()
 {
     GLenum err;
+    GLenum ret = GL_NO_ERROR;
     while ((err = glGetError()) != GL_NO_ERROR) {
-        if (err == GL_INVALID_ENUM)
+        ret = err;
+        QMessageBox messageBox;
+        if (err == GL_INVALID_ENUM) {
             qWarning() << "OpenGL error: GL_INVALID_ENUM " << err;
-        else if (err == GL_INVALID_VALUE)
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_ENUM") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_INVALID_VALUE) {
             qWarning() << "OpenGL error: GL_INVALID_VALUE " << err;
-        else if (err == GL_INVALID_OPERATION)
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_VALUE") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_INVALID_OPERATION) {
             qWarning() << "OpenGL error: GL_INVALID_OPERATION " << err;
-        else if (err == GL_STACK_OVERFLOW)
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_OPERATION") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_STACK_OVERFLOW) {
             qWarning() << "OpenGL error: GL_STACK_OVERFLOW " << err;
-        else if (err == GL_STACK_UNDERFLOW)
+            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_OVERFLOW") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_STACK_UNDERFLOW) {
             qWarning() << "OpenGL error: GL_STACK_UNDERFLOW " << err;
-        else if (err == GL_OUT_OF_MEMORY)
+            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_UNDERFLOW") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_OUT_OF_MEMORY) {
             qWarning() << "OpenGL error: GL_OUT_OF_MEMORY " << err;
-        else if (err == GL_TABLE_TOO_LARGE)
+            messageBox.critical(0, "OpenGL error", (QString("GL_OUT_OF_MEMORY") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_TABLE_TOO_LARGE) {
             qWarning() << "OpenGL error: GL_TABLE_TOO_LARGE " << err;
-        else if (err == GL_INVALID_FRAMEBUFFER_OPERATION)
+            messageBox.critical(0, "OpenGL error", (QString("GL_TABLE_TOO_LARGE") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_INVALID_FRAMEBUFFER_OPERATION) {
             qWarning() << "OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION " << err;
-        else
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_FRAMEBUFFER_OPERATION") + QString::number(err)).toStdString().c_str());
+        } else {
             qWarning() << "OpenGL error: " << err;
+            messageBox.critical(0, "OpenGL error", QString::number(err).toStdString().c_str());
+        }
     }
+    return ret;
 }
 
 GWindow::GWindow()
@@ -402,15 +417,17 @@ void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int pos
 
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 {
-    if (selectedDataset == dataset)
+    if (datasetName == dataset->getName()) {
+        emit loaded(datasetName);
         return;
+    }
 
-    thread->clearRequests();
-    thread->wait();
+    //thread->clearRequests();
+    //thread->wait();
     //thread->clearDoneRequests();
 
     datasetName = dataset->getName();
-    selectedDataset = dataset;
+    //selectedDataset = dataset;
 
     texture3DInitialized = false;
 
@@ -423,7 +440,13 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 
-    thread->createRequest(selectedDataset);
+    // Check OUT_OF_MEMORY, dataset is too big
+    if (checkGlError() != GL_NO_ERROR) {
+        emit loaded(datasetName);
+        return;
+    }
+
+    thread->createRequest(dataset);
     thread->start();
 }
 
@@ -475,6 +498,8 @@ void GWindow::setLoaded(Request *r)
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage3D(GL_TEXTURE_3D, 0, r->xO, r->yO, r->zO, r->xC, r->yC, r->zC, GL_RED, GL_FLOAT, r->data);
+
+    //if (checkGlError() != GL_NO_ERROR) return;
 
     if (r->zO + r->zC == imageDepth) {
         //thread->deleteLater();

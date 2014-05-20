@@ -106,6 +106,8 @@ private slots:
 
     void on_actionFillSpace_toggled(bool arg1);
 
+    void on_actionAbout_triggered();
+
 public:
     Ui::MainWindow *ui;
 

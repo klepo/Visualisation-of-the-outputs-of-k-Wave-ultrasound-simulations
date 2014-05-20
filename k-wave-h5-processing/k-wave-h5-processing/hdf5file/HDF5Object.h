@@ -34,6 +34,8 @@ public:
 
 protected:
     H5::H5Object *object;
+
+    HDF5File *hDF5File;
 };
 
 #endif // HDF5OBJECT_H

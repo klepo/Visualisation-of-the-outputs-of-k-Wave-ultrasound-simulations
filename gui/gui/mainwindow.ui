@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1117</width>
-    <height>683</height>
+    <width>1007</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,7 +53,7 @@
      <widget class="QDockWidget" name="dockWidget3D">
       <property name="minimumSize">
        <size>
-        <width>244</width>
+        <width>200</width>
         <height>200</height>
        </size>
       </property>
@@ -152,7 +152,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1117</width>
+     <width>1007</width>
      <height>21</height>
     </rect>
    </property>
@@ -169,6 +169,7 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -977,7 +978,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Step Increment:</string>
+               <string>Step increment:</string>
               </property>
              </widget>
             </item>
@@ -1346,7 +1347,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>155</height>
+          <height>120</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1468,7 +1469,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>156</height>
+          <height>117</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1617,7 +1618,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>155</height>
+          <height>120</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -2008,6 +2009,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>Fill 3D space</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About k-Wave visualiser</string>
    </property>
   </action>
  </widget>

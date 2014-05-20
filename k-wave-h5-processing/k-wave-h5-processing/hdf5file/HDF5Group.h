@@ -6,7 +6,7 @@
 class HDF5File::HDF5Group : public HDF5File::HDF5Object
 {
 public:
-    HDF5Group(H5::Group group, H5std_string name);
+    HDF5Group(H5::Group group, H5std_string name, HDF5File *hDF5File);
     ~HDF5Group();
 
     hsize_t getId();
