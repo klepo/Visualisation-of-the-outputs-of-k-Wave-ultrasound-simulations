@@ -6,13 +6,16 @@
 #include <QTimer>
 #include <QThread>
 
+#include <QOpenGLFunctions_3_1>
+
+
 QT_BEGIN_NAMESPACE
 class QPainter;
 class QOpenGLContext;
 class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
-class OpenGLWindow : public QWindow, public QOpenGLFunctions
+class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_1
 {
     Q_OBJECT
 

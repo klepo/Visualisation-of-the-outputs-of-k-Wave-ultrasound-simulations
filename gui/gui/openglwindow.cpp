@@ -6,7 +6,7 @@
 #include <QtGui/QPainter>
 #include <QMouseEvent>
 #include <QTimer>
-#include <qDebug>
+#include <QDebug>
 #include <QThread>
 #include <QTime>
 

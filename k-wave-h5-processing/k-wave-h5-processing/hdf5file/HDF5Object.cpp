@@ -21,7 +21,13 @@ int HDF5File::HDF5Object::getNumAttrs()
 
 bool HDF5File::HDF5Object::hasAttribute(H5std_string name)
 {
-    return object->attrExists(name);
+    //return ((H5::H5Location *) object)->attrExists(name);
+    try {
+        object->openAttribute(name);
+        return true;
+    } catch(H5::Exception) {
+        return false;
+    }
 }
 
 HDF5File::HDF5Object::HDF5Attribute *HDF5File::HDF5Object::getAttribute(H5std_string name)

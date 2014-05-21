@@ -1,8 +1,6 @@
 #include "gwindow.h"
 #include "hdf5readingthread.h"
 
-//#include <QOpenGLFunctions_3_3_Compatibility>
-
 #include <QtGui/QGuiApplication>
 #include <QtGui/QMatrix4x4>
 #include <QtGui/QOpenGLShaderProgram>
@@ -435,8 +433,8 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
     imageHeight = dataset->getDims()[1];
     imageDepth = dataset->getDims()[0];*/
 
-    PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
-    glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
+    //PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
+    //glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 
@@ -452,8 +450,8 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 
 void GWindow::unload3DTexture()
 {
-    PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
-    glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
+    //PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
+    //glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 }
@@ -492,8 +490,8 @@ void GWindow::setLoaded(Request *r)
 {
     //textureMutex.lock();
     texture3DInitialized = false;
-    PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D = NULL;
-    glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) wglGetProcAddress("glTexSubImage3D");
+    //PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D = NULL;
+    //glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) wglGetProcAddress("glTexSubImage3D");
 
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -831,10 +829,10 @@ void GWindow::render()
         //textureMutex.unlock();
 
         // Recompute alpha and set alpha + colors
-        m_program->setUniformValue(m_uAlpha, 1.0f - pow(1.0f - alpha, 5.0f / (float) actualCount));
-        m_program->setUniformValue(m_uRed, 1.0f - pow(1.0f - red, 5.0f / (float) actualCount));
-        m_program->setUniformValue(m_uGreen, 1.0f - pow(1.0f - green, 5.0f / (float) actualCount));
-        m_program->setUniformValue(m_uBlue, 1.0f - pow(1.0f - blue, 5.0f / (float) actualCount));
+        m_program->setUniformValue(m_uAlpha, (GLfloat) (1.0f - pow(1.0f - alpha, 5.0f / (float) actualCount)));
+        m_program->setUniformValue(m_uRed, (GLfloat) (1.0f - pow(1.0f - red, 5.0f / (float) actualCount)));
+        m_program->setUniformValue(m_uGreen, (GLfloat) (1.0f - pow(1.0f - green, 5.0f / (float) actualCount)));
+        m_program->setUniformValue(m_uBlue, (GLfloat) (1.0f - pow(1.0f - blue, 5.0f / (float) actualCount)));
 
         //m_program->setUniformValue(m_uRed, red);
         //m_program->setUniformValue(m_uGreen, green);

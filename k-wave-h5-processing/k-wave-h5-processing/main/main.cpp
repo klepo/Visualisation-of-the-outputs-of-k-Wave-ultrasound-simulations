@@ -82,7 +82,7 @@ std::string help = "\n"
         "  -ch chunkSize ........................ Optional parameter. Size for new chunks from 1 to\n"
         "                                         maximal appropriately value.\n"
         "\n"
-        "  -names name1;name2;... ............... Optional parameter. Names of selected datasets or\n"
+        "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
         "                                         groups for processing.\n"
         "\n"
         "  -help ................................ Prints this help message.\n"
@@ -581,9 +581,9 @@ int main(int argc, char **argv)
 
                     do {
                         if (sensorMaskIndexDataset->isLastBlock()) {
-                            if (MAX_NUMBER_OF_FRAMES > 0) // TODO
+                            /*if (MAX_NUMBER_OF_FRAMES > 0) // TODO
                                 if (yDO + 1 >= MAX_NUMBER_OF_FRAMES)
-                                    break;
+                                    break;*/
 
                             sensorMaskIndexDataset->initBlockReading();
                             actualDataset->findAndSetGlobalMinAndMaxValue();
@@ -728,8 +728,8 @@ int main(int argc, char **argv)
                     HDF5File::HDF5Dataset *dstDatasetFinal = hDF5OutputFile->openDataset(srcDataset->getName() + "_" + std::to_string(maxSize));
 
                     //float *srcData;
-                    float minV, maxV;
-                    float minVG, maxVG;
+                    float minV = 0, maxV = 0;
+                    float minVG = 0, maxVG = 0;
 
                     for (unsigned int z = 0; z < nZ; z++) {
                         float *srcData;
@@ -861,9 +861,9 @@ int main(int argc, char **argv)
                     hsize_t newSizeZ = (hsize_t) floor((double) (srcGroup->readAttributeI("sizeZ") + 1) * ratio + 0.5) - 1;
                     hsize_t newSizeY = (hsize_t) floor((double) (srcGroup->readAttributeI("sizeY") + 1) * ratio + 0.5) - 1;
                     hsize_t newSizeX = (hsize_t) floor((double) (srcGroup->readAttributeI("sizeX") + 1) * ratio + 0.5) - 1;
-                    if (newPositionZ < 0) newPositionZ = 0;
-                    if (newPositionY < 0) newPositionY = 0;
-                    if (newPositionX < 0) newPositionX = 0;
+                    //if (newPositionZ < 0) newPositionZ = 0;
+                    //if (newPositionY < 0) newPositionY = 0;
+                    //if (newPositionX < 0) newPositionX = 0;
                     if (newSizeZ < 1) newSizeZ = 1;
                     if (newSizeY < 1) newSizeY = 1;
                     if (newSizeX < 1) newSizeX = 1;
