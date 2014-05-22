@@ -241,7 +241,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         originalMinVG =  dataset->getGlobalMinValueF();
         originalMaxVG =  dataset->getGlobalMaxValueF();
         steps = 1;
-    } else if (type = OpenedH5File::GROUP_TYPE &&  group != NULL &&  dataset != NULL) {
+    } else if (type == OpenedH5File::GROUP_TYPE && group != NULL && dataset != NULL) {
         if (group->hasAttribute("dwnsmpl")) {
             dwnsmpl =  group->readAttributeI("dwnsmpl");
         } else {
@@ -825,7 +825,7 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
         if (size[2] != originalSize[2] || size[1] != originalSize[1] || size[0] != originalSize[0])
             info.append(QPair<QString, QString>("Downsampling size", QString::number(size[0]) + " x " + QString::number(size[1]) + " x " + QString::number(size[2])));
         info.append(QPair<QString, QString>("Chunk size", QString::number(chunkSize[0]) + " x " + QString::number(chunkSize[1]) + " x " + QString::number(chunkSize[2])));
-    } else if (type = OpenedH5File::GROUP_TYPE && group != NULL && dataset != NULL) {
+    } else if (type == OpenedH5File::GROUP_TYPE && group != NULL && dataset != NULL) {
         info.append(QPair<QString, QString>("Name", name));
         info.append(QPair<QString, QString>("Type", "Mask type dataset group"));
         info.append(QPair<QString, QString>("Size", QString::number(originalSize[0]) + " x " + QString::number(originalSize[1]) + " x " + QString::number(originalSize[2])));

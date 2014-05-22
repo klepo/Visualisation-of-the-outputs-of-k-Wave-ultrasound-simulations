@@ -141,14 +141,15 @@ GLenum checkGlError()
 
 GWindow::GWindow()
     : m_program(0)
-    , trim(0)
     , frame(true)
+    , trim(0)
     , texture3DInitialized(false)
     , volumeRendering(false)
     , sliceXY(false)
     , sliceXZ(false)
     , sliceYZ(false)
     , initialized(false)
+
 {
     xYIndex = 0;
     xZIndex = 0;

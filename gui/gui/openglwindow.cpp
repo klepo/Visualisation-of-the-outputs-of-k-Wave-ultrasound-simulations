@@ -12,13 +12,13 @@
 
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
-    , m_context(0)
-    , m_device(0)
-    , m_update_pending(false)
     , mouseDown(false)
     , leftButton(false)
     , rightButton(false)
     , wheelDelta(0)
+    , m_context(0)
+    , m_device(0)
+    , m_update_pending(false)
 {
     //setOpacity(0.5);
     setSurfaceType(QWindow::OpenGLSurface);
