@@ -2,7 +2,7 @@
 #define OPENGLWINDOW_H
 
 #include <QtGui/QWindow>
-#include <QtGui/QOpenGLFunctions>
+//#include <QtGui/QOpenGLFunctions>
 #include <QTimer>
 #include <QThread>
 

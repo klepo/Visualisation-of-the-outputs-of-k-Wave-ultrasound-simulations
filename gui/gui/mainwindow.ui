@@ -1347,7 +1347,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>120</height>
+          <height>119</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1469,7 +1469,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>117</height>
+          <height>119</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1618,7 +1618,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>120</height>
+          <height>119</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1711,10 +1711,10 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/icons/icons/images/icons_01.png</normaloff>:/icons/icons/images/icons_01.png</iconset>
    </property>
    <property name="text">
-    <string>Load output HDF5 file </string>
+    <string>Open HDF5 simulation file</string>
    </property>
    <property name="toolTip">
-    <string>Load output HDF5 file</string>
+    <string>Open HDF5 simulation file</string>
    </property>
   </action>
   <action name="actionCloseHDF5File">
