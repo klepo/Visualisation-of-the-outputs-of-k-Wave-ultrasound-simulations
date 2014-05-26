@@ -8,6 +8,7 @@
 #include <map>
 #include <math.h>
 #include <time.h>
+#include <list>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -556,8 +557,8 @@ int main(int argc, char **argv)
                     uint64_t *sensorMaskData;
                     float *datasetData;
                     uint64_t minVI, maxVI;
-                    float minVF, maxVF;
-                    float minVFG, maxVFG;
+                    float minVF = 0, maxVF = 0;
+                    float minVFG = 0, maxVFG = 0;
                     bool first = true;
                     hsize_t xO, yMO, yDO, zO, xC, yC, zC;
 

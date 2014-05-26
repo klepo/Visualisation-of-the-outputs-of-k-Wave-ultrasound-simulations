@@ -103,8 +103,10 @@ MainWindow::~MainWindow()
     on_actionCloseHDF5File_triggered();
     delete ui;
     delete timer;
-    if (gWindow != NULL)
+    if (gWindow != NULL) {
         delete gWindow;
+        gWindow = NULL;
+    }
 }
 
 void MainWindow::on_actionLoadOutputHDF5File_triggered()

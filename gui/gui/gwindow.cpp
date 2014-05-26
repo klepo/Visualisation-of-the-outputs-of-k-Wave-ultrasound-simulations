@@ -199,7 +199,7 @@ GWindow::~GWindow()
     //thread->clearDoneRequests();
     //QMetaObject::invokeMethod(thread, "stop");
     thread->wait();
-    thread->deleteLater();
+    //thread->deleteLater();
     //thread->deleteLater();
 }
 
