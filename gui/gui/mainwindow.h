@@ -1,5 +1,5 @@
 /*
- * @file        mainwindow.cpp
+ * @file        mainwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
  * @date        30 July 2014
