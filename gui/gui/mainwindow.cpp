@@ -1,9 +1,24 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The implementation file containing the MainWindow class.
+ *              Main window of application.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "cvimagewidget.h"
 #include "hdf5readingthread.h"
 #include "gwindow.h"
-
 #include "ui_dialog.h"
 
 #include <HDF5File.h>
@@ -24,51 +39,60 @@
 #include <QSignalMapper>
 #include <QMessageBox>
 
+/**
+ * @brief MainWindow::MainWindow
+ * @param parent
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , file(0)
+    , object(0)
+    , subobject(0)
+    , openedH5File(0)
+    , gWindow(0)
 {
     ui->setupUi(this);
 
-    file = NULL;
-
-    object = NULL;
-    subobject = NULL;
-
-    openedH5File = NULL;
-
-    windowTitle = "k-Wave HDF5 visualizer";
-
+    // Create timer for animation of data series and connect it
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
 
-    // OpenGL window initialize
-    gWindow = NULL;
+    // Create OpenGL window
     gWindow = new GWindow();
 
+    // Widget from QWindow
     QWidget *widget3D = createWindowContainer(gWindow);
     widget3D->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QVBoxLayout *l = (QVBoxLayout *) ui->dockWidgetContents3D->layout();
     l->insertWidget(0, widget3D);
 
+    // Connect signals from gWindow
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
     connect(gWindow, SIGNAL(loaded(std::string)), this, SLOT(loaded3D(std::string)));
 
+    // Connect signals to gWindow
+    // Enable/disable VR
     connect(ui->actionVolumeRendering, SIGNAL(toggled(bool)), gWindow, SLOT(setViewVR(bool)));
 
+    // Show/hide 3D slices
     connect(ui->action3DXY, SIGNAL(toggled(bool)), gWindow, SLOT(setViewXYSlice(bool)));
     connect(ui->action3DXZ, SIGNAL(toggled(bool)), gWindow, SLOT(setViewXZSlice(bool)));
     connect(ui->action3DYZ, SIGNAL(toggled(bool)), gWindow, SLOT(setViewYZSlice(bool)));
 
+    // Change VR slices count
     connect(ui->horizontalSliderVRSlices, SIGNAL(valueChanged(int)), gWindow, SLOT(setSlicesCount(int)));
 
+    // Show/hide 3D frame
     connect(ui->actionViewFrame, SIGNAL(toggled(bool)), gWindow, SLOT(setViewFrame(bool)));
 
+    // VR colors and alpha settings
     connect(ui->horizontalSliderVRAlpha, SIGNAL(valueChanged(int)), gWindow, SLOT(setAlpha(int)));
     connect(ui->horizontalSliderVRRed, SIGNAL(valueChanged(int)), gWindow, SLOT(setRed(int)));
     connect(ui->horizontalSliderVRGreen, SIGNAL(valueChanged(int)), gWindow, SLOT(setGreen(int)));
     connect(ui->horizontalSliderVRBlue, SIGNAL(valueChanged(int)), gWindow, SLOT(setBlue(int)));
 
+    // Align to basic views
     connect(ui->actionAlignToXY, SIGNAL(triggered()), gWindow, SLOT(alignToXY()));
     connect(ui->actionAlignToXZ, SIGNAL(triggered()), gWindow, SLOT(alignToXZ()));
     connect(ui->actionAlignToYZ, SIGNAL(triggered()), gWindow, SLOT(alignToYZ()));
@@ -76,21 +100,26 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAlignToXZFromBack, SIGNAL(triggered()), gWindow, SLOT(alignToXZFromBack()));
     connect(ui->actionAlignToYZFromBack, SIGNAL(triggered()), gWindow, SLOT(alignToYZFromBack()));
 
+    // Enable/disable trim of values
     connect(ui->checkBoxTrim, SIGNAL(toggled(bool)), gWindow, SLOT(setTrim(bool)));
 
-    //ui->progressBar3D->setVisible(false);
-
+    // Create loading animation
     movie = new QMovie(":/icons/icons/loading.gif");
     movie->setCacheMode(QMovie::CacheAll);
     movie->start();
+
+    // Init visibility of loading
     ui->labelXYLoading->setVisible(false);
     ui->labelXZLoading->setVisible(false);
     ui->labelYZLoading->setVisible(false);
     ui->labelXYLoading->setMovie(movie);
     ui->labelXZLoading->setMovie(movie);
     ui->labelYZLoading->setMovie(movie);
+
+    // Clear GUI
     clearGUI();
 
+    // Create dialog to wait for the file is closed
     dialog = new QDialog(this, Qt::CustomizeWindowHint);
     //dialog->setModal(true);
     Ui::Dialog *dialogUi = new Ui::Dialog;
@@ -98,79 +127,93 @@ MainWindow::MainWindow(QWidget *parent)
     dialogUi->label->setText("Waiting for completion of reading the file...");
 }
 
+/**
+ * @brief MainWindow::~MainWindow
+ */
 MainWindow::~MainWindow()
 {
+    // Close file
     on_actionCloseHDF5File_triggered();
-    delete ui;
+
     delete timer;
-    if (gWindow != NULL) {
-        delete gWindow;
-        gWindow = NULL;
-    }
+    delete ui;
+    delete gWindow;
 }
 
-void MainWindow::on_actionLoadOutputHDF5File_triggered()
+/**
+ * @brief MainWindow::on_actionLoadHDF5File_triggered Action on load HDF5 file
+ */
+void MainWindow::on_actionLoadHDF5File_triggered()
 {
+    // Create a dialog for opening a file
     QString fileName = QFileDialog::getOpenFileName(this, "Open File", "", "HDF5 Files (*.h5)");
 
     if (fileName != "") {
-
+        // Close file
         on_actionCloseHDF5File_triggered();
 
         try {
+            // Create OpenedH5File
             openedH5File = new OpenedH5File(fileName);
 
-            // Set info to GUI
+            // Set info from HDF5 file to GUI (dock panel)
             ui->textBrowserInfo->clear();
             foreach (QString key, openedH5File->getInfo().keys())
                 ui->textBrowserInfo->append("<strong>" + key + "</strong><br>" + openedH5File->getInfo().value(key) + "<br>");
             QScrollBar *v = ui->textBrowserInfo->verticalScrollBar();
+            // Scroll up
             v->setValue(v->minimum());
 
-            setWindowTitle(windowTitle + " - " + openedH5File->getFilename());
+            // Change the name of the window by file name
+            setWindowTitle(QCoreApplication::applicationName() + " - " + openedH5File->getFilename());
 
-            // Clear datasets GUI
+            // Clear list of datasets (dock panel)
             clearLayout(ui->gridLayoutDatasets);
 
             int i = 0;
+            // Load objects to visualize from file
             foreach (QString key, openedH5File->getObjects().keys()) {
                 //qDebug() << key;
-
+                // Get GUI pointers
+                // Layout
                 QGridLayout *gridLayout = ui->gridLayoutDatasets;
-
                 QRadioButton *radioButton = new QRadioButton(key);
-                QCheckBox *checkBox = new QCheckBox();
-                checkBox->setAccessibleName(key);
+                // TODO
+                //QCheckBox *checkBox = new QCheckBox();
+                //checkBox->setAccessibleName(key);
+                // ComboBox for all resolutions of the dataset
                 QComboBox *comboBox = new QComboBox();
-
+                // Set actions
                 connect(radioButton, SIGNAL(clicked()), this, SLOT(selectDataset()));
-                connect(checkBox, SIGNAL(clicked()), this, SLOT(selectDataset()));
+                //connect(checkBox, SIGNAL(clicked()), this, SLOT(selectDataset()));
 
                 radioButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-                checkBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+                //checkBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
                 gridLayout->addWidget(radioButton, i, 0);
-                //gridLayout->addWidget(checkBox, i, 1);
+                //gridLayout->addWidget(checkBox, i, 1); // TODO multiselected visualization
                 gridLayout->addWidget(comboBox, i, 1);
 
                 i++;
-
+                // Fill ComboBox by all resolutions of the dataset
                 foreach (QString item, openedH5File->getObjects().value(key)->getSubobjectNames()) {
                     //qDebug() << "->" << item;
                     comboBox->addItem(item);
                     comboBox->setCurrentText(item);
                 }
-
+                // Connect change with selection
                 connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectDataset()));
             }
 
             file = openedH5File->getFile();
 
+            // Enable buttons and dock panels
             ui->actionCloseHDF5File->setEnabled(true);
             ui->dockWidgetDatasets->setEnabled(true);
             ui->dockWidgetInfo->setEnabled(true);
 
         } catch (std::exception &e) {
+            // Wrong HDF5 file
             std::cerr << e.what() << std::endl;
             QMessageBox messageBox;
             messageBox.critical(0, "Error", "Wrong HDF5 file!");
@@ -179,13 +222,19 @@ void MainWindow::on_actionLoadOutputHDF5File_triggered()
     }
 }
 
+/**
+ * @brief MainWindow::on_actionCloseHDF5File_triggered Action on close file
+ */
 void MainWindow::on_actionCloseHDF5File_triggered()
 {
+    // Show waiting dialog for closing file
     dialog->show();
     QApplication::processEvents();
 
+    // Clear requets
     clearRequestsAndWaitThreads();
 
+    // Clear pointers
     delete openedH5File;
     openedH5File = NULL;
 
@@ -197,64 +246,64 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     clearGUI();
 }
 
+/**
+ * @brief MainWindow::clearGUI Set GUI to default values
+ */
 void MainWindow::clearGUI()
 {
-    setWindowTitle(windowTitle);
-
+    // Reset title of application
+    setWindowTitle(QCoreApplication::applicationName());
+    // Volume rendering flag
     flagVRLoaded = false;
-
+    // Reset colormap
     ui->comboBoxColormap->setCurrentIndex(cv::COLORMAP_JET);
-
+    // Stop animation
     play = false;
-
+    // Disable fill space of 3D scene by sensor mask
     ui->actionFillSpace->setEnabled(false);
     ui->actionFillSpace->setChecked(false);
-
+    // Disable dock panels
     ui->dockWidgetSelectedDataset->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
     ui->dockWidgetInfo->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
-
+    // Reset sliders and spin boxes
     ui->verticalSliderXY->setValue(0);
     ui->spinBoxXY->setValue(0);
-
     ui->verticalSliderXZ->setValue(0);
     ui->spinBoxXZ->setValue(0);
-
     ui->verticalSliderYZ->setValue(0);
     ui->spinBoxYZ->setValue(0);
-
+    // Disable other settings
     ui->checkBoxUseGlobal->setChecked(true);
     ui->toolButtonLocalValues->setChecked(false);
     ui->actionInfo->setChecked(false);
     ui->dockWidgetInfo->setVisible(false);
-
+    // Clear data from image widgets
     ui->imageWidgetXY->clearImage();
     ui->imageWidgetXZ->clearImage();
     ui->imageWidgetYZ->clearImage();
-
-    // TODO clear 3D scene
+    // Clear 3D scene
     if (gWindow != NULL) {
         gWindow->clearData();
     }
-
     // Clear dataset info
     clearLayout(ui->formLayoutSelectedDatasetInfo);
-
     // Clear datasets
     clearLayout(ui->gridLayoutDatasets);
-
     ui->dockWidgetContentsDatasets->adjustSize();
-
     // Clear info
     ui->textBrowserInfo->clear();
-
+    // Disable closing button
     ui->actionCloseHDF5File->setEnabled(false);
-
 }
 
+/**
+ * @brief MainWindow::clearLayout Delete all items from layout
+ * @param layout
+ */
 void MainWindow::clearLayout(QLayout *layout)
 {
     QLayoutItem* item;
@@ -264,16 +313,21 @@ void MainWindow::clearLayout(QLayout *layout)
     }
 }
 
+/**
+ * @brief MainWindow::clearRequestsAndWaitThreads Clear request in gWindow thread and wait for terminate
+ */
 void MainWindow::clearRequestsAndWaitThreads()
 {
-    if (gWindow != NULL)
-    {
+    if (gWindow != NULL) {
         gWindow->getThread()->clearRequests();
         gWindow->getThread()->wait();
         //gWindow->getThread()->clearDoneRequests();
     }
 }
 
+/**
+ * @brief MainWindow::selectDataset Action on select dataset
+ */
 void MainWindow::selectDataset()
 {
     QString selectedObjectName = "";
@@ -300,31 +354,37 @@ void MainWindow::selectDataset()
         openedH5File->setSelectedSubobject(comboBox->currentText());
     }
 
+    // Clear gWindow requests
     if (gWindow != NULL)
         gWindow->getThread()->clearRequests();
 
+    // Clear images
     ui->imageWidgetXY->clearImage();
     ui->imageWidgetXZ->clearImage();
     ui->imageWidgetYZ->clearImage();
 
+    // Clear data form 3D scene
     if (gWindow != NULL) {
         gWindow->clearData();
     }
 
+    // Reser flags
     flagDatasetInitialized = false;
     flagVRLoaded = false;
 
+    // Disable dock widgets for selected dataset control
     ui->dockWidgetSelectedDataset->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
 
+    // Stop animation
     play = false;
 
     // Clear dataset info
     clearLayout(ui->formLayoutSelectedDatasetInfo);
 
-    // Disconnect all
+    // Disconnect all last subobjects from image loading
     foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
         foreach (OpenedH5File::H5SubobjectToVisualize *subobject, object->getSubobjects()) {
             disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
@@ -336,11 +396,14 @@ void MainWindow::selectDataset()
     object = NULL;
     subobject = NULL;
 
+    // No selected name
     if (selectedObjectName == "")
         return;
 
+    // Set selected name
     selectedSubobjectName = openedH5File->getObject(selectedObjectName)->getSelectedSubobject()->getName();
 
+    // Set object and subobject
     object = openedH5File->getObject(selectedObjectName);
     openedH5File->setSelectedSubobject(selectedSubobjectName);
     if (object != NULL)
@@ -364,32 +427,35 @@ void MainWindow::selectDataset()
         subobject->setXIndex(subobject->getXIndex());
         subobject->setYIndex(subobject->getYIndex());
         subobject->setZIndex(subobject->getZIndex());
-
+        // Connect repainting image
         connect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), this, SLOT(repaintXYImage(cv::Mat, int)));
         connect(subobject, SIGNAL(imageXZChanged(cv::Mat, int)), this, SLOT(repaintXZImage(cv::Mat, int)));
         connect(subobject, SIGNAL(imageYZChanged(cv::Mat, int)), this, SLOT(repaintYZImage(cv::Mat, int)));
-
+        // Enable controls
         ui->dockWidgetSelectedDataset->setEnabled(true);
         ui->dockWidgetXY->setEnabled(true);
         ui->dockWidgetXZ->setEnabled(true);
         ui->dockWidgetYZ->setEnabled(true);
 
+        // Group of datasets (time series) is selected
         if (subobject->getGroup() != NULL) {
             ui->groupBoxSelectedDatasetTMSeries->setEnabled(true);
             ui->actionFillSpace->setEnabled(true);
         } else {
+            // One dataset
             ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
             ui->actionFillSpace->setEnabled(false);
         }
 
         if (gWindow != NULL) {
+            // Reset values in 3D scene (min, max, colormap, size, ...)
             gWindow->changeMinValue(subobject->getMinVG());
             gWindow->changeMaxValue(subobject->getMaxVG());
             gWindow->changeColormap(subobject->getColormap());
             gWindow->setMainSize(subobject->getFrameSize()[0], subobject->getFrameSize()[1], subobject->getFrameSize()[2]);
             gWindow->setSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
             gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
-
+            // Fill space by mask?
             if (ui->actionFillSpace->isChecked()) {
                 gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
                 gWindow->setPosition(0, 0, 0);
@@ -404,36 +470,49 @@ void MainWindow::selectDataset()
             QMessageBox messageBox;
             messageBox.information(0, "Info", "Dataset is too big for Volume Rendering (> 600).");
         } else */if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
+            // Set Volume rendering
             ui->actionVolumeRendering->setEnabled(true);
             ui->groupBoxVolumeRendering->setEnabled(true);
             //ui->progressBar3D->setValue(0);
             //ui->progressBar3D->setVisible(true);
             //if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
+            // Start loading 3D texture
             gWindow->load3DTexture(subobject->getDataset());
         } else {
+            // Disable VR
             ui->actionVolumeRendering->setEnabled(true);
             ui->groupBoxVolumeRendering->setEnabled(true);
         }
-
+        // Set init GUI flag
         subobject->setGUIInitialized(true);
     }
 }
 
+/**
+ * @brief MainWindow::repaintXYImage Set new XY image if it is loaded
+ * @param image Image data of XY slice
+ * @param index Index of XY slice
+ */
 void MainWindow::repaintXYImage(cv::Mat image, int index)
 {
     if (subobject != NULL) {
+        // Send data to 3D scene
         if (gWindow != NULL) {
-            if (subobject->getSize()[0] == 1)
+            if (subobject->getSize()[0] == 1) // Index -> 0
                 gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize()[2], subobject->getSize()[1], (float) 0);
             else
                 gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize()[2], subobject->getSize()[1], (float) ui->verticalSliderXY->value() / (subobject->getSize()[0] - 1));
         }
+        // Point for positioning of sensor mask image
         QPoint p = QPoint(subobject->getPos()[2], subobject->getPos()[1]);
-        p = QPoint(0, 0);
+        p = QPoint(0, 0); // TODO Disabled
+        // Set image data to image widget
         ui->imageWidgetXY->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        // Set title for dock panel
         ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(index) + ")");
 
+        // Set local minimal and maximal values for controls
         subobject->setGUIXYInitialized(false);
         ui->doubleSpinBoxXYMin->setRange(subobject->getOriginalMinVXY(), subobject->getOriginalMaxVXY());
         ui->doubleSpinBoxXYMax->setRange(subobject->getOriginalMinVXY(), subobject->getOriginalMaxVXY());
@@ -443,27 +522,38 @@ void MainWindow::repaintXYImage(cv::Mat image, int index)
         ui->doubleSpinBoxXYMax->setSingleStep((subobject->getOriginalMaxVXY() - subobject->getOriginalMinVXY()) / 1000);
         subobject->setGUIXYInitialized(true);
 
+        // Continue playing animation if it is possible
         if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
             timer->start(ui->spinBoxTMInterval->value());
-
+        // Hide loading animation
         if (subobject->isCurrentXYLoaded()) ui->labelXYLoading->setVisible(false);
     }
 }
 
+/**
+ * @brief MainWindow::repaintXZImage Set new XZ image if it is loaded
+ * @param image Image data of XZ slice
+ * @param index Index of XZ slice
+ */
 void MainWindow::repaintXZImage(cv::Mat image, int index)
 {
     if (subobject != NULL) {
+        // Send data to 3D scene
         if (gWindow != NULL) {
-            if (subobject->getSize()[1] == 1)
+            if (subobject->getSize()[1] == 1) // Index -> 0
                 gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize()[2], subobject->getSize()[0], (float) 0);
             else
                 gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize()[2], subobject->getSize()[0], (float) ui->verticalSliderXZ->value() / (subobject->getSize()[1] - 1));
         }
+        // Point for positioning of sensor mask image
         QPoint p = QPoint(subobject->getPos()[2], subobject->getPos()[0]);
-        p = QPoint(0, 0);
+        p = QPoint(0, 0); // TODO Disabled
+        // Set image data to image widget
         ui->imageWidgetXZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        // Set title for dock panel
         ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(index) + ")");
 
+        // Set local minimal and maximal values for controls
         subobject->setGUIXZInitialized(false);
         ui->doubleSpinBoxXZMin->setRange(subobject->getOriginalMinVXZ(), subobject->getOriginalMaxVXZ());
         ui->doubleSpinBoxXZMax->setRange(subobject->getOriginalMinVXZ(), subobject->getOriginalMaxVXZ());
@@ -473,27 +563,38 @@ void MainWindow::repaintXZImage(cv::Mat image, int index)
         ui->doubleSpinBoxXZMax->setSingleStep((subobject->getOriginalMaxVXZ() - subobject->getOriginalMinVXZ()) / 1000);
         subobject->setGUIXZInitialized(true);
 
+        // Continue playing animation if it is possible
         if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
             timer->start(ui->spinBoxTMInterval->value());
 
+        // Hide loading animation
         if (subobject->isCurrentXZLoaded()) ui->labelXZLoading->setVisible(false);
     }
 }
 
+/**
+ * @brief MainWindow::repaintYZImage Set new YZ image if it is loaded
+ * @param image Image data of YZ slice
+ * @param index Index of YZ slice
+ */
 void MainWindow::repaintYZImage(cv::Mat image, int index)
 {
     if (subobject != NULL) {
+        // Send data to 3D scene
         if (gWindow != NULL) {
-            if (subobject->getSize()[2] == 1)
+            if (subobject->getSize()[2] == 1) // Index -> 0
                 gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize()[1], subobject->getSize()[0], (float) 0);
             else
                 gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize()[1], subobject->getSize()[0], (float) ui->verticalSliderYZ->value() / (subobject->getSize()[2] - 1));
         }
         QPoint p = QPoint(subobject->getPos()[1], subobject->getPos()[0]);
-        p = QPoint(0, 0);
+        p = QPoint(0, 0); // TODO Disabled
+        // Set image data to image widget
         ui->imageWidgetYZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        // Set title for dock panel
         ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(index) + ")");
 
+        // Set local minimal and maximal values for controls
         subobject->setGUIYZInitialized(false);
         ui->doubleSpinBoxYZMin->setRange(subobject->getOriginalMinVYZ(), subobject->getOriginalMaxVYZ());
         ui->doubleSpinBoxYZMax->setRange(subobject->getOriginalMinVYZ(), subobject->getOriginalMaxVYZ());
@@ -503,13 +604,18 @@ void MainWindow::repaintYZImage(cv::Mat image, int index)
         ui->doubleSpinBoxYZMax->setSingleStep((subobject->getOriginalMaxVYZ() - subobject->getOriginalMinVYZ()) / 1000);
         subobject->setGUIYZInitialized(true);
 
+        // Continue playing animation if it is possible
         if (play && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
             timer->start(ui->spinBoxTMInterval->value());
 
+        // Hide loading animation
         if (subobject->isCurrentYZLoaded()) ui->labelYZLoading->setVisible(false);
     }
 }
 
+/**
+ * @brief MainWindow::initControls Initialization of selected dataset controls
+ */
 void MainWindow::initControls()
 {
     if (subobject != NULL) {
@@ -551,25 +657,27 @@ void MainWindow::initControls()
 
         ui->comboBoxColormap->setCurrentIndex(subobject->getColormap());
 
+        // Loading aminmation
         ui->labelXYLoading->setVisible(true);
         ui->labelXZLoading->setVisible(true);
         ui->labelYZLoading->setVisible(true);
     }
 }
 
-// 3D data loaded event
-
+/**
+ * @brief MainWindow::loaded3D 3D data loaded event
+ * @param datasetName Name of loaded dataset
+ */
 void MainWindow::loaded3D(std::string datasetName)
 {
+    // Set flag
     flagVRLoaded = true;
     ui->label3DLoading->clear();
 
-    //ui->progressBar3D->setVisible(false);
-    //ui->progressBar3D->setValue(0);
     if (subobject != NULL && subobject->getGroup() != NULL)
-    // If animation is running...
-    if (play && subobject->areCurrentSlicesLoaded() && datasetName == subobject->getDataset()->getName())
-        timer->start(ui->spinBoxTMInterval->value());
+        // If animation is running...
+        if (play && subobject->areCurrentSlicesLoaded() && datasetName == subobject->getDataset()->getName())
+            timer->start(ui->spinBoxTMInterval->value());
 }
 
 // Visibility of docked panels
@@ -643,6 +751,7 @@ void MainWindow::on_checkBoxUseGlobal_clicked(bool checked)
 
 void MainWindow::on_horizontalSliderGlobalMin_valueChanged(int value)
 {
+    // Recompute doubles to integers...
     ui->doubleSpinBoxMinGlobal->setValue((double) value / 1000 * (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum()) + ui->doubleSpinBoxMinGlobal->minimum());
 }
 
@@ -656,6 +765,7 @@ void MainWindow::on_doubleSpinBoxMinGlobal_valueChanged(double value)
     if (subobject != NULL && subobject->isGUIInitialized()) {
         subobject->setMinVG(value);
     }
+    // Recompute integers to doubles
     ui->horizontalSliderGlobalMin->setTracking(false);
     ui->horizontalSliderGlobalMin->setSliderPosition((int) qRound(1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
     ui->horizontalSliderGlobalMin->setTracking(true);
@@ -785,12 +895,13 @@ void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
     if (subobject->getGroup() != NULL) {
+        // Set step in subobject structure
         subobject->setCurrentStep(step, gWindow->getThread());
+        // For VR
         if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
-            //ui->progressBar3D->setValue(0);
-            //ui->progressBar3D->setVisible(true);
-            //if (!gWindow->isTexture3DInitialized())
+            // Enable loading animation
             ui->label3DLoading->setMovie(movie);
+            // Load 3D data
             gWindow->load3DTexture(subobject->getDataset());
         }
     }
@@ -799,14 +910,21 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 void MainWindow::updateStep()
 {
     if (subobject->getGroup() != NULL) {
+        // Get current step
         uint64_t step = subobject->getCurrentStep();
+        // Increment of step
         step += ui->spinBoxTMIncrement->value();
+        // End of time series
         if (step >= subobject->getSteps()) {
+            // Stop timer
             timer->stop();
+            // Stop playing
             play = false;
             ui->toolButtonPlay->setChecked(false);
+            // Set last dataset
             ui->horizontalSliderSelectedDatasetStep->setValue(subobject->getSteps() - 1);
         } else {
+            // Stop timer and update step
             timer->stop();
             ui->horizontalSliderSelectedDatasetStep->setValue(step);
         }
@@ -879,8 +997,6 @@ void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 void MainWindow::on_actionVolumeRendering_toggled(bool value)
 {
     if (gWindow != NULL && subobject != NULL && value/*&& !gWindow->isTexture3DInitialized()*/) {
-        //ui->progressBar3D->setValue(0);
-        //ui->progressBar3D->setVisible(true);
         gWindow->load3DTexture(subobject->getDataset());
         if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
@@ -985,6 +1101,9 @@ void MainWindow::on_actionFillSpace_toggled(bool value)
     }
 }
 
+/**
+ * @brief MainWindow::on_actionAbout_triggered Action for help window
+ */
 void MainWindow::on_actionAbout_triggered()
 {
    QTextEdit* help = new QTextEdit();

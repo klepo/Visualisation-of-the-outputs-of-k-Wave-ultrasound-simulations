@@ -1,3 +1,18 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The header file with HDF5ReadingThread and Request class declaration.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #ifndef HDF5READINGTHREAD_H
 #define HDF5READINGTHREAD_H
 
@@ -10,7 +25,7 @@
 class Request
 {
 public:
-    Request(HDF5File::HDF5Dataset *dataset, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t);
+    Request(HDF5File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
     Request(HDF5File::HDF5Dataset *dataset);
     ~Request();
     QString toQString();

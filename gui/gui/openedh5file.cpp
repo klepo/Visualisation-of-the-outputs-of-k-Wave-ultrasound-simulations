@@ -1,14 +1,36 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The implementation file containing the OpenedH5File class.
+ *              Object of class H5ObjectToVisualize contains class H5SubobjectToVisualize and H5ObjectToVisualize.
+ *              This class is for encapsulation of HDF5 file properties and datasets or groups with data to visualize.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #include "openedh5file.h"
 #include "h5objecttovisualize.h"
 
 #include <QDebug>
 
+/**
+ * @brief OpenedH5File::OpenedH5File
+ * @param fileName path to HDF5 file
+ * @param parent
+ */
 OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     QObject(parent)
 {
-    // Open HDF5 file
+    // Open HDF5 file, operations with file can throw exceptions
     file = new HDF5File(fileName.toStdString(), HDF5File::OPEN);
-
+    // No object is selected
     selectedObject = NULL;
 
     // Load dimensions
@@ -107,11 +129,20 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     }
 }
 
+/**
+ * @brief OpenedH5File::getObjects
+ * @return objects
+ */
 QMap<QString, OpenedH5File::H5ObjectToVisualize *> OpenedH5File::getObjects()
 {
     return objects;
 }
 
+/**
+ * @brief OpenedH5File::getObject
+ * @param mainName name of object
+ * @return object or NULL
+ */
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
 {
     if (objects.contains(mainName)) {
@@ -121,6 +152,11 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
         return NULL;
 }
 
+/**
+ * @brief OpenedH5File::getObjectBySubobjectName
+ * @param name name of subobject (dataset or group)
+ * @return subobject or NULL
+ */
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QString name)
 {
     foreach (QString key, objects.keys()) {
@@ -132,6 +168,11 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QStrin
     return NULL;
 }
 
+/**
+ * @brief OpenedH5File::setSelectedSubobject Set subobject selected. From group
+ * of subobjects can be one selected.
+ * @param name name of subobject
+ */
 void OpenedH5File::setSelectedSubobject(QString name)
 {
     foreach (QString key, objects.keys()) {
@@ -141,6 +182,11 @@ void OpenedH5File::setSelectedSubobject(QString name)
     }
 }
 
+/**
+ * @brief OpenedH5File::setObjectSelected Set object selected/unselected
+ * @param mainName name of object
+ * @param value true/false
+ */
 void OpenedH5File::setObjectSelected(QString mainName, bool value)
 {
     if (objects.contains(mainName)) {
@@ -148,6 +194,10 @@ void OpenedH5File::setObjectSelected(QString mainName, bool value)
     }
 }
 
+/**
+ * @brief OpenedH5File::toogleObjectSelected
+ * @param mainName name of object
+ */
 void OpenedH5File::toogleObjectSelected(QString mainName)
 {
     if (objects.contains(mainName)) {
@@ -155,7 +205,9 @@ void OpenedH5File::toogleObjectSelected(QString mainName)
     }
 }
 
-
+/**
+ * @brief OpenedH5File::~OpenedH5File
+ */
 OpenedH5File::~OpenedH5File()
 {
     foreach (QString key, objects.keys())
@@ -163,41 +215,73 @@ OpenedH5File::~OpenedH5File()
     delete file;
 }
 
+/**
+ * @brief OpenedH5File::getNT
+ * @return number of time steps (Nt)
+ */
 uint64_t OpenedH5File::getNT()
 {
     return nT;
 }
 
+/**
+ * @brief OpenedH5File::getNX
+ * @return Nx dimension
+ */
 uint64_t OpenedH5File::getNX()
 {
     return nX;
 }
 
+/**
+ * @brief OpenedH5File::getNY
+ * @return Ny dimension
+ */
 uint64_t OpenedH5File::getNY()
 {
     return nY;
 }
 
+/**
+ * @brief OpenedH5File::getNZ
+ * @return Nz dimension
+ */
 uint64_t OpenedH5File::getNZ()
 {
     return nZ;
 }
 
+/**
+ * @brief OpenedH5File::getInfo Get simulation info form HDF5 file
+ * @return info data structure
+ */
 QMap<QString, QString> OpenedH5File::getInfo()
 {
     return info;
 }
 
+/**
+ * @brief OpenedH5File::getFile Get HDF5 file
+ * @return HDF5 file
+ */
 HDF5File *OpenedH5File::getFile()
 {
     return file;
 }
 
+/**
+ * @brief OpenedH5File::getFilename Get filename
+ * @return filename
+ */
 QString OpenedH5File::getFilename()
 {
     return QString::fromStdString(file->getFilename());
 }
 
+/**
+ * @brief OpenedH5File::getRawFilename Get filename without extension
+ * @return filename without extension
+ */
 QString OpenedH5File::getRawFilename()
 {
     std::string fileName = file->getFilename();

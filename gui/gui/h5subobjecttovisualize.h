@@ -1,3 +1,18 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The header file with H5SubobjectToVisualize class declaration.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #ifndef H5SUBOBJECTTOVISUALIZE_H
 #define H5SUBOBJECTTOVISUALIZE_H
 
@@ -15,6 +30,7 @@ public:
     explicit H5SubobjectToVisualize(HDF5File::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent = 0);
     ~H5SubobjectToVisualize();
 
+    // Getters for current settings and min/max values
     uint64_t getXIndex();
     uint64_t getYIndex();
     uint64_t getZIndex();
@@ -39,6 +55,7 @@ public:
     HDF5File::HDF5Dataset *getDataset();
     HDF5File::HDF5Group *getGroup();
 
+    // Simulation info from file
     QList<QPair<QString, QString>> getInfo();
 
     float *getDataXY();
@@ -51,9 +68,8 @@ public:
 
     QString getName();
     int getType();
-
+    // Other setting getters
     int getColormap();
-
     bool getUseGlobal();
 
     uint64_t *getFrameSize();
@@ -183,6 +199,7 @@ private:
     float blue;
     int count;
 
+    // Datasets characteristics variables
     uint64_t originalFrameSize[3];
     uint64_t frameSize[3];
     uint64_t originalSize[3];
@@ -194,6 +211,7 @@ private:
     uint64_t dwnsmpl;
     uint64_t currentStep;
 
+    // GUI initialization flags
     bool GUIInitialized;
     bool GUIXYInitialized;
     bool GUIXZInitialized;

@@ -1,3 +1,18 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The header file with MainWindow class declaration.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -9,6 +24,7 @@
 #include <HDF5Dataset.h>
 #include <QThreadPool>
 #include <QMovie>
+#include <QTranslator>
 
 #include "hdf5readingthread.h"
 #include "gwindow.h"
@@ -46,7 +62,7 @@ private slots:
     void on_dockWidgetDatasets_visibilityChanged(bool);
     void on_dockWidgetSelectedDataset_visibilityChanged(bool);
 
-    void on_actionLoadOutputHDF5File_triggered();
+    void on_actionLoadHDF5File_triggered();
 
     void on_actionCloseHDF5File_triggered();
     void selectDataset();
@@ -122,7 +138,6 @@ private:
     GWindow *gWindow;
 
     HDF5File *file;
-    QString windowTitle;
 
     OpenedH5File::H5ObjectToVisualize *object;
     OpenedH5File::H5SubobjectToVisualize *subobject;

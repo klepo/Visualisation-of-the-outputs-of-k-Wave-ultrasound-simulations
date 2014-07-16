@@ -16,6 +16,8 @@ TEMPLATE = app
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
+#PRECOMPILED_HEADER = pch.h
+
 SOURCES +=  main.cpp\
     mainwindow.cpp \
     cvimagewidget.cpp \

@@ -1,3 +1,18 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The header file with GWindow class declaration.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #ifndef GWINDOW_H
 #define GWINDOW_H
 
@@ -12,7 +27,6 @@
 #include <HDF5Group.h>
 #include <HDF5Dataset.h>
 
-
 class GWindow : public OpenGLWindow
 {
     Q_OBJECT
@@ -23,11 +37,9 @@ public:
 
     void initialize();
     void render();
-
     bool event(QEvent *event);
 
     HDF5ReadingThread *getThread();
-
     bool isTexture3DInitialized();
 
 signals:
@@ -193,8 +205,6 @@ private:
     HDF5File::HDF5Dataset *selectedDataset;
 
     bool flagSave;
-    bool flagSave2;
-    unsigned char *saveData;
     QString fileName;
 
     int initialized;

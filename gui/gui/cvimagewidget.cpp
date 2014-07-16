@@ -1,3 +1,19 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The implementation file containing CVImageWidget class definition.
+ *              CVImageWidget class is for drawing OpenCV image to QWidget.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #include "cvimagewidget.h"
 
 #include <QWidget>
@@ -9,7 +25,10 @@
 #include <QToolTip>
 #include <QFileDialog>
 
-
+/**
+ * @brief CVImageWidget::CVImageWidget Constructor with initialization
+ * @param parent
+ */
 CVImageWidget::CVImageWidget(QWidget *parent) : QWidget(parent)
 {
     clearFlag = false;
@@ -28,17 +47,29 @@ QSize CVImageWidget::minimumSizeHint() const
     return _qimage.size();
 }
 
+/**
+ * @brief CVImageWidget::setAdjust Enable/disable image adjust
+ * @param adjust true/false
+ */
 void CVImageWidget::setAdjust(bool adjust)
 {
+    // Set adjusting of image size
     adjustFlag = adjust;
     refreshImage();
 }
 
+/**
+ * @brief CVImageWidget::refreshImage Recompute image with new params (width, height, adjustFlag)
+ */
 void CVImageWidget::refreshImage()
 {
+    // If image is set
     if (isSetImage) {
+        // Create new QImage
         _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
+        // if is adjusting enabled
         if (point.x() == 0 && point.y() == 0 && adjustFlag) {
+            // Scale to width or height accodring to widget size
             if ((double) _tmp.cols / _tmp.rows >= (double) width() / height())
                 _qimage = _qimage.scaledToWidth(width(), Qt::SmoothTransformation);
             else
@@ -47,6 +78,7 @@ void CVImageWidget::refreshImage()
             setMinimumWidth(10);
             setMinimumHeight(10);
         } else {
+            //  Original image size
             if ((_tmp.cols + point.x()) > width())
                 setMinimumWidth(_tmp.cols + point.x());
             if ((_tmp.rows + point.y()) > height())
@@ -56,8 +88,15 @@ void CVImageWidget::refreshImage()
     repaint();
 }
 
+/**
+ * @brief CVImageWidget::showImage Set Opencv image to widget
+ * @param image image (cv::Mat)
+ * @param point position of sensor mask image (unused)
+ * @param fileName Name for png image save
+ */
 void CVImageWidget::showImage(const cv::Mat &image, QPoint point, QString fileName)
 {
+    // Save some info
     this->fileName =  fileName;
     this->point = point;
     // Convert the image to the RGB888 format
@@ -81,6 +120,9 @@ void CVImageWidget::showImage(const cv::Mat &image, QPoint point, QString fileNa
     refreshImage();
 }
 
+/**
+ * @brief CVImageWidget::saveImage Save image as png file
+ */
 void CVImageWidget::saveImage()
 {
     if (isSetImage) {
@@ -100,9 +142,11 @@ void CVImageWidget::mouseMoveEvent(QMouseEvent *event)
     if (isSetImage) {
         //qDebug() << "orig:" << event->pos().x() << event->pos().y();
         QPoint p;
+        // Compute mouse position on image
         p.setX((event->pos().x() - point.x()) * _tmp.cols / _qimage.width());
         p.setY((event->pos().y() - point.y()) * _tmp.rows / _qimage.height());
         //qDebug() << p.x() << p.y();
+        // If mouse is not out of image send event
         if (p.x() >= 0 && p.x() < _tmp.cols && p.y() >= 0 && p.y() < _tmp.rows) {
             //QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this, rect());
             emit hoveredPointInImage(p.x(), p.y());
@@ -122,6 +166,7 @@ void CVImageWidget::paintEvent(QPaintEvent *)
     // Display the image
     QPainter painter(this);
     painter.eraseRect(0, 0, width(), height());
+    // Clear image
     if (!clearFlag)
         painter.drawImage(point, _qimage);
     painter.end();

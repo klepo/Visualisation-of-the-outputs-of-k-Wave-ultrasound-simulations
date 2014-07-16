@@ -1,3 +1,18 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The header file with H5ObjectToVisualize class declaration.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #ifndef H5OBJECTTOVISUALIZE_H
 #define H5OBJECTTOVISUALIZE_H
 
@@ -15,14 +30,8 @@ public:
 
     void addSubobject(HDF5File::HDF5Dataset *dataset);
     void addSubobject(HDF5File::HDF5Group *group);
-
     void setSelectedSubobject(QString name);
-    //QString getSelectedSubobjectName();
-
-    //HDF5File::HDF5Dataset *getSelectedDataset();
-    //HDF5File::HDF5Group *getSelectedGroup();
     OpenedH5File::H5SubobjectToVisualize *getSelectedSubobject();
-
     QString getName();
     int getType();
     QList<QString> getSubobjectNames();
@@ -35,18 +44,14 @@ public slots:
     void setSelected(bool value);
 
 private:
+    // One subobject is selected
     OpenedH5File::H5SubobjectToVisualize *selectedSubobject;
-
     QMap<QString, OpenedH5File::H5SubobjectToVisualize *> subobjects;
-
     int type;
-
     OpenedH5File *openedH5File;
-
     QString name;
-
+    // This is for future implementation of multiple selection of datasets
     bool selected;
-
 };
 
 #endif // H5OBJECTTOVISUALIZE_H

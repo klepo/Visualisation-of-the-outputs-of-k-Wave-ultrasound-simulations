@@ -1,3 +1,18 @@
+/*
+ * @file        mainwindow.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
+ * @version     0.0
+ * @date        30 July 2014
+ *
+ * @brief       The implementation file containing the GWindow class - 3D scene window.
+ *
+ * @section     Licence
+ * This file is part of k-Wave visualiser application
+ * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
+ * k-Wave visualiser is free software.
+ */
+
 #include "gwindow.h"
 #include "hdf5readingthread.h"
 
@@ -20,6 +35,8 @@
 #include <HDF5Dataset.h>
 
 #include <opencv2/opencv.hpp>
+
+// Some helper arrays for slices and 3d frame
 
 GLfloat planeVertices[] = {
     0.0, 0.0, 0.0,
@@ -100,6 +117,10 @@ float round(float f,float pres)
     return (float) (floor(f*(1.0f/pres) + 0.5)/(1.0f/pres));
 }
 
+/**
+ * @brief checkGlError Debug OpenGL error messages
+ * @return OpenGL error code
+ */
 GLenum checkGlError()
 {
     GLenum err;
@@ -139,6 +160,9 @@ GLenum checkGlError()
     return ret;
 }
 
+/**
+ * @brief GWindow::GWindow
+ */
 GWindow::GWindow()
     : m_program(0)
     , frame(true)
@@ -151,10 +175,12 @@ GWindow::GWindow()
     , initialized(false)
 
 {
+    // Init indices for 3D slices
     xYIndex = 0;
     xZIndex = 0;
     yZIndex = 0;
 
+    // Init values for Volume Rendering
     count = 50;
     alpha = 0.5f;
     red = 0.5f;
@@ -162,6 +188,7 @@ GWindow::GWindow()
     blue = 0.5f;
     zoom = -15.0f;
 
+    // Default sizes for 3D frames
     imageWidth = 1;
     imageHeight = 1;
     imageDepth = 1;
@@ -174,19 +201,22 @@ GWindow::GWindow()
     origImageHeight = imageHeight;
     origImageDepth = imageDepth;
 
+    // Position of sensor mask
     posX = 0;
     posY = 0;
     posZ = 0;
 
+    // Global min/max values
     minG = 0;
     maxG = 0;
 
+    // Default colormap
     colormap = cv::COLORMAP_JET;
 
     datasetName = "no_dataset";
     flagSave = false;
-    flagSave2 = false;
 
+    // Create thread for loading whole dataset
     thread = new HDF5ReadingThread();
     connect(thread, SIGNAL(requestDone(Request *)), this, SLOT(setLoaded(Request *)));
 }
@@ -197,29 +227,37 @@ GWindow::~GWindow()
     delete m_program;
     thread->clearRequests();
     //thread->clearDoneRequests();
-    //QMetaObject::invokeMethod(thread, "stop");
     thread->wait();
-    //thread->deleteLater();
     //thread->deleteLater();
 }
 
+/**
+ * @brief GWindow::getThread
+ * @return 3D data loading thread
+ */
 HDF5ReadingThread *GWindow::getThread()
 {
     return thread;
 }
 
+/**
+ * @brief GWindow::initialize Initialization of OpenGL
+ */
 void GWindow::initialize()
 {
-    emit setStatusMessage(QString("Slices: %1").arg(count));
+    //emit setStatusMessage(QString("Slices: %1").arg(count));
 
+    // Load, create and link shaders
     m_program = new QOpenGLShaderProgram(this);
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexShader.vert");
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentShader.frag");
     m_program->link();
 
+    // Init attribute variables
     m_aPosition = m_program->attributeLocation("aPosition");
     m_aTextureCoord = m_program->attributeLocation("aTextureCoord");
 
+    // Init uniform variables
     m_uFrame = m_program->uniformLocation("uFrame");
     m_uXYBorder = m_program->uniformLocation("uXYBorder");
     m_uXZBorder = m_program->uniformLocation("uXZBorder");
@@ -264,11 +302,13 @@ void GWindow::initialize()
 
     //glBindFragDataLocation(m_program->programId(), 0, "colorOut");
 
+    // Generate buffers
+    // for slices
     glGenBuffers(1, &ibo_plane_elements);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_plane_elements);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeElements), planeElements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
+    // and for 3D frame
     glGenBuffers(1, &ibo_cube_elements);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeElements), cubeElements, GL_STATIC_DRAW);
@@ -338,6 +378,7 @@ void GWindow::initialize()
     //glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Important for save png image!
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
@@ -356,8 +397,10 @@ void GWindow::initialize()
     cvtColor(colormapImage, colormapImage, CV_BGR2RGB);
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);*/
+    // Set default colormap
     changeColormap();
 
+    // Default scene rotation
     //rotateXMatrix.rotate(-20, -1, 0, 0);
     rotateYMatrix.rotate(-60, 0, 1, 0);
 
@@ -368,6 +411,7 @@ void GWindow::initialize()
 
     /*glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormapTexture);*/
+    // Set some default uniform values
     m_program->setUniformValue(m_uColormapSampler, 1);
     m_program->setUniformValue(m_uSliceSampler, 2);
     m_program->setUniformValue(m_uSampler, 0);
@@ -390,6 +434,12 @@ bool GWindow::isTexture3DInitialized()
     return texture3DInitialized;
 }
 
+/**
+ * @brief GWindow::setMainSize Set size for main 3D frame - all 3D domain
+ * @param depth
+ * @param height
+ * @param width
+ */
 void GWindow::setMainSize(unsigned int depth, unsigned int height, unsigned int width)
 {
     fullWidth = width;
@@ -397,6 +447,12 @@ void GWindow::setMainSize(unsigned int depth, unsigned int height, unsigned int 
     fullDepth = depth;
 }
 
+/**
+ * @brief GWindow::setSize Set size for original (sensor mask defined) frame
+ * @param depth
+ * @param height
+ * @param width
+ */
 void GWindow::setSize(unsigned int depth, unsigned int height, unsigned int width)
 {
     imageDepth = depth;
@@ -407,6 +463,12 @@ void GWindow::setSize(unsigned int depth, unsigned int height, unsigned int widt
     origImageDepth = imageDepth;
 }
 
+/**
+ * @brief GWindow::setPosition Set position of sensor mask defined 3D dataset
+ * @param posZ
+ * @param posY
+ * @param posX
+ */
 void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int posX)
 {
     this->posZ = posZ;
@@ -414,8 +476,13 @@ void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int pos
     this->posX = posX;
 }
 
+/**
+ * @brief GWindow::load3DTexture Performs loading of 3D data for VR
+ * @param dataset
+ */
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 {
+    // If dataset is already loaded
     if (datasetName == dataset->getName()) {
         emit loaded(datasetName);
         return;
@@ -436,6 +503,7 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 
     //PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
     //glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
+    // Init 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 
@@ -446,9 +514,13 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
     }
 
     thread->createRequest(dataset);
+    // Start loading thread
     thread->start();
 }
 
+/**
+ * @brief GWindow::unload3DTexture Free 3D texture data
+ */
 void GWindow::unload3DTexture()
 {
     //PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
@@ -457,6 +529,9 @@ void GWindow::unload3DTexture()
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 }
 
+/**
+ * @brief GWindow::clearData Clear 3D data, slices data and reset sizes
+ */
 void GWindow::clearData()
 {
     if (initialized) {
@@ -487,6 +562,10 @@ void GWindow::clearData()
     }
 }
 
+/**
+ * @brief GWindow::setLoaded Action on part of 3D dataset loaded
+ * @param r loading request
+ */
 void GWindow::setLoaded(Request *r)
 {
     //textureMutex.lock();
@@ -496,10 +575,12 @@ void GWindow::setLoaded(Request *r)
 
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // Set 3D data to 3D texture
     glTexSubImage3D(GL_TEXTURE_3D, 0, r->xO, r->yO, r->zO, r->xC, r->yC, r->zC, GL_RED, GL_FLOAT, r->data);
 
     //if (checkGlError() != GL_NO_ERROR) return;
 
+    // Last block of 3D data
     if (r->zO + r->zC == imageDepth) {
         //thread->deleteLater();
         texture3DInitialized = true;
@@ -512,6 +593,13 @@ void GWindow::setLoaded(Request *r)
     thread->deleteDoneRequest(r);
 }
 
+/**
+ * @brief GWindow::setXYSlice Set 2D image data for XY 3D slice
+ * @param data
+ * @param width
+ * @param height
+ * @param index
+ */
 void GWindow::setXYSlice(float *data, unsigned int width, unsigned int height, float index)
 {
     //qDebug() << "setXYSlice";
@@ -522,6 +610,13 @@ void GWindow::setXYSlice(float *data, unsigned int width, unsigned int height, f
     renderLater();
 }
 
+/**
+ * @brief GWindow::setXZSlice Set 2D image data for XZ 3D slice
+ * @param data
+ * @param width
+ * @param height
+ * @param index
+ */
 void GWindow::setXZSlice(float *data, unsigned int width, unsigned int height, float index)
 {
     //qDebug() << "setXZSlice";
@@ -532,6 +627,13 @@ void GWindow::setXZSlice(float *data, unsigned int width, unsigned int height, f
     renderLater();
 }
 
+/**
+ * @brief GWindow::setYZSlice Set 2D image data for YZ 3D slice
+ * @param data
+ * @param width
+ * @param height
+ * @param index
+ */
 void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, float index)
 {
     //qDebug() << "setYZSlice";
@@ -542,6 +644,9 @@ void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, f
     renderLater();
 }
 
+/**
+ * @brief GWindow::clearSlices "Free" or "reset" 2D textures for slices
+ */
 void GWindow::clearSlices()
 {
     glBindTexture(GL_TEXTURE_2D, textureXY);
@@ -555,20 +660,26 @@ void GWindow::clearSlices()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
 }
 
-void GWindow::changeColormap(int _colormap)
+/**
+ * @brief GWindow::changeColormap Change colormap
+ * @param colormap
+ */
+void GWindow::changeColormap(int colormap)
 {
-    colormap = _colormap;
+    this->colormap = colormap;
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
 
+    // Fill 1D texture with colormap values
     cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
     for (unsigned int i = 0; i < 256; i++)
         colormapImage.data[i] = i;
-    cv::applyColorMap(colormapImage, colormapImage, colormap);
+    cv::applyColorMap(colormapImage, colormapImage, this->colormap);
     cvtColor(colormapImage, colormapImage, CV_BGR2RGB);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);
 
     m_program->bind();
 
+    // Set to shader
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     m_program->setUniformValue(m_uColormapSampler, 1);
@@ -578,6 +689,10 @@ void GWindow::changeColormap(int _colormap)
     renderLater();
 }
 
+/**
+ * @brief GWindow::changeMinValue Set min value for colormaping
+ * @param value
+ */
 void GWindow::changeMinValue(float value)
 {
     minG = value;
@@ -587,6 +702,10 @@ void GWindow::changeMinValue(float value)
     renderLater();
 }
 
+/**
+ * @brief GWindow::changeMaxValue Set max value for colormaping
+ * @param value
+ */
 void GWindow::changeMaxValue(float value)
 {
     maxG = value;
@@ -596,6 +715,9 @@ void GWindow::changeMaxValue(float value)
     renderLater();
 }
 
+/**
+ * @brief GWindow::renderFrame Render 3D frame
+ */
 void GWindow::renderFrame()
 {
     glEnableVertexAttribArray(m_aPosition);
@@ -605,47 +727,58 @@ void GWindow::renderFrame()
     glDisableVertexAttribArray(m_aPosition);
 }
 
+/**
+ * @brief GWindow::render Main render function
+ */
 void GWindow::render()
 {
     checkGlError();
 
     int actualCount = count;
 
+    // Rotation of scene by left mouse click
     if (leftButton) {
         rotateXMatrix.rotate((float) (lastPos.y() - currentPos.y()) / 2.0f, -1, 0, 0);
         rotateYMatrix.rotate((float) (lastPos.x() - currentPos.x()) / 2.0f, 0, -1, 0);
         actualCount = 30;
     }
 
+    // Move of scene by left mouse click
     if (rightButton) {
         position.setX(position.x() + (float) (lastPos.x() - currentPos.x()) / 100.0f * zoom / 10);
         position.setY(position.y() - (float) (lastPos.y() - currentPos.y()) / 100.0f * zoom / 10);
         actualCount = 30;
     }
 
+    // Clear viewport
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, width(), height());
 
     m_program->bind();
 
+    // Perspective projection
     QMatrix4x4 perspectiveMatrix;
     perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.1f, 1000.0f);
 
+    // Zoom of scene
     QMatrix4x4 zoomMatrix;
-
     zoom += (float) wheelDelta / 100.0f;
     if (zoom > 0.0f) zoom = 0.0f;
     zoomMatrix.translate(0, 0, -qExp(qFabs(zoom)/20));
     zoomMatrix.translate(position);
+
+    // Final matrix
     QMatrix4x4 matrix;
     matrix = perspectiveMatrix * zoomMatrix * rotateXMatrix * rotateYMatrix;
 
+    // Create vectors for scale 3D frame to the longest size = 1.0f
     QVector3D vecScale((float) imageWidth, (float) imageHeight, (float) imageDepth);
     QVector3D vecFullScale((float) fullWidth, (float) fullHeight, (float) fullDepth);
     float max = qMax(vecScale.x(), qMax(vecScale.y(), vecScale.z()));
     float fullMax = qMax(vecFullScale.x(), qMax(vecFullScale.y(), vecFullScale.z()));
     vecFullScale = vecFullScale / fullMax; // longest size is 1.0f
 
+    // Values to fragment shader for scaling 3D frame -> there are +, -, /, * operations faster
     QVector3D vecScale0 = vecScale / max;
     m_program->setUniformValue(m_uWidth, (float) vecScale0.x() / 2.0f);
     m_program->setUniformValue(m_uHeight, (float) vecScale0.y() / 2.0f);
@@ -659,9 +792,10 @@ void GWindow::render()
     m_program->setUniformValue(m_uZMin, 0.5f - ((float) vecScale0.z() / 2.0f) / 2.0f);
 
     vecScale = vecScale / fullMax;
-
+    // Translate to the midlle of 3D frame
     matrix.translate(-vecFullScale.x() / 2.0f, -vecFullScale.y() / 2.0f, -vecFullScale.z() / 2.0f);
 
+    // Send matrix to shader
     m_program->setUniformValue(m_uMatrix, matrix);
 
     // Trim values
@@ -742,6 +876,7 @@ void GWindow::render()
 
         QMatrix4x4 s2Mmatrix;
         s2Mmatrix.scale(1.02f);
+        // Colored frames (along axis) transfomation
         QMatrix4x4 s2XYMmatrix, s2XZMmatrix, s2YZMmatrix;
         s2XYMmatrix = s2Mmatrix;
         s2XZMmatrix = s2Mmatrix;
@@ -750,6 +885,7 @@ void GWindow::render()
         s2XZMmatrix.translate(-0.01f, 0, -0.01f);
         s2YZMmatrix.translate(0, -0.01f, -0.01f);
 
+        // Translate by slice index
         QMatrix4x4 xYMmatrix;
         xYMmatrix.translate(0, 0, xYIndex);
         QMatrix4x4 xZMmatrix;
@@ -771,9 +907,11 @@ void GWindow::render()
             glBindTexture(GL_TEXTURE_2D, textureXY);
             // Because some bug
             glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            // Draw slice
             glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXYBorder, true);
             m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xYMmatrix * s2XYMmatrix);
+            // Draw 2D frame
             glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXYBorder, false);
         }
@@ -819,6 +957,7 @@ void GWindow::render()
     // Volume rendering
     if (volumeRendering) {
         mutex.lock();
+        // Because of same opacity from all directions
         glDepthMask(GL_FALSE);
         //glDisable(GL_CULL_FACE);
 
@@ -844,6 +983,7 @@ void GWindow::render()
         glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, planeVertices);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_plane_elements);
 
+        // Scale 3D frame for VR
         QVector4D vec((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax, 1.0f);
         vec += QVector4D(-vecFullScale.x() / 2.0f, -vecFullScale.y() / 2.0f, -vecFullScale.z() / 2.0f, 0.0f);
         vec -= QVector4D(-vecScale.x() / 2.0f, -vecScale.y() / 2.0f, -vecScale.z() / 2.0f, 0.0f);
@@ -863,12 +1003,14 @@ void GWindow::render()
         m_program->setUniformValue(m_uMatrix, perspectiveMatrix * zoomMatrix);
 
         float step = 1.0f / (actualCount - 1);
+        // For number of slices
         for (float i = 0.0f; i <= 1.0f + step; i += step) {
             if (i >= 1.0f + step / 0.5f) break; // round check
 
             QMatrix4x4 sMmatrixTmp = sMmatrix;
             sMmatrixTmp.translate(0.0f, 0.0f, i);
 
+            // Matrix without scene rotaion
             QMatrix4x4 slMmatrix;
             slMmatrix.translate(0.0f, 0.0f, i);
             slMmatrix = tlMmatrix * slMmatrix;
@@ -884,6 +1026,7 @@ void GWindow::render()
         mutex.unlock();
     }
 
+    // Sace 3D scene to png image
     if (flagSave) {
         flagSave = false;
         uchar *data = new uchar[width() * height() * 4];
@@ -899,6 +1042,8 @@ void GWindow::render()
 
     m_program->release();
 }
+
+// Some slots for user interaction
 
 void GWindow::saveImage(QString _fileName)
 {
@@ -1060,6 +1205,11 @@ void GWindow::alignToYZFromBack()
     renderLater();
 }
 
+/**
+ * @brief GWindow::event Catch keyboard events on 3D scene
+ * @param event
+ * @return QWindow::event(event);
+ */
 bool GWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {

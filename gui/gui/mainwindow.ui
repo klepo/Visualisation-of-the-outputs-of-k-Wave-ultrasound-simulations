@@ -118,7 +118,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionLoadOutputHDF5File"/>
+   <addaction name="actionLoadHDF5File"/>
    <addaction name="actionCloseHDF5File"/>
    <addaction name="separator"/>
    <addaction name="actionXY"/>
@@ -160,7 +160,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoadOutputHDF5File"/>
+    <addaction name="actionLoadHDF5File"/>
     <addaction name="actionCloseHDF5File"/>
     <addaction name="actionExit"/>
     <addaction name="actionExportImageFrom3DScene"/>
@@ -1705,7 +1705,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <action name="actionLoadOutputHDF5File">
+  <action name="actionLoadHDF5File">
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/icons/icons/images/icons_01.png</normaloff>:/icons/icons/images/icons_01.png</iconset>
