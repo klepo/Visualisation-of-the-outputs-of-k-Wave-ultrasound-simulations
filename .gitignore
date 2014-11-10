@@ -11,3 +11,7 @@
 /src.zip
 /cv.pdf
 /k-wave-h5-processing/k-wave-h5-processing/main/main.pro.user
+/build
+/hdf5file/hdf5file.pro.user
+/k-wave-h5-processing/k-wave-h5-processing.pro.user
+/gui/gui.pro.user

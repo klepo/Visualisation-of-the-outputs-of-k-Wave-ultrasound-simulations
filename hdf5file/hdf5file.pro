@@ -1,3 +1,11 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator
+#
+# hdf5file library
+#
+#-------------------------------------------------
+
 TEMPLATE = lib
 CONFIG += staticlib
 CONFIG -= app_bundle
@@ -22,4 +30,6 @@ HEADERS += HDF5File.h HDF5Object.h HDF5Dataset.h HDF5Group.h HDF5Attribute.h
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-include(hdf5file.pri)
+# hdf5 library
+
+include($$PWD/../hdf5_paths.pri)
