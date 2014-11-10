@@ -114,23 +114,24 @@ unix {
 
 }
 
-include(../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/hdf5file.pri)
-
-
 RESOURCES += \
     resources.qrc
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../k-wave-h5-processing/build/hdf5file/release/ -lhdf5file
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../k-wave-h5-processing/build/hdf5file/debug/ -lhdf5file
+OTHER_FILES += \
+    fragmentShader.frag \
+    vertexShader.vert
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/release/ -lhdf5file
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/debug/ -lhdf5file
 else:unix: LIBS += -L$$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/ -lhdf5file
 
 INCLUDEPATH += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file
 DEPENDPATH += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file
 
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/build/hdf5file/release/hdf5file.lib
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/build/hdf5file/debug/hdf5file.lib
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/release/libhdf5file.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/debug/libhdf5file.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/release/hdf5file.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/debug/hdf5file.lib
 else:unix: PRE_TARGETDEPS += $$PWD/../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/libhdf5file.a
 
-OTHER_FILES += \
-    fragmentShader.frag \
-    vertexShader.vert
+include(../../k-wave-h5-processing/k-wave-h5-processing/hdf5file/hdf5file.pri)

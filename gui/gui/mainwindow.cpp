@@ -46,11 +46,11 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , gWindow(0)
+    , openedH5File(0)
     , file(0)
     , object(0)
     , subobject(0)
-    , openedH5File(0)
-    , gWindow(0)
 {
     ui->setupUi(this);
 

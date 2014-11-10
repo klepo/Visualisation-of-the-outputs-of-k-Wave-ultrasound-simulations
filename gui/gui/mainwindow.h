@@ -133,9 +133,9 @@ private:
     void initControls();
     void clearLayout(QLayout *layout);
 
-    OpenedH5File *openedH5File;
-
     GWindow *gWindow;
+
+    OpenedH5File *openedH5File;
 
     HDF5File *file;
 
