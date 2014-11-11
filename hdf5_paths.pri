@@ -1,6 +1,6 @@
 
 # set link type: pkg-config | dynamic | static
-LINK_TYPE = static
+LINK_TYPE = dynamic
 
 win32 {
     INCLUDEPATH += "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"

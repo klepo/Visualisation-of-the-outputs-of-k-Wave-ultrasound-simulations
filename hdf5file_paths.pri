@@ -1,6 +1,6 @@
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/build/hdf5file/release/ -lhdf5file
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/build/hdf5file/debug/ -lhdf5file
-else:unix: LIBS += -L$$PWD/../build/hdf5file/ -lhdf5file
+else:unix: LIBS += -L$$PWD/build/hdf5file/ -lhdf5file
 
 INCLUDEPATH += $$PWD/hdf5file
 DEPENDPATH += $$PWD/hdf5file
