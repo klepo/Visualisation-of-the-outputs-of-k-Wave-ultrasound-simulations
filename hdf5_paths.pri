@@ -37,13 +37,13 @@ unix {
             -lz \
             -ldl
     }
-    # static version (not yet static)
+    # static version
     else:contains(LINK_TYPE, static) {
-        QMAKE_LFLAGS += -Wl,-rpath,/usr/local/hdf5-1.8.13-serial/lib
-        INCLUDEPATH += "/usr/local/hdf5-1.8.13-serial/include"
-        LIBS += -L"/usr/local/hdf5-1.8.13-serial/lib" \
-            -lhdf5 \
+        QMAKE_LFLAGS += -Wl,-rpath,/usr/local/hdf5-1.8.13-serial-static/lib
+        INCLUDEPATH += "/usr/local/hdf5-1.8.13-serial-static/include"
+        LIBS += -L"/usr/local/hdf5-1.8.13-serial-static/lib" \
             -lhdf5_cpp \
+            -lhdf5 \
             -lz \
             -ldl \
     }
