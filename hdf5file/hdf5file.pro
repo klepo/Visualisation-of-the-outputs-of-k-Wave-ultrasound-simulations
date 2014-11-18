@@ -13,6 +13,21 @@ CONFIG -= qt
 
 TARGET = hdf5file
 
+CONFIG(debug, debug|release) {
+    DESTDIR = ../build/$$TARGET/debug
+} else {
+    DESTDIR = ../build/$$TARGET/release
+}
+
+unix {
+    DESTDIR = ../build/$$TARGET
+}
+
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
+RCC_DIR = $$DESTDIR/.qrc
+UI_DIR = $$DESTDIR/.ui
+
 #QMAKE_CFLAGS_DEBUG += -MTd
 #QMAKE_CFLAGS_RELEASE += -MT
 #QMAKE_CXXFLAGS_DEBUG += -MTd

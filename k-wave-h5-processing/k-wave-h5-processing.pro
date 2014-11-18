@@ -18,6 +18,21 @@ SOURCES += k-wave-h5-processing.cpp
 
 TARGET = k-wave-h5-processing
 
+CONFIG(debug, debug|release) {
+    DESTDIR = ../build/$$TARGET/debug
+} else {
+    DESTDIR = ../build/$$TARGET/release
+}
+
+unix {
+    DESTDIR = ../build/$$TARGET
+}
+
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
+RCC_DIR = $$DESTDIR/.qrc
+UI_DIR = $$DESTDIR/.ui
+
 #QMAKE_CXXFLAGS_WARN_ON -= -W3
 #QMAKE_CXXFLAGS_WARN_ON += -W4
 

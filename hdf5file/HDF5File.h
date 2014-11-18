@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <algorithm>
 
 #ifdef __unix
 #include <stdexcept>
