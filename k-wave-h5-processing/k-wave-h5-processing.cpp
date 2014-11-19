@@ -299,7 +299,7 @@ HDF5File *loadSimulationFile(std::string simulationFilename)
 {
     HDF5File *hDF5SimulationFile = NULL;
     try {
-        hDF5SimulationFile = new HDF5File(simulationFilename, HDF5File::OPEN, true);
+        hDF5SimulationFile = new HDF5File(simulationFilename, HDF5File::OPEN);
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
