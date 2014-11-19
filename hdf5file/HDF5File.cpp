@@ -51,7 +51,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
         //access_plist.setCache(0, 1048576 * 4, 1048576 * 16, 0.75);
         //access_plist.setCache(0, 1048576 / 4, 1048576, 0.75);
         // Set chunk cache
-        access_plist.setCache(0, 1048576, 64 * 64 * 64 * 32 * 8 * 2, 0.75);
+        //access_plist.setCache(0, 1048576, 64 * 64 * 64 * 32 * 8 * 2, 0.75);
         //access_plist.setCache(0, 0, 0, 0.75);
 
         // Create log file
