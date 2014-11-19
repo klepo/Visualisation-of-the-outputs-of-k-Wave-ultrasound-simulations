@@ -15,6 +15,5 @@
 /hdf5file/hdf5file.pro.user
 /k-wave-h5-processing/k-wave-h5-processing.pro.user
 /gui/gui.pro.user
-/opencv_paths.pri
-/hdf5file_paths.pri
 /hdf5_paths.pri
+/opencv_paths.pri
