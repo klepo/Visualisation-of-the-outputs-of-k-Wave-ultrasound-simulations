@@ -1106,12 +1106,16 @@ void visualize(HDF5File *hDF5ViewFile)
                 if (width > height) {
                     int dstWidth = 300;
                     cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                    // Set original size
+                    size = imageL.size();
                     cv::resize(imageL, imageL, size);
                     cv::resize(imageG, imageG, size);
                     cv::resize(imageGG, imageGG, size);
                 } else {
                     int dstHeight = 300;
                     cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                    // Set original size
+                    size = imageL.size();
                     cv::resize(imageL, imageL, size);
                     cv::resize(imageG, imageG, size);
                     cv::resize(imageGG, imageGG, size);
@@ -1187,11 +1191,15 @@ void visualize(HDF5File *hDF5ViewFile)
             if (width > height) {
                 int dstWidth = 300;
                 cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                // Set original size
+                size = imageL.size();
                 cv::resize(imageL, imageLUP, size);
                 cv::resize(imageG, imageGUP, size);
             } else {
                 int dstHeight = 300;
                 cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                // Set original size
+                size = imageL.size();
                 cv::resize(imageL, imageLUP, size);
                 cv::resize(imageG, imageGUP, size);
             }
