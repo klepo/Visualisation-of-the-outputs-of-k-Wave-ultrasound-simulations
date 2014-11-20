@@ -108,7 +108,7 @@ std::string help()
     "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
     "                                         groups for processing.\n"
     "\n"
-    "  -test ................................ Test mode. Reading test of 3D type dtatasets is performed.\n"
+    "  -test ................................ Test mode. Reading test of 3D type datasets is performed.\n"
     "\n"
     "  -help ................................ Prints this help message.\n"
     "\n";
