@@ -27,6 +27,11 @@
 
 #ifdef __unix
 #include <stdexcept>
+#include <sys/time.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
 #endif
 
 #include <mutex>
@@ -65,6 +70,8 @@ public:
 
     void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
     void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
+
+    static double getTime();
 
     static const H5std_string NT;
     static const H5std_string NX;
