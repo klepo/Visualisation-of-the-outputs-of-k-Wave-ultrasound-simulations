@@ -17,3 +17,6 @@
 /gui/gui.pro.user
 /hdf5_paths.pri
 /opencv_paths.pri
+/gui/Makefile
+/hdf5file/Makefile
+/k-wave-h5-processing/Makefile
