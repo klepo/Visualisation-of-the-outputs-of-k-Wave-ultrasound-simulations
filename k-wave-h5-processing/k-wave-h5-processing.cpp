@@ -502,24 +502,48 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
 
                 // XY
                 dataset->read3DDataset(0, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
-                height = size[1];
-                width = size[2];
+                dataset->read3DDataset(1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(2, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] / 2 - 1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] / 2, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] / 2 + 1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] - 3, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] - 2, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] - 1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                //height = size[1];
+                //width = size[2];
                 //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
                 //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
                 delete [] data;
 
                 // XZ
                 dataset->read3DDataset(0, 0, 0, size[0], 1, size[2], data, minValue, maxValue);
-                height = size[0];
-                width = size[2];
+                dataset->read3DDataset(0, 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, 2, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] / 2 - 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] / 2, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] / 2 + 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] - 3, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] - 2, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] - 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                //height = size[0];
+                //width = size[2];
                 //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
                 //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
                 delete [] data;
 
                 // YZ
                 dataset->read3DDataset(0, 0, 0, size[0], size[1], 1, data, minValue, maxValue);
-                height = size[0];
-                width = size[1];
+                dataset->read3DDataset(0, 0, 1, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, 2, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] / 2 - 1, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] / 2, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] / 2 + 1, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] - 3, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] - 2, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] - 1, size[0], size[1], 1, data, minValue, maxValue);
+                //height = size[0];
+                //width = size[1];
                 //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
                 //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
                 delete [] data;
