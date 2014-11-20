@@ -1,20 +1,20 @@
-#version 150
+#version 120
 
 #define highp
 #define mediump
 #define lowp
 
-in vec4 aPosition;
-in vec2 aTextureCoord;
+attribute vec4 aPosition;
+attribute vec2 aTextureCoord;
 
 uniform mat4 uMatrix;
 uniform mat4 uScaleMatrix;
 uniform mat4 uScalelMatrix;
 
-out vec4 vPosition;
+varying vec4 vPosition;
 //out vec4 vPositionL;
 
-out vec2 vTextureCoord;
+varying vec2 vTextureCoord;
 
 void main() {
    vPosition = uScalelMatrix * aPosition;

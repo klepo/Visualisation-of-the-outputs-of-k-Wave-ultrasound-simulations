@@ -322,7 +322,8 @@ void GWindow::initialize()
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_3D);
+    //glGenerateMipmap(GL_TEXTURE_3D);
+    glTexParameteri(GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -335,7 +336,8 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_1D);
+    //glGenerateMipmap(GL_TEXTURE_1D);
+    glTexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
     // 2D textures
@@ -345,7 +347,8 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -355,7 +358,8 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -365,14 +369,15 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // Settings
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    //glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
     glClearColor((float) 16 / 17, (float) 16 / 17, (float) 16 / 17, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glEnable(GL_ALPHA_TEST);
@@ -383,13 +388,14 @@ void GWindow::initialize()
     glBlendEquation(GL_FUNC_ADD);
 
 
-    glLineWidth(3);
+    glLineWidth(2);
 
     //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
     //glBlendFunc(GL_ONE, GL_ONE);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+
     /*cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
     for (unsigned int i = 0; i < 256; i++)
         colormapImage.data[i] = i;
@@ -867,8 +873,7 @@ void GWindow::render()
         m_program->setUniformValue(m_uSlices, true);
         glDisable(GL_CULL_FACE);
         glDisable(GL_BLEND);
-
-        //glDepthMask(GL_FALSE);
+        //qDebug() << glIsEnabled(GL_DEPTH_TEST);
 
         QMatrix4x4 sMmatrix;
         sMmatrix.translate((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax);

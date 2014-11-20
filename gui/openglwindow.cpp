@@ -46,12 +46,16 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     QSurfaceFormat surfaceFormat = requestedFormat();
 
     surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
-    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    surfaceFormat.setProfile(QSurfaceFormat::CompatibilityProfile);
+    surfaceFormat.setDepthBufferSize(24);
+    surfaceFormat.setRedBufferSize(8);
+    surfaceFormat.setGreenBufferSize(8);
+    surfaceFormat.setBlueBufferSize(8);
+    surfaceFormat.setAlphaBufferSize(8);
+
     // Smoother lines
     surfaceFormat.setSamples(4);
-    //surfaceFormat.setAlphaBufferSize(8);
     setFormat(surfaceFormat);
-
     // Timer for getting FPS
     //timer = new QTimer(this);
     //connect(timer, SIGNAL(timeout()), this, SLOT(renderNow()));
