@@ -146,7 +146,7 @@ void getParams(int argc, char **argv)
         } else if (strcmp("-test", argv[i]) == 0) {
             flagTest = true;
             std::cout << "\n  Test mode: ON\n" << std::endl;
-            break;
+            continue;
         } else if (strcmp("-reshape", argv[i]) == 0) {
             flagReshape = true;
             std::cout << "\n  Reshape mode: ON\n" << std::endl;
@@ -486,7 +486,7 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
                 std::cout << "Dataset chunk size: " << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
 
                 std::cout << "Getting and setting global min and max values..." << std::endl;
-                dataset->findAndSetGlobalMinAndMaxValue(true);
+                dataset->findAndSetGlobalMinAndMaxValue();
                 float minValueGlobal = dataset->getGlobalMinValueF();
                 float maxValueGlobal = dataset->getGlobalMaxValueF();
 
