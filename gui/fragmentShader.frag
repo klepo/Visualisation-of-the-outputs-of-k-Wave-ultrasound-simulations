@@ -1,4 +1,4 @@
-#version 150
+#version 120
 
 #define highp
 #define mediump
@@ -12,7 +12,7 @@ uniform float uBlue;
 
 uniform sampler1D uColormapSampler;
 
-in vec4 vPosition;
+varying vec4 vPosition;
 //in vec4 vPositionL;
 //in vec4 vPositionF;
 
@@ -40,29 +40,29 @@ uniform bool uTrim;
 
 uniform sampler2D uSliceSampler;
 
-in vec2 vTextureCoord;
+varying vec2 vTextureCoord;
 
-out vec4 colorOut;
+//out vec4 colorOut;
 
 void main() {
     if (uFrame) {
 
-        colorOut = vec4(0.5, 0.5, 0.5, 1.0);
+        gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
 
     } else if (uXYBorder) {
 
-        colorOut = vec4(0.0, 0.0, 0.8, 1.0);
+        gl_FragColor = vec4(0.0, 0.0, 0.8, 1.0);
 
     } else if (uXZBorder) {
 
-        colorOut = vec4(0.0, 0.8, 0.0, 1.0);
+        gl_FragColor = vec4(0.0, 0.8, 0.0, 1.0);
 
     } else if (uYZBorder) {
 
-        colorOut = vec4(0.8, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(0.8, 0.0, 0.0, 1.0);
 
     } else if (uSlices) {
-        vec4 color = texture(uSliceSampler, vTextureCoord);
+        vec4 color = texture2D(uSliceSampler, vTextureCoord);
         if (uTrim) {
             if (color.r > uMax) discard;
             if (color.r < uMin) discard;
@@ -84,9 +84,9 @@ void main() {
         float minL = 20 * log(minN / maxN);*/
         //float value = ((valueL - minL) * 1.0) / (maxL - minL);
         float value = ((color.r - uMin) * 1.0) / (uMax - uMin);
-        vec4 fColor = texture(uColormapSampler, value);
+        vec4 fColor = texture1D(uColormapSampler, value);
 
-        colorOut = vec4(fColor.rgb, 0.9);
+        gl_FragColor = vec4(fColor.rgb, 0.9);
 
     } else {
 
@@ -94,7 +94,7 @@ void main() {
         if (vPosition.y > uYMax || vPosition.y < uYMin) discard;
         if (vPosition.z > uZMax || vPosition.z < uZMin) discard;
 
-        vec4 color = texture(uSampler, vec3((vPosition.x - 0.5f) / uWidth + 0.5f, (vPosition.y - 0.5f) / uHeight + 0.5f, (vPosition.z - 0.5f) / uDepth + 0.5f));
+        vec4 color = texture3D(uSampler, vec3((vPosition.x - 0.5f) / uWidth + 0.5f, (vPosition.y - 0.5f) / uHeight + 0.5f, (vPosition.z - 0.5f) / uDepth + 0.5f));
 
         //vec4 color = colorL;
 
@@ -127,8 +127,8 @@ void main() {
         }
 
         float value = ((color.r - uMin) * 1.0) / (uMax - uMin);
-        vec4 fColor = texture(uColormapSampler, value);
+        vec4 fColor = texture1D(uColormapSampler, value);
 
-        colorOut = vec4(fColor.rgb, uAlpha + fColor.r * uRed + fColor.g * uGreen +  fColor.b * uBlue);
+        gl_FragColor = vec4(fColor.rgb, uAlpha + fColor.r * uRed + fColor.g * uGreen +  fColor.b * uBlue);
     }
 }

@@ -57,12 +57,13 @@ std::string cutType = "YX";
 hsize_t cutIndex = 0;
 
 // Application modes
+bool flagTest = false;
 bool flagReshape = false;
 bool flagRechunk = false;
 bool flagView = false;
 bool flagDwnsmpl = false;
 
-int t0 = clock();
+double t0 = HDF5File::getTime();
 
 /**
  * @brief help
@@ -107,6 +108,8 @@ std::string help()
     "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
     "                                         groups for processing.\n"
     "\n"
+    "  -test ................................ Test mode. Reading test of 3D type datasets is performed.\n"
+    "\n"
     "  -help ................................ Prints this help message.\n"
     "\n";
 }
@@ -141,6 +144,10 @@ void getParams(int argc, char **argv)
         } else if (strcmp("-help", argv[i]) == 0) {
             std::cout << help() << std::endl;
             exit(EXIT_SUCCESS);
+            continue;
+        } else if (strcmp("-test", argv[i]) == 0) {
+            flagTest = true;
+            std::cout << "\n  Test mode: ON\n" << std::endl;
             continue;
         } else if (strcmp("-reshape", argv[i]) == 0) {
             flagReshape = true;
@@ -299,7 +306,7 @@ HDF5File *loadSimulationFile(std::string simulationFilename)
 {
     HDF5File *hDF5SimulationFile = NULL;
     try {
-        hDF5SimulationFile = new HDF5File(simulationFilename, HDF5File::OPEN, true);
+        hDF5SimulationFile = new HDF5File(simulationFilename, HDF5File::OPEN);
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
@@ -460,6 +467,98 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
     }
 }
 
+void testOfReading(DatasetsForProcessing *datasetsForProcessing)
+{
+    // Check number of datasets
+    if (datasetsForProcessing->datasets3DType.empty()/* && datasetsForProcessing->datasetsGroupType.empty()*/) {
+        std::cout << "No dataset for test in simulation output file" << std::endl;
+    } else {
+        // For every 3D type dataset
+        for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
+            try {
+                HDF5File::HDF5Dataset *dataset = it->second;
+
+                std::cout << "Dataset: " << dataset->getName() << std::endl << std::endl;
+
+                float minValue = 0;
+                float maxValue = 0;
+                hsize_t *size = dataset->getDims();
+                std::cout << "Dataset size:       " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
+                hsize_t *chunkSize = dataset->getChunkDims();
+                std::cout << "Dataset chunk size: " << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
+
+                std::cout << "Getting and setting global min and max values..." << std::endl;
+                dataset->findAndSetGlobalMinAndMaxValue();
+                float minValueGlobal = dataset->getGlobalMinValueF();
+                float maxValueGlobal = dataset->getGlobalMaxValueF();
+
+                std::cout << "   minValueGlobal: " << minValueGlobal << "\tmaxValueGlobal: " << maxValueGlobal << std::endl;
+
+                std::cout << std::endl;
+
+                float *data = NULL;
+                uint64_t height = 0;
+                uint64_t width = 0;
+
+                // XY
+                dataset->read3DDataset(0, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(2, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] / 2 - 1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] / 2, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] / 2 + 1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] - 3, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] - 2, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                dataset->read3DDataset(size[0] - 1, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
+                //height = size[1];
+                //width = size[2];
+                //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
+                //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
+                delete [] data;
+
+                // XZ
+                dataset->read3DDataset(0, 0, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, 2, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] / 2 - 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] / 2, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] / 2 + 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] - 3, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] - 2, 0, size[0], 1, size[2], data, minValue, maxValue);
+                dataset->read3DDataset(0, size[1] - 1, 0, size[0], 1, size[2], data, minValue, maxValue);
+                //height = size[0];
+                //width = size[2];
+                //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
+                //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
+                delete [] data;
+
+                // YZ
+                dataset->read3DDataset(0, 0, 0, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, 1, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, 2, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] / 2 - 1, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] / 2, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] / 2 + 1, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] - 3, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] - 2, size[0], size[1], 1, data, minValue, maxValue);
+                dataset->read3DDataset(0, 0, size[2] - 1, size[0], size[1], 1, data, minValue, maxValue);
+                //height = size[0];
+                //width = size[1];
+                //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
+                //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
+                delete [] data;
+
+
+                std::cout << std::endl;
+
+            } catch(std::exception &e) {
+                std::cerr << e.what() << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+        }
+    }
+}
+
 /**
  * @brief reshape Performs reshaping of sensor mask type datasets
  * @param hDF5SimulationOutputFile
@@ -594,7 +693,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                     datasetsForProcessing->sensorMaskIndexDataset->readBlock(zO, yMO, xO, zC, yC, xC, sensorMaskData, minVI, maxVI);
                     dataset->readBlock(zO, yDO, xO, zC, yC, xC, datasetData, minVF, maxVF);
 
-                    int t4 = clock();
+                    double t4 = HDF5File::getTime();
                     // For the entire block write "voxels"
                     for (hsize_t z = 0; z < zC; z++)
                         for (hsize_t y = 0; y < yC; y++)
@@ -605,9 +704,9 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                                 // Save from position (0,0,0)
                                 actualDataset->write3DDataset(zM - minZ, yM - minY, xM - minX, 1, 1, 1, data, false);
                             }
-                    int t5 = clock();
+                    double t5 = HDF5File::getTime();
 
-                    std::cout << "write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << std::endl;
+                    std::cout << "write time: " << (t5-t4) << " ms; \t" << std::endl;
 
                     delete [] sensorMaskData;
                     delete [] datasetData;
@@ -1106,12 +1205,16 @@ void visualize(HDF5File *hDF5ViewFile)
                 if (width > height) {
                     int dstWidth = 300;
                     cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                    // Set original size
+                    size = imageL.size();
                     cv::resize(imageL, imageL, size);
                     cv::resize(imageG, imageG, size);
                     cv::resize(imageGG, imageGG, size);
                 } else {
                     int dstHeight = 300;
                     cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                    // Set original size
+                    size = imageL.size();
                     cv::resize(imageL, imageL, size);
                     cv::resize(imageG, imageG, size);
                     cv::resize(imageGG, imageGG, size);
@@ -1187,11 +1290,15 @@ void visualize(HDF5File *hDF5ViewFile)
             if (width > height) {
                 int dstWidth = 300;
                 cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                // Set original size
+                size = imageL.size();
                 cv::resize(imageL, imageLUP, size);
                 cv::resize(imageG, imageGUP, size);
             } else {
                 int dstHeight = 300;
                 cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                // Set original size
+                size = imageL.size();
                 cv::resize(imageL, imageLUP, size);
                 cv::resize(imageG, imageGUP, size);
             }
@@ -1331,6 +1438,12 @@ int main(int argc, char **argv)
     printDebugTitle("Find datasets for visualization for processing");
     findDatasetsForProcessing(hDF5SimulationOutputFile, datasetsForProcessing);
 
+    // Test dataset reading
+    if (flagTest) {
+        printDebugTitle("Testing");
+        testOfReading(datasetsForProcessing);
+    }
+
     if (flagReshape || flagRechunk || flagDwnsmpl) {
         // Create new file
         printDebugTitle("Create or open output file");
@@ -1377,9 +1490,9 @@ int main(int argc, char **argv)
     delete hDF5SimulationInputFile;
     delete hDF5OutputFile;
 
-    int t1 = clock();
+    double t1 = HDF5File::getTime();
 
-    std::cout << std::endl << std::endl << "Time of the entire process: " << (t1-t0) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << std::endl << std::endl << std::endl;
+    std::cout << std::endl << std::endl << "Time of the entire process: " << (t1-t0) << " ms; \t" << std::endl << std::endl << std::endl;
 
     //return a.exec();
     std::exit(EXIT_SUCCESS);

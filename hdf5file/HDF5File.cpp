@@ -582,3 +582,18 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
 
     index = x + 1 + nX * (y) + (z) * nX * nY;
 }
+
+double HDF5File::getTime()
+{
+    #ifdef __unix
+        timeval tv;
+        gettimeofday (&tv, NULL);
+        return double (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+    #endif
+
+    #ifdef _WIN32
+        SYSTEMTIME time;
+        GetSystemTime(&time);
+        return double(time.wSecond * 1000) + time.wMilliseconds;
+    #endif
+}
