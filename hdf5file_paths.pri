@@ -9,8 +9,8 @@ CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/build/hdf5file/debug/libhd
 
 CONFIG(release, debug|release): hdf5file.target = $$PWD/build/hdf5file/release/libhdf5file.a
 CONFIG(debug, debug|release): hdf5file.target = $$PWD/build/hdf5file/debug/libhdf5file.a
-CONFIG(release, debug|release): hdf5file.commands = cd $$PWD/hdf5file && qmake && $(MAKE)
-CONFIG(debug, debug|release): hdf5file.commands = cd $$PWD/hdf5file && qmake CONFIG+=debug && $(MAKE)
+CONFIG(release, debug|release): hdf5file.commands = cd $$PWD/hdf5file && qmake && make clean && $(MAKE)
+CONFIG(debug, debug|release): hdf5file.commands = cd $$PWD/hdf5file && qmake CONFIG+=debug && make clean && $(MAKE)
 #hdf5file.depends = $$PWD/hdf5file/Makefile
 QMAKE_EXTRA_TARGETS += hdf5file
 
