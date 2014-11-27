@@ -216,8 +216,8 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
         // Create memspace and dataspace
         H5::DataSpace memspace((int) rank, dims);
         H5::DataSpace dataspace = dataset.getSpace();
-        if (size > HDF5File::SIZE_OF_DATA_PART)
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " floats)"));
+        if (size > this->hDF5File->getSizeOfDataPart())
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
         //mutex.lock();
         try {
             data = new float[size](); // TODO kontrola dostupné paměti
@@ -252,8 +252,8 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
         // Create memspace and dataspace
         H5::DataSpace memspace((int) rank, dims);
         H5::DataSpace dataspace = dataset.getSpace();
-        if (size > HDF5File::SIZE_OF_DATA_PART)
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " unsigned 64-bit integers)"));
+        if (size > this->hDF5File->getSizeOfDataPart())
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
         //mutex.lock();
         try {
             data = new uint64_t[size]();
@@ -306,8 +306,8 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
-    if (xC * yC * zC > HDF5File::SIZE_OF_DATA_PART)
-        throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " floats)"));
+    if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
+        throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
     try {
         mutex.lock();
 
@@ -382,8 +382,8 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
-    if (xC * yC * zC > HDF5File::SIZE_OF_DATA_PART)
-        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " unsigned 64-bit integers)"));
+    if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
+        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
     try {
         //mutex.lock();
 
@@ -690,6 +690,15 @@ void HDF5File::HDF5Dataset::initBlockReading(hsize_t maxSize)
 
     blockInitialized = true;
     lastBlock = false;
+}
+
+/**
+ * @brief HDF5File::HDF5Dataset::initBlockReading Init block reading
+ * @param maxSize (volatile) max block size
+ */
+void HDF5File::HDF5Dataset::initBlockReading()
+{
+    initBlockReading(this->hDF5File->getSizeOfDataPart());
 }
 
 /**

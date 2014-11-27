@@ -46,6 +46,7 @@ std::string outputFilename = "";
 // Size vars
 hsize_t maxSize = MAX_SIZE;
 hsize_t maxChunkSize = MAX_CHUNK_SIZE;
+hsize_t blockSize = SIZE_OF_DATA_PART; // From HDF5File.h
 
 // Filter by names
 std::list<std::string> names;
@@ -108,7 +109,9 @@ std::string help()
     "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
     "                                         groups for processing.\n"
     "\n"
-    "  -test ................................ Test mode. Reading test of 3D type datasets is performed.\n"
+    "  -test ................................ Optional parameter. Test mode. Reading test of 3D type datasets is performed.\n"
+    "\n"
+    "  -c blockSize ......................... Optional parameter. Set number of data elements for block reading.\n"
     "\n"
     "  -help ................................ Prints this help message.\n"
     "\n";
@@ -232,6 +235,24 @@ void getParams(int argc, char **argv)
                 std::cout << "\n  Max size for downsampling:\n    " << maxSize << std::endl;
             } catch (std::invalid_argument error) {
                 std::cerr << "\n  Wrong parameter -s (max size for downsampling)" << std::endl;
+                std::cout << help() << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        } else if (strcmp("-c", argv[i]) == 0) {
+            i++;
+            if (argc <= i) {
+                std::cerr << "\n  Wrong parameter -c (max size for block reading)" << std::endl;
+                std::cout << help() << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            try {
+                size_t s;
+                blockSize = std::stoi(argv[i], &s);
+                if (strlen(argv[i]) != s)
+                    throw std::invalid_argument(argv[i]);
+                std::cout << "\n  Max size for block reading:\n    " << blockSize << std::endl;
+            } catch (std::invalid_argument error) {
+                std::cerr << "\n  Wrong parameter -c (max size for block reading)" << std::endl;
                 std::cout << help() << std::endl;
                 exit(EXIT_FAILURE);
             }
@@ -467,7 +488,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
     }
 }
 
-void testOfReading(DatasetsForProcessing *datasetsForProcessing)
+void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *datasetsForProcessing)
 {
     // Check number of datasets
     if (datasetsForProcessing->datasets3DType.empty()/* && datasetsForProcessing->datasetsGroupType.empty()*/) {
@@ -478,7 +499,8 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
             try {
                 HDF5File::HDF5Dataset *dataset = it->second;
 
-                std::cout << "Dataset: " << dataset->getName() << std::endl << std::endl;
+                std::cout << "Dataset: " << dataset->getName() << std::endl;
+                std::cout << std::endl;
 
                 float minValue = 0;
                 float maxValue = 0;
@@ -497,8 +519,33 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
                 std::cout << std::endl;
 
                 float *data = NULL;
-                uint64_t height = 0;
-                uint64_t width = 0;
+                //uint64_t height = 0;
+                //uint64_t width = 0;
+                hsize_t xO, yO, zO, xC, yC, zC;
+
+                std::cout << "Block reading test..." << std::endl;
+                std::cout << "   reading block size (number of elements): " << hDF5SimulationOutputFile->getSizeOfDataPart() << std::endl;
+                std::cout << std::endl;
+
+                double ts = HDF5File::getTime();
+
+                dataset->initBlockReading();
+                do {
+                    dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
+                    delete [] data; // !!
+                } while (!dataset->isLastBlock());
+
+                double tf = HDF5File::getTime();
+
+                std::cout << std::endl;
+                std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;
+
+                std::cout << std::endl;
+
+                std::cout << "Slices reading test..." << std::endl;
+                std::cout << std::endl;
+
+                std::cout << "   XY" << std::endl;
 
                 // XY
                 dataset->read3DDataset(0, 0, 0, 1, size[1], size[2], data, minValue, maxValue);
@@ -516,6 +563,8 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
                 //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
                 delete [] data;
 
+                std::cout << "   XZ" << std::endl;
+
                 // XZ
                 dataset->read3DDataset(0, 0, 0, size[0], 1, size[2], data, minValue, maxValue);
                 dataset->read3DDataset(0, 1, 0, size[0], 1, size[2], data, minValue, maxValue);
@@ -531,6 +580,8 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
                 //std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
                 //std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
                 delete [] data;
+
+                std::cout << "   YZ" << std::endl;
 
                 // YZ
                 dataset->read3DDataset(0, 0, 0, size[0], size[1], 1, data, minValue, maxValue);
@@ -639,8 +690,8 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                 float minVF = 0, maxVF = 0;
                 float minVFG = 0, maxVFG = 0;
                 bool first = true;
-                hsize_t xO, yMO, yDO, zO;
-                hsize_t xC, yC, zC;
+                hsize_t xO, yMO, yDO, zO; // Offset
+                hsize_t xC, yC, zC; // Count
 
                 datasetsForProcessing->sensorMaskIndexDataset->initBlockReading();
                 // Set same block size as sensorMaskIndexDataset
@@ -665,7 +716,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                 float data[1];
 
                 do {
-                    // Next time step (yDO)
+                    // Next time step for group of datasets (yDO)
                     if (datasetsForProcessing->sensorMaskIndexDataset->isLastBlock()) {
                         /*if (MAX_NUMBER_OF_FRAMES > 0) // TODO
                             if (yDO + 1 >= MAX_NUMBER_OF_FRAMES)
@@ -689,7 +740,8 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                         actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO+1));
                     }
 
-                    // Offset is unused (zO, yMO, xO)
+                    // Offset is unused here (except yDO), but for block reading is important (zO, yMO/yDO, xO)
+                    // zO and xO is same, but yMO and yDO can be different, yDO is number of time step, yMO should be always 0
                     datasetsForProcessing->sensorMaskIndexDataset->readBlock(zO, yMO, xO, zC, yC, xC, sensorMaskData, minVI, maxVI);
                     dataset->readBlock(zO, yDO, xO, zC, yC, xC, datasetData, minVF, maxVF);
 
@@ -1408,12 +1460,14 @@ int main(int argc, char **argv)
     } else {
         printDebugTitle("Load simulation output file");
         hDF5SimulationOutputFile = loadSimulationFile(simulationOutputFilename);
+        hDF5SimulationOutputFile->setSizeOfDataPart(blockSize);
     }
 
     // Load simulation input file
     if (!simulationInputFilename.empty()) {
         printDebugTitle("Load simulation input file");
         hDF5SimulationInputFile = loadSimulationFile(simulationInputFilename);
+        hDF5SimulationInputFile->setSizeOfDataPart(blockSize);
     }
 
     // Find and get sensor mask dataset
@@ -1438,16 +1492,18 @@ int main(int argc, char **argv)
     printDebugTitle("Find datasets for visualization for processing");
     findDatasetsForProcessing(hDF5SimulationOutputFile, datasetsForProcessing);
 
+
     // Test dataset reading
     if (flagTest) {
         printDebugTitle("Testing");
-        testOfReading(datasetsForProcessing);
+        testOfReading(hDF5SimulationOutputFile, datasetsForProcessing);
     }
 
     if (flagReshape || flagRechunk || flagDwnsmpl) {
         // Create new file
         printDebugTitle("Create or open output file");
         hDF5OutputFile = createOrOpenOutputFile(outputFilename);
+        hDF5OutputFile->setSizeOfDataPart(blockSize);
         // Copy dimensions and attributes
         printDebugTitle("Copy dimensions and attributes");
         copyDimensionsAndAttributes(hDF5SimulationOutputFile, hDF5OutputFile);

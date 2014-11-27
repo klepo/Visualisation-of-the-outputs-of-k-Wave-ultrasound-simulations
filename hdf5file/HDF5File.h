@@ -35,6 +35,8 @@
 #include <windows.h>
 #endif
 
+#define SIZE_OF_DATA_PART 4096*4096*2
+
 #include <mutex>
 
 class HDF5File
@@ -74,13 +76,15 @@ public:
 
     static double getTime();
 
+    void setSizeOfDataPart(uint64_t size);
+    uint64_t getSizeOfDataPart();
+
     static const H5std_string NT;
     static const H5std_string NX;
     static const H5std_string NY;
     static const H5std_string NZ;
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
-    static const uint64_t SIZE_OF_DATA_PART = 4096*4096*2;
     static hsize_t ZERO_CHUNK[3];
 
     uint64_t getNT();
@@ -110,6 +114,7 @@ protected:
 
 private:
     class HDF5Object;
+    uint64_t sizeOfDataPart;
 
 };
 

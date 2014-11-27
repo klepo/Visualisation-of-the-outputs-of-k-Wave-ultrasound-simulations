@@ -41,7 +41,10 @@ std::mutex HDF5File::mutex;
  */
 HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 {
+    this->sizeOfDataPart = SIZE_OF_DATA_PART;
+
     this->filename = filename;
+
     // Try block to detect exceptions raised by any of the calls inside it
     try {
         H5::Exception::dontPrint();
@@ -596,4 +599,14 @@ double HDF5File::getTime()
         GetSystemTime(&time);
         return double(time.wSecond * 1000) + time.wMilliseconds;
     #endif
+}
+
+void HDF5File::setSizeOfDataPart(uint64_t size)
+{
+    this->sizeOfDataPart = size;
+}
+
+uint64_t HDF5File::getSizeOfDataPart()
+{
+    return this->sizeOfDataPart;
 }
