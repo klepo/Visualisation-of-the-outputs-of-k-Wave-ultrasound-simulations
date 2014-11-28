@@ -529,13 +529,19 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
 
                 double ts = HDF5File::getTime();
 
+                double ts0 = HDF5File::getTime();
                 dataset->initBlockReading();
+                double tf0 = HDF5File::getTime();
+                std::cout << "initBlockReading time: " << (tf0-ts0) << " ms; \t" << std::endl;
                 do {
-                    dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
                     double ts1 = HDF5File::getTime();
-                    delete [] data; // !!
+                    dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
                     double tf1 = HDF5File::getTime();
-                    std::cout << "delete time: " << (tf1-ts1) << " ms; \t" << std::endl;
+                    std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
+                    double ts2 = HDF5File::getTime();
+                    delete [] data; // !!
+                    double tf2 = HDF5File::getTime();
+                    std::cout << "delete time: " << (tf2-ts2) << " ms; \t" << std::endl;
                 } while (!dataset->isLastBlock());
 
                 double tf = HDF5File::getTime();
