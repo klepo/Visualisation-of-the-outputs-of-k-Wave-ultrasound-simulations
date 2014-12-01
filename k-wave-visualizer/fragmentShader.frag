@@ -31,6 +31,8 @@ uniform float uMin;
 uniform float uMax;
 
 uniform bool uFrame;
+uniform vec4 uFrameColor;
+
 uniform bool uXYBorder;
 uniform bool uXZBorder;
 uniform bool uYZBorder;
@@ -47,7 +49,7 @@ varying vec2 vTextureCoord;
 void main() {
     if (uFrame) {
 
-        gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
+        gl_FragColor = uFrameColor;
 
     } else if (uXYBorder) {
 
