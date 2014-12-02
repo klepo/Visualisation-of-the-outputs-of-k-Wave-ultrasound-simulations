@@ -41,7 +41,10 @@ std::mutex HDF5File::mutex;
  */
 HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 {
+    this->sizeOfDataPart = SIZE_OF_DATA_PART;
+
     this->filename = filename;
+
     // Try block to detect exceptions raised by any of the calls inside it
     try {
         H5::Exception::dontPrint();
@@ -51,7 +54,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
         //access_plist.setCache(0, 1048576 * 4, 1048576 * 16, 0.75);
         //access_plist.setCache(0, 1048576 / 4, 1048576, 0.75);
         // Set chunk cache
-        access_plist.setCache(0, 1048576, 64 * 64 * 64 * 32 * 8 * 2, 0.75);
+        //access_plist.setCache(0, 1048576, 64 * 64 * 64 * 32 * 8 * 2, 0.75);
         //access_plist.setCache(0, 0, 0, 0.75);
 
         // Create log file
@@ -581,4 +584,29 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
     if (z >= nZ) throw std::runtime_error("Wrong z - too big z");
 
     index = x + 1 + nX * (y) + (z) * nX * nY;
+}
+
+double HDF5File::getTime()
+{
+    #ifdef __unix
+        timeval tv;
+        gettimeofday (&tv, NULL);
+        return double (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+    #endif
+
+    #ifdef _WIN32
+        SYSTEMTIME time;
+        GetSystemTime(&time);
+        return double(time.wSecond * 1000) + time.wMilliseconds;
+    #endif
+}
+
+void HDF5File::setSizeOfDataPart(uint64_t size)
+{
+    this->sizeOfDataPart = size;
+}
+
+uint64_t HDF5File::getSizeOfDataPart()
+{
+    return this->sizeOfDataPart;
 }

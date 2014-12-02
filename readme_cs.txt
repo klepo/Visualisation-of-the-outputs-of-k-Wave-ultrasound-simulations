@@ -3,13 +3,16 @@ Manuál
 
 Přeložení zdrojových kódů
 
-Pro překlad je využíván multiplatformní nástroj qmake (http://qt-project.org/doc/qt-5/qmake-manual.html). Tento nástroj automaticky generuje soubory Makefile pro platformu, na které je prováděn překlad. Pro vývoj aplikací je vhodné používat Qt Creator, který automaticky vygeneruje pomocí qmake Makefile a následně aplikaci přeloží. Při použití příkazové řádky např. na systému linux stačí provést v umístění projektového souboru příkaz qmake a poté make.
+Pro překlad je využíván multiplatformní nástroj qmake (http://qt-project.org/doc/qt-5/qmake-manual.html). Tento nástroj automaticky generuje soubory Makefile pro platformu, na které je prováděn překlad. Pro vývoj aplikací je vhodné používat Qt Creator, který automaticky vygeneruje pomocí qmake Makefile a následně aplikaci přeloží. Při použití příkazové řádky např. na systému linux stačí provést v umístění projektového souboru (*.pro) příkaz qmake a poté make.
+
+hdf5file
+Pomocná knihovna pro práci s HDF5 soubory, je vyžadována pro překlad aplikací k-wave-h5-processing a k-wave-visualizer. Cesty ke knihovně hdf5file jsou nastaveny souboru "/hdf5file_paths.pri". Pro překlad knihovny hdf5file je potřeba nastavit správné cesty (INCLUDEPATH, LIBS a QMAKE_LFLAGS += -Wl,-rpath,/... v Linuxu) ke knihovně HDF5 v souboru "/hdf5_paths.pri"
 
 k-wave-h5-processing
-Projektový soubor konzolové aplikace (k-wave-h5-processing.pro) se nachází ve složce /src/k-wave-h5-processing/k-wave-h5-processing/. Pro překlad konzolové aplikace je nutné nastavit správné cesty (INCLUDEPATH a LIBS) ke knihovně HDF5 v souboru /src/k-wave-h5-processing/hdf5file/hdf5file.pri a ke knihovně OpenCV v souboru /src/k-wave-h5-processing/main/main.pro.
+Projektový soubor konzolové aplikace (k-wave-h5-processing.pro) se nachází ve složce "/k-wave-h5-processing". Pro překlad konzolové aplikace je nutné nastavit správné cesty (INCLUDEPATH, LIBS a QMAKE_LFLAGS += -Wl,-rpath,/...) ke knihovně OpenCV v souboru "/opencv_paths.pri". Aplikace se přeloží do adresáře "/build/k-wave-h5-processing".
 
 k-wave-visualizer
-Projektový soubor grafické aplikace je umístěn v adresáři /src/gui/gui/. V tomto souboru (gui.pro) je nutné nastavit správné cesty ke knihovně OpenCV a dále ke statické knihovně hdf5file, která je vytvořena při překladu konzolové aplikace. Při zachování adresářové struktury by měly být cesty k hdf5file nastaveny správně. Pro překlad grafické aplikace je vyžadována verze Qt 5.1 a vyšší.
+Projektový soubor grafické aplikace (k-wave-visualizer.pro) je umístěn v adresáři "/k-wave-visualizer". Pro překlad grafické aplikace je vyžadována verze Qt 5.1 nebo vyšší a je nutné nastavit správné cesty (INCLUDEPATH, LIBS a QMAKE_LFLAGS += -Wl,-rpath,/...) ke knihovně OpenCV v souboru "/opencv_paths.pri". Aplikace se přeloží do adresáře "/build/k-wave-visualizer".
 
 Použití aplikací
 

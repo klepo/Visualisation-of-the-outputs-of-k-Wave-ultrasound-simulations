@@ -21,7 +21,7 @@
 #include <QTimer>
 #include <QThread>
 
-#include <QOpenGLFunctions_3_1>
+#include <QOpenGLFunctions_2_1>
 
 
 QT_BEGIN_NAMESPACE
@@ -30,7 +30,7 @@ class QOpenGLContext;
 class QOpenGLPaintDevice;
 QT_END_NAMESPACE
 
-class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_1
+class OpenGLWindow : public QWindow, public QOpenGLFunctions_2_1
 {
     Q_OBJECT
 

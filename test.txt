@@ -1,0 +1,9 @@
+
+Otestovat rychlost ètení øezù...
+
+	- data 512^3 1024^3 1536x1536x2048
+	- naèítání posloupnosti øezù
+	- chunked/continuous
+	- napsat na to script
+	- logovat do souboru
+	- spustit ve frontì

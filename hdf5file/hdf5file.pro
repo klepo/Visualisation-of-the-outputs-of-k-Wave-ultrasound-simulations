@@ -13,6 +13,21 @@ CONFIG -= qt
 
 TARGET = hdf5file
 
+CONFIG(debug, debug|release) {
+    DESTDIR = ../build/$$TARGET/debug
+} else {
+    DESTDIR = ../build/$$TARGET/release
+}
+
+#unix {
+#    DESTDIR = ../build/$$TARGET
+#}
+
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
+RCC_DIR = $$DESTDIR/.qrc
+UI_DIR = $$DESTDIR/.ui
+
 #QMAKE_CFLAGS_DEBUG += -MTd
 #QMAKE_CFLAGS_RELEASE += -MT
 #QMAKE_CXXFLAGS_DEBUG += -MTd
@@ -22,6 +37,8 @@ TARGET = hdf5file
 #QMAKE_CFLAGS_RELEASE -= -MD
 #QMAKE_CXXFLAGS_DEBUG -= -MDd
 #QMAKE_CXXFLAGS_RELEASE -= -MD
+
+unix:QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += HDF5File.cpp HDF5Object.cpp HDF5Dataset.cpp HDF5Group.cpp HDF5Attribute.cpp
 

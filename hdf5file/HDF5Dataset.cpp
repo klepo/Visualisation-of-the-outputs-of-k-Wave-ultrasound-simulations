@@ -16,7 +16,7 @@
 
 #include "HDF5Dataset.h"
 
-#include <time.h>   // clock()
+//#include <time.h>   // getTime()
 
 /**
  * @brief HDF5File::HDF5Dataset::HDF5Dataset
@@ -216,8 +216,8 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
         // Create memspace and dataspace
         H5::DataSpace memspace((int) rank, dims);
         H5::DataSpace dataspace = dataset.getSpace();
-        if (size > HDF5File::SIZE_OF_DATA_PART)
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " floats)"));
+        if (size > this->hDF5File->getSizeOfDataPart())
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
         //mutex.lock();
         try {
             data = new float[size](); // TODO kontrola dostupné paměti
@@ -226,11 +226,11 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " floats)").c_str());
         }
         try {
-            int t4 = clock();
+            double t4 = getTime();
             // Reading
             dataset.read(data, typeF, memspace, dataspace);
-            int t5 = clock();
-            std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms;" << std::endl;
+            double t5 = getTime();
+            std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
         } catch(H5::DataSetIException error) {
             error.printError();
             //mutex.unlock();
@@ -252,8 +252,8 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
         // Create memspace and dataspace
         H5::DataSpace memspace((int) rank, dims);
         H5::DataSpace dataspace = dataset.getSpace();
-        if (size > HDF5File::SIZE_OF_DATA_PART)
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " unsigned 64-bit integers)"));
+        if (size > this->hDF5File->getSizeOfDataPart())
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
         //mutex.lock();
         try {
             data = new uint64_t[size]();
@@ -262,11 +262,11 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " unsigned 64-bit integers)").c_str());
         }
         try {
-            int t4 = clock();
+            double t4 = getTime();
             // Read
             dataset.read(data, typeI, memspace, dataspace);
-            int t5 = clock();
-            std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms;" << std::endl;
+            double t5 = getTime();
+            std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
         } catch(H5::DataSetIException error) {
             error.printError();
             //mutex.unlock();
@@ -306,8 +306,8 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
-    if (xC * yC * zC > HDF5File::SIZE_OF_DATA_PART)
-        throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " floats)"));
+    if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
+        throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
     try {
         mutex.lock();
 
@@ -324,18 +324,18 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " floats)").c_str());
         }
 
-        int t4 = clock();
+        double t4 = getTime();
         // Reading
         dataset.read(data, typeF, memspace, dataspace);
-        int t5 = clock();
-        std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        double t5 = getTime();
+        std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
         // Debug output
         if ((*hDF5File->getLogFileStream()).is_open()) {
             int r = 0;
             if (count[0] == 1) r = 0;
             if (count[1] == 1) r = 1;
             if (count[2] == 1) r = 2;
-            *hDF5File->getLogFileStream() << (t5-t4) / (CLOCKS_PER_SEC / 1000) << ";"<< offset[0] << ";" << offset[1] << ";" << offset[2] << ";" << r << std::endl;
+            *hDF5File->getLogFileStream() << (t5-t4) << ";"<< offset[0] << ";" << offset[1] << ";" << offset[2] << ";" << r << std::endl;
         }
 
         // Find the miminum and maximum value
@@ -382,8 +382,8 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
-    if (xC * yC * zC > HDF5File::SIZE_OF_DATA_PART)
-        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(HDF5File::SIZE_OF_DATA_PART) + " unsigned 64-bit integers)"));
+    if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
+        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
     try {
         //mutex.lock();
 
@@ -400,10 +400,10 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers)").c_str());
         }
 
-        int t4 = clock();
+        double t4 = getTime();
         dataset.read(data, typeI, memspace, dataspace);
-        int t5 = clock();
-        std::cout << name << " read time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        double t5 = getTime();
+        std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
         HDF5Dataset::getMinAndMaxValue(data, xC * yC * zC, minVI, maxVI);
 
@@ -453,14 +453,14 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
         dataspace.selectHyperslab(H5S_SELECT_SET, count, offset);
         H5::DataSpace memspace(3, count);
         memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
-        int t4, t5;
+        double t4, t5;
         if (log)
-            t4 = clock();
+            t4 = getTime();
         dataset.write(data, typeF, memspace, dataspace);
         if (log)
-            t5 = clock();
+            t5 = getTime();
         if (log)
-            std::cout << name << " write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+            std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
         //mutex.unlock();
     } catch(H5::DataSpaceIException error) {
         error.printError();
@@ -507,14 +507,14 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
         dataspace.selectHyperslab(H5S_SELECT_SET, count, offset);
         H5::DataSpace memspace(3, count);
         memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
-        int t4, t5;
+        double t4, t5;
         if (log)
-            t4 = clock();
+            t4 = getTime();
         dataset.write(data, typeI, memspace, dataspace);
         if (log)
-            t5 = clock();
+            t5 = getTime();
         if (log)
-            std::cout << name << " write time: " << (t5-t4) / (CLOCKS_PER_SEC / 1000) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+            std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
         //mutex.unlock();
     } catch(H5::DataSpaceIException error) {
         error.printError();
@@ -690,6 +690,15 @@ void HDF5File::HDF5Dataset::initBlockReading(hsize_t maxSize)
 
     blockInitialized = true;
     lastBlock = false;
+}
+
+/**
+ * @brief HDF5File::HDF5Dataset::initBlockReading Init block reading
+ * @param maxSize (volatile) max block size
+ */
+void HDF5File::HDF5Dataset::initBlockReading()
+{
+    initBlockReading(this->hDF5File->getSizeOfDataPart());
 }
 
 /**

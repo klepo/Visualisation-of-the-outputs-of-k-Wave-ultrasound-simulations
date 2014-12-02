@@ -39,7 +39,8 @@ public:
     void getMinAndMaxValue(float *data, hsize_t size, float &minVF, float &maxVF);
     void getMinAndMaxValue(uint64_t *data, hsize_t size, uint64_t &minVI, uint64_t &maxVI);
 
-    void initBlockReading(hsize_t maxSize = HDF5File::SIZE_OF_DATA_PART);
+    void initBlockReading();
+    void initBlockReading(hsize_t maxSize);
     void setOffset(hsize_t zO_, hsize_t yO_, hsize_t xO_);
 
     bool isLastBlock();

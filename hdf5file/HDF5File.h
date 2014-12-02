@@ -23,10 +23,19 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <algorithm>
 
 #ifdef __unix
 #include <stdexcept>
+#include <sys/time.h>
 #endif
+
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+#define SIZE_OF_DATA_PART 4096*4096*2
 
 #include <mutex>
 
@@ -65,13 +74,17 @@ public:
     void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
     void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
 
+    static double getTime();
+
+    void setSizeOfDataPart(uint64_t size);
+    uint64_t getSizeOfDataPart();
+
     static const H5std_string NT;
     static const H5std_string NX;
     static const H5std_string NY;
     static const H5std_string NZ;
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
-    static const uint64_t SIZE_OF_DATA_PART = 4096*4096*2;
     static hsize_t ZERO_CHUNK[3];
 
     uint64_t getNT();
@@ -101,6 +114,7 @@ protected:
 
 private:
     class HDF5Object;
+    uint64_t sizeOfDataPart;
 
 };
 

@@ -29,6 +29,7 @@
 #include <QTime>
 #include <QMouseEvent>
 #include <QMessageBox>
+#include <QPalette>
 
 #include <HDF5File.h>
 #include <HDF5Group.h>
@@ -163,7 +164,7 @@ GLenum checkGlError()
 /**
  * @brief GWindow::GWindow
  */
-GWindow::GWindow()
+GWindow::GWindow(QMainWindow *qMainWindow)
     : m_program(0)
     , frame(true)
     , trim(0)
@@ -175,6 +176,8 @@ GWindow::GWindow()
     , initialized(false)
 
 {
+    this->qMainWindow = qMainWindow;
+
     // Init indices for 3D slices
     xYIndex = 0;
     xZIndex = 0;
@@ -186,7 +189,7 @@ GWindow::GWindow()
     red = 0.5f;
     green = 0.5f;
     blue = 0.5f;
-    zoom = -15.0f;
+    zoom = 2.0f;
 
     // Default sizes for 3D frames
     imageWidth = 1;
@@ -259,6 +262,7 @@ void GWindow::initialize()
 
     // Init uniform variables
     m_uFrame = m_program->uniformLocation("uFrame");
+    m_uFrameColor = m_program->uniformLocation("uFrameColor");
     m_uXYBorder = m_program->uniformLocation("uXYBorder");
     m_uXZBorder = m_program->uniformLocation("uXZBorder");
     m_uYZBorder = m_program->uniformLocation("uYZBorder");
@@ -322,7 +326,8 @@ void GWindow::initialize()
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_3D);
+    //glGenerateMipmap(GL_TEXTURE_3D);
+    glTexParameteri(GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -335,7 +340,8 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_1D);
+    //glGenerateMipmap(GL_TEXTURE_1D);
+    glTexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
     // 2D textures
@@ -345,7 +351,8 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -355,7 +362,8 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -365,15 +373,18 @@ void GWindow::initialize()
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // Settings
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-    glClearColor((float) 16 / 17, (float) 16 / 17, (float) 16 / 17, 0.0f);
+    //glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    //glClearColor((float) 16 / 18, (float) 16 / 18, (float) 16 / 18, 0.0f);
+    QColor color = qMainWindow->palette().color(QPalette::Window);
+    glClearColor((float) color.redF(), (float) color.greenF(), (float) color.blueF(), (float) color.alphaF());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -383,13 +394,14 @@ void GWindow::initialize()
     glBlendEquation(GL_FUNC_ADD);
 
 
-    glLineWidth(3);
+    glLineWidth(2);
 
     //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
     //glBlendFunc(GL_ONE, GL_ONE);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+
     /*cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
     for (unsigned int i = 0; i < 256; i++)
         colormapImage.data[i] = i;
@@ -417,6 +429,9 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uSampler, 0);
 
     m_program->setUniformValue(m_uFrame, false);
+
+    m_program->setUniformValue(m_uFrameColor, (float) (1.0f - color.redF()), (float) (1.0f - color.greenF()), (float) (1.0f - color.blueF()), 1.0f);
+
     m_program->setUniformValue(m_uSlices, false);
 
     m_program->setUniformValue(m_uXYBorder, false);
@@ -759,13 +774,21 @@ void GWindow::render()
     // Perspective projection
     QMatrix4x4 perspectiveMatrix;
     perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.1f, 1000.0f);
+    //perspectiveMatrix.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 1000.0f);
 
     // Zoom of scene
     QMatrix4x4 zoomMatrix;
     zoom += (float) wheelDelta / 100.0f;
-    if (zoom > 0.0f) zoom = 0.0f;
-    zoomMatrix.translate(0, 0, -qExp(qFabs(zoom)/20));
-    zoomMatrix.translate(position);
+    if (zoom < -8.0f) zoom = -8.0f;
+    //qDebug() << -qExp(qFabs(zoom)/20);
+    //zoomMatrix.translate(0, 0, -qExp(qFabs(zoom)/20));
+    //zoomMatrix.translate(0, 0, -3.0f);
+    //zoomMatrix.translate(position);
+    zoomMatrix.translate(-position * 1/(zoom + 0.0001) * 4);
+    zoomMatrix.translate(0, 0, -3.0f);
+    zoomMatrix.scale(qExp(zoom*0.1));
+    //zoomMatrix.translate(0, 0, -3.0f);
+    //qDebug() << (qExp(zoom*0.1));
 
     // Final matrix
     QMatrix4x4 matrix;
@@ -867,8 +890,7 @@ void GWindow::render()
         m_program->setUniformValue(m_uSlices, true);
         glDisable(GL_CULL_FACE);
         glDisable(GL_BLEND);
-
-        //glDepthMask(GL_FALSE);
+        //qDebug() << glIsEnabled(GL_DEPTH_TEST);
 
         QMatrix4x4 sMmatrix;
         sMmatrix.translate((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax);

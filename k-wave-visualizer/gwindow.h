@@ -23,6 +23,8 @@
 #include <QtCore/qmath.h>
 #include <QtGui/QOpenGLShaderProgram>
 
+#include <QMainWindow>
+
 #include <HDF5File.h>
 #include <HDF5Group.h>
 #include <HDF5Dataset.h>
@@ -32,7 +34,7 @@ class GWindow : public OpenGLWindow
     Q_OBJECT
 
 public:
-    GWindow();
+    GWindow(QMainWindow *qMainWindow = 0);
     ~GWindow();
 
     void initialize();
@@ -96,7 +98,10 @@ private:
     void unload3DTexture();
     void clearSlices();
 
+    QMainWindow *qMainWindow;
+
     GLuint m_uFrame;
+    GLuint m_uFrameColor;
     GLuint m_aPosition;
     GLuint m_aColor;
     GLuint m_aTextureCoord;
