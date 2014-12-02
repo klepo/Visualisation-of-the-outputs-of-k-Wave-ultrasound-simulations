@@ -1199,8 +1199,9 @@ float OpenedH5File::H5SubobjectToVisualize::getOriginalMaxVYZ()
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY(int x, int y)
 {
     //QMutexLocker lock(&mutexXY);
+    qDebug() << dataXY[x + size[2] * y];
     if (XYloadedFlag)
-        return dataXY[x + size[2] - 1 * (size[1] - 1 - y)];
+        return dataXY[x + size[2] * (size[1] - 1 - y)];
     else
         return 0.0;
 }
@@ -1215,7 +1216,7 @@ float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXZ(int x, int z)
 {
     //QMutexLocker lock(&mutexXZ);
     if (XZloadedFlag)
-        return dataXZ[x + size[2] - 1 * z];
+        return dataXZ[x + size[2] * z];
     else
         return 0.0;
 }
@@ -1230,7 +1231,7 @@ float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromYZ(int y, int z)
 {
     //QMutexLocker lock(&mutexYZ);
     if (YZloadedFlag)
-        return dataYZ[(size[0] - 1 - z) + size[0] - 1 * (size[1] - 1 - y)];
+        return dataYZ[(size[0] - 1 - z) + size[0] * (size[1] - 1 - y)];
     else
         return 0.0;
 }
