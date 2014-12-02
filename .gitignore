@@ -4,8 +4,9 @@
 /hdf5file/hdf5file.pro.user
 /k-wave-h5-processing/k-wave-h5-processing.pro.user
 /k-wave-visualizer/k-wave-visualizer.pro.user
-/hdf5_paths.pri
-/opencv_paths.pri
-/gui/Makefile
 /hdf5file/Makefile
 /k-wave-h5-processing/Makefile
+/k-wave-visualizer/Makefile
+/hdf5_paths.pri
+/opencv_paths.pri
+

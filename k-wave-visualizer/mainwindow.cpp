@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
 
     // Create OpenGL window
-    gWindow = new GWindow();
+    gWindow = new GWindow(this);
 
     // Widget from QWindow
     QWidget *widget3D = createWindowContainer(gWindow);
