@@ -60,7 +60,7 @@ unix {
     # dynamic version
     else:contains(LINK_TYPE, dynamic) {
         QMAKE_LFLAGS += -Wl,-rpath,/home/petr/opencv-2.4.9/lib
-        INCLUDEPATH += "/home/petr/opencv-2.4.9/include/opencv"
+        INCLUDEPATH += "/home/petr/opencv-2.4.9/include"
         LIBS +=  -L"/home/petr/opencv-2.4.9/lib" \
             -lopencv_contrib \
             -lopencv_highgui \
@@ -70,7 +70,7 @@ unix {
     # static version (not fully static)
     else:contains(LINK_TYPE, static) {
         QMAKE_LFLAGS += -Wl,-rpath,/home/petr/opencv-2.4.9-static/lib
-        INCLUDEPATH += "/home/petr/opencv-2.4.9-static/include/opencv"
+        INCLUDEPATH += "/home/petr/opencv-2.4.9-static/include"
         LIBS +=  -L"/home/petr/opencv-2.4.9-static/lib" \
             -lopencv_contrib \
             -lopencv_highgui \
