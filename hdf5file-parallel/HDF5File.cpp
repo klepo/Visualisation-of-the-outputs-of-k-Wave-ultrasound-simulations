@@ -56,7 +56,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
         if (file < 0) {
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Fopen error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
         std::cout << " ... OK " << std::endl;
 
@@ -96,7 +96,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
         if (file < 0) {
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
         std::cout << " ... OK " << std::endl;
     } else {
@@ -146,7 +146,7 @@ void HDF5File::insertDataset(const std::string datasetName)
     if (d < 0){
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Dopen error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName, this);
@@ -167,7 +167,7 @@ void HDF5File::insertGroup(const std::string groupName)
     if (g < 0){
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Gopen error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     HDF5Group *hDF5Group = new HDF5Group(g, groupName, this);
@@ -218,17 +218,17 @@ void HDF5File::createDataset(const std::string datasetName, hid_t type, hsize_t 
     hid_t dataspace = H5Screate_simple((int) rank, size, NULL);
     if (dataspace < 0){
         throw std::runtime_error("H5Screate_simple error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t datatype = H5Tcopy(type);
     if (datatype < 0){
         throw std::runtime_error("H5Tcopy error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t list = H5Pcreate(H5P_DATASET_CREATE);
     if (list < 0){
         throw std::runtime_error("H5Pcreate error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     // Set chunking
@@ -236,13 +236,13 @@ void HDF5File::createDataset(const std::string datasetName, hid_t type, hsize_t 
         herr_t err = H5Pset_chunk(list, (int) rank, chunk_size);
         if (err < 0){
             throw std::runtime_error("H5Pset_chunk error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
     } else {
         herr_t err = H5Pset_layout(list, H5D_CONTIGUOUS);
         if (err < 0){
             throw std::runtime_error("H5Pset_layout error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
     }
 
@@ -256,7 +256,7 @@ void HDF5File::createDataset(const std::string datasetName, hid_t type, hsize_t 
     if (d < 0){
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Dcreate error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     std::cout << " ... OK" << std::endl;
 }
@@ -279,7 +279,7 @@ void HDF5File::createGroup(const std::string name, bool rewrite)
         if (d < 0){
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Dcreate error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
         std::cout << " ... OK" << std::endl;
 }
@@ -384,7 +384,7 @@ hsize_t HDF5File::getNumObjs()
     herr_t err = H5Gget_num_objs(file, &num);
     if (err < 0){
         throw std::runtime_error("H5Gget_num_objs error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     return num;
 }
@@ -401,7 +401,7 @@ std::string HDF5File::getObjNameById(hsize_t idx)
     size = H5Gget_objname_by_idx(file, idx, nameC, size);
     if (size <= 0){
         throw std::runtime_error("H5Gget_objname_by_idx error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     nameC = new char[size + 1];
     H5Gget_objname_by_idx(file, idx, nameC, size);
@@ -421,7 +421,7 @@ H5G_obj_t HDF5File::getObjTypeById(hsize_t idx)
     type = H5Gget_objtype_by_idx(file, idx);
     if (type < 0){
         throw std::runtime_error("H5Gget_objtype_by_idx error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     return (H5G_obj_t) type;
 }

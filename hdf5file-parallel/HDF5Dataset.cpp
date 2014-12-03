@@ -220,7 +220,7 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
         herr_t err = H5Dread(dataset, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
         double t5 = getTime();
         std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
@@ -248,7 +248,7 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
         herr_t err = H5Dread(dataset, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
-            MPI::COMM_WORLD.Abort(1);
+            //MPI::COMM_WORLD.Abort(1);
         }
         double t5 = getTime();
         std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
@@ -293,13 +293,13 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     try {
@@ -313,7 +313,7 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     err = H5Dread(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = getTime();
     std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
@@ -368,13 +368,13 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     try {
@@ -388,7 +388,7 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
     err = H5Dread(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = getTime();
     std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
@@ -431,13 +431,13 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     double t4, t5;
@@ -446,7 +446,7 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
     err = H5Dwrite(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
         t5 = getTime();
@@ -488,13 +488,13 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     double t4, t5;
@@ -503,7 +503,7 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
     err = H5Dwrite(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
-        MPI::COMM_WORLD.Abort(1);
+        //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
         t5 = getTime();

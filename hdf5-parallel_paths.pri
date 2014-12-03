@@ -34,13 +34,15 @@ unix {
         LIBS += -L"/usr/local/hdf5-1.8.13-parallel/lib" \
             -lhdf5 \
             -lz \
-            -ldl
+            -ldl \
+-lstdc++
 
-        #INCLUDEPATH += . /usr/include/     # add include path here to find the header
-        LIBS += -pthread -lmpi -ldl -lhwloc # add library and path here in the link stage
-        QMAKE_CC = mpicc                    # replace gcc with mpicc
-        QMAKE_CXX = mpicxx                  # replace g++ with mpicxx
-        QMAKE_LINK = mpicc                  # change the linker, if not set it is g++
+        #INCLUDEPATH += . /usr/include/         # add include path here to find the header
+        LIBS += -pthread -lmpi -ldl -lhwloc \   # add library and path here in the link stage
+            -lstdc++
+        QMAKE_CC = mpicc                        # replace gcc with mpicc
+        QMAKE_CXX = mpicxx                      # replace g++ with mpicxx
+        QMAKE_LINK = mpicc                      # change the linker, if not set it is g++
 
     }
     # static version
