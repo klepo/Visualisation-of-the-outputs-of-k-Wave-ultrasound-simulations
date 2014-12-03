@@ -311,11 +311,11 @@ class DatasetsForProcessing
 public:
     HDF5File::HDF5Dataset *sensorMaskIndexDataset;
     uint64_t sensorMaskSize;
-    std::map<const H5std_string, HDF5File::HDF5Dataset *> datasetsMaskType;
-    std::map<const H5std_string, HDF5File::HDF5Group *> datasetsGroupType;
-    std::map<const H5std_string, HDF5File::HDF5Group *> datasetsGroupTypeDwnsmpl;
-    std::map<const H5std_string, HDF5File::HDF5Dataset *> datasets3DType;
-    std::map<const H5std_string, HDF5File::HDF5Dataset *> datasets3DTypeDwnsmpl;
+    std::map<const std::string, HDF5File::HDF5Dataset *> datasetsMaskType;
+    std::map<const std::string, HDF5File::HDF5Group *> datasetsGroupType;
+    std::map<const std::string, HDF5File::HDF5Group *> datasetsGroupTypeDwnsmpl;
+    std::map<const std::string, HDF5File::HDF5Dataset *> datasets3DType;
+    std::map<const std::string, HDF5File::HDF5Dataset *> datasets3DTypeDwnsmpl;
 };
 
 /**
@@ -418,7 +418,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                     && size[0] == hDF5SimulationOutputFile->getNZ()
                     && size[1] == hDF5SimulationOutputFile->getNY()
                     && size[2] == hDF5SimulationOutputFile->getNX()) {
-                datasetsForProcessing->datasets3DType.insert(std::pair<const H5std_string, HDF5File::HDF5Dataset*>(dataset->getName(), dataset));
+                datasetsForProcessing->datasets3DType.insert(std::pair<const std::string, HDF5File::HDF5Dataset*>(dataset->getName(), dataset));
                 std::cout << "----> 3D type dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl << std::endl;
             }
             // Downsampled 3D type
@@ -428,7 +428,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                      && size[0] < hDF5SimulationOutputFile->getNZ()
                      && size[1] < hDF5SimulationOutputFile->getNY()
                      && size[2] < hDF5SimulationOutputFile->getNX()) {
-                datasetsForProcessing->datasets3DTypeDwnsmpl.insert(std::pair<const H5std_string, HDF5File::HDF5Dataset*>(dataset->getName(), dataset));
+                datasetsForProcessing->datasets3DTypeDwnsmpl.insert(std::pair<const std::string, HDF5File::HDF5Dataset*>(dataset->getName(), dataset));
                 std::cout << "----> 3D type downsampled dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl << std::endl;
             }
             // Sensor mask type
@@ -438,7 +438,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                      && size[0] == 1
                      && size[1] <= hDF5SimulationOutputFile->getNT()
                      && size[2] == datasetsForProcessing->sensorMaskSize) {
-                datasetsForProcessing->datasetsMaskType.insert(std::pair<const H5std_string, HDF5File::HDF5Dataset *>(dataset->getName(), dataset));
+                datasetsForProcessing->datasetsMaskType.insert(std::pair<const std::string, HDF5File::HDF5Dataset *>(dataset->getName(), dataset));
                 std::cout << "----> Mask type dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl << std::endl;
             }
             // Unknown type
@@ -464,7 +464,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                     uint64_t posX = group->readAttributeI("positionX");
                     uint64_t posY = group->readAttributeI("positionY");
                     uint64_t posZ = group->readAttributeI("positionZ");
-                    datasetsForProcessing->datasetsGroupTypeDwnsmpl.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
+                    datasetsForProcessing->datasetsGroupTypeDwnsmpl.insert(std::pair<const std::string, HDF5File::HDF5Group *>(group->getName(), group));
                     std::cout << "----> Reshaped mask type group downsampled: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl << std::endl;
                 }
                 // Reshaped mask type group
@@ -473,7 +473,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                     uint64_t posX = group->readAttributeI("positionX");
                     uint64_t posY = group->readAttributeI("positionY");
                     uint64_t posZ = group->readAttributeI("positionZ");
-                    datasetsForProcessing->datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
+                    datasetsForProcessing->datasetsGroupType.insert(std::pair<const std::string, HDF5File::HDF5Group *>(group->getName(), group));
                     std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl << std::endl;
                 }
                 // Unknown type
@@ -495,7 +495,7 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
         std::cout << "No dataset for test in simulation output file" << std::endl;
     } else {
         // For every 3D type dataset
-        for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
+        for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
             try {
                 HDF5File::HDF5Dataset *dataset = it->second;
 
@@ -690,7 +690,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
             std::cout << "   new chunk size:\t" << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
 
             // For every mask type dataset
-            for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasetsMaskType.begin(); it != datasetsForProcessing->datasetsMaskType.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasetsMaskType.begin(); it != datasetsForProcessing->datasetsMaskType.end(); ++it) {
                 HDF5File::HDF5Dataset *dataset = it->second;
 
                 uint64_t *sensorMaskData;
@@ -795,7 +795,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
 
                 // Filter or add to map for next processing
                 if (!flagNames || std::find(names.begin(), names.end(), group->getName()) != names.end())
-                    datasetsForProcessing->datasetsGroupType.insert(std::pair<const H5std_string, HDF5File::HDF5Group *>(group->getName(), group));
+                    datasetsForProcessing->datasetsGroupType.insert(std::pair<const std::string, HDF5File::HDF5Group *>(group->getName(), group));
 
             }
         } catch(std::exception &e) {
@@ -849,7 +849,7 @@ void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, 
             HDF5File *tmpFile = new HDF5File("tmp.h5", HDF5File::CREATE);
 
             // For every 3D type dataset
-            for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
                 HDF5File::HDF5Dataset *srcDataset = it->second;
 
                 tmpFile->createDatasetF(srcDataset->getName(), srcDataset->getRank(), newTmpDatasetSize);
@@ -904,11 +904,11 @@ void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, 
 
                 // Filter or add to map
                 if (!flagNames || std::find(names.begin(), names.end(), dstDatasetFinal->getName()) != names.end())
-                    datasetsForProcessing->datasets3DTypeDwnsmpl.insert(std::pair<const H5std_string, HDF5File::HDF5Dataset*>(dstDatasetFinal->getName(), dstDatasetFinal));
+                    datasetsForProcessing->datasets3DTypeDwnsmpl.insert(std::pair<const std::string, HDF5File::HDF5Dataset*>(dstDatasetFinal->getName(), dstDatasetFinal));
             }
 
             // For every reshaped mask type
-            for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsForProcessing->datasetsGroupType.begin(); it != datasetsForProcessing->datasetsGroupType.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Group *>::iterator it = datasetsForProcessing->datasetsGroupType.begin(); it != datasetsForProcessing->datasetsGroupType.end(); ++it) {
                 HDF5File::HDF5Group *srcGroup = it->second;
 
                 // Create group in tmp file
@@ -1031,7 +1031,7 @@ void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, 
 
                 // Filter or add to map
                 if (!flagNames || std::find(names.begin(), names.end(), dstGroupFinal->getName()) != names.end())
-                    datasetsForProcessing->datasetsGroupTypeDwnsmpl.insert(std::pair<const H5std_string, HDF5File::HDF5Group*>(dstGroupFinal->getName(), dstGroupFinal));
+                    datasetsForProcessing->datasetsGroupTypeDwnsmpl.insert(std::pair<const std::string, HDF5File::HDF5Group*>(dstGroupFinal->getName(), dstGroupFinal));
 
                 //hDF5OutputFile->closeGroup(dstGroupFinal->getName());
             }
@@ -1105,19 +1105,19 @@ void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, Datas
         } else {
 
             // For every 3D type dataset
-            for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
                 HDF5File::HDF5Dataset *srcDataset = it->second;
                 rechunkDataset(srcDataset, hDF5OutputFile, maxChunkSize);
             }
 
             // For every 3D type downsampled dataset
-            for (std::map<const H5std_string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DTypeDwnsmpl.begin(); it != datasetsForProcessing->datasets3DTypeDwnsmpl.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DTypeDwnsmpl.begin(); it != datasetsForProcessing->datasets3DTypeDwnsmpl.end(); ++it) {
                 HDF5File::HDF5Dataset *srcDataset = it->second;
                 rechunkDataset(srcDataset, hDF5OutputFile, maxChunkSize);
             }
 
             // For every reshaped mask type
-            for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsForProcessing->datasetsGroupType.begin(); it != datasetsForProcessing->datasetsGroupType.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Group *>::iterator it = datasetsForProcessing->datasetsGroupType.begin(); it != datasetsForProcessing->datasetsGroupType.end(); ++it) {
                 HDF5File::HDF5Group *srcGroup = it->second;
                 hsize_t count = srcGroup->getNumObjs();
                 // Try create group, if it already exists, then do not rewrite it
@@ -1143,7 +1143,7 @@ void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, Datas
             }
 
             // For every reshaped mask type downsampled
-            for (std::map<const H5std_string, HDF5File::HDF5Group *>::iterator it = datasetsForProcessing->datasetsGroupTypeDwnsmpl.begin(); it != datasetsForProcessing->datasetsGroupTypeDwnsmpl.end(); ++it) {
+            for (std::map<const std::string, HDF5File::HDF5Group *>::iterator it = datasetsForProcessing->datasetsGroupTypeDwnsmpl.begin(); it != datasetsForProcessing->datasetsGroupTypeDwnsmpl.end(); ++it) {
                 HDF5File::HDF5Group *srcGroup = it->second;
                 hsize_t count = srcGroup->getNumObjs();
                 // Try create group, if it already exists, then do not rewrite it
