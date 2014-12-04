@@ -11,6 +11,6 @@ CONFIG(release, debug|release): hdf5file-parallel.target = $$PWD/build/hdf5file-
 CONFIG(debug, debug|release): hdf5file-parallel.target = $$PWD/build/hdf5file-parallel/debug/libhdf5file-parallel.a
 CONFIG(release, debug|release): hdf5file-parallel.commands = cd $$PWD/hdf5file-parallel && qmake && $(MAKE) clean && $(MAKE)
 CONFIG(debug, debug|release): hdf5file-parallel.commands = cd $$PWD/hdf5file-parallel && qmake CONFIG+=debug && $(MAKE) clean && $(MAKE)
-#hdf5file.depends = $$PWD/hdf5file/Makefile
+#hdf5file-parallel.depends = $$PWD/hdf5file/Makefile
 QMAKE_EXTRA_TARGETS += hdf5file-parallel
 

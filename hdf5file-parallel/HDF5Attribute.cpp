@@ -26,8 +26,8 @@ HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t attribute)
     type = H5Aget_type(attribute);
     size = H5Aget_storage_size(attribute);
     ssize_t nameSize = H5Aget_name(attribute, 0, NULL);
-    char *nameC = new char[nameSize];
-    H5Aget_name(attribute, nameSize, nameC);
+    char *nameC = new char[nameSize + 1];
+    H5Aget_name(attribute, nameSize + 1, nameC);
     name = std::string(nameC);
     delete [] nameC;
     space = H5Aget_space(attribute);

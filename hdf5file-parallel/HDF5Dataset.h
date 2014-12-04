@@ -21,27 +21,27 @@
 class HDF5File::HDF5Dataset : public HDF5File::HDF5Object
 {
 public:
-    HDF5Dataset(hid_t dataset, std::string name, HDF5File *hDF5File);
+    HDF5Dataset(const hid_t dataset, const std::string name, HDF5File *hDF5File);
     ~HDF5Dataset();
 
     void readFullDataset(float *&data);
     void readFullDataset(uint64_t *&data);
 
-    void read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *&data, float &minVF, float &maxVF);
-    void read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI);
+    void read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *&data, float &minVF, float &maxVF);
+    void read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI);
 
-    void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, bool log = false);
-    void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data, bool log = false);
+    void write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *data, bool log = false);
+    void write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *data, bool log = false);
 
     void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
     void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
-    void getMinAndMaxValue(float *data, hsize_t size, float &minVF, float &maxVF);
-    void getMinAndMaxValue(uint64_t *data, hsize_t size, uint64_t &minVI, uint64_t &maxVI);
+    void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF);
+    void getMinAndMaxValue(const uint64_t *data, const hsize_t size, uint64_t &minVI, uint64_t &maxVI);
 
     void initBlockReading();
-    void initBlockReading(hsize_t maxSize);
-    void setOffset(hsize_t zO_, hsize_t yO_, hsize_t xO_);
+    void initBlockReading(const hsize_t maxSize);
+    void setOffset(const hsize_t zO_, const hsize_t yO_, const hsize_t xO_);
 
     bool isLastBlock();
 
@@ -64,7 +64,7 @@ public:
     float getGlobalMaxValueF(bool reset = false);
     float getGlobalMinValueF(bool reset = false);
 
-    hid_t getDataType();
+    H5T_class_t getDataType();
 
 private:
     void findGlobalMinAndMaxValueF();

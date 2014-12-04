@@ -23,7 +23,7 @@
  * @param hDF5File file
  * @throw std::runtime_error
  */
-HDF5File::HDF5Group::HDF5Group(hid_t group, std::string name, HDF5File *hDF5File) : HDF5Object(group) {
+HDF5File::HDF5Group::HDF5Group(const hid_t group, const std::string name, HDF5File *hDF5File) : HDF5Object(group) {
     this->hDF5File = hDF5File;
     this->group = group;
     object = this->group;
@@ -65,8 +65,12 @@ std::string HDF5File::HDF5Group::getName()
  */
 hsize_t HDF5File::HDF5Group::getNumObjs()
 {
-    H5G_info_t *group_info = NULL;
-    H5Gget_info(group, group_info);
-    hsize_t num = group_info->nlinks;
+    H5G_info_t group_info;
+    herr_t err = H5Gget_info(group, &group_info);
+    if (err < 0){
+        throw std::runtime_error("H5Gget_info error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    hsize_t num = group_info.nlinks;
     return num;
 }

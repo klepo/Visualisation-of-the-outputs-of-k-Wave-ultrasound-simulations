@@ -21,30 +21,30 @@
 class HDF5File::HDF5Object
 {
 public:
-    HDF5Object(hid_t object);
+    HDF5Object(const hid_t object);
     ~HDF5Object();
 
     class HDF5Attribute;
 
-    void setAttribute(std::string name, int value);
-    void setAttribute(std::string name, uint64_t value);
-    void setAttribute(std::string name, float value);
-    void setAttribute(std::string name, double value);
-    void setAttribute(std::string name, std::string value);
+    void setAttribute(const std::string name, const int value);
+    void setAttribute(const std::string name, const uint64_t value);
+    void setAttribute(const std::string name, const float value);
+    void setAttribute(const std::string name, const double value);
+    void setAttribute(const std::string name, const std::string value);
 
-    float readAttributeF(std::string name);
-    uint64_t readAttributeI(std::string name);
-    std::string readAttributeS(std::string name);
+    float readAttributeF(const std::string name);
+    uint64_t readAttributeI(const std::string name);
+    std::string readAttributeS(const std::string name);
 
-    HDF5Attribute *getAttribute(std::string name);
-    HDF5Attribute *getAttribute(unsigned int idx);
+    HDF5Attribute *getAttribute(const std::string name);
+    HDF5Attribute *getAttribute(const unsigned int idx);
 
     void setAttribute(HDF5Attribute *attribute);
 
-    void removeAttribute(unsigned int idx);
-    void removeAttribute(std::string name);
+    void removeAttribute(const unsigned int idx);
+    void removeAttribute(const std::string name);
 
-    bool hasAttribute(std::string name);
+    bool hasAttribute(const std::string name);
 
     int getNumAttrs();
 
@@ -54,8 +54,9 @@ protected:
     HDF5File *hDF5File;
 
 private:
-    void setAttribute(std::string name, hid_t type, void *value);
-    void readAttribute(std::string name, void *value);
+    void setAttribute(const std::string name, const hid_t type, const void *value);
+    void readAttribute(const std::string name, void *value);
+    void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
 
 };
 

@@ -37,7 +37,7 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     dataspace = H5Dget_space(dataset);
     // Get type
     type = H5Dget_type(dataset);
-    if (type != H5T_NATIVE_FLOAT || type != H5T_NATIVE_UINT64)
+    if (!H5Tequal(type, H5T_NATIVE_FLOAT) && !H5Tequal(type, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset");
 
     // Get rank, dims and chunk dims
@@ -77,6 +77,7 @@ HDF5File::HDF5Dataset::~HDF5Dataset()
     std::cout << "Closing dataset \"" << name << "\"";
     delete [] dims;
     delete [] chunk_dims;
+    H5Tclose(type);
     H5Dclose(dataset);
     std::cout << " ... OK" << std::endl;
 }
@@ -139,9 +140,9 @@ hsize_t HDF5File::HDF5Dataset::getSize()
  * @brief HDF5File::HDF5Dataset::getDataType
  * @return data type of dataset (type)
  */
-hid_t HDF5File::HDF5Dataset::getDataType()
+H5T_class_t HDF5File::HDF5Dataset::getDataType()
 {
-    return type;
+    return H5Tget_class(type);
 }
 
 /**
@@ -151,7 +152,7 @@ hid_t HDF5File::HDF5Dataset::getDataType()
  */
 uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
 {
-    if (type == H5T_NATIVE_FLOAT)
+    if (H5Tequal(type, H5T_NATIVE_FLOAT))
         throw std::runtime_error("Wrong data type of dataset (not integer)");
     if (issetGlobalMinAndMaxValue != true)
         HDF5Dataset::findGlobalMinAndMaxValue(reset);
@@ -165,7 +166,7 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
  */
 uint64_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
 {
-    if (type == H5T_NATIVE_FLOAT)
+    if (H5Tequal(type, H5T_NATIVE_FLOAT))
         throw std::runtime_error("Wrong data type of dataset (not integer)");
     if (issetGlobalMinAndMaxValue != true)
         HDF5Dataset::findGlobalMinAndMaxValue(reset);
@@ -179,7 +180,7 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
  */
 float HDF5File::HDF5Dataset::getGlobalMaxValueF(bool reset)
 {
-    if (type == H5T_NATIVE_UINT64)
+    if (H5Tequal(type, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not float)");
     if (issetGlobalMinAndMaxValue != true)
         HDF5Dataset::findGlobalMinAndMaxValue(reset);
@@ -193,7 +194,7 @@ float HDF5File::HDF5Dataset::getGlobalMaxValueF(bool reset)
  */
 float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
 {
-    if (type == H5T_NATIVE_UINT64)
+    if (H5Tequal(type, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not float)");
     if (issetGlobalMinAndMaxValue != true)
         HDF5Dataset::findGlobalMinAndMaxValue(reset);
@@ -235,7 +236,7 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
  */
 void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
 {
-    if (type == H5T_NATIVE_UINT64) {
+    if (H5Tequal(type, H5T_NATIVE_UINT64)) {
         if (size > this->hDF5File->getSizeOfDataPart())
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
         try {
@@ -269,9 +270,9 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
  * @param [out] maxVF maximum float value from data read
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *&data, float &minVF, float &maxVF)
+void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *&data, float &minVF, float &maxVF)
 {
-    if (type != H5T_NATIVE_FLOAT) throw std::runtime_error("Wrong data type of dataset (not float)");
+    if (!H5Tequal(type, H5T_NATIVE_FLOAT)) throw std::runtime_error("Wrong data type of dataset (not float)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -344,9 +345,9 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
  * @param [out] maxVI maximum uint64_t value from data read
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI)
+void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI)
 {
-    if (type != H5T_NATIVE_UINT64) throw std::runtime_error("Wrong data type of dataset (not integer)");
+    if (!H5Tequal(type, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -409,9 +410,9 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
  * @param log (volatile) debug flag
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, bool log)
+void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *data, bool log)
 {
-    if (type != H5T_NATIVE_FLOAT) throw std::runtime_error("Wrong data type of dataset (not float)");
+    if (!H5Tequal(type, H5T_NATIVE_FLOAT)) throw std::runtime_error("Wrong data type of dataset (not float)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -466,9 +467,9 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
  * @param log (volatile) debug flag
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data, bool log)
+void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *data, bool log)
 {
-    if (type != H5T_NATIVE_UINT64) throw std::runtime_error("Wrong data type of dataset (not integer)");
+    if (!H5Tequal(type, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -521,7 +522,7 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
  * @param xC
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::checkOffsetAndCountParams(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC)
+void HDF5File::HDF5Dataset::checkOffsetAndCountParams(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC)
 {
     if (rank != 3) throw std::runtime_error("Wrong rank - dataset is not 3D matrix");
     if (zO >= dims[0]) throw std::runtime_error("Wrong offset - too big z offset");
@@ -541,7 +542,7 @@ void HDF5File::HDF5Dataset::checkOffsetAndCountParams(hsize_t zO, hsize_t yO, hs
  */
 void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
 {
-    if (type == H5T_NATIVE_FLOAT) {
+    if (H5Tequal(type, H5T_NATIVE_FLOAT)) {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
             HDF5Dataset::setAttribute("min", minVF);
@@ -582,7 +583,7 @@ void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
  */
 void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 {
-    if (type == H5T_NATIVE_FLOAT) {
+    if (H5Tequal(type, H5T_NATIVE_FLOAT)) {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
             //HDF5Dataset::setAttribute("min", minVF);
@@ -842,7 +843,7 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI()
  * @param [out] minVF
  * @param [out] maxVF
  */
-void HDF5File::HDF5Dataset::getMinAndMaxValue(float *data, hsize_t size, float &minVF, float &maxVF)
+void HDF5File::HDF5Dataset::getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF)
 {
     maxVF = minVF = data[0];
     for (hsize_t i = 0; i < size; i++) {
@@ -859,7 +860,7 @@ void HDF5File::HDF5Dataset::getMinAndMaxValue(float *data, hsize_t size, float &
  * @param [out] minVI
  * @param [out] maxVI
  */
-void HDF5File::HDF5Dataset::getMinAndMaxValue(uint64_t *data, hsize_t size, uint64_t &minVI, uint64_t &maxVI)
+void HDF5File::HDF5Dataset::getMinAndMaxValue(const uint64_t *data, const hsize_t size, uint64_t &minVI, uint64_t &maxVI)
 {
     maxVI = minVI = data[0];
     for (hsize_t i = 0; i < size; i++) {

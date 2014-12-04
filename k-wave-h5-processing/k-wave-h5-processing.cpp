@@ -203,12 +203,12 @@ void getParams(int argc, char **argv)
         } else if (strcmp("-m", argv[i]) == 0) {
             i++;
             if (argc <= i) {
-                std::cerr << "\n  Wrong parameter -m (simulation iutput filename)" << std::endl;
+                std::cerr << "\n  Wrong parameter -m (simulation intput filename)" << std::endl;
                 std::cout << help() << std::endl;
                 exit(EXIT_FAILURE);
             }
             simulationInputFilename = argv[i];
-            std::cout << "\n  Simulation iutput filename:\n    " << simulationInputFilename << std::endl;
+            std::cout << "\n  Simulation intput filename:\n    " << simulationInputFilename << std::endl;
             continue;
         } else if (strcmp("-o", argv[i]) == 0) {
             i++;
@@ -351,10 +351,12 @@ HDF5File::HDF5Dataset *findAndGetSensorMaskDataset(HDF5File *hDF5SimulationOutpu
     } catch(std::exception &) {
         std::cout << "Sensor mask is not in simulation output file" << std::endl;
         // Try to load sensor mask from simulation input file
-        try {
-            sensorMaskIndexDataset = hDF5SimulationInputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
-        } catch(std::exception &) {
-            std::cout << "Sensor mask is not in simulation input file" << std::endl;
+        if (hDF5SimulationInputFile != NULL) {
+            try {
+                sensorMaskIndexDataset = hDF5SimulationInputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
+            } catch(std::exception &) {
+                std::cout << "Sensor mask is not in simulation input file" << std::endl;
+            }
         }
     }
     return sensorMaskIndexDataset;
@@ -1087,6 +1089,7 @@ void rechunkDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile,
         if (maxValueGlobal < maxV) maxValueGlobal = maxV;
     } while (!srcDataset->isLastBlock());
     dstDataset->setAttribute("min", minValueGlobal);
+    dstDataset->setAttribute("test", "minValueGlobal čřt pětpk ěpotk t\0");
     dstDataset->setAttribute("max", maxValueGlobal);
     hDF5OutputFile->closeDataset(dstDataset->getName());
 }
@@ -1480,21 +1483,21 @@ int main(int argc, char **argv)
     }
 
     // Find and get sensor mask dataset
-    if (flagReshape) {
-        datasetsForProcessing->sensorMaskIndexDataset = findAndGetSensorMaskDataset(hDF5SimulationOutputFile, hDF5SimulationInputFile);
+    datasetsForProcessing->sensorMaskIndexDataset = findAndGetSensorMaskDataset(hDF5SimulationOutputFile, hDF5SimulationInputFile);
+    if (datasetsForProcessing->sensorMaskIndexDataset != NULL) {
         // Get sensor mask size
-        if (datasetsForProcessing->sensorMaskIndexDataset != NULL){
-            hsize_t *size = datasetsForProcessing->sensorMaskIndexDataset->getDims();
-            if (datasetsForProcessing->sensorMaskIndexDataset->getRank() == 3 && size[0] == 1 && size[1] == 1) {
-                datasetsForProcessing->sensorMaskSize = size[2];
-            } else {
-                std::cerr << "Wrong sensor mask" << std::endl;
-                exit(EXIT_FAILURE);
-            }
+        hsize_t *size = datasetsForProcessing->sensorMaskIndexDataset->getDims();
+        if (datasetsForProcessing->sensorMaskIndexDataset->getRank() == 3 && size[0] == 1 && size[1] == 1) {
+            datasetsForProcessing->sensorMaskSize = size[2];
         } else {
-            std::cerr << "Sensor mask is not in simulation output or input file" << std::endl;
-            exit(EXIT_FAILURE);
+            std::cerr << "Wrong sensor mask" << std::endl;
+            if (flagReshape)
+                exit(EXIT_FAILURE);
         }
+    } else {
+        //std::cerr << "Sensor mask is not in simulation output or input file" << std::endl;
+        if (flagReshape)
+            exit(EXIT_FAILURE);
     }
 
     // Find datasets for visualization to edit

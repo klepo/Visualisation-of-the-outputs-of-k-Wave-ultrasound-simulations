@@ -141,7 +141,7 @@ std::ofstream *HDF5File::getLogFileStream()
 void HDF5File::insertDataset(const std::string datasetName)
 {
     std::cout << "Opening dataset \"" << datasetName << "\"";
-
+    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
     hid_t d = H5Dopen(file, datasetName.c_str(), H5P_DEFAULT);
     if (d < 0){
         std::cout << " ... error" << std::endl;
@@ -213,14 +213,14 @@ void HDF5File::createDatasetF(const std::string datasetName, hsize_t rank, hsize
  * @param type (H5T_NATIVE_FLOAT | H5T_NATIVE_UINT64)
  * @throw std::runtime_error
  */
-void HDF5File::createDataset(const std::string datasetName, hid_t type, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
+void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
 {
     hid_t dataspace = H5Screate_simple((int) rank, size, NULL);
     if (dataspace < 0){
         throw std::runtime_error("H5Screate_simple error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    hid_t datatype = H5Tcopy(type);
+    //hid_t datatype = H5Tcopy(type);
     if (datatype < 0){
         throw std::runtime_error("H5Tcopy error");
         //MPI::COMM_WORLD.Abort(1);
@@ -404,7 +404,7 @@ std::string HDF5File::getObjNameById(hsize_t idx)
         //MPI::COMM_WORLD.Abort(1);
     }
     nameC = new char[size + 1];
-    H5Gget_objname_by_idx(file, idx, nameC, size);
+    H5Gget_objname_by_idx(file, idx, nameC, size + 1);
     std::string name(nameC);
     delete [] nameC;
     return name;

@@ -21,7 +21,7 @@
 class HDF5File::HDF5Object::HDF5Attribute
 {
 public:
-    HDF5Attribute(hid_t attribute);
+    HDF5Attribute(const hid_t attribute);
     ~HDF5Attribute();
 
     hid_t getDataType();
