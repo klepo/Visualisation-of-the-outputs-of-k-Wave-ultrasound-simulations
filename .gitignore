@@ -2,9 +2,11 @@
 /cv.pdf
 /build
 /hdf5file/hdf5file.pro.user
+/hdf5file-parallel/hdf5file-parallel.pro.user
 /k-wave-h5-processing/k-wave-h5-processing.pro.user
 /k-wave-visualizer/k-wave-visualizer.pro.user
 /hdf5file/Makefile
+/hdf5file-parallel/Makefile
 /k-wave-h5-processing/Makefile
 /k-wave-visualizer/Makefile
 /hdf5_paths.pri
