@@ -1,5 +1,5 @@
 
-Manuál
+Manuál - opět neaktuální!
 
 Přeložení zdrojových kódů
 
