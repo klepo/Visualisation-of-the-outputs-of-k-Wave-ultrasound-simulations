@@ -83,9 +83,9 @@ private:
 
     hid_t dataset;
     hid_t dataspace;
-    hid_t type;
+    hid_t datatype;
 
-    hsize_t rank;
+    int rank;
     hsize_t size;
     hsize_t *dims;
     hsize_t *chunk_dims;

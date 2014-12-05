@@ -1199,7 +1199,6 @@ float OpenedH5File::H5SubobjectToVisualize::getOriginalMaxVYZ()
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY(int x, int y)
 {
     //QMutexLocker lock(&mutexXY);
-    qDebug() << dataXY[x + size[2] * y];
     if (XYloadedFlag)
         return dataXY[x + size[2] * (size[1] - 1 - y)];
     else

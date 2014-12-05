@@ -2,7 +2,7 @@
 #
 # Project created by QtCreator
 #
-# hdf5file-parallel library
+# hdf5file-c-parallel library
 #
 #-------------------------------------------------
 
@@ -11,7 +11,7 @@ CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
 
-TARGET = hdf5file-parallel
+TARGET = hdf5file-c-parallel
 
 CONFIG(debug, debug|release) {
     DESTDIR = ../build/$$TARGET/debug
@@ -49,4 +49,4 @@ DEPENDPATH += $$PWD
 
 # hdf5 library
 
-include($$PWD/../hdf5-parallel_paths.pri)
+include($$PWD/../hdf5-c-parallel_paths.pri)

@@ -225,21 +225,21 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
         throw std::runtime_error("H5Tcopy error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    hid_t list = H5Pcreate(H5P_DATASET_CREATE);
-    if (list < 0){
+    hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
+    if (plist < 0){
         throw std::runtime_error("H5Pcreate error");
         //MPI::COMM_WORLD.Abort(1);
     }
 
     // Set chunking
     if (chunk_size != HDF5File::ZERO_CHUNK) {
-        herr_t err = H5Pset_chunk(list, (int) rank, chunk_size);
+        err = H5Pset_chunk(plist, (int) rank, chunk_size);
         if (err < 0){
             throw std::runtime_error("H5Pset_chunk error");
             //MPI::COMM_WORLD.Abort(1);
         }
     } else {
-        herr_t err = H5Pset_layout(list, H5D_CONTIGUOUS);
+        err = H5Pset_layout(plist, H5D_CONTIGUOUS);
         if (err < 0){
             throw std::runtime_error("H5Pset_layout error");
             //MPI::COMM_WORLD.Abort(1);
@@ -252,12 +252,17 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
         std::cout << " ... rewrite";
     }
 
-    hid_t d = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, list, H5P_DEFAULT);
-    if (d < 0){
+    hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+    if (dataset < 0){
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Dcreate error");
         //MPI::COMM_WORLD.Abort(1);
     }
+
+    H5Dclose(dataset);
+    H5Sclose(dataspace);
+    H5Pclose(plist);
+
     std::cout << " ... OK" << std::endl;
 }
 
@@ -275,12 +280,14 @@ void HDF5File::createGroup(const std::string name, bool rewrite)
             std::cout << " ... rewrite";
         }
 
-        hid_t d = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        if (d < 0){
+        hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        if (group < 0){
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Dcreate error");
             //MPI::COMM_WORLD.Abort(1);
         }
+        H5Gclose(group);
+
         std::cout << " ... OK" << std::endl;
 }
 
@@ -380,12 +387,8 @@ void HDF5File::closeGroup(const std::string groupName)
  */
 hsize_t HDF5File::getNumObjs()
 {
-    hsize_t num ;
-    herr_t err = H5Gget_num_objs(file, &num);
-    if (err < 0){
-        throw std::runtime_error("H5Gget_num_objs error");
-        //MPI::COMM_WORLD.Abort(1);
-    }
+    hsize_t num = this->openGroup("/")->getNumObjs();
+    this->closeGroup("/");
     return num;
 }
 

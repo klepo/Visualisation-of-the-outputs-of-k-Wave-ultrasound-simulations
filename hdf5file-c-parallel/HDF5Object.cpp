@@ -41,7 +41,7 @@ HDF5File::HDF5Object::~HDF5Object()
 int HDF5File::HDF5Object::getNumAttrs()
 {
     H5O_info_t object_info;
-    herr_t err = H5Oget_info(object, &object_info);
+    err = H5Oget_info(object, &object_info);
     if (err < 0){
         throw std::runtime_error("H5Oget_info error");
         //MPI::COMM_WORLD.Abort(1);
@@ -103,7 +103,7 @@ void HDF5File::HDF5Object::removeAttribute(const std::string name)
 {
         std::cout << "Removing attribute \"" << name << "\"";
         if (HDF5File::HDF5Object::hasAttribute(name.c_str())) {
-            herr_t err = H5Adelete(object, name.c_str());
+            err = H5Adelete(object, name.c_str());
             if (err < 0){
                 std::cout << " ... error" << std::endl;
                 throw std::runtime_error("H5Adelete error");
@@ -123,7 +123,7 @@ void HDF5File::HDF5Object::removeAttribute(const std::string name)
  */
 void HDF5File::HDF5Object::creatingAttributeMessage(const std::string name, const hid_t type, const void *value)
 {
-    std::cout << "Creating (" << getStringTypeByType(type) << ") attribute \"" << name << "\" = \"" << getStringValueByType(type, value) << "\"";
+    std::cout << "Creating attribute \"" << name << "\" (" << getStringTypeByType(type) << ") = \"" << getStringValueByType(type, value) << "\"";
 }
 
 /**
@@ -195,7 +195,7 @@ void HDF5File::HDF5Object::createAttribute(const std::string name, const hid_t t
         throw std::runtime_error("H5Acreate error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    herr_t err = H5Awrite(attr, type, value);
+    err = H5Awrite(attr, type, value);
     if (err < 0){
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Awrite error");
@@ -217,7 +217,7 @@ void HDF5File::HDF5Object::createAttribute(const std::string name, const hid_t t
  */
 void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
 {
-    createAttribute(attribute->getName(), attribute->getType(), attribute->getSpace(), attribute->getData());
+    createAttribute(attribute->getName(), attribute->getDatatype(), attribute->getDataspace(), attribute->getData());
 }
 
 /**
@@ -236,7 +236,7 @@ void HDF5File::HDF5Object::setAttribute(const std::string name, const hid_t type
         //MPI::COMM_WORLD.Abort(1);
     }
     if (type == H5T_C_S1) {
-        herr_t err = H5Tset_size(datatype, H5T_VARIABLE);
+        err = H5Tset_size(datatype, H5T_VARIABLE);
         if (err < 0){
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Tset_size error");
@@ -256,7 +256,8 @@ void HDF5File::HDF5Object::setAttribute(const std::string name, const hid_t type
         //MPI::COMM_WORLD.Abort(1);
     }
     createAttribute(name, datatype, dataspace, value);
-
+    H5Tclose(datatype);
+    H5Sclose(dataspace);
 }
 
 /**
@@ -325,7 +326,7 @@ float HDF5File::HDF5Object::readAttributeF(const std::string name)
     float value;
     std::cout << "Reading attribute \"" << name << "\" ";
     HDF5File::HDF5Object::HDF5Attribute *attr = getAttribute(name);
-    std::cout << "(" << getStringTypeByType(attr->getType()) << ")";
+    std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
     value = *(float *) attr->getData();
     delete attr;
     std::cout << " = \"" << value << "\"";
@@ -343,7 +344,7 @@ uint64_t HDF5File::HDF5Object::readAttributeI(const std::string name)
     uint64_t value;
     std::cout << "Reading attribute \"" << name << "\" ";
     HDF5File::HDF5Object::HDF5Attribute *attr = getAttribute(name);
-    std::cout << "(" << getStringTypeByType(attr->getType()) << ")";
+    std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
     value = *(uint64_t *) attr->getData();
     delete attr;
     std::cout << " = \"" << value << "\"";
@@ -361,8 +362,8 @@ std::string HDF5File::HDF5Object::readAttributeS(const std::string name)
     std::string value;
     std::cout << "Reading attribute \"" << name << "\" ";
     HDF5File::HDF5Object::HDF5Attribute *attr = getAttribute(name);
-    std::cout << "(" << getStringTypeByType(attr->getType()) << ")";
-    if (H5Tget_class(attr->getType()) == H5Tget_class(H5T_C_S1) && H5Tis_variable_str(attr->getType()))
+    std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
+    if (H5Tget_class(attr->getDatatype()) == H5Tget_class(H5T_C_S1) && H5Tis_variable_str(attr->getDatatype()))
         value = std::string(*(char **) attr->getData());
     else
         value = std::string((char *) attr->getData());

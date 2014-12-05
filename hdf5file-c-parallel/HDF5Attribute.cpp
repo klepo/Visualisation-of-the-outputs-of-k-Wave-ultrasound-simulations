@@ -18,16 +18,32 @@
 
 void HDF5File::HDF5Object::HDF5Attribute::loadAttribute(hid_t attribute)
 {
-    type = H5Aget_type(attribute);
+    datatype = H5Aget_type(attribute);
+    if (datatype < 0){
+        throw std::runtime_error("H5Aget_type error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     size = H5Aget_storage_size(attribute);
     ssize_t nameSize = H5Aget_name(attribute, 0, NULL);
+    if (nameSize < 0){
+        throw std::runtime_error("H5Aget_name error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     char *nameC = new char[nameSize + 1];
     H5Aget_name(attribute, nameSize + 1, nameC);
     name = std::string(nameC);
     delete [] nameC;
-    space = H5Aget_space(attribute);
+    dataspace = H5Aget_space(attribute);
+    if (dataspace < 0){
+        throw std::runtime_error("H5Aget_space error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     buffer = malloc(size);
-    H5Aread(attribute, type, buffer);
+    err = H5Aread(attribute, datatype, buffer);
+    if (err < 0){
+        throw std::runtime_error("H5Aread error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 }
 
 /**
@@ -43,7 +59,7 @@ HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, std::string nam
         //MPI::COMM_WORLD.Abort(1);
     }
     loadAttribute(attribute);
-    herr_t err = H5Aclose(attribute);
+    err = H5Aclose(attribute);
     if (err < 0){
         throw std::runtime_error("H5Aclose error");
         //MPI::COMM_WORLD.Abort(1);
@@ -58,7 +74,7 @@ HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
         //MPI::COMM_WORLD.Abort(1);
     }
     loadAttribute(attribute);
-    herr_t err = H5Aclose(attribute);
+    err = H5Aclose(attribute);
     if (err < 0){
         throw std::runtime_error("H5Aclose error");
         //MPI::COMM_WORLD.Abort(1);
@@ -71,16 +87,17 @@ HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
 HDF5File::HDF5Object::HDF5Attribute::~HDF5Attribute()
 {
     free(buffer);
-    //H5Aclose(attribute);
+    H5Tclose(datatype);
+    H5Sclose(dataspace);
 }
 
 /**
  * @brief HDF5File::HDF5Object::HDF5Attribute::getType
  * @return data type of attribute
  */
-hid_t HDF5File::HDF5Object::HDF5Attribute::getType()
+hid_t HDF5File::HDF5Object::HDF5Attribute::getDatatype()
 {
-    return type;
+    return datatype;
 }
 
 /**
@@ -105,9 +122,9 @@ std::string HDF5File::HDF5Object::HDF5Attribute::getName()
  * @brief HDF5File::HDF5Object::HDF5Attribute::getSpace
  * @return data space of attribute
  */
-hid_t HDF5File::HDF5Object::HDF5Attribute::getSpace()
+hid_t HDF5File::HDF5Object::HDF5Attribute::getDataspace()
 {
-    return space;
+    return dataspace;
 }
 
 /**

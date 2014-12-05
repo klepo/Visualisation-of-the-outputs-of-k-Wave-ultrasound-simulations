@@ -66,11 +66,10 @@ std::string HDF5File::HDF5Group::getName()
 hsize_t HDF5File::HDF5Group::getNumObjs()
 {
     H5G_info_t group_info;
-    herr_t err = H5Gget_info(group, &group_info);
+    err = H5Gget_info(group, &group_info);
     if (err < 0){
         throw std::runtime_error("H5Gget_info error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    hsize_t num = group_info.nlinks;
-    return num;
+    return group_info.nlinks;
 }

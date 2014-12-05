@@ -25,22 +25,23 @@ public:
     HDF5Attribute(hid_t object, hid_t idx);
     ~HDF5Attribute();
 
-    hid_t getType();
+    hid_t getDatatype();
     hsize_t getSize();
     std::string getName();
-    hid_t getSpace();
+    hid_t getDataspace();
     void *getData();
 
 protected:
     hid_t attribute;
     std::string name;
-    hid_t type;
+    hid_t datatype;
     hsize_t size;
-    hid_t space;
+    hid_t dataspace;
     void *buffer;
 
 private:
     void loadAttribute(hid_t attribute);
+    herr_t err;
 
 };
 

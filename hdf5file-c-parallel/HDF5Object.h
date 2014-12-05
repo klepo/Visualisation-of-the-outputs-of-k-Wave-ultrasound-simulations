@@ -51,6 +51,7 @@ public:
 protected:
     hid_t object;
     HDF5File *hDF5File;
+    herr_t err;
 
 private:
     void setAttribute(const std::string name, const hid_t type, const void *value);
@@ -58,6 +59,7 @@ private:
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
     std::string getStringValueByType(const hid_t type, const void *value);
     std::string getStringTypeByType(const hid_t type);
+
 
 };
 

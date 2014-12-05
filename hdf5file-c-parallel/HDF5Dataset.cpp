@@ -16,8 +16,6 @@
 
 #include "HDF5Dataset.h"
 
-//#include <time.h>   // getTime()
-
 /**
  * @brief HDF5File::HDF5Dataset::HDF5Dataset
  * @param dataset dataset (H5::DataSet type)
@@ -35,23 +33,53 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
 
     // Init space
     dataspace = H5Dget_space(dataset);
+    if (dataspace < 0){
+        throw std::runtime_error("H5Dget_space error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
     // Get type
-    type = H5Dget_type(dataset);
-    if (!H5Tequal(type, H5T_NATIVE_FLOAT) && !H5Tequal(type, H5T_NATIVE_UINT64))
+    datatype = H5Dget_type(dataset);
+    if (datatype < 0){
+        throw std::runtime_error("H5Dget_type error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
+    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT) && !H5Tequal(datatype, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset");
 
     // Get rank, dims and chunk dims
     rank = H5Sget_simple_extent_ndims(dataspace);
+    if (rank < 0){
+        throw std::runtime_error("H5Sget_simple_extent_ndims error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
     dims = new hsize_t[rank]();
-    H5Sget_simple_extent_dims(dataspace, dims, NULL);
+    int dimsCount = H5Sget_simple_extent_dims(dataspace, dims, NULL);
+    if (dimsCount < 0){
+        throw std::runtime_error("H5Sget_simple_extent_dims error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
     chunk_dims = new hsize_t[rank]();
     hid_t plist = H5Dget_create_plist(dataset);
-    if (H5D_CHUNKED == H5Pget_layout(plist))
-        H5Pget_chunk(plist, (int) rank, chunk_dims);
+    if (plist < 0){
+        throw std::runtime_error("H5Dget_create_plist error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    if (H5D_CHUNKED == H5Pget_layout(plist)) {
+        int chunkCount = H5Pget_chunk(plist, (int) rank, chunk_dims);
+        if (chunkCount < 0){
+            throw std::runtime_error("H5Pget_chunk error");
+            //MPI::COMM_WORLD.Abort(1);
+        }
+    }
+    H5Pclose(plist);
 
     // Compute data size
     size = 1;
-    for (hsize_t i = 0; i < rank; i++)
+    for (int i = 0; i < rank; i++)
         size *= dims[i];
 
     // Init min/max
@@ -77,7 +105,8 @@ HDF5File::HDF5Dataset::~HDF5Dataset()
     std::cout << "Closing dataset \"" << name << "\"";
     delete [] dims;
     delete [] chunk_dims;
-    H5Tclose(type);
+    H5Sclose(dataspace);
+    H5Tclose(datatype);
     H5Dclose(dataset);
     std::cout << " ... OK" << std::endl;
 }
@@ -142,7 +171,7 @@ hsize_t HDF5File::HDF5Dataset::getSize()
  */
 H5T_class_t HDF5File::HDF5Dataset::getDataType()
 {
-    return H5Tget_class(type);
+    return H5Tget_class(datatype);
 }
 
 /**
@@ -152,10 +181,10 @@ H5T_class_t HDF5File::HDF5Dataset::getDataType()
  */
 uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
 {
-    if (H5Tequal(type, H5T_NATIVE_FLOAT))
+    if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not integer)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findGlobalMinAndMaxValue(reset);
+        findGlobalMinAndMaxValue(reset);
     return maxVI;
 }
 
@@ -166,10 +195,10 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
  */
 uint64_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
 {
-    if (H5Tequal(type, H5T_NATIVE_FLOAT))
+    if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not integer)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findGlobalMinAndMaxValue(reset);
+        findGlobalMinAndMaxValue(reset);
     return minVI;
 }
 
@@ -180,10 +209,10 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
  */
 float HDF5File::HDF5Dataset::getGlobalMaxValueF(bool reset)
 {
-    if (H5Tequal(type, H5T_NATIVE_UINT64))
+    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
         throw std::runtime_error("Wrong data type of dataset (not float)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findGlobalMinAndMaxValue(reset);
+        findGlobalMinAndMaxValue(reset);
     return maxVF;
 }
 
@@ -194,10 +223,10 @@ float HDF5File::HDF5Dataset::getGlobalMaxValueF(bool reset)
  */
 float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
 {
-    if (H5Tequal(type, H5T_NATIVE_UINT64))
+    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
         throw std::runtime_error("Wrong data type of dataset (not float)");
     if (issetGlobalMinAndMaxValue != true)
-        HDF5Dataset::findGlobalMinAndMaxValue(reset);
+        findGlobalMinAndMaxValue(reset);
     return minVF;
 }
 
@@ -208,7 +237,7 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
  */
 void HDF5File::HDF5Dataset::readFullDataset(float *&data)
 {
-    if (type == H5T_NATIVE_FLOAT) {
+    if (datatype == H5T_NATIVE_FLOAT) {
         if (size > this->hDF5File->getSizeOfDataPart())
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
         try {
@@ -218,7 +247,7 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
         }
         double t4 = getTime();
         // Reading
-        herr_t err = H5Dread(dataset, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+        err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
             //MPI::COMM_WORLD.Abort(1);
@@ -236,7 +265,7 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
  */
 void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
 {
-    if (H5Tequal(type, H5T_NATIVE_UINT64)) {
+    if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
         if (size > this->hDF5File->getSizeOfDataPart())
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
         try {
@@ -246,7 +275,7 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
         }
         double t4 = getTime();
         // Read
-        herr_t err = H5Dread(dataset, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+        err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
             //MPI::COMM_WORLD.Abort(1);
@@ -272,7 +301,7 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
  */
 void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *&data, float &minVF, float &maxVF)
 {
-    if (!H5Tequal(type, H5T_NATIVE_FLOAT)) throw std::runtime_error("Wrong data type of dataset (not float)");
+    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT)) throw std::runtime_error("Wrong data type of dataset (not float)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -289,7 +318,6 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
         throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
 
-    herr_t err;
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
@@ -297,7 +325,7 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
         //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
         //MPI::COMM_WORLD.Abort(1);
@@ -311,13 +339,17 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
 
     double t4 = getTime();
     // Reading
-    err = H5Dread(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dread(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = getTime();
     std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+
+    H5Sclose(dataspace);
+    H5Sclose(memspace);
+
     // Debug output
     if ((*hDF5File->getLogFileStream()).is_open()) {
         int r = 0;
@@ -347,7 +379,7 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
  */
 void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI)
 {
-    if (!H5Tequal(type, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
+    if (!H5Tequal(datatype, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -364,7 +396,6 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
         throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
 
-    herr_t err;
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
@@ -372,7 +403,7 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
         //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
         //MPI::COMM_WORLD.Abort(1);
@@ -386,13 +417,16 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     }
 
     double t4 = getTime();
-    err = H5Dread(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dread(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = getTime();
     std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+
+    H5Sclose(dataspace);
+    H5Sclose(memspace);
 
     HDF5Dataset::getMinAndMaxValue(data, xC * yC * zC, minVI, maxVI);
 
@@ -412,7 +446,7 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
  */
 void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *data, bool log)
 {
-    if (!H5Tequal(type, H5T_NATIVE_FLOAT)) throw std::runtime_error("Wrong data type of dataset (not float)");
+    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT)) throw std::runtime_error("Wrong data type of dataset (not float)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -427,7 +461,6 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
     mem_offset[1] = 0;
     mem_offset[2] = 0;
 
-    herr_t err;
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
@@ -435,7 +468,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
         //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
         //MPI::COMM_WORLD.Abort(1);
@@ -444,13 +477,17 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
     double t4, t5;
     if (log)
         t4 = getTime();
-    err = H5Dwrite(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
         t5 = getTime();
+
+    H5Sclose(dataspace);
+    H5Sclose(memspace);
+
     if (log)
         std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 }
@@ -469,7 +506,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
  */
 void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *data, bool log)
 {
-    if (!H5Tequal(type, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
+    if (!H5Tequal(datatype, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(zO, yO, xO, zC, yC, xC);
     hsize_t offset[3];   // hyperslab offset in the file
     hsize_t count[3];    // size of the hyperslab in the file
@@ -484,7 +521,6 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
     mem_offset[1] = 0;
     mem_offset[2] = 0;
 
-    herr_t err;
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
     if (err < 0){
@@ -492,7 +528,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
         //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(3, count, NULL);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset, NULL, count, NULL);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
         //MPI::COMM_WORLD.Abort(1);
@@ -501,13 +537,17 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
     double t4, t5;
     if (log)
         t4 = getTime();
-    err = H5Dwrite(dataset, type, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
         t5 = getTime();
+
+    H5Sclose(dataspace);
+    H5Sclose(memspace);
+
     if (log)
         std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 }
@@ -542,7 +582,7 @@ void HDF5File::HDF5Dataset::checkOffsetAndCountParams(const hsize_t zO, const hs
  */
 void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
 {
-    if (H5Tequal(type, H5T_NATIVE_FLOAT)) {
+    if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
             HDF5Dataset::setAttribute("min", minVF);
@@ -583,11 +623,9 @@ void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
  */
 void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 {
-    if (H5Tequal(type, H5T_NATIVE_FLOAT)) {
+    if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
-            //HDF5Dataset::setAttribute("min", minVF);
-            //HDF5Dataset::setAttribute("max", maxVF);
         } else {
             if (this->hasAttribute("min") && this->hasAttribute("max")) {
                 minVF = HDF5Dataset::readAttributeF("min");
@@ -595,15 +633,11 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
-                //HDF5Dataset::setAttribute("min", minVF);
-                //HDF5Dataset::setAttribute("max", maxVF);
             }
         }
     } else {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueI();
-            //HDF5Dataset::setAttribute("min", minVI);
-            //HDF5Dataset::setAttribute("max", maxVI);
         } else {
             if (this->hasAttribute("min") && this->hasAttribute("max")) {
                 minVI = HDF5Dataset::readAttributeI("min");
@@ -611,8 +645,6 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
-                //HDF5Dataset::setAttribute("min", minVI);
-                //HDF5Dataset::setAttribute("max", maxVI);
             }
         }
     }

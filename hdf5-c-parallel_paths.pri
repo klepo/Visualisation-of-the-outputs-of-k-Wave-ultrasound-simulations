@@ -6,14 +6,12 @@ win32 {
     INCLUDEPATH += "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"
     CONFIG(debug, debug|release) {
         LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
-            -llibhdf5_cpp_D \
             -llibhdf5_D \
             #-llibzlib_D \
             -llibszip_D
     }
     CONFIG(release, debug|release) {
         LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
-            -llibhdf5_cpp \
             -llibhdf5 \
             #-llibzlib \
             -llibszip
@@ -46,7 +44,6 @@ unix {
         QMAKE_LFLAGS += -Wl,-rpath,/usr/local/hdf5-1.8.13-serial-static/lib
         INCLUDEPATH += "/usr/local/hdf5-1.8.13-serial-static/include"
         LIBS += -L"/usr/local/hdf5-1.8.13-serial-static/lib" \
-            -lhdf5_cpp \
             -lhdf5 \
             -lz \
             -ldl \

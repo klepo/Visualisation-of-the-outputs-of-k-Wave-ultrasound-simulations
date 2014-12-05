@@ -115,6 +115,7 @@ protected:
 private:
     class HDF5Object;
     uint64_t sizeOfDataPart;
+    herr_t err;
 
     void createDataset(const std::string datasetName, hid_t type, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);
 

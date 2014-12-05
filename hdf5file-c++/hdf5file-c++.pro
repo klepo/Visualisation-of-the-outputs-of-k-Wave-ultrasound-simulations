@@ -2,7 +2,7 @@
 #
 # Project created by QtCreator
 #
-# hdf5file library
+# hdf5file-c++ library
 #
 #-------------------------------------------------
 
@@ -11,7 +11,7 @@ CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
 
-TARGET = hdf5file
+TARGET = hdf5file-c++
 
 CONFIG(debug, debug|release) {
     DESTDIR = ../build/$$TARGET/debug
@@ -49,4 +49,4 @@ DEPENDPATH += $$PWD
 
 # hdf5 library
 
-include($$PWD/../hdf5_paths.pri)
+include($$PWD/../hdf5-c++_paths.pri)
