@@ -1,14 +1,18 @@
 /src.zip
 /cv.pdf
 /build
-/hdf5file/hdf5file.pro.user
-/hdf5file-parallel/hdf5file-parallel.pro.user
+/hdf5file-c/hdf5file-c.pro.user
+/hdf5file-c++/hdf5file-c++.pro.user
+/hdf5file-c-parallel/hdf5file-c-parallel.pro.user
 /k-wave-h5-processing/k-wave-h5-processing.pro.user
-/k-wave-visualizer/k-wave-visualizer.pro.user
-/hdf5file/Makefile
-/hdf5file-parallel/Makefile
+/k-wave-h5-visualizer/k-wave-h5-visualizer.pro.user
+/hdf5file-c/Makefile
+/hdf5file-c++/Makefile
+/hdf5file-c-parallel/Makefile
 /k-wave-h5-processing/Makefile
-/k-wave-visualizer/Makefile
-/hdf5_paths.pri
+/k-wave-h5-visualizer/Makefile
+/hdf5-c_paths.pri
+/hdf5-c++_paths.pri
+/hdf5-c-parallel_paths.pri
 /opencv_paths.pri
 
