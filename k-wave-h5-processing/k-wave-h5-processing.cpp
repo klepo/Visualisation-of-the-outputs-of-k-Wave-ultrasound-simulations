@@ -1089,7 +1089,6 @@ void rechunkDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile,
         if (maxValueGlobal < maxV) maxValueGlobal = maxV;
     } while (!srcDataset->isLastBlock());
     dstDataset->setAttribute("min", minValueGlobal);
-    dstDataset->setAttribute("test", "minValueGlobal čřt pětpk ěpotk t\0");
     dstDataset->setAttribute("max", maxValueGlobal);
     hDF5OutputFile->closeDataset(dstDataset->getName());
 }

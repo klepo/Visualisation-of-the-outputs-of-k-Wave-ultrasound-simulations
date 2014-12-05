@@ -16,12 +16,7 @@
 
 #include "HDF5Attribute.h"
 
-/**
- * @brief HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute
- * @param attribute
- * @throw std::runtime_error
- */
-HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t attribute)
+void HDF5File::HDF5Object::HDF5Attribute::loadAttribute(hid_t attribute)
 {
     type = H5Aget_type(attribute);
     size = H5Aget_storage_size(attribute);
@@ -36,18 +31,54 @@ HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t attribute)
 }
 
 /**
+ * @brief HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute
+ * @param attribute
+ * @throw std::runtime_error
+ */
+HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
+{
+    attribute = H5Aopen_name(object, name.c_str());
+    if (attribute < 0){
+        throw std::runtime_error("H5Aopen_name error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    loadAttribute(attribute);
+    herr_t err = H5Aclose(attribute);
+    if (err < 0){
+        throw std::runtime_error("H5Aclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+}
+
+HDF5File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
+{
+    attribute = H5Aopen_idx(object, idx);
+    if (attribute < 0){
+        throw std::runtime_error("H5Aopen_name error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    loadAttribute(attribute);
+    herr_t err = H5Aclose(attribute);
+    if (err < 0){
+        throw std::runtime_error("H5Aclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+}
+
+/**
  * @brief HDF5File::HDF5Object::HDF5Attribute::~HDF5Attribute
  */
 HDF5File::HDF5Object::HDF5Attribute::~HDF5Attribute()
 {
     free(buffer);
+    //H5Aclose(attribute);
 }
 
 /**
- * @brief HDF5File::HDF5Object::HDF5Attribute::getDataType
+ * @brief HDF5File::HDF5Object::HDF5Attribute::getType
  * @return data type of attribute
  */
-hid_t HDF5File::HDF5Object::HDF5Attribute::getDataType()
+hid_t HDF5File::HDF5Object::HDF5Attribute::getType()
 {
     return type;
 }

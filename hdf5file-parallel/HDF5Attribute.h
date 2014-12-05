@@ -21,21 +21,27 @@
 class HDF5File::HDF5Object::HDF5Attribute
 {
 public:
-    HDF5Attribute(const hid_t attribute);
+    HDF5Attribute(hid_t object, std::string name);
+    HDF5Attribute(hid_t object, hid_t idx);
     ~HDF5Attribute();
 
-    hid_t getDataType();
+    hid_t getType();
     hsize_t getSize();
     std::string getName();
     hid_t getSpace();
     void *getData();
 
 protected:
+    hid_t attribute;
+    std::string name;
     hid_t type;
     hsize_t size;
-    std::string name;
     hid_t space;
     void *buffer;
+
+private:
+    void loadAttribute(hid_t attribute);
+
 };
 
 #endif // HDF5ATTRIBUTE_H

@@ -21,10 +21,10 @@
 class HDF5File::HDF5Object
 {
 public:
+    class HDF5Attribute;
+
     HDF5Object(const hid_t object);
     ~HDF5Object();
-
-    class HDF5Attribute;
 
     void setAttribute(const std::string name, const int value);
     void setAttribute(const std::string name, const uint64_t value);
@@ -50,13 +50,14 @@ public:
 
 protected:
     hid_t object;
-
     HDF5File *hDF5File;
 
 private:
     void setAttribute(const std::string name, const hid_t type, const void *value);
-    void readAttribute(const std::string name, void *value);
+    void createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value);
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
+    std::string getStringValueByType(const hid_t type, const void *value);
+    std::string getStringTypeByType(const hid_t type);
 
 };
 
