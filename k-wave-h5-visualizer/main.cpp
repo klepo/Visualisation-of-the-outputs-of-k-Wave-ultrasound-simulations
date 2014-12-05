@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    app.setApplicationName("k-Wave HDF5 visualizer");
+    app.setApplicationName("k-Wave H5 Visualizer");
     app.setApplicationVersion("0.0");
     app.setOrganizationName("VUT FIT Brno");
 
