@@ -64,7 +64,10 @@ bool flagRechunk = false;
 bool flagView = false;
 bool flagDwnsmpl = false;
 
-double t0 = HDF5Helper::getTime();
+int mPISize;
+int mPIRank;
+MPI_Comm comm = MPI_COMM_WORLD;
+MPI_Info info = MPI_INFO_NULL;
 
 /**
  * @brief help
@@ -327,7 +330,7 @@ HDF5File *loadSimulationFile(std::string simulationFilename)
 {
     HDF5File *hDF5SimulationFile = NULL;
     try {
-        hDF5SimulationFile = new HDF5File(simulationFilename, HDF5File::OPEN);
+        hDF5SimulationFile = new HDF5File(simulationFilename, comm, info, HDF5File::OPEN);
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
@@ -380,11 +383,11 @@ HDF5File *createOrOpenOutputFile(std::string outputFilename) {
 
     try {
         // Try open file
-        file = new HDF5File(filename, HDF5File::OPEN);
+        file = new HDF5File(filename, comm, info, HDF5File::OPEN);
     } catch(std::exception &) {
         try {
             // Try create file
-            file = new HDF5File(filename, HDF5File::CREATE);
+            file = new HDF5File(filename, comm, info, HDF5File::CREATE);
         } catch(std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);
@@ -525,33 +528,37 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
                 //uint64_t width = 0;
                 hsize_t xO, yO, zO, xC, yC, zC;
 
-                std::cout << "Block reading test..." << std::endl;
-                std::cout << "   reading block size (number of elements): " << hDF5SimulationOutputFile->getSizeOfDataPart() << std::endl;
-                std::cout << std::endl;
+                if (mPIRank == 0) {
 
-                double ts = HDF5Helper::getTime();
+                    std::cout << "Block reading test..." << std::endl;
+                    std::cout << "   reading block size (number of elements): " << hDF5SimulationOutputFile->getSizeOfDataPart() << std::endl;
+                    std::cout << std::endl;
 
-                double ts0 = HDF5Helper::getTime();
-                dataset->initBlockReading();
-                double tf0 = HDF5Helper::getTime();
-                std::cout << "initBlockReading time: " << (tf0-ts0) << " ms; \t" << std::endl;
-                do {
-                    double ts1 = HDF5Helper::getTime();
-                    dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
-                    double tf1 = HDF5Helper::getTime();
-                    std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
-                    double ts2 = HDF5Helper::getTime();
-                    delete [] data; // !!
-                    double tf2 = HDF5Helper::getTime();
-                    std::cout << "delete time: " << (tf2-ts2) << " ms; \t" << std::endl;
-                } while (!dataset->isLastBlock());
+                    double ts = HDF5Helper::getTime();
 
-                double tf = HDF5Helper::getTime();
+                    double ts0 = HDF5Helper::getTime();
+                    dataset->initBlockReading();
+                    double tf0 = HDF5Helper::getTime();
+                    std::cout << "initBlockReading time: " << (tf0-ts0) << " ms; \t" << std::endl;
+                    do {
+                        double ts1 = HDF5Helper::getTime();
+                        dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
+                        double tf1 = HDF5Helper::getTime();
+                        std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
+                        double ts2 = HDF5Helper::getTime();
+                        delete [] data; // !!
+                        double tf2 = HDF5Helper::getTime();
+                        std::cout << "delete time: " << (tf2-ts2) << " ms; \t" << std::endl;
+                    } while (!dataset->isLastBlock());
 
-                std::cout << std::endl;
-                std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;
+                    double tf = HDF5Helper::getTime();
 
-                std::cout << std::endl;
+                    std::cout << std::endl;
+                    std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;
+
+                    std::cout << std::endl;
+
+                }
 
                 std::cout << "Slices reading test..." << std::endl;
                 std::cout << std::endl;
@@ -730,7 +737,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                     // Next time step for group of datasets (yDO)
                     if (datasetsForProcessing->sensorMaskIndexDataset->isLastBlock()) {
                         if (MAX_NUMBER_OF_FRAMES > 0) // TODO
-                            if (yDO + 1 >= MAX_NUMBER_OF_FRAMES)
+                            if (yDO + 1 == MAX_NUMBER_OF_FRAMES)
                                 break;
 
                         datasetsForProcessing->sensorMaskIndexDataset->initBlockReading();
@@ -849,7 +856,7 @@ void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, 
             std::cout << "   new size:\t" << newDatasetSize[0] << " x " << newDatasetSize[1] << " x " << newDatasetSize[2] << std::endl;
 
             // Create temp file
-            HDF5File *tmpFile = new HDF5File("tmp.h5", HDF5File::CREATE);
+            HDF5File *tmpFile = new HDF5File("tmp.h5", comm, info, HDF5File::CREATE);
 
             // For every 3D type dataset
             for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
@@ -1450,6 +1457,13 @@ void copyDimensionsAndAttributes(HDF5File *hDF5SimulationOutputFile, HDF5File *h
  */
 int main(int argc, char **argv)
 {
+    double t0 = HDF5Helper::getTime();
+
+    std::cout << std::endl << "MPI_Init ... " << std::endl;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(comm, &mPISize);
+    MPI_Comm_rank(comm, &mPIRank);
+
     HDF5File *hDF5SimulationOutputFile = NULL;
     HDF5File *hDF5SimulationInputFile = NULL;
     HDF5File *hDF5OutputFile = NULL;
@@ -1551,6 +1565,11 @@ int main(int argc, char **argv)
         visualize(hDF5ViewFile);
     }
 
+    double t1 = HDF5Helper::getTime();
+
+    std::cout << std::endl << std::endl << "Time before closing files: " << (t1-t0) << " ms; \t" << std::endl << std::endl << std::endl;
+
+
     printDebugTitle("Closing files");
 
     // Close files
@@ -1558,9 +1577,12 @@ int main(int argc, char **argv)
     delete hDF5SimulationInputFile;
     delete hDF5OutputFile;
 
-    double t1 = HDF5Helper::getTime();
+    double t2 = HDF5Helper::getTime();
 
-    std::cout << std::endl << std::endl << "Time of the entire process: " << (t1-t0) << " ms; \t" << std::endl << std::endl << std::endl;
+    std::cout << std::endl << std::endl << "Time of the entire process: " << (t2-t0) << " ms; \t" << std::endl << std::endl << std::endl;
+
+    std::cout << std::endl << "MPI_Finalize ... " << std::endl;
+    MPI_Finalize();
 
     //return a.exec();
     std::exit(EXIT_SUCCESS);

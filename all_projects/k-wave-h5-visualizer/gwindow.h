@@ -98,7 +98,7 @@ private:
     void renderFrame();
     void unload3DTexture();
     void clearSlices();
-    QPointF GWindow::convertToOpenGLRelative(QPointF point);
+    QPointF convertToOpenGLRelative(QPointF point);
 
     QMainWindow *qMainWindow;
 

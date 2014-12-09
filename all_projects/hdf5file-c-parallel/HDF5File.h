@@ -25,8 +25,15 @@
 #include <map>
 #include <algorithm>
 
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include <mpi/mpi.h>
+
 #ifdef __unix
-#include <stdexcept>
+typedef u_int64_t uint64_t;
 #include <sys/time.h>
 #endif
 
@@ -44,11 +51,10 @@ namespace HDF5Helper
     double getTime();
 }
 
-
 class HDF5File
 {
 public:
-    HDF5File(std::string filename, unsigned int flag = HDF5File::OPEN, bool log = false);
+    HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned int flag = HDF5File::OPEN, bool log = false);
     ~HDF5File();
 
     class HDF5Dataset;
@@ -98,12 +104,14 @@ public:
 
     std::ofstream *getLogFileStream();
 
-protected:
+private:
     uint64_t nT;
     uint64_t nX;
     uint64_t nY;
     uint64_t nZ;
     std::string filename;
+
+    hid_t plist_FILE_ACCESS;
 
     std::ofstream logFileStream;
 
@@ -116,7 +124,6 @@ protected:
     void insertDataset(const std::string datasetName);
     void insertGroup(const std::string groupName);
 
-private:
     class HDF5Object;
     uint64_t sizeOfDataPart;
     herr_t err;

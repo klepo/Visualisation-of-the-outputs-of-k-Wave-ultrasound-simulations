@@ -14,15 +14,9 @@
  * hdf5file library is free software.
  */
 
-
 #include "HDF5File.h"
 #include "HDF5Dataset.h"
 #include "HDF5Group.h"
-
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 const std::string HDF5File::NT("Nt");
 const std::string HDF5File::NX("Nx");
@@ -39,10 +33,17 @@ std::mutex HDF5File::mutex;
  * @param log enable/disable log file
  * @throw std::runtime_error
  */
-HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
+HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned int flag, bool log)
 {
+    int started, error = 0;
+    error = MPI_Initialized(&started);
+    if (error)
+        throw std::runtime_error("MPI is not initialized");
+
+    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+
     this->sizeOfDataPart = SIZE_OF_DATA_PART;
-    this->filename = filename;
+    this->filename = filename;    
 
     // Create log file
     if (log) {
@@ -50,9 +51,16 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
         logFileStream << filename << std::endl;
     }
 
+    plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
+    err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
+    if (err < 0){
+        throw std::runtime_error("H5Pset_fapl_mpio error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
     if (flag == HDF5File::OPEN) {
         std::cout << "Opening file \"" << filename << "\"";
-        file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+        file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, plist_FILE_ACCESS);
         if (file < 0) {
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Fopen error");
@@ -92,7 +100,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 
     } else if (flag == HDF5File::CREATE) {
         std::cout << "Creating file \"" << filename << "\"";
-        file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, plist_FILE_ACCESS);
         if (file < 0) {
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
@@ -119,6 +127,7 @@ HDF5File::~HDF5File()
     }
     logFileStream.close();
     std::cout << "Closing file \"" << filename << "\"";
+    H5Pclose(plist_FILE_ACCESS);
     H5Fclose(file);
     std::cout << " ... OK" << std::endl;
 

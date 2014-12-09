@@ -74,6 +74,10 @@ private:
 
     void recomputeBlock();
 
+    hid_t plist;
+
+    hid_t plist_DATASET_XFER;
+
     hsize_t x,y,z;
     hsize_t xO, yO, zO;
     hsize_t xC, yC, zC;

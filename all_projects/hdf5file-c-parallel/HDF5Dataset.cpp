@@ -63,7 +63,7 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     }
 
     chunk_dims = new hsize_t[rank]();
-    hid_t plist = H5Dget_create_plist(dataset);
+    plist = H5Dget_create_plist(dataset);
     if (plist < 0){
         throw std::runtime_error("H5Dget_create_plist error");
         //MPI::COMM_WORLD.Abort(1);
@@ -75,7 +75,20 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
             //MPI::COMM_WORLD.Abort(1);
         }
     }
+
     H5Pclose(plist);
+
+
+    plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
+    if (plist_DATASET_XFER < 0){
+        throw std::runtime_error("H5Pcreate error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Pset_dxpl_mpio(plist_DATASET_XFER, H5FD_MPIO_INDEPENDENT);
+    if (err < 0){
+        throw std::runtime_error("H5Pset_dxpl_mpio error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 
     // Compute data size
     size = 1;
@@ -247,7 +260,7 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
         }
         double t4 = HDF5Helper::getTime();
         // Reading
-        err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+        err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, plist_DATASET_XFER, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
             //MPI::COMM_WORLD.Abort(1);
@@ -275,7 +288,7 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
         }
         double t4 = HDF5Helper::getTime();
         // Read
-        err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+        err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, plist_DATASET_XFER, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
             //MPI::COMM_WORLD.Abort(1);
@@ -339,7 +352,7 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
 
     double t4 = HDF5Helper::getTime();
     // Reading
-    err = H5Dread(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
@@ -417,7 +430,7 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     }
 
     double t4 = HDF5Helper::getTime();
-    err = H5Dread(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
@@ -477,7 +490,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
     double t4, t5;
     if (log)
         t4 = HDF5Helper::getTime();
-    err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
@@ -537,7 +550,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
     double t4, t5;
     if (log)
         t4 = HDF5Helper::getTime();
-    err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
+    err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);

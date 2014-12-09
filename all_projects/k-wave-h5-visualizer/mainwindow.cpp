@@ -170,7 +170,7 @@ void MainWindow::on_actionLoadHDF5File_triggered()
             // Clear list of datasets (dock panel)
             clearLayout(ui->gridLayoutDatasets);
 
-            QRadioButton *lastRadioButton;
+            QRadioButton *lastRadioButton = NULL;
             int i = 0;
             // Load objects to visualize from file
             foreach (QString key, openedH5File->getObjects().keys()) {
