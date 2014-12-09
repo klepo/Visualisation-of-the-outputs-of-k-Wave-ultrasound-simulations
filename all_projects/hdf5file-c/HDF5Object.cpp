@@ -46,7 +46,7 @@ int HDF5File::HDF5Object::getNumAttrs()
         throw std::runtime_error("H5Oget_info error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    return object_info.num_attrs;
+    return (int) object_info.num_attrs;
 }
 
 /**
@@ -57,7 +57,7 @@ int HDF5File::HDF5Object::getNumAttrs()
  */
 bool HDF5File::HDF5Object::hasAttribute(const std::string name)
 {
-    return H5Aexists(object, name.c_str());
+    return H5Aexists(object, name.c_str()) != 0;
 }
 
 /**

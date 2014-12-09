@@ -245,14 +245,14 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
         } catch (std::bad_alloc &) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " floats)").c_str());
         }
-        double t4 = getTime();
+        double t4 = HDF5Helper::getTime();
         // Reading
         err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
             //MPI::COMM_WORLD.Abort(1);
         }
-        double t5 = getTime();
+        double t5 = HDF5Helper::getTime();
         std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
     } else
         throw std::runtime_error("Wrong data type of dataset (not float)");
@@ -273,14 +273,14 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
         } catch (std::bad_alloc &) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " unsigned 64-bit integers)").c_str());
         }
-        double t4 = getTime();
+        double t4 = HDF5Helper::getTime();
         // Read
         err = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
         if (err < 0){
             throw std::runtime_error("H5Dread error");
             //MPI::COMM_WORLD.Abort(1);
         }
-        double t5 = getTime();
+        double t5 = HDF5Helper::getTime();
         std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
     } else
         throw std::runtime_error("Wrong data type of dataset (not integer)");
@@ -337,14 +337,14 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
         throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " floats)").c_str());
     }
 
-    double t4 = getTime();
+    double t4 = HDF5Helper::getTime();
     // Reading
     err = H5Dread(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    double t5 = getTime();
+    double t5 = HDF5Helper::getTime();
     std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
     H5Sclose(dataspace);
@@ -416,13 +416,13 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
         throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers)").c_str());
     }
 
-    double t4 = getTime();
+    double t4 = HDF5Helper::getTime();
     err = H5Dread(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    double t5 = getTime();
+    double t5 = HDF5Helper::getTime();
     std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
     H5Sclose(dataspace);
@@ -476,14 +476,14 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
 
     double t4, t5;
     if (log)
-        t4 = getTime();
+        t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
-        t5 = getTime();
+        t5 = HDF5Helper::getTime();
 
     H5Sclose(dataspace);
     H5Sclose(memspace);
@@ -536,14 +536,14 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
 
     double t4, t5;
     if (log)
-        t4 = getTime();
+        t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
-        t5 = getTime();
+        t5 = HDF5Helper::getTime();
 
     H5Sclose(dataspace);
     H5Sclose(memspace);

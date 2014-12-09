@@ -39,6 +39,12 @@
 
 #include <mutex>
 
+namespace HDF5Helper
+{
+    double getTime();
+}
+
+
 class HDF5File
 {
 public:
@@ -73,8 +79,6 @@ public:
 
     void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
     void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
-
-    static double getTime();
 
     void setSizeOfDataPart(uint64_t size);
     uint64_t getSizeOfDataPart();

@@ -76,6 +76,7 @@ public slots:
     void changeMaxValue(float value);
 
     void clearData();
+    void unloadDataset();
 
     void setXYSlice(float *data, unsigned int width, unsigned int height, float index);
     void setXZSlice(float *data, unsigned int width, unsigned int height, float index);
@@ -97,10 +98,12 @@ private:
     void renderFrame();
     void unload3DTexture();
     void clearSlices();
+    QPointF GWindow::convertToOpenGLRelative(QPointF point);
 
     QMainWindow *qMainWindow;
 
     GLuint m_uFrame;
+
     GLuint m_uFrameColor;
     GLuint m_aPosition;
     GLuint m_aColor;
@@ -189,6 +192,7 @@ private:
     bool texture3DInitialized;
 
     bool volumeRendering;
+    GLuint m_uVolumeRendering;
 
     bool sliceXY;
     bool sliceXZ;

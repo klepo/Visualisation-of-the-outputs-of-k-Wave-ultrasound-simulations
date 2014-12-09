@@ -36,7 +36,7 @@ const std::string NZ_DATASET("Nz");
 
 #define MAX_SIZE 512
 #define MAX_CHUNK_SIZE 64
-#define MAX_NUMBER_OF_FRAMES 0 // TODO
+#define MAX_NUMBER_OF_FRAMES 4 // TODO
 
 // Filenames
 std::string simulationOutputFilename = "";
@@ -64,7 +64,7 @@ bool flagRechunk = false;
 bool flagView = false;
 bool flagDwnsmpl = false;
 
-double t0 = HDF5File::getTime();
+double t0 = HDF5Helper::getTime();
 
 /**
  * @brief help
@@ -529,24 +529,24 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
                 std::cout << "   reading block size (number of elements): " << hDF5SimulationOutputFile->getSizeOfDataPart() << std::endl;
                 std::cout << std::endl;
 
-                double ts = HDF5File::getTime();
+                double ts = HDF5Helper::getTime();
 
-                double ts0 = HDF5File::getTime();
+                double ts0 = HDF5Helper::getTime();
                 dataset->initBlockReading();
-                double tf0 = HDF5File::getTime();
+                double tf0 = HDF5Helper::getTime();
                 std::cout << "initBlockReading time: " << (tf0-ts0) << " ms; \t" << std::endl;
                 do {
-                    double ts1 = HDF5File::getTime();
+                    double ts1 = HDF5Helper::getTime();
                     dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
-                    double tf1 = HDF5File::getTime();
+                    double tf1 = HDF5Helper::getTime();
                     std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
-                    double ts2 = HDF5File::getTime();
+                    double ts2 = HDF5Helper::getTime();
                     delete [] data; // !!
-                    double tf2 = HDF5File::getTime();
+                    double tf2 = HDF5Helper::getTime();
                     std::cout << "delete time: " << (tf2-ts2) << " ms; \t" << std::endl;
                 } while (!dataset->isLastBlock());
 
-                double tf = HDF5File::getTime();
+                double tf = HDF5Helper::getTime();
 
                 std::cout << std::endl;
                 std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;
@@ -729,9 +729,9 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                 do {
                     // Next time step for group of datasets (yDO)
                     if (datasetsForProcessing->sensorMaskIndexDataset->isLastBlock()) {
-                        /*if (MAX_NUMBER_OF_FRAMES > 0) // TODO
+                        if (MAX_NUMBER_OF_FRAMES > 0) // TODO
                             if (yDO + 1 >= MAX_NUMBER_OF_FRAMES)
-                                break;*/
+                                break;
 
                         datasetsForProcessing->sensorMaskIndexDataset->initBlockReading();
                         actualDataset->findAndSetGlobalMinAndMaxValue();
@@ -747,8 +747,8 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
 
                         // Shift to next dataset -> step
                         hDF5OutputFile->closeDataset(dataset->getName()  + "/" + std::to_string(yDO));
-                        hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(yDO+1), 3, datasetSize, chunkSize, true);
-                        actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO+1));
+                        hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(yDO + 1), 3, datasetSize, chunkSize, true);
+                        actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO + 1));
                     }
 
                     // Offset is unused here (except yDO), but for block reading is important (zO, yMO/yDO, xO)
@@ -756,18 +756,19 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                     datasetsForProcessing->sensorMaskIndexDataset->readBlock(zO, yMO, xO, zC, yC, xC, sensorMaskData, minVI, maxVI);
                     dataset->readBlock(zO, yDO, xO, zC, yC, xC, datasetData, minVF, maxVF);
 
-                    double t4 = HDF5File::getTime();
+                    double t4 = HDF5Helper::getTime();
                     // For the entire block write "voxels"
                     for (hsize_t z = 0; z < zC; z++)
                         for (hsize_t y = 0; y < yC; y++)
                             for (hsize_t x = 0; x < xC; x++) {
-                                index = sensorMaskData[x + y * xC + z * xC * yC];
+                                hsize_t srcIndex = x + y * xC + z * xC * yC;
+                                index = sensorMaskData[srcIndex];
                                 hDF5SimulationOutputFile->convertlinearTo3D(index, zM, yM, xM);
-                                data[0] = datasetData[x + y * xC + z * xC * yC];
-                                // Save from position (0,0,0)
+                                data[0] = datasetData[srcIndex];
                                 actualDataset->write3DDataset(zM - minZ, yM - minY, xM - minX, 1, 1, 1, data, false);
                             }
-                    double t5 = HDF5File::getTime();
+
+                    double t5 = HDF5Helper::getTime();
 
                     std::cout << "write time: " << (t5-t4) << " ms; \t" << std::endl;
 
@@ -1557,7 +1558,7 @@ int main(int argc, char **argv)
     delete hDF5SimulationInputFile;
     delete hDF5OutputFile;
 
-    double t1 = HDF5File::getTime();
+    double t1 = HDF5Helper::getTime();
 
     std::cout << std::endl << std::endl << "Time of the entire process: " << (t1-t0) << " ms; \t" << std::endl << std::endl << std::endl;
 

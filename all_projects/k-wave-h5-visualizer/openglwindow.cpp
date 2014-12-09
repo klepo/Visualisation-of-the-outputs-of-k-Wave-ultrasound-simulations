@@ -26,6 +26,18 @@
 #include <QThread>
 #include <QTime>
 
+void QTest::qSleep(int ms)
+{
+    Q_ASSERT(ms > 0);
+
+#ifdef Q_OS_WIN
+    Sleep(uint(ms));
+#else
+    struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+    nanosleep(&ts, NULL);
+#endif
+}
+
 /**
  * @brief OpenGLWindow::OpenGLWindow
  * @param parent
@@ -39,6 +51,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , m_context(0)
     , m_device(0)
     , m_update_pending(false)
+    , frames(0)
 {
     //setOpacity(0.5);
     setSurfaceType(QWindow::OpenGLSurface);
@@ -56,9 +69,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     // Smoother lines
     surfaceFormat.setSamples(4);
     setFormat(surfaceFormat);
-    // Timer for getting FPS
-    //timer = new QTimer(this);
-    //connect(timer, SIGNAL(timeout()), this, SLOT(renderNow()));
+
     // Timer for animation of rotate
     /*moveTimer = new QTimer(this);
     connect(moveTimer, SIGNAL(timeout()), this, SLOT(clearDiff()));*/
@@ -69,8 +80,6 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
  */
 OpenGLWindow::~OpenGLWindow()
 {
-    //timer->stop();
-    //delete timer;
     //moveTimer->stop();
     //delete moveTimer;
     //delete m_context; // Some BUG - deletion causes wrong freeing memory
@@ -118,10 +127,14 @@ void OpenGLWindow::render()
  */
 bool OpenGLWindow::event(QEvent *event)
 {
-    if (event->type() == QEvent::UpdateRequest)
+    switch (event->type()) {
+    case QEvent::UpdateRequest:
+        m_update_pending = false;
         renderNow();
-
-    return QWindow::event(event);
+        return true;
+    default:
+        return QWindow::event(event);
+    }
 }
 
 /**
@@ -164,12 +177,10 @@ void OpenGLWindow::renderLater()
  */
 void OpenGLWindow::renderNow()
 {
-    //QTime timer;
     //timer.start();
+
     if (!isExposed())
         return;
-
-    m_update_pending = false;
 
     bool needsInitialize = false;
 
@@ -191,7 +202,18 @@ void OpenGLWindow::renderNow()
     render();
 
     m_context->swapBuffers(this);
-    //qDebug() << "render time: " << timer.elapsed();
+
+    QTest::qSleep(17); // max cca 60 fps
+
+    //QString framesPerSecond;
+    //framesPerSecond.setNum( 1000.0 / (timer.nsecsElapsed() / 1000000.0), 'f', 2);
+
+    //qDebug() << "render time:" << (timer.nsecsElapsed() / 1000000.0) << "ms";
+    //qDebug() << framesPerSecond.toDouble() << "fps";
+
+    // Change last position
+    lastPos = currentPos;
+    wheelDelta = 0;
 }
 
 /**
@@ -210,7 +232,7 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
     lastPos = event->pos();
     currentPos = event->pos();
     //diffPos = lastPos - currentPos;
-    renderNow();
+    renderLater();
     //moveTimer->start(200);
 }
 
@@ -225,9 +247,7 @@ void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
         currentPos = event->pos();
         //diffPos = lastPos - currentPos;
         // Render
-        renderNow();
-        // Change last position
-        lastPos = event->pos();
+        renderLater();
     }
 }
 
@@ -251,7 +271,7 @@ void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
     rightButton = false;
     leftButton = false;
     mouseDown = false;
-    renderNow();
+    renderLater();
     //moveTimer->stop();
 }
 
@@ -263,6 +283,5 @@ void OpenGLWindow::wheelEvent(QWheelEvent *event)
 {
     // Save delta
     wheelDelta = event->delta();
-    renderNow();
-    wheelDelta = 0;
+    renderLater();
 }

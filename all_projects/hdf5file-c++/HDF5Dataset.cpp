@@ -226,10 +226,10 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " floats)").c_str());
         }
         try {
-            double t4 = getTime();
+            double t4 = HDF5Helper::getTime();
             // Reading
             dataset.read(data, typeF, memspace, dataspace);
-            double t5 = getTime();
+            double t5 = HDF5Helper::getTime();
             std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
         } catch(H5::DataSetIException error) {
             error.printError();
@@ -262,10 +262,10 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " unsigned 64-bit integers)").c_str());
         }
         try {
-            double t4 = getTime();
+            double t4 = HDF5Helper::getTime();
             // Read
             dataset.read(data, typeI, memspace, dataspace);
-            double t5 = getTime();
+            double t5 = HDF5Helper::getTime();
             std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
         } catch(H5::DataSetIException error) {
             error.printError();
@@ -324,10 +324,10 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " floats)").c_str());
         }
 
-        double t4 = getTime();
+        double t4 = HDF5Helper::getTime();
         // Reading
         dataset.read(data, typeF, memspace, dataspace);
-        double t5 = getTime();
+        double t5 = HDF5Helper::getTime();
         std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
         // Debug output
         if ((*hDF5File->getLogFileStream()).is_open()) {
@@ -400,9 +400,9 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers)").c_str());
         }
 
-        double t4 = getTime();
+        double t4 = HDF5Helper::getTime();
         dataset.read(data, typeI, memspace, dataspace);
-        double t5 = getTime();
+        double t5 = HDF5Helper::getTime();
         std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
 
         HDF5Dataset::getMinAndMaxValue(data, xC * yC * zC, minVI, maxVI);
@@ -455,10 +455,10 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
         memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
         double t4, t5;
         if (log)
-            t4 = getTime();
+            t4 = HDF5Helper::getTime();
         dataset.write(data, typeF, memspace, dataspace);
         if (log)
-            t5 = getTime();
+            t5 = HDF5Helper::getTime();
         if (log)
             std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
         //mutex.unlock();
@@ -509,10 +509,10 @@ void HDF5File::HDF5Dataset::write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, h
         memspace.selectHyperslab(H5S_SELECT_SET, count, mem_offset);
         double t4, t5;
         if (log)
-            t4 = getTime();
+            t4 = HDF5Helper::getTime();
         dataset.write(data, typeI, memspace, dataspace);
         if (log)
-            t5 = getTime();
+            t5 = HDF5Helper::getTime();
         if (log)
             std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
         //mutex.unlock();

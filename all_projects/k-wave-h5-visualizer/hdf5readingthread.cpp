@@ -211,7 +211,7 @@ void HDF5ReadingThread::run()
                     do {
                         // Request for returning part of 3D data (block)
                         Request *newR = new Request(r->dataset);
-                        qDebug() << "start reading block... ";
+                        //qDebug() << "start reading block... ";
                         r->dataset->readBlock(newR->zO, newR->yO, newR->xO, newR->zC, newR->yC, newR->xC, newR->data, newR->min, newR->max);
                         QMutexLocker locker(&requestMutex);
                         doneRequests.append(newR);
@@ -221,7 +221,7 @@ void HDF5ReadingThread::run()
                     delete r;
                 } else {
                     // One block data reading (slice)
-                    qDebug() << "start reading 3D dataset... ";
+                    //qDebug() << "start reading 3D dataset... ";
                     r->dataset->read3DDataset(r->zO, r->yO, r->xO, r->zC, r->yC, r->xC, r->data, r->min, r->max);
                     QMutexLocker locker(&requestMutex);
                     doneRequests.append(r);

@@ -170,6 +170,7 @@ void MainWindow::on_actionLoadHDF5File_triggered()
             // Clear list of datasets (dock panel)
             clearLayout(ui->gridLayoutDatasets);
 
+            QRadioButton *lastRadioButton;
             int i = 0;
             // Load objects to visualize from file
             foreach (QString key, openedH5File->getObjects().keys()) {
@@ -191,6 +192,7 @@ void MainWindow::on_actionLoadHDF5File_triggered()
                 //checkBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
                 gridLayout->addWidget(radioButton, i, 0);
+                lastRadioButton = radioButton;
                 //gridLayout->addWidget(checkBox, i, 1); // TODO multiselected visualization
                 gridLayout->addWidget(comboBox, i, 1);
 
@@ -212,6 +214,9 @@ void MainWindow::on_actionLoadHDF5File_triggered()
             ui->dockWidgetDatasets->setEnabled(true);
             ui->dockWidgetInfo->setEnabled(true);
 
+            // Select last dataset
+            lastRadioButton->click();
+
         } catch (std::exception &e) {
             // Wrong HDF5 file
             std::cerr << e.what() << std::endl;
@@ -230,6 +235,8 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     // Show waiting dialog for closing file
     dialog->show();
     QApplication::processEvents();
+
+    timer->stop();
 
     // Clear requets
     clearRequestsAndWaitThreads();
@@ -263,19 +270,25 @@ void MainWindow::clearGUI()
     ui->actionFillSpace->setEnabled(false);
     ui->actionFillSpace->setChecked(false);
     // Disable dock panels
-    ui->dockWidgetSelectedDataset->setEnabled(false);
+    /*ui->dockWidgetSelectedDataset->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
     ui->dockWidgetInfo->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
-    ui->dockWidgetYZ->setEnabled(false);
+    ui->dockWidgetYZ->setEnabled(false);*/
     // Reset sliders and spin boxes
     ui->verticalSliderXY->setValue(0);
+    ui->verticalSliderXY->setMaximum(99);
     ui->spinBoxXY->setValue(0);
+    ui->spinBoxXY->setMaximum(99);
     ui->verticalSliderXZ->setValue(0);
+    ui->verticalSliderXZ->setMaximum(99);
     ui->spinBoxXZ->setValue(0);
+    ui->spinBoxXZ->setMaximum(99);
     ui->verticalSliderYZ->setValue(0);
+    ui->verticalSliderYZ->setMaximum(99);
     ui->spinBoxYZ->setValue(0);
+    ui->spinBoxYZ->setMaximum(99);
     // Disable other settings
     ui->checkBoxUseGlobal->setChecked(true);
     ui->toolButtonLocalValues->setChecked(false);
@@ -298,6 +311,45 @@ void MainWindow::clearGUI()
     ui->textBrowserInfo->clear();
     // Disable closing button
     ui->actionCloseHDF5File->setEnabled(false);
+
+    // Init min and max controls
+    ui->doubleSpinBoxMinGlobal->setRange(0, 1);
+    ui->doubleSpinBoxMaxGlobal->setRange(0, 1);
+    ui->doubleSpinBoxMinGlobal->setValue(0);
+    ui->doubleSpinBoxMaxGlobal->setValue(0);
+    ui->doubleSpinBoxMinGlobal->setSingleStep(0.1);
+    ui->doubleSpinBoxMaxGlobal->setSingleStep(0.1);
+
+    ui->doubleSpinBoxXYMin->setRange(0, 1);
+    ui->doubleSpinBoxXYMax->setRange(0, 1);
+    ui->doubleSpinBoxXYMin->setValue(0);
+    ui->doubleSpinBoxXYMax->setValue(0);
+    ui->doubleSpinBoxXYMin->setSingleStep(0.1);
+    ui->doubleSpinBoxXYMax->setSingleStep(0.1);
+
+    ui->doubleSpinBoxXZMin->setRange(0, 1);
+    ui->doubleSpinBoxXZMax->setRange(0, 1);
+    ui->doubleSpinBoxXZMin->setValue(0);
+    ui->doubleSpinBoxXZMax->setValue(0);
+    ui->doubleSpinBoxXZMin->setSingleStep(0.1);
+    ui->doubleSpinBoxXZMax->setSingleStep(0.1);
+
+    ui->doubleSpinBoxYZMin->setRange(0, 1);
+    ui->doubleSpinBoxYZMax->setRange(0, 1);
+    ui->doubleSpinBoxYZMin->setValue(0);
+    ui->doubleSpinBoxYZMax->setValue(0);
+    ui->doubleSpinBoxYZMin->setSingleStep(0.1);
+    ui->doubleSpinBoxYZMax->setSingleStep(0.1);
+
+    ui->spinBoxSelectedDatasetStep->setMaximum(0);
+    ui->spinBoxSelectedDatasetStep->setValue(0);
+    ui->horizontalSliderSelectedDatasetStep->setMaximum(0);
+    ui->horizontalSliderSelectedDatasetStep->setValue(0);
+    ui->spinBoxTMIncrement->setMaximum(1);
+    ui->spinBoxTMIncrement->setValue(1);
+    ui->spinBoxTMInterval->setMaximum(1000);
+    ui->spinBoxTMInterval->setMinimum(16);
+    ui->spinBoxTMInterval->setValue(16);
 }
 
 /**
@@ -306,10 +358,13 @@ void MainWindow::clearGUI()
  */
 void MainWindow::clearLayout(QLayout *layout)
 {
-    QLayoutItem* item;
-    while ((item = layout->takeAt(0)) != NULL) {
-        delete item->widget();
-        delete item;
+    QLayout *layout0 = static_cast< QFormLayout* >(layout);
+    int count = layout0->count();
+    while (--count >= 0) {
+        QLayoutItem *child = layout->itemAt(0);
+        layout0->removeItem(child);
+        delete child->widget();
+        delete child;
     }
 }
 
@@ -436,6 +491,10 @@ void MainWindow::selectDataset()
         ui->dockWidgetXY->setEnabled(true);
         ui->dockWidgetXZ->setEnabled(true);
         ui->dockWidgetYZ->setEnabled(true);
+
+        // TODO
+        //connect(ui->horizontalSliderVRAlpha, SIGNAL(valueChanged(int)), subobject, SLOT(setAlpha(int)));
+
 
         // Group of datasets (time series) is selected
         if (subobject->getGroup() != NULL) {
@@ -632,6 +691,8 @@ void MainWindow::initControls()
         ui->spinBoxSelectedDatasetStep->setValue(subobject->getCurrentStep());
         ui->horizontalSliderSelectedDatasetStep->setMaximum(subobject->getSteps()-1);
         ui->horizontalSliderSelectedDatasetStep->setValue(subobject->getCurrentStep());
+        ui->spinBoxTMIncrement->setMaximum(subobject->getSteps()-1);
+        ui->spinBoxTMIncrement->setValue(1);
 
         // Slices control
         ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(subobject->getZIndex()) + ")");
@@ -674,7 +735,7 @@ void MainWindow::loaded3D(std::string datasetName)
     flagVRLoaded = true;
     ui->label3DLoading->clear();
 
-    if (subobject != NULL && subobject->getGroup() != NULL)
+    if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL)
         // If animation is running...
         if (play && subobject->areCurrentSlicesLoaded() && datasetName == subobject->getDataset()->getName())
             timer->start(ui->spinBoxTMInterval->value());
@@ -894,7 +955,7 @@ void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
-    if (subobject->getGroup() != NULL) {
+    if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL) {
         // Set step in subobject structure
         subobject->setCurrentStep(step, gWindow->getThread());
         // For VR
@@ -902,6 +963,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
             // Enable loading animation
             ui->label3DLoading->setMovie(movie);
             // Load 3D data
+            gWindow->unloadDataset();
             gWindow->load3DTexture(subobject->getDataset());
         }
     }
@@ -909,7 +971,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 
 void MainWindow::updateStep()
 {
-    if (subobject->getGroup() != NULL) {
+    if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL) {
         // Get current step
         uint64_t step = subobject->getCurrentStep();
         // Increment of step
@@ -921,8 +983,8 @@ void MainWindow::updateStep()
             // Stop playing
             play = false;
             ui->toolButtonPlay->setChecked(false);
-            // Set last dataset
-            ui->horizontalSliderSelectedDatasetStep->setValue(subobject->getSteps() - 1);
+            // Set first dataset
+            ui->horizontalSliderSelectedDatasetStep->setValue(0);
         } else {
             // Stop timer and update step
             timer->stop();
@@ -933,7 +995,7 @@ void MainWindow::updateStep()
 
 void MainWindow::on_toolButtonPlay_clicked(bool checked)
 {
-    if (subobject->getGroup() != NULL) {
+    if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL) {
         if (checked) {
             timer->start(ui->spinBoxTMInterval->value());
             play = true;
@@ -946,7 +1008,7 @@ void MainWindow::on_toolButtonPlay_clicked(bool checked)
 
 void MainWindow::on_toolButtonStart_clicked()
 {
-    if (subobject->getGroup() != NULL) {
+    if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL) {
         timer->stop();
         play = false;
         ui->toolButtonPlay->setChecked(false);
@@ -956,7 +1018,7 @@ void MainWindow::on_toolButtonStart_clicked()
 
 void MainWindow::on_toolButtonEnd_clicked()
 {
-    if (subobject->getGroup() != NULL) {
+    if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL) {
         timer->stop();
         play = false;
         ui->toolButtonPlay->setChecked(false);
@@ -996,7 +1058,7 @@ void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 
 void MainWindow::on_actionVolumeRendering_toggled(bool value)
 {
-    if (gWindow != NULL && subobject != NULL && value/*&& !gWindow->isTexture3DInitialized()*/) {
+    if (gWindow != NULL && subobject != NULL && subobject->isGUIInitialized() && value/*&& !gWindow->isTexture3DInitialized()*/) {
         gWindow->load3DTexture(subobject->getDataset());
         if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
@@ -1009,7 +1071,7 @@ void MainWindow::on_actionExportImageFrom3DScene_triggered()
 {
     if (gWindow != NULL) {
         QString name = "no_name";
-        if (subobject != NULL) name = subobject->getName();
+        if (subobject != NULL && subobject->isGUIInitialized()) name = subobject->getName();
         QString fileName = QFileDialog::getSaveFileName(this, "Save image", name + "_3Dscene.png", "Image (*.png)");
         if (fileName != NULL)
             gWindow->saveImage(fileName);
@@ -1088,7 +1150,7 @@ void MainWindow::on_verticalSliderYZ_valueChanged(int value)
 
 void MainWindow::on_actionFillSpace_toggled(bool value)
 {
-    if (subobject != NULL) {
+    if (subobject != NULL && subobject->isGUIInitialized()) {
         if (value == true) {
             gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
             gWindow->setPosition(0, 0, 0);

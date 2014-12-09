@@ -189,7 +189,7 @@ GWindow::GWindow(QMainWindow *qMainWindow)
     red = 0.5f;
     green = 0.5f;
     blue = 0.5f;
-    zoom = 2.0f;
+    zoom = 1.3f;
 
     // Default sizes for 3D frames
     imageWidth = 1;
@@ -216,8 +216,9 @@ GWindow::GWindow(QMainWindow *qMainWindow)
     // Default colormap
     colormap = cv::COLORMAP_JET;
 
-    datasetName = "no_dataset";
     flagSave = false;
+
+    selectedDataset = NULL;
 
     // Create thread for loading whole dataset
     thread = new HDF5ReadingThread();
@@ -301,6 +302,8 @@ void GWindow::initialize()
     m_uTrim = m_program->uniformLocation("uTrim");
 
     m_uSlices = m_program->uniformLocation("uSlices");
+
+    m_uVolumeRendering = m_program->uniformLocation("uVolumeRendering");
 
     m_uSliceSampler = m_program->uniformLocation("uSliceSampler");
 
@@ -414,7 +417,8 @@ void GWindow::initialize()
 
     // Default scene rotation
     //rotateXMatrix.rotate(-20, -1, 0, 0);
-    rotateYMatrix.rotate(-60, 0, 1, 0);
+    rotateXMatrix.rotate(-45, 0, 1, 0);
+    //rotateYMatrix.rotate(-45, 1, 0, 0);
 
     m_program->bind();
 
@@ -433,6 +437,8 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uFrameColor, (float) (1.0f - color.redF()), (float) (1.0f - color.greenF()), (float) (1.0f - color.blueF()), 1.0f);
 
     m_program->setUniformValue(m_uSlices, false);
+
+    m_program->setUniformValue(m_uVolumeRendering, false);
 
     m_program->setUniformValue(m_uXYBorder, false);
     m_program->setUniformValue(m_uXZBorder, false);
@@ -498,8 +504,8 @@ void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int pos
 void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 {
     // If dataset is already loaded
-    if (datasetName == dataset->getName()) {
-        emit loaded(datasetName);
+    if (selectedDataset != NULL && selectedDataset->getName() == dataset->getName()) {
+        emit loaded(selectedDataset->getName());
         return;
     }
 
@@ -507,8 +513,7 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
     //thread->wait();
     //thread->clearDoneRequests();
 
-    datasetName = dataset->getName();
-    //selectedDataset = dataset;
+    selectedDataset = dataset;
 
     texture3DInitialized = false;
 
@@ -524,11 +529,11 @@ void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
 
     // Check OUT_OF_MEMORY, dataset is too big
     if (checkGlError() != GL_NO_ERROR) {
-        emit loaded(datasetName);
+        emit loaded(selectedDataset->getName());
         return;
     }
 
-    thread->createRequest(dataset);
+    thread->createRequest(selectedDataset);
     // Start loading thread
     thread->start();
 }
@@ -542,6 +547,11 @@ void GWindow::unload3DTexture()
     //glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
+}
+
+void GWindow::unloadDataset()
+{
+    selectedDataset = NULL;
 }
 
 /**
@@ -571,7 +581,7 @@ void GWindow::clearData()
         clearSlices();
         unload3DTexture();
 
-        selectedDataset = NULL;
+        unloadDataset();
 
         renderLater();
     }
@@ -583,7 +593,7 @@ void GWindow::clearData()
  */
 void GWindow::setLoaded(Request *r)
 {
-    //textureMutex.lock();
+    //texture//mutex.lock();
     texture3DInitialized = false;
     //PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D = NULL;
     //glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) wglGetProcAddress("glTexSubImage3D");
@@ -602,7 +612,7 @@ void GWindow::setLoaded(Request *r)
         changeColormap(colormap);
         renderLater();
         //emit partLoaded((int) ((double) (i + 1) / imageDepth * 100));
-        emit loaded(datasetName);
+        emit loaded(selectedDataset->getName());
     }
 
     thread->deleteDoneRequest(r);
@@ -742,6 +752,15 @@ void GWindow::renderFrame()
     glDisableVertexAttribArray(m_aPosition);
 }
 
+
+QPointF GWindow::convertToOpenGLRelative(QPointF point)
+{
+    QPointF pointOutput;
+    pointOutput.setX((point.x() / (float) width() - 0.5f) * 2.0f);
+    pointOutput.setY((point.y() / (float) height() - 0.5f) * 2.0f);
+    return pointOutput;
+}
+
 /**
  * @brief GWindow::render Main render function
  */
@@ -753,16 +772,25 @@ void GWindow::render()
 
     // Rotation of scene by left mouse click
     if (leftButton) {
+        /*if (lastPos.x() > currentPos.x())
+            qDebug() << ">";
+        else if (lastPos.x() < currentPos.x())
+            qDebug() << "<";
+        else
+            qDebug() << "=";*/
+        // TODO
         rotateXMatrix.rotate((float) (lastPos.y() - currentPos.y()) / 2.0f, -1, 0, 0);
         rotateYMatrix.rotate((float) (lastPos.x() - currentPos.x()) / 2.0f, 0, -1, 0);
-        actualCount = 30;
+        //actualCount = 30;
     }
 
-    // Move of scene by left mouse click
+    // Move of scene by right mouse click
     if (rightButton) {
-        position.setX(position.x() + (float) (lastPos.x() - currentPos.x()) / 100.0f * zoom / 10);
-        position.setY(position.y() - (float) (lastPos.y() - currentPos.y()) / 100.0f * zoom / 10);
-        actualCount = 30;
+        QPointF lastPosRl = convertToOpenGLRelative(lastPos);
+        QPointF currentPosRl = convertToOpenGLRelative(currentPos);
+        position.setX(position.x() - (lastPosRl.x() - currentPosRl.x()));
+        position.setY(position.y() + (lastPosRl.y() - currentPosRl.y()));
+        //actualCount = 30;
     }
 
     // Clear viewport
@@ -773,26 +801,30 @@ void GWindow::render()
 
     // Perspective projection
     QMatrix4x4 perspectiveMatrix;
-    perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.1f, 1000.0f);
+    perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.001f, 100.0f);
     //perspectiveMatrix.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 1000.0f);
 
     // Zoom of scene
     QMatrix4x4 zoomMatrix;
-    zoom += (float) wheelDelta / 100.0f;
-    if (zoom < -8.0f) zoom = -8.0f;
-    //qDebug() << -qExp(qFabs(zoom)/20);
-    //zoomMatrix.translate(0, 0, -qExp(qFabs(zoom)/20));
-    //zoomMatrix.translate(0, 0, -3.0f);
-    //zoomMatrix.translate(position);
-    zoomMatrix.translate(-position * 1/(zoom + 0.0001) * 4);
-    zoomMatrix.translate(0, 0, -3.0f);
-    zoomMatrix.scale(qExp(zoom*0.1));
-    //zoomMatrix.translate(0, 0, -3.0f);
-    //qDebug() << (qExp(zoom*0.1));
+    zoom -= wheelDelta / 2000.0f;
+    if (zoom < 0.1f) zoom = 0.1f;
+    if (zoom > 1.5f) zoom = 1.5f;
+    zoomMatrix.lookAt(QVector3D(0, 0, qPow((float) zoom, 5.0f)), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
 
     // Final matrix
     QMatrix4x4 matrix;
     matrix = perspectiveMatrix * zoomMatrix * rotateXMatrix * rotateYMatrix;
+
+    // Move transformation
+    QVector4D pointC(0.0f, 0.0f, 0.0f, 1.0f);
+    pointC = matrix * pointC.normalized();
+    QMatrix4x4 invMatrix = matrix.inverted();
+    QVector4D point0(position.x(), position.y(), pointC.toVector3DAffine().z(), 1.0f);
+    point0 = invMatrix * point0.normalized();
+    QVector3D point03D = point0.toVector3DAffine();
+    QMatrix4x4 moveMatrix;
+    moveMatrix.translate(point03D);
+    matrix = matrix * moveMatrix;
 
     // Create vectors for scale 3D frame to the longest size = 1.0f
     QVector3D vecScale((float) imageWidth, (float) imageHeight, (float) imageDepth);
@@ -801,11 +833,11 @@ void GWindow::render()
     float fullMax = qMax(vecFullScale.x(), qMax(vecFullScale.y(), vecFullScale.z()));
     vecFullScale = vecFullScale / fullMax; // longest size is 1.0f
 
-    // Values to fragment shader for scaling 3D frame -> there are +, -, /, * operations faster
+    // Values to fragment shader for scaling 3D frame ->  operations +, -, /, * are faster here
     QVector3D vecScale0 = vecScale / max;
-    m_program->setUniformValue(m_uWidth, (float) vecScale0.x() / 2.0f);
-    m_program->setUniformValue(m_uHeight, (float) vecScale0.y() / 2.0f);
-    m_program->setUniformValue(m_uDepth, (float) vecScale0.z() / 2.0f);
+    m_program->setUniformValue(m_uWidth, (float) 1.0f / (vecScale0.x() / 2.0f));
+    m_program->setUniformValue(m_uHeight, (float) 1.0f / (vecScale0.y() / 2.0f));
+    m_program->setUniformValue(m_uDepth, (float) 1.0f / (vecScale0.z() / 2.0f));
 
     m_program->setUniformValue(m_uXMax, 0.5f + ((float) vecScale0.x() / 2.0f) / 2.0f);
     m_program->setUniformValue(m_uXMin, 0.5f - ((float) vecScale0.x() / 2.0f) / 2.0f);
@@ -820,6 +852,8 @@ void GWindow::render()
 
     // Send matrix to shader
     m_program->setUniformValue(m_uMatrix, matrix);
+    m_program->setUniformValue(m_uScalelMatrix, QMatrix4x4());
+    m_program->setUniformValue(m_uScaleMatrix, QMatrix4x4());
 
     // Trim values
     if (trim) {
@@ -830,63 +864,35 @@ void GWindow::render()
 
     // Frame
     if (frame) {
-        mutex.lock();
+        glDisable(GL_CULL_FACE);
         m_program->setUniformValue(m_uFrame, true);
-
-        // Recomputing window coords...
-        /*QMatrix4x4 sMmatrix0;
-        m_program->setUniformValue(m_uMatrix, matrix);
-        m_program->setUniformValue(m_uScaleMatrix, sMmatrix0);
-
-        QMatrix4x4 invMatrix = matrix.inverted();
-
-        QVector4D point0(0.5f, 0.5f, 0.0f, 1.0f);
-        point0 = invMatrix * point0.normalized();
-        QVector3D point03D = point0.toVector3DAffine();
-        QVector4D point1(0.5f, -0.5f, 0.0f, 1.0f);
-        point1 = invMatrix * point1.normalized();
-        QVector3D point13D = point1.toVector3DAffine();
-        QVector4D point2(-0.5f, -0.5f, 0.0f, 1.0f);
-        point2 = invMatrix * point2.normalized();
-        QVector3D point23D = point2.toVector3DAffine();
-        QVector4D point3(-0.5f, 0.5f, 0.0f, 1.0f);
-        point3 = invMatrix * point3.normalized();
-        QVector3D point33D = point3.toVector3DAffine();
-        qDebug() << point03D.x() << " " << point03D.y() << " " << point03D.z();
-
-        glBegin(GL_QUADS);
-        glVertex3f(point03D.x(), point03D.y(), point03D.z());
-        glVertex3f(point13D.x(), point13D.y(), point13D.z());
-        glVertex3f(point23D.x(), point23D.y(), point23D.z());
-        glVertex3f(point33D.x(), point33D.y(), point33D.z());
-        //glVertex3f(1, -1, 1);
-        //glVertex3f(-1, -1, 1);
-        //glVertex3f(-1, -1, -1);
-        //glVertex3f(1, -1, -1);
-        glEnd();*/
-
         QMatrix4x4 sMmatrix;
+
+        QMatrix4x4 rMatrix;
+        rMatrix.scale(1.02f);
+        rMatrix.translate(-0.01f, -0.01f, 0);
+
         // Smaller frame
         sMmatrix.translate((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax);
         sMmatrix.scale(vecScale);
-        m_program->setUniformValue(m_uScaleMatrix, sMmatrix);
+        m_program->setUniformValue(m_uScaleMatrix, sMmatrix * rMatrix);
         renderFrame();
 
         // Big frame
         if (imageWidth != fullWidth || imageHeight != fullHeight || imageDepth || fullDepth) {
             QMatrix4x4 sMmatrix;
             sMmatrix.scale(vecFullScale);
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix);
+            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * rMatrix);
             renderFrame();
         }
 
         m_program->setUniformValue(m_uFrame, false);
-        mutex.unlock();
+        glEnable(GL_CULL_FACE);
     }
 
     // Slices
     if (sliceXY || sliceXZ || sliceYZ) {
-        mutex.lock();
+        //mutex.lock();
         m_program->setUniformValue(m_uSlices, true);
         glDisable(GL_CULL_FACE);
         glDisable(GL_BLEND);
@@ -973,32 +979,26 @@ void GWindow::render()
         //glDepthMask(GL_TRUE);
 
         m_program->setUniformValue(m_uSlices, false);
-        mutex.unlock();
+        //mutex.unlock();
     }
 
     // Volume rendering
     if (volumeRendering) {
-        mutex.lock();
+        m_program->setUniformValue(m_uVolumeRendering, true);
+
+        //mutex.lock();
         // Because of same opacity from all directions
         glDepthMask(GL_FALSE);
         //glDisable(GL_CULL_FACE);
 
-        //textureMutex.lock();
-        //if (texture3DInitialized) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_3D, texture);
-        //}
-        //textureMutex.unlock();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, texture);
 
         // Recompute alpha and set alpha + colors
         m_program->setUniformValue(m_uAlpha, (GLfloat) (1.0f - pow(1.0f - alpha, 5.0f / (float) actualCount)));
         m_program->setUniformValue(m_uRed, (GLfloat) (1.0f - pow(1.0f - red, 5.0f / (float) actualCount)));
         m_program->setUniformValue(m_uGreen, (GLfloat) (1.0f - pow(1.0f - green, 5.0f / (float) actualCount)));
         m_program->setUniformValue(m_uBlue, (GLfloat) (1.0f - pow(1.0f - blue, 5.0f / (float) actualCount)));
-
-        //m_program->setUniformValue(m_uRed, red);
-        //m_program->setUniformValue(m_uGreen, green);
-        //m_program->setUniformValue(m_uBlue, blue);
 
 
         glEnableVertexAttribArray(m_aPosition);
@@ -1022,7 +1022,7 @@ void GWindow::render()
 
         QMatrix4x4 tlMmatrix = t1lMmatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted() * t2lMmatrix;
 
-        m_program->setUniformValue(m_uMatrix, perspectiveMatrix * zoomMatrix);
+        m_program->setUniformValue(m_uMatrix, perspectiveMatrix * zoomMatrix * rotateXMatrix * rotateYMatrix * moveMatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted());
 
         float step = 1.0f / (actualCount - 1);
         // For number of slices
@@ -1045,7 +1045,8 @@ void GWindow::render()
         glDisableVertexAttribArray(m_aPosition);
 
         glDepthMask(GL_TRUE);
-        mutex.unlock();
+        //mutex.unlock();
+        m_program->setUniformValue(m_uVolumeRendering, false);
     }
 
     // Sace 3D scene to png image
@@ -1124,59 +1125,59 @@ void GWindow::setBlue(double value)
 
 void GWindow::setViewFrame(bool value)
 {
-    mutex.lock();
+    //mutex.lock();
     frame = value;
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewVR(bool value)
 {
-    mutex.lock();
+    //mutex.lock();
     volumeRendering = value;
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setSlicesCount(int value)
 {
-    mutex.lock();
+    //mutex.lock();
     count = value;
     emit setStatusMessage(QString("Slices: %1").arg(count));
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewXYSlice(bool value)
 {
-    mutex.lock();
+    //mutex.lock();
     sliceXY = value;
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewXZSlice(bool value)
 {
-    mutex.lock();
+    //mutex.lock();
     sliceXZ = value;
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewYZSlice(bool value)
 {
-    mutex.lock();
+    //mutex.lock();
     sliceYZ = value;
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setTrim(bool value)
 {
-    mutex.lock();
+    //mutex.lock();
     trim = value;
     emit setStatusMessage(QString("Trim: %1").arg(trim));
-    mutex.unlock();
+    //mutex.unlock();
     renderLater();
 }
 
@@ -1234,126 +1235,126 @@ void GWindow::alignToYZFromBack()
  */
 bool GWindow::event(QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress) {
-         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-         if (ke->key() == Qt::Key_Plus) {
-             mutex.lock();
-             count = count + 2;
-             if (count < 3) count = 3;
-             emit setStatusMessage(QString("Slices: %1").arg(count));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Minus) {
-             mutex.lock();
-             count = count - 2;
-             if (count < 3) count = 3;
-             emit setStatusMessage(QString("Slices: %1").arg(count));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Up) {
-             mutex.lock();
-             imageHeight += 1.0f;
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Down) {
-             mutex.lock();
-             imageHeight -= 1.0f;
-             if (imageHeight <= 1.0f) imageHeight = 1.0f;
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Right) {
-             mutex.lock();
-             imageWidth += 1.0f;
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Left) {
-             mutex.lock();
-             imageWidth -= 1.0f;
-             if (imageWidth <= 1.0f) imageWidth = 1.0f;
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_S) {
-             mutex.lock();
-             imageHeight = origImageHeight;
-             imageWidth = origImageWidth;
-             emit setStatusMessage(QString("Size was reset"));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_F) {
-             mutex.lock();
-             if (frame)
-                 frame = false;
-             else
-                 frame = true;
-             emit setStatusMessage(QString("Frame: %1").arg(frame));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_A) {
-             mutex.lock();
-             alpha += 0.01f;
-             if (alpha >= 1.0f) alpha = 1.0f;
-             emit setStatusMessage(QString("Alpha: %1").arg(alpha));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Q) {
-             mutex.lock();
-             alpha -= 0.01f;
-             if (alpha <= 0.0f) alpha = 0.0f;
-             emit setStatusMessage(QString("Alpha: %1").arg(alpha));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_T) {
-             mutex.lock();
-             if (trim)
-                 trim = false;
-             else
-                 trim = true;
-             emit setStatusMessage(QString("Trim: %1").arg(trim));
-             mutex.unlock();
-         }
-         if (ke->key() == Qt::Key_Z) {
-             rotateXMatrix.setToIdentity();
-             rotateYMatrix.setToIdentity();
-         }
-         if (ke->key() == Qt::Key_Y) {
-             rotateXMatrix.setToIdentity();
-             rotateXMatrix.rotate(90, 1, 0, 0);
-             rotateYMatrix.setToIdentity();
-         }
-         if (ke->key() == Qt::Key_X) {
-             rotateXMatrix.setToIdentity();
-             rotateYMatrix.setToIdentity();
-             rotateYMatrix.rotate(90, 0, -1, 0);
-         }
-         if (ke->key() == Qt::Key_B) {
-             rotateXMatrix.setToIdentity();
-             rotateXMatrix.rotate(180, 0, -1, 0);
-             rotateYMatrix.setToIdentity();
-         }
-         if (ke->key() == Qt::Key_G) {
-             rotateXMatrix.setToIdentity();
-             rotateXMatrix.rotate(90 + 180, 1, 0, 0);
-             rotateYMatrix.setToIdentity();
-         }
-         if (ke->key() == Qt::Key_R) {
-             rotateXMatrix.setToIdentity();
-             rotateYMatrix.setToIdentity();
-             rotateYMatrix.rotate(90 + 180, 0, -1, 0);
-         }
-         if (ke->key() == Qt::Key_C) {
-             position.setX(0);
-             position.setY(0);
-         }
-         renderLater();
+    switch (event->type()) {
+    case QEvent::KeyPress: {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Plus) {
+            //mutex.lock();
+            count = count + 2;
+            if (count < 3) count = 3;
+            emit setStatusMessage(QString("Slices: %1").arg(count));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Minus) {
+            //mutex.lock();
+            count = count - 2;
+            if (count < 3) count = 3;
+            emit setStatusMessage(QString("Slices: %1").arg(count));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Up) {
+            //mutex.lock();
+            imageHeight += 1.0f;
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Down) {
+            //mutex.lock();
+            imageHeight -= 1.0f;
+            if (imageHeight <= 1.0f) imageHeight = 1.0f;
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Right) {
+            //mutex.lock();
+            imageWidth += 1.0f;
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Left) {
+            //mutex.lock();
+            imageWidth -= 1.0f;
+            if (imageWidth <= 1.0f) imageWidth = 1.0f;
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_S) {
+            //mutex.lock();
+            imageHeight = origImageHeight;
+            imageWidth = origImageWidth;
+            emit setStatusMessage(QString("Size was reset"));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_F) {
+            //mutex.lock();
+            if (frame)
+                frame = false;
+            else
+                frame = true;
+            emit setStatusMessage(QString("Frame: %1").arg(frame));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_A) {
+            //mutex.lock();
+            alpha += 0.01f;
+            if (alpha >= 1.0f) alpha = 1.0f;
+            emit setStatusMessage(QString("Alpha: %1").arg(alpha));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Q) {
+            //mutex.lock();
+            alpha -= 0.01f;
+            if (alpha <= 0.0f) alpha = 0.0f;
+            emit setStatusMessage(QString("Alpha: %1").arg(alpha));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_T) {
+            //mutex.lock();
+            if (trim)
+                trim = false;
+            else
+                trim = true;
+            emit setStatusMessage(QString("Trim: %1").arg(trim));
+            //mutex.unlock();
+        }
+        if (ke->key() == Qt::Key_Z) {
+            rotateXMatrix.setToIdentity();
+            rotateYMatrix.setToIdentity();
+        }
+        if (ke->key() == Qt::Key_Y) {
+            rotateXMatrix.setToIdentity();
+            rotateXMatrix.rotate(90, 1, 0, 0);
+            rotateYMatrix.setToIdentity();
+        }
+        if (ke->key() == Qt::Key_X) {
+            rotateXMatrix.setToIdentity();
+            rotateYMatrix.setToIdentity();
+            rotateYMatrix.rotate(90, 0, -1, 0);
+        }
+        if (ke->key() == Qt::Key_B) {
+            rotateXMatrix.setToIdentity();
+            rotateXMatrix.rotate(180, 0, -1, 0);
+            rotateYMatrix.setToIdentity();
+        }
+        if (ke->key() == Qt::Key_G) {
+            rotateXMatrix.setToIdentity();
+            rotateXMatrix.rotate(90 + 180, 1, 0, 0);
+            rotateYMatrix.setToIdentity();
+        }
+        if (ke->key() == Qt::Key_R) {
+            rotateXMatrix.setToIdentity();
+            rotateYMatrix.setToIdentity();
+            rotateYMatrix.rotate(90 + 180, 0, -1, 0);
+        }
+        if (ke->key() == Qt::Key_C) {
+            position.setX(0);
+            position.setY(0);
+        }
+        renderLater();
     }
-
-    if (event->type() == QEvent::MouseButtonPress && ((QMouseEvent *) event)->buttons() == Qt::MiddleButton){
-        position.setX(0);
-        position.setY(0);
+    case QEvent::MouseButtonPress:
+        if (((QMouseEvent *) event)->buttons() == Qt::MiddleButton) {
+            position.setX(0);
+            position.setY(0);
+            renderLater();
+        }
+    default:
+        return OpenGLWindow::event(event);
     }
-
-    if (event->type() == QEvent::UpdateRequest)
-        renderNow();
-
-    return QWindow::event(event);
 }

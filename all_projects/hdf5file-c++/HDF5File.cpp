@@ -586,7 +586,7 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
     index = x + 1 + nX * (y) + (z) * nX * nY;
 }
 
-double HDF5File::getTime()
+double HDF5Helper::getTime()
 {
     #ifdef __unix
         timeval tv;

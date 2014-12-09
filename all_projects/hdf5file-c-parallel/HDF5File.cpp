@@ -400,7 +400,7 @@ hsize_t HDF5File::getNumObjs()
 std::string HDF5File::getObjNameById(hsize_t idx)
 {
     char *nameC = NULL;
-    int size = 0;
+    ssize_t size = 0;
     size = H5Gget_objname_by_idx(file, idx, nameC, size);
     if (size <= 0){
         throw std::runtime_error("H5Gget_objname_by_idx error");
@@ -509,7 +509,7 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
     index = x + 1 + nX * (y) + (z) * nX * nY;
 }
 
-double HDF5File::getTime()
+double HDF5Helper::getTime()
 {
     #ifdef __unix
         timeval tv;

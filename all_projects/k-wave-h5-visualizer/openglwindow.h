@@ -20,8 +20,17 @@
 //#include <QtGui/QOpenGLFunctions>
 #include <QTimer>
 #include <QThread>
+#include <QElapsedTimer>
 
 #include <QOpenGLFunctions_2_1>
+
+#ifdef Q_OS_WIN
+#include <windows.h> // for Sleep
+#endif
+namespace QTest
+{
+    void qSleep(int ms);
+}
 
 
 QT_BEGIN_NAMESPACE
@@ -63,7 +72,8 @@ protected:
     bool leftButton;
     bool rightButton;
     int wheelDelta;
-    QTimer *timer;
+    QElapsedTimer timer;
+    int frames;
     QTimer *moveTimer;
     QPointF lastPos;
     QPointF currentPos;
