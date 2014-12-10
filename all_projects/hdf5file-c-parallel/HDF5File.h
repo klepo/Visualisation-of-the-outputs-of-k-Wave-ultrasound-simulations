@@ -42,7 +42,7 @@ typedef u_int64_t uint64_t;
 #include <windows.h>
 #endif
 
-#define SIZE_OF_DATA_PART 4096*4096*2
+#define SIZE_OF_DATA_PART 128 * 256 * 350
 
 #include <mutex>
 
@@ -111,6 +111,8 @@ private:
     uint64_t nZ;
     std::string filename;
 
+    uint64_t sizeOfDataPart;
+
     hid_t plist_FILE_ACCESS;
 
     std::ofstream logFileStream;
@@ -125,7 +127,6 @@ private:
     void insertGroup(const std::string groupName);
 
     class HDF5Object;
-    uint64_t sizeOfDataPart;
     herr_t err;
 
     void createDataset(const std::string datasetName, hid_t type, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);

@@ -73,7 +73,6 @@ protected:
     bool rightButton;
     int wheelDelta;
     QElapsedTimer timer;
-    int frames;
     QTimer *moveTimer;
     QPointF lastPos;
     QPointF currentPos;

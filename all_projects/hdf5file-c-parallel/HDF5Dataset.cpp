@@ -78,17 +78,21 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
 
     H5Pclose(plist);
 
-
     plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
     if (plist_DATASET_XFER < 0){
         throw std::runtime_error("H5Pcreate error");
         //MPI::COMM_WORLD.Abort(1);
     }
+
+    //std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access" << std::endl;
+    //std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access" << std::endl;
+
     err = H5Pset_dxpl_mpio(plist_DATASET_XFER, H5FD_MPIO_INDEPENDENT);
     if (err < 0){
         throw std::runtime_error("H5Pset_dxpl_mpio error");
         //MPI::COMM_WORLD.Abort(1);
     }
+
 
     // Compute data size
     size = 1;
@@ -105,6 +109,9 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     blockInitialized = false;
     lastBlock = false;
     blockSize = 0;
+
+    sizeOfDataPart = hDF5File->getSizeOfDataPart();
+    setSizeOfDataPart(sizeOfDataPart);
 
     // Min/max flag
     issetGlobalMinAndMaxValue = false;
@@ -251,8 +258,8 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
 void HDF5File::HDF5Dataset::readFullDataset(float *&data)
 {
     if (datatype == H5T_NATIVE_FLOAT) {
-        if (size > this->hDF5File->getSizeOfDataPart())
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
+        if (size > sizeOfDataPart)
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " floats (max size: " + std::to_string(sizeOfDataPart) + " floats)"));
         try {
             data = new float[size](); // TODO kontrola dostupné paměti
         } catch (std::bad_alloc &) {
@@ -279,8 +286,8 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
 void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
 {
     if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
-        if (size > this->hDF5File->getSizeOfDataPart())
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
+        if (size > sizeOfDataPart)
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(size) + " unsigned 64-bit integers (max size: " + std::to_string(sizeOfDataPart) + " unsigned 64-bit integers)"));
         try {
             data = new uint64_t[size]();
         } catch (std::bad_alloc &) {
@@ -328,8 +335,8 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
-    if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
-        throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " floats)"));
+    if (xC * yC * zC > sizeOfDataPart)
+        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " floats (max size: " + std::to_string(sizeOfDataPart) + " floats)"));
 
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
@@ -406,8 +413,8 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     mem_offset[0] = 0;
     mem_offset[1] = 0;
     mem_offset[2] = 0;
-    if (xC * yC * zC > this->hDF5File->getSizeOfDataPart())
-        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(this->hDF5File->getSizeOfDataPart()) + " unsigned 64-bit integers)"));
+    if (xC * yC * zC > sizeOfDataPart)
+        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers (max size: " + std::to_string(sizeOfDataPart) + " unsigned 64-bit integers)"));
 
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
@@ -664,15 +671,6 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::isLastBlock
- * @return true/false
- */
-bool HDF5File::HDF5Dataset::isLastBlock()
-{
-    return lastBlock;
-}
-
-/**
  * @brief HDF5File::HDF5Dataset::getBlockSize
  * @return size fo block
  */
@@ -681,16 +679,28 @@ hsize_t HDF5File::HDF5Dataset::getBlockSize()
     return blockSize;
 }
 
+void HDF5File::HDF5Dataset::setSizeOfDataPart(uint64_t size)
+{
+    sizeOfDataPart = size;
+    initBlockReading();
+    computeNumberOfBlocks();
+}
+
+uint64_t HDF5File::HDF5Dataset::getSizeOfDataPart()
+{
+    return sizeOfDataPart;
+}
+
 /**
  * @brief HDF5File::HDF5Dataset::initBlockReading Init block reading
  * @param maxSize (volatile) max block size
  */
-void HDF5File::HDF5Dataset::initBlockReading(hsize_t maxSize)
+void HDF5File::HDF5Dataset::initBlockReading()
 {
     // Compute maximal block size to read
-    z = maxSize / (dims[2] * dims[1]);
-    y = (maxSize % (dims[2] * dims[1])) / dims[2];
-    x = (maxSize % (dims[2] * dims[1])) % dims[2];
+    z = sizeOfDataPart / (dims[2] * dims[1]);
+    y = (sizeOfDataPart % (dims[2] * dims[1])) / dims[2];
+    x = (sizeOfDataPart % (dims[2] * dims[1])) % dims[2];
 
     z = std::min(z, dims[0]);
 
@@ -716,15 +726,44 @@ void HDF5File::HDF5Dataset::initBlockReading(hsize_t maxSize)
 
     blockInitialized = true;
     lastBlock = false;
+    actualBlock = 0;
 }
 
-/**
- * @brief HDF5File::HDF5Dataset::initBlockReading Init block reading
- * @param maxSize (volatile) max block size
- */
-void HDF5File::HDF5Dataset::initBlockReading()
+void HDF5File::HDF5Dataset::computeNumberOfBlocks()
 {
-    initBlockReading(this->hDF5File->getSizeOfDataPart());
+    initBlockReading();
+    numberOfBlocks = 0;
+    do {
+        recomputeBlock();
+        numberOfBlocks++;
+    } while (lastBlock != true);
+    initBlockReading();
+}
+
+hsize_t HDF5File::HDF5Dataset::getNumberOfBlocks()
+{
+    return numberOfBlocks;
+}
+
+void HDF5File::HDF5Dataset::iterateToBlock(hsize_t index)
+{
+    if (index >= numberOfBlocks)
+        throw std::runtime_error("Wrong index - index is too big");
+
+    if (lastBlock)
+        initBlockReading();
+
+    if (actualBlock == index)
+        return;
+    else if (actualBlock + 1 == index) {
+        recomputeBlock();
+        actualBlock = index;
+    } else {
+        for (hsize_t i = 0; i <= index; i++) {
+            recomputeBlock();
+        }
+        actualBlock = index;
+    }
 }
 
 /**
@@ -793,11 +832,9 @@ void HDF5File::HDF5Dataset::recomputeBlock()
  * @param [out] minVFTmp minimum float value from data read
  * @param [out] maxVFTmp maximum float value from data read
  */
-void HDF5File::HDF5Dataset::readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp)
+void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp)
 {
-    if (!blockInitialized) {
-        initBlockReading();
-    }
+    iterateToBlock(index);
     read3DDataset(this->zO, this->yO, this->xO, this->zC, this->yC, this->xC, data, minVFTmp, maxVFTmp);
     zO = this->zO;
     yO = this->yO;
@@ -805,7 +842,6 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsi
     zC = this->zC;
     yC = this->yC;
     xC = this->xC;
-    recomputeBlock();
 }
 
 /**
@@ -820,11 +856,9 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsi
  * @param [out] minVITmp minimum float value from data read
  * @param [out] maxVITmp maximum float value from data read
  */
-void HDF5File::HDF5Dataset::readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVITmp, uint64_t &maxVITmp)
+void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVITmp, uint64_t &maxVITmp)
 {
-    if (!blockInitialized) {
-        initBlockReading();
-    }
+    iterateToBlock(index);
     read3DDataset(this->zO, this->yO, this->xO, this->zC, this->yC, this->xC, data, minVITmp, maxVITmp);
     zO = this->zO;
     yO = this->yO;
@@ -832,7 +866,6 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsi
     zC = this->zC;
     yC = this->yC;
     xC = this->xC;
-    recomputeBlock();
 }
 
 /**
@@ -845,16 +878,16 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueF()
     float minVFTmp;
     float maxVFTmp;
     bool first = true;
-    do {
+    for (hsize_t i = 0; i < numberOfBlocks; i++) {
         float *data;
-        readBlock(zO, yO, xO, zC, yC, xC, data, minVFTmp, maxVFTmp);
+        readBlock(i, zO, yO, xO, zC, yC, xC, data, minVFTmp, maxVFTmp);
         if (first)
             minVF = maxVF = data[0];
         first = false;
         if (minVFTmp < minVF) minVF = minVFTmp;
         if (maxVFTmp > maxVF) maxVF = maxVFTmp;
         delete [] data;
-    } while (lastBlock == false);
+    }
     issetGlobalMinAndMaxValue = true;
 }
 
@@ -868,16 +901,16 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI()
     uint64_t minVITmp;
     uint64_t maxVITmp;
     bool first = true;
-    do {
+    for (hsize_t i = 0; i < numberOfBlocks; i++) {
         uint64_t *data;
-        readBlock(zO, yO, xO, zC, yC, xC, data, minVITmp, maxVITmp);
+        readBlock(i, zO, yO, xO, zC, yC, xC, data, minVITmp, maxVITmp);
         if (first)
             minVI = maxVI = data[0];
         first = false;
         if (minVITmp < minVI) minVI = minVITmp;
         if (maxVITmp > maxVI) maxVI = maxVITmp;
         delete [] data; // !!!
-    } while (lastBlock == false);
+    }
     issetGlobalMinAndMaxValue = true;
 }
 

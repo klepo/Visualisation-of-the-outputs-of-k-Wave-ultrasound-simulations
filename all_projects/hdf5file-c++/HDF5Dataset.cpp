@@ -638,15 +638,6 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::isLastBlock
- * @return true/false
- */
-bool HDF5File::HDF5Dataset::isLastBlock()
-{
-    return lastBlock;
-}
-
-/**
  * @brief HDF5File::HDF5Dataset::getBlockSize
  * @return size fo block
  */

@@ -50,7 +50,6 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , wheelDelta(0)
     , m_context(0)
     , m_device(0)
-    , frames(0)
     , m_update_pending(false)
 {
     //setOpacity(0.5);

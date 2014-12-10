@@ -40,9 +40,10 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     if (error)
         throw std::runtime_error("MPI is not initialized");
 
+    sizeOfDataPart = SIZE_OF_DATA_PART;
+
     //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
-    this->sizeOfDataPart = SIZE_OF_DATA_PART;
     this->filename = filename;    
 
     // Create log file
@@ -518,6 +519,16 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
     index = x + 1 + nX * (y) + (z) * nX * nY;
 }
 
+void HDF5File::setSizeOfDataPart(uint64_t size)
+{
+    sizeOfDataPart = size;
+}
+
+uint64_t HDF5File::getSizeOfDataPart()
+{
+    return sizeOfDataPart;
+}
+
 double HDF5Helper::getTime()
 {
     #ifdef __unix
@@ -531,14 +542,4 @@ double HDF5Helper::getTime()
         GetSystemTime(&time);
         return double(time.wSecond * 1000) + time.wMilliseconds;
     #endif
-}
-
-void HDF5File::setSizeOfDataPart(uint64_t size)
-{
-    this->sizeOfDataPart = size;
-}
-
-uint64_t HDF5File::getSizeOfDataPart()
-{
-    return this->sizeOfDataPart;
 }

@@ -36,7 +36,7 @@ const std::string NZ_DATASET("Nz");
 
 #define MAX_SIZE 512
 #define MAX_CHUNK_SIZE 64
-#define MAX_NUMBER_OF_FRAMES 0 // TODO
+#define MAX_NUMBER_OF_FRAMES 3 // TODO
 
 // Filenames
 std::string simulationOutputFilename = "";
@@ -528,28 +528,24 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
                 //uint64_t width = 0;
                 hsize_t xO, yO, zO, xC, yC, zC;
 
-                if (mPIRank == 0) {
+                //if (mPIRank == 0) {
 
                     std::cout << "Block reading test..." << std::endl;
-                    std::cout << "   reading block size (number of elements): " << hDF5SimulationOutputFile->getSizeOfDataPart() << std::endl;
+                    std::cout << "   reading block size (number of elements): " << dataset->getSizeOfDataPart() << std::endl;
                     std::cout << std::endl;
 
                     double ts = HDF5Helper::getTime();
 
-                    double ts0 = HDF5Helper::getTime();
-                    dataset->initBlockReading();
-                    double tf0 = HDF5Helper::getTime();
-                    std::cout << "initBlockReading time: " << (tf0-ts0) << " ms; \t" << std::endl;
-                    do {
+                    for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
                         double ts1 = HDF5Helper::getTime();
-                        dataset->readBlock(zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
+                        dataset->readBlock(i, zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
                         double tf1 = HDF5Helper::getTime();
                         std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
                         double ts2 = HDF5Helper::getTime();
                         delete [] data; // !!
                         double tf2 = HDF5Helper::getTime();
                         std::cout << "delete time: " << (tf2-ts2) << " ms; \t" << std::endl;
-                    } while (!dataset->isLastBlock());
+                    }
 
                     double tf = HDF5Helper::getTime();
 
@@ -558,7 +554,7 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
 
                     std::cout << std::endl;
 
-                }
+                //}
 
                 std::cout << "Slices reading test..." << std::endl;
                 std::cout << std::endl;
@@ -648,12 +644,11 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
             hsize_t minY = hDF5SimulationOutputFile->getNY();
             hsize_t minZ = hDF5SimulationOutputFile->getNZ();
             hsize_t maxX = 0, maxY = 0, maxZ = 0;
-            datasetsForProcessing->sensorMaskIndexDataset->initBlockReading();
 
             // Find min and max position from linear saved values
             hsize_t index = 0, zM = 0, yM = 0, xM = 0;
-            do {
-                datasetsForProcessing->sensorMaskIndexDataset->readBlock(zO, yO, xO, zC, yC, xC, data, minV, maxV);
+            for (hsize_t i = 0; i < datasetsForProcessing->sensorMaskIndexDataset->getNumberOfBlocks(); i++) {
+                datasetsForProcessing->sensorMaskIndexDataset->readBlock(i, zO, yO, xO, zC, yC, xC, data, minV, maxV);
                 for (hsize_t z = 0; z < zC; z++)
                     for (hsize_t y = 0; y < yC; y++)
                         for (hsize_t x = 0; x < xC; x++) {
@@ -668,7 +663,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                             if (zM > maxZ) maxZ = zM;
                         }
                 delete [] data; // !!
-            } while (!datasetsForProcessing->sensorMaskIndexDataset->isLastBlock());
+            }
             std::cout << "   min point:\t" << " z: " << minZ << "\ty: " << minY << "\tx: " << minX << std::endl;
             std::cout << "   max point:\t" << " z: " << maxZ << "\ty: " << maxY << "\tx: " << maxX << std::endl;
 
@@ -711,9 +706,8 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                 hsize_t xO, yMO, yDO, zO; // Offset
                 hsize_t xC, yC, zC; // Count
 
-                datasetsForProcessing->sensorMaskIndexDataset->initBlockReading();
                 // Set same block size as sensorMaskIndexDataset
-                dataset->initBlockReading(datasetsForProcessing->sensorMaskIndexDataset->getBlockSize());
+                dataset->setSizeOfDataPart(datasetsForProcessing->sensorMaskIndexDataset->getBlockSize());
 
                 // Save attributes to new group
                 hDF5OutputFile->createGroup(dataset->getName(), true);
@@ -733,35 +727,11 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                 hsize_t index = 0, zM = 0, yM = 0, xM = 0;
                 float data[1];
 
-                do {
-                    // Next time step for group of datasets (yDO)
-                    if (datasetsForProcessing->sensorMaskIndexDataset->isLastBlock()) {
-                        if (MAX_NUMBER_OF_FRAMES > 0) // TODO
-                            if (yDO + 1 == MAX_NUMBER_OF_FRAMES)
-                                break;
-
-                        datasetsForProcessing->sensorMaskIndexDataset->initBlockReading();
-                        actualDataset->findAndSetGlobalMinAndMaxValue();
-
-                        if (first){
-                            minVFG = actualDataset->getGlobalMinValueF();
-                            maxVFG = actualDataset->getGlobalMaxValueF();
-                        }
-                        first = false;
-
-                        if (minVFG > actualDataset->getGlobalMinValueF()) minVFG = actualDataset->getGlobalMinValueF();
-                        if (maxVFG < actualDataset->getGlobalMaxValueF()) maxVFG = actualDataset->getGlobalMaxValueF();
-
-                        // Shift to next dataset -> step
-                        hDF5OutputFile->closeDataset(dataset->getName()  + "/" + std::to_string(yDO));
-                        hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(yDO + 1), 3, datasetSize, chunkSize, true);
-                        actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO + 1));
-                    }
-
+                for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
                     // Offset is unused here (except yDO), but for block reading is important (zO, yMO/yDO, xO)
                     // zO and xO is same, but yMO and yDO can be different, yDO is number of time step, yMO should be always 0
-                    datasetsForProcessing->sensorMaskIndexDataset->readBlock(zO, yMO, xO, zC, yC, xC, sensorMaskData, minVI, maxVI);
-                    dataset->readBlock(zO, yDO, xO, zC, yC, xC, datasetData, minVF, maxVF);
+                    datasetsForProcessing->sensorMaskIndexDataset->readBlock(i % datasetsForProcessing->sensorMaskIndexDataset->getNumberOfBlocks(), zO, yMO, xO, zC, yC, xC, sensorMaskData, minVI, maxVI);
+                    dataset->readBlock(i, zO, yDO, xO, zC, yC, xC, datasetData, minVF, maxVF);
 
                     double t4 = HDF5Helper::getTime();
                     // For the entire block write "voxels"
@@ -782,7 +752,29 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
                     delete [] sensorMaskData;
                     delete [] datasetData;
 
-                } while (!dataset->isLastBlock());
+                    // Next time step for group of datasets (yDO)
+                    if (i % datasetsForProcessing->sensorMaskIndexDataset->getNumberOfBlocks() + 1 == datasetsForProcessing->sensorMaskIndexDataset->getNumberOfBlocks()) {
+                        if (MAX_NUMBER_OF_FRAMES > 0) // TODO
+                            if (yDO + 1 == MAX_NUMBER_OF_FRAMES)
+                                break;
+
+                        actualDataset->findAndSetGlobalMinAndMaxValue();
+
+                        if (first){
+                            minVFG = actualDataset->getGlobalMinValueF();
+                            maxVFG = actualDataset->getGlobalMaxValueF();
+                        }
+                        first = false;
+
+                        if (minVFG > actualDataset->getGlobalMinValueF()) minVFG = actualDataset->getGlobalMinValueF();
+                        if (maxVFG < actualDataset->getGlobalMaxValueF()) maxVFG = actualDataset->getGlobalMaxValueF();
+
+                        // Shift to next dataset -> step
+                        hDF5OutputFile->closeDataset(dataset->getName()  + "/" + std::to_string(yDO));
+                        hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(yDO + 1), 3, datasetSize, chunkSize, true);
+                        actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO + 1));
+                    }
+                }
 
                 actualDataset->findAndSetGlobalMinAndMaxValue();
 
@@ -1080,12 +1072,11 @@ void rechunkDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile,
 
     float *data;
     float minV, maxV;
-    float minValueGlobal, maxValueGlobal;
+    float minValueGlobal = 0, maxValueGlobal = 0;
     bool first = true;
     hsize_t xO, yO, zO, xC, yC, zC;
-    srcDataset->initBlockReading();
-    do {
-        srcDataset->readBlock(zO, yO, xO, zC, yC, xC, data, minV, maxV);
+    for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
+        srcDataset->readBlock(i, zO, yO, xO, zC, yC, xC, data, minV, maxV);
         dstDataset->write3DDataset(zO, yO, xO, zC, yC, xC, data, true);
         delete [] data;
         if (first) {
@@ -1095,7 +1086,7 @@ void rechunkDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile,
         }
         if (minValueGlobal > minV) minValueGlobal = minV;
         if (maxValueGlobal < maxV) maxValueGlobal = maxV;
-    } while (!srcDataset->isLastBlock());
+    }
     dstDataset->setAttribute("min", minValueGlobal);
     dstDataset->setAttribute("max", maxValueGlobal);
     hDF5OutputFile->closeDataset(dstDataset->getName());
