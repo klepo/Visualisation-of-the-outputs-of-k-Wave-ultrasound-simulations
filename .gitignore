@@ -1,6 +1,7 @@
 /src.zip
 /cv.pdf
 all_projects/build
+all_projects/all_projects.pro.user
 all_projects/hdf5file-c/hdf5file-c.pro.user
 all_projects/hdf5file-c++/hdf5file-c++.pro.user
 all_projects/hdf5file-c-parallel/hdf5file-c-parallel.pro.user
