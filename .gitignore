@@ -6,12 +6,14 @@ all_projects/hdf5file-c/hdf5file-c.pro.user
 all_projects/hdf5file-c++/hdf5file-c++.pro.user
 all_projects/hdf5file-c-parallel/hdf5file-c-parallel.pro.user
 all_projects/k-wave-h5-processing/k-wave-h5-processing.pro.user
+all_projects/k-wave-h5-processing-parallel/k-wave-h5-processing-parallel.pro.user
 all_projects/k-wave-h5-visualizer/k-wave-h5-visualizer.pro.user
 all_projects/Makefile
 all_projects/hdf5file-c/Makefile
 all_projects/hdf5file-c++/Makefile
 all_projects/hdf5file-c-parallel/Makefile
 all_projects/k-wave-h5-processing/Makefile
+all_projects/k-wave-h5-processing-parallel/Makefile
 all_projects/k-wave-h5-visualizer/Makefile
 all_projects/hdf5-c_paths.pri
 all_projects/hdf5-c++_paths.pri
