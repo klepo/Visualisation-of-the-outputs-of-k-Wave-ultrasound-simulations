@@ -87,7 +87,7 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     //std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access" << std::endl;
     //std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access" << std::endl;
 
-    err = H5Pset_dxpl_mpio(plist_DATASET_XFER, H5FD_MPIO_INDEPENDENT);
+    err = H5Pset_dxpl_mpio(plist_DATASET_XFER, H5FD_MPIO_COLLECTIVE);
     if (err < 0){
         throw std::runtime_error("H5Pset_dxpl_mpio error");
         //MPI::COMM_WORLD.Abort(1);
@@ -449,7 +449,6 @@ void HDF5File::HDF5Dataset::read3DDataset(const hsize_t zO, const hsize_t yO, co
     H5Sclose(memspace);
 
     HDF5Dataset::getMinAndMaxValue(data, xC * yC * zC, minVI, maxVI);
-
 }
 
 /**
@@ -672,13 +671,17 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 
 /**
  * @brief HDF5File::HDF5Dataset::getBlockSize
- * @return size fo block
+ * @return real number of elements used in block reading
  */
 hsize_t HDF5File::HDF5Dataset::getBlockSize()
 {
     return blockSize;
 }
 
+/**
+ * @brief HDF5File::HDF5Dataset::setSizeOfDataPart Set maximal number of elements to read in one block
+ * @param size
+ */
 void HDF5File::HDF5Dataset::setSizeOfDataPart(uint64_t size)
 {
     sizeOfDataPart = size;
@@ -686,6 +689,10 @@ void HDF5File::HDF5Dataset::setSizeOfDataPart(uint64_t size)
     computeNumberOfBlocks();
 }
 
+/**
+ * @brief HDF5File::HDF5Dataset::getSizeOfDataPart
+ * @return maximal number of elements to read in one block
+ */
 uint64_t HDF5File::HDF5Dataset::getSizeOfDataPart()
 {
     return sizeOfDataPart;
@@ -729,6 +736,9 @@ void HDF5File::HDF5Dataset::initBlockReading()
     actualBlock = 0;
 }
 
+/**
+ * @brief HDF5File::HDF5Dataset::computeNumberOfBlocks Compute nuber of block by iterating
+ */
 void HDF5File::HDF5Dataset::computeNumberOfBlocks()
 {
     initBlockReading();
@@ -740,12 +750,20 @@ void HDF5File::HDF5Dataset::computeNumberOfBlocks()
     initBlockReading();
 }
 
+/**
+ * @brief HDF5File::HDF5Dataset::getNumberOfBlocks
+ * @return number of blocks for block reading
+ */
 hsize_t HDF5File::HDF5Dataset::getNumberOfBlocks()
 {
     return numberOfBlocks;
 }
 
-void HDF5File::HDF5Dataset::iterateToBlock(hsize_t index)
+/**
+ * @brief HDF5File::HDF5Dataset::iterateToBlock Iterate to selected index
+ * @param index
+ */
+void HDF5File::HDF5Dataset::iterateToBlock(const hsize_t index)
 {
     if (index >= numberOfBlocks)
         throw std::runtime_error("Wrong index - index is too big");
@@ -755,11 +773,14 @@ void HDF5File::HDF5Dataset::iterateToBlock(hsize_t index)
 
     if (actualBlock == index)
         return;
-    else if (actualBlock + 1 == index) {
-        recomputeBlock();
+    else if (actualBlock < index) {
+        for (hsize_t i = actualBlock; i < index; i++) {
+            recomputeBlock();
+        }
         actualBlock = index;
     } else {
-        for (hsize_t i = 0; i <= index; i++) {
+        initBlockReading();
+        for (hsize_t i = 0; i < index; i++) {
             recomputeBlock();
         }
         actualBlock = index;
@@ -822,6 +843,7 @@ void HDF5File::HDF5Dataset::recomputeBlock()
 
 /**
  * @brief HDF5File::HDF5Dataset::readBlock Read float data block and recompute offset (zO, yO, xO) and count (zC, xC, yC) for next reading
+ * @param index index of the loading block
  * @param [out] zO
  * @param [out] yO
  * @param [out] xO
@@ -832,7 +854,7 @@ void HDF5File::HDF5Dataset::recomputeBlock()
  * @param [out] minVFTmp minimum float value from data read
  * @param [out] maxVFTmp maximum float value from data read
  */
-void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp)
+void HDF5File::HDF5Dataset::readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp)
 {
     iterateToBlock(index);
     read3DDataset(this->zO, this->yO, this->xO, this->zC, this->yC, this->xC, data, minVFTmp, maxVFTmp);
@@ -846,6 +868,7 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, h
 
 /**
  * @brief HDF5File::HDF5Dataset::readBlock Read uint64_t data block and recompute offset (zO, yO, xO) and count (zC, xC, yC) for next reading
+ * @param index index of the loading block
  * @param [out] zO
  * @param [out] yO
  * @param [out] xO
@@ -856,7 +879,7 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, h
  * @param [out] minVITmp minimum float value from data read
  * @param [out] maxVITmp maximum float value from data read
  */
-void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVITmp, uint64_t &maxVITmp)
+void HDF5File::HDF5Dataset::readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVITmp, uint64_t &maxVITmp)
 {
     iterateToBlock(index);
     read3DDataset(this->zO, this->yO, this->xO, this->zC, this->yC, this->xC, data, minVITmp, maxVITmp);
@@ -866,6 +889,24 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t index, hsize_t &zO, hsize_t &yO, h
     zC = this->zC;
     yC = this->yC;
     xC = this->xC;
+}
+
+/**
+ * @brief HDF5File::HDF5Dataset::readEmptyBlock
+ */
+void HDF5File::HDF5Dataset::readEmptyBlock()
+{
+    hid_t space = H5Screate(H5S_NULL);
+    if (space < 0){
+        throw std::runtime_error("H5Screate error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Dread(dataset, datatype, space, space, plist_DATASET_XFER, NULL);
+    if (err < 0){
+        throw std::runtime_error("H5Dread error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    std::cout << name << " - read empty block" << std::endl;
 }
 
 /**

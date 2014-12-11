@@ -14,9 +14,9 @@ CONFIG -= qt
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-SOURCES += k-wave-h5-processing.cpp
+SOURCES += k-wave-h5-processing-parallel.cpp
 
-TARGET = k-wave-h5-processing
+TARGET = k-wave-h5-processing-parallel
 
 CONFIG(debug, debug|release) {
     DESTDIR = ../build/$$TARGET/debug
@@ -42,11 +42,11 @@ unix:QMAKE_CXXFLAGS += -std=c++0x
 
 # hdf5file library
 
-include($$PWD/../hdf5file-c++_paths.pri)
+include($$PWD/../hdf5file-c-parallel_paths.pri)
 
 # hdf5 library
 
-include($$PWD/../hdf5-c++_paths.pri)
+include($$PWD/../hdf5-c-parallel_paths.pri)
 
 # opencv library
 

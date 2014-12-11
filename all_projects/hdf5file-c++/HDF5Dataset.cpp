@@ -70,6 +70,9 @@ HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet dataset, H5std_string name, HDF5F
     lastBlock = false;
     blockSize = 0;
 
+    sizeOfDataPart = hDF5File->getSizeOfDataPart();
+    setSizeOfDataPart(sizeOfDataPart);
+
     // Min/max flag
     issetGlobalMinAndMaxValue = false;
 }
@@ -801,6 +804,24 @@ void HDF5File::HDF5Dataset::readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsi
 }
 
 /**
+ * @brief HDF5File::HDF5Dataset::readEmptyBlock
+ */
+void HDF5File::HDF5Dataset::readEmptyBlock()
+{
+    hid_t space = H5Screate(H5S_NULL);
+    if (space < 0){
+        throw std::runtime_error("H5Screate error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Dread(dataset, datatype, space, space, H5P_DEFAULT, NULL);
+    if (err < 0){
+        throw std::runtime_error("H5Dread error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    std::cout << name << " - read empty block" << std::endl;
+}
+
+/**
  * @brief HDF5File::HDF5Dataset::findGlobalMinAndMaxValueF Find global min and max float value
  */
 void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueF()
@@ -810,16 +831,16 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueF()
     float minVFTmp;
     float maxVFTmp;
     bool first = true;
-    do {
+    for (hsize_t i = 0; i < numberOfBlocks; i++) {
         float *data;
-        readBlock(zO, yO, xO, zC, yC, xC, data, minVFTmp, maxVFTmp);
+        readBlock(i, zO, yO, xO, zC, yC, xC, data, minVFTmp, maxVFTmp);
         if (first)
             minVF = maxVF = data[0];
         first = false;
         if (minVFTmp < minVF) minVF = minVFTmp;
         if (maxVFTmp > maxVF) maxVF = maxVFTmp;
         delete [] data;
-    } while (lastBlock == false);
+    }
     issetGlobalMinAndMaxValue = true;
 }
 
@@ -833,16 +854,16 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI()
     uint64_t minVITmp;
     uint64_t maxVITmp;
     bool first = true;
-    do {
+    for (hsize_t i = 0; i < numberOfBlocks; i++) {
         uint64_t *data;
-        readBlock(zO, yO, xO, zC, yC, xC, data, minVITmp, maxVITmp);
+        readBlock(i, zO, yO, xO, zC, yC, xC, data, minVITmp, maxVITmp);
         if (first)
             minVI = maxVI = data[0];
         first = false;
         if (minVITmp < minVI) minVI = minVITmp;
         if (maxVITmp > maxVI) maxVI = maxVITmp;
         delete [] data; // !!!
-    } while (lastBlock == false);
+    }
     issetGlobalMinAndMaxValue = true;
 }
 

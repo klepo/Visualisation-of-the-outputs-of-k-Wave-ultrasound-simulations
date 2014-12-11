@@ -25,7 +25,13 @@
 #include <map>
 #include <algorithm>
 
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
 #ifdef __unix
+typedef u_int64_t uint64_t;
 #include <stdexcept>
 #include <sys/time.h>
 #endif
@@ -35,7 +41,7 @@
 #include <windows.h>
 #endif
 
-#define SIZE_OF_DATA_PART 4096*4096*2
+#define SIZE_OF_DATA_PART 256 * 256 * 256
 
 #include <mutex>
 
@@ -54,7 +60,7 @@ public:
     class HDF5Group;
 
     HDF5Dataset *openDataset(const H5std_string datasetName);
-    HDF5Dataset *openDataset(hsize_t idx);
+    HDF5Dataset *openDataset(const hsize_t idx);
 
     void closeDataset(const H5std_string datasetName);
 
@@ -67,8 +73,6 @@ public:
     void closeGroup(const H5std_string groupName);
 
     void createGroup(const H5std_string groupName, bool rewrite = false);
-
-    //void unlinkLocation(const H5std_string name);
 
     hsize_t getNumObjs();
     H5std_string getObjNameById(hsize_t id);

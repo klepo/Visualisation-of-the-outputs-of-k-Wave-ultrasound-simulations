@@ -34,6 +34,7 @@
 
 #ifdef __unix
 typedef u_int64_t uint64_t;
+#include <stdexcept>
 #include <sys/time.h>
 #endif
 
@@ -42,7 +43,7 @@ typedef u_int64_t uint64_t;
 #include <windows.h>
 #endif
 
-#define SIZE_OF_DATA_PART 128 * 256 * 350
+#define SIZE_OF_DATA_PART 256 * 256 * 256
 
 #include <mutex>
 
@@ -74,8 +75,6 @@ public:
     void closeGroup(const std::string groupName);
 
     void createGroup(const std::string groupName, bool rewrite = false);
-
-    //void unlinkLocation(const std::string name);
 
     hsize_t getNumObjs();
     std::string getObjNameById(hsize_t id);

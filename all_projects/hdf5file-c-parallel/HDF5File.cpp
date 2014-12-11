@@ -519,16 +519,28 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
     index = x + 1 + nX * (y) + (z) * nX * nY;
 }
 
+/**
+ * @brief HDF5File::setSizeOfDataPart
+ * @param size
+ */
 void HDF5File::setSizeOfDataPart(uint64_t size)
 {
     sizeOfDataPart = size;
 }
 
+/**
+ * @brief HDF5File::getSizeOfDataPart
+ * @return size of data part
+ */
 uint64_t HDF5File::getSizeOfDataPart()
 {
     return sizeOfDataPart;
 }
 
+/**
+ * @brief HDF5Helper::getTime
+ * @return
+ */
 double HDF5Helper::getTime()
 {
     #ifdef __unix

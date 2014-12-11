@@ -33,19 +33,19 @@ public:
     void write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *data, bool log = false);
     void write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *data, bool log = false);
 
-    void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
-    void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
+    void readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
+    void readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
+
+    void readEmptyBlock();
 
     void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF);
     void getMinAndMaxValue(const uint64_t *data, const hsize_t size, uint64_t &minVI, uint64_t &maxVI);
 
-    void initBlockReading();
-    void initBlockReading(const hsize_t maxSize);
-    void setOffset(const hsize_t zO_, const hsize_t yO_, const hsize_t xO_);
-
-    bool isLastBlock();
-
     hsize_t getBlockSize();
+    hsize_t getNumberOfBlocks();
+
+    void setSizeOfDataPart(uint64_t size);
+    uint64_t getSizeOfDataPart();
 
     hsize_t getRank();
     hsize_t getSize();
@@ -72,7 +72,12 @@ private:
 
     void checkOffsetAndCountParams(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
 
+    void initBlockReading();
     void recomputeBlock();
+    void computeNumberOfBlocks();
+    void iterateToBlock(const hsize_t index);
+
+    hid_t plist;
 
     hsize_t x,y,z;
     hsize_t xO, yO, zO;
@@ -80,6 +85,10 @@ private:
     bool blockInitialized;
     bool lastBlock;
     hsize_t blockSize;
+    hsize_t numberOfBlocks;
+    hsize_t actualBlock;
+
+    uint64_t sizeOfDataPart;
 
     hid_t dataset;
     hid_t dataspace;

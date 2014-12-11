@@ -14,15 +14,9 @@
  * hdf5file library is free software.
  */
 
-
 #include "HDF5File.h"
 #include "HDF5Dataset.h"
 #include "HDF5Group.h"
-
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 const H5std_string HDF5File::NT("Nt");
 const H5std_string HDF5File::NX("Nx");
@@ -41,9 +35,9 @@ std::mutex HDF5File::mutex;
  */
 HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 {
-    this->sizeOfDataPart = SIZE_OF_DATA_PART;
-
     this->filename = filename;
+
+    sizeOfDataPart = SIZE_OF_DATA_PART;
 
     // Try block to detect exceptions raised by any of the calls inside it
     try {
@@ -586,6 +580,28 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
     index = x + 1 + nX * (y) + (z) * nX * nY;
 }
 
+/**
+ * @brief HDF5File::setSizeOfDataPart
+ * @param size
+ */
+void HDF5File::setSizeOfDataPart(uint64_t size)
+{
+    sizeOfDataPart = size;
+}
+
+/**
+ * @brief HDF5File::getSizeOfDataPart
+ * @return size of data part
+ */
+uint64_t HDF5File::getSizeOfDataPart()
+{
+    return sizeOfDataPart;
+}
+
+/**
+ * @brief HDF5Helper::getTime
+ * @return
+ */
 double HDF5Helper::getTime()
 {
     #ifdef __unix
@@ -599,14 +615,4 @@ double HDF5Helper::getTime()
         GetSystemTime(&time);
         return double(time.wSecond * 1000) + time.wMilliseconds;
     #endif
-}
-
-void HDF5File::setSizeOfDataPart(uint64_t size)
-{
-    this->sizeOfDataPart = size;
-}
-
-uint64_t HDF5File::getSizeOfDataPart()
-{
-    return this->sizeOfDataPart;
 }

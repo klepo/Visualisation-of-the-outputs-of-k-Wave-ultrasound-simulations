@@ -36,16 +36,16 @@ public:
     void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
     void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
+    void readEmptyBlock();
+
     void getMinAndMaxValue(float *data, hsize_t size, float &minVF, float &maxVF);
     void getMinAndMaxValue(uint64_t *data, hsize_t size, uint64_t &minVI, uint64_t &maxVI);
 
-    void initBlockReading();
-    void initBlockReading(hsize_t maxSize);
-    void setOffset(hsize_t zO_, hsize_t yO_, hsize_t xO_);
-
-    bool isLastBlock();
-
     hsize_t getBlockSize();
+    hsize_t getNumberOfBlocks();
+
+    void setSizeOfDataPart(uint64_t size);
+    uint64_t getSizeOfDataPart();
 
     hsize_t getRank();
     hsize_t getSize();
@@ -72,7 +72,10 @@ private:
 
     void checkOffsetAndCountParams(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
 
+    void initBlockReading();
     void recomputeBlock();
+    void computeNumberOfBlocks();
+    void iterateToBlock(const hsize_t index);
 
     hsize_t x,y,z;
     hsize_t xO, yO, zO;
@@ -80,6 +83,10 @@ private:
     bool blockInitialized;
     bool lastBlock;
     hsize_t blockSize;
+    hsize_t numberOfBlocks;
+    hsize_t actualBlock;
+
+    uint64_t sizeOfDataPart;
 
     H5::DataSet dataset;
     H5::DataSpace dataspace;
