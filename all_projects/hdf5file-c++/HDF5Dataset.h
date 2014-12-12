@@ -33,8 +33,8 @@ public:
     void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, float *data, bool log = false);
     void write3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, uint64_t *data, bool log = false);
 
-    void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
-    void readBlock(hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
+    void readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
+    void readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
     void readEmptyBlock();
 
@@ -64,7 +64,7 @@ public:
     float getGlobalMaxValueF(bool reset = false);
     float getGlobalMinValueF(bool reset = false);
 
-    H5T_class_t getDataType();
+    H5T_class_t getDataTypeClass();
 
 private:
     void findGlobalMinAndMaxValueF();
@@ -90,9 +90,7 @@ private:
 
     H5::DataSet dataset;
     H5::DataSpace dataspace;
-    H5T_class_t type_class;
-    H5::IntType typeI;
-    H5::FloatType typeF;
+    H5::DataType datatype;
 
     hsize_t rank;
     hsize_t size;

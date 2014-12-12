@@ -42,7 +42,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
 
     sizeOfDataPart = SIZE_OF_DATA_PART;
 
-    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
     this->filename = filename;    
 
@@ -60,14 +60,14 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     }
 
     if (flag == HDF5File::OPEN) {
-        std::cout << "Opening file \"" << filename << "\"";
+        std::cout << "Opening file \"" << filename << "\" ";
         file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, plist_FILE_ACCESS);
         if (file < 0) {
-            std::cout << " ... error" << std::endl;
+            std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fopen error");
             //MPI::COMM_WORLD.Abort(1);
         }
-        std::cout << " ... OK " << std::endl;
+        std::cout << "... OK " << std::endl;
 
         // Load basic datasets
         insertDataset(HDF5File::NT);
@@ -100,14 +100,14 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
         closeDataset(HDF5File::NZ);
 
     } else if (flag == HDF5File::CREATE) {
-        std::cout << "Creating file \"" << filename << "\"";
+        std::cout << "Creating file \"" << filename << "\" ";
         file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, plist_FILE_ACCESS);
         if (file < 0) {
-            std::cout << " ... error" << std::endl;
+            std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
             //MPI::COMM_WORLD.Abort(1);
         }
-        std::cout << " ... OK " << std::endl;
+        std::cout << "... OK " << std::endl;
     } else {
         throw std::runtime_error("Wrong HDF5File flag");
     }
@@ -150,17 +150,15 @@ std::ofstream *HDF5File::getLogFileStream()
  */
 void HDF5File::insertDataset(const std::string datasetName)
 {
-    std::cout << "Opening dataset \"" << datasetName << "\"";
-    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    std::cout << "Opening dataset \"" << datasetName << "\" ";
     hid_t d = H5Dopen(file, datasetName.c_str(), H5P_DEFAULT);
     if (d < 0){
-        std::cout << " ... error" << std::endl;
+        std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dopen error");
         //MPI::COMM_WORLD.Abort(1);
     }
-
     HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName, this);
-    std::cout << " ... OK" << std::endl;
+    std::cout << "... OK" << std::endl;
     datasets.insert(std::pair<const std::string, HDF5Dataset *>(datasetName, hDF5Dataset));
 }
 
@@ -171,17 +169,15 @@ void HDF5File::insertDataset(const std::string datasetName)
  */
 void HDF5File::insertGroup(const std::string groupName)
 {
-    std::cout << "Opening group \"" << groupName << "\"";
-
+    std::cout << "Opening group \"" << groupName << "\" ";
     hid_t g = H5Gopen(file, groupName.c_str(), H5P_DEFAULT);
     if (g < 0){
-        std::cout << " ... error" << std::endl;
+        std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Gopen error");
         //MPI::COMM_WORLD.Abort(1);
     }
-
     HDF5Group *hDF5Group = new HDF5Group(g, groupName, this);
-    std::cout << " ... OK" << std::endl;
+    std::cout << "... OK" << std::endl;
     groups.insert(std::pair<const std::string, HDF5Group *>(groupName, hDF5Group));
 }
 
@@ -256,7 +252,7 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
         }
     }
 
-    std::cout << "Creating dataset \"" << datasetName << "\"";
+    std::cout << "Creating dataset \"" << datasetName << "\" ";
     if (rewrite) {
         H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
         std::cout << " ... rewrite";
@@ -264,7 +260,7 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
 
     hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
     if (dataset < 0){
-        std::cout << " ... error" << std::endl;
+        std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dcreate error");
         //MPI::COMM_WORLD.Abort(1);
     }
@@ -273,7 +269,7 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
     H5Sclose(dataspace);
     H5Pclose(plist);
 
-    std::cout << " ... OK" << std::endl;
+    std::cout << "... OK" << std::endl;
 }
 
 /**
@@ -284,7 +280,7 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
  */
 void HDF5File::createGroup(const std::string name, bool rewrite)
 {
-        std::cout << "Creating group \"" << name << "\"";
+        std::cout << "Creating group \"" << name << "\" ";
         if (rewrite) {
             H5Ldelete(file, name.c_str(), H5P_DEFAULT);
             std::cout << " ... rewrite";
@@ -292,13 +288,13 @@ void HDF5File::createGroup(const std::string name, bool rewrite)
 
         hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         if (group < 0){
-            std::cout << " ... error" << std::endl;
+            std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Dcreate error");
             //MPI::COMM_WORLD.Abort(1);
         }
         H5Gclose(group);
 
-        std::cout << " ... OK" << std::endl;
+        std::cout << "... OK" << std::endl;
 }
 
 /**

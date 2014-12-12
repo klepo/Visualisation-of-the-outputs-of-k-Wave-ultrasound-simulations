@@ -65,8 +65,6 @@ H5std_string HDF5File::HDF5Group::getName()
  */
 hsize_t HDF5File::HDF5Group::getNumObjs()
 {
-    //mutex.lock();
     hsize_t num = group.getNumObjs();
-    //mutex.unlock();
     return num;
 }

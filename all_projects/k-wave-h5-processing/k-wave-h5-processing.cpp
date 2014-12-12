@@ -413,7 +413,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
             }
 
             // 3D type
-            if (dataset->getDataType() == H5T_FLOAT
+            if (dataset->getDataTypeClass() == H5T_FLOAT
                     && dataset->getRank() == 3
                     && size[0] == hDF5SimulationOutputFile->getNZ()
                     && size[1] == hDF5SimulationOutputFile->getNY()
@@ -423,7 +423,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
             }
             // Downsampled 3D type
             else if (dataset->hasAttribute("dwnsmpl")
-                     && dataset->getDataType() == H5T_FLOAT
+                     && dataset->getDataTypeClass() == H5T_FLOAT
                      && dataset->getRank() == 3
                      && size[0] < hDF5SimulationOutputFile->getNZ()
                      && size[1] < hDF5SimulationOutputFile->getNY()
@@ -432,7 +432,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                 std::cout << "----> 3D type downsampled dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl << std::endl;
             }
             // Sensor mask type
-            else if (dataset->getDataType() == H5T_FLOAT
+            else if (dataset->getDataTypeClass() == H5T_FLOAT
                      && datasetsForProcessing->sensorMaskIndexDataset != NULL
                      && dataset->getRank() == 3
                      && size[0] == 1
@@ -488,7 +488,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
     }
 }
 
-void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *datasetsForProcessing)
+void testOfReading(DatasetsForProcessing *datasetsForProcessing)
 {
     // Check number of datasets
     if (datasetsForProcessing->datasets3DType.empty()/* && datasetsForProcessing->datasetsGroupType.empty()*/) {
@@ -519,12 +519,7 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
                 std::cout << std::endl;
 
                 float *data = NULL;
-                //uint64_t height = 0;
-                //uint64_t width = 0;
                 hsize_t xO, yO, zO, xC, yC, zC;
-
-                // mPIRank
-                // mPISize;
 
                 std::cout << "Block reading test..." << std::endl;
                 std::cout << "   reading block size (number of elements): " << dataset->getSizeOfDataPart() << std::endl;
@@ -1500,7 +1495,7 @@ int main(int argc, char **argv)
     // Test dataset reading
     if (flagTest) {
         printDebugTitle("Testing");
-        testOfReading(hDF5SimulationOutputFile, datasetsForProcessing);
+        testOfReading(datasetsForProcessing);
     }
 
     if (flagReshape || flagRechunk || flagDwnsmpl) {

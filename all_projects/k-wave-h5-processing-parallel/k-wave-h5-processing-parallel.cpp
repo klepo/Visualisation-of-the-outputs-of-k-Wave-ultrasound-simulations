@@ -418,7 +418,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
             }
 
             // 3D type
-            if (dataset->getDataType() == H5T_FLOAT
+            if (dataset->getDataTypeClass() == H5T_FLOAT
                     && dataset->getRank() == 3
                     && size[0] == hDF5SimulationOutputFile->getNZ()
                     && size[1] == hDF5SimulationOutputFile->getNY()
@@ -428,7 +428,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
             }
             // Downsampled 3D type
             else if (dataset->hasAttribute("dwnsmpl")
-                     && dataset->getDataType() == H5T_FLOAT
+                     && dataset->getDataTypeClass() == H5T_FLOAT
                      && dataset->getRank() == 3
                      && size[0] < hDF5SimulationOutputFile->getNZ()
                      && size[1] < hDF5SimulationOutputFile->getNY()
@@ -437,7 +437,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
                 std::cout << "----> 3D type downsampled dataset: "<< dataset->getName() << "; size: " << size[0] << " x " << size[1] << " x " << size[2] << std::endl << std::endl;
             }
             // Sensor mask type
-            else if (dataset->getDataType() == H5T_FLOAT
+            else if (dataset->getDataTypeClass() == H5T_FLOAT
                      && datasetsForProcessing->sensorMaskIndexDataset != NULL
                      && dataset->getRank() == 3
                      && size[0] == 1
@@ -493,7 +493,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
     }
 }
 
-void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *datasetsForProcessing)
+void testOfReading(DatasetsForProcessing *datasetsForProcessing)
 {
     // Check number of datasets
     if (datasetsForProcessing->datasets3DType.empty()/* && datasetsForProcessing->datasetsGroupType.empty()*/) {
@@ -533,11 +533,11 @@ void testOfReading(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *da
                 double ts = HDF5Helper::getTime();
 
                 hsize_t steps = dataset->getNumberOfBlocks() / mPISize;
-                std::cout << "dataset->getNumberOfBlocks(): " << dataset->getNumberOfBlocks() << std::endl;
+                /*std::cout << "dataset->getNumberOfBlocks(): " << dataset->getNumberOfBlocks() << std::endl;
                 std::cout << "mPISize: " << mPISize << std::endl;
                 std::cout << "mPIRank: " << mPIRank << std::endl;
                 std::cout << "steps: " << steps << std::endl;
-                std::cout << std::endl;
+                std::cout << std::endl;*/
 
                 for (hsize_t i = 0; i < steps; i++) {
                     double ts1 = HDF5Helper::getTime();
@@ -1526,7 +1526,7 @@ int main(int argc, char **argv)
     // Test dataset reading
     if (flagTest) {
         printDebugTitle("Testing");
-        testOfReading(hDF5SimulationOutputFile, datasetsForProcessing);
+        testOfReading(datasetsForProcessing);
     }
 
     if (flagReshape || flagRechunk || flagDwnsmpl) {
@@ -1580,7 +1580,7 @@ int main(int argc, char **argv)
 
     std::cout << std::endl << std::endl << "Time of the entire process: " << (t2-t0) << " ms; \t" << std::endl << std::endl << std::endl;
 
-    std::cout << std::endl << "MPI_Finalize ... " << std::endl;
+    //std::cout << std::endl << "MPI_Finalize ... " << std::endl;
     MPI_Finalize();
 
     std::exit(EXIT_SUCCESS);

@@ -41,6 +41,8 @@ public:
     void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF);
     void getMinAndMaxValue(const uint64_t *data, const hsize_t size, uint64_t &minVI, uint64_t &maxVI);
 
+    void setMPIOAccess(H5FD_mpio_xfer_t type);
+
     hsize_t getBlockSize();
     hsize_t getNumberOfBlocks();
 
@@ -64,7 +66,7 @@ public:
     float getGlobalMaxValueF(bool reset = false);
     float getGlobalMinValueF(bool reset = false);
 
-    H5T_class_t getDataType();
+    H5T_class_t getDataTypeClass();
 
 private:
     void findGlobalMinAndMaxValueF();

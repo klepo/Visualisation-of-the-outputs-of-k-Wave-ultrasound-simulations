@@ -78,21 +78,7 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
 
     H5Pclose(plist);
 
-    plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
-    if (plist_DATASET_XFER < 0){
-        throw std::runtime_error("H5Pcreate error");
-        //MPI::COMM_WORLD.Abort(1);
-    }
-
-    //std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access" << std::endl;
-    //std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access" << std::endl;
-
-    err = H5Pset_dxpl_mpio(plist_DATASET_XFER, H5FD_MPIO_COLLECTIVE);
-    if (err < 0){
-        throw std::runtime_error("H5Pset_dxpl_mpio error");
-        //MPI::COMM_WORLD.Abort(1);
-    }
-
+    setMPIOAccess(H5FD_MPIO_COLLECTIVE);
 
     // Compute data size
     size = 1;
@@ -189,7 +175,7 @@ hsize_t HDF5File::HDF5Dataset::getSize()
  * @brief HDF5File::HDF5Dataset::getDataType
  * @return data type of dataset (type)
  */
-H5T_class_t HDF5File::HDF5Dataset::getDataType()
+H5T_class_t HDF5File::HDF5Dataset::getDataTypeClass()
 {
     return H5Tget_class(datatype);
 }
@@ -249,6 +235,33 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
         findGlobalMinAndMaxValue(reset);
     return minVF;
 }
+
+/**
+ * @brief HDF5File::HDF5Dataset::setMPIOAccess
+ * @param type H5FD_MPIO_COLLECTIVE/H5FD_MPIO_INDEPENDENT
+ */
+void HDF5File::HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
+{
+    plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
+    if (plist_DATASET_XFER < 0){
+        throw std::runtime_error("H5Pcreate error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
+    if (type == H5FD_MPIO_COLLECTIVE)
+        std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access" << std::endl;
+    else if (type == H5FD_MPIO_INDEPENDENT)
+        std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access" << std::endl;
+    else
+        throw std::runtime_error("H5Pset_dxpl_mpio error - Wrong MPIO type");
+
+    err = H5Pset_dxpl_mpio(plist_DATASET_XFER, type);
+    if (err < 0){
+        throw std::runtime_error("H5Pset_dxpl_mpio error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+}
+
 
 /**
  * @brief HDF5File::HDF5Dataset::readFullDataset Read full float dataset.
@@ -498,7 +511,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
         t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
-        throw std::runtime_error("H5Dread error");
+        throw std::runtime_error("H5Dwrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
@@ -558,7 +571,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
         t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
-        throw std::runtime_error("H5Dread error");
+        throw std::runtime_error("H5Dwrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)

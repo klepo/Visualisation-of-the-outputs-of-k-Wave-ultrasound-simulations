@@ -172,7 +172,7 @@ hsize_t HDF5File::HDF5Dataset::getSize()
  * @brief HDF5File::HDF5Dataset::getDataType
  * @return data type of dataset (type)
  */
-H5T_class_t HDF5File::HDF5Dataset::getDataType()
+H5T_class_t HDF5File::HDF5Dataset::getDataTypeClass()
 {
     return H5Tget_class(datatype);
 }
@@ -482,7 +482,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
         t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
-        throw std::runtime_error("H5Dread error");
+        throw std::runtime_error("H5Dwrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
@@ -542,7 +542,7 @@ void HDF5File::HDF5Dataset::write3DDataset(const hsize_t zO, const hsize_t yO, c
         t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, H5P_DEFAULT, data);
     if (err < 0){
-        throw std::runtime_error("H5Dread error");
+        throw std::runtime_error("H5Dwrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
     if (log)

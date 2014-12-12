@@ -101,7 +101,7 @@ public:
 
     std::ofstream *getLogFileStream();
 
-protected:
+private:
     uint64_t nT;
     uint64_t nX;
     uint64_t nY;
@@ -119,7 +119,6 @@ protected:
     void insertDataset(const std::string datasetName);
     void insertGroup(const std::string groupName);
 
-private:
     class HDF5Object;
     uint64_t sizeOfDataPart;
     herr_t err;

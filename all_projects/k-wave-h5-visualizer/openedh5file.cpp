@@ -62,7 +62,7 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
                 HDF5File::HDF5Dataset *dataset = file->openDataset(i);
                 hsize_t *size = dataset->getDims();
                 // 3D type
-                if (dataset->getDataType() == H5T_FLOAT && dataset->getRank() == 3 && size[0] == nZ && size[1] == nY && size[2] == nX) {
+                if (dataset->getDataTypeClass() == H5T_FLOAT && dataset->getRank() == 3 && size[0] == nZ && size[1] == nY && size[2] == nX) {
                     QString name = QString::fromStdString(dataset->getName());
 
                     qDebug() << "----> 3D type dataset: " << name << "; size: " << size[0] << " x " << size[1] << " x " << size[2];
@@ -75,7 +75,7 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
                     }
                 }
                 // Downsampled 3D type
-                else if (dataset->getDataType() == H5T_FLOAT && dataset->hasAttribute("dwnsmpl") && dataset->hasAttribute("src_dataset_name")) {
+                else if (dataset->getDataTypeClass() == H5T_FLOAT && dataset->hasAttribute("dwnsmpl") && dataset->hasAttribute("src_dataset_name")) {
                     QString name = QString::fromStdString(dataset->readAttributeS("src_dataset_name"));
                     // TODO Check other attributes...
 

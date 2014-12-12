@@ -64,7 +64,7 @@ public:
     float getGlobalMaxValueF(bool reset = false);
     float getGlobalMinValueF(bool reset = false);
 
-    H5T_class_t getDataType();
+    H5T_class_t getDataTypeClass();
 
 private:
     void findGlobalMinAndMaxValueF();
