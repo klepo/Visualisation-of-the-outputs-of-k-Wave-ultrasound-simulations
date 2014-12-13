@@ -20,3 +20,11 @@ all_projects/hdf5-c++_paths.pri
 all_projects/hdf5-c-parallel_paths.pri
 all_projects/opencv_paths.pri
 
+/all_projects/hdf5file-c++/Makefile.Debug
+/all_projects/hdf5file-c++/Makefile.Release
+/all_projects/hdf5file-c-parallel/Makefile.Debug
+/all_projects/hdf5file-c-parallel/Makefile.Release
+/all_projects/k-wave-h5-processing/Makefile.Debug
+/all_projects/k-wave-h5-processing/Makefile.Release
+/all_projects/k-wave-h5-visualizer/Makefile.Debug
+/all_projects/k-wave-h5-visualizer/Makefile.Release
