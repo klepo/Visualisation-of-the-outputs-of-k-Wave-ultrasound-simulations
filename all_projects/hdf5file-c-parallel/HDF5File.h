@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <mpi/mpi.h>
+#include <mpi.h>
 
 #ifdef __unix
 typedef u_int64_t uint64_t;

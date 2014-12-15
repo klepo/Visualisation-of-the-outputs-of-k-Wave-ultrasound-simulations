@@ -3,16 +3,16 @@
 LINK_TYPE = dynamic
 
 win32 {
-    INCLUDEPATH += "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"
+    INCLUDEPATH += "D:/HDF5-1.8.12-win64-serial-threadsafe/include"
     CONFIG(debug, debug|release) {
-        LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
+        LIBS += -L"D:/HDF5-1.8.12-win64-serial-threadsafe/lib" \
             -llibhdf5_cpp_D \
             -llibhdf5_D \
             #-llibzlib_D \
             -llibszip_D
     }
     CONFIG(release, debug|release) {
-        LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
+        LIBS += -L"D:/HDF5-1.8.12-win64-serial-threadsafe/lib" \
             -llibhdf5_cpp \
             -llibhdf5 \
             #-llibzlib \

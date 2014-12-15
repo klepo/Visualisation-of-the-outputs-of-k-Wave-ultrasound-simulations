@@ -3,15 +3,21 @@
 LINK_TYPE = dynamic
 
 win32 {
-    INCLUDEPATH += "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"
+
+    INCLUDEPATH += "c:\Program Files\MPICH2\include"
+    LIBS += -L"c:\Program Files\MPICH2\lib" \
+        -lmpi \
+        -lcxx \
+
+    INCLUDEPATH += "d:\HDF5-1.8.14-win64-parallel\include"
     CONFIG(debug, debug|release) {
-        LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
+        LIBS += -L"d:\HDF5-1.8.14-win64-parallel\lib" \
             -llibhdf5_D \
             #-llibzlib_D \
             -llibszip_D
     }
     CONFIG(release, debug|release) {
-        LIBS += -L"D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib" \
+        LIBS += -L"d:\HDF5-1.8.14-win64-parallel\lib" \
             -llibhdf5 \
             #-llibzlib \
             -llibszip

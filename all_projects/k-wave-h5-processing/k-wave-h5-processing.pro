@@ -42,7 +42,7 @@ unix:QMAKE_CXXFLAGS += -std=c++0x
 
 # hdf5file library
 
-include($$PWD/../hdf5file-c++_paths.pri)
+include($$PWD/../hdf5file-c++/hdf5file-c++_paths.pri)
 
 # hdf5 library
 

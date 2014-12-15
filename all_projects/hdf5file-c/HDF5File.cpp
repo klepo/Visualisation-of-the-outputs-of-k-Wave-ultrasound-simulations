@@ -533,8 +533,9 @@ double HDF5Helper::getTime()
     #endif
 
     #ifdef _WIN32
-        SYSTEMTIME time;
-        GetSystemTime(&time);
-        return double(time.wSecond * 1000) + time.wMilliseconds;
+        return GetTickCount();
+        //SYSTEMTIME time;
+        //GetSystemTime(&time);
+        //return double(time.wSecond * 1000) + time.wMilliseconds;
     #endif
 }

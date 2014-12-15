@@ -19,10 +19,6 @@ CONFIG(debug, debug|release) {
     DESTDIR = ../build/$$TARGET/release
 }
 
-#unix {
-#    DESTDIR = ../build/$$TARGET
-#}
-
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
 RCC_DIR = $$DESTDIR/.qrc

@@ -44,7 +44,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
 
     H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
-    this->filename = filename;    
+    this->filename = filename;
 
     // Create log file
     if (log) {
@@ -546,8 +546,9 @@ double HDF5Helper::getTime()
     #endif
 
     #ifdef _WIN32
-        SYSTEMTIME time;
-        GetSystemTime(&time);
-        return double(time.wSecond * 1000) + time.wMilliseconds;
+        return GetTickCount();
+        //SYSTEMTIME time;
+        //GetSystemTime(&time);
+        //return double(time.wSecond * 1000) + time.wMilliseconds;
     #endif
 }

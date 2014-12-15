@@ -10,6 +10,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += build_all
 
 TARGET = hdf5file-c
 
@@ -18,10 +19,6 @@ CONFIG(debug, debug|release) {
 } else {
     DESTDIR = ../build/$$TARGET/release
 }
-
-#unix {
-#    DESTDIR = ../build/$$TARGET
-#}
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
