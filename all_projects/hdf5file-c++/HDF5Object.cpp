@@ -51,13 +51,13 @@ int HDF5File::HDF5Object::getNumAttrs()
  */
 bool HDF5File::HDF5Object::hasAttribute(H5std_string name)
 {
-    //return ((H5::H5Location *) object)->attrExists(name);
-    try {
+    return ((H5::H5Location *) object)->attrExists(name);
+    /*try {
         object->openAttribute(name);
         return true;
     } catch(H5::Exception) {
         return false;
-    }
+    }*/
 }
 
 /**
@@ -146,10 +146,13 @@ void HDF5File::HDF5Object::removeAttribute(const H5std_string name)
  */
 void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
 {
-    try {
-        object->removeAttr(attribute->getName());
-    } catch(H5::AttributeIException error) {
-
+    if (hasAttribute(attribute->getName())) {
+        try {
+            object->removeAttr(attribute->getName());
+        } catch(H5::AttributeIException error) {
+            error.printError();
+            throw std::runtime_error(error.getCDetailMsg());
+        }
     }
 
     try {
@@ -174,10 +177,13 @@ void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
  */
 void HDF5File::HDF5Object::setAttribute(const H5std_string name, int value)
 {
-    try {
-        object->removeAttr(name);
-    } catch(H5::AttributeIException error) {
-
+    if (hasAttribute(name)) {
+        try {
+            object->removeAttr(name);
+        } catch(H5::AttributeIException error) {
+            error.printError();
+            throw std::runtime_error(error.getCDetailMsg());
+        }
     }
 
     try {
@@ -203,10 +209,13 @@ void HDF5File::HDF5Object::setAttribute(const H5std_string name, int value)
  */
 void HDF5File::HDF5Object::setAttribute(const H5std_string name, uint64_t value)
 {
-    try {
-        object->removeAttr(name);
-    } catch(H5::AttributeIException error) {
-
+    if (hasAttribute(name)) {
+        try {
+            object->removeAttr(name);
+        } catch(H5::AttributeIException error) {
+            error.printError();
+            throw std::runtime_error(error.getCDetailMsg());
+        }
     }
 
     try {
@@ -232,10 +241,13 @@ void HDF5File::HDF5Object::setAttribute(const H5std_string name, uint64_t value)
  */
 void HDF5File::HDF5Object::setAttribute(const H5std_string name, double value)
 {
-    try {
-        object->removeAttr(name);
-    } catch(H5::AttributeIException error) {
-
+    if (hasAttribute(name)) {
+        try {
+            object->removeAttr(name);
+        } catch(H5::AttributeIException error) {
+            error.printError();
+            throw std::runtime_error(error.getCDetailMsg());
+        }
     }
 
     try {
@@ -261,10 +273,13 @@ void HDF5File::HDF5Object::setAttribute(const H5std_string name, double value)
  */
 void HDF5File::HDF5Object::setAttribute(const H5std_string name, float value)
 {
-    try {
-        object->removeAttr(name);
-    } catch(H5::AttributeIException error) {
-
+    if (hasAttribute(name)) {
+        try {
+            object->removeAttr(name);
+        } catch(H5::AttributeIException error) {
+            error.printError();
+            throw std::runtime_error(error.getCDetailMsg());
+        }
     }
 
     try {
@@ -290,10 +305,13 @@ void HDF5File::HDF5Object::setAttribute(const H5std_string name, float value)
  */
 void HDF5File::HDF5Object::setAttribute(const H5std_string name, const H5std_string value)
 {
-    try {
-        object->removeAttr(name);
-    } catch(H5::AttributeIException error) {
-
+    if (hasAttribute(name)) {
+        try {
+            object->removeAttr(name);
+        } catch(H5::AttributeIException error) {
+            error.printError();
+            throw std::runtime_error(error.getCDetailMsg());
+        }
     }
 
     try {

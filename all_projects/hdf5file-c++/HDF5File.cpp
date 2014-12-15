@@ -228,11 +228,13 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
             list.setLayout(H5D_CONTIGUOUS);
 
         std::cout << "Creating dataset \"" << datasetName << "\"";
-        if (rewrite) {
+        if (rewrite && objExistsByName(datasetName)) {
             try {
                 file.unlink(datasetName);
                 std::cout << " ... rewrite";
-            } catch(H5::FileIException) {
+            } catch(H5::FileIException error) {
+                error.printError();
+                throw std::runtime_error(error.getCDetailMsg());
             }
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
@@ -268,12 +270,14 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
         else
             list.setLayout(H5D_CONTIGUOUS);
         std::cout << "Creating dataset \"" << datasetName << "\"";
-        if (rewrite) {
+        if (rewrite && objExistsByName(datasetName)) {
             try {
                 file.unlink(datasetName);
                 std::cout << " ... rewrite";
                 closeDataset(datasetName);
-            } catch(H5::FileIException) {
+            } catch(H5::FileIException error) {
+                error.printError();
+                throw std::runtime_error(error.getCDetailMsg());
             }
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
@@ -467,6 +471,11 @@ H5G_obj_t HDF5File::getObjTypeById(hsize_t id)
  */
 bool HDF5File::objExistsByName(const std::string name)
 {
+    /*for (hsize_t i = 0; i < file.getNumObjs(); i++) {
+        if (file.getObjnameByIdx(i) == name)
+            return true;
+    }
+    return false;*/
     try {
         H5::DataSet *dataset;
         dataset = new H5::DataSet(file.openDataSet(name));

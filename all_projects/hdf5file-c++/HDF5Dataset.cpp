@@ -232,7 +232,6 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
             std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
         } catch(H5::DataSetIException error) {
             error.printError();
-
             throw std::runtime_error(error.getCDetailMsg());
         }
 
@@ -268,7 +267,6 @@ void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
             std::cout << name << " read time: " << (t5-t4) << " ms;" << std::endl;
         } catch(H5::DataSetIException error) {
             error.printError();
-
             throw std::runtime_error(error.getCDetailMsg());
         }
 
@@ -386,7 +384,6 @@ void HDF5File::HDF5Dataset::read3DDataset(hsize_t zO, hsize_t yO, hsize_t xO, hs
         try {
             data = new uint64_t[xC * yC * zC]();
         } catch (std::bad_alloc e) {
-
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(xC * yC * zC) + " unsigned 64-bit integers)").c_str());
         }
 
@@ -541,12 +538,11 @@ void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
             HDF5Dataset::setAttribute("min", minVF);
             HDF5Dataset::setAttribute("max", maxVF);
         } else {
-            try {
-                H5::FloatType type(H5::PredType::NATIVE_FLOAT);
-                dataset.openAttribute("min").read(type, &minVF);
-                dataset.openAttribute("max").read(type, &maxVF);
+            if (hasAttribute("min") && hasAttribute("max")) {
+                dataset.openAttribute("min").read(datatype, &minVF);
+                dataset.openAttribute("max").read(datatype, &maxVF);
                 issetGlobalMinAndMaxValue = true;
-            } catch(H5::AttributeIException error) {
+            } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
                 HDF5Dataset::setAttribute("min", minVF);
                 HDF5Dataset::setAttribute("max", maxVF);
@@ -558,12 +554,11 @@ void HDF5File::HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
             HDF5Dataset::setAttribute("min", minVI);
             HDF5Dataset::setAttribute("max", maxVI);
         } else {
-            try {
-                H5::IntType type(H5::PredType::NATIVE_UINT64);
-                dataset.openAttribute("min").read(type, &minVI);
-                dataset.openAttribute("max").read(type, &maxVI);
+            if (hasAttribute("min") && hasAttribute("max")) {
+                dataset.openAttribute("min").read(datatype, &minVI);
+                dataset.openAttribute("max").read(datatype, &maxVI);
                 issetGlobalMinAndMaxValue = true;
-            } catch(H5::AttributeIException error) {
+            } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
                 HDF5Dataset::setAttribute("min", minVI);
                 HDF5Dataset::setAttribute("max", maxVI);
@@ -581,35 +576,25 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
     if (getDataTypeClass() == H5T_FLOAT) {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
-            //HDF5Dataset::setAttribute("min", minVF);
-            //HDF5Dataset::setAttribute("max", maxVF);
         } else {
-            try {
-                H5::FloatType type(H5::PredType::NATIVE_FLOAT);
-                dataset.openAttribute("min").read(type, &minVF);
-                dataset.openAttribute("max").read(type, &maxVF);
+            if (hasAttribute("min") && hasAttribute("max")) {
+                dataset.openAttribute("min").read(datatype, &minVF);
+                dataset.openAttribute("max").read(datatype, &maxVF);
                 issetGlobalMinAndMaxValue = true;
-            } catch(H5::AttributeIException error) {
+            } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
-                //HDF5Dataset::setAttribute("min", minVF);
-                //HDF5Dataset::setAttribute("max", maxVF);
             }
         }
     } else {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueI();
-            //HDF5Dataset::setAttribute("min", minVI);
-            //HDF5Dataset::setAttribute("max", maxVI);
         } else {
-            try {
-                H5::IntType type(H5::PredType::NATIVE_UINT64);
-                dataset.openAttribute("min").read(type, &minVI);
-                dataset.openAttribute("max").read(type, &maxVI);
+            if (hasAttribute("min") && hasAttribute("max")) {
+                dataset.openAttribute("min").read(datatype, &minVI);
+                dataset.openAttribute("max").read(datatype, &maxVI);
                 issetGlobalMinAndMaxValue = true;
-            } catch(H5::AttributeIException error) {
+            } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
-                //HDF5Dataset::setAttribute("min", minVI);
-                //HDF5Dataset::setAttribute("max", maxVI);
             }
         }
     }

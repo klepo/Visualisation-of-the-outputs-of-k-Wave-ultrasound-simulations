@@ -36,7 +36,7 @@ const std::string NZ_DATASET("Nz");
 
 #define MAX_SIZE 512
 #define MAX_CHUNK_SIZE 64
-#define MAX_NUMBER_OF_FRAMES 3 // TODO
+#define MAX_NUMBER_OF_FRAMES 0 // TODO
 
 // Filenames
 std::string simulationOutputFilename = "";
@@ -85,7 +85,7 @@ std::string help()
     "                                         with sensor_mask_index dataset.\n"
     "\n"
     "  -o HDF5OutputFilename ................ Optional parameter - output filename. Default value is\n"
-    "                                         HDF5SimulationOutputFilename_modified.\n"
+    "                                         HDF5SimulationOutputFilename+\"_modified.h5\".\n"
     "\n"
     "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
     "                                         type datasets to group with series of 3D datasets\n"
@@ -112,9 +112,11 @@ std::string help()
     "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
     "                                         groups for processing.\n"
     "\n"
-    "  -test ................................ Optional parameter. Test mode. Reading test of 3D type datasets is performed.\n"
+    "  -test ................................ Optional parameter. Test mode. Reading test \n"
+    "                                         of 3D type datasets is performed.\n"
     "\n"
-    "  -c blockSize ......................... Optional parameter. Set number of data elements for block reading.\n"
+    "  -c blockSize ......................... Optional parameter. Set number of data elements\n"
+    "                                         for block reading.\n"
     "\n"
     "  -help ................................ Prints this help message.\n"
     "\n";
@@ -513,7 +515,7 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
                 std::cout << "Dataset: " << dataset->getName() << std::endl;
                 std::cout << std::endl;
 
-                dataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
+                //dataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
 
                 float minValue = 0;
                 float maxValue = 0;
