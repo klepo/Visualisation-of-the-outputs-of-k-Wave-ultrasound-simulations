@@ -35,8 +35,8 @@ HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet dataset, H5std_string name, HDF5F
     dataspace = dataset.getSpace();
 
     // Get type
-    datatype = this->dataset.getDataType();
-    if (getDataTypeClass() != H5T_FLOAT && getDataTypeClass() != H5T_INTEGER)
+    datatype.copy(this->dataset.getDataType());
+    if (getDataTypeClass() != H5T_NATIVE_FLOAT && getDataTypeClass() != H5T_NATIVE_UINT64)
         throw std::runtime_error("Wrong data type of dataset");
 
     // Get rank, dims and chunk dims
