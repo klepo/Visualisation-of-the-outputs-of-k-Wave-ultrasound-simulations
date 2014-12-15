@@ -78,6 +78,8 @@ public:
     std::string getObjNameById(hsize_t id);
     H5G_obj_t getObjTypeById(hsize_t id);
 
+    bool objExistsByName(const std::string name);
+
     std::string getFilename();
 
     void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);

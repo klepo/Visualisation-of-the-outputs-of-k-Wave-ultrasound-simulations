@@ -39,7 +39,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 
     sizeOfDataPart = SIZE_OF_DATA_PART;
 
-    H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
     // Create log file
     if (log) {
@@ -420,6 +420,19 @@ H5G_obj_t HDF5File::getObjTypeById(hsize_t idx)
         //MPI::COMM_WORLD.Abort(1);
     }
     return (H5G_obj_t) type;
+}
+
+/**
+ * @brief HDF5File::objExistsByName
+ * @param name
+ * @return true/false
+ */
+bool HDF5File::objExistsByName(const std::string name)
+{
+    if (H5Lexists(file, name.c_str(), H5P_DEFAULT))
+        return H5Oexists_by_name(file, name.c_str(), H5P_DEFAULT);
+    else
+        return false;
 }
 
 /**

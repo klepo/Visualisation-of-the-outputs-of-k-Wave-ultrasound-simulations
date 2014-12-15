@@ -436,6 +436,19 @@ H5G_obj_t HDF5File::getObjTypeById(hsize_t idx)
 }
 
 /**
+ * @brief HDF5File::objExistsByName
+ * @param name
+ * @return true/false
+ */
+bool HDF5File::objExistsByName(const std::string name)
+{
+    if (H5Lexists(file, name.c_str(), H5P_DEFAULT))
+        return H5Oexists_by_name(file, name.c_str(), H5P_DEFAULT);
+    else
+        return false;
+}
+
+/**
  * @brief HDF5File::getFilename
  * @return filename
  */

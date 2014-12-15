@@ -343,19 +343,25 @@ HDF5File::HDF5Dataset *findAndGetSensorMaskDataset(HDF5File *hDF5SimulationOutpu
 {
     HDF5File::HDF5Dataset *sensorMaskIndexDataset = NULL;
     std::cout << std::endl << std::endl << "---- Find and get sensor mask dataset ----" << std::endl << std::endl << std::endl;
-    try {
+
+    if (hDF5SimulationOutputFile->objExistsByName(SENSOR_MASK_INDEX_DATASET)) {
         // Try to load sensor mask from simulation output file
-        sensorMaskIndexDataset = hDF5SimulationOutputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
-    } catch(std::exception &) {
-        std::cout << "Sensor mask is not in simulation output file" << std::endl;
-        // Try to load sensor mask from simulation input file
-        if (hDF5SimulationInputFile != NULL) {
-            try {
-                sensorMaskIndexDataset = hDF5SimulationInputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
-            } catch(std::exception &) {
-                std::cout << "Sensor mask is not in simulation input file" << std::endl;
-            }
+        try {
+            sensorMaskIndexDataset = hDF5SimulationOutputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
+        } catch(std::exception e) {
+            std::cerr << e.what() << std::endl;
+            std::exit(EXIT_FAILURE);
         }
+    } else if (hDF5SimulationInputFile != NULL && hDF5SimulationInputFile->objExistsByName(SENSOR_MASK_INDEX_DATASET)){
+        // Try to load sensor mask from simulation input file
+        try {
+            sensorMaskIndexDataset = hDF5SimulationInputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
+        } catch(std::exception e) {
+            std::cerr << e.what() << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+    } else {
+        std::cout << "Sensor mask is not in simulation output or input file" << std::endl;
     }
     return sensorMaskIndexDataset;
 }

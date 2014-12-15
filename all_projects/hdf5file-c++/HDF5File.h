@@ -78,10 +78,12 @@ public:
     H5std_string getObjNameById(hsize_t id);
     H5G_obj_t getObjTypeById(hsize_t id);
 
+    bool objExistsByName(const std::string name);
+
     H5std_string getFilename();
 
-    void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
-    void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
+    void convertlinearTo3D(const hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
+    void convert3DToLinear(const hsize_t z, const hsize_t y, const hsize_t x, hsize_t &index);
 
     void setSizeOfDataPart(uint64_t size);
     uint64_t getSizeOfDataPart();

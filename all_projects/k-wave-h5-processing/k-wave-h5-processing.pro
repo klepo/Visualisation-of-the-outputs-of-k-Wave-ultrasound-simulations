@@ -42,11 +42,11 @@ unix:QMAKE_CXXFLAGS += -std=c++0x
 
 # hdf5file library
 
-include($$PWD/../hdf5file-c/hdf5file-c_paths.pri)
+include($$PWD/../hdf5file-c++/hdf5file-c++_paths.pri)
 
 # hdf5 library
 
-include($$PWD/../hdf5-c_paths.pri)
+include($$PWD/../hdf5-c++_paths.pri)
 
 # opencv library
 

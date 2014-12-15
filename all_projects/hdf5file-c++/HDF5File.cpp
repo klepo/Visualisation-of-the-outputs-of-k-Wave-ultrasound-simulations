@@ -178,7 +178,7 @@ void HDF5File::insertDataset(const H5std_string datasetName)
         HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName, this);
         std::cout << "... OK" << std::endl;
         datasets.insert(std::pair<const H5std_string, HDF5Dataset *>(datasetName, hDF5Dataset));
-    } catch(H5::FileIException &) {
+    } catch(H5::FileIException) {
         std::cout << "... error" << std::endl;
         //error.printError();
         throw std::runtime_error(std::string("Dataset \"" + datasetName + "\" does not exist").c_str());
@@ -198,7 +198,7 @@ void HDF5File::insertGroup(const H5std_string groupName)
         HDF5Group *hDF5Group = new HDF5Group(g, groupName, this);
         std::cout << "... OK" << std::endl;
         groups.insert(std::pair<const H5std_string, HDF5Group *>(groupName, hDF5Group));
-    } catch(H5::FileIException &) {
+    } catch(H5::FileIException) {
         std::cout << "... error" << std::endl;
         //error.printError();
         throw std::runtime_error(std::string("Group \"" + groupName + "\" does not exist").c_str());
@@ -232,7 +232,7 @@ void HDF5File::createDatasetI(const H5std_string datasetName, hsize_t rank, hsiz
             try {
                 file.unlink(datasetName);
                 std::cout << " ... rewrite";
-            } catch(H5::FileIException error) {
+            } catch(H5::FileIException) {
             }
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
@@ -273,7 +273,7 @@ void HDF5File::createDatasetF(const H5std_string datasetName, hsize_t rank, hsiz
                 file.unlink(datasetName);
                 std::cout << " ... rewrite";
                 closeDataset(datasetName);
-            } catch(H5::FileIException error) {
+            } catch(H5::FileIException) {
             }
         }
         file.createDataSet(datasetName, datatype, dataspace, list);
@@ -305,7 +305,7 @@ void HDF5File::createGroup(const H5std_string name, bool rewrite)
                 file.unlink(name);
                 std::cout << " ... rewrite";
                 closeGroup(name);
-            } catch(H5::FileIException error) {
+            } catch(H5::FileIException) {
             }
         }
         file.createGroup(name);
@@ -461,6 +461,30 @@ H5G_obj_t HDF5File::getObjTypeById(hsize_t id)
 }
 
 /**
+ * @brief HDF5File::objExistsByName
+ * @param name
+ * @return true/false
+ */
+bool HDF5File::objExistsByName(const std::string name)
+{
+    try {
+        H5::DataSet *dataset;
+        dataset = new H5::DataSet(file.openDataSet(name));
+        delete dataset;
+        return true;
+    } catch(H5::FileIException) {
+        H5::Group *group;
+        try {
+            group = new H5::Group(file.openGroup(name));
+            delete group;
+            return true;
+        } catch(H5::FileIException) {
+            return false;
+        }
+    }
+}
+
+/**
  * @brief HDF5File::getFilename
  * @return filename
  */
@@ -513,7 +537,7 @@ uint64_t HDF5File::getNZ()
  * @param [out] x 0..Nx - 1
  * @throw std::runtime_error
  */
-void HDF5File::convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x)
+void HDF5File::convertlinearTo3D(const hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x)
 {
     if (index > nX * nY * nZ) throw std::runtime_error("Wrong index - too big index");
     if (index == 0) throw std::runtime_error("Wrong index - too small index");
@@ -531,7 +555,7 @@ void HDF5File::convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t 
  * @param [out] index 1..Nz*Ny*Nx
  * @throw std::runtime_error
  */
-void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index)
+void HDF5File::convert3DToLinear(const hsize_t z, const hsize_t y, const hsize_t x, hsize_t &index)
 {
     if (x >= nX) throw std::runtime_error("Wrong x - too big x");
     if (y >= nY) throw std::runtime_error("Wrong y - too big y");
