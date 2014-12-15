@@ -35,7 +35,7 @@ HDF5File::HDF5Dataset::HDF5Dataset(H5::DataSet dataset, H5std_string name, HDF5F
     dataspace = dataset.getSpace();
 
     // Get type
-    datatype.copy(this->dataset.getDataType());
+    datatype = this->dataset.getDataType();
     if (!H5Tequal(datatype.getId(), H5T_NATIVE_FLOAT) && !H5Tequal(datatype.getId(), H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset");
 
@@ -145,7 +145,7 @@ hsize_t HDF5File::HDF5Dataset::getSize()
  */
 H5T_class_t HDF5File::HDF5Dataset::getDataTypeClass()
 {
-    return dataset.getTypeClass();
+    return datatype.getClass();
 }
 
 /**
