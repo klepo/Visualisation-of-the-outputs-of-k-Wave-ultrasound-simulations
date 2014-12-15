@@ -393,9 +393,13 @@ void HDF5File::closeGroup(const std::string groupName)
  */
 hsize_t HDF5File::getNumObjs()
 {
-    hsize_t num = this->openGroup("/")->getNumObjs();
-    this->closeGroup("/");
-    return num;
+    H5G_info_t group_info;
+    err = H5Gget_info(file, &group_info);
+    if (err < 0){
+        throw std::runtime_error("H5Gget_info error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    return group_info.nlinks;
 }
 
 /**
