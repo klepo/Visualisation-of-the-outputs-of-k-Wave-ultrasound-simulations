@@ -107,11 +107,11 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 HDF5File::~HDF5File()
 {
     // Delete all loaded datasets
-    for (std::map<const std::string, HDF5Dataset *>::iterator it = datasets.begin(); it != datasets.end(); ++it) {
+    for (MapOfDatasets::iterator it = datasets.begin(); it != datasets.end(); ++it) {
         delete it->second;
     }
     // Delete all loaded groups
-    for (std::map<const std::string, HDF5Group *>::iterator it = groups.begin(); it != groups.end(); ++it) {
+    for (MapOfGroups::iterator it = groups.begin(); it != groups.end(); ++it) {
         delete it->second;
     }
     logFileStream.close();

@@ -41,7 +41,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 
     // Try block to detect exceptions raised by any of the calls inside it
     try {
-        //H5::Exception::dontPrint();
+        H5::Exception::dontPrint();
         H5::FileAccPropList access_plist = H5::FileAccPropList::DEFAULT;
         H5::FileCreatPropList create_plist = H5::FileCreatPropList::DEFAULT;
         //access_plist.setSieveBufSize(1024 * 1024 * 4);

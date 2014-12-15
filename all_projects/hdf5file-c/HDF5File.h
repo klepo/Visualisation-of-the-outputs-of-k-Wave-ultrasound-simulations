@@ -59,6 +59,9 @@ public:
     class HDF5Dataset;
     class HDF5Group;
 
+    typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
+    typedef std::map<const std::string, HDF5Group *> MapOfGroups;
+
     HDF5Dataset *openDataset(const std::string datasetName);
     HDF5Dataset *openDataset(const hsize_t idx);
 
@@ -115,8 +118,8 @@ private:
     static std::mutex mutex;
 
     hid_t file; // HDF file handle
-    std::map<const std::string, HDF5Dataset *> datasets;
-    std::map<const std::string, HDF5Group *> groups;
+    MapOfDatasets datasets;
+    MapOfGroups groups;
 
     void insertDataset(const std::string datasetName);
     void insertGroup(const std::string groupName);

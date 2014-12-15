@@ -306,7 +306,7 @@ hsize_t myRound(double number)
 /**
  * @brief The DatasetsForProcessing class Helper class for manipulation with datasets for processing
  */
-class DatasetsForProcessing
+class DtsForPcs
 {
 public:
     HDF5File::HDF5Dataset *sensorMaskIndexDataset;
@@ -404,7 +404,7 @@ HDF5File *createOrOpenOutputFile(std::string outputFilename) {
  * @param hDF5SimulationOutputFile
  * @param datasetsForProcessing
  */
-void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForProcessing *datasetsForProcessing)
+void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DtsForPcs *datasetsForProcessing)
 {
     for (hsize_t i = 0; i < hDF5SimulationOutputFile->getNumObjs(); i++) {
         H5G_obj_t type = hDF5SimulationOutputFile->getObjTypeById(i);
@@ -496,7 +496,7 @@ void findDatasetsForProcessing(HDF5File *hDF5SimulationOutputFile, DatasetsForPr
     }
 }
 
-void testOfReading(DatasetsForProcessing *datasetsForProcessing)
+void testOfReading(DtsForPcs *datasetsForProcessing)
 {
     // Check number of datasets
     if (datasetsForProcessing->datasets3DType.empty()/* && datasetsForProcessing->datasetsGroupType.empty()*/) {
@@ -626,7 +626,7 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
  * @param hDF5OutputFile
  * @param datasetsForProcessing
  */
-void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, DatasetsForProcessing *datasetsForProcessing)
+void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, DtsForPcs *datasetsForProcessing)
 {
     // Check number of datasets
     if (datasetsForProcessing->datasetsMaskType.empty()) {
@@ -809,7 +809,7 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, Data
  * @param hDF5OutputFile
  * @param datasetsForProcessing
  */
-void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, DatasetsForProcessing *datasetsForProcessing)
+void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, DtsForPcs *datasetsForProcessing)
 {
     try {
         // Check number of datasets for downsamling
@@ -1048,7 +1048,7 @@ void downsampling(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, 
  * @param hDF5OutputFile output file
  * @param maxChunkSize chunk size
  */
-void rechunkDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile, hsize_t maxChunkSize) {
+void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile, hsize_t maxChunkSize) {
     hsize_t *dims = srcDataset->getDims();
 
     // Chunk size
@@ -1094,7 +1094,7 @@ void rechunkDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5OutputFile,
  * @param hDF5OutputFile
  * @param datasetsForProcessing
  */
-void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, DatasetsForProcessing *datasetsForProcessing)
+void changeChunks(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, DtsForPcs *datasetsForProcessing)
 {
     try {
         if (datasetsForProcessing->datasets3DType.empty() && datasetsForProcessing->datasets3DTypeDwnsmpl.empty() && datasetsForProcessing->datasetsGroupType.empty() && datasetsForProcessing->datasetsGroupTypeDwnsmpl.empty()) {
@@ -1104,13 +1104,13 @@ void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, Datas
             // For every 3D type dataset
             for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DType.begin(); it != datasetsForProcessing->datasets3DType.end(); ++it) {
                 HDF5File::HDF5Dataset *srcDataset = it->second;
-                rechunkDataset(srcDataset, hDF5OutputFile, maxChunkSize);
+                changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
             }
 
             // For every 3D type downsampled dataset
             for (std::map<const std::string, HDF5File::HDF5Dataset *>::iterator it = datasetsForProcessing->datasets3DTypeDwnsmpl.begin(); it != datasetsForProcessing->datasets3DTypeDwnsmpl.end(); ++it) {
                 HDF5File::HDF5Dataset *srcDataset = it->second;
-                rechunkDataset(srcDataset, hDF5OutputFile, maxChunkSize);
+                changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
             }
 
             // For every reshaped mask type
@@ -1134,7 +1134,7 @@ void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, Datas
                 // For every 3D type dataset in group
                 for (unsigned int i = 0; i < count; i++) {
                     HDF5File::HDF5Dataset *srcDataset = hDF5SimulationOutputFile->openDataset(srcGroup->getName() + "/" + std::to_string(i));
-                    rechunkDataset(srcDataset, hDF5OutputFile, maxChunkSize);
+                    changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
                     hDF5SimulationOutputFile->closeDataset(srcGroup->getName() + "/" + std::to_string(i));
                 }
             }
@@ -1160,7 +1160,7 @@ void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, Datas
                 // For every 3D type dataset in group
                 for (unsigned int i = 0; i < count; i++) {
                     HDF5File::HDF5Dataset *srcDataset = hDF5SimulationOutputFile->openDataset(srcGroup->getName() + "/" + std::to_string(i));
-                    rechunkDataset(srcDataset, hDF5OutputFile, maxChunkSize);
+                    changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
                     hDF5SimulationOutputFile->closeDataset(srcGroup->getName() + "/" + std::to_string(i));
                 }
             }
@@ -1176,7 +1176,7 @@ void rechunk(HDF5File *hDF5SimulationOutputFile, HDF5File *hDF5OutputFile, Datas
  * @brief visualize Simple slice visualization
  * @param hDF5ViewFile
  */
-void visualize(HDF5File *hDF5ViewFile)
+void visualization(HDF5File *hDF5ViewFile)
 {
     try {
         HDF5File::HDF5Dataset *dataset;
@@ -1453,7 +1453,7 @@ int main(int argc, char **argv)
     HDF5File *hDF5ViewFile = NULL;
 
     // Create helper class for datasets of various types
-    DatasetsForProcessing *datasetsForProcessing = new DatasetsForProcessing();
+    DtsForPcs *datasetsForProcessing = new DtsForPcs();
     datasetsForProcessing->sensorMaskIndexDataset = NULL;
     datasetsForProcessing->sensorMaskSize = 0;
 
@@ -1531,7 +1531,7 @@ int main(int argc, char **argv)
     // Copy 3D datasets a set new chunking
     if (flagRechunk) {
         printDebugTitle("Change chunks");
-        rechunk(hDF5SimulationOutputFile, hDF5OutputFile, datasetsForProcessing);
+        changeChunks(hDF5SimulationOutputFile, hDF5OutputFile, datasetsForProcessing);
     }
 
     // Select file to view
@@ -1543,7 +1543,7 @@ int main(int argc, char **argv)
     // Simple slice visualization
     if (flagView) {
         printDebugTitle("Visualization");
-        visualize(hDF5ViewFile);
+        visualization(hDF5ViewFile);
     }
 
     printDebugTitle("Closing files");
