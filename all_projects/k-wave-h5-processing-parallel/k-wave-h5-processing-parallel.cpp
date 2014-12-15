@@ -577,7 +577,7 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
 
                 std::cout << std::endl;
 
-                std::cout << "Slices reading test..." << std::endl;
+                /*std::cout << "Slices reading test..." << std::endl;
 
                 std::cout << std::endl;
 
@@ -636,7 +636,7 @@ void testOfReading(DatasetsForProcessing *datasetsForProcessing)
                 delete [] data;
 
 
-                std::cout << std::endl;
+                std::cout << std::endl;*/
 
             } catch(std::exception &e) {
                 std::cerr << e.what() << std::endl;
