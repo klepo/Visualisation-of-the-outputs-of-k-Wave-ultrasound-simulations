@@ -2,7 +2,7 @@
 #
 # Project created by QtCreator
 #
-# k-wave-h5-processing console application
+# k-wave-h5-processing-parallel console application
 #
 #-------------------------------------------------
 

@@ -541,12 +541,6 @@ void testOfReading(DtsForPcs *dtsForPcs)
                 double ts = HDF5Helper::getTime();
 
                 hsize_t steps = dataset->getNumberOfBlocks() / mPISize;
-                /*std::cout << "dataset->getNumberOfBlocks(): " << dataset->getNumberOfBlocks() << std::endl;
-                std::cout << "mPISize: " << mPISize << std::endl;
-                std::cout << "mPIRank: " << mPIRank << std::endl;
-                std::cout << "steps: " << steps << std::endl;
-                std::cout << std::endl;*/
-
                 for (hsize_t i = 0; i < steps; i++) {
                     double ts1 = HDF5Helper::getTime();
                     dataset->readBlock(mPISize * i + mPIRank, zO, yO, xO, zC, yC, xC, data, minValue, maxValue);
@@ -554,7 +548,6 @@ void testOfReading(DtsForPcs *dtsForPcs)
                     std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
                     delete [] data; // !!
                 }
-
                 if (dataset->getNumberOfBlocks() % mPISize > 0) {
                     if (mPIRank < (int) dataset->getNumberOfBlocks() % mPISize) {
                         double ts3 = HDF5Helper::getTime();
@@ -566,6 +559,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
                         dataset->readEmptyBlock();
                     }
                 }
+
                 double tf = HDF5Helper::getTime();
 
                 MPI::COMM_WORLD.Barrier();
@@ -1074,23 +1068,51 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
 
     float *data;
     float minV, maxV;
-    float minValueGlobal = 0, maxValueGlobal = 0;
+    float minVGP = 0, maxVGP = 0;
+    float minVG = 0, maxVG = 0;
     bool first = true;
     hsize_t xO, yO, zO, xC, yC, zC;
-    for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-        srcDataset->readBlock(i, zO, yO, xO, zC, yC, xC, data, minV, maxV);
+
+    hsize_t steps = srcDataset->getNumberOfBlocks() / mPISize;
+    // Every process processes same number of blocks
+    for (hsize_t i = 0; i < steps; i++) {
+        srcDataset->readBlock(mPISize * i + mPIRank, zO, yO, xO, zC, yC, xC, data, minV, maxV);
         dstDataset->write3DDataset(zO, yO, xO, zC, yC, xC, data, true);
-        delete [] data;
+        delete [] data; // !!
         if (first) {
-            minValueGlobal = minV;
-            maxValueGlobal = maxV;
+            minVGP = minV;
+            maxVGP = maxV;
             first = false;
         }
-        if (minValueGlobal > minV) minValueGlobal = minV;
-        if (maxValueGlobal < maxV) maxValueGlobal = maxV;
+        if (minVGP > minV) minVGP = minV;
+        if (maxVGP < maxV) maxVGP = maxV;
     }
-    dstDataset->setAttribute("min", minValueGlobal);
-    dstDataset->setAttribute("max", maxValueGlobal);
+    // Some of them processes remaining blocks
+    if (srcDataset->getNumberOfBlocks() % mPISize > 0) {
+        if (mPIRank < (int) srcDataset->getNumberOfBlocks() % mPISize) {
+            srcDataset->readBlock(steps * mPISize + mPIRank, zO, yO, xO, zC, yC, xC, data, minV, maxV);
+            dstDataset->write3DDataset(zO, yO, xO, zC, yC, xC, data, true);
+            delete [] data; // !!
+        } else {
+            srcDataset->readEmptyBlock();
+        }
+        if (first) {
+            minVGP = minV;
+            maxVGP = maxV;
+            first = false;
+        }
+        if (minVGP > minV) minVGP = minV;
+        if (maxVGP < maxV) maxVGP = maxV;
+    }
+
+    MPI_Reduce(&minVGP, &minVG, 1, MPI_FLOAT, MPI_MIN, 0, comm);
+    MPI_Reduce(&maxVGP, &maxVG, 1, MPI_FLOAT, MPI_MAX, 0, comm);
+
+    if (mPIRank == 0) {
+        dstDataset->setAttribute("min", minVG);
+        dstDataset->setAttribute("max", maxVG);
+    }
+
     hDF5OutputFile->closeDataset(dstDataset->getName());
 }
 
