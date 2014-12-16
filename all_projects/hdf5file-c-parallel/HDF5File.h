@@ -30,9 +30,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <mpi.h>
+
 #ifdef __unix
 typedef u_int64_t uint64_t;
-#include <mpi/mpi.h>
 #include <stdexcept>
 #include <sys/time.h>
 #endif
@@ -40,7 +41,6 @@ typedef u_int64_t uint64_t;
 #ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
-#include <mpi.h>
 #endif
 
 #define SIZE_OF_DATA_PART 256 * 256 * 256
