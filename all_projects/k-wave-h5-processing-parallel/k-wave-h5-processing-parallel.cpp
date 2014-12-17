@@ -21,12 +21,19 @@
 #include <string>
 #include <map>
 #include <math.h>
-#include <time.h>
 #include <list>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+#ifdef __unix
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#include <Winsock2.h>
+#endif
 
 const std::string SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
 const std::string NT_DATASET("Nt");
@@ -517,22 +524,17 @@ void testOfReading(DtsForPcs *dtsForPcs)
 
                 //dataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
 
-                float minValue = 0;
-                float maxValue = 0;
                 hsize_t *size = dataset->getDims();
                 std::cout << "Dataset size:       " << size[0] << " x " << size[1] << " x " << size[2] << std::endl;
                 hsize_t *chunkSize = dataset->getChunkDims();
                 std::cout << "Dataset chunk size: " << chunkSize[0] << " x " << chunkSize[1] << " x " << chunkSize[2] << std::endl;
-                std::cout << "Getting and setting global min and max values..." << std::endl;
-                dataset->findAndSetGlobalMinAndMaxValue();
-                float minValueGlobal = dataset->getGlobalMinValueF();
-                float maxValueGlobal = dataset->getGlobalMaxValueF();
 
-                std::cout << "   minValueGlobal: " << minValueGlobal << "\tmaxValueGlobal: " << maxValueGlobal << std::endl;
-                std::cout << std::endl;
-
+                float minValue = 0;
+                float maxValue = 0;
                 float *data = NULL;
                 hsize_t xO, yO, zO, xC, yC, zC;
+
+                dataset->setSizeOfDataPart(dataset->getSize()/mPISize);
 
                 std::cout << "Block reading test..." << std::endl;
                 std::cout << "   reading block size (number of elements): " << dataset->getSizeOfDataPart() << std::endl;
@@ -562,7 +564,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
 
                 double tf = HDF5Helper::getTime();
 
-                MPI::COMM_WORLD.Barrier();
+                MPI_Barrier(comm);
 
                 std::cout << std::endl;
                 std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;
@@ -866,8 +868,8 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, const hsize_t nZ, co
     tmpFile->createDatasetF(srcDataset->getName(), srcDataset->getRank(), newTmpDatasetSize);
     HDF5File::HDF5Dataset *dstDataset = tmpFile->openDataset(srcDataset->getName());
 
-    float minV, maxV;
-    float minVD, maxVD;
+    float minV = 0, maxV = 0;
+    float minVD = 0, maxVD = 0;
 
     // First 2D slices in XY plane
     for (unsigned int z = 0; z < nZ; z++) {
@@ -926,7 +928,7 @@ void downsampling(HDF5File *hDF5SimOutputFile, HDF5File *hDF5OutputFile, DtsForP
     try {
         // Check number of datasets for downsamling
         if (dtsForPcs->dts3DType.empty() && dtsForPcs->dtsGroupType.empty()) {
-            std::cout << "No dataset for downsampling in simulation output file" << std::endl;        
+            std::cout << "No dataset for downsampling in simulation output file" << std::endl;
         // Check current size -> is greater?
         } else if (std::max(std::max(hDF5SimOutputFile->getNZ(), hDF5SimOutputFile->getNY()), hDF5SimOutputFile->getNX()) <= maxSize) {
             std::cout << "No dataset for downsampling - max(nZ, nY, nX) == " + std::to_string(std::max(std::max(hDF5SimOutputFile->getNZ(), hDF5SimOutputFile->getNY()), hDF5SimOutputFile->getNX())) + " <= " + std::to_string(maxSize) << std::endl;
@@ -1471,16 +1473,19 @@ void copyDimensionsAndAttributes(HDF5File *hDF5SimOutputFile, HDF5File *hDF5Outp
 int main(int argc, char **argv)
 {
     double t0 = HDF5Helper::getTime();
-
-    std::cout << std::endl << "MPI_Init ... " << std::endl;
+    int buflen = 512;
+    char hostname[buflen];
+    gethostname(hostname, buflen);
     MPI_Init(&argc, &argv);
     MPI_Comm_size(comm, &mPISize);
     MPI_Comm_rank(comm, &mPIRank);
 
+    std::cout << "process rank " << mPIRank << " of " << mPISize << " on host " << hostname << std::endl;
+
+
     HDF5File *hDF5SimOutputFile = NULL;
     HDF5File *hDF5SimInputFile = NULL;
     HDF5File *hDF5OutputFile = NULL;
-
     HDF5File *hDF5ViewFile = NULL;
 
     // Create helper class for datasets of various types
@@ -1584,11 +1589,12 @@ int main(int argc, char **argv)
     delete hDF5SimInputFile;
     delete hDF5OutputFile;
 
+    MPI_Barrier(comm);
+
     double t2 = HDF5Helper::getTime();
 
     std::cout << std::endl << std::endl << "Time of the entire process: " << (t2-t0) << " ms; \t" << std::endl << std::endl << std::endl;
 
-    //std::cout << std::endl << "MPI_Finalize ... " << std::endl;
     MPI_Finalize();
 
     std::exit(EXIT_SUCCESS);
