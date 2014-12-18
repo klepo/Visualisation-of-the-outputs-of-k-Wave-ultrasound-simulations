@@ -40,7 +40,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     if (error)
         throw std::runtime_error("MPI is not initialized");
 
-    sizeOfDataPart = SIZE_OF_DATA_PART;
+    numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
 
     //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
@@ -128,8 +128,16 @@ HDF5File::~HDF5File()
     }
     logFileStream.close();
     std::cout << "Closing file \"" << filename << "\"";
-    H5Pclose(plist_FILE_ACCESS);
-    H5Fclose(file);
+    err = H5Pclose(plist_FILE_ACCESS);
+    if (err < 0){
+        throw std::runtime_error("H5Pclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Fclose(file);
+    if (err < 0){
+        throw std::runtime_error("H5Fclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     std::cout << " ... OK" << std::endl;
 
 }
@@ -265,10 +273,21 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
         //MPI::COMM_WORLD.Abort(1);
     }
 
-    H5Dclose(dataset);
-    H5Sclose(dataspace);
-    H5Pclose(plist);
-
+    err = H5Sclose(dataspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Pclose(plist);
+    if (err < 0){
+        throw std::runtime_error("H5Pclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Dclose(dataset);
+    if (err < 0){
+        throw std::runtime_error("H5Dclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     std::cout << "... OK" << std::endl;
 }
 
@@ -293,7 +312,10 @@ void HDF5File::createGroup(const std::string name, bool rewrite)
             //MPI::COMM_WORLD.Abort(1);
         }
         H5Gclose(group);
-
+        if (err < 0){
+            throw std::runtime_error("H5Gclose error");
+            //MPI::COMM_WORLD.Abort(1);
+        }
         std::cout << "... OK" << std::endl;
 }
 
@@ -538,7 +560,7 @@ void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index
  */
 void HDF5File::setSizeOfDataPart(uint64_t size)
 {
-    sizeOfDataPart = size;
+    numberOfElementsToLoad = size;
 }
 
 /**
@@ -547,7 +569,7 @@ void HDF5File::setSizeOfDataPart(uint64_t size)
  */
 uint64_t HDF5File::getSizeOfDataPart()
 {
-    return sizeOfDataPart;
+    return numberOfElementsToLoad;
 }
 
 /**

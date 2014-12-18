@@ -43,7 +43,7 @@ typedef u_int64_t uint64_t;
 #include <windows.h>
 #endif
 
-#define SIZE_OF_DATA_PART 256 * 256 * 256
+#define NUMBER_OF_ELEMENTS_TO_LOAD 256 * 256 * 256
 
 #include <mutex>
 
@@ -57,6 +57,8 @@ class HDF5File
 public:
     HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned int flag = HDF5File::OPEN, bool log = false);
     ~HDF5File();
+
+    class HDF5Vector3D;
 
     class HDF5Dataset;
     class HDF5Group;
@@ -115,7 +117,7 @@ private:
     uint64_t nZ;
     std::string filename;
 
-    uint64_t sizeOfDataPart;
+    uint64_t numberOfElementsToLoad;
 
     hid_t plist_FILE_ACCESS;
 

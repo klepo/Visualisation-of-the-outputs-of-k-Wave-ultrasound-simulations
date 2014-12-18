@@ -17,6 +17,7 @@
 #define HDF5DATASET_H
 
 #include "HDF5Object.h"
+#include "HDF5Vector3D.h"
 
 class HDF5File::HDF5Dataset : public HDF5File::HDF5Object
 {
@@ -27,14 +28,14 @@ public:
     void readFullDataset(float *&data);
     void readFullDataset(uint64_t *&data);
 
-    void read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *&data, float &minVF, float &maxVF);
-    void read3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI);
+    void read3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, float *&data, float &minVF, float &maxVF);
+    void read3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI);
 
-    void write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, float *data, bool log = false);
-    void write3DDataset(const hsize_t zO, const hsize_t yO, const hsize_t xO, const hsize_t zC, const hsize_t yC, const hsize_t xC, uint64_t *data, bool log = false);
+    void write3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, float *data, bool log = false);
+    void write3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, uint64_t *data, bool log = false);
 
-    void readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, float *&data, float &minVFTmp, float &maxVFTmp);
-    void readBlock(const hsize_t index, hsize_t &zO, hsize_t &yO, hsize_t &xO, hsize_t &zC, hsize_t &yC, hsize_t &xC, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
+    void readBlock(const hsize_t index, HDF5File::HDF5Vector3D &offset, HDF5File::HDF5Vector3D &count, float *&data, float &minVFTmp, float &maxVFTmp);
+    void readBlock(const hsize_t index, HDF5File::HDF5Vector3D &offset, HDF5File::HDF5Vector3D &count, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
 
     void readEmptyBlock();
 
@@ -51,8 +52,8 @@ public:
 
     hsize_t getRank();
     hsize_t getSize();
-    hsize_t *getDims();
-    hsize_t *getChunkDims();
+    HDF5File::HDF5Vector3D getDims();
+    HDF5File::HDF5Vector3D getChunkDims();
 
     hsize_t getId();
     std::string getName();
@@ -72,7 +73,7 @@ private:
     void findGlobalMinAndMaxValueF();
     void findGlobalMinAndMaxValueI();
 
-    void checkOffsetAndCountParams(hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
+    void checkOffsetAndCountParams(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count);
 
     void initBlockReading();
     void recomputeBlock();
@@ -80,12 +81,11 @@ private:
     void iterateToBlock(const hsize_t index);
 
     hid_t plist;
-
     hid_t plist_DATASET_XFER;
 
-    hsize_t x,y,z;
-    hsize_t xO, yO, zO;
-    hsize_t xC, yC, zC;
+    HDF5File::HDF5Vector3D blockDims;
+    HDF5File::HDF5Vector3D offset;
+    HDF5File::HDF5Vector3D count;
     bool blockInitialized;
     bool lastBlock;
     hsize_t blockSize;
@@ -99,9 +99,8 @@ private:
     hid_t datatype;
 
     int rank;
-    hsize_t size;
-    hsize_t *dims;
-    hsize_t *chunk_dims;
+    HDF5File::HDF5Vector3D dims;
+    HDF5File::HDF5Vector3D chunk_dims;
 
     std::string name;
 
