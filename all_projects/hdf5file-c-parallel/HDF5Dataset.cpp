@@ -659,6 +659,8 @@ void HDF5File::HDF5Dataset::initBlockReading()
 
     blockDims.z() = std::min(blockDims.z(), dims[0]);
 
+    offset.set(0, 0, 0);
+
     if (blockDims.z() > 0) { // Minimal size is slab xy
         count.set(blockDims.z(), dims[1], dims[2]);
         blockSize = blockDims.z() * dims[2] * dims[1];
