@@ -33,7 +33,6 @@
 #include <mpi.h>
 
 #ifdef __unix
-typedef u_int64_t uint64_t;
 #include <stdexcept>
 #include <sys/time.h>
 #endif
@@ -71,8 +70,8 @@ public:
 
     void closeDataset(const std::string datasetName);
 
-    void createDatasetI(const std::string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);
-    void createDatasetF(const std::string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);
+    void createDatasetI(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
+    void createDatasetF(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
 
     HDF5Group *openGroup(const std::string groupName);
     HDF5Group *openGroup(hsize_t idx);
@@ -89,11 +88,11 @@ public:
 
     std::string getFilename();
 
-    void convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x);
-    void convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index);
+    void convertlinearTo3D(hsize_t index, HDF5File::HDF5Vector3D &position);
+    void convert3DToLinear(HDF5File::HDF5Vector3D position, hsize_t &index);
 
-    void setSizeOfDataPart(uint64_t size);
-    uint64_t getSizeOfDataPart();
+    void setNumberOfElmsToLoad(hsize_t size);
+    hsize_t getNumberOfElmsToLoad();
 
     static const std::string NT;
     static const std::string NX;
@@ -101,23 +100,24 @@ public:
     static const std::string NZ;
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
-    static hsize_t ZERO_CHUNK[3];
 
-    uint64_t getNT();
-    uint64_t getNX();
-    uint64_t getNY();
-    uint64_t getNZ();
+    hsize_t getNT();
+    hsize_t getNX();
+    hsize_t getNY();
+    hsize_t getNZ();
+
+    HDF5Vector3D getNdims();
 
     std::ofstream *getLogFileStream();
 
 private:
-    uint64_t nT;
-    uint64_t nX;
-    uint64_t nY;
-    uint64_t nZ;
+    hsize_t nT;
+    hsize_t nX;
+    hsize_t nY;
+    hsize_t nZ;
     std::string filename;
 
-    uint64_t numberOfElementsToLoad;
+    hsize_t numberOfElementsToLoad;
 
     hid_t plist_FILE_ACCESS;
 
@@ -135,7 +135,7 @@ private:
     class HDF5Object;
     herr_t err;
 
-    void createDataset(const std::string datasetName, hid_t type, hsize_t rank, hsize_t *size, hsize_t *chunk_size = ZERO_CHUNK, bool rewrite = false);
+    void createDataset(const std::string datasetName, hid_t type, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
 
 };
 

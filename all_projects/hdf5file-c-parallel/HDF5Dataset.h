@@ -26,29 +26,29 @@ public:
     ~HDF5Dataset();
 
     void readFullDataset(float *&data);
-    void readFullDataset(uint64_t *&data);
+    void readFullDataset(hsize_t *&data);
 
     void read3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, float *&data, float &minVF, float &maxVF);
-    void read3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI);
+    void read3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, hsize_t *&data, hsize_t &minVI, hsize_t &maxVI);
 
     void write3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, float *data, bool log = false);
-    void write3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, uint64_t *data, bool log = false);
+    void write3DDataset(HDF5File::HDF5Vector3D offset, HDF5File::HDF5Vector3D count, hsize_t *data, bool log = false);
 
     void readBlock(const hsize_t index, HDF5File::HDF5Vector3D &offset, HDF5File::HDF5Vector3D &count, float *&data, float &minVFTmp, float &maxVFTmp);
-    void readBlock(const hsize_t index, HDF5File::HDF5Vector3D &offset, HDF5File::HDF5Vector3D &count, uint64_t *&data, uint64_t &minVFTmp, uint64_t &maxVFTmp);
+    void readBlock(const hsize_t index, HDF5File::HDF5Vector3D &offset, HDF5File::HDF5Vector3D &count, hsize_t *&data, hsize_t &minVFTmp, hsize_t &maxVFTmp);
 
     void readEmptyBlock();
 
     void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF);
-    void getMinAndMaxValue(const uint64_t *data, const hsize_t size, uint64_t &minVI, uint64_t &maxVI);
+    void getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI);
 
     void setMPIOAccess(H5FD_mpio_xfer_t type);
 
-    hsize_t getBlockSize();
+    hsize_t getRealNumberOfElmsToLoad();
     hsize_t getNumberOfBlocks();
 
-    void setSizeOfDataPart(uint64_t size);
-    uint64_t getSizeOfDataPart();
+    void setNumberOfElmsToLoad(hsize_t size);
+    hsize_t getNumberOfElmsToLoad();
 
     hsize_t getRank();
     hsize_t getSize();
@@ -61,8 +61,8 @@ public:
     void findAndSetGlobalMinAndMaxValue(bool reset = false);
     void findGlobalMinAndMaxValue(bool reset = false);
 
-    uint64_t getGlobalMaxValueI(bool reset = false);
-    uint64_t getGlobalMinValueI(bool reset = false);
+    hsize_t getGlobalMaxValueI(bool reset = false);
+    hsize_t getGlobalMinValueI(bool reset = false);
 
     float getGlobalMaxValueF(bool reset = false);
     float getGlobalMinValueF(bool reset = false);
@@ -92,7 +92,7 @@ private:
     hsize_t numberOfBlocks;
     hsize_t actualBlock;
 
-    uint64_t sizeOfDataPart;
+    hsize_t numberOfElementsToLoad;
 
     hid_t dataset;
     hid_t dataspace;
@@ -104,8 +104,8 @@ private:
 
     std::string name;
 
-    uint64_t maxVI;
-    uint64_t minVI;
+    hsize_t maxVI;
+    hsize_t minVI;
 
     float maxVF;
     float minVF;

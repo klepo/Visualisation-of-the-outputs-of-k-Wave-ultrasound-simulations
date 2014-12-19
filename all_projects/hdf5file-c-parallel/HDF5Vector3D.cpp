@@ -81,3 +81,10 @@ hsize_t &HDF5File::HDF5Vector3D::operator [](uint i)
     return vector[i];
 }
 
+HDF5File::HDF5Vector3D &HDF5File::HDF5Vector3D::operator =(HDF5Vector3D vector)
+{
+    this->set(vector);
+    return *this;
+}
+
+

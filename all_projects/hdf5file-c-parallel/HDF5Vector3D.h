@@ -32,6 +32,7 @@ public:
     hsize_t &z();
     hsize_t *getVectorPtr();
     hsize_t &operator [](uint i);
+    HDF5Vector3D &operator =(HDF5Vector3D vector);
 private:
     hsize_t vector[3];
 };

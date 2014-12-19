@@ -94,8 +94,8 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     blockInitialized = false;
     lastBlock = false;
     blockSize = 0;
-    sizeOfDataPart = hDF5File->getSizeOfDataPart();
-    setSizeOfDataPart(sizeOfDataPart);
+    numberOfElementsToLoad = hDF5File->getNumberOfElmsToLoad();
+    setNumberOfElmsToLoad(numberOfElementsToLoad);
 
     // Min/max flag
     issetGlobalMinAndMaxValue = false;
@@ -181,7 +181,7 @@ H5T_class_t HDF5File::HDF5Dataset::getDataTypeClass()
  * @param reset (true - repeats search in dataset, false - read attribute)
  * @return max integer value
  */
-uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
+hsize_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not integer)");
@@ -195,7 +195,7 @@ uint64_t HDF5File::HDF5Dataset::getGlobalMaxValueI(bool reset)
  * @param reset (true - repeats search in dataset, false - read attribute)
  * @return min integer value
  */
-uint64_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
+hsize_t HDF5File::HDF5Dataset::getGlobalMinValueI(bool reset)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not integer)");
@@ -258,7 +258,6 @@ void HDF5File::HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
     }
 }
 
-
 /**
  * @brief HDF5File::HDF5Dataset::readFullDataset Read full float dataset.
  * @param [out] data (pointer) memory for data is alocated in this function and must be released somewhere in future
@@ -267,8 +266,8 @@ void HDF5File::HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
 void HDF5File::HDF5Dataset::readFullDataset(float *&data)
 {
     if (datatype == H5T_NATIVE_FLOAT) {
-        if (dims.size() > sizeOfDataPart)
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(dims.size()) + " floats (max size: " + std::to_string(sizeOfDataPart) + " floats)"));
+        if (dims.size() > numberOfElementsToLoad)
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(dims.size()) + " floats (max size: " + std::to_string(numberOfElementsToLoad) + " floats)"));
         try {
             data = new float[dims.size()](); // TODO kontrola dostupné paměti
         } catch (std::bad_alloc) {
@@ -292,13 +291,13 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
  * @param [out] data (pointer) memory for data is alocated in this function and must be released somewhere in future
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::readFullDataset(uint64_t *&data)
+void HDF5File::HDF5Dataset::readFullDataset(hsize_t *&data)
 {
     if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
-        if (dims.size() > sizeOfDataPart)
-            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(dims.size()) + " unsigned 64-bit integers (max size: " + std::to_string(sizeOfDataPart) + " unsigned 64-bit integers)"));
+        if (dims.size() > numberOfElementsToLoad)
+            throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(dims.size()) + " unsigned 64-bit integers (max size: " + std::to_string(numberOfElementsToLoad) + " unsigned 64-bit integers)"));
         try {
-            data = new uint64_t[dims.size()]();
+            data = new hsize_t[dims.size()]();
         } catch (std::bad_alloc) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(dims.size()) + " unsigned 64-bit integers)").c_str());
         }
@@ -330,8 +329,8 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
     HDF5Dataset::checkOffsetAndCountParams(offset, count);
     HDF5Vector3D mem_offset;
 
-    if (count.size() > sizeOfDataPart)
-        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(count.size()) + " floats (max size: " + std::to_string(sizeOfDataPart) + " floats)"));
+    if (count.size() > numberOfElementsToLoad)
+        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(count.size()) + " floats (max size: " + std::to_string(numberOfElementsToLoad) + " floats)"));
 
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), NULL, count.getVectorPtr(), NULL);
@@ -360,7 +359,7 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
         //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = HDF5Helper::getTime();
-    std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+    std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 
     H5Sclose(dataspace);
     H5Sclose(memspace);
@@ -368,10 +367,10 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
     // Debug output
     if ((*hDF5File->getLogFileStream()).is_open()) {
         int r = 0;
-        if (count[0] == 1) r = 0;
-        if (count[1] == 1) r = 1;
-        if (count[2] == 1) r = 2;
-        *hDF5File->getLogFileStream() << (t5-t4) << ";"<< offset[0] << ";" << offset[1] << ";" << offset[2] << ";" << r << std::endl;
+        if (count.z() == 1) r = 0;
+        if (count.y() == 1) r = 1;
+        if (count.x() == 1) r = 2;
+        *hDF5File->getLogFileStream() << (t5-t4) << ";"<< offset.z() << ";" << offset.y() << ";" << offset.x() << ";" << r << std::endl;
     }
 
     // Find the miminum and maximum value
@@ -380,22 +379,22 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::read3DDataset Read 3D uint64_t dataset by offset (zO, yO, xO) and count (zC, xC, yC)
+ * @brief HDF5File::HDF5Dataset::read3DDataset Read 3D hsize_t dataset by offset (zO, yO, xO) and count (zC, xC, yC)
  * @param offset
  * @param count
  * @param [out] data (pointer) memory for data is alocated in this function and must be released somewhere in future
- * @param [out] minVI minimum uint64_t value from data read
- * @param [out] maxVI maximum uint64_t value from data read
+ * @param [out] minVI minimum hsize_t value from data read
+ * @param [out] maxVI maximum hsize_t value from data read
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D count, uint64_t *&data, uint64_t &minVI, uint64_t &maxVI)
+void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D count, hsize_t *&data, hsize_t &minVI, hsize_t &maxVI)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(offset, count);
     HDF5Vector3D mem_offset;
 
-    if (count.size() > sizeOfDataPart)
-        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(count.size()) + " unsigned 64-bit integers (max size: " + std::to_string(sizeOfDataPart) + " unsigned 64-bit integers)"));
+    if (count.size() > numberOfElementsToLoad)
+        throw std::runtime_error(std::string("Can not read dataset, size: " + std::to_string(count.size()) + " unsigned 64-bit integers (max size: " + std::to_string(numberOfElementsToLoad) + " unsigned 64-bit integers)"));
 
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), NULL, count.getVectorPtr(), NULL);
@@ -411,7 +410,7 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
     }
 
     try {
-        data = new uint64_t[count.size()]();
+        data = new hsize_t[count.size()]();
     } catch (std::bad_alloc) {
 
         throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(count.size()) + " unsigned 64-bit integers)").c_str());
@@ -424,7 +423,7 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
         //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = HDF5Helper::getTime();
-    std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+    std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 
     H5Sclose(dataspace);
     H5Sclose(memspace);
@@ -475,18 +474,18 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
     H5Sclose(memspace);
 
     if (log)
-        std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::write3DDataset Write 3D uint64_t dataset by offset (zO, yO, xO) and count (zC, xC, yC)
+ * @brief HDF5File::HDF5Dataset::write3DDataset Write 3D hsize_t dataset by offset (zO, yO, xO) and count (zC, xC, yC)
  * @param offset
  * @param count
  * @param data data to write
  * @param log (volatile) debug flag
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D count, uint64_t *data, bool log)
+void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D count, hsize_t *data, bool log)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64)) throw std::runtime_error("Wrong data type of dataset (not integer)");
     HDF5Dataset::checkOffsetAndCountParams(offset, count);
@@ -520,7 +519,7 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
     H5Sclose(memspace);
 
     if (log)
-        std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset[0] << " x " << offset[1] << " x " << offset[2] << ";\tcount: " << count[0] << " x " << count[1] << " x " << count[2] << std::endl;
+        std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 }
 
 /**
@@ -532,15 +531,15 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
 void HDF5File::HDF5Dataset::checkOffsetAndCountParams(HDF5Vector3D offset, HDF5Vector3D count)
 {
     if (rank != 3) throw std::runtime_error("Wrong rank - dataset is not 3D matrix");
-    if (offset.z() >= dims[0]) throw std::runtime_error("Wrong offset - too big z offset");
-    if (offset.y() >= dims[1]) throw std::runtime_error("Wrong offset - too big y offset");
-    if (offset.x() >= dims[2]) throw std::runtime_error("Wrong offset - too big x offset");
+    if (offset.z() >= dims.z()) throw std::runtime_error("Wrong offset - too big z offset");
+    if (offset.y() >= dims.y()) throw std::runtime_error("Wrong offset - too big y offset");
+    if (offset.x() >= dims.x()) throw std::runtime_error("Wrong offset - too big x offset");
     if (count.z() <= 0) throw std::runtime_error("Wrong count - too small z count");
     if (count.y() <= 0) throw std::runtime_error("Wrong count - too small y count");
     if (count.x() <= 0) throw std::runtime_error("Wrong count - too small x count");
-    if (offset.z() + count.z() > dims[0]) throw std::runtime_error("Wrong count - sum of z offset and z count is too big");
-    if (offset.y() + count.y() > dims[1]) throw std::runtime_error("Wrong count - sum of y offset and y count is too big");
-    if (offset.x() + count.x() > dims[2]) throw std::runtime_error("Wrong count - sum of x offset and x count is too big");
+    if (offset.z() + count.z() > dims.z()) throw std::runtime_error("Wrong count - sum of z offset and z count is too big");
+    if (offset.y() + count.y() > dims.y()) throw std::runtime_error("Wrong count - sum of y offset and y count is too big");
+    if (offset.x() + count.x() > dims.x()) throw std::runtime_error("Wrong count - sum of x offset and x count is too big");
 }
 
 /**
@@ -621,7 +620,7 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
  * @brief HDF5File::HDF5Dataset::getBlockSize
  * @return real number of elements used in block reading
  */
-hsize_t HDF5File::HDF5Dataset::getBlockSize()
+hsize_t HDF5File::HDF5Dataset::getRealNumberOfElmsToLoad()
 {
     return blockSize;
 }
@@ -630,9 +629,9 @@ hsize_t HDF5File::HDF5Dataset::getBlockSize()
  * @brief HDF5File::HDF5Dataset::setSizeOfDataPart Set maximal number of elements to read in one block
  * @param size
  */
-void HDF5File::HDF5Dataset::setSizeOfDataPart(uint64_t size)
+void HDF5File::HDF5Dataset::setNumberOfElmsToLoad(hsize_t size)
 {
-    sizeOfDataPart = size;
+    numberOfElementsToLoad = size;
     initBlockReading();
     computeNumberOfBlocks();
 }
@@ -641,9 +640,9 @@ void HDF5File::HDF5Dataset::setSizeOfDataPart(uint64_t size)
  * @brief HDF5File::HDF5Dataset::getSizeOfDataPart
  * @return maximal number of elements to read in one block
  */
-uint64_t HDF5File::HDF5Dataset::getSizeOfDataPart()
+hsize_t HDF5File::HDF5Dataset::getNumberOfElmsToLoad()
 {
-    return sizeOfDataPart;
+    return numberOfElementsToLoad;
 }
 
 /**
@@ -653,20 +652,20 @@ uint64_t HDF5File::HDF5Dataset::getSizeOfDataPart()
 void HDF5File::HDF5Dataset::initBlockReading()
 {
     // Compute maximal block size to read
-    blockDims.z() = sizeOfDataPart / (dims[2] * dims[1]);
-    blockDims.y() = (sizeOfDataPart % (dims[2] * dims[1])) / dims[2];
-    blockDims.x() = (sizeOfDataPart % (dims[2] * dims[1])) % dims[2];
+    blockDims.z() = numberOfElementsToLoad / (dims.x() * dims.y());
+    blockDims.y() = (numberOfElementsToLoad % (dims.x() * dims.y())) / dims.x();
+    blockDims.x() = (numberOfElementsToLoad % (dims.x() * dims.y())) % dims.x();
 
-    blockDims.z() = std::min(blockDims.z(), dims[0]);
+    blockDims.z() = std::min(blockDims.z(), dims.z());
 
     offset.set(0, 0, 0);
 
     if (blockDims.z() > 0) { // Minimal size is slab xy
-        count.set(blockDims.z(), dims[1], dims[2]);
-        blockSize = blockDims.z() * dims[2] * dims[1];
+        count.set(blockDims.z(), dims.y(), dims.x());
+        blockSize = blockDims.z() * dims.x() * dims.y();
     } else if (blockDims.y() > 0) { // Minimal size is part of slab xy
-        count.set(1, blockDims.y(), dims[2]);
-        blockSize = blockDims.y() * dims[2];
+        count.set(1, blockDims.y(), dims.x());
+        blockSize = blockDims.y() * dims.x();
     } else { // Minimal size is smaller than x size
         count.set(1, 1, blockDims.x());
         blockSize = blockDims.x();
@@ -735,19 +734,19 @@ void HDF5File::HDF5Dataset::recomputeBlock()
 {
     if (blockDims.z() > 0) { // Minimal size is slab xy
         offset.z() += count.z();
-        if (offset.z() >= dims[0]) {
+        if (offset.z() >= dims.z()) {
             lastBlock = true;
             blockInitialized = false;
             return;
         }
-        if (offset.z() + count.z() > dims[0] - 1) {
-            count.z() = dims[0] - offset.z();
+        if (offset.z() + count.z() > dims.z() - 1) {
+            count.z() = dims.z() - offset.z();
         }
     } else if (blockDims.y() > 0) { // Minimal size is part of slab xy
         offset.y() += count.y();
-        if (offset.y() >= dims[1]) {
+        if (offset.y() >= dims.y()) {
             offset.z() += 1;
-            if (offset.z() >= dims[0]) {
+            if (offset.z() >= dims.z()) {
                 lastBlock = true;
                 blockInitialized = false;
                 return;
@@ -756,16 +755,16 @@ void HDF5File::HDF5Dataset::recomputeBlock()
             count.y() = blockDims.y();
             return;
         }
-        if (offset.y() + count.y() > dims[1] - 1) {
-            count.y() = dims[1] - offset.y();
+        if (offset.y() + count.y() > dims.y() - 1) {
+            count.y() = dims.y() - offset.y();
         }
     } else { // Minimal size is smaller than x size
         offset.x() += count.x();
-        if (offset.x() >= dims[2]) {
+        if (offset.x() >= dims.x()) {
             offset.y() += 1;
-            if (offset.y() >= dims[1]) {
+            if (offset.y() >= dims.y()) {
                 offset.z() += 1;
-                if (offset.z() >= dims[0]) {
+                if (offset.z() >= dims.z()) {
                     lastBlock = true;
                     blockInitialized = false;
                     return;
@@ -776,8 +775,8 @@ void HDF5File::HDF5Dataset::recomputeBlock()
             count.x() = blockDims.x();
             return;
         }
-        if (offset.x() + count.x() > dims[2] - 1) {
-            count.x() = dims[2] - offset.x();
+        if (offset.x() + count.x() > dims.x() - 1) {
+            count.x() = dims.x() - offset.x();
         }
     }
 }
@@ -800,7 +799,7 @@ void HDF5File::HDF5Dataset::readBlock(const hsize_t index, HDF5Vector3D &offset,
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::readBlock Read uint64_t data block by index
+ * @brief HDF5File::HDF5Dataset::readBlock Read hsize_t data block by index
  * @param index index of the loading block
  * @param [out] offset
  * @param [out] count
@@ -808,7 +807,7 @@ void HDF5File::HDF5Dataset::readBlock(const hsize_t index, HDF5Vector3D &offset,
  * @param [out] minVITmp minimum float value from data read
  * @param [out] maxVITmp maximum float value from data read
  */
-void HDF5File::HDF5Dataset::readBlock(const hsize_t index, HDF5Vector3D &offset, HDF5Vector3D &count, uint64_t *&data, uint64_t &minVITmp, uint64_t &maxVITmp)
+void HDF5File::HDF5Dataset::readBlock(const hsize_t index, HDF5Vector3D &offset, HDF5Vector3D &count, hsize_t *&data, hsize_t &minVITmp, hsize_t &maxVITmp)
 {
     iterateToBlock(index);
     read3DDataset(this->offset, this->count, data, minVITmp, maxVITmp);
@@ -858,17 +857,17 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueF()
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI Find global min and max uint64_t value
+ * @brief HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI Find global min and max hsize_t value
  */
 void HDF5File::HDF5Dataset::findGlobalMinAndMaxValueI()
 {
     HDF5Vector3D offset;
     HDF5Vector3D count;
-    uint64_t minVITmp;
-    uint64_t maxVITmp;
+    hsize_t minVITmp;
+    hsize_t maxVITmp;
     bool first = true;
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        uint64_t *data;
+        hsize_t *data;
         readBlock(i, offset, count, data, minVITmp, maxVITmp);
         if (first)
             minVI = maxVI = data[0];
@@ -898,17 +897,17 @@ void HDF5File::HDF5Dataset::getMinAndMaxValue(const float *data, const hsize_t s
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::getMinAndMaxValue Find min/max value in uint64_t data
+ * @brief HDF5File::HDF5Dataset::getMinAndMaxValue Find min/max value in hsize_t data
  * @param data
  * @param size
  * @param [out] minVI
  * @param [out] maxVI
  */
-void HDF5File::HDF5Dataset::getMinAndMaxValue(const uint64_t *data, const hsize_t size, uint64_t &minVI, uint64_t &maxVI)
+void HDF5File::HDF5Dataset::getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI)
 {
     maxVI = minVI = data[0];
     for (hsize_t i = 0; i < size; i++) {
-        uint64_t value = data[i];
+        hsize_t value = data[i];
         if (value < minVI) minVI = value;
         if (value > maxVI) maxVI = value;
     }

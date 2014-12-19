@@ -22,7 +22,6 @@ const std::string HDF5File::NT("Nt");
 const std::string HDF5File::NX("Nx");
 const std::string HDF5File::NY("Ny");
 const std::string HDF5File::NZ("Nz");
-hsize_t HDF5File::ZERO_CHUNK[3];
 
 std::mutex HDF5File::mutex;
 
@@ -76,7 +75,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
         insertDataset(HDF5File::NZ);
 
         //Set dimensions
-        uint64_t *data = NULL;
+        hsize_t *data = NULL;
 
         openDataset(HDF5File::NT)->readFullDataset(data);
         nT = data[0];
@@ -190,7 +189,7 @@ void HDF5File::insertGroup(const std::string groupName)
 }
 
 /**
- * @brief HDF5File::createDatasetI Create new uint64_t dataset in file
+ * @brief HDF5File::createDatasetI Create new hsize_t dataset in file
  * @param datasetName name of dataset
  * @param rank
  * @param size
@@ -198,7 +197,7 @@ void HDF5File::insertGroup(const std::string groupName)
  * @param rewrite flag for rewriting existing dataset
  * @throw std::runtime_error
  */
-void HDF5File::createDatasetI(const std::string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
+void HDF5File::createDatasetI(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
 {
     HDF5File::createDataset(datasetName, H5T_NATIVE_UINT64, rank, size, chunk_size, rewrite);
 }
@@ -212,7 +211,7 @@ void HDF5File::createDatasetI(const std::string datasetName, hsize_t rank, hsize
  * @param rewrite flag for rewriting existing dataset
  * @throw std::runtime_error
  */
-void HDF5File::createDatasetF(const std::string datasetName, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
+void HDF5File::createDatasetF(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
 {
     HDF5File::createDataset(datasetName, H5T_NATIVE_FLOAT, rank, size, chunk_size, rewrite);
 }
@@ -227,9 +226,9 @@ void HDF5File::createDatasetF(const std::string datasetName, hsize_t rank, hsize
  * @param type (H5T_NATIVE_FLOAT | H5T_NATIVE_UINT64)
  * @throw std::runtime_error
  */
-void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsize_t rank, hsize_t *size, hsize_t *chunk_size, bool rewrite)
+void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
 {
-    hid_t dataspace = H5Screate_simple((int) rank, size, NULL);
+    hid_t dataspace = H5Screate_simple((int) rank, size.getVectorPtr(), NULL);
     if (dataspace < 0){
         throw std::runtime_error("H5Screate_simple error");
         //MPI::COMM_WORLD.Abort(1);
@@ -246,8 +245,8 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
     }
 
     // Set chunking
-    if (chunk_size != HDF5File::ZERO_CHUNK) {
-        err = H5Pset_chunk(plist, (int) rank, chunk_size);
+    if (chunk_size.z() != 0 && chunk_size.y() != 0 && chunk_size.x() != 0) {
+        err = H5Pset_chunk(plist, (int) rank, chunk_size.getVectorPtr());
         if (err < 0){
             throw std::runtime_error("H5Pset_chunk error");
             //MPI::COMM_WORLD.Abort(1);
@@ -487,7 +486,7 @@ std::string HDF5File::getFilename()
  * @brief HDF5File::getNT
  * @return Nt
  */
-uint64_t HDF5File::getNT()
+hsize_t HDF5File::getNT()
 {
     return nT;
 }
@@ -496,7 +495,7 @@ uint64_t HDF5File::getNT()
  * @brief HDF5File::getNX
  * @return Nx
  */
-uint64_t HDF5File::getNX()
+hsize_t HDF5File::getNX()
 {
     return nX;
 }
@@ -505,7 +504,7 @@ uint64_t HDF5File::getNX()
  * @brief HDF5File::getNY
  * @return Ny
  */
-uint64_t HDF5File::getNY()
+hsize_t HDF5File::getNY()
 {
     return nY;
 }
@@ -514,7 +513,7 @@ uint64_t HDF5File::getNY()
  * @brief HDF5File::getNZ
  * @return Nz
  */
-uint64_t HDF5File::getNZ()
+hsize_t HDF5File::getNZ()
 {
     return nZ;
 }
@@ -527,14 +526,14 @@ uint64_t HDF5File::getNZ()
  * @param [out] x 0..Nx - 1
  * @throw std::runtime_error
  */
-void HDF5File::convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t &x)
+void HDF5File::convertlinearTo3D(hsize_t index, HDF5Vector3D &position)
 {
     if (index > nX * nY * nZ) throw std::runtime_error("Wrong index - too big index");
     if (index == 0) throw std::runtime_error("Wrong index - too small index");
 
-    z = (hsize_t) ceil((double) index / (nX * nY)) - 1;
-    y = (hsize_t) fmod((double) index - 1, (nX * nY)) / nX;
-    x = (hsize_t) fmod(fmod((double) index - 1, (nX * nY)), nX);
+    position.z() = (hsize_t) ceil((double) index / (nX * nY)) - 1;
+    position.y() = (hsize_t) fmod((double) index - 1, (nX * nY)) / nX;
+    position.x() = (hsize_t) fmod(fmod((double) index - 1, (nX * nY)), nX);
 }
 
 /**
@@ -545,20 +544,20 @@ void HDF5File::convertlinearTo3D(hsize_t index, hsize_t &z, hsize_t &y, hsize_t 
  * @param [out] index 1..Nz*Ny*Nx
  * @throw std::runtime_error
  */
-void HDF5File::convert3DToLinear(hsize_t z, hsize_t y, hsize_t x, hsize_t &index)
+void HDF5File::convert3DToLinear(HDF5Vector3D position, hsize_t &index)
 {
-    if (x >= nX) throw std::runtime_error("Wrong x - too big x");
-    if (y >= nY) throw std::runtime_error("Wrong y - too big y");
-    if (z >= nZ) throw std::runtime_error("Wrong z - too big z");
+    if (position.x() >= nX) throw std::runtime_error("Wrong x - too big x");
+    if (position.y() >= nY) throw std::runtime_error("Wrong y - too big y");
+    if (position.z() >= nZ) throw std::runtime_error("Wrong z - too big z");
 
-    index = x + 1 + nX * (y) + (z) * nX * nY;
+    index = position.x() + 1 + nX * (position.y()) + (position.z()) * nX * nY;
 }
 
 /**
  * @brief HDF5File::setSizeOfDataPart
  * @param size
  */
-void HDF5File::setSizeOfDataPart(uint64_t size)
+void HDF5File::setNumberOfElmsToLoad(hsize_t size)
 {
     numberOfElementsToLoad = size;
 }
@@ -567,9 +566,14 @@ void HDF5File::setSizeOfDataPart(uint64_t size)
  * @brief HDF5File::getSizeOfDataPart
  * @return size of data part
  */
-uint64_t HDF5File::getSizeOfDataPart()
+hsize_t HDF5File::getNumberOfElmsToLoad()
 {
     return numberOfElementsToLoad;
+}
+
+HDF5File::HDF5Vector3D HDF5File::getNdims()
+{
+    return HDF5Vector3D(nZ, nY, nX);
 }
 
 /**

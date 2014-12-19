@@ -142,7 +142,7 @@ std::string HDF5File::HDF5Object::getStringValueByType(const hid_t type, const v
     } else if (H5Tequal(type, H5T_NATIVE_INT))
         return std::to_string(*(int *) value);
     else if (H5Tequal(type, H5T_NATIVE_UINT64))
-        return std::to_string(*(uint64_t *) value);
+        return std::to_string(*(hsize_t *) value);
     else if (H5Tequal(type, H5T_NATIVE_DOUBLE))
         return std::to_string(*(double *) value);
     else if (H5Tequal(type, H5T_NATIVE_FLOAT))
@@ -272,12 +272,12 @@ void HDF5File::HDF5Object::setAttribute(const std::string name, const int value)
 }
 
 /**
- * @brief HDF5File::HDF5Object::setAttribute Set attribute by name and uint64_t value
+ * @brief HDF5File::HDF5Object::setAttribute Set attribute by name and hsize_t value
  * @param name
  * @param value
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Object::setAttribute(const std::string name, const uint64_t value)
+void HDF5File::HDF5Object::setAttribute(const std::string name, const hsize_t value)
 {
     HDF5File::HDF5Object::setAttribute(name, H5T_NATIVE_UINT64, &value);
 }
@@ -335,17 +335,17 @@ float HDF5File::HDF5Object::readAttributeF(const std::string name)
 }
 
 /**
- * @brief HDF5File::HDF5Object::readAttributeI Read uint64_t attribute
+ * @brief HDF5File::HDF5Object::readAttributeI Read hsize_t attribute
  * @param name
- * @return uint64_t value
+ * @return hsize_t value
  */
-uint64_t HDF5File::HDF5Object::readAttributeI(const std::string name)
+hsize_t HDF5File::HDF5Object::readAttributeI(const std::string name)
 {
-    uint64_t value;
+    hsize_t value;
     std::cout << "Reading attribute \"" << name << "\" ";
     HDF5File::HDF5Object::HDF5Attribute *attr = getAttribute(name);
     std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
-    value = *(uint64_t *) attr->getData();
+    value = *(hsize_t *) attr->getData();
     delete attr;
     std::cout << " = \"" << value << "\"";
     std::cout << " ... OK" << std::endl;

@@ -27,13 +27,13 @@ public:
     ~HDF5Object();
 
     void setAttribute(const std::string name, const int value);
-    void setAttribute(const std::string name, const uint64_t value);
+    void setAttribute(const std::string name, const hsize_t value);
     void setAttribute(const std::string name, const float value);
     void setAttribute(const std::string name, const double value);
     void setAttribute(const std::string name, const std::string value);
 
     float readAttributeF(const std::string name);
-    uint64_t readAttributeI(const std::string name);
+    hsize_t readAttributeI(const std::string name);
     std::string readAttributeS(const std::string name);
 
     HDF5Attribute *getAttribute(const std::string name);
