@@ -82,6 +82,22 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
 
     H5Pclose(plist);
 
+    plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
+    if (plist_DATASET_XFER < 0){
+        throw std::runtime_error("H5Pcreate error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
+    // TODO
+    hsize_t bufferSize = dims.x() * dims.y() * (chunk_dims.z() ? chunk_dims.z() : 1) * (!H5Tequal(datatype, H5T_NATIVE_FLOAT)) ? sizeof(float) : sizeof(hsize_t);
+
+    convBuffer = (void*) malloc(bufferSize);
+    err = H5Pset_buffer(plist_DATASET_XFER, bufferSize, convBuffer, NULL);
+    if (err < 0){
+        throw std::runtime_error("H5Pset_buffer error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
     setMPIOAccess(H5FD_MPIO_COLLECTIVE);
 
     // Init min/max
@@ -107,6 +123,8 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
 HDF5File::HDF5Dataset::~HDF5Dataset()
 {
     std::cout << "Closing dataset \"" << name << "\"";
+    H5Pclose(plist_DATASET_XFER);
+    free(convBuffer);
     H5Sclose(dataspace);
     H5Tclose(datatype);
     H5Dclose(dataset);
@@ -238,12 +256,6 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
  */
 void HDF5File::HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
 {
-    plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
-    if (plist_DATASET_XFER < 0){
-        throw std::runtime_error("H5Pcreate error");
-        //MPI::COMM_WORLD.Abort(1);
-    }
-
     if (type == H5FD_MPIO_COLLECTIVE)
         std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access" << std::endl;
     else if (type == H5FD_MPIO_INDEPENDENT)
@@ -459,7 +471,7 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
         //MPI::COMM_WORLD.Abort(1);
     }
 
-    double t4, t5;
+    double t4 = 0, t5 = 0;
     if (log)
         t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
@@ -504,7 +516,7 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
         //MPI::COMM_WORLD.Abort(1);
     }
 
-    double t4, t5;
+    double t4 = 0, t5 = 0;
     if (log)
         t4 = HDF5Helper::getTime();
     err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
@@ -617,12 +629,21 @@ void HDF5File::HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 }
 
 /**
- * @brief HDF5File::HDF5Dataset::getBlockSize
+ * @brief HDF5File::HDF5Dataset::getRealNumberOfElmsToLoad
  * @return real number of elements used in block reading
  */
 hsize_t HDF5File::HDF5Dataset::getRealNumberOfElmsToLoad()
 {
     return blockSize;
+}
+
+/**
+ * @brief HDF5File::HDF5Dataset::getGeneralBlockDims
+ * @return general dims of block used for reading
+ */
+HDF5File::HDF5Vector3D HDF5File::HDF5Dataset::getGeneralBlockDims()
+{
+    return blockDims;
 }
 
 /**

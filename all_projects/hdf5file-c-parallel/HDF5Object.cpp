@@ -89,9 +89,9 @@ HDF5File::HDF5Object::HDF5Attribute *HDF5File::HDF5Object::getAttribute(const un
  * @param idx
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Object::removeAttribute(const unsigned int idx)
+void HDF5File::HDF5Object::removeAttribute(const unsigned int idx, bool flag)
 {
-    HDF5File::HDF5Object::removeAttribute(this->getAttribute(idx)->getName());
+    HDF5File::HDF5Object::removeAttribute(this->getAttribute(idx)->getName(), flag);
 }
 
 /**
@@ -99,19 +99,23 @@ void HDF5File::HDF5Object::removeAttribute(const unsigned int idx)
  * @param name
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Object::removeAttribute(const std::string name)
+void HDF5File::HDF5Object::removeAttribute(const std::string name, bool flag)
 {
+    if (flag)
         std::cout << "Removing attribute \"" << name << "\"";
-        if (HDF5File::HDF5Object::hasAttribute(name.c_str())) {
-            err = H5Adelete(object, name.c_str());
-            if (err < 0){
+    if (HDF5File::HDF5Object::hasAttribute(name.c_str())) {
+        err = H5Adelete(object, name.c_str());
+        if (err < 0){
+            if (flag)
                 std::cout << " ... error" << std::endl;
-                throw std::runtime_error("H5Adelete error");
-                //MPI::COMM_WORLD.Abort(1);
-            }
-        } else {
-            std::cout << " ... attribute not exists";
+            throw std::runtime_error("H5Adelete error");
+            //MPI::COMM_WORLD.Abort(1);
         }
+    } else {
+        if (flag)
+            std::cout << " ... attribute not exists";
+    }
+    if (flag)
         std::cout << " ... OK" << std::endl;
 }
 
@@ -185,7 +189,7 @@ std::string HDF5File::HDF5Object::getStringTypeByType(const hid_t type)
  */
 void HDF5File::HDF5Object::createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value)
 {
-    HDF5File::HDF5Object::removeAttribute(name);
+    HDF5File::HDF5Object::removeAttribute(name, false);
     HDF5File::HDF5Object::creatingAttributeMessage(name, type, value);
 
     // Copy attribute

@@ -49,6 +49,7 @@ public:
 
     void setNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad();
+    HDF5File::HDF5Vector3D getGeneralBlockDims();
 
     hsize_t getRank();
     hsize_t getSize();
@@ -82,6 +83,7 @@ private:
 
     hid_t plist;
     hid_t plist_DATASET_XFER;
+    void *convBuffer;
 
     HDF5File::HDF5Vector3D blockDims;
     HDF5File::HDF5Vector3D offset;

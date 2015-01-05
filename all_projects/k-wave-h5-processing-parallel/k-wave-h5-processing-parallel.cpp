@@ -164,11 +164,11 @@ void getParams(int argc, char **argv)
             flagTest = true;
             std::cout << "\n  Test mode: ON\n" << std::endl;
             continue;
-        } else if (strcmp("-reshape", argv[i]) == 0) {
+        } /*else if (strcmp("-reshape", argv[i]) == 0) {
             flagReshape = true;
             std::cout << "\n  Reshape mode: ON\n" << std::endl;
             continue;
-        } else if (strcmp("-changeChunks", argv[i]) == 0) {
+        }*/ else if (strcmp("-changeChunks", argv[i]) == 0) {
             flagRechunk = true;
             std::cout << "\n  Change chunks mode: ON\n" << std::endl;
             continue;
@@ -862,14 +862,16 @@ void computeDstDims(HDF5File::HDF5Vector3D nDims, HDF5File::HDF5Vector3D &nDimsD
  */
 void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector3D nDims, HDF5File::HDF5Vector3D nDimsDst, HDF5File::HDF5Dataset *dstDatasetFinal)
 {
-    if ((int) srcDataset->getDims().z() < mPISize)
-        throw std::runtime_error("Too many processes");
+    double t0 = HDF5Helper::getTime();
 
-    if (srcDataset->getSize() % mPISize != 0 || nDimsDst.y() % mPISize != 0)
-        throw std::runtime_error("Wrong number of processes for resize, dataset size must be divisible by number of processes");
+    if ((int) nDims.z() < mPISize)
+        throw std::runtime_error("Too many processes for resampling");
+
+    //if (srcDataset->getSize() % mPISize != 0 || nDimsDst.y() % mPISize != 0)
+    //    throw std::runtime_error("Wrong number of processes for resize, dataset size must be divisible by number of processes");
 
     // Divide dataset to every process
-    srcDataset->setNumberOfElmsToLoad(srcDataset->getSize() / mPISize);
+    srcDataset->setNumberOfElmsToLoad(ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
 
     // Interpolation method:
     //  INTER_NEAREST - a nearest-neighbor interpolation
@@ -889,7 +891,9 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     srcDataset->readBlock(mPIRank, offset, count, srcData, minV, maxV);
 
     // Memory for first step
-    float *dataDst1 = new float[count.z() * nDimsDst.y() * nDimsDst.x()];
+    float *dataDst1 = new float[count.z() * nDimsDst.y() * nDimsDst.x()]();
+
+    double tRXY0 = HDF5Helper::getTime();
 
     // First resize 2D slices in XY plane
     for (hsize_t z = 0; z < count.z(); z++) {
@@ -899,45 +903,84 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
         image.release();
     }
 
+    double tRXY1 = HDF5Helper::getTime();
+
     // Delete srcData
     delete [] srcData;
 
+    double tTYZ0 = HDF5Helper::getTime();
+
     // Transpose y<->z
-    float *dataDst1T = new float[nDimsDst.x() * count.z() * nDimsDst.y()];
+    float *dataDst1T = new float[nDimsDst.x() * count.z() * nDimsDst.y()]();
     for (hsize_t z = 0; z < count.z(); z++) {
         for (hsize_t y = 0; y < nDimsDst.y(); y++) {
             memcpy(&dataDst1T[nDimsDst.x() * z + y * (count.z() * nDimsDst.x())], &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
         }
     }
 
+    double tTYZ1 = HDF5Helper::getTime();
+
     // Delete dataDst1
     delete [] dataDst1;
 
-    // Sending by ZX slice
-    int dataCount = count.z() * nDimsDst.x();
-    hsize_t blockSize = nDimsDst.y() / mPISize;
+    double tSZX0 = HDF5Helper::getTime();
 
-    // Memory for received data
-    float *dataDst1TRecv = new float[nDims.z() * blockSize * nDimsDst.x()]();
-    for (int r = 0; r < mPISize; r++) {
-        for (hsize_t c = 0; c < blockSize; c++) {
-            MPI_Gather(&dataDst1T[dataCount * (c + r * blockSize)], dataCount, MPI_FLOAT, &dataDst1TRecv[dataCount * mPISize * c], dataCount, MPI_FLOAT, r, comm);
-        }
+    // Sending by ZX slice
+    // Number of floats in ZX slab in current block
+    int dataCount = count.z() * nDimsDst.x();
+    // Number of floats in ZX slab in non-last block
+    int dataCountG = srcDataset->getGeneralBlockDims().z() * nDimsDst.x();
+    // Number of floats in stitched ZX slice
+    hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
+    // Number of slabs for every non-last process
+    hsize_t blockDepthG = ceil(double (nDimsDst.y()) / mPISize);
+    // Last process can have different (smaller) block size
+    hsize_t blockDepthL = nDimsDst.y() - blockDepthG * (mPISize - 1);
+    // Number of slabs for every actual process
+    hsize_t blockDepth = (mPIRank == mPISize - 1) ? blockDepthL : blockDepthG;
+    // Settings for MPI_Gatherv
+    int *displs = new int[mPISize];
+    int *rcounts = new int[mPISize];
+    for (int i = 0; i < mPISize; i++) {
+            displs[i] = i * dataCountG; // offset
+            if (i == mPISize - 1) // Last data count
+                rcounts[i] = nDims.z() * nDimsDst.x() - dataCountG * i;
+            else
+                rcounts[i] = dataCountG;
     }
+    // Memory for received data
+    float *dataDst1TRecv = new float[nDims.z() * blockDepthG * nDimsDst.x()]();
+    // For every process
+    for (int r = 0; r < mPISize; r++) {
+        if (r == mPISize - 1) // Last process can have different number of slices
+            for (hsize_t c = 0; c < blockDepthL; c++) {
+                MPI_Gatherv(&dataDst1T[dataCount * (c + r * blockDepthG)], dataCount, MPI_FLOAT, &dataDst1TRecv[dstZXSlabOffset * c], rcounts, displs, MPI_FLOAT, r, comm);
+            }
+        else
+            for (hsize_t c = 0; c < blockDepthG; c++) {
+                MPI_Gatherv(&dataDst1T[dataCount * (c + r * blockDepthG)], dataCount, MPI_FLOAT, &dataDst1TRecv[dstZXSlabOffset * c], rcounts, displs, MPI_FLOAT, r, comm);
+            }
+    }
+
+    double tSZX1 = HDF5Helper::getTime();
 
     // Delete dataDst1T
     delete [] dataDst1T;
 
     // Memory for resized data
-    float *dataDst2 = new float[nDimsDst.z() * blockSize * nDimsDst.x()];
+    float *dataDst2 = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
+
+    double tRXZ0 = HDF5Helper::getTime();
 
     // After resize 2D slices in XZ plane
-    for (hsize_t y = 0; y < blockSize; y++) {
+    for (hsize_t y = 0; y < blockDepth; y++) {
         cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
         cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
         cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
         image.release();
     }
+
+    double tRXZ1 = HDF5Helper::getTime();
 
     // Delete dataDst1TRecv
     delete [] dataDst1TRecv;
@@ -946,21 +989,26 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
         dstDatasetFinal->write3DDataset(HDF5File::HDF5Vector3D(0, mPIRank * blockSize + y, 0), HDF5File::HDF5Vector3D(nDimsDst.z(), 1, nDimsDst.x()), &dataDst2[nDimsDst.x() * nDimsDst.z() * y], true);
     }*/
 
+
+    double tTZY0 = HDF5Helper::getTime();
+
     // Transpose back
-    float *dataDst2T = new float[nDimsDst.z() * blockSize * nDimsDst.x()];
+    float *dataDst2T = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
     for (hsize_t z = 0; z < nDimsDst.z(); z++) {
-        for (hsize_t y = 0; y < blockSize; y++) {
-            memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockSize * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+        for (hsize_t y = 0; y < blockDepth; y++) {
+            memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
         }
     }
+
+    double tTZY1 = HDF5Helper::getTime();
 
     // Delete dataDst2
     delete [] dataDst2;
 
-    dstDatasetFinal->write3DDataset(HDF5File::HDF5Vector3D(0, mPIRank * blockSize, 0), HDF5File::HDF5Vector3D(nDimsDst.z(), blockSize, nDimsDst.x()), dataDst2T, true);
+    dstDatasetFinal->write3DDataset(HDF5File::HDF5Vector3D(0, mPIRank * blockDepth, 0), HDF5File::HDF5Vector3D(nDimsDst.z(), blockDepth, nDimsDst.x()), dataDst2T, true);
 
     // Get min/max values
-    dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockSize * nDimsDst.x(), minV, maxV);
+    dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockDepth * nDimsDst.x(), minV, maxV);
     MPI_Allreduce(&minV, &minVG, 1, MPI_FLOAT, MPI_MIN, comm);
     MPI_Allreduce(&maxV, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
 
@@ -973,6 +1021,17 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     dstDatasetFinal->setAttribute("dwnsmpl", maxSize);
     dstDatasetFinal->setAttribute("src_dataset_name", srcDataset->getName());
     dstDatasetFinal->setAttribute("src_dataset_id", srcDataset->getId());
+
+    double t1 = HDF5Helper::getTime();
+    std::cout << "Times: ";
+    std::cout << "resample XY " << (tRXY1-tRXY0) << ", ";
+    std::cout << "transpoze YZ " << (tTYZ1-tTYZ0) << ", ";
+    std::cout << "send ZX " << (tSZX1-tSZX0) << ", ";
+    std::cout << "resample XZ " << (tRXZ1-tRXZ0) << ", ";
+    std::cout << "transpoze ZY " << (tTZY1-tTZY0) << " ";
+    std::cout << "ms; \t" << std::endl;
+    std::cout << "Time of resampling of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
+
 }
 
 /**
@@ -1112,6 +1171,8 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     hDF5OutputFile->createDatasetF(srcDataset->getName(), 3, dims, chunkSize, true);
     HDF5File::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcDataset->getName());
 
+    double t0 = HDF5Helper::getTime();
+
     // Copy attributes
     for (int i = 0; i < srcDataset->getNumAttrs(); i++) {
         HDF5File::HDF5Group::HDF5Attribute *attr = srcDataset->getAttribute(i);
@@ -1121,52 +1182,27 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
 
     float *data;
     float minV, maxV;
-    float minVGP = 0, maxVGP = 0;
     float minVG = 0, maxVG = 0;
-    bool first = true;
     HDF5File::HDF5Vector3D offset;
     HDF5File::HDF5Vector3D count;
 
     // Divide dataset to every process
-    srcDataset->setNumberOfElmsToLoad(srcDataset->getSize() / mPISize);
+    srcDataset->setNumberOfElmsToLoad(ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
 
-    hsize_t steps = srcDataset->getNumberOfBlocks() / mPISize;
-    // Every process processes same number of blocks
-    for (hsize_t i = 0; i < steps; i++) {
-        srcDataset->readBlock(mPISize * i + mPIRank, offset, count, data, minV, maxV);
-        dstDataset->write3DDataset(offset, count, data, true);
-        delete [] data; // !!
-        if (first) {
-            minVGP = minV;
-            maxVGP = maxV;
-            first = false;
-        }
-        if (minVGP > minV) minVGP = minV;
-        if (maxVGP < maxV) maxVGP = maxV;
-    }
-    // Some of them processes remaining blocks
-    if (srcDataset->getNumberOfBlocks() % mPISize > 0) {
-        if (mPIRank < (int) srcDataset->getNumberOfBlocks() % mPISize) {
-            srcDataset->readBlock(steps * mPISize + mPIRank, offset, count, data, minV, maxV);
-            dstDataset->write3DDataset(offset, count, data, true);
-            delete [] data; // !!
-        } else {
-            srcDataset->readEmptyBlock();
-        }
-        if (first) {
-            minVGP = minV;
-            maxVGP = maxV;
-            first = false;
-        }
-        if (minVGP > minV) minVGP = minV;
-        if (maxVGP < maxV) maxVGP = maxV;
-    }
+    // Read and write every block by one process
+    srcDataset->readBlock(mPIRank, offset, count, data, minV, maxV);
+    dstDataset->write3DDataset(offset, count, data, true);
+    delete [] data; // !!
 
-    MPI_Allreduce(&minVGP, &minVG, 1, MPI_FLOAT, MPI_MIN, comm);
-    MPI_Allreduce(&maxVGP, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
+    MPI_Allreduce(&minV, &minVG, 1, MPI_FLOAT, MPI_MIN, comm);
+    MPI_Allreduce(&maxV, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
 
     dstDataset->setAttribute("min", minVG);
     dstDataset->setAttribute("max", maxVG);
+
+    double t1 = HDF5Helper::getTime();
+
+    std::cout << "Time of changing chunks of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
 
     hDF5OutputFile->closeDataset(dstDataset->getName());
 }

@@ -41,8 +41,8 @@ public:
 
     void setAttribute(HDF5Attribute *attribute);
 
-    void removeAttribute(const unsigned int idx);
-    void removeAttribute(const std::string name);
+    void removeAttribute(const unsigned int idx, bool flag = true);
+    void removeAttribute(const std::string name, bool flag = true);
 
     bool hasAttribute(const std::string name);
 
