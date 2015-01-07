@@ -866,9 +866,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
 
     if ((int) nDims.z() < mPISize)
         throw std::runtime_error("Too many processes for resampling");
-
-    //if (srcDataset->getSize() % mPISize != 0 || nDimsDst.y() % mPISize != 0)
-    //    throw std::runtime_error("Wrong number of processes for resize, dataset size must be divisible by number of processes");
+    // TODO add check for small otuput sizes
 
     // Divide dataset to every process
     srcDataset->setNumberOfElmsToLoad(ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
@@ -910,7 +908,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     double tTYZ0 = HDF5Helper::getTime();
 
     // Transpose y<->z
-    float *dataDst1T = new float[nDimsDst.x() * count.z() * nDimsDst.y()]();
+    float *dataDst1T = new float[count.z() * nDimsDst.y() * nDimsDst.x()]();
     for (hsize_t z = 0; z < count.z(); z++) {
         for (hsize_t y = 0; y < nDimsDst.y(); y++) {
             memcpy(&dataDst1T[nDimsDst.x() * z + y * (count.z() * nDimsDst.x())], &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
@@ -973,9 +971,12 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
         }
     }*/
 
+    int rSize = 0;
+    int sSize = 0;
+
     for (int i = 0; i < mPISize; i++) {
-        recvDispls[i] = i * dataCountG * blockDepthG; // offset
-        sendDispls[i] = i * dataCountG * blockDepthG; // offset
+        recvDispls[i] = i * dataCountG * blockDepth; // offset
+        sendDispls[i] = i * dataCount * blockDepthG; // offset
         if (i == mPISize - 1) { // Last data count
             recvCounts[i] = dataCountL * blockDepth;
             sendCounts[i] = dataCount * blockDepthL;
@@ -983,12 +984,15 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
             recvCounts[i] = dataCountG * blockDepth;
             sendCounts[i] = dataCount * blockDepthG;
         }
+        rSize += recvCounts[i];
+        sSize += sendCounts[i];
     }
 
     MPI_Alltoallv(dataDst1T, sendCounts, sendDispls, MPI_FLOAT, dataDst1TRecv, recvCounts, recvDispls, MPI_FLOAT, comm);
 
+
     float *dataDst1TRecv2 = new float[nDims.z() * blockDepthG * nDimsDst.x()]();
-    //memcpy(dataDst1TRecv2, dataDst1TRecv, sizeof(float) * nDims.z() * blockDepthG * nDimsDst.x());
+    //memcpy(dataDst1TRecv2, dataDst1TRecv, sizeof(float) * nDims.z() * blockDepth * nDimsDst.x());
 
     int dstOffset = 0;
     for (hsize_t y = 0; y < blockDepth; y++) {
@@ -1002,8 +1006,6 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
             }
         }
     }
-
-    //std::cout << "test" << std::endl;
 
     delete [] recvDispls;
     delete [] recvCounts;
