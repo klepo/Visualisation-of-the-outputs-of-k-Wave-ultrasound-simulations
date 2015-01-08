@@ -1653,6 +1653,10 @@ int main(int argc, char **argv)
 
     std::cout << "process rank " << mPIRank << " of " << mPISize << " on host " << hostname << std::endl;
 
+    if (mPIRank != 0) {
+        std::ofstream   fout("/dev/null");
+        std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
+    }
 
     HDF5File *hDF5SimOutputFile = NULL;
     HDF5File *hDF5SimInputFile = NULL;

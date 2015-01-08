@@ -285,6 +285,8 @@ void HDF5File::HDF5Dataset::readFullDataset(float *&data)
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(dims.size()) + " floats (max size: " + std::to_string(numberOfElementsToLoad) + " floats)"));
         try {
             data = new float[dims.size()](); // TODO kontrola dostupné paměti
+            if (data == nullptr)
+                throw std::runtime_error(std::string("Bad memory allocation"));
         } catch (std::bad_alloc) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(dims.size()) + " floats)").c_str());
         }
@@ -313,6 +315,8 @@ void HDF5File::HDF5Dataset::readFullDataset(hsize_t *&data)
             throw std::runtime_error(std::string("Can not read the entire dataset, size: " + std::to_string(dims.size()) + " unsigned 64-bit integers (max size: " + std::to_string(numberOfElementsToLoad) + " unsigned 64-bit integers)"));
         try {
             data = new hsize_t[dims.size()]();
+            if (data == nullptr)
+                throw std::runtime_error(std::string("Bad memory allocation"));
         } catch (std::bad_alloc) {
             throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(dims.size()) + " unsigned 64-bit integers)").c_str());
         }
@@ -362,6 +366,8 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
 
     try {
         data = new float[count.size()]();
+        if (data == nullptr)
+            throw std::runtime_error(std::string("Bad memory allocation"));
     } catch (std::bad_alloc) {
         throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(count.size()) + " floats)").c_str());
     }
@@ -426,8 +432,9 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
 
     try {
         data = new hsize_t[count.size()]();
+        if (data == nullptr)
+            throw std::runtime_error(std::string("Bad memory allocation"));
     } catch (std::bad_alloc) {
-
         throw std::runtime_error(std::string("There is not enough memory to allocate dataset (dataset size: " + std::to_string(count.size()) + " unsigned 64-bit integers)").c_str());
     }
 
@@ -482,6 +489,11 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
         throw std::runtime_error("H5Dwrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
+    /*err = H5Fflush(dataset, H5F_SCOPE_LOCAL);
+    if (err < 0){
+        throw std::runtime_error("H5Fflush error");
+        //MPI::COMM_WORLD.Abort(1);
+    }*/
     if (log)
         t5 = HDF5Helper::getTime();
 
@@ -527,6 +539,11 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
         throw std::runtime_error("H5Dwrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
+    /*err = H5Fflush(dataset, H5F_SCOPE_LOCAL);
+    if (err < 0){
+        throw std::runtime_error("H5Fflush error");
+        //MPI::COMM_WORLD.Abort(1);
+    }*/
     if (log)
         t5 = HDF5Helper::getTime();
 
