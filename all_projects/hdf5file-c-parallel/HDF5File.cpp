@@ -41,7 +41,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
 
     numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
 
-    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
     this->filename = filename;
 

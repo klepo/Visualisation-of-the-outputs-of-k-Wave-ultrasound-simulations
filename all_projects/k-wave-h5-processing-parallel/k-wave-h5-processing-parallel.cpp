@@ -93,12 +93,12 @@ std::string help()
     "\n"
     "  -o HDF5OutputFilename ................ Optional parameter - output filename. Default value is\n"
     "                                         HDF5SimulationOutputFilename+\"_modified.h5\".\n"
-//    "\n"
-//    "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
-//    "                                         type datasets to group with series of 3D datasets\n"
-//    "                                         and saves datasets to a new file.\n"
-//    "                                         In hDF5SimOutputFile or hDF5SimInputFile\n"
-//    "                                         must be sensor_mask_index dataset.\n"
+    "\n"
+    "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
+    "                                         type datasets to group with series of 3D datasets\n"
+    "                                         and saves datasets to a new file.\n"
+    "                                         In hDF5SimOutputFile or hDF5SimInputFile\n"
+    "                                         must be sensor_mask_index dataset.\n"
     "\n"
     "  -changeChunks ........................ Optional parameter. Sets a new size chunks of 3D type\n"
     "                                         datasets and saves datasets to a new file.\n"
@@ -121,9 +121,9 @@ std::string help()
     "\n"
     "  -test ................................ Optional parameter. Test mode. Reading test \n"
     "                                         of 3D type datasets is performed.\n"
-//    "\n"
-//    "  -c blockSize ......................... Optional parameter. Set number of data elements\n"
-//    "                                         for block reading.\n"
+    "\n"
+    "  -c blockSize ......................... Optional parameter. Set number of data elements\n"
+    "                                         for block reading (only for reshape mode).\n"
     "\n"
     "  -help ................................ Prints this help message.\n"
     "\n";
@@ -164,11 +164,11 @@ void getParams(int argc, char **argv)
             flagTest = true;
             std::cout << "\n  Test mode: ON\n" << std::endl;
             continue;
-        } /*else if (strcmp("-reshape", argv[i]) == 0) {
+        } else if (strcmp("-reshape", argv[i]) == 0) {
             flagReshape = true;
             std::cout << "\n  Reshape mode: ON\n" << std::endl;
             continue;
-        }*/ else if (strcmp("-changeChunks", argv[i]) == 0) {
+        } else if (strcmp("-changeChunks", argv[i]) == 0) {
             flagRechunk = true;
             std::cout << "\n  Change chunks mode: ON\n" << std::endl;
             continue;
@@ -720,8 +720,9 @@ void reshape(HDF5File *hDF5SimOutputFile, HDF5File * hDF5OutputFile, DtsForPcs *
                 float *datasetData;
                 hsize_t minVI, maxVI;
                 float minVF = 0, maxVF = 0;
+                float minVFL = 0, maxVFL = 0;
                 float minVFG = 0, maxVFG = 0;
-                bool first = true;
+                bool first = true, firstL = true;
                 HDF5File::HDF5Vector3D offset; // Offset
                 HDF5File::HDF5Vector3D count; // Count
 
@@ -747,11 +748,32 @@ void reshape(HDF5File *hDF5SimOutputFile, HDF5File * hDF5OutputFile, DtsForPcs *
                 HDF5File::HDF5Vector3D dstPos;
                 float data[1];
 
-                for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
+                hsize_t steps = dataset->getNumberOfBlocks() / dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks();
+                hsize_t stepsForOneProcess = steps / mPISize;
+                hsize_t from = mPIRank * stepsForOneProcess * dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks();
+                hsize_t to = from + stepsForOneProcess * dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks();
+                if (mPIRank == mPISize - 1)
+                    to += (steps % mPISize * dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks());
+
+                for (hsize_t i = from; i < to; i++) {
+                    if (i >= mPISize * stepsForOneProcess * dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks()) {
+                        dataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
+                        dtsForPcs->sensorMaskIndexDataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
+                        actualDataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
+                    }
                     // Offset is unused here (except yDO), but for block reading is important (zO, yMO/yDO, xO)
                     // zO and xO is same, but yMO and yDO can be different, yDO is number of time step, yMO should be always 0
                     dtsForPcs->sensorMaskIndexDataset->readBlock(i % dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks(), offset, count, sensorMaskData, minVI, maxVI);
                     dataset->readBlock(i, offset, count, datasetData, minVF, maxVF);
+
+                    if (firstL){
+                        minVFL = minVF;
+                        maxVFL = maxVF;
+                    }
+                    firstL = false;
+
+                    if (minVFL > minVF) minVFL = minVF;
+                    if (maxVFL < maxVF) maxVFL = maxVF;
 
                     double t4 = HDF5Helper::getTime();
                     // For the entire block write "voxels"
@@ -778,16 +800,19 @@ void reshape(HDF5File *hDF5SimOutputFile, HDF5File * hDF5OutputFile, DtsForPcs *
                             if (offset.y() + 1 == MAX_NUMBER_OF_FRAMES)
                                 break;
 
-                        actualDataset->findAndSetGlobalMinAndMaxValue();
+
+                        firstL = false;
+                        actualDataset->setAttribute("min", minVFL);
+                        actualDataset->setAttribute("max", maxVFL);
 
                         if (first){
-                            minVFG = actualDataset->getGlobalMinValueF();
-                            maxVFG = actualDataset->getGlobalMaxValueF();
+                            minVFG = minVFL;
+                            maxVFG = maxVFL;
                         }
                         first = false;
 
-                        if (minVFG > actualDataset->getGlobalMinValueF()) minVFG = actualDataset->getGlobalMinValueF();
-                        if (maxVFG < actualDataset->getGlobalMaxValueF()) maxVFG = actualDataset->getGlobalMaxValueF();
+                        if (minVFG > minVFL) minVFG = minVFL;
+                        if (maxVFG < maxVFL) maxVFG = maxVFL;
 
                         // Shift to next dataset -> step
                         hDF5OutputFile->closeDataset(dataset->getName()  + "/" + std::to_string(offset.y()));
@@ -932,7 +957,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     int dataCount = count.z() * nDimsDst.x();
 
     // Number of floats in stitched ZX slice
-    hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
+    //hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
 
     // Number of slabs for every non-last process
     hsize_t blockDepthG = ceil(double (nDimsDst.y()) / mPISize);
@@ -942,7 +967,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     hsize_t blockDepth = (mPIRank == mPISize - 1) ? blockDepthL : blockDepthG;
 
     // Memory for received data
-    float *dataDst1TRecv = new float[nDims.z() * blockDepthG * nDimsDst.x()]();
+    float *dataDst1TRecv = new float[nDims.z() * blockDepth * nDimsDst.x()]();
 
     int *sendDispls = new int[mPISize];
     int *sendCounts = new int[mPISize];
@@ -990,9 +1015,13 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
 
     MPI_Alltoallv(dataDst1T, sendCounts, sendDispls, MPI_FLOAT, dataDst1TRecv, recvCounts, recvDispls, MPI_FLOAT, comm);
 
+    // Delete dataDst1T
+    delete [] dataDst1T;
 
-    float *dataDst1TRecv2 = new float[nDims.z() * blockDepthG * nDimsDst.x()]();
+    float *dataDst1TRecv2 = new float[nDims.z() * blockDepth * nDimsDst.x()]();
     //memcpy(dataDst1TRecv2, dataDst1TRecv, sizeof(float) * nDims.z() * blockDepth * nDimsDst.x());
+
+    double tR0 = HDF5Helper::getTime();
 
     int dstOffset = 0;
     for (hsize_t y = 0; y < blockDepth; y++) {
@@ -1007,13 +1036,15 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
         }
     }
 
+    double tR1 = HDF5Helper::getTime();
+
     delete [] recvDispls;
     delete [] recvCounts;
     delete [] sendDispls;
     delete [] sendCounts;
 
-    // Delete dataDst1T
-    delete [] dataDst1T;
+    // Delete dataDst1TRecv
+    delete [] dataDst1TRecv;
 
     double tSZX1 = HDF5Helper::getTime();
 
@@ -1032,8 +1063,6 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
 
     double tRXZ1 = HDF5Helper::getTime();
 
-    // Delete dataDst1TRecv
-    delete [] dataDst1TRecv;
     // Delete dataDst1TRecv2
     delete [] dataDst1TRecv2;
 
@@ -1067,6 +1096,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     std::cout << "resample XY " << (tRXY1-tRXY0) << ", ";
     std::cout << "transpoze YZ " << (tTYZ1-tTYZ0) << ", ";
     std::cout << "send ZX " << (tSZX1-tSZX0) << ", ";
+    std::cout << "locale alltoall ZX " << (tR1-tR0) << ", ";
     std::cout << "resample XZ " << (tRXZ1-tRXZ0) << ", ";
     std::cout << "transpoze ZY " << (tTZY1-tTZY0) << " ";
     std::cout << "ms; \t" << std::endl;
@@ -1159,6 +1189,10 @@ void downsampling(HDF5File *hDF5SimOutputFile, HDF5File *hDF5OutputFile, DtsForP
 
                     // Downsampling
                     resamplingOfDataset(srcDataset, nDims, nDimsDst, dstDatasetFinal, minV, maxV);
+
+                    // Save attributes
+                    dstDatasetFinal->setAttribute("min", minV);
+                    dstDatasetFinal->setAttribute("max", maxV);
 
                     if (minVG > minV) minVG = minV;
                     if (maxVG < maxV) maxVG = maxV;
@@ -1293,7 +1327,7 @@ void changeChunks(HDF5File *hDF5SimOutputFile, HDF5File *hDF5OutputFile, DtsForP
                 // Copy attributes
                 for (int i = 0; i < srcGroup->getNumAttrs(); i++) {
                     HDF5File::HDF5Group::HDF5Attribute *attr = srcGroup->getAttribute(i);
-                    dstGroup->setAttribute(attr);
+                    dstGroup->setAttribute(attr, false);
                     delete attr;
                 }
 
@@ -1319,7 +1353,7 @@ void changeChunks(HDF5File *hDF5SimOutputFile, HDF5File *hDF5OutputFile, DtsForP
                 // Copy attributes
                 for (int i = 0; i < srcGroup->getNumAttrs(); i++) {
                     HDF5File::HDF5Group::HDF5Attribute *attr = srcGroup->getAttribute(i);
-                    dstGroup->setAttribute(attr);
+                    dstGroup->setAttribute(attr, false);
                     delete attr;
                 }
 
@@ -1592,7 +1626,7 @@ void copyDimensionsAndAttributes(HDF5File *hDF5SimOutputFile, HDF5File *hDF5Outp
         HDF5File::HDF5Group *dstGroup = hDF5OutputFile->openGroup("/");
         for (int i = 0; i < srcGroup->getNumAttrs(); i++) {
             HDF5File::HDF5Group::HDF5Attribute *attr = srcGroup->getAttribute(i);
-            dstGroup->setAttribute(attr);
+            dstGroup->setAttribute(attr,  false);
             delete attr;
         }
     } catch(std::exception &e) {

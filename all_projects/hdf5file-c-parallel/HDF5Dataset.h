@@ -84,6 +84,7 @@ private:
     hid_t plist;
     hid_t plist_DATASET_XFER;
     void *convBuffer;
+    void *bkgBuffer;
 
     HDF5File::HDF5Vector3D blockDims;
     HDF5File::HDF5Vector3D offset;

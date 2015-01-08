@@ -187,31 +187,36 @@ std::string HDF5File::HDF5Object::getStringTypeByType(const hid_t type)
  * @param space
  * @param value
  */
-void HDF5File::HDF5Object::createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value)
+void HDF5File::HDF5Object::createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value, bool flag)
 {
     HDF5File::HDF5Object::removeAttribute(name, false);
-    HDF5File::HDF5Object::creatingAttributeMessage(name, type, value);
+    if (flag)
+        HDF5File::HDF5Object::creatingAttributeMessage(name, type, value);
 
     // Copy attribute
     hid_t attr = H5Acreate(object, name.c_str(), type, space, H5P_DEFAULT, H5P_DEFAULT);
     if (attr < 0){
-        std::cout << " ... error" << std::endl;
+        if (flag)
+            std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Acreate error");
         //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Awrite(attr, type, value);
     if (err < 0){
-        std::cout << " ... error" << std::endl;
+        if (flag)
+            std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Awrite error");
         //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Aclose(attr);
     if (err < 0){
-        std::cout << " ... error" << std::endl;
+        if (flag)
+            std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Aclose error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    std::cout << " ... OK" << std::endl;
+    if (flag)
+        std::cout << " ... OK" << std::endl;
 }
 
 /**
@@ -219,9 +224,9 @@ void HDF5File::HDF5Object::createAttribute(const std::string name, const hid_t t
  * @param attribute
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
+void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute, bool flag)
 {
-    createAttribute(attribute->getName(), attribute->getDatatype(), attribute->getDataspace(), attribute->getData());
+    createAttribute(attribute->getName(), attribute->getDatatype(), attribute->getDataspace(), attribute->getData(), flag);
 }
 
 /**
@@ -231,7 +236,7 @@ void HDF5File::HDF5Object::setAttribute(HDF5Attribute *attribute)
  * @param value
  * @throw std::runtime_error
  */
-void HDF5File::HDF5Object::setAttribute(const std::string name, const hid_t type, const void *value)
+void HDF5File::HDF5Object::setAttribute(const std::string name, const hid_t type, const void *value, bool flag)
 {
     hid_t datatype = H5Tcopy(type);
     if (datatype < 0){
@@ -259,7 +264,7 @@ void HDF5File::HDF5Object::setAttribute(const std::string name, const hid_t type
         throw std::runtime_error("H5Screate error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    createAttribute(name, datatype, dataspace, value);
+    createAttribute(name, datatype, dataspace, value, flag);
     H5Tclose(datatype);
     H5Sclose(dataspace);
 }

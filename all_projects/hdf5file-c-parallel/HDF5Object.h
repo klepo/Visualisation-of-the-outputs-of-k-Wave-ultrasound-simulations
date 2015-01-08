@@ -39,7 +39,7 @@ public:
     HDF5Attribute *getAttribute(const std::string name);
     HDF5Attribute *getAttribute(const unsigned int idx);
 
-    void setAttribute(HDF5Attribute *attribute);
+    void setAttribute(HDF5Attribute *attribute, bool flag = true);
 
     void removeAttribute(const unsigned int idx, bool flag = true);
     void removeAttribute(const std::string name, bool flag = true);
@@ -54,8 +54,8 @@ protected:
     herr_t err;
 
 private:
-    void setAttribute(const std::string name, const hid_t type, const void *value);
-    void createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value);
+    void setAttribute(const std::string name, const hid_t type, const void *value, bool flag = true);
+    void createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value, bool flag = true);
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
     std::string getStringValueByType(const hid_t type, const void *value);
     std::string getStringTypeByType(const hid_t type);
