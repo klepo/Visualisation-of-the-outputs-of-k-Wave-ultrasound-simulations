@@ -134,6 +134,7 @@ private:
 
     class HDF5Object;
     herr_t err;
+    int mPISize;
 
     void createDataset(const std::string datasetName, hid_t type, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
 

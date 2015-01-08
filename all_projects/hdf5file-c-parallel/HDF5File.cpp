@@ -41,7 +41,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
 
     numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
 
-    H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    //H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
     this->filename = filename;
 
@@ -52,10 +52,13 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     }
 
     plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
-    err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
-    if (err < 0){
-        throw std::runtime_error("H5Pset_fapl_mpio error");
-        //MPI::COMM_WORLD.Abort(1);
+    MPI_Comm_size(comm, &mPISize);
+    if (mPISize > 1) {
+        err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
+        if (err < 0){
+            throw std::runtime_error("H5Pset_fapl_mpio error");
+            //MPI::COMM_WORLD.Abort(1);
+        }
     }
 
     if (flag == HDF5File::OPEN) {
