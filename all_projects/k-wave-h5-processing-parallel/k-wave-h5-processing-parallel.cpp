@@ -1656,6 +1656,7 @@ int main(int argc, char **argv)
     if (mPIRank != 0) {
         std::ofstream   fout("/dev/null");
         std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
+        std::cerr.rdbuf(fout.rdbuf()); // redirect 'cerr' to a 'fout'
     }
 
     HDF5File *hDF5SimOutputFile = NULL;
