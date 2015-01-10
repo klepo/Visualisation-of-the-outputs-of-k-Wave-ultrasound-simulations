@@ -24,6 +24,7 @@
 #include <fstream>
 #include <map>
 #include <algorithm>
+#include <limits>
 
 #include <time.h>
 #include <stdio.h>

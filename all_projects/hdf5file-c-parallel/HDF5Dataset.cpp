@@ -261,9 +261,9 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
 void HDF5File::HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
 {
     if (type == H5FD_MPIO_COLLECTIVE)
-        std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access" << std::endl;
+        std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access ";
     else if (type == H5FD_MPIO_INDEPENDENT)
-        std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access" << std::endl;
+        std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access ";
     else
         throw std::runtime_error("H5Pset_dxpl_mpio error - Wrong MPIO type");
 
@@ -381,7 +381,7 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
         //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = HDF5Helper::getTime();
-    std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
+    std::cout << name << " read time: " << (t5-t4) << " ms;\toffset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 
     H5Sclose(dataspace);
     H5Sclose(memspace);
@@ -446,7 +446,7 @@ void HDF5File::HDF5Dataset::read3DDataset(HDF5Vector3D offset, HDF5Vector3D coun
         //MPI::COMM_WORLD.Abort(1);
     }
     double t5 = HDF5Helper::getTime();
-    std::cout << name << " read time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
+    std::cout << name << " read time: " << (t5-t4) << " ms;\toffset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 
     H5Sclose(dataspace);
     H5Sclose(memspace);
@@ -502,7 +502,7 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
     H5Sclose(memspace);
 
     if (log)
-        std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
+        std::cout << name << " write time: " << (t5-t4) << " ms;\toffset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 }
 
 /**
@@ -552,7 +552,7 @@ void HDF5File::HDF5Dataset::write3DDataset(HDF5Vector3D offset, HDF5Vector3D cou
     H5Sclose(memspace);
 
     if (log)
-        std::cout << name << " write time: " << (t5-t4) << " ms; \t" << " offset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
+        std::cout << name << " write time: " << (t5-t4) << " ms;\toffset: " << offset.z() << " x " << offset.y() << " x " << offset.x() << ";\tcount: " << count.z() << " x " << count.y() << " x " << count.x() << std::endl;
 }
 
 /**
@@ -673,6 +673,9 @@ HDF5File::HDF5Vector3D HDF5File::HDF5Dataset::getGeneralBlockDims()
  */
 void HDF5File::HDF5Dataset::setNumberOfElmsToLoad(hsize_t size)
 {
+    if (hDF5File->mPISize > 1 && size > std::numeric_limits<int>::max())
+        throw std::runtime_error("setNumberOfElmsToLoad error");
+
     numberOfElementsToLoad = size;
     initBlockReading();
     computeNumberOfBlocks();

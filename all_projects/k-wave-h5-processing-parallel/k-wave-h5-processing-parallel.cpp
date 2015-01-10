@@ -1657,6 +1657,7 @@ int main(int argc, char **argv)
         std::ofstream   fout("/dev/null");
         std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'
         std::cerr.rdbuf(fout.rdbuf()); // redirect 'cerr' to a 'fout'
+        std::clog.rdbuf(fout.rdbuf()); // redirect 'clog' to a 'fout'
     }
 
     HDF5File *hDF5SimOutputFile = NULL;

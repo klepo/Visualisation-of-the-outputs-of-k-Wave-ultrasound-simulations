@@ -54,6 +54,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
     MPI_Comm_size(comm, &mPISize);
     if (mPISize > 1) {
+        numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD < std::numeric_limits<int>::max() ? NUMBER_OF_ELEMENTS_TO_LOAD : std::numeric_limits<int>::max();
         err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
         if (err < 0){
             throw std::runtime_error("H5Pset_fapl_mpio error");
@@ -562,6 +563,9 @@ void HDF5File::convert3DToLinear(HDF5Vector3D position, hsize_t &index)
  */
 void HDF5File::setNumberOfElmsToLoad(hsize_t size)
 {
+    if (mPISize > 1 && size > std::numeric_limits<int>::max())
+        throw std::runtime_error("setNumberOfElmsToLoad error");
+
     numberOfElementsToLoad = size;
 }
 
