@@ -865,12 +865,12 @@ void HDF5File::HDF5Dataset::readBlock(const hsize_t index, HDF5Vector3D &offset,
  */
 void HDF5File::HDF5Dataset::readEmptyBlock()
 {
-    hid_t space = H5Screate(H5S_NULL);
-    if (space < 0){
-        throw std::runtime_error("H5Screate error");
-        //MPI::COMM_WORLD.Abort(1);
-    }
-    err = H5Dread(dataset, datatype, space, space, plist_DATASET_XFER, NULL);
+    hid_t dataspace = H5Dget_space(dataset);
+    H5Sselect_none(dataspace);
+    HDF5Vector3D count;
+    hid_t memspace = H5Screate_simple(3, count.getVectorPtr(), NULL);
+    H5Sselect_none(memspace);
+    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, NULL);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
