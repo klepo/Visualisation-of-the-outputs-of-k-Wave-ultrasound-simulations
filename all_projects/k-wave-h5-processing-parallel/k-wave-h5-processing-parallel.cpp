@@ -1253,6 +1253,7 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     hDF5OutputFile->createDatasetF(srcDataset->getName(), 3, dims, chunkSize, true);
     HDF5File::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcDataset->getName());
 
+    MPI_Barrier(comm);
     double t0 = HDF5Helper::getTime();
 
     float *data;
@@ -1264,11 +1265,11 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     // Divide dataset to every process
     srcDataset->setNumberOfElmsToLoad(ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
 
-    srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
-    dstDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
-
+    //srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
     // Read and write every block by one process
     srcDataset->readBlock(mPIRank, offset, count, data, minV, maxV);
+
+    dstDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
     dstDataset->write3DDataset(offset, count, data, true);
     delete [] data; // !!
 
@@ -1285,6 +1286,7 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     dstDataset->setAttribute("min", minVG);
     dstDataset->setAttribute("max", maxVG);
 
+    MPI_Barrier(comm);
     double t1 = HDF5Helper::getTime();
 
     std::cout << "Time of changing chunks of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
