@@ -100,8 +100,8 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     }*/
 
     // H5FD_MPIO_INDEPENDENT H5FD_MPIO_COLLECTIVE
-    if (hDF5File->mPISize > 1)
-        setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+    //if (hDF5File->mPISize > 1)
+    //    setMPIOAccess(H5FD_MPIO_COLLECTIVE);
 
     // Init min/max
     maxVF = 0;

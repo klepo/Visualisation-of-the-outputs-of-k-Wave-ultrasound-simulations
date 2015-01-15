@@ -1255,13 +1255,6 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
 
     double t0 = HDF5Helper::getTime();
 
-    // Copy attributes
-    for (int i = 0; i < srcDataset->getNumAttrs(); i++) {
-        HDF5File::HDF5Group::HDF5Attribute *attr = srcDataset->getAttribute(i);
-        dstDataset->setAttribute(attr);
-        delete attr;
-    }
-
     float *data;
     float minV, maxV;
     float minVG = 0, maxVG = 0;
@@ -1271,10 +1264,20 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     // Divide dataset to every process
     srcDataset->setNumberOfElmsToLoad(ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
 
+    srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+    dstDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+
     // Read and write every block by one process
     srcDataset->readBlock(mPIRank, offset, count, data, minV, maxV);
     dstDataset->write3DDataset(offset, count, data, true);
     delete [] data; // !!
+
+    // Copy attributes
+    for (int i = 0; i < srcDataset->getNumAttrs(); i++) {
+        HDF5File::HDF5Group::HDF5Attribute *attr = srcDataset->getAttribute(i);
+        dstDataset->setAttribute(attr);
+        delete attr;
+    }
 
     MPI_Allreduce(&minV, &minVG, 1, MPI_FLOAT, MPI_MIN, comm);
     MPI_Allreduce(&maxV, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
