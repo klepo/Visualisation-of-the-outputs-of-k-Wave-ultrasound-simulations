@@ -89,15 +89,17 @@ HDF5File::HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, HDF5File *hD
     }
 
     // TODO
-    hsize_t bufferSize = dims.x() * dims.y() * (chunk_dims.z() ? chunk_dims.z() : 1) * (!H5Tequal(datatype, H5T_NATIVE_FLOAT)) ? sizeof(float) : sizeof(hsize_t);
+    /*hsize_t bufferSize = dims.x() * dims.y() * (chunk_dims.z() ? chunk_dims.z() : 1) * (!H5Tequal(datatype, H5T_NATIVE_FLOAT)) ? sizeof(float) : sizeof(hsize_t);
 
-    convBuffer = (void*) malloc(bufferSize);
-    bkgBuffer = (void*) malloc(bufferSize);
+    convBuffer = NULL;
+    convBuffer = (void *) malloc(bufferSize);
+    bkgBuffer = NULL;
+    bkgBuffer = (void *) malloc(bufferSize);
     err = H5Pset_buffer(plist_DATASET_XFER, bufferSize, convBuffer, bkgBuffer);
     if (err < 0){
         throw std::runtime_error("H5Pset_buffer error");
         //MPI::COMM_WORLD.Abort(1);
-    }
+    }*/
 
     // H5FD_MPIO_INDEPENDENT H5FD_MPIO_COLLECTIVE
     //if (hDF5File->mPISize > 1)
@@ -127,8 +129,8 @@ HDF5File::HDF5Dataset::~HDF5Dataset()
 {
     std::cout << "Closing dataset \"" << name << "\"";
     H5Pclose(plist_DATASET_XFER);
-    free(convBuffer);
-    free(bkgBuffer);
+    //free(convBuffer);
+    //free(bkgBuffer);
     H5Sclose(dataspace);
     H5Tclose(datatype);
     H5Dclose(dataset);

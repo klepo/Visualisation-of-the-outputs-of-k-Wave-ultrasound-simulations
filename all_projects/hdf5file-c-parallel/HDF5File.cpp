@@ -64,7 +64,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
         }
     }
 
-    err = H5Pset_cache(plist_FILE_ACCESS, NULL, NULL, 1024*1024*64, 0.75);
+    err = H5Pset_cache(plist_FILE_ACCESS, NULL, NULL, 1024*1024*64, NULL);
     if (err < 0){
         throw std::runtime_error("H5Pset_cache error");
         //MPI::COMM_WORLD.Abort(1);
