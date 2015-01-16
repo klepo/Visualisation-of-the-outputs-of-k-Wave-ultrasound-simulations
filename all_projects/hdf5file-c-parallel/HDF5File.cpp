@@ -13,6 +13,7 @@
  * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
  * hdf5file library is free software.
  */
+#include <hdf5.h>  // HDF5
 
 #include "HDF5File.h"
 #include "HDF5Dataset.h"
@@ -52,6 +53,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     }
 
     plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
+
     MPI_Comm_size(comm, &mPISize);
     if (mPISize > 1) {
         numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD < std::numeric_limits<int>::max() ? NUMBER_OF_ELEMENTS_TO_LOAD : std::numeric_limits<int>::max();
@@ -60,6 +62,22 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
             throw std::runtime_error("H5Pset_fapl_mpio error");
             //MPI::COMM_WORLD.Abort(1);
         }
+    }
+
+    err = H5Pset_cache(plist_FILE_ACCESS, NULL, NULL, 1024*1024*64, 0.75);
+    if (err < 0){
+        throw std::runtime_error("H5Pset_cache error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+
+    //herr_t H5Pset_alignment(hid_t plist, hsize_t threshold, hsize_t alignment )
+    hsize_t threshold = 0;
+    hsize_t alignment = 64 * 64 * 64 * 4;
+
+    err = H5Pset_alignment(plist_FILE_ACCESS, threshold, alignment);
+    if (err < 0){
+        throw std::runtime_error("H5Pset_alignment error");
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     if (flag == HDF5File::OPEN) {

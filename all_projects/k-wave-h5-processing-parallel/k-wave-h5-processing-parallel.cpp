@@ -1265,11 +1265,13 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     // Divide dataset to every process
     srcDataset->setNumberOfElmsToLoad(ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
 
-    //srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+    /*if (mPISize > 1)
+        srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);*/
     // Read and write every block by one process
     srcDataset->readBlock(mPIRank, offset, count, data, minV, maxV);
 
-    dstDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+    if (mPISize > 1)
+        dstDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
     dstDataset->write3DDataset(offset, count, data, true);
     delete [] data; // !!
 
