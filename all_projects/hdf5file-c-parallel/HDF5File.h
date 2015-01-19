@@ -36,6 +36,8 @@
 #ifdef __unix
 #include <stdexcept>
 #include <sys/time.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #endif
 
 #ifdef _WIN32
@@ -50,6 +52,8 @@
 namespace HDF5Helper
 {
     double getTime();
+    size_t getTotalSystemPhysicalMemory();
+    size_t getAvailableSystemPhysicalMemory();
 }
 
 class HDF5File

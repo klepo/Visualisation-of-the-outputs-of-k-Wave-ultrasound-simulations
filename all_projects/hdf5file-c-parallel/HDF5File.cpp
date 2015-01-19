@@ -40,7 +40,8 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     if (error)
         throw std::runtime_error("MPI is not initialized");
 
-    numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
+    //numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
+    numberOfElementsToLoad = (HDF5Helper::getAvailableSystemPhysicalMemory() / 2) / 4;
 
     H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
@@ -64,7 +65,7 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
         }
     }
 
-    err = H5Pset_cache(plist_FILE_ACCESS, NULL, NULL, 1024*1024*64, NULL);
+    err = H5Pset_cache(plist_FILE_ACCESS, 0, 0, 1024*1024*64, 0);
     if (err < 0){
         throw std::runtime_error("H5Pset_cache error");
         //MPI::COMM_WORLD.Abort(1);
@@ -618,5 +619,37 @@ double HDF5Helper::getTime()
         //SYSTEMTIME time;
         //GetSystemTime(&time);
         //return double(time.wSecond * 1000) + time.wMilliseconds;
+    #endif
+}
+
+size_t HDF5Helper::getTotalSystemPhysicalMemory()
+{
+    #ifdef __unix
+        long pages = sysconf(_SC_PHYS_PAGES);
+        long page_size = sysconf(_SC_PAGE_SIZE);
+        return pages * page_size;
+    #endif
+
+    #ifdef _WIN32
+        MEMORYSTATUSEX status;
+        status.dwLength = sizeof(status);
+        GlobalMemoryStatusEx(&status);
+        return status.ullTotalPhys;
+    #endif
+}
+
+size_t HDF5Helper::getAvailableSystemPhysicalMemory()
+{
+    #ifdef __unix
+        long pages = sysconf(_SC_AVPHYS_PAGES);
+        long page_size = sysconf(_SC_PAGE_SIZE);
+        return pages * page_size;
+    #endif
+
+    #ifdef _WIN32
+        MEMORYSTATUSEX status;
+        status.dwLength = sizeof(status);
+        GlobalMemoryStatusEx(&status);
+        return status.ullAvailPhys;
     #endif
 }

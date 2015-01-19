@@ -71,6 +71,8 @@ bool flagRechunk = false;
 bool flagView = false;
 bool flagDwnsmpl = false;
 
+bool flagCollective = false;
+
 int mPISize;
 int mPIRank;
 MPI_Comm comm = MPI_COMM_WORLD;
@@ -111,6 +113,8 @@ std::string help()
     "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
     "                                         and saves them to new file.\n"
     "\n"
+    "  -collective .......................... Optional parameter. Enable collective parallel reading\n"
+    "\n"
     "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
     "\n"
     "  -ch chunkSize ........................ Optional parameter. Size for new chunks from 1 to\n"
@@ -121,9 +125,9 @@ std::string help()
     "\n"
     "  -test ................................ Optional parameter. Test mode. Reading test \n"
     "                                         of 3D type datasets is performed.\n"
-    "\n"
-    "  -c blockSize ......................... Optional parameter. Set number of data elements\n"
-    "                                         for block reading (only for reshape mode).\n"
+    //"\n"
+    //"  -c blockSize ......................... Optional parameter. Set number of data elements\n"
+    //"                                         for block reading (only for reshape mode).\n"
     "\n"
     "  -help ................................ Prints this help message.\n"
     "\n";
@@ -211,6 +215,10 @@ void getParams(int argc, char **argv)
         } else if (strcmp("-dwnsmpl", argv[i]) == 0) {
             flagDwnsmpl = true;
             std::cout << "\n  Downsampling mode: ON\n" << std::endl;
+            continue;
+        } else if (strcmp("-collective", argv[i]) == 0) {
+            flagCollective = true;
+            std::cout << "\n  Collective reading: ON\n" << std::endl;
             continue;
         } else if (strcmp("-m", argv[i]) == 0) {
             i++;
@@ -519,10 +527,13 @@ void testOfReading(DtsForPcs *dtsForPcs)
             try {
                 HDF5File::HDF5Dataset *dataset = it->second;
 
+                MPI_Barrier(comm);
+
                 std::cout << "Dataset: " << dataset->getName() << std::endl;
                 std::cout << std::endl;
 
-                //dataset->setMPIOAccess(H5FD_MPIO_INDEPENDENT);
+                if (mPISize > 1 && flagCollective)
+                    dataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
 
                 HDF5File::HDF5Vector3D size = dataset->getDims();
                 std::cout << "Dataset size:       " << size.z() << " x " << size.y() << " x " << size.x() << std::endl;
@@ -548,7 +559,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
                     double ts1 = HDF5Helper::getTime();
                     dataset->readBlock(mPISize * i + mPIRank, offset, count, data, minValue, maxValue);
                     double tf1 = HDF5Helper::getTime();
-                    std::cout << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
+                    std::cout << "p: " << mPIRank << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
                     delete [] data; // !!
                 }
                 if (dataset->getNumberOfBlocks() % mPISize > 0) {
@@ -556,7 +567,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
                         double ts3 = HDF5Helper::getTime();
                         dataset->readBlock(steps * mPISize + mPIRank, offset, count, data, minValue, maxValue);
                         double tf3 = HDF5Helper::getTime();
-                        std::cout << "readBlock time: " << (tf3-ts3) << " ms; \t" << std::endl;
+                        std::cout << "p: " << mPIRank << "readBlock time: " << (tf3-ts3) << " ms; \t" << std::endl;
                         delete [] data; // !!
                     } else {
                         dataset->readEmptyBlock();
@@ -1265,8 +1276,8 @@ void changeChunksOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File *hDF5Outp
     // Divide dataset to every process
     srcDataset->setNumberOfElmsToLoad(ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
 
-    /*if (mPISize > 1)
-        srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);*/
+    if (mPISize > 1 && flagCollective)
+        srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
     // Read and write every block by one process
     srcDataset->readBlock(mPIRank, offset, count, data, minV, maxV);
 

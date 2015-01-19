@@ -263,9 +263,9 @@ float HDF5File::HDF5Dataset::getGlobalMinValueF(bool reset)
 void HDF5File::HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
 {
     if (type == H5FD_MPIO_COLLECTIVE) {
-        std::cout << std::endl << "Setting H5FD_MPIO_COLLECTIVE access ";
+        std::cout << "Setting H5FD_MPIO_COLLECTIVE access (" << name << ")" << std::endl;
     } else if (type == H5FD_MPIO_INDEPENDENT) {
-        std::cout << std::endl << "Setting H5FD_MPIO_INDEPENDENT access ";
+        std::cout << "Setting H5FD_MPIO_INDEPENDENT access (" << name << ")" << std::endl;
     } else
         throw std::runtime_error("H5Pset_dxpl_mpio error - Wrong MPIO type");
 
@@ -872,12 +872,15 @@ void HDF5File::HDF5Dataset::readEmptyBlock()
     HDF5Vector3D count;
     hid_t memspace = H5Screate_simple(3, count.getVectorPtr(), NULL);
     H5Sselect_none(memspace);
+    double t4 = 0, t5 = 0;
+    t4 = HDF5Helper::getTime();
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, NULL);
+    t5 = HDF5Helper::getTime();
     if (err < 0){
         throw std::runtime_error("H5Dread error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    std::cout << name << " - read empty block" << std::endl;
+    std::cout << name << " read time: " << (t5-t4) << " ms;\tempty block" << std::endl;
 }
 
 /**
