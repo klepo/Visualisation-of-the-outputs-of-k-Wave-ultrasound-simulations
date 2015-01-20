@@ -1671,6 +1671,9 @@ int main(int argc, char **argv)
     MPI_Comm_size(comm, &mPISize);
     MPI_Comm_rank(comm, &mPIRank);
 
+    MPI_Info_create(&info);
+    MPI_Info_set(info, "ibm_largeblock_io", "true");
+
     std::cout << "process rank " << mPIRank << " of " << mPISize << " on host " << hostname << std::endl;
 
     /*if (mPIRank != 0) {
