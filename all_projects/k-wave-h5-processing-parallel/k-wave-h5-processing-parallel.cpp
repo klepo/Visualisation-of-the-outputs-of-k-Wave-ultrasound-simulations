@@ -902,7 +902,9 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
 {
     double t0 = HDF5Helper::getTime();
 
-    if ((int) nDims.z() < mPISize)
+    hsize_t nCount = 4;  // Number of slabs along Z axis to get from neighbours
+
+    if ((int) nDims.z() < mPISize * nCount * 2)
         throw std::runtime_error("Too many processes for resampling");
     // TODO add check for small otuput sizes
 
@@ -910,30 +912,35 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     srcDataset->setNumberOfElmsToLoad(ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
 
     // Interpolation method:
-    //  INTER_NEAREST - a nearest-neighbor interpolation
-    //  INTER_LINEAR - a bilinear interpolation (used by default)
-    //  INTER_AREA - resampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire’-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
-    //  INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
-    //  INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
-    int interpolation = cv::INTER_NEAREST;
+    //  INTER_NEAREST   - a nearest-neighbor interpolation
+    //  INTER_LINEAR    - a bilinear interpolation (used by default)
+    //  INTER_AREA      - resampling using pixel area relation.
+    //                    It may be a preferred method for image decimation, as it gives moire’-free results.
+    //                    But when the image is zoomed, it is similar to the INTER_NEAREST method.
+    //  INTER_CUBIC     - a bicubic interpolation over 4x4 pixel neighborhood
+    //  INTER_LANCZOS4  - a Lanczos interpolation over 8x8 pixel neighborhood
+    int interpolation = cv::INTER_CUBIC;
 
     float *srcData;
     HDF5File::HDF5Vector3D offset;
     HDF5File::HDF5Vector3D count;
     float minV = 0, maxV = 0;
 
+    if (mPISize > 1 && flagCollective)
+        srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+
     // Every process reads other block
     srcDataset->readBlock(mPIRank, offset, count, srcData, minV, maxV);
 
     // Memory for first step
-    float *dataDst1 = new float[count.z() * nDimsDst.y() * nDimsDst.x()]();
+    float *dataDst1 = new float[(count.z() + nCount * 2) * nDimsDst.y() * nDimsDst.x()]();
 
     double tRXY0 = HDF5Helper::getTime();
 
     // First resize 2D slices in XY plane
     for (hsize_t z = 0; z < count.z(); z++) {
         cv::Mat image = cv::Mat((int) nDims.y(), (int) nDims.x(), CV_32FC1, &srcData[nDims.x() * nDims.y() * z]); // rows, cols (height, width)
-        cv::Mat imageDst = cv::Mat((int) nDimsDst.y(), (int) nDimsDst.x(), CV_32FC1, &dataDst1[nDimsDst.x() * nDimsDst.y() * z]);
+        cv::Mat imageDst = cv::Mat((int) nDimsDst.y(), (int) nDimsDst.x(), CV_32FC1, &dataDst1[nDimsDst.x() * nDimsDst.y() * (z + nCount)]);
         cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.y()), 0, 0, interpolation);
         image.release();
     }
@@ -943,13 +950,46 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     // Delete srcData
     delete [] srcData;
 
+    MPI_Status status;
+    hsize_t dataSize = nCount * nDimsDst.y() * nDimsDst.x();
+    // Get neighbours' data
+    if (mPIRank == 0) {
+        // to right
+        MPI_Send(&dataDst1[(count.z() * nDimsDst.y() * nDimsDst.x())], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank, comm);
+        MPI_Barrier(comm);
+
+        // from right
+        MPI_Recv(&dataDst1[(count.z() + nCount * nDimsDst.y() * nDimsDst.x())], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank + 1, comm, &status);
+        MPI_Barrier(comm);
+    } else if (mPIRank == mPISize - 1) {
+        // from left
+        MPI_Recv(&dataDst1[0], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank - 1, comm, &status);
+        MPI_Barrier(comm);
+
+        // to left
+        MPI_Send(&dataDst1[(nCount * nDimsDst.y() * nDimsDst.x())], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank, comm);
+        MPI_Barrier(comm);
+    } else {
+        // from left
+        MPI_Recv(&dataDst1[0], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank - 1, comm, &status);
+        // to right
+        MPI_Send(&dataDst1[(count.z() * nDimsDst.y() * nDimsDst.x())], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank, comm);
+        MPI_Barrier(comm);
+
+        // form right
+        MPI_Recv(&dataDst1[(count.z() + nCount * nDimsDst.y() * nDimsDst.x())], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank + 1, comm, &status);
+        // to left
+        MPI_Send(&dataDst1[(nCount * nDimsDst.y() * nDimsDst.x())], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank, comm);
+        MPI_Barrier(comm);
+    }
+
     double tTYZ0 = HDF5Helper::getTime();
 
     // Transpose y<->z
-    float *dataDst1T = new float[count.z() * nDimsDst.y() * nDimsDst.x()]();
-    for (hsize_t z = 0; z < count.z(); z++) {
+    float *dataDst1T = new float[(count.z() + nCount * 2) * nDimsDst.y() * nDimsDst.x()]();
+    for (hsize_t z = 0; z < (count.z() + nCount * 2); z++) {
         for (hsize_t y = 0; y < nDimsDst.y(); y++) {
-            memcpy(&dataDst1T[nDimsDst.x() * z + y * (count.z() * nDimsDst.x())], &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+            memcpy(&dataDst1T[nDimsDst.x() * z + y * ((count.z() + nCount * 2) * nDimsDst.x())], &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
         }
     }
 
@@ -957,7 +997,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
 
     // Delete dataDst1
     delete [] dataDst1;
-
+/*
     double tSZX0 = HDF5Helper::getTime();
 
     // Sending by ZX slice
@@ -986,7 +1026,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     int *sendCounts = new int[mPISize];
     int *recvDispls = new int[mPISize];
     int *recvCounts = new int[mPISize];
-
+*/
     // Settings for MPI_Gatherv
     /*for (int i = 0; i < mPISize; i++) {
         recvDispls[i] = i * dataCountG; // offset
@@ -1008,7 +1048,7 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
             }
         }
     }*/
-
+/*
     int rSize = 0;
     int sSize = 0;
 
@@ -1060,32 +1100,49 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     delete [] dataDst1TRecv;
 
     double tSZX1 = HDF5Helper::getTime();
-
+*/
     // Memory for resized data
-    float *dataDst2 = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
+    //float *dataDst2 = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
+
+    double countZDst = (double (nDimsDst.z()) / mPISize);
+    hsize_t countZDstR = myRound(double (mPIRank + 1) * countZDst) - myRound(double (mPIRank) * countZDst);
+    //std::cout << "countZDst " << countZDst << std::endl;
+    //std::cout << "countZDstR " << countZDstR << std::endl;
+    //std::cout << "nDimsDst.z() " << nDimsDst.z() << std::endl;
+    hsize_t nCountDst = myRound((double) nCount * countZDstR / count.z());
+    std::cout << "nCountDst " << nCountDst << std::endl;
+
+    float *dataDst2 = new float[(countZDstR + nCountDst * 2) * nDimsDst.y() * nDimsDst.x()]();
 
     double tRXZ0 = HDF5Helper::getTime();
 
-    // After resize 2D slices in XZ plane
-    for (hsize_t y = 0; y < blockDepth; y++) {
-        cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv2[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
-        cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
-        cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
+    // And resize 2D slices in XZ plane
+    for (hsize_t y = 0; y < nDimsDst.y(); y++) {
+        cv::Mat image = cv::Mat((int) count.z() + nCount * 2, (int) nDimsDst.x(), CV_32FC1, &dataDst1T[(count.z() + nCount * 2) * y * nDimsDst.x()]); // rows, cols (height, width)
+        //cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv2[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
+        cv::Mat imageDst = cv::Mat((int) countZDstR + nCountDst * 2, (int) nDimsDst.x(), CV_32FC1, &dataDst2[(countZDstR + nCountDst * 2) * y * nDimsDst.x()]);
+        //cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
+        cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) countZDstR + nCountDst * 2), 0, 0, interpolation);
+        //cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
         image.release();
     }
+
+
 
     double tRXZ1 = HDF5Helper::getTime();
 
     // Delete dataDst1TRecv2
-    delete [] dataDst1TRecv2;
+    //delete [] dataDst1TRecv2;
 
     double tTZY0 = HDF5Helper::getTime();
 
     // Transpose back
-    float *dataDst2T = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
-    for (hsize_t z = 0; z < nDimsDst.z(); z++) {
-        for (hsize_t y = 0; y < blockDepth; y++) {
-            memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+    float *dataDst2T = new float[countZDstR * nDimsDst.y() * nDimsDst.x()]();
+    //float *dataDst2T = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
+    for (hsize_t z = 0; z < countZDstR; z++) {
+        for (hsize_t y = 0; y < nDimsDst.y(); y++) {
+            memcpy(&dataDst2T[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], &dataDst2[nDimsDst.x() * (z + nCountDst) + y * ((countZDstR + nCountDst * 2) * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+            //memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
         }
     }
 
@@ -1094,10 +1151,14 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     // Delete dataDst2
     delete [] dataDst2;
 
-    dstDatasetFinal->write3DDataset(HDF5File::HDF5Vector3D(0, mPIRank * blockDepth, 0), HDF5File::HDF5Vector3D(nDimsDst.z(), blockDepth, nDimsDst.x()), dataDst2T, true);
+    if (mPISize > 1)
+        dstDatasetFinal->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
+    dstDatasetFinal->write3DDataset(HDF5File::HDF5Vector3D(myRound(double (mPIRank) * countZDst), 0, 0), HDF5File::HDF5Vector3D(countZDstR, nDimsDst.y(), nDimsDst.x()), dataDst2T, true);
+    //dstDatasetFinal->write3DDataset(HDF5File::HDF5Vector3D(0, mPIRank * blockDepth, 0), HDF5File::HDF5Vector3D(nDimsDst.z(), blockDepth, nDimsDst.x()), dataDst2T, true);
 
     // Get min/max values
-    dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockDepth * nDimsDst.x(), minV, maxV);
+    dstDatasetFinal->getMinAndMaxValue(dataDst2T, countZDstR * nDimsDst.y() * nDimsDst.x(), minV, maxV);
+    //dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockDepth * nDimsDst.x(), minV, maxV);
     MPI_Allreduce(&minV, &minVG, 1, MPI_FLOAT, MPI_MIN, comm);
     MPI_Allreduce(&maxV, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
 
@@ -1108,8 +1169,8 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
     std::cout << "Times: ";
     std::cout << "resample XY " << (tRXY1-tRXY0) << ", ";
     std::cout << "transpoze YZ " << (tTYZ1-tTYZ0) << ", ";
-    std::cout << "send ZX " << (tSZX1-tSZX0) << ", ";
-    std::cout << "locale alltoall ZX " << (tR1-tR0) << ", ";
+    //std::cout << "send ZX " << (tSZX1-tSZX0) << ", ";
+    //std::cout << "locale alltoall ZX " << (tR1-tR0) << ", ";
     std::cout << "resample XZ " << (tRXZ1-tRXZ0) << ", ";
     std::cout << "transpoze ZY " << (tTZY1-tTZY0) << " ";
     std::cout << "ms; \t" << std::endl;
