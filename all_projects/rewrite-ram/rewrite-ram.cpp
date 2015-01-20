@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <mpi.h>
 
 #ifdef __unix
 #include <unistd.h>
@@ -9,6 +10,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <Winsock2.h>
 #endif
 
 size_t getTotalSystemPhysicalMemory()
@@ -43,8 +45,22 @@ size_t getAvailableSystemPhysicalMemory()
     #endif
 }
 
-int main() {
+int mPISize;
+int mPIRank;
+MPI_Comm comm = MPI_COMM_WORLD;
+MPI_Info info = MPI_INFO_NULL;
+
+int main(int argc, char **argv) {
     mlockall(MCL_CURRENT | MCL_FUTURE);
+
+    int buflen = 512;
+    char hostname[buflen];
+    gethostname(hostname, buflen);
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(comm, &mPISize);
+    MPI_Comm_rank(comm, &mPIRank);
+
+    std::cout << "process rank " << mPIRank << " of " << mPISize << " on host " << hostname << std::endl;
 
     setlocale(LC_NUMERIC, "");
 
@@ -55,7 +71,7 @@ int main() {
     size_t size = 0;
     size_t block = 1024 * 1024 * 32;
     size_t inc = block * sizeof(int);
-    size_t min = block * 4;
+    size_t min = block * 16;
     printf("Allocation is running ... \n");
     do {
         mem = (int *) calloc(1, inc);
@@ -72,6 +88,9 @@ int main() {
         printf("mem == NULL\n");
     printf("Available system physical memory: \t%'zu \n", getAvailableSystemPhysicalMemory());
     printf("Allocated size:                   \t%'zu \n", size);
+
+    MPI_Finalize();
+
     return 0;
 }
 

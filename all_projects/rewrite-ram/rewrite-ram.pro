@@ -29,3 +29,6 @@ MOC_DIR = $$DESTDIR/.moc
 RCC_DIR = $$DESTDIR/.qrc
 UI_DIR = $$DESTDIR/.ui
 
+# hdf5 library
+
+include($$PWD/../hdf5-c-parallel_paths.pri)

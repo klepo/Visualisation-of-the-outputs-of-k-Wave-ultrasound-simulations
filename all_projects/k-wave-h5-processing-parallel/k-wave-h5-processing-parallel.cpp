@@ -1747,9 +1747,6 @@ int main(int argc, char **argv)
         printDebugTitle("Create or open output file");
         hDF5OutputFile = createOrOpenOutputFile(outputFilename);
         //hDF5OutputFile->setNumberOfElmsToLoad(blockSize);
-        // Copy dimensions and attributes
-        printDebugTitle("Copy dimensions and attributes");
-        copyDimensionsAndAttributes(hDF5SimOutputFile, hDF5OutputFile);
     }
 
     // Processing of sensor mask
@@ -1768,6 +1765,12 @@ int main(int argc, char **argv)
     if (flagRechunk) {
         printDebugTitle("Change chunks");
         changeChunks(hDF5SimOutputFile, hDF5OutputFile, dtsForPcs);
+    }
+
+    if (flagReshape || flagRechunk || flagDwnsmpl) {
+        // Copy dimensions and attributes
+        printDebugTitle("Copy dimensions and attributes");
+        copyDimensionsAndAttributes(hDF5SimOutputFile, hDF5OutputFile);
     }
 
     // Select file to view
