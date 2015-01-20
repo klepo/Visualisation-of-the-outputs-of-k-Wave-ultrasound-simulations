@@ -48,7 +48,7 @@ int main() {
 
     setlocale(LC_NUMERIC, "");
 
-    printf("Total system physical memory:     \t%'ld \n", getTotalSystemPhysicalMemory());
+    printf("Total system physical memory:     \t%'zu \n", getTotalSystemPhysicalMemory());
     printf("Available system physical memory: \t%'zu \n", getAvailableSystemPhysicalMemory());
 
     int *mem = NULL;
@@ -62,8 +62,8 @@ int main() {
         if (mem == NULL || min > getAvailableSystemPhysicalMemory())
             break;
         size += inc;
-        //printf("size: \t%'zu \n", size);
-        //printf("getAvailableSystemPhysicalMemory(): \t%'zu \n", getAvailableSystemPhysicalMemory());
+        printf("size: \t%'zu \n", size);
+        printf("getAvailableSystemPhysicalMemory(): \t%'zu \n", getAvailableSystemPhysicalMemory());
         for (unsigned int i = 0; i < block; i++) {
             mem[i] = 1;
         }
@@ -71,7 +71,7 @@ int main() {
     if (mem == NULL)
         printf("mem == NULL\n");
     printf("Available system physical memory: \t%'zu \n", getAvailableSystemPhysicalMemory());
-    printf("Allocated size:                     \t%'zu \n", size);
+    printf("Allocated size:                   \t%'zu \n", size);
     return 0;
 }
 

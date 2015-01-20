@@ -552,6 +552,8 @@ void testOfReading(DtsForPcs *dtsForPcs)
                 std::cout << "   reading block size (number of elements): " << dataset->getNumberOfElmsToLoad() << std::endl;
                 std::cout << std::endl;
 
+                MPI_Barrier(comm);
+
                 double ts = HDF5Helper::getTime();
 
                 hsize_t steps = dataset->getNumberOfBlocks() / mPISize;
@@ -559,7 +561,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
                     double ts1 = HDF5Helper::getTime();
                     dataset->readBlock(mPISize * i + mPIRank, offset, count, data, minValue, maxValue);
                     double tf1 = HDF5Helper::getTime();
-                    std::cout << "p: " << mPIRank << "readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
+                    std::cout << "p: " << mPIRank << " readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
                     delete [] data; // !!
                 }
                 if (dataset->getNumberOfBlocks() % mPISize > 0) {
@@ -574,9 +576,9 @@ void testOfReading(DtsForPcs *dtsForPcs)
                     }
                 }
 
-                double tf = HDF5Helper::getTime();
-
                 MPI_Barrier(comm);
+
+                double tf = HDF5Helper::getTime();
 
                 std::cout << std::endl;
                 std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;

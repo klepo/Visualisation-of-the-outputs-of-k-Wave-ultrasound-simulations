@@ -35,16 +35,20 @@ std::mutex HDF5File::mutex;
  */
 HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned int flag, bool log)
 {
+    // Check MPI is initialized
     int started, error = 0;
     error = MPI_Initialized(&started);
     if (error)
         throw std::runtime_error("MPI is not initialized");
 
+    // Set size of memory
     //numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
     numberOfElementsToLoad = (HDF5Helper::getAvailableSystemPhysicalMemory() / 2) / 4;
 
+    // Disable error HDF5 output
     H5Eset_auto(H5E_DEFAULT, NULL, NULL);
 
+    // Save filename
     this->filename = filename;
 
     // Create log file
@@ -53,8 +57,10 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
         logFileStream << filename << std::endl;
     }
 
+    // Create File Access Property List
     plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
 
+    // Get number of processes -> set NUMBER_OF_ELEMENTS_TO_LOAD to max int (MPI limit)
     MPI_Comm_size(comm, &mPISize);
     if (mPISize > 1) {
         numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD < std::numeric_limits<int>::max() ? NUMBER_OF_ELEMENTS_TO_LOAD : std::numeric_limits<int>::max();
@@ -65,7 +71,8 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
         }
     }
 
-    err = H5Pset_cache(plist_FILE_ACCESS, 0, 0, 1024*1024*64, 0);
+    // Set cache
+    err = H5Pset_cache(plist_FILE_ACCESS, 0, 0, 1024 * 1024 * 64, 0);
     if (err < 0){
         throw std::runtime_error("H5Pset_cache error");
         //MPI::COMM_WORLD.Abort(1);
@@ -74,13 +81,14 @@ HDF5File::HDF5File(std::string filename, MPI_Comm comm, MPI_Info info, unsigned 
     //herr_t H5Pset_alignment(hid_t plist, hsize_t threshold, hsize_t alignment )
     hsize_t threshold = 0;
     hsize_t alignment = 64 * 64 * 64 * 4;
-
+    // Set alignment
     err = H5Pset_alignment(plist_FILE_ACCESS, threshold, alignment);
     if (err < 0){
         throw std::runtime_error("H5Pset_alignment error");
         //MPI::COMM_WORLD.Abort(1);
     }
 
+    // Open or create file
     if (flag == HDF5File::OPEN) {
         std::cout << "Opening file \"" << filename << "\" ";
         file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, plist_FILE_ACCESS);
@@ -161,7 +169,6 @@ HDF5File::~HDF5File()
         //MPI::COMM_WORLD.Abort(1);
     }
     std::cout << " ... OK" << std::endl;
-
 }
 
 /**
