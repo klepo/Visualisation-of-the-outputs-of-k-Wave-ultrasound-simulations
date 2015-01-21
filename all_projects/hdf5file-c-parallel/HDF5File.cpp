@@ -292,7 +292,7 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
     std::cout << "Creating dataset \"" << datasetName << "\" ";
     if (rewrite) {
         H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
-        std::cout << " ... rewrite";
+        std::cout << "... rewrite";
     }
 
     hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
@@ -331,7 +331,7 @@ void HDF5File::createGroup(const std::string name, bool rewrite)
         std::cout << "Creating group \"" << name << "\" ";
         if (rewrite) {
             H5Ldelete(file, name.c_str(), H5P_DEFAULT);
-            std::cout << " ... rewrite";
+            std::cout << "... rewrite";
         }
 
         hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
