@@ -48,6 +48,8 @@ public:
 
     int getNumAttrs();
 
+    HDF5File *getFile();
+
 protected:
     hid_t object;
     HDF5File *hDF5File;

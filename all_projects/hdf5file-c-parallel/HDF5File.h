@@ -33,6 +33,8 @@
 
 #include <mpi.h>
 
+#include <limits>
+
 #ifdef __unix
 #include <stdexcept>
 #include <sys/time.h>

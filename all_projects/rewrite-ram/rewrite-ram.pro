@@ -29,6 +29,8 @@ MOC_DIR = $$DESTDIR/.moc
 RCC_DIR = $$DESTDIR/.qrc
 UI_DIR = $$DESTDIR/.ui
 
+unix:QMAKE_CXXFLAGS += -std=c++0x
+
 # hdf5 library
 
 include($$PWD/../hdf5-c-parallel_paths.pri)

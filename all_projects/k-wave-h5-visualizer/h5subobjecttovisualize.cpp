@@ -418,7 +418,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         originalMaxVG =  group->readAttributeF("max");
 
         // Get number of steps
-        steps =  group->readAttributeI("count");
+        steps =  group->getNumObjs();//group->readAttributeI("count");
     }
 }
 

@@ -382,3 +382,8 @@ std::string HDF5File::HDF5Object::readAttributeS(const std::string name)
     return value;
 }
 
+HDF5File *HDF5File::HDF5Object::getFile()
+{
+    return hDF5File;
+}
+
