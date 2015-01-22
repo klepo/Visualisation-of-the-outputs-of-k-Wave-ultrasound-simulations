@@ -968,6 +968,8 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
         // Delete srcData
         delete [] srcData;
 
+        if (!smallZCountFlag)
+            MPI_Barrier(comm);
         double tSN0 = HDF5Helper::getTime();
 
         // If there is more than one process -> send and receive data of neighbours
@@ -1008,6 +1010,8 @@ void resamplingOfDataset(HDF5File::HDF5Dataset *srcDataset, HDF5File::HDF5Vector
             }
         }
 
+        if (!smallZCountFlag)
+            MPI_Barrier(comm);
         double tSN1 = HDF5Helper::getTime();
 
         double tTYZ0 = HDF5Helper::getTime();
