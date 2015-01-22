@@ -615,6 +615,7 @@ HDF5File::HDF5Vector3D HDF5File::getNdims()
  */
 double HDF5Helper::getTime()
 {
+    return MPI_Wtime() * 1000;
     #ifdef __unix
         timeval tv;
         gettimeofday (&tv, NULL);
