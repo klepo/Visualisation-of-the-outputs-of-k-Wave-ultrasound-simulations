@@ -715,13 +715,20 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, DtsF
                 group->setAttribute("sizeY", (uint64_t) datasetSize[1]);
                 group->setAttribute("sizeX", (uint64_t) datasetSize[2]);
 
+                hsize_t index = 0, zM = 0, yM = 0, xM = 0;
+                float data[1];
+                float *tmpData;
+                bool useTmpFlag = false;
+
+                if (datasetSize[0] * datasetSize[1] * datasetSize[2] <= dataset->getSizeOfDataPart()) {
+                    useTmpFlag = true;
+                    tmpData = new float[datasetSize[0] * datasetSize[1] * datasetSize[2]];
+                }
+
                 // First dataset in group
                 hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(0), 3, datasetSize, chunkSize, true);
                 // Set as actual
                 HDF5File::HDF5Dataset *actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(0));
-
-                hsize_t index = 0, zM = 0, yM = 0, xM = 0;
-                float data[1];
 
                 for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
                     // Offset is unused here (except yDO), but for block reading is important (zO, yMO/yDO, xO)
@@ -738,7 +745,10 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, DtsF
                                 index = sensorMaskData[srcIndex];
                                 hDF5SimulationOutputFile->convertlinearTo3D(index, zM, yM, xM);
                                 data[0] = datasetData[srcIndex];
-                                actualDataset->write3DDataset(zM - minZ, yM - minY, xM - minX, 1, 1, 1, data, false);
+                                if (useTmpFlag)
+                                    tmpData[(zM - minZ) * (datasetSize[1] * datasetSize[2]) + (yM - minY) * datasetSize[2] + (xM - minX)] = data[0];
+                                else
+                                    actualDataset->write3DDataset(zM - minZ, yM - minY, xM - minX, 1, 1, 1, data, false);
                             }
 
                     double t5 = HDF5Helper::getTime();
@@ -753,6 +763,9 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, DtsF
                         if (MAX_NUMBER_OF_FRAMES > 0) // TODO
                             if (yDO + 1 == MAX_NUMBER_OF_FRAMES)
                                 break;
+
+                        if (useTmpFlag)
+                            actualDataset->write3DDataset(0, 0, 0, datasetSize[0], datasetSize[1], datasetSize[2], tmpData);
 
                         actualDataset->findAndSetGlobalMinAndMaxValue();
 
@@ -771,6 +784,9 @@ void reshape(HDF5File *hDF5SimulationOutputFile, HDF5File * hDF5OutputFile, DtsF
                         actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(yDO + 1));
                     }
                 }
+
+                if (useTmpFlag)
+                    delete[] tmpData;
 
                 actualDataset->findAndSetGlobalMinAndMaxValue();
 
