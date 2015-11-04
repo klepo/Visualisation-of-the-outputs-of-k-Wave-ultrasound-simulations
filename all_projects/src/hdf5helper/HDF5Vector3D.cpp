@@ -16,64 +16,64 @@
 
 #include "HDF5Vector3D.h"
 
-HDF5File::HDF5Vector3D::HDF5Vector3D()
+HDF5Helper::File::HDF5Vector3D::HDF5Vector3D()
 {
     vector[0] = 0;
     vector[1] = 0;
     vector[2] = 0;
 }
 
-HDF5File::HDF5Vector3D::HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
+HDF5Helper::File::HDF5Vector3D::HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
 {
     vector[0] = z;
     vector[1] = y;
     vector[2] = x;
 }
 
-HDF5File::HDF5Vector3D::~HDF5Vector3D()
+HDF5Helper::File::HDF5Vector3D::~HDF5Vector3D()
 {
 }
 
-void HDF5File::HDF5Vector3D::set(HDF5Vector3D vector)
+void HDF5Helper::File::HDF5Vector3D::set(HDF5Vector3D vector)
 {
     this->vector[0] = vector[0];
     this->vector[1] = vector[1];
     this->vector[2] = vector[2];
 }
 
-void HDF5File::HDF5Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
+void HDF5Helper::File::HDF5Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
 {
     vector[0] = z;
     vector[1] = y;
     vector[2] = x;
 }
 
-hsize_t HDF5File::HDF5Vector3D::size()
+hsize_t HDF5Helper::File::HDF5Vector3D::size()
 {
     return vector[0] * vector[1] * vector[2];
 }
 
-hsize_t &HDF5File::HDF5Vector3D::x()
+hsize_t &HDF5Helper::File::HDF5Vector3D::x()
 {
     return vector[2];
 }
 
-hsize_t &HDF5File::HDF5Vector3D::y()
+hsize_t &HDF5Helper::File::HDF5Vector3D::y()
 {
     return vector[1];
 }
 
-hsize_t &HDF5File::HDF5Vector3D::z()
+hsize_t &HDF5Helper::File::HDF5Vector3D::z()
 {
     return vector[0];
 }
 
-hsize_t *HDF5File::HDF5Vector3D::getVectorPtr()
+hsize_t *HDF5Helper::File::HDF5Vector3D::getVectorPtr()
 {
     return vector;
 }
 
-hsize_t &HDF5File::HDF5Vector3D::operator [](unsigned int i)
+hsize_t &HDF5Helper::File::HDF5Vector3D::operator [](unsigned int i)
 {
     if (i > 2){
         throw std::runtime_error("Index to HDF5Vector3D is too big");
@@ -81,7 +81,7 @@ hsize_t &HDF5File::HDF5Vector3D::operator [](unsigned int i)
     return vector[i];
 }
 
-HDF5File::HDF5Vector3D &HDF5File::HDF5Vector3D::operator =(HDF5Vector3D vector)
+HDF5Helper::File::HDF5Vector3D &HDF5Helper::File::HDF5Vector3D::operator =(HDF5Vector3D vector)
 {
     this->set(vector);
     return *this;

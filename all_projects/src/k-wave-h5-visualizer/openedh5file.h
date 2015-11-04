@@ -43,7 +43,7 @@ public:
 
     QMap<QString, QString> getInfo();
 
-    HDF5File *getFile();
+    HDF5Helper::File *getFile();
 
     QString getFilename();
     QString getRawFilename();
@@ -64,7 +64,7 @@ public slots:
     void toogleObjectSelected(QString mainName);
 
 private:
-    HDF5File *file;
+    HDF5Helper::File *file;
     uint64_t nT, nX, nY, nZ;
 
     QMap<QString, QString> info;

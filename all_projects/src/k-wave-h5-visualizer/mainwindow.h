@@ -137,7 +137,7 @@ private:
 
     OpenedH5File *openedH5File;
 
-    HDF5File *file;
+    HDF5Helper::File *file;
 
     OpenedH5File::H5ObjectToVisualize *object;
     OpenedH5File::H5SubobjectToVisualize *subobject;

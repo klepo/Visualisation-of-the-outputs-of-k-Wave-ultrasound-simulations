@@ -18,7 +18,7 @@
 
 #include "HDF5Object.h"
 
-class HDF5File::HDF5Object::HDF5Attribute
+class HDF5Helper::File::HDF5Object::HDF5Attribute
 {
 public:
     HDF5Attribute(hid_t object, std::string name);

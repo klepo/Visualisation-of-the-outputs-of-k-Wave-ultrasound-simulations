@@ -18,10 +18,10 @@
 
 #include "HDF5Object.h"
 
-class HDF5File::HDF5Group : public HDF5File::HDF5Object
+class HDF5Helper::File::HDF5Group : public HDF5Helper::File::HDF5Object
 {
 public:
-    HDF5Group(const hid_t group, const std::string name, HDF5File *hDF5File);
+    HDF5Group(const hid_t group, const std::string name, File *hDF5File);
     ~HDF5Group();
 
     hsize_t getId();

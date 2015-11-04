@@ -50,7 +50,7 @@ OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
  * @brief OpenedH5File::H5ObjectToVisualize::addSubobject Add dataset to Qmap of subobjects
  * @param dataset HDF5File::HDF5Dataset * object
  */
-void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5File::HDF5Dataset *dataset)
+void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::File::HDF5Dataset *dataset)
 {
     if (type == OpenedH5File::DATASET_TYPE && !subobjects.contains(QString::fromStdString(dataset->getName()))) {
         H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(dataset, openedH5File);
@@ -63,7 +63,7 @@ void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5File::HDF5Dataset *data
  * @brief OpenedH5File::H5ObjectToVisualize::addSubobject Add group to Qmap of subobjects
  * @param group HDF5File::HDF5Group * object
  */
-void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5File::HDF5Group *group)
+void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::File::HDF5Group *group)
 {
     if (type == OpenedH5File::GROUP_TYPE && !subobjects.contains(QString::fromStdString(group->getName()))) {
         H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(group, openedH5File);

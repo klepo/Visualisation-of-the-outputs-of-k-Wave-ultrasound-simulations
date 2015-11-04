@@ -18,7 +18,7 @@
 
 #include "HDF5File.h"
 
-class HDF5File::HDF5Vector3D
+class HDF5Helper::File::HDF5Vector3D
 {
 public:
     HDF5Vector3D();

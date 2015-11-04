@@ -46,7 +46,7 @@ win32 {
 
 # hdf5file library
 
-include($$PWD/../hdf5file-c/hdf5file-c-parallel_paths.pri)
+include($$PWD/../hdf5helper/hdf5helper-parallel_paths.pri)
 
 # hdf5 library
 

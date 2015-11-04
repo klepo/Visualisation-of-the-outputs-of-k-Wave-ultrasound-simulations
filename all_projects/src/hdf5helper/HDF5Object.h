@@ -18,7 +18,7 @@
 
 #include "HDF5File.h"
 
-class HDF5File::HDF5Object
+class HDF5Helper::File::HDF5Object
 {
 public:
     class HDF5Attribute;
@@ -48,11 +48,11 @@ public:
 
     int getNumAttrs();
 
-    HDF5File *getFile();
+    File *getFile();
 
 protected:
     hid_t object;
-    HDF5File *hDF5File;
+    File *hDF5File;
     herr_t err;
 
 private:

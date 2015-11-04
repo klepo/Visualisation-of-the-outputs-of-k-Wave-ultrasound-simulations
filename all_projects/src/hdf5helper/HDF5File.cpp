@@ -18,24 +18,24 @@
 #include "HDF5Dataset.h"
 #include "HDF5Group.h"
 
-const std::string HDF5File::NT("Nt");
-const std::string HDF5File::NX("Nx");
-const std::string HDF5File::NY("Ny");
-const std::string HDF5File::NZ("Nz");
+const std::string HDF5Helper::File::NT("Nt");
+const std::string HDF5Helper::File::NX("Nx");
+const std::string HDF5Helper::File::NY("Ny");
+const std::string HDF5Helper::File::NZ("Nz");
 
-std::mutex HDF5File::mutex;
+std::mutex HDF5Helper::File::mutex;
 
 /**
- * @brief HDF5File::HDF5File
+ * @brief HDF5HDF5::File::HDF5File
  * @param filename path to HDF5 file
- * @param flag default: HDF5File::OPEN - open (read and write) file, HDF5File::CREATE - create new file
+ * @param flag default: HDF5HDF5::File::OPEN - open (read and write) file, HDF5HDF5::File::CREATE - create new file
  * @param log enable/disable log file
  * @throw std::runtime_error
  */
 #ifdef PARALLEL_HDF5
-HDF5File::HDF5File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log)
+HDF5Helper::File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log)
 #else
-HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
+HDF5Helper::File::File(std::string filename, unsigned int flag, bool log)
 #endif
 {
     #ifdef PARALLEL_HDF5 
@@ -95,7 +95,7 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
     }
 
     // Open or create file
-    if (flag == HDF5File::OPEN) {
+    if (flag == HDF5Helper::File::OPEN) {
         std::cout << "Opening file \"" << filename << "\" ";
         file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, plist_FILE_ACCESS);
         if (file < 0) {
@@ -106,36 +106,36 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
         std::cout << "... OK " << std::endl;
 
         // Load basic datasets
-        insertDataset(HDF5File::NT);
-        insertDataset(HDF5File::NX);
-        insertDataset(HDF5File::NY);
-        insertDataset(HDF5File::NZ);
+        insertDataset(HDF5Helper::File::NT);
+        insertDataset(HDF5Helper::File::NX);
+        insertDataset(HDF5Helper::File::NY);
+        insertDataset(HDF5Helper::File::NZ);
 
         //Set dimensions
         hsize_t *data = NULL;
 
-        openDataset(HDF5File::NT)->readFullDataset(data);
+        openDataset(HDF5Helper::File::NT)->readFullDataset(data);
         nT = data[0];
         delete [] data;
 
-        openDataset(HDF5File::NX)->readFullDataset(data);
+        openDataset(HDF5Helper::File::NX)->readFullDataset(data);
         nX = data[0];
         delete [] data;
 
-        openDataset(HDF5File::NY)->readFullDataset(data);
+        openDataset(HDF5Helper::File::NY)->readFullDataset(data);
         nY = data[0];
         delete [] data;
 
-        openDataset(HDF5File::NZ)->readFullDataset(data);
+        openDataset(HDF5Helper::File::NZ)->readFullDataset(data);
         nZ = data[0];
         delete [] data;
 
-        closeDataset(HDF5File::NT);
-        closeDataset(HDF5File::NX);
-        closeDataset(HDF5File::NY);
-        closeDataset(HDF5File::NZ);
+        closeDataset(HDF5Helper::File::NT);
+        closeDataset(HDF5Helper::File::NX);
+        closeDataset(HDF5Helper::File::NY);
+        closeDataset(HDF5Helper::File::NZ);
 
-    } else if (flag == HDF5File::CREATE) {
+    } else if (flag == HDF5Helper::File::CREATE) {
         std::cout << "Creating file \"" << filename << "\" ";
         file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, plist_FILE_ACCESS);
         if (file < 0) {
@@ -150,9 +150,9 @@ HDF5File::HDF5File(std::string filename, unsigned int flag, bool log)
 }
 
 /**
- * @brief HDF5File::~HDF5File
+ * @brief HDF5HDF5::File::~HDF5File
  */
-HDF5File::~HDF5File()
+HDF5Helper::File::~File()
 {
     // Delete all loaded datasets
     for (MapOfDatasets::iterator it = datasets.begin(); it != datasets.end(); ++it) {
@@ -176,20 +176,20 @@ HDF5File::~HDF5File()
 }
 
 /**
- * @brief HDF5File::getLogFileStream
+ * @brief HDF5HDF5::File::getLogFileStream
  * @return log file stream
  */
-std::ofstream *HDF5File::getLogFileStream()
+std::ofstream *HDF5Helper::File::getLogFileStream()
 {
     return &logFileStream;
 }
 
 /**
- * @brief HDF5File::insertDataset Open, create and insert dataset (HDF5Dataset) to std::map datasets
+ * @brief HDF5HDF5::File::insertDataset Open, create and insert dataset (HDF5Dataset) to std::map datasets
  * @param datasetName name of dataset
  * @throw std::runtime_error
  */
-void HDF5File::insertDataset(const std::string datasetName)
+void HDF5Helper::File::insertDataset(const std::string datasetName)
 {
     std::cout << "Opening dataset \"" << datasetName << "\" ";
     hid_t d = H5Dopen(file, datasetName.c_str(), H5P_DEFAULT);
@@ -204,11 +204,11 @@ void HDF5File::insertDataset(const std::string datasetName)
 }
 
 /**
- * @brief HDF5File::insertGroup Open, create and insert group (HDF5Group) to std::map groups
+ * @brief HDF5HDF5::File::insertGroup Open, create and insert group (HDF5Group) to std::map groups
  * @param groupName name of group
  * @throw std::runtime_error
  */
-void HDF5File::insertGroup(const std::string groupName)
+void HDF5Helper::File::insertGroup(const std::string groupName)
 {
     std::cout << "Opening group \"" << groupName << "\" ";
     hid_t g = H5Gopen(file, groupName.c_str(), H5P_DEFAULT);
@@ -223,7 +223,7 @@ void HDF5File::insertGroup(const std::string groupName)
 }
 
 /**
- * @brief HDF5File::createDatasetI Create new hsize_t dataset in file
+ * @brief HDF5HDF5::File::createDatasetI Create new hsize_t dataset in file
  * @param datasetName name of dataset
  * @param rank
  * @param size
@@ -231,13 +231,13 @@ void HDF5File::insertGroup(const std::string groupName)
  * @param rewrite flag for rewriting existing dataset
  * @throw std::runtime_error
  */
-void HDF5File::createDatasetI(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
+void HDF5Helper::File::createDatasetI(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
 {
-    HDF5File::createDataset(datasetName, H5T_NATIVE_UINT64, rank, size, chunk_size, rewrite);
+    HDF5Helper::File::createDataset(datasetName, H5T_NATIVE_UINT64, rank, size, chunk_size, rewrite);
 }
 
 /**
- * @brief HDF5File::createDatasetF Create new float dataset in file
+ * @brief HDF5HDF5::File::createDatasetF Create new float dataset in file
  * @param datasetName name of dataset
  * @param rank
  * @param size
@@ -245,13 +245,13 @@ void HDF5File::createDatasetI(const std::string datasetName, hsize_t rank, HDF5V
  * @param rewrite flag for rewriting existing dataset
  * @throw std::runtime_error
  */
-void HDF5File::createDatasetF(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
+void HDF5Helper::File::createDatasetF(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
 {
-    HDF5File::createDataset(datasetName, H5T_NATIVE_FLOAT, rank, size, chunk_size, rewrite);
+    HDF5Helper::File::createDataset(datasetName, H5T_NATIVE_FLOAT, rank, size, chunk_size, rewrite);
 }
 
 /**
- * @brief HDF5File::createDataset Create new dataset in file of given type
+ * @brief HDF5HDF5::File::createDataset Create new dataset in file of given type
  * @param datasetName name of dataset
  * @param rank
  * @param size
@@ -260,7 +260,7 @@ void HDF5File::createDatasetF(const std::string datasetName, hsize_t rank, HDF5V
  * @param type (H5T_NATIVE_FLOAT | H5T_NATIVE_UINT64)
  * @throw std::runtime_error
  */
-void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
+void HDF5Helper::File::createDataset(const std::string datasetName, hid_t datatype, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite)
 {
     hid_t dataspace = H5Screate_simple((int) rank, size.getVectorPtr(), NULL);
     if (dataspace < 0){
@@ -321,12 +321,12 @@ void HDF5File::createDataset(const std::string datasetName, hid_t datatype, hsiz
 }
 
 /**
- * @brief HDF5File::createGroup Create new group
+ * @brief HDF5HDF5::File::createGroup Create new group
  * @param name
  * @param rewrite flag for rewriting existing group
  * @throw std::runtime_error
  */
-void HDF5File::createGroup(const std::string name, bool rewrite)
+void HDF5Helper::File::createGroup(const std::string name, bool rewrite)
 {
         std::cout << "Creating group \"" << name << "\" ";
         if (rewrite) {
@@ -347,42 +347,42 @@ void HDF5File::createGroup(const std::string name, bool rewrite)
 }
 
 /**
- * @brief HDF5File::openDataset Open dataset (create new HDF5Dataset) by idx in HDF5 file
+ * @brief HDF5HDF5::File::openDataset Open dataset (create new HDF5Dataset) by idx in HDF5 file
  * @param idx
  * @return dataset (HDF5Dataset)
  * @throw std::runtime_error
  */
-HDF5File::HDF5Dataset *HDF5File::openDataset(hsize_t idx)
+HDF5Helper::File::HDF5Dataset *HDF5Helper::File::openDataset(hsize_t idx)
 {
     std::string name = getObjNameById(idx);
 
     if (datasets.find(name) == datasets.end()) {
-        HDF5File::insertDataset(name);
-        return HDF5File::openDataset(name);
+        HDF5Helper::File::insertDataset(name);
+        return HDF5Helper::File::openDataset(name);
     } else
         return datasets.find(name)->second;
 }
 
 /**
- * @brief HDF5File::openDataset Open dataset (create new HDF5Dataset) by datasetName in HDF5 file
+ * @brief HDF5HDF5::File::openDataset Open dataset (create new HDF5Dataset) by datasetName in HDF5 file
  * @param datasetName
  * @return dataset (HDF5Dataset)
  * @throw std::runtime_error
  */
-HDF5File::HDF5Dataset *HDF5File::openDataset(const std::string datasetName)
+HDF5Helper::File::HDF5Dataset *HDF5Helper::File::openDataset(const std::string datasetName)
 {
     if (datasets.find(datasetName) == datasets.end()) {
-        HDF5File::insertDataset(datasetName);
-        return HDF5File::openDataset(datasetName);
+        HDF5Helper::File::insertDataset(datasetName);
+        return HDF5Helper::File::openDataset(datasetName);
     } else
         return datasets.find(datasetName)->second;
 }
 
 /**
- * @brief HDF5File::closeDataset Close dataset with given name in HDF5 file
+ * @brief HDF5HDF5::File::closeDataset Close dataset with given name in HDF5 file
  * @param datasetName
  */
-void HDF5File::closeDataset(const std::string datasetName)
+void HDF5Helper::File::closeDataset(const std::string datasetName)
 {
     if (datasets.find(datasetName) != datasets.end()){
         HDF5Dataset *dataset = datasets.find(datasetName)->second;
@@ -392,42 +392,42 @@ void HDF5File::closeDataset(const std::string datasetName)
 }
 
 /**
- * @brief HDF5File::openGroup Open group (create new HDF5Group) with given name in HDF5 file
+ * @brief HDF5HDF5::File::openGroup Open group (create new HDF5Group) with given name in HDF5 file
  * @param groupName
  * @return group
  * @throw std::runtime_error
  */
-HDF5File::HDF5Group *HDF5File::openGroup(const std::string groupName)
+HDF5Helper::File::HDF5Group *HDF5Helper::File::openGroup(const std::string groupName)
 {
     if (groups.find(groupName) == groups.end()) {
-        HDF5File::insertGroup(groupName);
-        return HDF5File::openGroup(groupName);
+        HDF5Helper::File::insertGroup(groupName);
+        return HDF5Helper::File::openGroup(groupName);
     } else
         return groups.find(groupName)->second;
 }
 
 /**
- * @brief HDF5File::openGroup Open group (create new HDF5Group) with given idx in HDF5 file
+ * @brief HDF5HDF5::File::openGroup Open group (create new HDF5Group) with given idx in HDF5 file
  * @param idx
  * @return group
  * @throw std::runtime_error
  */
-HDF5File::HDF5Group *HDF5File::openGroup(hsize_t idx)
+HDF5Helper::File::HDF5Group *HDF5Helper::File::openGroup(hsize_t idx)
 {
     std::string name = getObjNameById(idx);
 
     if (groups.find(name) == groups.end()) {
-        HDF5File::insertGroup(name);
-        return HDF5File::openGroup(name);
+        HDF5Helper::File::insertGroup(name);
+        return HDF5Helper::File::openGroup(name);
     } else
         return groups.find(name)->second;
 }
 
 /**
- * @brief HDF5File::closeGroup Close group with given name in HDF5 file
+ * @brief HDF5HDF5::File::closeGroup Close group with given name in HDF5 file
  * @param groupName
  */
-void HDF5File::closeGroup(const std::string groupName)
+void HDF5Helper::File::closeGroup(const std::string groupName)
 {
     if (groups.find(groupName) != groups.end()){
         HDF5Group *group = groups.find(groupName)->second;
@@ -437,10 +437,10 @@ void HDF5File::closeGroup(const std::string groupName)
 }
 
 /**
- * @brief HDF5File::getNumObjs Get number of objects in HDF5 file (root group)
+ * @brief HDF5HDF5::File::getNumObjs Get number of objects in HDF5 file (root group)
  * @return
  */
-hsize_t HDF5File::getNumObjs()
+hsize_t HDF5Helper::File::getNumObjs()
 {
     H5G_info_t group_info;
     err = H5Gget_info(file, &group_info);
@@ -452,11 +452,11 @@ hsize_t HDF5File::getNumObjs()
 }
 
 /**
- * @brief HDF5File::getObjNameById Get object name by id
+ * @brief HDF5HDF5::File::getObjNameById Get object name by id
  * @param id
  * @return object name
  */
-std::string HDF5File::getObjNameById(hsize_t idx)
+std::string HDF5Helper::File::getObjNameById(hsize_t idx)
 {
     char *nameC = NULL;
     ssize_t size = 0;
@@ -473,11 +473,11 @@ std::string HDF5File::getObjNameById(hsize_t idx)
 }
 
 /**
- * @brief HDF5File::getObjTypeById Get object type by id
+ * @brief HDF5HDF5::File::getObjTypeById Get object type by id
  * @param id
  * @return object type
  */
-H5G_obj_t HDF5File::getObjTypeById(hsize_t idx)
+H5G_obj_t HDF5Helper::File::getObjTypeById(hsize_t idx)
 {
     int type = 0;
     type = H5Gget_objtype_by_idx(file, idx);
@@ -489,11 +489,11 @@ H5G_obj_t HDF5File::getObjTypeById(hsize_t idx)
 }
 
 /**
- * @brief HDF5File::objExistsByName
+ * @brief HDF5HDF5::File::objExistsByName
  * @param name
  * @return true/false
  */
-bool HDF5File::objExistsByName(const std::string name)
+bool HDF5Helper::File::objExistsByName(const std::string name)
 {
     if (H5Lexists(file, name.c_str(), H5P_DEFAULT))
         return H5Oexists_by_name(file, name.c_str(), H5P_DEFAULT) != 0;
@@ -502,59 +502,59 @@ bool HDF5File::objExistsByName(const std::string name)
 }
 
 /**
- * @brief HDF5File::getFilename
+ * @brief HDF5HDF5::File::getFilename
  * @return filename
  */
-std::string HDF5File::getFilename()
+std::string HDF5Helper::File::getFilename()
 {
     return filename;
 }
 
 /**
- * @brief HDF5File::getNT
+ * @brief HDF5HDF5::File::getNT
  * @return Nt
  */
-hsize_t HDF5File::getNT()
+hsize_t HDF5Helper::File::getNT()
 {
     return nT;
 }
 
 /**
- * @brief HDF5File::getNX
+ * @brief HDF5HDF5::File::getNX
  * @return Nx
  */
-hsize_t HDF5File::getNX()
+hsize_t HDF5Helper::File::getNX()
 {
     return nX;
 }
 
 /**
- * @brief HDF5File::getNY
+ * @brief HDF5HDF5::File::getNY
  * @return Ny
  */
-hsize_t HDF5File::getNY()
+hsize_t HDF5Helper::File::getNY()
 {
     return nY;
 }
 
 /**
- * @brief HDF5File::getNZ
+ * @brief HDF5HDF5::File::getNZ
  * @return Nz
  */
-hsize_t HDF5File::getNZ()
+hsize_t HDF5Helper::File::getNZ()
 {
     return nZ;
 }
 
 /**
- * @brief HDF5File::convertlinearTo3D Convert linear index to 3D position (z, y, x)
+ * @brief HDF5HDF5::File::convertlinearTo3D Convert linear index to 3D position (z, y, x)
  * @param index 1..Nz*Ny*Nx
  * @param [out] z 0..Nz - 1
  * @param [out] y 0..Ny - 1
  * @param [out] x 0..Nx - 1
  * @throw std::runtime_error
  */
-void HDF5File::convertlinearTo3D(hsize_t index, HDF5Vector3D &position)
+void HDF5Helper::File::convertlinearTo3D(hsize_t index, HDF5Vector3D &position)
 {
     if (index > nX * nY * nZ) throw std::runtime_error("Wrong index - too big index");
     if (index == 0) throw std::runtime_error("Wrong index - too small index");
@@ -565,14 +565,14 @@ void HDF5File::convertlinearTo3D(hsize_t index, HDF5Vector3D &position)
 }
 
 /**
- * @brief HDF5File::convert3DToLinear Convert 3D position (z, y, x) to linear index
+ * @brief HDF5HDF5::File::convert3DToLinear Convert 3D position (z, y, x) to linear index
  * @param z 0..Nz - 1
  * @param y 0..Ny - 1
  * @param x 0..Nx - 1
  * @param [out] index 1..Nz*Ny*Nx
  * @throw std::runtime_error
  */
-void HDF5File::convert3DToLinear(HDF5Vector3D position, hsize_t &index)
+void HDF5Helper::File::convert3DToLinear(HDF5Vector3D position, hsize_t &index)
 {
     if (position.x() >= nX) throw std::runtime_error("Wrong x - too big x");
     if (position.y() >= nY) throw std::runtime_error("Wrong y - too big y");
@@ -582,10 +582,10 @@ void HDF5File::convert3DToLinear(HDF5Vector3D position, hsize_t &index)
 }
 
 /**
- * @brief HDF5File::setSizeOfDataPart
+ * @brief HDF5HDF5::File::setSizeOfDataPart
  * @param size
  */
-void HDF5File::setNumberOfElmsToLoad(hsize_t size)
+void HDF5Helper::File::setNumberOfElmsToLoad(hsize_t size)
 {
     #ifdef PARALLEL_HDF5    
         if (mPISize > 1 && size > std::numeric_limits<int>::max())
@@ -595,15 +595,15 @@ void HDF5File::setNumberOfElmsToLoad(hsize_t size)
 }
 
 /**
- * @brief HDF5File::getSizeOfDataPart
+ * @brief HDF5HDF5::File::getSizeOfDataPart
  * @return size of data part
  */
-hsize_t HDF5File::getNumberOfElmsToLoad()
+hsize_t HDF5Helper::File::getNumberOfElmsToLoad()
 {
     return numberOfElementsToLoad;
 }
 
-HDF5File::HDF5Vector3D HDF5File::getNdims()
+HDF5Helper::File::HDF5Vector3D HDF5Helper::File::getNdims()
 {
     return HDF5Vector3D(nZ, nY, nX);
 }

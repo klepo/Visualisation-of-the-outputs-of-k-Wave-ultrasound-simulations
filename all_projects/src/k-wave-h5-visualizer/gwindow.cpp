@@ -501,7 +501,7 @@ void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int pos
  * @brief GWindow::load3DTexture Performs loading of 3D data for VR
  * @param dataset
  */
-void GWindow::load3DTexture(HDF5File::HDF5Dataset *dataset)
+void GWindow::load3DTexture(HDF5Helper::File::HDF5Dataset *dataset)
 {
     // If dataset is already loaded
     if (selectedDataset != NULL && selectedDataset->getName() == dataset->getName()) {

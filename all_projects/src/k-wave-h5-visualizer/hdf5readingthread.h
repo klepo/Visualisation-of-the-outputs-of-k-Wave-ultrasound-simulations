@@ -25,16 +25,16 @@
 class Request
 {
 public:
-    Request(HDF5File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
-    Request(HDF5File::HDF5Dataset *dataset);
+    Request(HDF5Helper::File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC);
+    Request(HDF5Helper::File::HDF5Dataset *dataset);
     ~Request();
     QString toQString();
 
-    HDF5File::HDF5Vector3D offset;
-    HDF5File::HDF5Vector3D count;
+    HDF5Helper::File::HDF5Vector3D offset;
+    HDF5Helper::File::HDF5Vector3D count;
     float min, max;
     bool full;
-    HDF5File::HDF5Dataset *dataset;
+    HDF5Helper::File::HDF5Dataset *dataset;
     float *data;
 };
 
@@ -52,8 +52,8 @@ signals:
     void requestDone(Request *);
 
 public slots:
-    void createRequest(HDF5File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 0);
-    void createRequest(HDF5File::HDF5Dataset *);
+    void createRequest(HDF5Helper::File::HDF5Dataset *, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, hsize_t, int limit = 0);
+    void createRequest(HDF5Helper::File::HDF5Dataset *);
     void clearRequests();
     void clearDoneRequests();
     void deleteDoneRequest(Request *);

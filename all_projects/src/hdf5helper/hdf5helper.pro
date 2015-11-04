@@ -2,7 +2,7 @@
 #
 # Project created by QtCreator
 #
-# hdf5file-c-parallel library
+# hdf5helper library
 #
 #-------------------------------------------------
 
@@ -11,7 +11,7 @@ CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
 
-TARGET = hdf5file-c-parallel
+TARGET = hdf5helper
 
 #CONFIG(debug, debug|release) {
 #    DESTDIR = ../build/$$TARGET/debug
@@ -38,13 +38,11 @@ unix:QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += HDF5File.cpp HDF5Vector3D.cpp HDF5Object.cpp HDF5Dataset.cpp HDF5Group.cpp HDF5Attribute.cpp
 
-HEADERS += HDF5File.h HDF5Vector3D.h HDF5Object.h HDF5Dataset.h HDF5Group.h HDF5Attribute.h
+HEADERS += hdf5helper.h HDF5File.h HDF5Vector3D.h HDF5Object.h HDF5Dataset.h HDF5Group.h HDF5Attribute.h
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 # hdf5 library
 
-DEFINES += PARALLEL_HDF5
-
-include($$PWD/../hdf5-c-parallel_paths.pri)
+include($$PWD/../hdf5-c_paths.pri)

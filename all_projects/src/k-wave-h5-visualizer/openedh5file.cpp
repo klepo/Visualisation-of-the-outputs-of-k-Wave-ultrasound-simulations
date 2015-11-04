@@ -29,7 +29,7 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     QObject(parent)
 {
     // Open HDF5 file, operations with file can throw exceptions
-    file = new HDF5File(fileName.toStdString(), HDF5File::OPEN);
+    file = new HDF5Helper::File(fileName.toStdString(), HDF5Helper::File::OPEN);
     // No object is selected
     selectedObject = NULL;
 
@@ -42,9 +42,9 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     qDebug() << "Load info (root attributes)...";
 
     // Load info
-    HDF5File::HDF5Group *group = file->openGroup("/");
+    HDF5Helper::File::HDF5Group *group = file->openGroup("/");
     for (int i = 0; i < group->getNumAttrs(); i++) {
-        HDF5File::HDF5Group::HDF5Attribute *attribute = group->getAttribute(i);
+        HDF5Helper::File::HDF5Group::HDF5Attribute *attribute = group->getAttribute(i);
         QString value((const char *) attribute->getData());
         info.insert(QString::fromStdString(attribute->getName()), value);
     }
@@ -59,8 +59,8 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
         H5G_obj_t type = file->getObjTypeById(i);
         if (type == H5G_DATASET) {
             try {
-                HDF5File::HDF5Dataset *dataset = file->openDataset(i);
-                HDF5File::HDF5Vector3D size = dataset->getDims();
+                HDF5Helper::File::HDF5Dataset *dataset = file->openDataset(i);
+                HDF5Helper::File::HDF5Vector3D size = dataset->getDims();
                 // 3D type
                 if (dataset->getDataTypeClass() == H5T_FLOAT && dataset->getRank() == 3 && size[0] == nZ && size[1] == nY && size[2] == nX) {
                     QString name = QString::fromStdString(dataset->getName());
@@ -96,7 +96,7 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
         } else if (type == H5G_GROUP) {
             // Reshaped mask type group
             try {
-                HDF5File::HDF5Group *group = file->openGroup(i);
+                HDF5Helper::File::HDF5Group *group = file->openGroup(i);
                 // Downsampled reshaped mask type group
                 if (group->hasAttribute("src_group_name") && group->hasAttribute("count")) {
                     // TODO Check other attributes...
@@ -269,7 +269,7 @@ QMap<QString, QString> OpenedH5File::getInfo()
  * @brief OpenedH5File::getFile Get HDF5 file
  * @return HDF5 file
  */
-HDF5File *OpenedH5File::getFile()
+HDF5Helper::File *OpenedH5File::getFile()
 {
     return file;
 }

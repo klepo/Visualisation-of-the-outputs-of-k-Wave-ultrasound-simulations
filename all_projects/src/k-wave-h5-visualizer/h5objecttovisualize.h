@@ -28,8 +28,8 @@ public:
     explicit H5ObjectToVisualize(QString name, const int type, OpenedH5File *openedH5File, QObject *parent = 0);
     ~H5ObjectToVisualize();
 
-    void addSubobject(HDF5File::HDF5Dataset *dataset);
-    void addSubobject(HDF5File::HDF5Group *group);
+    void addSubobject(HDF5Helper::File::HDF5Dataset *dataset);
+    void addSubobject(HDF5Helper::File::HDF5Group *group);
     void setSelectedSubobject(QString name);
     OpenedH5File::H5SubobjectToVisualize *getSelectedSubobject();
     QString getName();
