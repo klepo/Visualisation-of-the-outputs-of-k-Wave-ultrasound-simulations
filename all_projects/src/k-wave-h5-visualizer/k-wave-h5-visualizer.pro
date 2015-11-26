@@ -6,27 +6,30 @@
 #
 #-------------------------------------------------
 
-QT += core gui widgets
-
+QT += widgets
+TEMPLATE = app
 CONFIG += console
+CONFIG -= debug_and_release
+CONFIG += c++11
 
 TARGET = k-wave-h5-visualizer
 
-#CONFIG(debug, debug|release) {
-#    DESTDIR = ../build/$$TARGET/debug
-#} else {
-#    DESTDIR = ../build/$$TARGET/release
-#}
-
-#OBJECTS_DIR = $$DESTDIR/.obj
-#MOC_DIR = $$DESTDIR/.moc
-#RCC_DIR = $$DESTDIR/.qrc
-#UI_DIR = $$DESTDIR/.ui
-
-TEMPLATE = app
+QMAKE_LFLAGS += /ignore:4099
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
+
+# hdf5file library
+
+include($$PWD/../hdf5helper/hdf5helper_paths.pri)
+
+# hdf5 library
+
+include($$PWD/../hdf5-c_paths.pri)
+
+# opencv library
+
+include($$PWD/../opencv_paths.pri)
 
 SOURCES +=  main.cpp\
     mainwindow.cpp \
@@ -58,17 +61,3 @@ RESOURCES += \
 OTHER_FILES += \
     fragmentShader.frag \
     vertexShader.vert
-
-unix:QMAKE_CXXFLAGS += -std=c++0x
-
-# hdf5file library
-
-include($$PWD/../hdf5helper/hdf5helper_paths.pri)
-
-# hdf5 library
-
-include($$PWD/../hdf5-c_paths.pri)
-
-# opencv library
-
-include($$PWD/../opencv_paths.pri)

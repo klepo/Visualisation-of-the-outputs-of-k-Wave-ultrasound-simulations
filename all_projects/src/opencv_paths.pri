@@ -1,6 +1,6 @@
 
-OPENCV_INCLUDE_DIR = "D:/opencv/opencv/build/include"
-OPENCV_LIBS_DIR = "D:/opencv/opencv/build/x64/vc11/lib"
+OPENCV_INCLUDE_DIR = "F:/opencv/opencv/build/include"
+OPENCV_LIBS_DIR = "F:/opencv/opencv/build/x64/vc12/lib"
 
 #OPENCV_INCLUDE_DIR = "/home/petr/opencv-2.4.9/include"
 #OPENCV_LIBS_DIR = "/home/petr/opencv-2.4.9/lib"

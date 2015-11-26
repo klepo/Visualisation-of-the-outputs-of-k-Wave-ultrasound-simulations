@@ -1,6 +1,6 @@
 
-HDF5_INCLUDE_DIR = "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"
-HDF5_LIBS_DIR = "D:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib"
+HDF5_INCLUDE_DIR = "F:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/include"
+HDF5_LIBS_DIR = "F:/HDF5-1.8.12-win64-static-with-zlib_szip-threadsafe/lib"
 
 #HDF5_INCLUDE_DIR = "/usr/local/hdf5-1.8.13-serial-static/include"
 #HDF5_LIBS_DIR = "/usr/local/hdf5-1.8.13-serial-static/lib"
