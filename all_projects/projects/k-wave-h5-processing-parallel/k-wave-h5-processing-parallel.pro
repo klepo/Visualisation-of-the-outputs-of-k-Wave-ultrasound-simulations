@@ -25,7 +25,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 # hdf5file library
-include($$PWD/../hdf5helper/hdf5helper-parallel_paths.pri)
+include($$PWD/../hdf5helper-parallel/hdf5helper-parallel_paths.pri)
 
 # hdf5 library
 include($$PWD/../hdf5-c-parallel_paths.pri)

@@ -27,11 +27,11 @@
 #include <time.h>
 #include <list>
 
-#include <hdf5helperparallel.h>
-
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+#include <hdf5helper-parallel.h>
 
 const std::string SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
 const std::string NT_DATASET("Nt");
