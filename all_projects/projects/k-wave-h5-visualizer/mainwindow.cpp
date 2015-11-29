@@ -38,6 +38,7 @@
 #include <QMovie>
 #include <QSignalMapper>
 #include <QMessageBox>
+#include <QSettings>
 
 /**
  * @brief MainWindow::MainWindow
@@ -145,10 +146,14 @@ MainWindow::~MainWindow()
  */
 void MainWindow::on_actionLoadHDF5File_triggered()
 {
-    // Create a dialog for opening a file
-    QString fileName = QFileDialog::getOpenFileName(this, "Open File", "", "HDF5 Files (*.h5)");
+    QSettings settings("VUT FIT Brno", "k-Wave H5 Visualizer");
 
-    if (fileName != "") {
+    // Create a dialog for opening a file
+    QString fileName = QFileDialog::getOpenFileName(0, "Open File", settings.value("hdf5datafile", QDir::homePath()).toString(), "HDF5 Files (*.h5)");
+
+    settings.setValue("hdf5datafile", QFileInfo(fileName).absolutePath());
+
+    if (!fileName.isEmpty()) {
         // Close file
         on_actionCloseHDF5File_triggered();
 
