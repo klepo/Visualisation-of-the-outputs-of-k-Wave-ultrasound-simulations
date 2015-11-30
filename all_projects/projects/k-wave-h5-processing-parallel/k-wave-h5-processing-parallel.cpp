@@ -41,7 +41,7 @@ const std::string NZ_DATASET("Nz");
 
 #define MAX_SIZE 512
 #define MAX_CHUNK_SIZE 64
-#define MAX_NUMBER_OF_FRAMES 10 // TODO
+#define MAX_NUMBER_OF_FRAMES 0 // TODO set 0 -> all steps
 
 // Filenames
 std::string simulationOutputFilename = "";
