@@ -509,7 +509,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
 
                 float minValue = 0;
                 float maxValue = 0;
-                float *data = NULL;
+                float *data = 0;
                 HDF5Helper::File::HDF5Vector3D offset;
                 HDF5Helper::File::HDF5Vector3D count;
                 
@@ -685,7 +685,7 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 HDF5Helper::File::HDF5Dataset *dataset = it->second;
 
                 hsize_t *sensorMaskData;
-                float *datasetData;
+                float *datasetData = 0;
                 hsize_t minVI, maxVI;
                 float minVF = std::numeric_limits<float>::infinity(), maxVF = -std::numeric_limits<float>::infinity();
                 float minVFG = std::numeric_limits<float>::infinity(), maxVFG = -std::numeric_limits<float>::infinity();
@@ -709,7 +709,7 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 float data[1];
                 hsize_t frame = 0;
                 HDF5Helper::File::HDF5Dataset *actualDataset = NULL;
-                float *tmpData;
+                float *tmpData = 0;
                 bool useTmpFlag = false;
 
                 if (datasetSize.z() * datasetSize.y() * datasetSize.x() <= dataset->getNumberOfElmsToLoad()) {
@@ -843,8 +843,8 @@ void resamplingOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper::
     tmpFile->createDatasetF("tmp", srcDataset->getRank(), newTmpDatasetSize, HDF5Helper::File::HDF5Vector3D(nDims[0], 1, nDimsDst[2]));
     HDF5Helper::File::HDF5Dataset *tmpDataset = tmpFile->openDataset("tmp");
 
-    float *srcData;
-    float *dstData;
+    float *srcData = 0;
+    float *dstData = 0;
     float minV, maxV;
 
     // First 2D slices in XY plane
@@ -1039,7 +1039,7 @@ void changeChunksOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper
 
     double t0 = HDF5Helper::getTime();
 
-    float *data;
+    float *data = 0;
     float minV, maxV;
     float minVG = 0, maxVG = 0;
     bool first = true;
@@ -1208,7 +1208,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
                 std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
 
 
-                float *data = NULL;
+                float *data = 0;
                 hsize_t height = 0;
                 hsize_t width = 0;
 
@@ -1293,7 +1293,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
             HDF5Helper::File::HDF5Vector3D chunkSize = dataset->getChunkDims();
             std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
 
-            float *data = NULL;
+            float *data = 0;
             hsize_t height = 0;
             hsize_t width = 0;
 

@@ -512,7 +512,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
 
                 float minValue = 0;
                 float maxValue = 0;
-                float *data = NULL;
+                float *data = 0;
                 HDF5Helper::File::HDF5Vector3D offset;
                 HDF5Helper::File::HDF5Vector3D count;
 
@@ -709,7 +709,7 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 HDF5Helper::File::HDF5Dataset *dataset = it->second;
 
                 hsize_t *sensorMaskData;
-                float *datasetData;
+                float *datasetData = 0;
                 hsize_t minVI, maxVI;
                 float minVF = std::numeric_limits<float>::infinity(), maxVF = -std::numeric_limits<float>::infinity();
                 float minVFL = std::numeric_limits<float>::infinity(), maxVFL = -std::numeric_limits<float>::infinity();
@@ -908,7 +908,7 @@ void resamplingOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper::
     }
     //throw std::runtime_error("Too many processes for resampling");
 
-    float *srcData;
+    float *srcData = 0;
     HDF5Helper::File::HDF5Vector3D offset;
     HDF5Helper::File::HDF5Vector3D count;
     float minV = std::numeric_limits<float>::infinity(), maxV = -std::numeric_limits<float>::infinity();
@@ -1099,7 +1099,7 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::File::HDF5Dataset *srcDataset, HDF
     //  INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
     int interpolation = cv::INTER_NEAREST;
 
-    float *srcData;
+    float *srcData = 0;
     HDF5Helper::File::HDF5Vector3D offset;
     HDF5Helper::File::HDF5Vector3D count;
     float minV = 0, maxV = 0;
@@ -1453,7 +1453,7 @@ void changeChunksOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper
     MPI_Barrier(comm);
     double t0 = HDF5Helper::getTime();
 
-    float *data;
+    float *data = 0;
     float minV, maxV;
     float minVG = 0, maxVG = 0;
 
@@ -1628,7 +1628,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
                 std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
 
 
-                float *data = NULL;
+                float *data = 0;
                 hsize_t height = 0;
                 hsize_t width = 0;
 
@@ -1713,7 +1713,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
             HDF5Helper::File::HDF5Vector3D chunkSize = dataset->getChunkDims();
             std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
 
-            float *data = NULL;
+            float *data = 0;
             hsize_t height = 0;
             hsize_t width = 0;
 
