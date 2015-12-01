@@ -15,7 +15,7 @@ CONFIG += c++11
 
 TARGET = k-wave-h5-processing
 
-QMAKE_LFLAGS += /ignore:4099
+unix:QMAKE_LFLAGS += /ignore:4099
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
