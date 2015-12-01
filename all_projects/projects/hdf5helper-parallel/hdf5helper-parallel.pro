@@ -15,7 +15,7 @@ CONFIG += c++11
 
 TARGET = hdf5helper-parallel
 
-unix:QMAKE_LFLAGS += /ignore:4099
+win32:QMAKE_LFLAGS += /ignore:4099
 
 DEFINES += PARALLEL_HDF5
 

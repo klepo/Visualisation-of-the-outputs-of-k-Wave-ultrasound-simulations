@@ -15,7 +15,7 @@ CONFIG += c++11
 
 TARGET = k-wave-h5-processing-parallel
 
-QMAKE_LFLAGS += /ignore:4099
+win32:QMAKE_LFLAGS += /ignore:4099
 
 win32 {
     LIBS += -lws2_32 #gethostname
