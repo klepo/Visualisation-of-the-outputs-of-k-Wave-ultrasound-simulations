@@ -2,7 +2,8 @@
  * @file        hdf5readingthread.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the HDF5ReadingThread and Request class. This class
  *              is for loading HDF5 data from other threads than GUI of application is running.
@@ -15,12 +16,6 @@
  */
 
 #include "hdf5readingthread.h"
-
-#include <QDebug>
-#include <QQueue>
-
-#include <HDF5File.h>
-#include <HDF5Dataset.h>
 
 /**
  * @brief Request::Request Create request for block of dataset reading with offset and count (size) of data.
@@ -205,6 +200,7 @@ void HDF5ReadingThread::run()
 
         if (r != NULL) {
             try {
+                //usleep(1000000);
                 if (r->full) {
                     // Reading of full dataset with block reading
                     for (hsize_t i = 0; i < r->dataset->getNumberOfBlocks(); i++) {

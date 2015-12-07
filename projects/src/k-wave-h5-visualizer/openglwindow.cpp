@@ -2,7 +2,8 @@
  * @file        openglwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the OpenGLWindow class.
  *              This class is mainly for OpenGL context creation, render, and mouse move tracking with buttons.
@@ -15,16 +16,6 @@
  */
 
 #include "openglwindow.h"
-
-#include <QtCore/QCoreApplication>
-#include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLPaintDevice>
-#include <QtGui/QPainter>
-#include <QMouseEvent>
-#include <QTimer>
-#include <QDebug>
-#include <QThread>
-#include <QTime>
 
 void QTest::qSleep(int ms)
 {
@@ -51,14 +42,17 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , m_context(0)
     , m_device(0)
     , m_update_pending(false)
+    , logger(0)
 {
     //setOpacity(0.5);
     setSurfaceType(QWindow::OpenGLSurface);
 
     QSurfaceFormat surfaceFormat = requestedFormat();
 
+    surfaceFormat.setVersion(3, 3);
     surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
-    surfaceFormat.setProfile(QSurfaceFormat::CompatibilityProfile);
+    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    surfaceFormat.setOption(QSurfaceFormat::DebugContext);
     surfaceFormat.setDepthBufferSize(24);
     surfaceFormat.setRedBufferSize(8);
     surfaceFormat.setGreenBufferSize(8);
@@ -188,15 +182,24 @@ void OpenGLWindow::renderNow()
         m_context = new QOpenGLContext();
         m_context->setFormat(requestedFormat());
         m_context->create();
+        m_context->makeCurrent(this);
+
+        if (hasDebugExtension()) {
+            logger = new QOpenGLDebugLogger();
+            logger->initialize();
+            QObject::connect(logger, &QOpenGLDebugLogger::messageLogged, OpenGLWindow::messageLogged);
+            logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
+        }
+
         needsInitialize = true;
     }
-
-    m_context->makeCurrent(this);
 
     if (needsInitialize) {
         initializeOpenGLFunctions();
         initialize();
     }
+
+    m_context->makeCurrent(this);
 
     render();
 
@@ -283,4 +286,68 @@ void OpenGLWindow::wheelEvent(QWheelEvent *event)
     // Save delta
     wheelDelta = event->delta();
     renderLater();
+}
+
+/**
+ * @brief OpenGLWindow::checkGlError
+ * @return error code
+ */
+GLenum OpenGLWindow::checkGlError()
+{
+    GLenum err;
+    GLenum ret = GL_NO_ERROR;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        ret = err;
+        QMessageBox messageBox;
+        if (err == GL_INVALID_ENUM) {
+            qWarning() << "OpenGL error: GL_INVALID_ENUM " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_ENUM") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_INVALID_VALUE) {
+            qWarning() << "OpenGL error: GL_INVALID_VALUE " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_VALUE") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_INVALID_OPERATION) {
+            qWarning() << "OpenGL error: GL_INVALID_OPERATION " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_OPERATION") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_STACK_OVERFLOW) {
+            qWarning() << "OpenGL error: GL_STACK_OVERFLOW " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_OVERFLOW") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_STACK_UNDERFLOW) {
+            qWarning() << "OpenGL error: GL_STACK_UNDERFLOW " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_UNDERFLOW") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_OUT_OF_MEMORY) {
+            qWarning() << "OpenGL error: GL_OUT_OF_MEMORY " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_OUT_OF_MEMORY") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_TABLE_TOO_LARGE) {
+            qWarning() << "OpenGL error: GL_TABLE_TOO_LARGE " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_TABLE_TOO_LARGE") + QString::number(err)).toStdString().c_str());
+        } else if (err == GL_INVALID_FRAMEBUFFER_OPERATION) {
+            qWarning() << "OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION " << err;
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_FRAMEBUFFER_OPERATION") + QString::number(err)).toStdString().c_str());
+        } else {
+            qWarning() << "OpenGL error: " << err;
+            messageBox.critical(0, "OpenGL error", QString::number(err).toStdString().c_str());
+        }
+    }
+    return ret;
+}
+
+/**
+ * @brief OpenGLWindow::hasDebugExtension
+ * @return
+ */
+bool OpenGLWindow::hasDebugExtension()
+{
+    return m_context->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
+}
+
+/**
+ * @brief OpenGLWindow::messageLogged
+ * @param message
+ */
+void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
+{
+    if (message.type() == QOpenGLDebugMessage::ErrorType)
+        qCritical() << message;
+    else if (message.type() == QOpenGLDebugMessage::PerformanceType)
+        qDebug() << message;
 }

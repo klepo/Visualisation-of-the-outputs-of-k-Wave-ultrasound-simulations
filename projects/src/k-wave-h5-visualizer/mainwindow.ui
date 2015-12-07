@@ -277,7 +277,7 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-482</y>
+          <y>0</y>
           <width>483</width>
           <height>794</height>
          </rect>
@@ -1009,7 +1009,7 @@
                </sizepolicy>
               </property>
               <property name="minimum">
-               <number>16</number>
+               <number>5</number>
               </property>
               <property name="maximum">
                <number>5000</number>
@@ -1339,7 +1339,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>152</height>
+          <height>121</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1461,7 +1461,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>152</height>
+          <height>124</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1610,7 +1610,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>152</height>
+          <height>121</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">

@@ -21,7 +21,7 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 # hdf5 library
-include($$PWD/../hdf5-c_paths.pri)
+include($$PWD/../hdf5.pri)
 
 SOURCES += HDF5File.cpp HDF5Vector3D.cpp HDF5Object.cpp HDF5Dataset.cpp HDF5Group.cpp HDF5Attribute.cpp
 

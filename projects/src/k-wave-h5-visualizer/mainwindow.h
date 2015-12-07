@@ -2,7 +2,8 @@
  * @file        mainwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with MainWindow class declaration.
  *
@@ -16,21 +17,23 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QtCore>
 #include <QMainWindow>
-#include <QGridLayout>
+#include <QWidget>
+#include <QScrollBar>
+#include <QRadioButton>
 
-#include <HDF5File.h>
-#include <HDF5Group.h>
-#include <HDF5Dataset.h>
-#include <QThreadPool>
-#include <QMovie>
-#include <QTranslator>
+#include "ui_dialog.h"
+#include "ui_mainwindow.h"
 
-#include "hdf5readingthread.h"
+#include "cvimagewidget.h"
 #include "gwindow.h"
-#include "openedh5file.h"
 #include "h5objecttovisualize.h"
 #include "h5subobjecttovisualize.h"
+#include "hdf5readingthread.h"
+#include "openedh5file.h"
+
+#include <hdf5helper.h>
 
 namespace Ui
 {

@@ -2,7 +2,8 @@
  * @file        openglwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with OpenGLWindow class declaration.
  *
@@ -16,30 +17,21 @@
 #ifndef OPENGLWINDOW_H
 #define OPENGLWINDOW_H
 
-#include <QtGui/QWindow>
-//#include <QtGui/QOpenGLFunctions>
-#include <QTimer>
-#include <QThread>
-#include <QElapsedTimer>
-
-#include <QOpenGLFunctions_2_1>
+#include <QtCore>
+#include <QtGui>
+#include <QOpenGLFunctions_3_3_Core>
+#include <QMessageBox>
 
 #ifdef Q_OS_WIN
 #include <windows.h> // for Sleep
 #endif
+
 namespace QTest
 {
     void qSleep(int ms);
 }
 
-
-QT_BEGIN_NAMESPACE
-class QPainter;
-class QOpenGLContext;
-class QOpenGLPaintDevice;
-QT_END_NAMESPACE
-
-class OpenGLWindow : public QWindow, public QOpenGLFunctions_2_1
+class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
 
@@ -67,6 +59,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
+    GLenum checkGlError();
 
     bool mouseDown;
     bool leftButton;
@@ -79,8 +72,11 @@ protected:
     QPointF diffPos;
 
 private:
+    bool hasDebugExtension();
+    static void messageLogged(const QOpenGLDebugMessage &message);
     QOpenGLContext *m_context;
     QOpenGLPaintDevice *m_device;
+    QOpenGLDebugLogger *logger;
     bool m_update_pending;
     float r;
 };

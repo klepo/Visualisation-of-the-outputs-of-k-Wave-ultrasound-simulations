@@ -2,7 +2,8 @@
  * @file        mainwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the MainWindow class.
  *              Main window of application.
@@ -15,30 +16,6 @@
  */
 
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "cvimagewidget.h"
-#include "hdf5readingthread.h"
-#include "gwindow.h"
-#include "ui_dialog.h"
-
-#include <HDF5File.h>
-#include <HDF5Dataset.h>
-#include <HDF5Group.h>
-#include <HDF5Attribute.h>
-
-#include <QFileDialog>
-#include <QSlider>
-#include <QDialog>
-#include <QDebug>
-#include <QRadioButton>
-#include <QScrollBar>
-#include <QTimer>
-#include <QToolTip>
-#include <QLocale>
-#include <QMovie>
-#include <QSignalMapper>
-#include <QMessageBox>
-#include <QSettings>
 
 /**
  * @brief MainWindow::MainWindow
@@ -361,8 +338,8 @@ void MainWindow::clearGUI()
     ui->spinBoxTMIncrement->setMaximum(1);
     ui->spinBoxTMIncrement->setValue(1);
     ui->spinBoxTMInterval->setMaximum(1000);
-    ui->spinBoxTMInterval->setMinimum(16);
-    ui->spinBoxTMInterval->setValue(16);
+    ui->spinBoxTMInterval->setMinimum(5);
+    ui->spinBoxTMInterval->setValue(5);
 }
 
 /**

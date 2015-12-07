@@ -2,7 +2,8 @@
  * @file        openedh5file.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the OpenedH5File class.
  *              Object of class H5ObjectToVisualize contains class H5SubobjectToVisualize and H5ObjectToVisualize.
@@ -17,8 +18,7 @@
 
 #include "openedh5file.h"
 #include "h5objecttovisualize.h"
-
-#include <QDebug>
+#include "h5subobjecttovisualize.h"
 
 /**
  * @brief OpenedH5File::OpenedH5File

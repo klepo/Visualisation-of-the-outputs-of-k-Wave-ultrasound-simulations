@@ -2,7 +2,8 @@
  * @file        cvimagewidget.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing CVImageWidget class definition.
  *              CVImageWidget class is for drawing OpenCV image to QWidget.
@@ -15,15 +16,6 @@
  */
 
 #include "cvimagewidget.h"
-
-#include <QWidget>
-#include <QImage>
-#include <QPainter>
-#include <opencv2/opencv.hpp>
-#include <QDebug>
-#include <QMouseEvent>
-#include <QToolTip>
-#include <QFileDialog>
 
 /**
  * @brief CVImageWidget::CVImageWidget Constructor with initialization

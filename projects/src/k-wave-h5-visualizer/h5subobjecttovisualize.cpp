@@ -2,7 +2,8 @@
  * @file        h5subobjecttovisualize.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the H5SubobjectToVisualize class.
  *              Object of class H5ObjectToVisualize is for one dataset or group of datasets
@@ -16,7 +17,6 @@
  */
 
 
-#include "h5objecttovisualize.h"
 #include "h5subobjecttovisualize.h"
 
 /**
@@ -904,7 +904,7 @@ void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value, HDF5Re
 {
     if (type == OpenedH5File::GROUP_TYPE) {
         try {
-            thread3D->clearRequests();
+            /*thread3D->clearRequests();
             thread3D->wait();
 
             threadXY->clearRequests();
@@ -914,9 +914,9 @@ void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value, HDF5Re
             threadXZ->wait();
 
             threadYZ->clearRequests();
-            threadYZ->wait();
+            threadYZ->wait();*/
 
-            openedH5File->file->closeDataset(this->dataset->getName());
+            //openedH5File->file->closeDataset(this->dataset->getName());
             // Open new dataset
             this->dataset = openedH5File->file->openDataset(name.toStdString() + "/" + std::to_string(value));
             currentStep = value;

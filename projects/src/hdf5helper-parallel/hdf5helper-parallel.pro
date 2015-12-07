@@ -25,7 +25,7 @@ DEPENDPATH += $$PWD
 DEPENDPATH += $$PWD/../hdf5helper/
 
 # hdf5 library
-include($$PWD/../hdf5-c-parallel_paths.pri)
+include($$PWD/../hdf5-parallel.pri)
 
 SOURCES += \
     $$PWD/../hdf5helper/HDF5File.cpp \

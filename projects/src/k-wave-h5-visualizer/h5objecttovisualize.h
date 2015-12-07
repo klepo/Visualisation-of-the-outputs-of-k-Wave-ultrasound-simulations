@@ -2,7 +2,8 @@
  * @file        h5objecttovisualize.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with H5ObjectToVisualize class declaration.
  *
@@ -16,9 +17,8 @@
 #ifndef H5OBJECTTOVISUALIZE_H
 #define H5OBJECTTOVISUALIZE_H
 
-#include <QObject>
-
 #include "openedh5file.h"
+#include "h5subobjecttovisualize.h"
 #include "hdf5readingthread.h"
 
 class OpenedH5File::H5ObjectToVisualize : public QObject

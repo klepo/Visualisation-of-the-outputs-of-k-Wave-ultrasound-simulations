@@ -2,7 +2,8 @@
  * @file        gwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the GWindow class - 3D scene window.
  *
@@ -14,28 +15,6 @@
  */
 
 #include "gwindow.h"
-#include "hdf5readingthread.h"
-
-#include <QtGui/QGuiApplication>
-#include <QtGui/QMatrix4x4>
-#include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QScreen>
-#include <QtCore/qmath.h>
-#include <QEvent>
-#include <QKeyEvent>
-#include <QMutex>
-#include <QLabel>
-#include <QFileDialog>
-#include <QTime>
-#include <QMouseEvent>
-#include <QMessageBox>
-#include <QPalette>
-
-#include <HDF5File.h>
-#include <HDF5Group.h>
-#include <HDF5Dataset.h>
-
-#include <opencv2/opencv.hpp>
 
 // Some helper arrays for slices and 3d frame
 
@@ -113,54 +92,6 @@ GLint cubeElements[] = {
     4, 0, 1,
 };
 
-float round(float f,float pres)
-{
-    return (float) (floor(f*(1.0f/pres) + 0.5)/(1.0f/pres));
-}
-
-/**
- * @brief checkGlError Debug OpenGL error messages
- * @return OpenGL error code
- */
-GLenum checkGlError()
-{
-    GLenum err;
-    GLenum ret = GL_NO_ERROR;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        ret = err;
-        QMessageBox messageBox;
-        if (err == GL_INVALID_ENUM) {
-            qWarning() << "OpenGL error: GL_INVALID_ENUM " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_ENUM") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_INVALID_VALUE) {
-            qWarning() << "OpenGL error: GL_INVALID_VALUE " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_VALUE") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_INVALID_OPERATION) {
-            qWarning() << "OpenGL error: GL_INVALID_OPERATION " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_OPERATION") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_STACK_OVERFLOW) {
-            qWarning() << "OpenGL error: GL_STACK_OVERFLOW " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_OVERFLOW") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_STACK_UNDERFLOW) {
-            qWarning() << "OpenGL error: GL_STACK_UNDERFLOW " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_UNDERFLOW") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_OUT_OF_MEMORY) {
-            qWarning() << "OpenGL error: GL_OUT_OF_MEMORY " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_OUT_OF_MEMORY") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_TABLE_TOO_LARGE) {
-            qWarning() << "OpenGL error: GL_TABLE_TOO_LARGE " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_TABLE_TOO_LARGE") + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_INVALID_FRAMEBUFFER_OPERATION) {
-            qWarning() << "OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_FRAMEBUFFER_OPERATION") + QString::number(err)).toStdString().c_str());
-        } else {
-            qWarning() << "OpenGL error: " << err;
-            messageBox.critical(0, "OpenGL error", QString::number(err).toStdString().c_str());
-        }
-    }
-    return ret;
-}
-
 /**
  * @brief GWindow::GWindow
  */
@@ -225,8 +156,29 @@ GWindow::GWindow(QMainWindow *qMainWindow)
     connect(thread, SIGNAL(requestDone(Request *)), this, SLOT(setLoaded(Request *)));
 }
 
+/**
+ * @brief GWindow::~GWindow
+ */
 GWindow::~GWindow()
 {
+    glDeleteVertexArrays(1, &vao);
+
+    glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &colormapTexture);
+    glDeleteTextures(1, &textureXY);
+    glDeleteTextures(1, &textureXZ);
+    glDeleteTextures(1, &textureYZ);
+
+    glDeleteBuffers(1, &iboPlaneElements);
+    glDeleteBuffers(1, &iboCubeElements);
+
+    vboPlaneVertices.destroy();
+    vboCubeVertices.destroy();
+    vboSliceXYVertices.destroy();
+    vboSliceXZVertices.destroy();
+    vboSliceYZVertices.destroy();
+    vboSliceTexCoords.destroy();
+
     m_program->release();
     delete m_program;
     thread->clearRequests();
@@ -311,73 +263,98 @@ void GWindow::initialize()
 
     // Generate buffers
     // for slices
-    glGenBuffers(1, &ibo_plane_elements);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_plane_elements);
+    glGenBuffers(1, &iboPlaneElements);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboPlaneElements);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeElements), planeElements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     // and for 3D frame
-    glGenBuffers(1, &ibo_cube_elements);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
+    glGenBuffers(1, &iboCubeElements);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeElements), cubeElements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    // Vertex buffer
+    vboCubeVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboCubeVertices.create();
+    vboCubeVertices.bind();
+    vboCubeVertices.allocate(cubeVertices, sizeof(GLfloat) * 8 * 3);
+    vboCubeVertices.release();
+
+    vboPlaneVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboPlaneVertices.create();
+    vboPlaneVertices.bind();
+    vboPlaneVertices.allocate(planeVertices, sizeof(GLfloat) * 4 * 3);
+    vboPlaneVertices.release();
+
+    vboSliceXYVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboSliceXYVertices.create();
+    vboSliceXYVertices.bind();
+    vboSliceXYVertices.allocate(sliceXYVertices, sizeof(GLfloat) * 4 * 3);
+    vboSliceXYVertices.release();
+
+    vboSliceXZVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboSliceXZVertices.create();
+    vboSliceXZVertices.bind();
+    vboSliceXZVertices.allocate(sliceXZVertices, sizeof(GLfloat) * 4 * 3);
+    vboSliceXZVertices.release();
+
+    vboSliceYZVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboSliceYZVertices.create();
+    vboSliceYZVertices.bind();
+    vboSliceYZVertices.allocate(sliceYZVertices, sizeof(GLfloat) * 4 * 3);
+    vboSliceYZVertices.release();
+
+    vboSliceTexCoords = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboSliceTexCoords.create();
+    vboSliceTexCoords.bind();
+    vboSliceTexCoords.allocate(sliceTexCoords, sizeof(GLfloat) * 4 * 2);
+    vboSliceTexCoords.release();
+
+    // VAO
+    glGenVertexArrays(1, &vao);
+
     // 3D texture
-    glEnable(GL_TEXTURE_3D);
     glGenTextures(1, &texture);
 
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glGenerateMipmap(GL_TEXTURE_3D);
-    glTexParameteri(GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     //glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
 
     // 1D texture
-    glEnable(GL_TEXTURE_1D);
     glGenTextures(1, &colormapTexture);
 
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glGenerateMipmap(GL_TEXTURE_1D);
-    glTexParameteri(GL_TEXTURE_1D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
     // 2D textures
-    glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureXY);
 
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureXZ);
 
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureYZ);
 
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -395,9 +372,6 @@ void GWindow::initialize()
     // Important for save png image!
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
-
-
-    glLineWidth(2);
 
     //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
@@ -450,6 +424,10 @@ void GWindow::initialize()
     renderLater();
 }
 
+/**
+ * @brief GWindow::isTexture3DInitialized
+ * @return
+ */
 bool GWindow::isTexture3DInitialized()
 {
     return texture3DInitialized;
@@ -549,6 +527,9 @@ void GWindow::unload3DTexture()
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 }
 
+/**
+ * @brief GWindow::unloadDataset
+ */
 void GWindow::unloadDataset()
 {
     selectedDataset = NULL;
@@ -745,20 +726,39 @@ void GWindow::changeMaxValue(float value)
  */
 void GWindow::renderFrame()
 {
+    glBindVertexArray(vao);
+    vboCubeVertices.bind();
     glEnableVertexAttribArray(m_aPosition);
-    glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, cubeVertices);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
+    glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
     glDrawElements(GL_LINE_LOOP,  sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(m_aPosition);
+    vboCubeVertices.release();
+    glBindVertexArray(0);
 }
 
-
+/**
+ * @brief GWindow::convertToOpenGLRelative
+ * @param point
+ * @return
+ */
 QPointF GWindow::convertToOpenGLRelative(QPointF point)
 {
     QPointF pointOutput;
     pointOutput.setX((point.x() / (float) width() - 0.5f) * 2.0f);
     pointOutput.setY((point.y() / (float) height() - 0.5f) * 2.0f);
     return pointOutput;
+}
+
+/**
+ * @brief GWindow::round
+ * @param number
+ * @param precision
+ * @return
+ */
+float GWindow::round(float number, float precision)
+{
+    return (float) (floor(number * (1.0f / precision) + 0.5) / (1.0f / precision));
 }
 
 /**
@@ -801,8 +801,8 @@ void GWindow::render()
 
     // Perspective projection
     QMatrix4x4 perspectiveMatrix;
-    perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.001f, 100.0f);
-    //perspectiveMatrix.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 1000.0f);
+    perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.1f, 100.0f);
+    //perspectiveMatrix.ortho(- (float) width() / (float) height(), (float) width() / (float) height(), -1.0f, 1.0f, -1.0f, 1000.0f);
 
     // Zoom of scene
     QMatrix4x4 zoomMatrix;
@@ -921,16 +921,20 @@ void GWindow::render()
         QMatrix4x4 yZMmatrix;
         yZMmatrix.translate(yZIndex, 0, 0);
 
+        glBindVertexArray(vao);
+
+        vboSliceTexCoords.bind();
         glEnableVertexAttribArray(m_aTextureCoord);
-        glVertexAttribPointer(m_aTextureCoord, 2, GL_FLOAT, GL_FALSE, 0, sliceTexCoords);
+        glVertexAttribPointer(m_aTextureCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboPlaneElements);
 
         glEnableVertexAttribArray(m_aPosition);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_plane_elements);
-
         if (sliceXY) {
             m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xYMmatrix);
-            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, sliceXYVertices);
+            vboSliceXYVertices.bind();
+            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureXY);
             // Because some bug
@@ -942,11 +946,13 @@ void GWindow::render()
             // Draw 2D frame
             glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXYBorder, false);
+            vboSliceXYVertices.release();
         }
 
         if (sliceXZ) {
             m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xZMmatrix);
-            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, sliceXZVertices);
+            vboSliceXZVertices.bind();
+            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureXZ);
             // Because some bug
@@ -956,11 +962,13 @@ void GWindow::render()
             m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xZMmatrix * s2XZMmatrix);
             glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXZBorder, false);
+            vboSliceXZVertices.release();
         }
 
         if (sliceYZ) {
             m_program->setUniformValue(m_uScaleMatrix, sMmatrix * yZMmatrix);
-            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, sliceYZVertices);
+            vboSliceYZVertices.bind();
+            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureYZ);
             // Because some bug
@@ -969,10 +977,16 @@ void GWindow::render()
             m_program->setUniformValue(m_uYZBorder, true);
             m_program->setUniformValue(m_uScaleMatrix, sMmatrix * yZMmatrix * s2YZMmatrix);
             glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-            m_program->setUniformValue(m_uYZBorder, false);}
+            m_program->setUniformValue(m_uYZBorder, false);
+            vboSliceYZVertices.release();
+        }
 
         glDisableVertexAttribArray(m_aTextureCoord);
         glDisableVertexAttribArray(m_aPosition);
+
+        vboSliceTexCoords.release();
+
+        glBindVertexArray(0);
 
         glEnable(GL_BLEND);
         glEnable(GL_CULL_FACE);
@@ -1000,10 +1014,13 @@ void GWindow::render()
         m_program->setUniformValue(m_uGreen, (GLfloat) (1.0f - pow(1.0f - green, 5.0f / (float) actualCount)));
         m_program->setUniformValue(m_uBlue, (GLfloat) (1.0f - pow(1.0f - blue, 5.0f / (float) actualCount)));
 
+        glBindVertexArray(vao);
 
+        vboPlaneVertices.bind();
         glEnableVertexAttribArray(m_aPosition);
-        glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, planeVertices);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_plane_elements);
+        glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboPlaneElements);
 
         // Scale 3D frame for VR
         QVector4D vec((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax, 1.0f);
@@ -1043,6 +1060,10 @@ void GWindow::render()
         }
 
         glDisableVertexAttribArray(m_aPosition);
+
+        vboPlaneVertices.release();
+
+        glBindVertexArray(0);
 
         glDepthMask(GL_TRUE);
         //mutex.unlock();

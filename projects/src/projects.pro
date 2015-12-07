@@ -1,3 +1,11 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator
+#
+# Main project with subdirs
+#
+#-------------------------------------------------
+
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS +=  hdf5helper \

@@ -2,7 +2,8 @@
  * @file        h5objecttovisualize.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the H5ObjectToVisualize class.
  *              Object of class H5ObjectToVisualize can contains many objects of class H5SubobjectToVisualize.
@@ -17,7 +18,6 @@
  */
 
 #include "h5objecttovisualize.h"
-#include "h5subobjecttovisualize.h"
 
 /**
  * @brief OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize Creation of H5ObjectToVisualize

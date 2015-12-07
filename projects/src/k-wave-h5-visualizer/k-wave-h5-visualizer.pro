@@ -21,17 +21,18 @@ DEPENDPATH += $$PWD
 
 # hdf5file library
 
-include($$PWD/../hdf5helper/hdf5helper_paths.pri)
+include($$PWD/../hdf5helper/hdf5helper.pri)
 
 # hdf5 library
 
-include($$PWD/../hdf5-c_paths.pri)
+include($$PWD/../hdf5.pri)
 
 # opencv library
 
-include($$PWD/../opencv_paths.pri)
+include($$PWD/../opencv.pri)
 
-SOURCES +=  main.cpp\
+SOURCES += \
+    main.cpp\
     mainwindow.cpp \
     cvimagewidget.cpp \
     qdoublespinboxts.cpp \
@@ -40,9 +41,10 @@ SOURCES +=  main.cpp\
     gwindow.cpp \
     openedh5file.cpp \
     h5objecttovisualize.cpp \
-    h5subobjecttovisualize.cpp
+    h5subobjecttovisualize.cpp \
 
-HEADERS +=  mainwindow.h \
+HEADERS += \
+    mainwindow.h \
     cvimagewidget.h \
     qdoublespinboxts.h \
     hdf5readingthread.h \
@@ -50,14 +52,17 @@ HEADERS +=  mainwindow.h \
     gwindow.h \
     openedh5file.h \
     h5objecttovisualize.h \
-    h5subobjecttovisualize.h
+    h5subobjecttovisualize.h \
 
-FORMS +=  mainwindow.ui \
-    dialog.ui
+FORMS += \
+    mainwindow.ui \
+    dialog.ui \
 
 RESOURCES += \
-    resources.qrc
+    resources.qrc \
 
 OTHER_FILES += \
     fragmentShader.frag \
-    vertexShader.vert
+    vertexShader.vert \
+
+win32:RC_ICONS = $$PWD/icons/images/icons_33.ico

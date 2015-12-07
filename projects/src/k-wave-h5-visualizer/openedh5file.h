@@ -2,7 +2,8 @@
  * @file        openedh5file.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with OpenedH5File class declaration.
  *
@@ -16,15 +17,9 @@
 #ifndef H5FILE_H
 #define H5FILE_H
 
-#include <QObject>
-#include <QMap>
-#include <QList>
-#include <QDebug>
+#include <QtCore>
 
-#include <HDF5File.h>
-#include <HDF5Group.h>
-#include <HDF5Dataset.h>
-#include <HDF5Attribute.h>
+#include <hdf5helper.h>
 
 class OpenedH5File : public QObject
 {

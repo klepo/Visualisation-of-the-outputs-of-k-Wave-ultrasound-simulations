@@ -2,7 +2,8 @@
  * @file        main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing k-Wave HDF5 processing application.
  *
@@ -948,7 +949,7 @@ void resamplingOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper::
         if (mPISize > 1 && !smallZCountFlag) {
             MPI_Status statuses[4];
             MPI_Request requests[4];
-            hsize_t dataSize = nCount * nDimsDst.y() * nDimsDst.x();
+            int dataSize = (int) (nCount * nDimsDst.y() * nDimsDst.x());
             hsize_t slabSizeXYDst = nDimsDst.y() * nDimsDst.x();
             // Get neighbours' data
             // From left to right and back
@@ -1019,11 +1020,11 @@ void resamplingOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper::
 
         // And resize 2D slices in XZ plane
         for (hsize_t y = 0; y < nDimsDst.y(); y++) {
-            cv::Mat image = cv::Mat((int) count.z() + nCount * 2, (int) nDimsDst.x(), CV_32FC1, &dataDst1T[(count.z() + nCount * 2) * y * nDimsDst.x()]); // rows, cols (height, width)
+            cv::Mat image = cv::Mat((int) (count.z() + nCount * 2), (int) nDimsDst.x(), CV_32FC1, &dataDst1T[(count.z() + nCount * 2) * y * nDimsDst.x()]); // rows, cols (height, width)
             //cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv2[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
-            cv::Mat imageDst = cv::Mat((int) countZDstR + nCountDst * 2, (int) nDimsDst.x(), CV_32FC1, &dataDst2[(countZDstR + nCountDst * 2) * y * nDimsDst.x()]);
+            cv::Mat imageDst = cv::Mat((int) (countZDstR + nCountDst * 2), (int) nDimsDst.x(), CV_32FC1, &dataDst2[(countZDstR + nCountDst * 2) * y * nDimsDst.x()]);
             //cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
-            cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) countZDstR + nCountDst * 2), 0, 0, interpolation);
+            cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) (countZDstR + nCountDst * 2)), 0, 0, interpolation);
             //cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
             image.release();
         }
@@ -1089,7 +1090,7 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::File::HDF5Dataset *srcDataset, HDF
     // TODO add check for small otuput sizes
 
     // Divide dataset to every process
-    srcDataset->setNumberOfElmsToLoad(ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
+    srcDataset->setNumberOfElmsToLoad((hsize_t) ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
 
     // Interpolation method:
     //  INTER_NEAREST - a nearest-neighbor interpolation
@@ -1143,17 +1144,17 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::File::HDF5Dataset *srcDataset, HDF
     // Sending by ZX slice
 
     // Number of floats in ZX slab in non-last block
-    int dataCountG = srcDataset->getGeneralBlockDims().z() * nDimsDst.x();
+    hsize_t dataCountG = srcDataset->getGeneralBlockDims().z() * nDimsDst.x();
     // Number of floats in ZX slab in last block
-    int dataCountL = nDims.z() * nDimsDst.x() - (mPISize - 1) * dataCountG;
+    hsize_t dataCountL = nDims.z() * nDimsDst.x() - (mPISize - 1) * dataCountG;
     // Number of floats in ZX slab in current block
-    int dataCount = count.z() * nDimsDst.x();
+    hsize_t dataCount = count.z() * nDimsDst.x();
 
     // Number of floats in stitched ZX slice
-    hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
+    //hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
 
     // Number of slabs for every non-last process
-    hsize_t blockDepthG = ceil(double (nDimsDst.y()) / mPISize);
+    hsize_t blockDepthG = (hsize_t) ceil(double (nDimsDst.y()) / mPISize);
     // Last process can have different (smaller) block size
     hsize_t blockDepthL = nDimsDst.y() - blockDepthG * (mPISize - 1);
     // Number of slabs for every actual process
@@ -1193,14 +1194,14 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::File::HDF5Dataset *srcDataset, HDF
     int sSize = 0;
 
     for (int i = 0; i < mPISize; i++) {
-        recvDispls[i] = i * dataCountG * blockDepth; // offset
-        sendDispls[i] = i * dataCount * blockDepthG; // offset
+        recvDispls[i] = (int) (i * dataCountG * blockDepth); // offset
+        sendDispls[i] = (int) (i * dataCount * blockDepthG); // offset
         if (i == mPISize - 1) { // Last data count
-            recvCounts[i] = dataCountL * blockDepth;
-            sendCounts[i] = dataCount * blockDepthL;
+            recvCounts[i] = (int) (dataCountL * blockDepth);
+            sendCounts[i] = (int) (dataCount * blockDepthL);
         } else {
-            recvCounts[i] = dataCountG * blockDepth;
-            sendCounts[i] = dataCount * blockDepthG;
+            recvCounts[i] = (int) (dataCountG * blockDepth);
+            sendCounts[i] = (int) (dataCount * blockDepthG);
         }
         rSize += recvCounts[i];
         sSize += sendCounts[i];
@@ -1222,10 +1223,10 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::File::HDF5Dataset *srcDataset, HDF
         for (int i = 0; i < mPISize; i++) {
             if (i == mPISize - 1) {// Last block can have different size of slices
                 memcpy(&dataDst1TRecv2[dstOffset], &dataDst1TRecv[i * dataCountG * blockDepth + y * dataCountL], sizeof(float) * dataCountL);
-                dstOffset += dataCountL;
+                dstOffset += (int) dataCountL;
             } else {
                 memcpy(&dataDst1TRecv2[dstOffset], &dataDst1TRecv[i * dataCountG * blockDepth + y * dataCountG], sizeof(float) * dataCountG);
-                dstOffset += dataCountG;
+                dstOffset += (int) dataCountG;
             }
         }
     }
@@ -1461,7 +1462,7 @@ void changeChunksOfDataset(HDF5Helper::File::HDF5Dataset *srcDataset, HDF5Helper
     HDF5Helper::File::HDF5Vector3D count;
 
     // Divide dataset to every process
-    srcDataset->setNumberOfElmsToLoad(ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
+    srcDataset->setNumberOfElmsToLoad((hsize_t) ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
 
     if (mPISize > 1 && flagCollective)
         srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);

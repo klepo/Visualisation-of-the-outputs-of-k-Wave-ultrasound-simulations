@@ -2,7 +2,8 @@
  * @file        gwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -16,18 +17,15 @@
 #ifndef GWINDOW_H
 #define GWINDOW_H
 
+#include <QMainWindow>
+#include <QMessageBox>
+
 #include "openglwindow.h"
 #include "hdf5readingthread.h"
+
 #include <opencv2/opencv.hpp>
 
-#include <QtCore/qmath.h>
-#include <QtGui/QOpenGLShaderProgram>
-
-#include <QMainWindow>
-
-#include <HDF5File.h>
-#include <HDF5Group.h>
-#include <HDF5Dataset.h>
+#include <hdf5helper.h>
 
 class GWindow : public OpenGLWindow
 {
@@ -99,6 +97,7 @@ private:
     void unload3DTexture();
     void clearSlices();
     QPointF convertToOpenGLRelative(QPointF point);
+    float round(float number, float precision);
 
     QMainWindow *qMainWindow;
 
@@ -152,8 +151,16 @@ private:
     float green;
     float blue;
 
-    GLuint ibo_plane_elements;
-    GLuint ibo_cube_elements;
+    GLuint iboPlaneElements;
+    GLuint iboCubeElements;
+    QOpenGLBuffer vboPlaneVertices;
+    QOpenGLBuffer vboCubeVertices;
+    QOpenGLBuffer vboSliceXYVertices;
+    QOpenGLBuffer vboSliceXZVertices;
+    QOpenGLBuffer vboSliceYZVertices;
+    QOpenGLBuffer vboSliceTexCoords;
+
+    GLuint vao;
     GLuint texture;
 
     unsigned int imageDepth;

@@ -2,7 +2,8 @@
  * @file        qdoublespinboxts.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The implementation file containing the QDoubleSpinBoxTS class.
  *              Double spin box with group separator.
@@ -15,7 +16,6 @@
  */
 
 #include "qdoublespinboxts.h"
-#include <QDebug>
 
 QDoubleSpinBoxTS::QDoubleSpinBoxTS(QWidget *parent) :
     QDoubleSpinBox(parent)

@@ -25,12 +25,12 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 # hdf5file library
-include($$PWD/../hdf5helper-parallel/hdf5helper-parallel_paths.pri)
+include($$PWD/../hdf5helper-parallel/hdf5helper-parallel.pri)
 
 # hdf5 library
-include($$PWD/../hdf5-c-parallel_paths.pri)
+include($$PWD/../hdf5-parallel.pri)
 
 # opencv library
-include($$PWD/../opencv_paths.pri)
+include($$PWD/../opencv.pri)
 
 SOURCES += k-wave-h5-processing-parallel.cpp

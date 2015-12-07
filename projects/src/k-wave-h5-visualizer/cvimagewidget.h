@@ -2,7 +2,8 @@
  * @file        cvimagewidget.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with CVImageWidget class declaration.
  *
@@ -16,9 +17,12 @@
 #ifndef CVIMAGEWIDGET_H
 #define CVIMAGEWIDGET_H
 
-#include <QScrollArea>
-#include <QImage>
+#include <QtCore>
+#include <QWidget>
+#include <QFileDialog>
+#include <QMouseEvent>
 #include <QPainter>
+
 #include <opencv2/opencv.hpp>
 
 class LoadingThread;

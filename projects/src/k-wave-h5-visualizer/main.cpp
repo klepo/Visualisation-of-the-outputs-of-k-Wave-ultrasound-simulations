@@ -2,7 +2,8 @@
  * @file        main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The main file with creation of graphics application (MainWindow window)
  *
@@ -14,9 +15,7 @@
  */
 
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
-#include <QMainWindow>
 #include <QApplication>
 
 int main(int argc, char *argv[])

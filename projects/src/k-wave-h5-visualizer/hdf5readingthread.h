@@ -2,7 +2,8 @@
  * @file        hdf5readingthread.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
- * @date        30 July 2014
+ * @date        30 July      2014 (created)
+ *              6  December  2015 (updated)
  *
  * @brief       The header file with HDF5ReadingThread and Request class declaration.
  *
@@ -16,11 +17,9 @@
 #ifndef HDF5READINGTHREAD_H
 #define HDF5READINGTHREAD_H
 
-#include <QThread>
-#include <HDF5File.h>
-#include <HDF5Dataset.h>
-#include <QMutex>
-#include <QQueue>
+#include <QtCore>
+
+#include <hdf5helper.h>
 
 class Request
 {

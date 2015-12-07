@@ -1,19 +1,10 @@
-
-MPI_INCLUDE_DIR = "C:/Program Files/MPICH2/include"
-MPI_LIBS_DIR = "C:/Program Files/MPICH2/lib"
-
-HDF5_INCLUDE_DIR = "D:/HDF5-1.8.14-win64-parallel/include"
-HDF5_LIBS_DIR = "D:/HDF5-1.8.14-win64-parallel/lib"
-
-#HDF5_INCLUDE_DIR = "/usr/local/hdf5-1.8.13-parallel/include"
-#HDF5_LIBS_DIR = "/usr/local/hdf5-1.8.13-parallel/lib"
+include($$PWD/hdf5-parallel_paths.pri)
 
 win32 {
 
     INCLUDEPATH += $$MPI_INCLUDE_DIR
     LIBS += -L$$MPI_LIBS_DIR \
-        -lmpi \
-        -lcxx \
+        -lmsmpi \
 
     INCLUDEPATH += $$HDF5_INCLUDE_DIR
     CONFIG(debug, debug|release) {
