@@ -132,7 +132,7 @@ public slots:
     void setBlue(float value);
     void setCount(int value);
 
-    void setCurrentStep(uint64_t value, HDF5ReadingThread *thread3D);
+    void setCurrentStep(uint64_t value);
 
     void setGUIInitialized(bool value);
     void setGUIXYInitialized(bool value);

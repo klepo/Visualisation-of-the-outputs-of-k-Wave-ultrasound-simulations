@@ -947,7 +947,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
     if (subobject != NULL && subobject->isGUIInitialized() && subobject->getGroup() != NULL) {
         // Set step in subobject structure
-        subobject->setCurrentStep(step, gWindow->getThread());
+        subobject->setCurrentStep(step/*, gWindow->getThread()*/);
         // For VR
         if (gWindow != NULL && ui->actionVolumeRendering->isChecked()) {
             // Enable loading animation

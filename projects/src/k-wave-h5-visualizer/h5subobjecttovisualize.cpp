@@ -900,7 +900,7 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
  * @param value step
  * @param thread3D 3D data loading thread for sycnhronization
  */
-void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value, HDF5ReadingThread *thread3D)
+void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value/*, HDF5ReadingThread *thread3D*/)
 {
     if (type == OpenedH5File::GROUP_TYPE) {
         try {
