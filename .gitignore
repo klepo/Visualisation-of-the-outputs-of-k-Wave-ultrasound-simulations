@@ -12,3 +12,9 @@ all_projects/build
 /projects/projects/hdf5-c-parallel_paths.pri
 /projects/projects/projects.pro.user
 /projects/build-projects-Desktop_Qt_5_4_2_MSVC2013_OpenGL_64bit-Release
+/projects/src/projects.pro.user
+/projects/src/hdf5_paths.pri
+/projects/src/hdf5-parallel_paths.pri
+/projects/build-projects-Desktop_Qt_5_4_2_MSVC2013_64bit-Debug
+/projects/build-projects-Desktop_Qt_5_4_2_MSVC2013_64bit-Release
+/projects/install
