@@ -20,7 +20,10 @@ win32:QMAKE_LFLAGS += /ignore:4099
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-# hdf5 library
+# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
+include($$PWD/../detect_arch_and_build_mode.pri)
+
+# HDF5 library
 include($$PWD/../hdf5.pri)
 
 SOURCES += HDF5File.cpp HDF5Vector3D.cpp HDF5Object.cpp HDF5Dataset.cpp HDF5Group.cpp HDF5Attribute.cpp

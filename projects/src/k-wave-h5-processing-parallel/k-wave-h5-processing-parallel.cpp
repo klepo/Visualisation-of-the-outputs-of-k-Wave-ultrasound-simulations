@@ -18,19 +18,25 @@
 #endif
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <Winsock2.h>
 #endif
 
 #include <iostream>
+#include <sstream>
+#include <algorithm>
 #include <string>
 #include <map>
 #include <math.h>
 #include <time.h>
 #include <list>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv_modules.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#ifdef HAVE_OPENCV_CONTRIB
+    #include <opencv2/contrib/contrib.hpp>
+#endif
 
 #include <hdf5helper-parallel.h>
 
@@ -268,7 +274,7 @@ void getParams(int argc, char **argv)
                 if (strlen(argv[i]) != s)
                     throw std::invalid_argument(argv[i]);
                 std::cout << "\n  Chunk size:\n    " << maxChunkSize << std::endl;
-            } catch (std::invalid_argument error) {
+            } catch (std::invalid_argument) {
                 std::cerr << "\n  Wrong parameter -ch (chunk size)" << std::endl;
                 std::cout << help() << std::endl;
                 exit(EXIT_FAILURE);

@@ -1,4 +1,8 @@
-include($$PWD/hdf5-parallel_paths.pri)
+exists($$PWD/hdf5-parallel_paths.pri) {
+    include($$PWD/hdf5-parallel_paths.pri)
+} else {
+    include($$PWD/hdf5-parallel_paths_default.pri)
+}
 
 win32 {
 

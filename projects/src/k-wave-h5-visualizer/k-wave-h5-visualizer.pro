@@ -19,16 +19,16 @@ win32:QMAKE_LFLAGS += /ignore:4099
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-# hdf5file library
+# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
+include($$PWD/../detect_arch_and_build_mode.pri)
 
+# hdf5helper library
 include($$PWD/../hdf5helper/hdf5helper.pri)
 
-# hdf5 library
-
+# HDF5 library
 include($$PWD/../hdf5.pri)
 
-# opencv library
-
+# OpenCV library
 include($$PWD/../opencv.pri)
 
 SOURCES += \

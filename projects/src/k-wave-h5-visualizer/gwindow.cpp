@@ -680,7 +680,7 @@ void GWindow::changeColormap(int colormap)
     for (unsigned int i = 0; i < 256; i++)
         colormapImage.data[i] = i;
     cv::applyColorMap(colormapImage, colormapImage, this->colormap);
-    cvtColor(colormapImage, colormapImage, cv::COLOR_BGR2RGB);
+    cv::cvtColor(colormapImage, colormapImage, cv::COLOR_BGR2RGB);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);
 
     m_program->bind();
@@ -1079,7 +1079,7 @@ void GWindow::render()
         cv::Mat image = cv::Mat(height(), width(), CV_8UC4, data);
         cv::flip(image, image, 0);
         //imshow("image", image);
-        imwrite(fileName.toStdString(), image);
+        cv::imwrite(fileName.toStdString(), image);
         delete [] data;
         renderLater();
     }

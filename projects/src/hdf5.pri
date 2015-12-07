@@ -1,4 +1,8 @@
-include($$PWD/hdf5_paths.pri)
+exists($$PWD/hdf5_paths.pri) {
+    include($$PWD/hdf5_paths.pri)
+} else {
+    include($$PWD/hdf5_paths_default.pri)
+}
 
 win32 {
     INCLUDEPATH += $$HDF5_INCLUDE_DIR

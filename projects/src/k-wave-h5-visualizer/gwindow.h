@@ -23,7 +23,12 @@
 #include "openglwindow.h"
 #include "hdf5readingthread.h"
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/opencv_modules.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#ifdef HAVE_OPENCV_CONTRIB
+    #include <opencv2/contrib/contrib.hpp>
+#endif
 
 #include <hdf5helper.h>
 

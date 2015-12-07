@@ -24,7 +24,10 @@ INCLUDEPATH += $$PWD/../hdf5helper/
 DEPENDPATH += $$PWD
 DEPENDPATH += $$PWD/../hdf5helper/
 
-# hdf5 library
+# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
+include($$PWD/../detect_arch_and_build_mode.pri)
+
+# HDF5 library
 include($$PWD/../hdf5-parallel.pri)
 
 SOURCES += \
