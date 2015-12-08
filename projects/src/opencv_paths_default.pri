@@ -1,8 +1,10 @@
+#-------------------------------------------------
 #
-# OpenCV include and library paths
+# OpenCV (3.0.0+) include and library paths
 # Default file
 # Create new file without "_default" sufix
 #
+#-------------------------------------------------
 
 # Windows OpenCV 3.0.0 with world library
 OPENCV_INCLUDE_DIR = "D:/opencv-3.0.0/build/include"

@@ -1,6 +1,11 @@
+#-------------------------------------------------
 #
-# Parallel HDF5 and MPI include and library paths
+# Parallel HDF5 and MPI include and library paths (C, static)
+# Default file
+# Create new file without "_default" sufix
 #
+#-------------------------------------------------
+
 
 # Windows
 MPI_INCLUDE_DIR = "C:/Program Files (x86)/Microsoft SDKs/MPI/Include"
