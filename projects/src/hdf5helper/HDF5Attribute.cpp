@@ -16,7 +16,9 @@
 
 #include "HDF5Attribute.h"
 
-void HDF5Helper::File::HDF5Object::HDF5Attribute::loadAttribute(hid_t attribute)
+namespace HDF5Helper {
+
+void HDF5Attribute::loadAttribute(hid_t attribute)
 {
     datatype = H5Aget_type(attribute);
     if (datatype < 0){
@@ -47,11 +49,11 @@ void HDF5Helper::File::HDF5Object::HDF5Attribute::loadAttribute(hid_t attribute)
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::HDF5Attribute
+ * @brief HDF5Attribute::HDF5Attribute
  * @param attribute
  * @throw std::runtime_error
  */
-HDF5Helper::File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
+HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
 {
     attribute = H5Aopen_name(object, name.c_str());
     if (attribute < 0){
@@ -66,7 +68,7 @@ HDF5Helper::File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, std::st
     }
 }
 
-HDF5Helper::File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
+HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
 {
     attribute = H5Aopen_idx(object, idx);
     if (attribute < 0){
@@ -82,9 +84,9 @@ HDF5Helper::File::HDF5Object::HDF5Attribute::HDF5Attribute(hid_t object, hid_t i
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::~HDF5Attribute
+ * @brief HDF5Attribute::~HDF5Attribute
  */
-HDF5Helper::File::HDF5Object::HDF5Attribute::~HDF5Attribute()
+HDF5Attribute::~HDF5Attribute()
 {
     free(buffer);
     H5Tclose(datatype);
@@ -92,47 +94,47 @@ HDF5Helper::File::HDF5Object::HDF5Attribute::~HDF5Attribute()
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::getType
+ * @brief HDF5Attribute::getType
  * @return data type of attribute
  */
-hid_t HDF5Helper::File::HDF5Object::HDF5Attribute::getDatatype()
+hid_t HDF5Attribute::getDatatype()
 {
     return datatype;
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::getSize
+ * @brief HDF5Attribute::getSize
  * @return size of attribute
  */
-hsize_t HDF5Helper::File::HDF5Object::HDF5Attribute::getSize()
+hsize_t HDF5Attribute::getSize()
 {
     return size;
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::getName
+ * @brief HDF5Attribute::getName
  * @return name of attribute
  */
-std::string HDF5Helper::File::HDF5Object::HDF5Attribute::getName()
+std::string HDF5Attribute::getName()
 {
     return name;
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::getSpace
+ * @brief HDF5Attribute::getSpace
  * @return data space of attribute
  */
-hid_t HDF5Helper::File::HDF5Object::HDF5Attribute::getDataspace()
+hid_t HDF5Attribute::getDataspace()
 {
     return dataspace;
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Object::HDF5Attribute::getData
+ * @brief HDF5Attribute::getData
  * @return data of attribute
  */
-void *HDF5Helper::File::HDF5Object::HDF5Attribute::getData()
+void *HDF5Attribute::getData()
 {
     return buffer;
 }
-
+}

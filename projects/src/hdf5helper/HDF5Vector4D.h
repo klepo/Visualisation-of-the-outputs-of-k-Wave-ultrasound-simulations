@@ -1,10 +1,10 @@
 /*
- * @file        HDF5Vector3D.h
+ * @file        HDF5Vector4D.h
  * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
  * @version     0.0
  * @date        30 July 2014
  *
- * @brief       The header file with HDF5Vector3D class declaration.
+ * @brief       The header file with HDF5Vector4D class declaration.
  *
  * @section     Licence
  * This file is part of hdf5file library for k-Wave h5 processing
@@ -13,27 +13,29 @@
  * hdf5file library is free software.
  */
 
-#ifndef HDF5VECTOR3D_H
-#define HDF5VECTOR3D_H
+#ifndef HDF5VECTOR4D_H
+#define HDF5VECTOR4D_H
 
 #include "HDF5Vector.h"
 
 namespace HDF5Helper
 {
-class HDF5Vector3D : public HDF5Vector
+class HDF5Vector4D : public HDF5Vector
 {
 public:
-    HDF5Vector3D();
-    HDF5Vector3D(HDF5Vector &hDF5Vector);
-    HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x);
-    void set(const hsize_t z, const hsize_t y, const hsize_t x);
+    HDF5Vector4D();
+    HDF5Vector4D(HDF5Vector &hDF5Vector);
+    HDF5Vector4D(const hsize_t w, const hsize_t z, const hsize_t y, const hsize_t x);
+    void set(const hsize_t w, const hsize_t z, const hsize_t y, const hsize_t x);
     void x(const hsize_t x);
     void y(const hsize_t y);
     void z(const hsize_t z);
+    void w(const hsize_t w);
     hsize_t x() const;
     hsize_t y() const;
     hsize_t z() const;
+    hsize_t w() const;
 };
 }
 
-#endif // HDF5VECTOR3D_H
+#endif // HDF5VECTOR4D_H

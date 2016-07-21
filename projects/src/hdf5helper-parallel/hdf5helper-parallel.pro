@@ -32,7 +32,9 @@ include($$PWD/../hdf5-parallel.pri)
 
 SOURCES += \
     $$PWD/../hdf5helper/HDF5File.cpp \
+    $$PWD/../hdf5helper/HDF5Vector.cpp \
     $$PWD/../hdf5helper/HDF5Vector3D.cpp \
+    $$PWD/../hdf5helper/HDF5Vector4D.cpp \
     $$PWD/../hdf5helper/HDF5Object.cpp \
     $$PWD/../hdf5helper/HDF5Dataset.cpp \
     $$PWD/../hdf5helper/HDF5Group.cpp \
@@ -41,7 +43,9 @@ SOURCES += \
 HEADERS += \
     hdf5helper-parallel.h \
     $$PWD/../hdf5helper/HDF5File.h \
+    $$PWD/../hdf5helper/HDF5Vector.h \
     $$PWD/../hdf5helper/HDF5Vector3D.h \
+    $$PWD/../hdf5helper/HDF5Vector4D.h \
     $$PWD/../hdf5helper/HDF5Object.h \
     $$PWD/../hdf5helper/HDF5Dataset.h \
     $$PWD/../hdf5helper/HDF5Group.h \

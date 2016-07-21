@@ -25,7 +25,7 @@
  * @param openedH5File
  * @param parent
  */
-OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::File::HDF5Dataset *dataset, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
+OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
 {
     // Params
     this->openedH5File = openedH5File;
@@ -47,7 +47,7 @@ OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::File::H
  * @param openedH5File
  * @param parent
  */
-OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::File::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
+OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
 {
     // Params
     this->openedH5File = openedH5File;
@@ -275,7 +275,7 @@ int OpenedH5File::H5SubobjectToVisualize::getType()
  * @brief OpenedH5File::H5SubobjectToVisualize::getDataset
  * @return dataset
  */
-HDF5Helper::File::HDF5Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
+HDF5Helper::HDF5Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
 {
     return dataset;
 }
@@ -284,7 +284,7 @@ HDF5Helper::File::HDF5Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset(
  * @brief OpenedH5File::H5SubobjectToVisualize::getGroup
  * @return group (can be NULL)
  */
-HDF5Helper::File::HDF5Group *OpenedH5File::H5SubobjectToVisualize::getGroup()
+HDF5Helper::HDF5Group *OpenedH5File::H5SubobjectToVisualize::getGroup()
 {
     return group;
 }
@@ -302,7 +302,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
             dwnsmpl = 0;
             std::cout << "No downsampling" << std::endl;
         }
-        HDF5Helper::File::HDF5Vector3D sizeD =  dataset->getDims();
+        HDF5Helper::HDF5Vector3D sizeD =  dataset->getDims();
 
         // Original size withnout downsampling
         originalSize[0] = openedH5File->getNZ();
@@ -354,7 +354,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         }
 
         // Size of dataset (can be downsampled)
-        HDF5Helper::File::HDF5Vector3D sizeD =  dataset->getDims();
+        HDF5Helper::HDF5Vector3D sizeD =  dataset->getDims();
         originalSize[0] = sizeD[0];
         originalSize[1] = sizeD[1];
         originalSize[2] = sizeD[2];

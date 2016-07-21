@@ -18,7 +18,9 @@
 
 #include "HDF5Object.h"
 
-class HDF5Helper::File::HDF5Group : public HDF5Helper::File::HDF5Object
+namespace HDF5Helper
+{
+class HDF5Group : public HDF5Object
 {
 public:
     HDF5Group(const hid_t group, const std::string name, File *hDF5File);
@@ -33,5 +35,6 @@ private:
     std::string name;
 
 };
+}
 
 #endif // HDF5GROUP_H

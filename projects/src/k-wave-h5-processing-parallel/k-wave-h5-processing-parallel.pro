@@ -24,6 +24,9 @@ win32 {
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
+# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
+include($$PWD/../detect_arch_and_build_mode.pri)
+
 # hdf5file library
 include($$PWD/../hdf5helper-parallel/hdf5helper-parallel.pri)
 

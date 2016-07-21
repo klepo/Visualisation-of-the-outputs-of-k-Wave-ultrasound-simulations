@@ -301,28 +301,28 @@ GLenum OpenGLWindow::checkGlError()
         QMessageBox messageBox;
         if (err == GL_INVALID_ENUM) {
             qWarning() << "OpenGL error: GL_INVALID_ENUM " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_ENUM") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_ENUM") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_INVALID_VALUE) {
             qWarning() << "OpenGL error: GL_INVALID_VALUE " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_VALUE") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_VALUE") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_INVALID_OPERATION) {
             qWarning() << "OpenGL error: GL_INVALID_OPERATION " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_OPERATION") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_OPERATION") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_STACK_OVERFLOW) {
             qWarning() << "OpenGL error: GL_STACK_OVERFLOW " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_OVERFLOW") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_OVERFLOW") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_STACK_UNDERFLOW) {
             qWarning() << "OpenGL error: GL_STACK_UNDERFLOW " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_UNDERFLOW") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_STACK_UNDERFLOW") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_OUT_OF_MEMORY) {
             qWarning() << "OpenGL error: GL_OUT_OF_MEMORY " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_OUT_OF_MEMORY") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_OUT_OF_MEMORY") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_TABLE_TOO_LARGE) {
             qWarning() << "OpenGL error: GL_TABLE_TOO_LARGE " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_TABLE_TOO_LARGE") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_TABLE_TOO_LARGE") + " " + QString::number(err)).toStdString().c_str());
         } else if (err == GL_INVALID_FRAMEBUFFER_OPERATION) {
             qWarning() << "OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION " << err;
-            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_FRAMEBUFFER_OPERATION") + QString::number(err)).toStdString().c_str());
+            messageBox.critical(0, "OpenGL error", (QString("GL_INVALID_FRAMEBUFFER_OPERATION") + " " + QString::number(err)).toStdString().c_str());
         } else {
             qWarning() << "OpenGL error: " << err;
             messageBox.critical(0, "OpenGL error", QString::number(err).toStdString().c_str());

@@ -16,14 +16,16 @@
 
 #include "HDF5Group.h"
 
+namespace HDF5Helper {
+
 /**
- * @brief HDF5HDF5::File::HDF5Group::HDF5Group
+ * @brief HDF5Group::HDF5Group
  * @param group group (H5::Group type)
  * @param name name of group
  * @param hDF5File file
  * @throw std::runtime_error
  */
-HDF5Helper::File::HDF5Group::HDF5Group(const hid_t group, const std::string name, File *hDF5File) : HDF5Object(group) {
+HDF5Group::HDF5Group(const hid_t group, const std::string name, File *hDF5File) : HDF5Object(group) {
     this->hDF5File = hDF5File;
     this->group = group;
     object = this->group;
@@ -31,9 +33,9 @@ HDF5Helper::File::HDF5Group::HDF5Group(const hid_t group, const std::string name
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Group::~HDF5Group
+ * @brief HDF5Group::~HDF5Group
  */
-HDF5Helper::File::HDF5Group::~HDF5Group()
+HDF5Group::~HDF5Group()
 {
     std::cout << "Closing group \"" << name << "\"";
     H5Gclose(group);
@@ -42,28 +44,28 @@ HDF5Helper::File::HDF5Group::~HDF5Group()
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Group::getId Get id of group
+ * @brief HDF5Group::getId Get id of group
  * @return id of group
  */
-hsize_t HDF5Helper::File::HDF5Group::getId()
+hsize_t HDF5Group::getId()
 {
     return group;
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Group::getName Get name of group
+ * @brief HDF5Group::getName Get name of group
  * @return name
  */
-std::string HDF5Helper::File::HDF5Group::getName()
+std::string HDF5Group::getName()
 {
     return name;
 }
 
 /**
- * @brief HDF5HDF5::File::HDF5Group::getNumObjs Get number of object in group
+ * @brief HDF5Group::getNumObjs Get number of object in group
  * @return number of objects
  */
-hsize_t HDF5Helper::File::HDF5Group::getNumObjs()
+hsize_t HDF5Group::getNumObjs()
 {
     H5G_info_t group_info;
     err = H5Gget_info(group, &group_info);
@@ -72,4 +74,5 @@ hsize_t HDF5Helper::File::HDF5Group::getNumObjs()
         //MPI::COMM_WORLD.Abort(1);
     }
     return group_info.nlinks;
+}
 }

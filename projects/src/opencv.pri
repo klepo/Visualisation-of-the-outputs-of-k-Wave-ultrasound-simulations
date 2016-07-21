@@ -59,10 +59,19 @@ win32 {
 
 unix {
     QMAKE_LFLAGS += -Wl,-rpath,$$OPENCV_LIBS_DIR
-    INCLUDEPATH += $$OPENCV_INCLUDE_DIR
-    LIBS +=  -L$$OPENCV_LIBS_DIR \
-        -lopencv_highgui \
-        -lopencv_imgcodecs \
-        -lopencv_imgproc \
-        -lopencv_core \
+    equals(OPENCV_WORLD, 1) {
+        INCLUDEPATH += $$OPENCV_INCLUDE_DIR
+        LIBS +=  -L$$OPENCV_LIBS_DIR \
+            -lopencv_ts \
+            -lopencv_world \
+
+    } else {
+        INCLUDEPATH += $$OPENCV_INCLUDE_DIR
+        LIBS +=  -L$$OPENCV_LIBS_DIR \
+            -lopencv_highgui \
+            -lopencv_imgcodecs \
+            -lopencv_imgproc \
+            -lopencv_core \
+
+    }
 }

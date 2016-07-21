@@ -73,7 +73,7 @@ public slots:
     void setSize(unsigned int depth, unsigned int height, unsigned int width);
     void setPosition(unsigned int posZ, unsigned int posY, unsigned int posX);
 
-    void load3DTexture(HDF5Helper::File::HDF5Dataset *dataset);
+    void load3DTexture(HDF5Helper::HDF5Dataset *dataset);
     void changeColormap(int colormap = cv::COLORMAP_JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);
@@ -223,7 +223,7 @@ private:
     float yZIndex;
 
     std::string datasetName;
-    HDF5Helper::File::HDF5Dataset *selectedDataset;
+    HDF5Helper::HDF5Dataset *selectedDataset;
 
     bool flagSave;
     QString fileName;

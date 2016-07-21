@@ -27,15 +27,15 @@
  * @param yC
  * @param xC
  */
-Request::Request(HDF5Helper::File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC)
+Request::Request(HDF5Helper::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC)
 {
     this->dataset = dataset;
-    this->offset.z() = zO;
-    this->offset.y() = yO;
-    this->offset.x() = xO;
-    this->count.z() = zC;
-    this->count.y() = yC;
-    this->count.x() = xC;
+    this->offset.z(zO);
+    this->offset.y(yO);
+    this->offset.x(xO);
+    this->count.z(zC);
+    this->count.y(yC);
+    this->count.x(xC);
     this->full = false;
     this->data = NULL;
 }
@@ -44,15 +44,15 @@ Request::Request(HDF5Helper::File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO,
  * @brief Request::Request Create request for full 3D dataset reading.
  * @param dataset
  */
-Request::Request(HDF5Helper::File::HDF5Dataset *dataset)
+Request::Request(HDF5Helper::HDF5Dataset *dataset)
 {
     this->dataset = dataset;
-    this->offset.z() = 0;
-    this->offset.y() = 0;
-    this->offset.x() = 0;
-    this->count.z() = 0;
-    this->count.y() = 0;
-    this->count.x() = 0;
+    this->offset.z(0);
+    this->offset.y(0);
+    this->offset.x(0);
+    this->count.z(0);
+    this->count.y(0);
+    this->count.x(0);
     this->full = true;
     this->data = NULL;
 }
@@ -96,7 +96,7 @@ HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
  * @param xC
  * @param limit (volatile) lenght of waiting queue
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::File::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, int limit)
+void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, int limit)
 {
     QMutexLocker locker(&queueMutex);
     if (queue.size() > limit) {
@@ -112,7 +112,7 @@ void HDF5ReadingThread::createRequest(HDF5Helper::File::HDF5Dataset *dataset, hs
  * @brief HDF5ReadingThread::createRequest Create request for full dataset read in thread
  * @param dataset
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::File::HDF5Dataset *dataset)
+void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -207,7 +207,7 @@ void HDF5ReadingThread::run()
                         // Request for returning part of 3D data (block)
                         Request *newR = new Request(r->dataset);
                         //qDebug() << "start reading block... ";
-                        r->dataset->readBlock(i, newR->offset, newR->count, newR->data, newR->min, newR->max);
+                        r->dataset->read3DBlock(i, newR->offset, newR->count, newR->data, newR->min, newR->max);
                         QMutexLocker locker(&requestMutex);
                         doneRequests.append(newR);
                         emit requestDone(newR);

@@ -18,11 +18,11 @@
 
 #include "HDF5File.h"
 
-class HDF5Helper::File::HDF5Object
+namespace HDF5Helper
+{
+class HDF5Object
 {
 public:
-    class HDF5Attribute;
-
     HDF5Object(const hid_t object);
     ~HDF5Object();
 
@@ -64,5 +64,6 @@ private:
 
 
 };
+}
 
 #endif // HDF5OBJECT_H

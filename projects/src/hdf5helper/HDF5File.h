@@ -47,107 +47,111 @@
 
 #include <hdf5.h>  // HDF5
 
-#define NUMBER_OF_ELEMENTS_TO_LOAD 256 * 256 * 256
-
 namespace HDF5Helper
 {
-    double getTime();
-    size_t getTotalSystemPhysicalMemory();
-    size_t getAvailableSystemPhysicalMemory();
+double getTime();
+size_t getTotalSystemPhysicalMemory();
+size_t getAvailableSystemPhysicalMemory();
 
-    class File
-    {
-    public:
-        #ifdef PARALLEL_HDF5
-            File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log = false);
-        #else
-            File(std::string filename, unsigned int flag, bool log = false);
-        #endif
+class HDF5Vector;
+class HDF5Vector3D;
+class HDF5Vector4D;
+class HDF5Dataset;
+class HDF5Group;
+class HDF5Attribute;
 
-        ~File();
+static const unsigned int NUMBER_OF_ELEMENTS_TO_LOAD = 256 * 256 * 256;
 
-        class HDF5Vector3D;
+class File
+{
+public:
+    #ifdef PARALLEL_HDF5
+        File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log = false);
+    #else
+        File(std::string filename, unsigned int flag, bool log = false);
+    #endif
 
-        class HDF5Dataset;
-        class HDF5Group;
+    ~File();
 
-        typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
-        typedef std::map<const std::string, HDF5Group *> MapOfGroups;
+    typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
+    typedef std::map<const std::string, HDF5Group *> MapOfGroups;
 
-        HDF5Dataset *openDataset(const std::string datasetName);
-        HDF5Dataset *openDataset(hsize_t idx);
+    HDF5Dataset *openDataset(const std::string datasetName);
+    HDF5Dataset *openDataset(hsize_t idx);
 
-        void closeDataset(const std::string datasetName);
+    void closeDataset(const std::string datasetName);
 
-        void createDatasetI(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
-        void createDatasetF(const std::string datasetName, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
+    void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
+    void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
 
-        HDF5Group *openGroup(const std::string groupName);
-        HDF5Group *openGroup(hsize_t idx);
+    HDF5Group *openGroup(const std::string groupName);
+    HDF5Group *openGroup(hsize_t idx);
 
-        void closeGroup(const std::string groupName);
+    void closeGroup(const std::string groupName);
 
-        void createGroup(const std::string groupName, bool rewrite = false);
+    void createGroup(const std::string groupName, bool rewrite = false);
 
-        hsize_t getNumObjs();
-        std::string getObjNameById(hsize_t id);
-        H5G_obj_t getObjTypeById(hsize_t id);
+    hsize_t getNumObjs();
+    std::string getObjNameById(hsize_t id);
+    H5G_obj_t getObjTypeById(hsize_t id);
 
-        bool objExistsByName(const std::string name);
+    bool objExistsByName(const std::string name);
 
-        std::string getFilename();
+    std::string getFilename();
 
-        void convertlinearTo3D(hsize_t index, File::HDF5Vector3D &position);
-        void convert3DToLinear(File::HDF5Vector3D position, hsize_t &index);
+    void convertlinearTo3D(hsize_t index, File::HDF5Vector3D &position);
+    void convert3DToLinear(File::HDF5Vector3D position, hsize_t &index);
 
-        void setNumberOfElmsToLoad(hsize_t size);
-        hsize_t getNumberOfElmsToLoad();
+    void setNumberOfElmsToLoad(hsize_t size);
+    hsize_t getNumberOfElmsToLoad();
 
-        static const std::string NT;
-        static const std::string NX;
-        static const std::string NY;
-        static const std::string NZ;
-        static const unsigned int OPEN = 0;
-        static const unsigned int CREATE = 1;
+    static const std::string NT;
+    static const std::string NX;
+    static const std::string NY;
+    static const std::string NZ;
+    static const unsigned int OPEN = 0;
+    static const unsigned int CREATE = 1;
 
-        hsize_t getNT();
-        hsize_t getNX();
-        hsize_t getNY();
-        hsize_t getNZ();
+    hsize_t getNT();
+    hsize_t getNX();
+    hsize_t getNY();
+    hsize_t getNZ();
 
-        HDF5Vector3D getNdims();
+    HDF5Vector3D getNdims();
 
-        std::ofstream *getLogFileStream();
+    std::ofstream *getLogFileStream();
 
-    private:
-        hsize_t nT;
-        hsize_t nX;
-        hsize_t nY;
-        hsize_t nZ;
-        std::string filename;
+    int getMPISize() const;
 
-        hsize_t numberOfElementsToLoad;
+private:
+    hsize_t nT;
+    hsize_t nX;
+    hsize_t nY;
+    hsize_t nZ;
+    std::string filename;
 
-        hid_t plist_FILE_ACCESS;
+    hsize_t numberOfElementsToLoad;
 
-        std::ofstream logFileStream;
+    hid_t plist_FILE_ACCESS;
 
-        static std::mutex mutex;
+    std::ofstream logFileStream;
 
-        hid_t file; // HDF file handle
-        MapOfDatasets datasets;
-        MapOfGroups groups;
+    static std::mutex mutex;
 
-        void insertDataset(const std::string datasetName);
-        void insertGroup(const std::string groupName);
+    hid_t file; // HDF file handle
+    MapOfDatasets datasets;
+    MapOfGroups groups;
 
-        class HDF5Object;
-        herr_t err;
-        int mPISize;
+    void insertDataset(const std::string datasetName);
+    void insertGroup(const std::string groupName);
 
-        void createDataset(const std::string datasetName, hid_t type, hsize_t rank, HDF5Vector3D size, HDF5Vector3D chunk_size, bool rewrite = false);
+    class HDF5Object;
+    herr_t err;
+    int mPISize;
 
-    };
+    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
+
+};
 }
 
 #endif // HDF5FILE_H

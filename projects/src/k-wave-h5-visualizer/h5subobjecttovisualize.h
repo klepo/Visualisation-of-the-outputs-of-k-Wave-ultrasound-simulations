@@ -26,8 +26,8 @@ class OpenedH5File::H5SubobjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5SubobjectToVisualize(HDF5Helper::File::HDF5Dataset *dataset, OpenedH5File *openedH5File, QObject *parent = 0);
-    explicit H5SubobjectToVisualize(HDF5Helper::File::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent = 0);
+    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, OpenedH5File *openedH5File, QObject *parent = 0);
+    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent = 0);
     ~H5SubobjectToVisualize();
 
     // Getters for current settings and min/max values
@@ -52,8 +52,8 @@ public:
     float getOriginalMinVYZ();
     float getOriginalMaxVYZ();
 
-    HDF5Helper::File::HDF5Dataset *getDataset();
-    HDF5Helper::File::HDF5Group *getGroup();
+    HDF5Helper::HDF5Dataset *getDataset();
+    HDF5Helper::HDF5Group *getGroup();
 
     // Simulation info from file
     QList<QPair<QString, QString>> getInfo();
@@ -155,8 +155,8 @@ private:
 
     QString name;
 
-    HDF5Helper::File::HDF5Dataset *dataset;
-    HDF5Helper::File::HDF5Group *group;
+    HDF5Helper::HDF5Dataset *dataset;
+    HDF5Helper::HDF5Group *group;
 
     int type;
 

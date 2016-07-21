@@ -16,75 +16,63 @@
 
 #include "HDF5Vector3D.h"
 
-HDF5Helper::File::HDF5Vector3D::HDF5Vector3D()
+namespace HDF5Helper {
+
+HDF5Vector3D::HDF5Vector3D()
+    : HDF5Vector(3)
 {
-    vector[0] = 0;
-    vector[1] = 0;
-    vector[2] = 0;
+    set(0, 0, 0);
 }
 
-HDF5Helper::File::HDF5Vector3D::HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
+HDF5Vector3D::HDF5Vector3D(HDF5Vector &hDF5Vector)
+    : HDF5Vector(3)
 {
-    vector[0] = z;
-    vector[1] = y;
-    vector[2] = x;
+    if (3 != hDF5Vector.getLength()){
+        throw std::runtime_error("Convert error - Length of HDF5Vector is not 3");
+    }
+    set(hDF5Vector[0], hDF5Vector[1], hDF5Vector[2]);
 }
 
-HDF5Helper::File::HDF5Vector3D::~HDF5Vector3D()
+HDF5Vector3D::HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
+    : HDF5Vector(3)
 {
+    set(z, y, x);
 }
 
-void HDF5Helper::File::HDF5Vector3D::set(HDF5Vector3D vector)
-{
-    this->vector[0] = vector[0];
-    this->vector[1] = vector[1];
-    this->vector[2] = vector[2];
-}
-
-void HDF5Helper::File::HDF5Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
+void HDF5Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
 {
     vector[0] = z;
     vector[1] = y;
     vector[2] = x;
 }
 
-hsize_t HDF5Helper::File::HDF5Vector3D::size()
+void HDF5Vector3D::x(const hsize_t x)
 {
-    return vector[0] * vector[1] * vector[2];
+    vector[2] = x;
 }
 
-hsize_t &HDF5Helper::File::HDF5Vector3D::x()
+void HDF5Vector3D::y(const hsize_t y)
+{
+    vector[1] = y;
+}
+
+void HDF5Vector3D::z(const hsize_t z)
+{
+    vector[0] = z;
+}
+
+hsize_t HDF5Vector3D::x() const
 {
     return vector[2];
 }
 
-hsize_t &HDF5Helper::File::HDF5Vector3D::y()
+hsize_t HDF5Vector3D::y() const
 {
     return vector[1];
 }
 
-hsize_t &HDF5Helper::File::HDF5Vector3D::z()
+hsize_t HDF5Vector3D::z() const
 {
     return vector[0];
 }
-
-hsize_t *HDF5Helper::File::HDF5Vector3D::getVectorPtr()
-{
-    return vector;
 }
-
-hsize_t &HDF5Helper::File::HDF5Vector3D::operator [](unsigned int i)
-{
-    if (i > 2){
-        throw std::runtime_error("Index to HDF5Vector3D is too big");
-    }
-    return vector[i];
-}
-
-HDF5Helper::File::HDF5Vector3D &HDF5Helper::File::HDF5Vector3D::operator =(HDF5Vector3D vector)
-{
-    this->set(vector);
-    return *this;
-}
-
-
