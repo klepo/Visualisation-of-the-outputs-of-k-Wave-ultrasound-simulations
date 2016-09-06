@@ -43,11 +43,61 @@ HDF5Group::~HDF5Group()
 
 }
 
+HDF5Dataset *HDF5Group::openDataset(const std::string datasetName)
+{
+    return hDF5File->openDataset(name + "/" + datasetName);
+}
+
+HDF5Dataset *HDF5Group::openDataset(hsize_t idx)
+{
+    return hDF5File->openDataset(name + "/" + getObjNameByIdx(idx));
+}
+
+void HDF5Group::closeDataset(const std::string datasetName)
+{
+    hDF5File->closeDataset(name + "/" + datasetName);
+}
+
+void HDF5Group::closeDataset(hsize_t idx)
+{
+    hDF5File->closeDataset(name + "/" + getObjNameByIdx(idx));
+}
+
+void HDF5Group::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite)
+{
+    hDF5File->createDatasetI(name + "/" + datasetName, size, chunk_size, rewrite);
+}
+
+void HDF5Group::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite)
+{
+    hDF5File->createDatasetF(name + "/" + datasetName, size, chunk_size, rewrite);
+}
+
+HDF5Group *HDF5Group::openGroup(const std::string groupName)
+{
+    return hDF5File->openGroup(name + "/" + groupName);
+}
+
+HDF5Group *HDF5Group::openGroup(hsize_t idx)
+{
+    return hDF5File->openGroup(name + "/" + getObjNameByIdx(idx));
+}
+
+void HDF5Group::closeGroup(const std::string groupName)
+{
+    hDF5File->closeGroup(name + "/" + groupName);
+}
+
+void HDF5Group::createGroup(const std::string groupName, bool rewrite)
+{
+    hDF5File->createGroup(name + "/" + groupName, rewrite);
+}
+
 /**
  * @brief HDF5Group::getId Get id of group
  * @return id of group
  */
-hsize_t HDF5Group::getId()
+hid_t HDF5Group::getId()
 {
     return group;
 }
@@ -74,5 +124,15 @@ hsize_t HDF5Group::getNumObjs()
         //MPI::COMM_WORLD.Abort(1);
     }
     return group_info.nlinks;
+}
+
+std::string HDF5Group::getObjNameByIdx(hsize_t idx)
+{
+    return hDF5File->getObjNameByIdx(idx, group);
+}
+
+H5G_obj_t HDF5Group::getObjTypeByIdx(hsize_t idx)
+{
+    return hDF5File->getObjTypeByIdx(idx, group);
 }
 }

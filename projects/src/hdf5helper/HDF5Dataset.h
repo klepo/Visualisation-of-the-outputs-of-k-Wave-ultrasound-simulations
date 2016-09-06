@@ -29,7 +29,8 @@ public:
     ~HDF5Dataset();
 
     std::string getName();
-    hsize_t getId();
+    std::string getOnlyName();
+    hid_t getId();
     hsize_t getRank();
     HDF5Vector getDims();
     HDF5Vector getChunkDims();
@@ -51,39 +52,34 @@ public:
     // Block reading
     hsize_t getRealNumberOfElmsToLoad();
     hsize_t getNumberOfBlocks();
+    HDF5Vector getNumberOfBlocksInDims() const;
 
-    HDF5Vector3D getGeneralBlockDims();
+    HDF5Vector getGeneralBlockDims();
     void setNumberOfElmsToLoad(hsize_t size);
+    void setMaxNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad();
 
-#ifdef PARALLEL_HDF5
     void setMPIOAccess(H5FD_mpio_xfer_t type);
-#endif
 
     void readFullDataset(float *&data);
     void readFullDataset(hsize_t *&data);
 
-    void read3DDataset(HDF5Vector3D offset, HDF5Vector3D count, float *&data, float &minVF, float &maxVF);
-    void read3DDataset(HDF5Vector3D offset, HDF5Vector3D count, hsize_t *&data, hsize_t &minVI, hsize_t &maxVI);
+    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max);
+    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max);
 
-    void write3DDataset(HDF5Vector3D offset, HDF5Vector3D count, float *data, bool log = false);
-    void write3DDataset(HDF5Vector3D offset, HDF5Vector3D count, hsize_t *data, bool log = false);
+    void writeDataset(HDF5Vector offset, HDF5Vector count, float *data, bool log = false);
+    void writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *data, bool log = false);
 
-    void read4DDataset(HDF5Vector4D offset, HDF5Vector4D count, float *&data, float &minVF, float &maxVF);
-
-    void write4DDataset(HDF5Vector4D offset, HDF5Vector4D count, float *data, bool log = false);
-
-    void read3DBlock(const hsize_t index, HDF5Vector3D &offset, HDF5Vector3D &count, float *&data, float &minVFTmp, float &maxVFTmp);
-    void read3DBlock(const hsize_t index, HDF5Vector3D &offset, HDF5Vector3D &count, hsize_t *&data, hsize_t &minVFTmp, hsize_t &maxVFTmp);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max);
 
     void readEmptyBlock();
 
 private:
     void readFullDataset(void *data);
-    void read3DDataset(HDF5Vector3D offset, HDF5Vector3D count, void *data);
-    void write3DDataset(HDF5Vector3D offset, HDF5Vector3D count, void *data, bool log = false);
-    void read4DDataset(HDF5Vector4D offset, HDF5Vector4D count, void *data);
-    void write4DDataset(HDF5Vector4D offset, HDF5Vector4D count, void *data, bool log = false);
+
+    void readDataset(HDF5Vector offset, HDF5Vector count, void *data);
+    void writeDataset(HDF5Vector offset, HDF5Vector count, void *data, bool log);
 
     void checkOffsetAndCountParams(HDF5Vector offset, HDF5Vector count);
 
@@ -91,25 +87,19 @@ private:
     void findGlobalMinAndMaxValueI();
 
     void initBlockReading();
-    void iterateToBlock(const hsize_t index);
-    void computeNumberOfBlocks();
-    void recomputeBlock();
 
     hid_t plist;
     hid_t plist_DATASET_XFER;
     void *convBuffer;
     void *bkgBuffer;
 
-    HDF5Vector3D blockDims;
-    HDF5Vector3D offset;
-    HDF5Vector3D count;
-    bool blockInitialized;
-    bool lastBlock;
-    hsize_t blockSize;
+    // Block reading
     hsize_t numberOfBlocks;
-    hsize_t actualBlock;
-
+    HDF5Vector numberOfBlocksInDims;
+    HDF5Vector *offsets;
+    HDF5Vector *counts;
     hsize_t numberOfElementsToLoad;
+    hsize_t realNumberOfElementsToLoad;
 
     hid_t dataset;
     hid_t dataspace;
@@ -117,7 +107,7 @@ private:
 
     int rank;
     HDF5Vector dims;
-    HDF5Vector chunk_dims;
+    HDF5Vector chunkDims;
 
     std::string name;
 

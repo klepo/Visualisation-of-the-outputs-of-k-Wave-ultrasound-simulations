@@ -29,7 +29,18 @@ include($$PWD/../hdf5helper/hdf5helper.pri)
 # HDF5 library
 include($$PWD/../hdf5.pri)
 
-# OpenCV library
-include($$PWD/../opencv.pri)
+SOURCES += k-wave-h5-processing.cpp \
+    helper.cpp \
+    settings.cpp \
+    filescontext.cpp \
+    dtsforpcs.cpp \
+    paramsdefinition.cpp \
+    processing.cpp
 
-SOURCES += k-wave-h5-processing.cpp
+HEADERS += \
+    helper.h \
+    settings.h \
+    filescontext.h \
+    dtsforpcs.h \
+    paramsdefinition.h \
+    processing.h

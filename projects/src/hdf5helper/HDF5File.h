@@ -60,7 +60,16 @@ class HDF5Dataset;
 class HDF5Group;
 class HDF5Attribute;
 
-static const unsigned int NUMBER_OF_ELEMENTS_TO_LOAD = 256 * 256 * 256;
+void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector size);
+void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector size);
+
+
+static const unsigned int NUMBER_OF_ELEMENTS_TO_LOAD = 100 * 64 * 64 * 64;
+
+typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
+typedef std::map<const std::string, HDF5Group *> MapOfGroups;
+typedef std::pair<const std::string, HDF5Dataset *> PairOfDatasets;
+typedef std::pair<const std::string, HDF5Group *> PairOfGroups;
 
 class File
 {
@@ -73,16 +82,14 @@ public:
 
     ~File();
 
-    typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
-    typedef std::map<const std::string, HDF5Group *> MapOfGroups;
-
     HDF5Dataset *openDataset(const std::string datasetName);
     HDF5Dataset *openDataset(hsize_t idx);
 
     void closeDataset(const std::string datasetName);
+    void closeDataset(hsize_t idx);
 
-    void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
-    void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
+    void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
+    void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
 
     HDF5Group *openGroup(const std::string groupName);
     HDF5Group *openGroup(hsize_t idx);
@@ -92,15 +99,12 @@ public:
     void createGroup(const std::string groupName, bool rewrite = false);
 
     hsize_t getNumObjs();
-    std::string getObjNameById(hsize_t id);
-    H5G_obj_t getObjTypeById(hsize_t id);
+    std::string getObjNameByIdx(hsize_t idx, hid_t fileGroupId = -1);
+    H5G_obj_t getObjTypeByIdx(hsize_t idx, hid_t fileGroupId = -1);
 
     bool objExistsByName(const std::string name);
 
     std::string getFilename();
-
-    void convertlinearTo3D(hsize_t index, File::HDF5Vector3D &position);
-    void convert3DToLinear(File::HDF5Vector3D position, hsize_t &index);
 
     void setNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad();
@@ -117,7 +121,7 @@ public:
     hsize_t getNY();
     hsize_t getNZ();
 
-    HDF5Vector3D getNdims();
+    HDF5Vector4D getNdims();
 
     std::ofstream *getLogFileStream();
 
@@ -145,11 +149,13 @@ private:
     void insertDataset(const std::string datasetName);
     void insertGroup(const std::string groupName);
 
+    void closeFileAndObjects();
+
     class HDF5Object;
     herr_t err;
     int mPISize;
 
-    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
+    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
 
 };
 }

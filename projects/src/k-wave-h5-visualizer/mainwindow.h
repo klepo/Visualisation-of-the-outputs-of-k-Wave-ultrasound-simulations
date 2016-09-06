@@ -49,9 +49,9 @@ public:
     ~MainWindow();
 
 public slots:
-    void repaintXYImage(cv::Mat image, int index);
-    void repaintXZImage(cv::Mat image, int index);
-    void repaintYZImage(cv::Mat image, int index);
+    void repaintXYImage(cv::Mat image, uint64_t index);
+    void repaintXZImage(cv::Mat image, uint64_t index);
+    void repaintYZImage(cv::Mat image, uint64_t index);
 
     void loaded3D(std::string datasetName);
 
@@ -79,7 +79,7 @@ private slots:
 
     void on_comboBoxColormap_currentIndexChanged(int index);
 
-    void on_spinBoxSelectedDatasetStep_valueChanged(int arg1);
+    void on_spinBoxSelectedDatasetStep_valueChanged(int step);
     void on_toolButtonPlay_clicked(bool checked);
     void updateStep();
     void on_toolButtonStart_clicked();

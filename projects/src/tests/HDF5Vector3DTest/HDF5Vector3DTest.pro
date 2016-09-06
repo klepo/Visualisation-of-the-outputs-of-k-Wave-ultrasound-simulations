@@ -21,7 +21,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 # hdf5file library
 #include($$PWD/../../hdf5helper/hdf5helper.pri)
 
-unix:!macx|win32: LIBS += -L$$OUT_PWD/../../hdf5helper-parallel/ -lhdf5helper-parallel
+unix:!macx|win32: LIBS += -L$$OUT_PWD/../../hdf5helper/ -lhdf5helper
 
 INCLUDEPATH += $$PWD/../../hdf5helper
 DEPENDPATH += $$PWD/../../hdf5helper

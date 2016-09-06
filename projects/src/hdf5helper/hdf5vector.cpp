@@ -25,10 +25,22 @@ HDF5Vector::HDF5Vector()
 
 }
 
-HDF5Vector::HDF5Vector(hsize_t length)
+HDF5Vector::HDF5Vector(hsize_t length, hsize_t value)
 {
     this->length = length;
-    vector = new hsize_t[length];
+    vector = new hsize_t[length]();
+    std::fill_n(vector, length, value);
+}
+
+HDF5Vector::HDF5Vector(int length, hsize_t value)
+{
+    if (length >= 0) {
+        this->length = static_cast<hsize_t>(length);
+        vector = new hsize_t[static_cast<hsize_t>(length)]();
+        std::fill_n(vector, length, value);
+    } else {
+        throw std::runtime_error("Length of HDF5Vector is less than zero");
+    }
 }
 
 HDF5Vector::HDF5Vector(const HDF5Vector &hDF5Vector)
@@ -46,7 +58,7 @@ HDF5Vector &HDF5Vector::operator =(const HDF5Vector &hDF5Vector)
 
 HDF5Vector::~HDF5Vector()
 {
-    delete [] vector;
+    delete[] vector;
 }
 
 hsize_t &HDF5Vector::operator [](hsize_t i)
@@ -55,6 +67,22 @@ hsize_t &HDF5Vector::operator [](hsize_t i)
         throw std::runtime_error("Index to HDF5Vector is too big");
     }
     return vector[i];
+}
+
+hsize_t &HDF5Vector::operator [](int i)
+{
+    if (static_cast<hsize_t>(i) >= length){
+        throw std::runtime_error("Index to HDF5Vector is too big");
+    }
+    return vector[static_cast<hsize_t>(i)];
+}
+
+hsize_t &HDF5Vector::operator [](unsigned int i)
+{
+    if (static_cast<hsize_t>(i) >= length){
+        throw std::runtime_error("Index to HDF5Vector is too big");
+    }
+    return vector[static_cast<hsize_t>(i)];
 }
 
 hsize_t HDF5Vector::getSize() const
@@ -79,7 +107,7 @@ void HDF5Vector::assign(const HDF5Vector &hDF5Vector, bool deleteFlag)
     length = hDF5Vector.length;
 
     vector = new hsize_t[length]();
-    std::memcpy(vector, hDF5Vector.vector, length * sizeof(hsize_t));
+    std::memcpy(vector, hDF5Vector.vector, static_cast<size_t>(length) * sizeof(hsize_t));
 }
 
 hsize_t HDF5Vector::getLength() const
@@ -94,5 +122,16 @@ bool HDF5Vector::hasZeros() const
             return true;
     }
     return false;
+}
+
+HDF5Helper::HDF5Vector::operator std::string() const
+{
+    std::string str = "";
+    for (hsize_t i = 0; i < length; i++) {
+        str += std::to_string(vector[i]);
+        if (i < length - 1)
+            str += " x ";
+    }
+    return str;
 }
 }

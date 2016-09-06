@@ -439,11 +439,11 @@ bool GWindow::isTexture3DInitialized()
  * @param height
  * @param width
  */
-void GWindow::setMainSize(unsigned int depth, unsigned int height, unsigned int width)
+void GWindow::setMainSize(HDF5Helper::HDF5Vector3D size)
 {
-    fullWidth = width;
-    fullHeight = height;
-    fullDepth = depth;
+    fullDepth = size.z();
+    fullHeight = size.y();
+    fullWidth = size.x();
 }
 
 /**
@@ -452,11 +452,11 @@ void GWindow::setMainSize(unsigned int depth, unsigned int height, unsigned int 
  * @param height
  * @param width
  */
-void GWindow::setSize(unsigned int depth, unsigned int height, unsigned int width)
+void GWindow::setSize(HDF5Helper::HDF5Vector3D size)
 {
-    imageDepth = depth;
-    imageHeight = height;
-    imageWidth = width;
+    imageDepth = size.z();
+    imageHeight = size.y();
+    imageWidth = size.x();
     origImageWidth = imageWidth;
     origImageHeight = imageHeight;
     origImageDepth = imageDepth;
@@ -468,24 +468,24 @@ void GWindow::setSize(unsigned int depth, unsigned int height, unsigned int widt
  * @param posY
  * @param posX
  */
-void GWindow::setPosition(unsigned int posZ, unsigned int posY, unsigned int posX)
+void GWindow::setPosition(HDF5Helper::HDF5Vector3D position)
 {
-    this->posZ = posZ;
-    this->posY = posY;
-    this->posX = posX;
+    this->posZ = position.z();
+    this->posY = position.y();
+    this->posX = position.x();
 }
 
 /**
  * @brief GWindow::load3DTexture Performs loading of 3D data for VR
  * @param dataset
  */
-void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset)
+void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 {
     // If dataset is already loaded
-    if (selectedDataset != NULL && selectedDataset->getName() == dataset->getName()) {
-        emit loaded(selectedDataset->getName());
-        return;
-    }
+    //if (selectedDataset != NULL && selectedDataset->getName() == dataset->getName()) {
+    //    emit loaded(selectedDataset->getName());
+    //    return;
+    //}
 
     //thread->clearRequests();
     //thread->wait();
@@ -512,7 +512,7 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset)
         return;
     }
 
-    thread->createRequest(selectedDataset);
+    thread->createRequest(selectedDataset, index);
     // Start loading thread
     thread->start();
 }
@@ -582,13 +582,17 @@ void GWindow::setLoaded(Request *r)
 
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    HDF5Helper::HDF5Vector3D offset = r->offset;
+    HDF5Helper::HDF5Vector3D count = r->count;
+
     // Set 3D data to 3D texture
-    glTexSubImage3D(GL_TEXTURE_3D, 0, r->offset.x(), r->offset.y(), r->offset.z(), r->count.x(), r->count.y(), r->count.z(), GL_RED, GL_FLOAT, r->data);
+    glTexSubImage3D(GL_TEXTURE_3D, 0, offset.x(), offset.y(), offset.z(), count.x(), count.y(), count.z(), GL_RED, GL_FLOAT, r->data);
 
     //if (checkGlError() != GL_NO_ERROR) return;
 
     // Last block of 3D data
-    if (r->offset.z() + r->count.z() == imageDepth) {
+    if (offset.z() + count.z() == imageDepth) {
         //thread->deleteLater();
         texture3DInitialized = true;
         changeColormap(colormap);

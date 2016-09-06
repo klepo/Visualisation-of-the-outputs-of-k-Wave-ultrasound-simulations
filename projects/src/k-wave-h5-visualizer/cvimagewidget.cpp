@@ -58,7 +58,7 @@ void CVImageWidget::refreshImage()
     // If image is set
     if (isSetImage) {
         // Create new QImage
-        _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
+        _qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols * 3, QImage::Format_RGB888);
         // if is adjusting enabled
         if (point.x() == 0 && point.y() == 0 && adjustFlag) {
             // Scale to width or height accodring to widget size

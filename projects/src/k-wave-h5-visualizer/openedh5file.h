@@ -43,6 +43,7 @@ public:
     QString getFilename();
     QString getRawFilename();
 
+    HDF5Helper::HDF5Vector4D getNDims() const;
     uint64_t getNT();
     uint64_t getNX();
     uint64_t getNY();
@@ -50,6 +51,7 @@ public:
 
     static const int DATASET_TYPE = 0;
     static const int GROUP_TYPE = 1;
+
 
 signals:
 
@@ -60,7 +62,7 @@ public slots:
 
 private:
     HDF5Helper::File *file;
-    uint64_t nT, nX, nY, nZ;
+    HDF5Helper::HDF5Vector4D nDims;
 
     QMap<QString, QString> info;
     QMap<QString, H5ObjectToVisualize *> objects;

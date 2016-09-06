@@ -17,44 +17,25 @@
 
 #include "hdf5readingthread.h"
 
-/**
- * @brief Request::Request Create request for block of dataset reading with offset and count (size) of data.
- * @param dataset
- * @param zO
- * @param yO
- * @param xO
- * @param zC
- * @param yC
- * @param xC
- */
-Request::Request(HDF5Helper::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC)
+Request::Request(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count)
 {
     this->dataset = dataset;
-    this->offset.z(zO);
-    this->offset.y(yO);
-    this->offset.x(xO);
-    this->count.z(zC);
-    this->count.y(yC);
-    this->count.x(xC);
+    this->offset = offset;
+    this->count = count;
     this->full = false;
-    this->data = NULL;
+    this->data = 0;
 }
 
 /**
  * @brief Request::Request Create request for full 3D dataset reading.
  * @param dataset
  */
-Request::Request(HDF5Helper::HDF5Dataset *dataset)
+Request::Request(HDF5Helper::HDF5Dataset *dataset, hsize_t step)
 {
     this->dataset = dataset;
-    this->offset.z(0);
-    this->offset.y(0);
-    this->offset.x(0);
-    this->count.z(0);
-    this->count.y(0);
-    this->count.x(0);
     this->full = true;
-    this->data = NULL;
+    this->data = 0;
+    this->step = step;
 }
 
 /**
@@ -62,7 +43,7 @@ Request::Request(HDF5Helper::HDF5Dataset *dataset)
  */
 Request::~Request()
 {
-    delete [] data;
+    delete[] data;
 }
 
 /**
@@ -71,7 +52,7 @@ Request::~Request()
  */
 QString Request::toQString()
 {
-    return QString::fromStdString(dataset->getName()) + "    " + QString::number(offset.z()) + " x " + QString::number(offset.y()) + " x " + QString::number(offset.x()) + "    " + QString::number(offset.z()) + " x " + QString::number(offset.y()) + " x " + QString::number(offset.x());
+    return QString::fromStdString(dataset->getName()) + " " + QString::fromStdString(offset) + " " + QString::fromStdString(count);
 }
 
 /**
@@ -88,15 +69,11 @@ HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
 /**
  * @brief HDF5ReadingThread::createRequest Create request in thread
  * @param dataset
- * @param zO
- * @param yO
- * @param xO
- * @param zC
- * @param yC
- * @param xC
- * @param limit (volatile) lenght of waiting queue
+ * @param offset
+ * @param count
+ * @param limit (volatile) length of waiting queue
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t zO, hsize_t yO, hsize_t xO, hsize_t zC, hsize_t yC, hsize_t xC, int limit)
+void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count, int limit)
 {
     QMutexLocker locker(&queueMutex);
     if (queue.size() > limit) {
@@ -105,21 +82,21 @@ void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t 
             delete r;
         }
     }
-    queue.enqueue(new Request(dataset, zO, yO, xO, zC, yC, xC));
+    queue.enqueue(new Request(dataset, offset, count));
 }
 
 /**
  * @brief HDF5ReadingThread::createRequest Create request for full dataset read in thread
  * @param dataset
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset)
+void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t step)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
     }
-    queue.enqueue(new Request(dataset));
+    queue.enqueue(new Request(dataset, step));
 }
 
 /**
@@ -203,11 +180,12 @@ void HDF5ReadingThread::run()
                 //usleep(1000000);
                 if (r->full) {
                     // Reading of full dataset with block reading
-                    for (hsize_t i = 0; i < r->dataset->getNumberOfBlocks(); i++) {
+                    hsize_t c = HDF5Helper::HDF5Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
+                    for (hsize_t i = 0; i < c; i++) {
                         // Request for returning part of 3D data (block)
-                        Request *newR = new Request(r->dataset);
+                        Request *newR = new Request(r->dataset, r->step);
                         //qDebug() << "start reading block... ";
-                        r->dataset->read3DBlock(i, newR->offset, newR->count, newR->data, newR->min, newR->max);
+                        r->dataset->readBlock(c * newR->step + i, newR->offset, newR->count, newR->data, newR->min, newR->max);
                         QMutexLocker locker(&requestMutex);
                         doneRequests.append(newR);
                         emit requestDone(newR);
@@ -217,7 +195,7 @@ void HDF5ReadingThread::run()
                 } else {
                     // One block data reading (slice)
                     //qDebug() << "start reading 3D dataset... ";
-                    r->dataset->read3DDataset(r->offset, r->count, r->data, r->min, r->max);
+                    r->dataset->readDataset(r->offset, r->count, r->data, r->min, r->max);
                     QMutexLocker locker(&requestMutex);
                     doneRequests.append(r);
                     emit requestDone(r);

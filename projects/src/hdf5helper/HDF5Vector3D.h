@@ -24,12 +24,16 @@ class HDF5Vector3D : public HDF5Vector
 {
 public:
     HDF5Vector3D();
-    HDF5Vector3D(HDF5Vector &hDF5Vector);
+    HDF5Vector3D(const HDF5Vector &hDF5Vector);
     HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x);
     void set(const hsize_t z, const hsize_t y, const hsize_t x);
+    void set(const int z, const int y, const int x);
     void x(const hsize_t x);
     void y(const hsize_t y);
     void z(const hsize_t z);
+    void x(const int x);
+    void y(const int y);
+    void z(const int z);
     hsize_t x() const;
     hsize_t y() const;
     hsize_t z() const;

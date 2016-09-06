@@ -46,7 +46,7 @@ signals:
     void hoveredPointInImage(int x, int y);
 
 public slots:
-    void showImage(const cv::Mat& image, QPoint = QPoint(0,0), QString fileName = "");
+    void showImage(const cv::Mat &image, QPoint = QPoint(0,0), QString fileName = "");
     void clearImage();
     void saveImage();
     void setAdjust(bool adjust);

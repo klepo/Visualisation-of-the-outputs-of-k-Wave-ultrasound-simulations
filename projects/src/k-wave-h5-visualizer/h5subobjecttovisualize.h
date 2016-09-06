@@ -72,12 +72,12 @@ public:
     int getColormap();
     bool getUseGlobal();
 
-    uint64_t *getFrameSize();
-    uint64_t *getOriginalFrameSize();
-    uint64_t *getSize();
-    uint64_t *getOriginalSize();
-    uint64_t *getPos();
-    uint64_t *getOriginalPos();
+    HDF5Helper::HDF5Vector3D getFrameSize();
+    HDF5Helper::HDF5Vector3D getOriginalFrameSize();
+    HDF5Helper::HDF5Vector3D getSize();
+    HDF5Helper::HDF5Vector3D getOriginalSize();
+    HDF5Helper::HDF5Vector3D getPos();
+    HDF5Helper::HDF5Vector3D getOriginalPos();
     uint64_t getSteps();
     uint64_t getCurrentStep();
 
@@ -99,9 +99,9 @@ public:
     bool areCurrentSlicesLoaded();
 
 signals:
-    void imageXYChanged(cv::Mat, int index);
-    void imageXZChanged(cv::Mat, int index);
-    void imageYZChanged(cv::Mat, int index);
+    void imageXYChanged(cv::Mat, uint64_t index);
+    void imageXZChanged(cv::Mat, uint64_t index);
+    void imageYZChanged(cv::Mat, uint64_t index);
 
 private slots:
     void sliceXYLoaded(Request *r);
@@ -171,7 +171,6 @@ private:
     QMutex mutexXZ;
     QMutex mutexYZ;
 
-
     HDF5ReadingThread *threadXY;
     HDF5ReadingThread *threadXZ;
     HDF5ReadingThread *threadYZ;
@@ -200,13 +199,13 @@ private:
     int count;
 
     // Datasets characteristics variables
-    uint64_t originalFrameSize[3];
-    uint64_t frameSize[3];
-    uint64_t originalSize[3];
-    uint64_t size[3];
-    uint64_t chunkSize[3];
-    uint64_t originalPos[3];
-    uint64_t pos[3];
+    HDF5Helper::HDF5Vector3D originalFrameSize;
+    HDF5Helper::HDF5Vector3D frameSize;
+    HDF5Helper::HDF5Vector3D originalSize;
+    HDF5Helper::HDF5Vector3D size;
+    HDF5Helper::HDF5Vector chunkSize;
+    HDF5Helper::HDF5Vector3D originalPos;
+    HDF5Helper::HDF5Vector3D pos;
     uint64_t steps;
     uint64_t dwnsmpl;
     uint64_t currentStep;

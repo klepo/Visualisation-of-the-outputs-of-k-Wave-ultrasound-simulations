@@ -69,11 +69,11 @@ public slots:
 
     void setTrim(bool);
 
-    void setMainSize(unsigned int depth, unsigned int height, unsigned int width);
-    void setSize(unsigned int depth, unsigned int height, unsigned int width);
-    void setPosition(unsigned int posZ, unsigned int posY, unsigned int posX);
+    void setMainSize(HDF5Helper::HDF5Vector3D size);
+    void setSize(HDF5Helper::HDF5Vector3D size);
+    void setPosition(HDF5Helper::HDF5Vector3D position);
 
-    void load3DTexture(HDF5Helper::HDF5Dataset *dataset);
+    void load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index);
     void changeColormap(int colormap = cv::COLORMAP_JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);

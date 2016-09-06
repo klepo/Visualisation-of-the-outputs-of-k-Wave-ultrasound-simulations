@@ -24,15 +24,29 @@ class HDF5Vector
 {
 public:
     HDF5Vector();
-    HDF5Vector(hsize_t length);
+    HDF5Vector(hsize_t length, hsize_t value = 0);
+    HDF5Vector(int length, hsize_t value = 0);
     HDF5Vector(const HDF5Vector &hDF5Vector);
     virtual ~HDF5Vector();
-    virtual HDF5Vector &operator =(const HDF5Vector &hDF5Vector) final;
+    virtual HDF5Vector &operator =(const HDF5Vector &hDF5Vector);
     virtual hsize_t &operator [](hsize_t i) final;
+    virtual hsize_t &operator [](int i) final;
+    virtual hsize_t &operator [](unsigned int i) final;
     virtual hsize_t getSize() const final;
     virtual hsize_t *getVectorPtr() final;
     hsize_t getLength() const;
     bool hasZeros() const;
+
+    friend std::ostream &operator<<(std::ostream &os, HDF5Vector const &hDF5Vector) {
+        for (hsize_t i = 0; i < hDF5Vector.length; i++) {
+            os << hDF5Vector.vector[i];
+            if (i < hDF5Vector.length - 1)
+                os << " x ";
+        }
+        return os;
+    }
+
+    operator std::string() const;
 
 private:
     void assign(const HDF5Vector &hDF5Vector, bool deleteFlag);

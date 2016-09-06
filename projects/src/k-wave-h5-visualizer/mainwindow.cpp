@@ -432,9 +432,9 @@ void MainWindow::selectDataset()
     // Disconnect all last subobjects from image loading
     foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
         foreach (OpenedH5File::H5SubobjectToVisualize *subobject, object->getSubobjects()) {
-            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
-            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
-            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), 0, 0);
+            disconnect(subobject, SIGNAL(imageXYChanged(cv::Mat, uint64_t)), 0, 0);
+            disconnect(subobject, SIGNAL(imageXZChanged(cv::Mat, uint64_t)), 0, 0);
+            disconnect(subobject, SIGNAL(imageYZChanged(cv::Mat, uint64_t)), 0, 0);
         }
     }
 
@@ -445,16 +445,16 @@ void MainWindow::selectDataset()
     if (selectedObjectName == "")
         return;
 
-    // Set selected name
-    selectedSubobjectName = openedH5File->getObject(selectedObjectName)->getSelectedSubobject()->getName();
-
     // Set object and subobject
     object = openedH5File->getObject(selectedObjectName);
-    openedH5File->setSelectedSubobject(selectedSubobjectName);
-    if (object != NULL)
-        subobject = object->getSelectedSubobject();
 
-    if (subobject != NULL) {
+    if (object != NULL && object->getSelectedSubobject()) {
+        subobject = object->getSelectedSubobject();
+        // Set selected name
+        selectedSubobjectName = subobject->getName();
+        openedH5File->setSelectedSubobject(selectedSubobjectName);
+
+        if (subobject != NULL) {
 
         qDebug() << "--> Selected dataset" << subobject->getName();
 
@@ -473,9 +473,9 @@ void MainWindow::selectDataset()
         subobject->setYIndex(subobject->getYIndex());
         subobject->setZIndex(subobject->getZIndex());
         // Connect repainting image
-        connect(subobject, SIGNAL(imageXYChanged(cv::Mat, int)), this, SLOT(repaintXYImage(cv::Mat, int)));
-        connect(subobject, SIGNAL(imageXZChanged(cv::Mat, int)), this, SLOT(repaintXZImage(cv::Mat, int)));
-        connect(subobject, SIGNAL(imageYZChanged(cv::Mat, int)), this, SLOT(repaintYZImage(cv::Mat, int)));
+        connect(subobject, SIGNAL(imageXYChanged(cv::Mat, uint64_t)), this, SLOT(repaintXYImage(cv::Mat, uint64_t)));
+        connect(subobject, SIGNAL(imageXZChanged(cv::Mat, uint64_t)), this, SLOT(repaintXZImage(cv::Mat, uint64_t)));
+        connect(subobject, SIGNAL(imageYZChanged(cv::Mat, uint64_t)), this, SLOT(repaintYZImage(cv::Mat, uint64_t)));
         // Enable controls
         ui->dockWidgetSelectedDataset->setEnabled(true);
         ui->dockWidgetXY->setEnabled(true);
@@ -501,17 +501,17 @@ void MainWindow::selectDataset()
             gWindow->changeMinValue(subobject->getMinVG());
             gWindow->changeMaxValue(subobject->getMaxVG());
             gWindow->changeColormap(subobject->getColormap());
-            gWindow->setMainSize(subobject->getFrameSize()[0], subobject->getFrameSize()[1], subobject->getFrameSize()[2]);
-            gWindow->setSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
-            gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
+            gWindow->setMainSize(subobject->getFrameSize());
+            gWindow->setSize(subobject->getSize());
+            gWindow->setPosition(subobject->getPos());
             // Fill space by mask?
             if (ui->actionFillSpace->isChecked()) {
-                gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
-                gWindow->setPosition(0, 0, 0);
+                gWindow->setMainSize(subobject->getSize());
+                gWindow->setPosition(HDF5Helper::HDF5Vector3D(0, 0, 0));
             }
         }
 
-        /*if (subobject->getSize()[0] > 600 || subobject->getSize()[1] > 600 || subobject->getSize()[2] > 600) {
+        /*if (subobject->getSize().z() > 600 || subobject->getSize().y() > 600 || subobject->getSize().x() > 600) {
             ui->actionVolumeRendering->setEnabled(false);
             ui->actionVolumeRendering->setChecked(false);
             ui->groupBoxVolumeRendering->setEnabled(false);
@@ -527,7 +527,7 @@ void MainWindow::selectDataset()
             //if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
             // Start loading 3D texture
-            gWindow->load3DTexture(subobject->getDataset());
+            gWindow->load3DTexture(subobject->getDataset(), 0);
         } else {
             // Disable VR
             ui->actionVolumeRendering->setEnabled(true);
@@ -536,6 +536,7 @@ void MainWindow::selectDataset()
         // Set init GUI flag
         subobject->setGUIInitialized(true);
     }
+    }
 }
 
 /**
@@ -543,18 +544,18 @@ void MainWindow::selectDataset()
  * @param image Image data of XY slice
  * @param index Index of XY slice
  */
-void MainWindow::repaintXYImage(cv::Mat image, int index)
+void MainWindow::repaintXYImage(cv::Mat image, uint64_t index)
 {
     if (subobject != NULL) {
         // Send data to 3D scene
         if (gWindow != NULL) {
-            if (subobject->getSize()[0] == 1) // Index -> 0
-                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize()[2], subobject->getSize()[1], (float) 0);
+            if (subobject->getSize().z() == 1) // Index -> 0
+                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) 0);
             else
-                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize()[2], subobject->getSize()[1], (float) ui->verticalSliderXY->value() / (subobject->getSize()[0] - 1));
+                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) ui->verticalSliderXY->value() / (subobject->getSize().z() - 1));
         }
         // Point for positioning of sensor mask image
-        QPoint p = QPoint(subobject->getPos()[2], subobject->getPos()[1]);
+        QPoint p = QPoint(subobject->getPos().x(), subobject->getPos().y());
         p = QPoint(0, 0); // TODO Disabled
         // Set image data to image widget
         ui->imageWidgetXY->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
@@ -584,18 +585,18 @@ void MainWindow::repaintXYImage(cv::Mat image, int index)
  * @param image Image data of XZ slice
  * @param index Index of XZ slice
  */
-void MainWindow::repaintXZImage(cv::Mat image, int index)
+void MainWindow::repaintXZImage(cv::Mat image, uint64_t index)
 {
     if (subobject != NULL) {
         // Send data to 3D scene
         if (gWindow != NULL) {
-            if (subobject->getSize()[1] == 1) // Index -> 0
-                gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize()[2], subobject->getSize()[0], (float) 0);
+            if (subobject->getSize().y() == 1) // Index -> 0
+                gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize().x(), subobject->getSize().z(), (float) 0);
             else
-                gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize()[2], subobject->getSize()[0], (float) ui->verticalSliderXZ->value() / (subobject->getSize()[1] - 1));
+                gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize().x(), subobject->getSize().z(), (float) ui->verticalSliderXZ->value() / (subobject->getSize().y() - 1));
         }
         // Point for positioning of sensor mask image
-        QPoint p = QPoint(subobject->getPos()[2], subobject->getPos()[0]);
+        QPoint p = QPoint(subobject->getPos().x(), subobject->getPos().z());
         p = QPoint(0, 0); // TODO Disabled
         // Set image data to image widget
         ui->imageWidgetXZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
@@ -626,17 +627,17 @@ void MainWindow::repaintXZImage(cv::Mat image, int index)
  * @param image Image data of YZ slice
  * @param index Index of YZ slice
  */
-void MainWindow::repaintYZImage(cv::Mat image, int index)
+void MainWindow::repaintYZImage(cv::Mat image, uint64_t index)
 {
     if (subobject != NULL) {
         // Send data to 3D scene
         if (gWindow != NULL) {
-            if (subobject->getSize()[2] == 1) // Index -> 0
-                gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize()[1], subobject->getSize()[0], (float) 0);
+            if (subobject->getSize().x() == 1) // Index -> 0
+                gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize().y(), subobject->getSize().z(), (float) 0);
             else
-                gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize()[1], subobject->getSize()[0], (float) ui->verticalSliderYZ->value() / (subobject->getSize()[2] - 1));
+                gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize().y(), subobject->getSize().z(), (float) ui->verticalSliderYZ->value() / (subobject->getSize().x() - 1));
         }
-        QPoint p = QPoint(subobject->getPos()[1], subobject->getPos()[0]);
+        QPoint p = QPoint(subobject->getPos().y(), subobject->getPos().z());
         p = QPoint(0, 0); // TODO Disabled
         // Set image data to image widget
         ui->imageWidgetYZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
@@ -689,19 +690,19 @@ void MainWindow::initControls()
         ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(subobject->getYIndex()) + ")");
         ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(subobject->getXIndex()) + ")");
 
-        ui->verticalSliderXY->setMaximum(subobject->getSize()[0] - 1);
+        ui->verticalSliderXY->setMaximum(subobject->getSize().z() - 1);
         ui->verticalSliderXY->setValue(subobject->getZIndex());
-        ui->spinBoxXY->setMaximum(subobject->getSize()[0] - 1);
+        ui->spinBoxXY->setMaximum(subobject->getSize().z() - 1);
         ui->spinBoxXY->setValue(subobject->getZIndex());
 
-        ui->verticalSliderXZ->setMaximum(subobject->getSize()[1] - 1);
+        ui->verticalSliderXZ->setMaximum(subobject->getSize().y() - 1);
         ui->verticalSliderXZ->setValue(subobject->getYIndex());
-        ui->spinBoxXZ->setMaximum(subobject->getSize()[1] - 1);
+        ui->spinBoxXZ->setMaximum(subobject->getSize().y() - 1);
         ui->spinBoxXZ->setValue(subobject->getYIndex());
 
-        ui->verticalSliderYZ->setMaximum(subobject->getSize()[2] - 1);
+        ui->verticalSliderYZ->setMaximum(subobject->getSize().x() - 1);
         ui->verticalSliderYZ->setValue(subobject->getXIndex());
-        ui->spinBoxYZ->setMaximum(subobject->getSize()[2] - 1);
+        ui->spinBoxYZ->setMaximum(subobject->getSize().x() - 1);
         ui->spinBoxYZ->setValue(subobject->getXIndex());
 
         ui->checkBoxUseGlobal->setChecked(subobject->getUseGlobal());
@@ -954,7 +955,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
             ui->label3DLoading->setMovie(movie);
             // Load 3D data
             gWindow->unloadDataset();
-            gWindow->load3DTexture(subobject->getDataset());
+            gWindow->load3DTexture(subobject->getDataset(), step);
         }
     }
 }
@@ -1049,7 +1050,7 @@ void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
 void MainWindow::on_actionVolumeRendering_toggled(bool value)
 {
     if (gWindow != NULL && subobject != NULL && subobject->isGUIInitialized() && value/*&& !gWindow->isTexture3DInitialized()*/) {
-        gWindow->load3DTexture(subobject->getDataset());
+        gWindow->load3DTexture(subobject->getDataset(), subobject->getCurrentStep());
         if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
     }
@@ -1142,12 +1143,12 @@ void MainWindow::on_actionFillSpace_toggled(bool value)
 {
     if (subobject != NULL && subobject->isGUIInitialized()) {
         if (value == true) {
-            gWindow->setMainSize(subobject->getSize()[0], subobject->getSize()[1], subobject->getSize()[2]);
-            gWindow->setPosition(0, 0, 0);
+            gWindow->setMainSize(subobject->getSize());
+            gWindow->setPosition(HDF5Helper::HDF5Vector3D(0, 0, 0));
             gWindow->renderLater();
         } else {
-            gWindow->setMainSize(subobject->getFrameSize()[0], subobject->getFrameSize()[1], subobject->getFrameSize()[2]);
-            gWindow->setPosition(subobject->getPos()[0], subobject->getPos()[1], subobject->getPos()[2]);
+            gWindow->setMainSize(subobject->getFrameSize());
+            gWindow->setPosition(subobject->getPos());
             gWindow->renderLater();
         }
     }

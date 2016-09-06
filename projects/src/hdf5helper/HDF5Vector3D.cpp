@@ -24,13 +24,17 @@ HDF5Vector3D::HDF5Vector3D()
     set(0, 0, 0);
 }
 
-HDF5Vector3D::HDF5Vector3D(HDF5Vector &hDF5Vector)
+HDF5Vector3D::HDF5Vector3D(const HDF5Vector &hDF5Vector)
     : HDF5Vector(3)
 {
-    if (3 != hDF5Vector.getLength()){
+    HDF5Vector tmp = hDF5Vector;
+    hsize_t length = hDF5Vector.getLength();
+
+    if (3 > length){
         throw std::runtime_error("Convert error - Length of HDF5Vector is not 3");
     }
-    set(hDF5Vector[0], hDF5Vector[1], hDF5Vector[2]);
+
+    set(tmp[length - 3], tmp[length - 2], tmp[length - 1]);
 }
 
 HDF5Vector3D::HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
@@ -46,6 +50,11 @@ void HDF5Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
     vector[2] = x;
 }
 
+void HDF5Vector3D::set(const int z, const int y, const int x)
+{
+    set(static_cast<hsize_t>(z), static_cast<hsize_t>(y), static_cast<hsize_t>(x));
+}
+
 void HDF5Vector3D::x(const hsize_t x)
 {
     vector[2] = x;
@@ -59,6 +68,21 @@ void HDF5Vector3D::y(const hsize_t y)
 void HDF5Vector3D::z(const hsize_t z)
 {
     vector[0] = z;
+}
+
+void HDF5Vector3D::x(const int x)
+{
+    this->x(static_cast<hsize_t>(x));
+}
+
+void HDF5Vector3D::y(const int y)
+{
+    this->y(static_cast<hsize_t>(y));
+}
+
+void HDF5Vector3D::z(const int z)
+{
+    this->z(static_cast<hsize_t>(z));
 }
 
 hsize_t HDF5Vector3D::x() const

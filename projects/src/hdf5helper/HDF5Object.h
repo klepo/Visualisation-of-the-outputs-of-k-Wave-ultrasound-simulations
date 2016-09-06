@@ -17,6 +17,7 @@
 #define HDF5OBJECT_H
 
 #include "HDF5File.h"
+#include "HDF5Vector.h"
 
 namespace HDF5Helper
 {
@@ -46,7 +47,7 @@ public:
 
     bool hasAttribute(const std::string name);
 
-    int getNumAttrs();
+    unsigned int getNumAttrs();
 
     File *getFile();
 

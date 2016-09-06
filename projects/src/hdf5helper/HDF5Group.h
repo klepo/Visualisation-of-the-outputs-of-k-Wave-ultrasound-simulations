@@ -26,9 +26,27 @@ public:
     HDF5Group(const hid_t group, const std::string name, File *hDF5File);
     ~HDF5Group();
 
-    hsize_t getId();
+    HDF5Dataset *openDataset(const std::string datasetName);
+    HDF5Dataset *openDataset(hsize_t idx);
+
+    void closeDataset(const std::string datasetName);
+    void closeDataset(hsize_t idx);
+
+    void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
+    void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
+
+    HDF5Group *openGroup(const std::string groupName);
+    HDF5Group *openGroup(hsize_t idx);
+
+    void closeGroup(const std::string groupName);
+
+    void createGroup(const std::string groupName, bool rewrite = false);
+
+    hid_t getId();
     std::string getName();
     hsize_t getNumObjs();
+    std::string getObjNameByIdx(hsize_t idx);
+    H5G_obj_t getObjTypeByIdx(hsize_t idx);
 
 private:
     hid_t group;
