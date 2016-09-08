@@ -1,23 +1,30 @@
-/*
+/**
  * @file        HDF5Attribute.cpp
- * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
- * @version     0.0
- * @date        30 July 2014
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
+ * @date        30 July      2014 (created)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing HDF5Attribute class definition.
  *              This class is for better work with HDF5 attributes (copying).
  *
- * @section     Licence
- * This file is part of hdf5file library for k-Wave h5 processing
- * for preprocessing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
- * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
- * hdf5file library is free software.
+ * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              The hdf5helper library is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
  */
 
 #include "HDF5Attribute.h"
 
 namespace HDF5Helper {
 
+/**
+ * @brief HDF5Attribute::loadAttribute
+ * @param attribute
+ * @throw std::runtime_error
+ */
 void HDF5Attribute::loadAttribute(hid_t attribute)
 {
     datatype = H5Aget_type(attribute);
@@ -68,6 +75,12 @@ HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
     }
 }
 
+/**
+ * @brief HDF5Attribute::HDF5Attribute
+ * @param object
+ * @param idx
+ * @throw std::runtime_error
+ */
 HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
 {
     attribute = H5Aopen_idx(object, idx);
@@ -97,7 +110,7 @@ HDF5Attribute::~HDF5Attribute()
  * @brief HDF5Attribute::getType
  * @return data type of attribute
  */
-hid_t HDF5Attribute::getDatatype()
+hid_t HDF5Attribute::getDatatype() const
 {
     return datatype;
 }
@@ -106,7 +119,7 @@ hid_t HDF5Attribute::getDatatype()
  * @brief HDF5Attribute::getSize
  * @return size of attribute
  */
-hsize_t HDF5Attribute::getSize()
+hsize_t HDF5Attribute::getSize() const
 {
     return size;
 }
@@ -115,7 +128,7 @@ hsize_t HDF5Attribute::getSize()
  * @brief HDF5Attribute::getName
  * @return name of attribute
  */
-std::string HDF5Attribute::getName()
+std::string HDF5Attribute::getName() const
 {
     return name;
 }
@@ -124,7 +137,7 @@ std::string HDF5Attribute::getName()
  * @brief HDF5Attribute::getSpace
  * @return data space of attribute
  */
-hid_t HDF5Attribute::getDataspace()
+hid_t HDF5Attribute::getDataspace() const
 {
     return dataspace;
 }

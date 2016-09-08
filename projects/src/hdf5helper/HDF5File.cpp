@@ -1,17 +1,19 @@
-/*
+/**
  * @file        HDF5File.cpp
- * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
- * @version     0.0
- * @date        30 July 2014
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
+ * @date        30 July      2014 (created)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing HDF5File class definition.
  *              This class contains HDF5Dataset class and HDF5Group class.
  *
- * @section     Licence
- * This file is part of hdf5file library for k-Wave h5 processing
- * for preprocessing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
- * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
- * hdf5file library is free software.
+ * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              The hdf5helper library is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
  */
 
 #include "HDF5File.h"
@@ -407,6 +409,10 @@ void File::closeDataset(const std::string datasetName)
     }
 }
 
+/**
+ * @brief File::closeDataset
+ * @param idx
+ */
 void File::closeDataset(hsize_t idx)
 {
     std::string name = getObjNameByIdx(idx);
@@ -417,7 +423,6 @@ void File::closeDataset(hsize_t idx)
  * @brief openGroup Open group (create new HDF5Group) with given name in HDF5 file
  * @param groupName
  * @return group
- * @throw std::runtime_error
  */
 HDF5Group *File::openGroup(const std::string groupName)
 {
@@ -429,20 +434,14 @@ HDF5Group *File::openGroup(const std::string groupName)
 }
 
 /**
- * @brief openGroup Open group (create new HDF5Group) with given index in HDF5 file
+ * @brief openGroup Open group (create new HDF5Group) with given index
  * @param idx
  * @return group
- * @throw std::runtime_error
  */
 HDF5Group *File::openGroup(hsize_t idx)
 {
     std::string name = getObjNameByIdx(idx);
-
-    if (groups.find(name) == groups.end()) {
-        insertGroup(name);
-        return openGroup(name);
-    } else
-        return groups.find(name)->second;
+    return openGroup(name);
 }
 
 /**
@@ -456,6 +455,16 @@ void File::closeGroup(const std::string groupName)
         delete group;
         groups.erase(groups.find(groupName));
     }
+}
+
+/**
+ * @brief closeGroup Close group with given index
+ * @param idx
+ */
+void File::closeGroup(hsize_t idx)
+{
+    std::string name = getObjNameByIdx(idx);
+    closeGroup(name);
 }
 
 /**
@@ -658,11 +667,6 @@ size_t getAvailableSystemPhysicalMemory()
 
 /**
  * @brief convertlinearTo3D Convert linear index to 3D position (z, y, x)
- * @param index 1..Nz*Ny*Nx
- * @param [out] z 0..Nz - 1
- * @param [out] y 0..Ny - 1
- * @param [out] x 0..Nx - 1
- * @throw std::runtime_error
  */
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector dims)
 {
@@ -681,11 +685,6 @@ void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector dim
 
 /**
  * @brief convert3DToLinear Convert 3D position (z, y, x) to linear index
- * @param z 0..Nz - 1
- * @param y 0..Ny - 1
- * @param x 0..Nx - 1
- * @param [out] index 1..Nz*Ny*Nx
- * @throw std::runtime_error
  */
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector dims)
 {

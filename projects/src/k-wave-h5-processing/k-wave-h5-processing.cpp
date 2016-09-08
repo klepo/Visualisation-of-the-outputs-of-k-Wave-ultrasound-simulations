@@ -1,16 +1,18 @@
-/*
- * @file        main.cpp
- * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
- * @version     0.0
+/**
+ * @file        k-wave-h5-processing.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing k-Wave HDF5 processing application.
  *
- * @section     Licence
- * This application is for preprocessing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
- * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
- * k-Wave h5 processing is free software.
+ * @license     This application is for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              k-Wave h5 processing is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
  */
 
 #include <iostream>
@@ -61,9 +63,9 @@ int main(int argc, char **argv)
     // Close files
     delete filesContext;
 
-    double t2 = HDF5Helper::getTime();
+    double t1 = HDF5Helper::getTime();
 
-    std::cout << std::endl << std::endl << "Time of the entire process: " << (t2-t0) << " ms; \t" << std::endl << std::endl << std::endl;
+    std::cout << std::endl << std::endl << "Time of the entire process: " << (t1 - t0) << " ms; \t" << std::endl << std::endl << std::endl;
 
     std::exit(EXIT_SUCCESS);
 }

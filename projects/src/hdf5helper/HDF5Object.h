@@ -1,16 +1,18 @@
-/*
+/**
  * @file        HDF5Object.h
- * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
- * @version     0.0
- * @date        30 July 2014
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
+ * @date        30 July      2014 (created)
+ *              8  September 2016 (updated)
  *
  * @brief       The header file with HDF5Group class declaration.
  *
- * @section     Licence
- * This file is part of hdf5file library for k-Wave h5 processing
- * for preprocessing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
- * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
- * hdf5file library is free software.
+ * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              The hdf5helper library is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
  */
 
 #ifndef HDF5OBJECT_H

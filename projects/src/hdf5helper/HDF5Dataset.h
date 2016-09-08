@@ -1,16 +1,18 @@
-/*
+/**
  * @file        HDF5Dataset.h
- * @author      Petr Kleparnik, VUT FIT Brno, xklepa01@stud.fit.vutbr.cz
- * @version     0.0
- * @date        30 July 2014
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
+ * @date        30 July      2014 (created)
+ *              8  September 2016 (updated)
  *
  * @brief       The header file with HDF5Dataset class declaration.
  *
- * @section     Licence
- * This file is part of hdf5file library for k-Wave h5 processing
- * for preprocessing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
- * Copyright © 2014, Petr Kleparnik, VUT FIT Brno.
- * hdf5file library is free software.
+ * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              The hdf5helper library is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
  */
 
 #ifndef HDF5DATASET_H
@@ -28,65 +30,73 @@ public:
     HDF5Dataset(const hid_t dataset, const std::string name, File *hDF5File);
     ~HDF5Dataset();
 
-    std::string getName();
-    std::string getOnlyName();
-    hid_t getId();
-    hsize_t getRank();
-    HDF5Vector getDims();
-    HDF5Vector getChunkDims();
-    hsize_t getSize();
-    H5T_class_t getDataTypeClass();
+    std::string getName() const;
+    std::string getOnlyName() const;
+    hid_t getId() const;
+    hsize_t getRank() const;
+    HDF5Vector getDims() const;
+    HDF5Vector getChunkDims() const;
+    hsize_t getSize() const;
+    H5T_class_t getDataTypeClass() const;
 
-    hsize_t getGlobalMaxValueI(bool reset = false);
-    hsize_t getGlobalMinValueI(bool reset = false);
-
-    float getGlobalMaxValueF(bool reset = false);
-    float getGlobalMinValueF(bool reset = false);
+    void getGlobalMaxValue(float &value, bool reset = false);
+    void getGlobalMinValue(float &value, bool reset = false);
+    void getGlobalMaxValue(hsize_t &value, bool reset = false);
+    void getGlobalMinValue(hsize_t &value, bool reset = false);
 
     void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF);
     void getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI);
 
     void findAndSetGlobalMinAndMaxValue(bool reset = false);
-    void findGlobalMinAndMaxValue(bool reset = false);
 
     // Block reading
-    hsize_t getRealNumberOfElmsToLoad();
-    hsize_t getNumberOfBlocks();
+    hsize_t getRealNumberOfElmsToLoad() const;
+    hsize_t getNumberOfBlocks() const;
     HDF5Vector getNumberOfBlocksInDims() const;
 
-    HDF5Vector getGeneralBlockDims();
     void setNumberOfElmsToLoad(hsize_t size);
     void setMaxNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad();
+    HDF5Vector getGeneralBlockDims() const;
 
     void setMPIOAccess(H5FD_mpio_xfer_t type);
 
-    void readFullDataset(float *&data);
-    void readFullDataset(hsize_t *&data);
+    void readFullDataset(float *&data, bool log = true);
+    void readFullDataset(hsize_t *&data, bool log = true);
 
-    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max);
-    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max);
+    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, bool log = true);
+    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
+    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, bool log = true);
+    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, bool log = true);
 
     void writeDataset(HDF5Vector offset, HDF5Vector count, float *data, bool log = false);
     void writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *data, bool log = false);
 
-    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max);
-    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max, bool log = true);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, bool log = true);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, bool log = true);
 
     void readEmptyBlock();
 
 private:
-    void readFullDataset(void *data);
-
-    void readDataset(HDF5Vector offset, HDF5Vector count, void *data);
-    void writeDataset(HDF5Vector offset, HDF5Vector count, void *data, bool log);
+    void readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *data, bool log = true);
+    void writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *data, bool log = false);
 
     void checkOffsetAndCountParams(HDF5Vector offset, HDF5Vector count);
 
+    void findGlobalMinAndMaxValue(bool reset = false);
     void findGlobalMinAndMaxValueF();
     void findGlobalMinAndMaxValueI();
 
     void initBlockReading();
+
+    void checkTypeAndAllocation(float *&data, int type, hsize_t size);
+    void checkTypeAndAllocation(hsize_t *&data, int type, hsize_t size);
+
+    std::string memoryErrorMessage(hsize_t size, int type);
+    std::string readErrorMessage(hsize_t size, int type);
+    std::string typeString(int type);
 
     hid_t plist;
     hid_t plist_DATASET_XFER;

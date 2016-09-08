@@ -1,3 +1,18 @@
+/**
+ * @file        processing.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
+ * @date        8  September 2016 (created)
+ *
+ * @brief       The implementation file containing processing functions.
+ *
+ * @license     This application is for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              k-Wave h5 processing is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
+ */
+
 #include "processing.h"
 
 Processing::Processing(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs, Settings *settings)
@@ -57,7 +72,6 @@ void Processing::reshape()
                     HDF5Helper::HDF5Vector3D count; // Count
 
                     // Min/max values vars
-                    hsize_t minVI, maxVI;
                     float minVFG = std::numeric_limits<float>::infinity();
                     float maxVFG = -std::numeric_limits<float>::infinity();
 
@@ -73,7 +87,7 @@ void Processing::reshape()
                         useTmpFlag = true;
                         tmpData = new float[datasetSize.z() * datasetSize.y() * datasetSize.x()];
                         // Read sensorMaskIndexDataset only once
-                        sensorMaskIndexDataset->readBlock(0, offset, count, sensorMaskData, minVI, maxVI);
+                        sensorMaskIndexDataset->readBlock(0, offset, count, sensorMaskData);
                     }
 
                     // Create new group for dataset
@@ -92,7 +106,7 @@ void Processing::reshape()
                     for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
                         // Load data
                         if (!useTmpFlag)
-                            sensorMaskIndexDataset->readBlock(i % sensorMaskIndexDataset->getNumberOfBlocks(), offset, count, sensorMaskData, minVI, maxVI);
+                            sensorMaskIndexDataset->readBlock(i % sensorMaskIndexDataset->getNumberOfBlocks(), offset, count, sensorMaskData);
 
                         float minVF;
                         float maxVF;
@@ -122,7 +136,7 @@ void Processing::reshape()
                         double t1 = HDF5Helper::getTime();
 
                         if (!useTmpFlag)
-                            std::cout << dstDataset->getName() << " write time:  \t" << (t1-t0) << " ms; \t" << std::endl;
+                            std::cout << dstDataset->getName() << " write time:  \t" << (t1 - t0) << " ms; \t" << std::endl;
 
                         if (!useTmpFlag)
                             delete[] sensorMaskData;
@@ -360,13 +374,12 @@ void Processing::findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &m
     // Find min and max position from linear saved values
     hsize_t index = 0;
     hsize_t *data;
-    hsize_t minV, maxV;
     HDF5Helper::HDF5Vector3D offset;
     HDF5Helper::HDF5Vector3D count;
     HDF5Helper::HDF5Vector3D dstPos;
 
     for (hsize_t i = 0; i < dtsForPcs->getSensorMaskIndexDataset()->getNumberOfBlocks(); i++) {
-        dtsForPcs->getSensorMaskIndexDataset()->readBlock(i, offset, count, data, minV, maxV);
+        dtsForPcs->getSensorMaskIndexDataset()->readBlock(i, offset, count, data);
         for (hsize_t z = 0; z < count.z(); z++)
             for (hsize_t y = 0; y < count.y(); y++)
                 for (hsize_t x = 0; x < count.x(); x++) {
@@ -454,7 +467,7 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     dstDataset->setAttribute("max", maxVG);
 
     double t1 = HDF5Helper::getTime();
-    std::cout << "Time of changing chunks of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
+    std::cout << "Time of changing chunks of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 
     hDF5OutputFile->closeDataset(dstDataset->getName());
 }
@@ -473,11 +486,10 @@ void Processing::resamplingOfDataset3D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
 
     float *srcData = 0;
     float *dstData = 0;
-    float minV, maxV;
 
     // First 2D slices in XY plane
     for (unsigned int z = 0; z < dimsSrc.z(); z++) {
-        srcDataset->readDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsSrc.y(), dimsSrc.x()), srcData, minV, maxV);
+        srcDataset->readDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsSrc.y(), dimsSrc.x()), srcData);
         dstData = new float[dimsDst.x() * dimsDst.y()];
         resize(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsDst.x(), dimsDst.y());
         tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst.y(), dimsDst.x()), dstData, true);
@@ -487,7 +499,7 @@ void Processing::resamplingOfDataset3D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
 
     // and after 2d slices XZ plane
     for (unsigned int y = 0; y < dimsDst.y(); y++) {
-        tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData, minV, maxV);
+        tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData);
         dstData = new float[dimsDst.x() * dimsDst.z()];
         resize(srcData, dstData, dimsDst.x(), dimsSrc.z(), dimsDst.x(), dimsDst.z());
         dstDatasetFinal->writeDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsDst.z(), 1, dimsDst.x()), dstData, true);
@@ -499,7 +511,7 @@ void Processing::resamplingOfDataset3D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
     remove("tmp.h5");
 
     double t1 = HDF5Helper::getTime();
-    std::cout << "Time of resampling of the whole 3D dataset: " << (t1-t0) << " ms; \t" << std::endl;
+    std::cout << "Time of resampling of the whole 3D dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
 void Processing::resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector4D dimsSrc, HDF5Helper::HDF5Vector4D dimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal)
@@ -516,12 +528,11 @@ void Processing::resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
 
     float *srcData = 0;
     float *dstData = 0;
-    float minV, maxV;
 
     for (unsigned int t = 0; t < dimsSrc.w(); t++) {
         // First 2D slices in XY plane
         for (unsigned int z = 0; z < dimsSrc.z(); z++) {
-            srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, z, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, dimsSrc.y(), dimsSrc.x()), srcData, minV, maxV);
+            srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, z, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, dimsSrc.y(), dimsSrc.x()), srcData);
             dstData = new float[dimsDst.x() * dimsDst.y()];
             resize(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsDst.x(), dimsDst.y());
             tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst.y(), dimsDst.x()), dstData, true);
@@ -531,7 +542,7 @@ void Processing::resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
 
         // and after 2d slices XZ plane
         for (unsigned int y = 0; y < dimsDst.y(); y++) {
-            tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData, minV, maxV);
+            tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData);
             dstData = new float[dimsDst.x() * dimsDst.z()];
             resize(srcData, dstData, dimsDst.x(), dimsSrc.z(), dimsDst.x(), dimsDst.z());
             dstDatasetFinal->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, y, 0), HDF5Helper::HDF5Vector4D(1, dimsDst.z(), 1, dimsDst.x()), dstData, true);
@@ -544,7 +555,7 @@ void Processing::resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
     remove("tmp.h5");
 
     double t1 = HDF5Helper::getTime();
-    std::cout << "Time of resampling of the whole 4D dataset: " << (t1-t0) << " ms; \t" << std::endl;
+    std::cout << "Time of resampling of the whole 4D dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
 void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset)

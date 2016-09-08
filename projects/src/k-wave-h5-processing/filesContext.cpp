@@ -1,3 +1,18 @@
+/**
+ * @file        filescontext.cpp
+ * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
+ * @version     1.0
+ * @date        8  September 2016 (created)
+ *
+ * @brief       The implementation file containing context for HDF5 files.
+ *
+ * @license     This application is for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ *              k-Wave h5 processing is free software.
+ *
+ * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ *
+ */
+
 #include "filescontext.h"
 
 FilesContext::FilesContext(Settings *settings)
