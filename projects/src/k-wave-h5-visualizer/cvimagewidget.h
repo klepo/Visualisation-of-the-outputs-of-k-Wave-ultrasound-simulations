@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The header file with CVImageWidget class declaration.
  *
@@ -60,15 +60,13 @@ private:
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);
 
-    int _dim;
-    QImage _qimage;
-    cv::Mat _tmp;
-    bool clearFlag;
+    QImage qimage;
     QPoint point;
+    QString fileName;
+    cv::Mat tmpMat;
+    bool clearFlag;
     bool adjustFlag;
     bool isSetImage;
-    QString fileName;
-
 };
 
 #endif // CVIMAGEWIDGET_H

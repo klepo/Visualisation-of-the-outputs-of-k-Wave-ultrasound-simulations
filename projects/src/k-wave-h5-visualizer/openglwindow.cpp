@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing the OpenGLWindow class.
  *              This class is mainly for OpenGL context creation, render, and mouse move tracking with buttons.
@@ -44,10 +44,9 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , wheelDelta(0)
     , m_context(0)
     , m_device(0)
-    , m_update_pending(false)
     , logger(0)
+    , m_update_pending(false)
 {
-    //setOpacity(0.5);
     setSurfaceType(QWindow::OpenGLSurface);
 
     QSurfaceFormat surfaceFormat = requestedFormat();
@@ -65,10 +64,6 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     // Smoother lines
     surfaceFormat.setSamples(4);
     setFormat(surfaceFormat);
-
-    // Timer for animation of rotate
-    /*moveTimer = new QTimer(this);
-    connect(moveTimer, SIGNAL(timeout()), this, SLOT(clearDiff()));*/
 }
 
 /**
@@ -84,39 +79,6 @@ OpenGLWindow::~OpenGLWindow()
 }
 
 /**
- * @brief OpenGLWindow::render
- * @param painter
- */
-void OpenGLWindow::render(QPainter *painter)
-{
-    Q_UNUSED(painter);
-}
-
-/**
- * @brief OpenGLWindow::initialize
- */
-void OpenGLWindow::initialize()
-{
-
-}
-
-/**
- * @brief OpenGLWindow::render
- */
-void OpenGLWindow::render()
-{
-    if (!m_device)
-        m_device = new QOpenGLPaintDevice;
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    m_device->setSize(size());
-
-    QPainter painter(m_device);
-    render(&painter);
-}
-
-/**
  * @brief OpenGLWindow::event
  * @param event
  * @return QWindow::event(event)
@@ -124,13 +86,14 @@ void OpenGLWindow::render()
 bool OpenGLWindow::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::UpdateRequest:
-        m_update_pending = false;
-        renderNow();
-        return true;
-    default:
-        return QWindow::event(event);
+        case QEvent::UpdateRequest:
+            m_update_pending = false;
+            renderNow();
+            return true;
+        default:
+            break;
     }
+    return QWindow::event(event);
 }
 
 /**
@@ -236,9 +199,7 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
     // Save mouse position
     lastPos = event->pos();
     currentPos = event->pos();
-    //diffPos = lastPos - currentPos;
     renderLater();
-    //moveTimer->start(200);
 }
 
 /**
@@ -250,18 +211,9 @@ void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
     if (mouseDown) {
         // Change current position
         currentPos = event->pos();
-        //diffPos = lastPos - currentPos;
         // Render
         renderLater();
     }
-}
-
-/**
- * @brief OpenGLWindow::clearDiff (Unused)
- */
-void OpenGLWindow::clearDiff()
-{
-    //diffPos = QPointF(0,0);
 }
 
 /**
@@ -269,15 +221,10 @@ void OpenGLWindow::clearDiff()
  */
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
 {
-    //if (currentPos + diffPos != lastPos) {
-        //setAnimating(true);
-    //}
-
     rightButton = false;
     leftButton = false;
     mouseDown = false;
     renderLater();
-    //moveTimer->stop();
 }
 
 /**

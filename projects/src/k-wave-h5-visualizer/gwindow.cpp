@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing the GWindow class - 3D scene window.
  *
@@ -100,13 +100,6 @@ GLint cubeElements[] = {
  */
 GWindow::GWindow(QMainWindow *qMainWindow)
     : m_program(0)
-    , frame(true)
-    , trim(0)
-    , texture3DInitialized(false)
-    , volumeRendering(false)
-    , sliceXY(false)
-    , sliceXZ(false)
-    , sliceYZ(false)
     , initialized(false)
 
 {
@@ -119,11 +112,11 @@ GWindow::GWindow(QMainWindow *qMainWindow)
 
     // Init values for Volume Rendering
     count = 50;
-    alpha = 0.5f;
+    setAlpha(0.5f);
     red = 0.5f;
     green = 0.5f;
     blue = 0.5f;
-    zoom = 1.3f;
+    zoom = 1.0f;
 
     // Default sizes for 3D frames
     imageWidth = 1;
@@ -321,8 +314,8 @@ void GWindow::initialize()
 
     glBindTexture(GL_TEXTURE_3D, texture);
     //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -340,24 +333,24 @@ void GWindow::initialize()
     glGenTextures(1, &textureXY);
 
     glBindTexture(GL_TEXTURE_2D, textureXY);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glGenTextures(1, &textureXZ);
 
     glBindTexture(GL_TEXTURE_2D, textureXZ);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glGenTextures(1, &textureYZ);
 
     glBindTexture(GL_TEXTURE_2D, textureYZ);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -525,8 +518,6 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
  */
 void GWindow::unload3DTexture()
 {
-    //PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
-    //glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
 }
@@ -776,8 +767,6 @@ void GWindow::render()
 {
     checkGlError();
 
-    int actualCount = count;
-
     // Rotation of scene by left mouse click
     if (leftButton) {
         /*if (lastPos.x() > currentPos.x())
@@ -807,21 +796,42 @@ void GWindow::render()
 
     m_program->bind();
 
-    // Perspective projection
-    QMatrix4x4 perspectiveMatrix;
-    perspectiveMatrix.perspective(45, (float) width() / (float) height(), 0.1f, 100.0f);
-    //perspectiveMatrix.ortho(- (float) width() / (float) height(), (float) width() / (float) height(), -1.0f, 1.0f, -1.0f, 1000.0f);
+    // Zoom
+    if (wheelDelta > 0)
+        zoom *= 1.0f / 1.2f;
+    else if (wheelDelta < 0)
+        zoom *= 1.2f;
 
-    // Zoom of scene
-    QMatrix4x4 zoomMatrix;
-    zoom -= wheelDelta / 2000.0f;
-    if (zoom < 0.1f) zoom = 0.1f;
-    if (zoom > 1.5f) zoom = 1.5f;
-    zoomMatrix.lookAt(QVector3D(0, 0, qPow((float) zoom, 5.0f)), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
+    // Projection
+    QMatrix4x4 projectionMatrix;
+    float ratio = float(width()) / float(height());
+
+    if (orthogonal) {
+        if (zoom > 150.0f) {
+            zoom = 150.0f;
+        }
+        if (zoom < 0.01f) {
+            zoom = 0.01f;
+        }
+        projectionMatrix.ortho(-ratio * zoom, ratio * zoom, -zoom, zoom, -1.0f, 1000.0f);
+
+    } else {
+        float angle = zoom * 45.0f;
+        if (angle > 179.0f) {
+            angle = 179.0f;
+            zoom = 179.0f / 45.0f;
+        }
+        if (angle < 0.1f) {
+            angle = 0.1f;
+            zoom = 0.1f / 45.0f;
+        }
+        projectionMatrix.perspective(angle, ratio, 0.1f, 100.0f);
+        projectionMatrix.translate(0, 0, -2.0f);
+    }
 
     // Final matrix
     QMatrix4x4 matrix;
-    matrix = perspectiveMatrix * zoomMatrix * rotateXMatrix * rotateYMatrix;
+    matrix = projectionMatrix * rotateXMatrix * rotateYMatrix;
 
     // Move transformation
     QVector4D pointC(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1012,15 +1022,21 @@ void GWindow::render()
         // Because of same opacity from all directions
         glDepthMask(GL_FALSE);
         //glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        //glDisable(GL_BLEND);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, texture);
 
         // Recompute alpha and set alpha + colors
-        m_program->setUniformValue(m_uAlpha, (GLfloat) (1.0f - pow(1.0f - alpha, 5.0f / (float) actualCount)));
-        m_program->setUniformValue(m_uRed, (GLfloat) (1.0f - pow(1.0f - red, 5.0f / (float) actualCount)));
-        m_program->setUniformValue(m_uGreen, (GLfloat) (1.0f - pow(1.0f - green, 5.0f / (float) actualCount)));
-        m_program->setUniformValue(m_uBlue, (GLfloat) (1.0f - pow(1.0f - blue, 5.0f / (float) actualCount)));
+        qDebug() << (GLfloat) (1 - pow(1 - alpha, 5 / (double(count) / 2)));
+        m_program->setUniformValue(m_uAlpha, (GLfloat) (1 - pow(1 - alpha, 5 / (double(count) / 2))));
+        //m_program->setUniformValue(m_uRed, (GLfloat) (1.0f - pow(1.0f - red, 5.0f / (float) count)));
+        //m_program->setUniformValue(m_uGreen, (GLfloat) (1.0f - pow(1.0f - green, 5.0f / (float) count)));
+        //m_program->setUniformValue(m_uBlue, (GLfloat) (1.0f - pow(1.0f - blue, 5.0f / (float) count)));
+        m_program->setUniformValue(m_uRed, (GLfloat) (red));
+        m_program->setUniformValue(m_uGreen, (GLfloat) (green));
+        m_program->setUniformValue(m_uBlue, (GLfloat) (blue));
 
         glBindVertexArray(vao);
 
@@ -1047,9 +1063,9 @@ void GWindow::render()
 
         QMatrix4x4 tlMmatrix = t1lMmatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted() * t2lMmatrix;
 
-        m_program->setUniformValue(m_uMatrix, perspectiveMatrix * zoomMatrix * rotateXMatrix * rotateYMatrix * moveMatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted());
+        m_program->setUniformValue(m_uMatrix, projectionMatrix * rotateXMatrix * rotateYMatrix * moveMatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted());
 
-        float step = 1.0f / (actualCount - 1);
+        float step = 1.0f / (count - 1);
         // For number of slices
         for (float i = 0.0f; i <= 1.0f + step; i += step) {
             if (i >= 1.0f + step / 0.5f) break; // round check
@@ -1106,25 +1122,25 @@ void GWindow::saveImage(QString _fileName)
 
 void GWindow::setAlpha(int value)
 {
-    alpha = (double) value / 1000;
+    alpha = double(value) / 1000;;
     renderLater();
 }
 
 void GWindow::setRed(int value)
 {
-    red = (double) value / 1000;
+    red = float(value) / 1000.0f;
     renderLater();
 }
 
 void GWindow::setGreen(int value)
 {
-    green = (double) value / 1000;
+    green = float(value) / 1000.0f;
     renderLater();
 }
 
 void GWindow::setBlue(int value)
 {
-    blue = (double) value / 1000;
+    blue = float(value) / 1000.0f;
     renderLater();
 }
 
@@ -1136,19 +1152,19 @@ void GWindow::setAlpha(double value)
 
 void GWindow::setRed(double value)
 {
-    red = value;
+    red = float(value);
     renderLater();
 }
 
 void GWindow::setGreen(double value)
 {
-    green = value;
+    green = float(value);
     renderLater();
 }
 
 void GWindow::setBlue(double value)
 {
-    blue = value;
+    blue = float(value);
     renderLater();
 }
 
@@ -1172,6 +1188,9 @@ void GWindow::setSlicesCount(int value)
 {
     //mutex.lock();
     count = value;
+    //alpha = float(1 - pow(1 - alpha, 5 / double(count)));
+    //setAlpha(alpha);
+
     emit setStatusMessage(QString("Slices: %1").arg(count));
     //mutex.unlock();
     renderLater();
@@ -1207,6 +1226,12 @@ void GWindow::setTrim(bool value)
     trim = value;
     emit setStatusMessage(QString("Trim: %1").arg(trim));
     //mutex.unlock();
+    renderLater();
+}
+
+void GWindow::setOrthogonal(bool value)
+{
+    orthogonal = value;
     renderLater();
 }
 
@@ -1374,6 +1399,9 @@ bool GWindow::event(QEvent *event)
         if (ke->key() == Qt::Key_C) {
             position.setX(0);
             position.setY(0);
+        }
+        if (ke->key() == Qt::Key_O) {
+            setOrthogonal(!orthogonal);
         }
         renderLater();
     }

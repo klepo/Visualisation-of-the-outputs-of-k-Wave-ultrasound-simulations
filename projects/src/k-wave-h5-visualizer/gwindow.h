@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -71,6 +71,7 @@ public slots:
     void setViewYZSlice(bool);
 
     void setTrim(bool);
+    void setOrthogonal(bool);
 
     void setMainSize(HDF5Helper::HDF5Vector3D size);
     void setSize(HDF5Helper::HDF5Vector3D size);
@@ -152,9 +153,9 @@ private:
     QVector3D position;
 
     int count;
-    bool frame;
+    bool frame = true;
 
-    float alpha;
+    double alpha;
     float red;
     float green;
     float blue;
@@ -202,16 +203,18 @@ private:
     GLuint m_uMax;
 
     GLuint m_uTrim;
-    bool trim;
+    bool trim = false;
 
-    bool texture3DInitialized;
+    bool orthogonal = false;
 
-    bool volumeRendering;
+    bool texture3DInitialized = false;
+
     GLuint m_uVolumeRendering;
+    bool volumeRendering = false;
 
-    bool sliceXY;
-    bool sliceXZ;
-    bool sliceYZ;
+    bool sliceXY = false;
+    bool sliceXZ = false;
+    bool sliceYZ = false;
 
     GLuint m_uXYBorder;
     GLuint m_uXZBorder;

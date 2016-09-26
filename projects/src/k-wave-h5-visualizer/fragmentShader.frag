@@ -54,27 +54,32 @@ void main() {
 
     } else if (uXYBorder) {
 
-        outColor = vec4(0.0, 0.0, 0.8, 1.0);
+        outColor = vec4(0.0f, 0.0f, 0.8f, 1.0f);
 
     } else if (uXZBorder) {
 
-        outColor = vec4(0.0, 0.8, 0.0, 1.0);
+        outColor = vec4(0.0f, 0.8f, 0.0f, 1.0f);
 
     } else if (uYZBorder) {
 
-        outColor = vec4(0.8, 0.0, 0.0, 1.0);
+        outColor = vec4(0.8f, 0.0f, 0.0f, 1.0f);
 
     } else if (uSlices) {
         vec4 color = texture(uSliceSampler, vTextureCoord);
         if (uTrim) {
-            if (color.r > uMax) discard;
-            if (color.r < uMin) discard;
+            if (uMin <= uMax) {
+                if (color.r > uMax) discard;
+                if (color.r < uMin) discard;
+            } else {
+                if (color.r < uMax) discard;
+                if (color.r > uMin) discard;
+            }
         }
 
-        float value = ((color.r - uMin) * 1.0) / (uMax - uMin);
+        float value = ((color.r - uMin) * 1.0f) / (uMax - uMin);
         vec4 fColor = texture(uColormapSampler, value);
 
-        outColor = vec4(fColor.rgb, 0.9);
+        outColor = vec4(fColor.rgb, 0.9f);
 
     } else if (uVolumeRendering){
 
@@ -85,15 +90,22 @@ void main() {
         vec4 color = texture(uSampler, vec3((vPosition.x - 0.5f) * uWidth + 0.5f, (vPosition.y - 0.5f) * uHeight + 0.5f, (vPosition.z - 0.5f) * uDepth + 0.5f));
 
         if (uTrim) {
-            if (color.r > uMax) discard;
-            if (color.r < uMin) discard;
+            if (uMin <= uMax) {
+                if (color.r > uMax) discard;
+                if (color.r < uMin) discard;
+            } else {
+                if (color.r < uMax) discard;
+                if (color.r > uMin) discard;
+            }
         }
 
-        float value = ((color.r - uMin) * 1.0) / (uMax - uMin);
+        float value = ((color.r - uMin) * 1.0f) / (uMax - uMin);
         vec4 fColor = texture(uColormapSampler, value);
 
-        outColor = vec4(fColor.rgb, uAlpha + fColor.r * uRed + fColor.g * uGreen +  fColor.b * uBlue);
+        float i = (fColor.r * uRed + fColor.g * uGreen +  fColor.b * uBlue) / (fColor.r + fColor.g + fColor.b);
+
+        outColor = vec4(fColor.rgb, uAlpha * i);
     } else {
-        outColor = vec4(0.5, 0.5, 0.5, 1.0);
+        outColor = vec4(0.5f, 0.5f, 0.5f, 1.0f);
     }
 }

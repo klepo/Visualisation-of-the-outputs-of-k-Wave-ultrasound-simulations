@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1202</width>
+    <height>671</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>k-Wave H5 Visualiser</string>
   </property>
@@ -126,6 +134,7 @@
    <addaction name="separator"/>
    <addaction name="actionFillSpace"/>
    <addaction name="separator"/>
+   <addaction name="actionOrthogonal"/>
    <addaction name="actionAlignToXY"/>
    <addaction name="actionAlignToXZ"/>
    <addaction name="actionAlignToYZ"/>
@@ -1123,6 +1132,9 @@
             </item>
             <item row="0" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBoxVRAlpha">
+              <property name="decimals">
+               <number>3</number>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -1136,6 +1148,9 @@
             </item>
             <item row="2" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBoxVRGreen">
+              <property name="decimals">
+               <number>3</number>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -1149,6 +1164,9 @@
             </item>
             <item row="1" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBoxVRRed">
+              <property name="decimals">
+               <number>3</number>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -1166,7 +1184,7 @@
                <number>3</number>
               </property>
               <property name="maximum">
-               <number>600</number>
+               <number>1200</number>
               </property>
               <property name="value">
                <number>50</number>
@@ -1182,7 +1200,7 @@
                <number>3</number>
               </property>
               <property name="maximum">
-               <number>600</number>
+               <number>1200</number>
               </property>
               <property name="value">
                <number>50</number>
@@ -1191,6 +1209,9 @@
             </item>
             <item row="3" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBoxVRBlue">
+              <property name="decimals">
+               <number>3</number>
+              </property>
               <property name="maximum">
                <double>1.000000000000000</double>
               </property>
@@ -1339,7 +1360,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>121</height>
+          <height>151</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1461,7 +1482,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>124</height>
+          <height>152</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1610,7 +1631,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>121</height>
+          <height>151</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -2006,6 +2027,17 @@ p, li { white-space: pre-wrap; }
   <action name="actionAbout">
    <property name="text">
     <string>About k-Wave visualiser</string>
+   </property>
+  </action>
+  <action name="actionOrthogonal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Toogle orthogonal/perspective</string>
+   </property>
+   <property name="toolTip">
+    <string>Toogle orthogonal/perspective</string>
    </property>
   </action>
  </widget>

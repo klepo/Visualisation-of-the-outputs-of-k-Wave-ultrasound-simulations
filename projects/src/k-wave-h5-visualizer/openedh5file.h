@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The header file with OpenedH5File class declaration.
  *

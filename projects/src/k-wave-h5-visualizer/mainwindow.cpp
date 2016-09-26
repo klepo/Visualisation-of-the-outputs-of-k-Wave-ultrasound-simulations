@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing the MainWindow class.
  *              Main window of application.
@@ -83,6 +83,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Enable/disable trim of values
     connect(ui->checkBoxTrim, SIGNAL(toggled(bool)), gWindow, SLOT(setTrim(bool)));
+
+    connect(ui->actionOrthogonal, SIGNAL(toggled(bool)), gWindow, SLOT(setOrthogonal(bool)));
 
     // Create loading animation
     movie = new QMovie(":/icons/icons/loading.gif");

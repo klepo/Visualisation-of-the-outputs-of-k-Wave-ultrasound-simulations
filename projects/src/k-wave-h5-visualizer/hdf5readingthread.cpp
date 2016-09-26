@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing the HDF5ReadingThread and Request class. This class
  *              is for loading HDF5 data from other threads than GUI of application is running.

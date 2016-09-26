@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2015 (updated)
+ *              8  September 2016 (updated)
  *
  * @brief       The header file with OpenGLWindow class declaration.
  *
@@ -41,21 +41,18 @@ class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_3_Core
 public:
     explicit OpenGLWindow(QWindow *parent = 0);
     ~OpenGLWindow();
-    virtual void render(QPainter *painter);
-    virtual void render();
-    virtual void initialize();
+    virtual void render() = 0;
+    virtual void initialize() = 0;
     bool event(QEvent *event);
 
 public slots:
     void renderLater();
     void renderNow();
-    void clearDiff();
 
 signals:
     void setStatusMessage(QString, int timeout = 3000);
 
 protected:
-    //bool event(QEvent *event);
     void exposeEvent(QExposeEvent *event);
     void resizeEvent(QResizeEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
