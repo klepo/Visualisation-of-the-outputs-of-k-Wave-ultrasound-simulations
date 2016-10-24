@@ -1,22 +1,15 @@
 #version 330
 
-#define highp
-#define mediump
-#define lowp
-
-in vec4 aPosition;
-in vec2 aTextureCoord;
+in vec3 aPosition;
 
 uniform mat4 uMatrix;
-uniform mat4 uScaleMatrix;
-uniform mat4 uScalelMatrix;
-
-out vec4 vPosition;
+uniform mat4 uSliceMatrix;
 
 out vec2 vTextureCoord;
+out vec3 vTextureCoordBox;
 
 void main() {
-   vPosition = uScalelMatrix * aPosition;
-   gl_Position = uMatrix * uScaleMatrix * aPosition;
-   vTextureCoord = aTextureCoord;
+   vTextureCoordBox = (uSliceMatrix * vec4(aPosition, 1.0f)).xyz;
+   vTextureCoord = aPosition.xy;
+   gl_Position = uMatrix * vec4(aPosition, 1.0f);
 }

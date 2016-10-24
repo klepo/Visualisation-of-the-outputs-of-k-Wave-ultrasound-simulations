@@ -41,7 +41,6 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , mouseDown(false)
     , leftButton(false)
     , rightButton(false)
-    , wheelDelta(0)
     , m_context(0)
     , m_device(0)
     , logger(0)
@@ -141,31 +140,7 @@ void OpenGLWindow::renderNow()
     if (!isExposed())
         return;
 
-    bool needsInitialize = false;
-
-    if (!m_context) {
-        // OpenGL context creation
-        m_context = new QOpenGLContext();
-        m_context->setFormat(requestedFormat());
-        m_context->create();
-        m_context->makeCurrent(this);
-
-        if (hasDebugExtension()) {
-            logger = new QOpenGLDebugLogger();
-            logger->initialize();
-            QObject::connect(logger, &QOpenGLDebugLogger::messageLogged, OpenGLWindow::messageLogged);
-            logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
-        }
-
-        needsInitialize = true;
-    }
-
-    if (needsInitialize) {
-        initializeOpenGLFunctions();
-        initialize();
-    }
-
-    m_context->makeCurrent(this);
+    checkInitAndMakeCurrentContext();
 
     render();
 
@@ -208,9 +183,10 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
  */
 void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
 {
+    pos = event->pos();
     if (mouseDown) {
         // Change current position
-        currentPos = event->pos();
+        currentPos = pos;
         // Render
         renderLater();
     }
@@ -279,6 +255,35 @@ GLenum OpenGLWindow::checkGlError()
         }
     }
     return ret;
+}
+
+void OpenGLWindow::checkInitAndMakeCurrentContext()
+{
+    bool needsInitialize = false;
+
+    if (!m_context) {
+        // OpenGL context creation
+        m_context = new QOpenGLContext();
+        m_context->setFormat(requestedFormat());
+        m_context->create();
+        m_context->makeCurrent(this);
+
+        if (hasDebugExtension()) {
+            logger = new QOpenGLDebugLogger();
+            logger->initialize();
+            QObject::connect(logger, &QOpenGLDebugLogger::messageLogged, OpenGLWindow::messageLogged);
+            logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
+        }
+
+        needsInitialize = true;
+    }
+
+    if (needsInitialize) {
+        initializeOpenGLFunctions();
+        initialize();
+    }
+
+    m_context->makeCurrent(this);
 }
 
 /**

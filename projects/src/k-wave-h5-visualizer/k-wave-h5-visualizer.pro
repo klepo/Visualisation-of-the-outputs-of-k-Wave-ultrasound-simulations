@@ -42,6 +42,7 @@ SOURCES += \
     openedh5file.cpp \
     h5objecttovisualize.cpp \
     h5subobjecttovisualize.cpp \
+    qvector3di.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -53,6 +54,7 @@ HEADERS += \
     openedh5file.h \
     h5objecttovisualize.h \
     h5subobjecttovisualize.h \
+    qvector3di.h
 
 FORMS += \
     mainwindow.ui \

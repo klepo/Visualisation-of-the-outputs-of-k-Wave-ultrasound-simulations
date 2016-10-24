@@ -1215,6 +1215,9 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
     } else if (type == OpenedH5File::GROUP_TYPE && group != NULL && dataset != NULL) {
         info.append(QPair<QString, QString>("Name", name));
         info.append(QPair<QString, QString>("Type", "Mask type dataset group"));
+        info.append(QPair<QString, QString>("Base size", QString::fromStdString(originalFrameSize)));
+        if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z())
+            info.append(QPair<QString, QString>("Downsampling base size", QString::fromStdString(frameSize)));
         info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(originalSize)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
             info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(dataset->getDims())));

@@ -265,25 +265,25 @@ void MainWindow::clearGUI()
     ui->actionFillSpace->setEnabled(false);
     ui->actionFillSpace->setChecked(false);
     // Disable dock panels
-    /*ui->dockWidgetSelectedDataset->setEnabled(false);
+    ui->dockWidgetSelectedDataset->setEnabled(false);
     ui->dockWidgetDatasets->setEnabled(false);
     ui->dockWidgetInfo->setEnabled(false);
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
-    ui->dockWidgetYZ->setEnabled(false);*/
+    ui->dockWidgetYZ->setEnabled(false);
     // Reset sliders and spin boxes
+    ui->verticalSliderXY->setMaximum(0);
     ui->verticalSliderXY->setValue(0);
-    ui->verticalSliderXY->setMaximum(99);
+    ui->spinBoxXY->setMaximum(0);
     ui->spinBoxXY->setValue(0);
-    ui->spinBoxXY->setMaximum(99);
+    ui->verticalSliderXZ->setMaximum(0);
     ui->verticalSliderXZ->setValue(0);
-    ui->verticalSliderXZ->setMaximum(99);
+    ui->spinBoxXZ->setMaximum(0);
     ui->spinBoxXZ->setValue(0);
-    ui->spinBoxXZ->setMaximum(99);
+    ui->verticalSliderYZ->setMaximum(0);
     ui->verticalSliderYZ->setValue(0);
-    ui->verticalSliderYZ->setMaximum(99);
+    ui->spinBoxYZ->setMaximum(0);
     ui->spinBoxYZ->setValue(0);
-    ui->spinBoxYZ->setMaximum(99);
     // Disable other settings
     ui->checkBoxUseGlobal->setChecked(true);
     ui->toolButtonLocalValues->setChecked(false);
@@ -308,29 +308,29 @@ void MainWindow::clearGUI()
     ui->actionCloseHDF5File->setEnabled(false);
 
     // Init min and max controls
-    ui->doubleSpinBoxMinGlobal->setRange(0, 1);
-    ui->doubleSpinBoxMaxGlobal->setRange(0, 1);
+    ui->doubleSpinBoxMinGlobal->setRange(0, 0);
+    ui->doubleSpinBoxMaxGlobal->setRange(0, 0);
     ui->doubleSpinBoxMinGlobal->setValue(0);
     ui->doubleSpinBoxMaxGlobal->setValue(0);
     ui->doubleSpinBoxMinGlobal->setSingleStep(0.1);
     ui->doubleSpinBoxMaxGlobal->setSingleStep(0.1);
 
-    ui->doubleSpinBoxXYMin->setRange(0, 1);
-    ui->doubleSpinBoxXYMax->setRange(0, 1);
+    ui->doubleSpinBoxXYMin->setRange(0, 0);
+    ui->doubleSpinBoxXYMax->setRange(0, 0);
     ui->doubleSpinBoxXYMin->setValue(0);
     ui->doubleSpinBoxXYMax->setValue(0);
     ui->doubleSpinBoxXYMin->setSingleStep(0.1);
     ui->doubleSpinBoxXYMax->setSingleStep(0.1);
 
-    ui->doubleSpinBoxXZMin->setRange(0, 1);
-    ui->doubleSpinBoxXZMax->setRange(0, 1);
+    ui->doubleSpinBoxXZMin->setRange(0, 0);
+    ui->doubleSpinBoxXZMax->setRange(0, 0);
     ui->doubleSpinBoxXZMin->setValue(0);
     ui->doubleSpinBoxXZMax->setValue(0);
     ui->doubleSpinBoxXZMin->setSingleStep(0.1);
     ui->doubleSpinBoxXZMax->setSingleStep(0.1);
 
-    ui->doubleSpinBoxYZMin->setRange(0, 1);
-    ui->doubleSpinBoxYZMax->setRange(0, 1);
+    ui->doubleSpinBoxYZMin->setRange(0, 0);
+    ui->doubleSpinBoxYZMax->setRange(0, 0);
     ui->doubleSpinBoxYZMin->setValue(0);
     ui->doubleSpinBoxYZMax->setValue(0);
     ui->doubleSpinBoxYZMin->setSingleStep(0.1);

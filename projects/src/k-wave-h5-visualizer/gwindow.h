@@ -23,6 +23,8 @@
 #include <QMainWindow>
 #include <QMessageBox>
 
+#include "qVector3DI.h"
+
 #include "openglwindow.h"
 #include "hdf5readingthread.h"
 
@@ -103,136 +105,95 @@ private slots:
 
 private:
     void renderFrame();
+    void renderBox();
+
     void unload3DTexture();
     void clearSlices();
-    QPointF convertToOpenGLRelative(QPointF point);
+    QPointF convertPointToOpenGLRelative(QPointF point);
     float round(float number, float precision);
 
-    QMainWindow *qMainWindow;
+    QMainWindow *qMainWindow = 0;
+    HDF5Helper::HDF5Dataset *selectedDataset = 0;
+    HDF5ReadingThread *thread = 0;
 
-    GLuint m_uFrame;
+    GLint uVolumeTexture;
+    GLint uColormapTexture;
+    GLint uSliceTexture;
+    GLint uBoxSampler;
 
-    GLuint m_uFrameColor;
-    GLuint m_aPosition;
-    GLuint m_aColor;
-    GLuint m_aTextureCoord;
-    GLuint m_uMatrix;
-    GLuint m_uScaleMatrix;
-    GLuint m_uScalelMatrix;
-    GLuint m_uSampler;
+    GLint m_uFrame;
+    GLint m_uSlices;
+    GLint m_uXYBorder;
+    GLint m_uXZBorder;
+    GLint m_uYZBorder;
+    GLint m_uVolumeRendering;
+    GLint m_uVolumeRenderingBack;
 
-    GLuint m_uHeight;
-    GLuint m_uWidth;
-    GLuint m_uDepth;
+    GLint m_uTrim;
 
-    //GLuint m_uPosX;
-    //GLuint m_uPosY;
-    //GLuint m_uPosZ;
-    GLuint m_uXMax;
-    GLuint m_uXMin;
-    GLuint m_uYMax;
-    GLuint m_uYMin;
-    GLuint m_uZMax;
-    GLuint m_uZMin;
+    GLint m_uSteps;
 
-    GLuint m_uAlpha;
-    GLuint m_uRed;
-    GLuint m_uGreen;
-    GLuint m_uBlue;
+    GLint m_uFrameColor;
 
-    int m_frame;
+    GLint m_uWidth;
+    GLint m_uHeight;
 
-    GLuint m_uSlices;
-    GLuint m_uSliceSampler;
+    GLint m_uColor;
+
+    GLint m_uMin;
+    GLint m_uMax;
+
+    GLint m_aPosition;
+
+    GLint m_uMatrix;
+    GLint m_uSliceMatrix;
 
     QOpenGLShaderProgram *m_program;
 
-    QMatrix4x4 rotateXMatrix;
-    QMatrix4x4 rotateYMatrix;
-    float zoom;
-    QVector3D position;
-
-    int count;
-    bool frame = true;
-
-    double alpha;
-    float red;
-    float green;
-    float blue;
-
-    GLuint iboPlaneElements;
     GLuint iboCubeElements;
-    QOpenGLBuffer vboPlaneVertices;
+    GLuint iboSliceElements;
     QOpenGLBuffer vboCubeVertices;
-    QOpenGLBuffer vboSliceXYVertices;
-    QOpenGLBuffer vboSliceXZVertices;
-    QOpenGLBuffer vboSliceYZVertices;
-    QOpenGLBuffer vboSliceTexCoords;
+    QOpenGLBuffer vboSliceVertices;
 
     GLuint vao;
     GLuint texture;
-
-    unsigned int imageDepth;
-    unsigned int imageWidth;
-    unsigned int imageHeight;
-    unsigned int origImageDepth;
-    unsigned int origImageWidth;
-    unsigned int origImageHeight;
-
-    unsigned int fullDepth;
-    unsigned int fullWidth;
-    unsigned int fullHeight;
-
-    unsigned int posZ;
-    unsigned int posY;
-    unsigned int posX;
-
-    float imageHeightDepthRatio;
-    float imageWidthDepthRatio;
-
-    QMutex mutex, textureMutex;
-    HDF5ReadingThread *thread;
-
-    float minG, maxG;
-    int colormap;
-
-    GLuint m_uColormapSampler;
-    GLuint colormapTexture;
-
-    GLuint m_uMin;
-    GLuint m_uMax;
-
-    GLuint m_uTrim;
-    bool trim = false;
-
-    bool orthogonal = false;
-
-    bool texture3DInitialized = false;
-
-    GLuint m_uVolumeRendering;
-    bool volumeRendering = false;
-
-    bool sliceXY = false;
-    bool sliceXZ = false;
-    bool sliceYZ = false;
-
-    GLuint m_uXYBorder;
-    GLuint m_uXZBorder;
-    GLuint m_uYZBorder;
+    GLuint textureFbo;
+    GLuint fbo;
+    GLuint rbo;
 
     GLuint textureXY;
     GLuint textureXZ;
     GLuint textureYZ;
+    GLuint colormapTexture;
 
-    float xYIndex;
-    float xZIndex;
-    float yZIndex;
+    QMatrix4x4 rotateXMatrix;
+    QMatrix4x4 rotateYMatrix;
+    float zoom = 1.0f;
+    QVector3D position;
 
-    std::string datasetName;
-    HDF5Helper::HDF5Dataset *selectedDataset;
+    QVector3DI imageSize;
+    QVector3DI imageSizeOrig;
+    QVector3DI fullSize;
+    QVector3DI imagePosition;
 
-    bool flagSave;
-    QString fileName;
+    float minG = 0.0f;
+    float maxG = 1.0f;
+
+    int colormap = cv::COLORMAP_JET;
+    int steps = 100;
+
+    QColor color;
+    QVector3D index;
+
+    bool frame = true;
+    bool trim = false;
+    bool orthogonal = false;
+    bool volumeRendering = false;
+    bool sliceXY = false;
+    bool sliceXZ = false;
+    bool sliceYZ = false;
+
+    bool texture3DInitialized = false;
 
     int initialized;
 };

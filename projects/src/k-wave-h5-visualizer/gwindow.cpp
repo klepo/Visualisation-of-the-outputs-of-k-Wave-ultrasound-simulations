@@ -4,7 +4,7 @@
  * @version     1.0
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
- *              8  September 2016 (updated)
+ *              19 October   2016 (updated)
  *
  * @brief       The implementation file containing the GWindow class - 3D scene window.
  *
@@ -21,11 +21,16 @@
 
 // Some helper arrays for slices and 3d frame
 
-GLfloat planeVertices[] = {
+GLfloat sliceVertices[] = {
     0.0, 0.0, 0.0,
     1.0, 0.0, 0.0,
     1.0, 1.0, 0.0,
     0.0, 1.0, 0.0,
+};
+
+GLint sliceElements[] = {
+    0, 1, 2,
+    2, 3, 0,
 };
 
 GLfloat cubeVertices[] = {
@@ -41,58 +46,25 @@ GLfloat cubeVertices[] = {
     0.0, 1.0, 1.0,
 };
 
-GLfloat sliceXYVertices[] = {
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-};
-
-GLfloat sliceXZVertices[] = {
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-};
-
-GLfloat sliceYZVertices[] = {
-    0.0, 0.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 1.0, 1.0,
-    0.0, 0.0, 1.0,
-};
-
-GLfloat sliceTexCoords[] = {
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0,
-    0.0, 1.0,
-};
-
-GLint planeElements[] = {
-    0, 1, 2,
-    2, 3, 0,
-};
-
 GLint cubeElements[] = {
     // front
     0, 1, 2,
     2, 3, 0,
-    // top
+    // left
     4, 0, 3,
     3, 7, 4,
     // back
     5, 4, 7,
     7, 6, 5,
-    // bottom
+    // right
     1, 5, 6,
     6, 2, 1,
-    // left
+    // top
     2, 6, 7,
     7, 3, 2,
     // right
-    1, 5, 4,
-    4, 0, 1,
+    1, 0, 4,
+    4, 5, 1,
 };
 
 /**
@@ -105,47 +77,15 @@ GWindow::GWindow(QMainWindow *qMainWindow)
 {
     this->qMainWindow = qMainWindow;
 
-    // Init indices for 3D slices
-    xYIndex = 0;
-    xZIndex = 0;
-    yZIndex = 0;
-
-    // Init values for Volume Rendering
-    count = 50;
-    setAlpha(0.5f);
-    red = 0.5f;
-    green = 0.5f;
-    blue = 0.5f;
-    zoom = 1.0f;
+    color = QColor(255, 255, 255, 255);
 
     // Default sizes for 3D frames
-    imageWidth = 1;
-    imageHeight = 1;
-    imageDepth = 1;
-
-    fullWidth = 1;
-    fullHeight = 1;
-    fullDepth = 1;
-
-    origImageWidth = imageWidth;
-    origImageHeight = imageHeight;
-    origImageDepth = imageDepth;
+    imageSize = QVector3DI(1, 1, 1);
+    imageSizeOrig = QVector3DI(1, 1, 1);
+    fullSize = QVector3DI(1, 1, 1);
 
     // Position of sensor mask
-    posX = 0;
-    posY = 0;
-    posZ = 0;
-
-    // Global min/max values
-    minG = 0;
-    maxG = 0;
-
-    // Default colormap
-    colormap = cv::COLORMAP_JET;
-
-    flagSave = false;
-
-    selectedDataset = NULL;
+    imagePosition = QVector3DI(0, 0, 0);
 
     // Create thread for loading whole dataset
     thread = new HDF5ReadingThread();
@@ -165,15 +105,11 @@ GWindow::~GWindow()
     glDeleteTextures(1, &textureXZ);
     glDeleteTextures(1, &textureYZ);
 
-    glDeleteBuffers(1, &iboPlaneElements);
+    glDeleteBuffers(1, &iboSliceElements);
     glDeleteBuffers(1, &iboCubeElements);
 
-    vboPlaneVertices.destroy();
     vboCubeVertices.destroy();
-    vboSliceXYVertices.destroy();
-    vboSliceXZVertices.destroy();
-    vboSliceYZVertices.destroy();
-    vboSliceTexCoords.destroy();
+    vboSliceVertices.destroy();
 
     m_program->release();
     delete m_program;
@@ -197,8 +133,6 @@ HDF5ReadingThread *GWindow::getThread()
  */
 void GWindow::initialize()
 {
-    //emit setStatusMessage(QString("Slices: %1").arg(count));
-
     // Load, create and link shaders
     m_program = new QOpenGLShaderProgram(this);
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexShader.vert");
@@ -207,61 +141,43 @@ void GWindow::initialize()
 
     // Init attribute variables
     m_aPosition = m_program->attributeLocation("aPosition");
-    m_aTextureCoord = m_program->attributeLocation("aTextureCoord");
 
     // Init uniform variables
+    m_uMatrix = m_program->uniformLocation("uMatrix");
+    m_uSliceMatrix = m_program->uniformLocation("uSliceMatrix");
+
+    uVolumeTexture = m_program->uniformLocation("uVolume");
+    uColormapTexture = m_program->uniformLocation("uColormap");
+    uSliceTexture = m_program->uniformLocation("uSlice");
+    uBoxSampler = m_program->uniformLocation("uBoxSampler");
+
     m_uFrame = m_program->uniformLocation("uFrame");
-    m_uFrameColor = m_program->uniformLocation("uFrameColor");
+    m_uSlices = m_program->uniformLocation("uSlices");
     m_uXYBorder = m_program->uniformLocation("uXYBorder");
     m_uXZBorder = m_program->uniformLocation("uXZBorder");
     m_uYZBorder = m_program->uniformLocation("uYZBorder");
+    m_uVolumeRenderingBack = m_program->uniformLocation("uVolumeRenderingBack");
+    m_uVolumeRendering = m_program->uniformLocation("uVolumeRendering");
 
-    m_uMatrix = m_program->uniformLocation("uMatrix");
-    m_uScaleMatrix = m_program->uniformLocation("uScaleMatrix");
-    m_uScalelMatrix = m_program->uniformLocation("uScalelMatrix");
+    m_uTrim = m_program->uniformLocation("uTrim");
+
+    m_uSteps = m_program->uniformLocation("uSteps");
+
+    m_uFrameColor = m_program->uniformLocation("uFrameColor");
 
     m_uHeight = m_program->uniformLocation("uHeight");
     m_uWidth = m_program->uniformLocation("uWidth");
-    m_uDepth = m_program->uniformLocation("uDepth");
 
-    //m_uPosX = m_program->uniformLocation("uPosX");
-    //m_uPosY = m_program->uniformLocation("uPosY");
-    //m_uPosZ = m_program->uniformLocation("uPosZ");
-
-    m_uXMax = m_program->uniformLocation("uXMax");
-    m_uYMax = m_program->uniformLocation("uYMax");
-    m_uZMax = m_program->uniformLocation("uZMax");
-    m_uXMin = m_program->uniformLocation("uXMin");
-    m_uYMin = m_program->uniformLocation("uYMin");
-    m_uZMin = m_program->uniformLocation("uZMin");
-
-    m_uAlpha = m_program->uniformLocation("uAlpha");
-    m_uRed = m_program->uniformLocation("uRed");
-    m_uGreen = m_program->uniformLocation("uGreen");
-    m_uBlue = m_program->uniformLocation("uBlue");
-
-    m_uSampler = m_program->uniformLocation("uSampler");
-
-    m_uColormapSampler = m_program->uniformLocation("uColormapSampler");
+    m_uColor = m_program->uniformLocation("uColor");
 
     m_uMin = m_program->uniformLocation("uMin");
     m_uMax = m_program->uniformLocation("uMax");
 
-    m_uTrim = m_program->uniformLocation("uTrim");
-
-    m_uSlices = m_program->uniformLocation("uSlices");
-
-    m_uVolumeRendering = m_program->uniformLocation("uVolumeRendering");
-
-    m_uSliceSampler = m_program->uniformLocation("uSliceSampler");
-
-    //glBindFragDataLocation(m_program->programId(), 0, "colorOut");
-
     // Generate buffers
     // for slices
-    glGenBuffers(1, &iboPlaneElements);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboPlaneElements);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeElements), planeElements, GL_STATIC_DRAW);
+    glGenBuffers(1, &iboSliceElements);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboSliceElements);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sliceElements), sliceElements, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     // and for 3D frame
     glGenBuffers(1, &iboCubeElements);
@@ -276,113 +192,94 @@ void GWindow::initialize()
     vboCubeVertices.allocate(cubeVertices, sizeof(GLfloat) * 8 * 3);
     vboCubeVertices.release();
 
-    vboPlaneVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vboPlaneVertices.create();
-    vboPlaneVertices.bind();
-    vboPlaneVertices.allocate(planeVertices, sizeof(GLfloat) * 4 * 3);
-    vboPlaneVertices.release();
-
-    vboSliceXYVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vboSliceXYVertices.create();
-    vboSliceXYVertices.bind();
-    vboSliceXYVertices.allocate(sliceXYVertices, sizeof(GLfloat) * 4 * 3);
-    vboSliceXYVertices.release();
-
-    vboSliceXZVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vboSliceXZVertices.create();
-    vboSliceXZVertices.bind();
-    vboSliceXZVertices.allocate(sliceXZVertices, sizeof(GLfloat) * 4 * 3);
-    vboSliceXZVertices.release();
-
-    vboSliceYZVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vboSliceYZVertices.create();
-    vboSliceYZVertices.bind();
-    vboSliceYZVertices.allocate(sliceYZVertices, sizeof(GLfloat) * 4 * 3);
-    vboSliceYZVertices.release();
-
-    vboSliceTexCoords = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vboSliceTexCoords.create();
-    vboSliceTexCoords.bind();
-    vboSliceTexCoords.allocate(sliceTexCoords, sizeof(GLfloat) * 4 * 2);
-    vboSliceTexCoords.release();
+    vboSliceVertices = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    vboSliceVertices.create();
+    vboSliceVertices.bind();
+    vboSliceVertices.allocate(sliceVertices, sizeof(GLfloat) * 4 * 3);
+    vboSliceVertices.release();
 
     // VAO
     glGenVertexArrays(1, &vao);
 
+    glGenTextures(1, &textureFbo);
+    glBindTexture(GL_TEXTURE_2D, textureFbo);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     // 3D texture
     glGenTextures(1, &texture);
-
     glBindTexture(GL_TEXTURE_3D, texture);
-    //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    //glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
     // 1D texture
     glGenTextures(1, &colormapTexture);
-
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_1D, 0);
 
     // 2D textures
     glGenTextures(1, &textureXY);
-
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     glGenTextures(1, &textureXZ);
-
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     glGenTextures(1, &textureYZ);
-
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenFramebuffers(1, &fbo);
+    glGenRenderbuffers(1, &rbo);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFbo, 0);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    //TODO
+    //glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Settings
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
-    //glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-    //glClearColor((float) 16 / 18, (float) 16 / 18, (float) 16 / 18, 0.0f);
-    QColor color = qMainWindow->palette().color(QPalette::Window);
-    glClearColor((float) color.redF(), (float) color.greenF(), (float) color.blueF(), (float) color.alphaF());
+    QColor colorW = qMainWindow->palette().color(QPalette::Window);
+    glClearColor(float(colorW.redF()), float(colorW.greenF()), float(colorW.blueF()), 0.0f/*float(colorW.alphaF())*/);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    //glEnable(GL_ALPHA_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Important for save png image!
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
-
-    //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
-    //glBlendFunc(GL_ONE, GL_ONE);
-    glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 
-    /*cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
-    for (unsigned int i = 0; i < 256; i++)
-        colormapImage.data[i] = i;
-    cv::applyColorMap(colormapImage, colormapImage, colormap);
-    cvtColor(colormapImage, colormapImage, CV_BGR2RGB);
-    glBindTexture(GL_TEXTURE_1D, colormapTexture);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);*/
-    // Set default colormap
     changeColormap();
 
     // Default scene rotation
@@ -391,28 +288,31 @@ void GWindow::initialize()
     //rotateYMatrix.rotate(-45, 1, 0, 0);
 
     m_program->bind();
+    // Set some default uniform values
 
     m_program->setUniformValue(m_uMin, 0.0f);
     m_program->setUniformValue(m_uMax, 0.0f);
 
-    /*glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_1D, colormapTexture);*/
-    // Set some default uniform values
-    m_program->setUniformValue(m_uColormapSampler, 1);
-    m_program->setUniformValue(m_uSliceSampler, 2);
-    m_program->setUniformValue(m_uSampler, 0);
+    m_program->setUniformValue(uBoxSampler, 3);
+    m_program->setUniformValue(uSliceTexture, 2);
+    m_program->setUniformValue(uColormapTexture, 1);
+    m_program->setUniformValue(uVolumeTexture, 0);
 
     m_program->setUniformValue(m_uFrame, false);
 
-    m_program->setUniformValue(m_uFrameColor, (float) (1.0f - color.redF()), (float) (1.0f - color.greenF()), (float) (1.0f - color.blueF()), 1.0f);
+    m_program->setUniformValue(m_uFrameColor, float(1.0f - colorW.redF()), float(1.0f - colorW.greenF()), float(1.0f - colorW.blueF()), 1.0f);
 
     m_program->setUniformValue(m_uSlices, false);
 
     m_program->setUniformValue(m_uVolumeRendering, false);
+    m_program->setUniformValue(m_uVolumeRenderingBack, false);
 
     m_program->setUniformValue(m_uXYBorder, false);
     m_program->setUniformValue(m_uXZBorder, false);
     m_program->setUniformValue(m_uYZBorder, false);
+
+    m_program->setUniformValue(m_uSteps, steps);
+    m_program->setUniformValue(m_uColor, color);
 
     m_program->release();
 
@@ -437,9 +337,7 @@ bool GWindow::isTexture3DInitialized()
  */
 void GWindow::setMainSize(HDF5Helper::HDF5Vector3D size)
 {
-    fullDepth = size.z();
-    fullHeight = size.y();
-    fullWidth = size.x();
+    fullSize = QVector3DI(size.x(), size.y(), size.z());
 }
 
 /**
@@ -450,12 +348,8 @@ void GWindow::setMainSize(HDF5Helper::HDF5Vector3D size)
  */
 void GWindow::setSize(HDF5Helper::HDF5Vector3D size)
 {
-    imageDepth = size.z();
-    imageHeight = size.y();
-    imageWidth = size.x();
-    origImageWidth = imageWidth;
-    origImageHeight = imageHeight;
-    origImageDepth = imageDepth;
+    imageSize = QVector3DI(size.x(), size.y(), size.z());
+    imageSizeOrig = imageSize;
 }
 
 /**
@@ -466,9 +360,7 @@ void GWindow::setSize(HDF5Helper::HDF5Vector3D size)
  */
 void GWindow::setPosition(HDF5Helper::HDF5Vector3D position)
 {
-    this->posZ = position.z();
-    this->posY = position.y();
-    this->posX = position.x();
+    imagePosition = QVector3DI(position.x(), position.y(), position.z());
 }
 
 /**
@@ -477,29 +369,13 @@ void GWindow::setPosition(HDF5Helper::HDF5Vector3D position)
  */
 void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 {
-    // If dataset is already loaded
-    //if (selectedDataset != NULL && selectedDataset->getName() == dataset->getName()) {
-    //    emit loaded(selectedDataset->getName());
-    //    return;
-    //}
-
-    //thread->clearRequests();
-    //thread->wait();
-    //thread->clearDoneRequests();
-
     selectedDataset = dataset;
 
     texture3DInitialized = false;
 
-    /*imageWidth = dataset->getDims()[2];
-    imageHeight = dataset->getDims()[1];
-    imageDepth = dataset->getDims()[0];*/
-
-    //PFNGLTEXIMAGE3DPROC glTexImage3D = NULL;
-    //glTexImage3D = (PFNGLTEXIMAGE3DPROC) wglGetProcAddress("glTexImage3D");
     // Init 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, NULL);
 
     // Check OUT_OF_MEMORY, dataset is too big
     if (checkGlError() != GL_NO_ERROR) {
@@ -509,6 +385,7 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
     }
 
     thread->createRequest(selectedDataset, index);
+
     // Start loading thread
     thread->start();
 }
@@ -519,7 +396,7 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 void GWindow::unload3DTexture()
 {
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageWidth, imageHeight, imageDepth, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, NULL);
 }
 
 /**
@@ -527,7 +404,7 @@ void GWindow::unload3DTexture()
  */
 void GWindow::unloadDataset()
 {
-    selectedDataset = NULL;
+    selectedDataset = 0;
 }
 
 /**
@@ -536,21 +413,10 @@ void GWindow::unloadDataset()
 void GWindow::clearData()
 {
     if (initialized) {
-        imageWidth = 1;
-        imageHeight = 1;
-        imageDepth = 1;
-
-        fullWidth = 1;
-        fullHeight = 1;
-        fullDepth = 1;
-
-        origImageWidth = imageWidth;
-        origImageHeight = imageHeight;
-        origImageDepth = imageDepth;
-
-        posX = 0;
-        posY = 0;
-        posZ = 0;
+        imageSize = QVector3DI(1, 1, 1);
+        fullSize = QVector3DI(1, 1, 1);
+        imageSizeOrig = QVector3DI(1, 1, 1);
+        imagePosition = QVector3DI(0, 0, 0);
 
         changeMinValue(0.0f);
         changeMaxValue(0.0f);
@@ -569,11 +435,7 @@ void GWindow::clearData()
  */
 void GWindow::setLoaded(Request *r)
 {
-    //texture//mutex.lock();
     texture3DInitialized = false;
-    //PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D = NULL;
-    //glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) wglGetProcAddress("glTexSubImage3D");
-
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -583,15 +445,11 @@ void GWindow::setLoaded(Request *r)
     // Set 3D data to 3D texture
     glTexSubImage3D(GL_TEXTURE_3D, 0, offset.x(), offset.y(), offset.z(), count.x(), count.y(), count.z(), GL_RED, GL_FLOAT, r->data);
 
-    //if (checkGlError() != GL_NO_ERROR) return;
-
     // Last block of 3D data
-    if (offset.z() + count.z() == imageDepth) {
-        //thread->deleteLater();
+    if (offset.z() + count.z() == imageSize.z()) {
         texture3DInitialized = true;
         changeColormap(colormap);
         renderLater();
-        //emit partLoaded((int) ((double) (i + 1) / imageDepth * 100));
         emit loaded(selectedDataset->getName());
     }
 
@@ -611,7 +469,7 @@ void GWindow::setXYSlice(float *data, unsigned int width, unsigned int height, f
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
-    xYIndex = index;
+    this->index.setZ(index);
     renderLater();
 }
 
@@ -628,7 +486,7 @@ void GWindow::setXZSlice(float *data, unsigned int width, unsigned int height, f
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
-    xZIndex = index;
+    this->index.setY(index);
     renderLater();
 }
 
@@ -645,7 +503,7 @@ void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, f
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
-    yZIndex = index;
+    this->index.setX(index);
     renderLater();
 }
 
@@ -672,25 +530,25 @@ void GWindow::clearSlices()
 void GWindow::changeColormap(int colormap)
 {
     this->colormap = colormap;
+
+    m_program->bind();
+
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
 
     // Fill 1D texture with colormap values
     cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
     for (unsigned int i = 0; i < 256; i++)
-        colormapImage.data[i] = i;
+        colormapImage.data[i] = uchar(i);
     cv::applyColorMap(colormapImage, colormapImage, this->colormap);
     cv::cvtColor(colormapImage, colormapImage, cv::COLOR_BGR2RGB);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);
 
-    m_program->bind();
-
     // Set to shader
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
-    m_program->setUniformValue(m_uColormapSampler, 1);
+    m_program->setUniformValue(uColormapTexture, 1);
 
     m_program->release();
-
     renderLater();
 }
 
@@ -701,9 +559,11 @@ void GWindow::changeColormap(int colormap)
 void GWindow::changeMinValue(float value)
 {
     minG = value;
-    m_program->bind();
-    m_program->setUniformValue(m_uMin, minG);
-    m_program->release();
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uMin, minG);
+        m_program->release();
+    }
     renderLater();
 }
 
@@ -714,9 +574,11 @@ void GWindow::changeMinValue(float value)
 void GWindow::changeMaxValue(float value)
 {
     maxG = value;
-    m_program->bind();
-    m_program->setUniformValue(m_uMax, maxG);
-    m_program->release();
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uMax, maxG);
+        m_program->release();
+    }
     renderLater();
 }
 
@@ -730,22 +592,35 @@ void GWindow::renderFrame()
     glEnableVertexAttribArray(m_aPosition);
     glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
-    glDrawElements(GL_LINE_LOOP,  sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINE_LOOP,  sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
+    glDisableVertexAttribArray(m_aPosition);
+    vboCubeVertices.release();
+    glBindVertexArray(0);
+}
+
+void GWindow::renderBox()
+{
+    glBindVertexArray(vao);
+    vboCubeVertices.bind();
+    glEnableVertexAttribArray(m_aPosition);
+    glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
+    glDrawElements(GL_TRIANGLES,  sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
     glDisableVertexAttribArray(m_aPosition);
     vboCubeVertices.release();
     glBindVertexArray(0);
 }
 
 /**
- * @brief GWindow::convertToOpenGLRelative
+ * @brief GWindow::convertPointToOpenGLRelative
  * @param point
  * @return
  */
-QPointF GWindow::convertToOpenGLRelative(QPointF point)
+QPointF GWindow::convertPointToOpenGLRelative(QPointF point)
 {
     QPointF pointOutput;
-    pointOutput.setX((point.x() / (float) width() - 0.5f) * 2.0f);
-    pointOutput.setY((point.y() / (float) height() - 0.5f) * 2.0f);
+    pointOutput.setX((point.x() / float(width()) - 0.5f) * 2.0f);
+    pointOutput.setY((point.y() / float(height()) - 0.5f) * 2.0f);
     return pointOutput;
 }
 
@@ -769,12 +644,6 @@ void GWindow::render()
 
     // Rotation of scene by left mouse click
     if (leftButton) {
-        /*if (lastPos.x() > currentPos.x())
-            qDebug() << ">";
-        else if (lastPos.x() < currentPos.x())
-            qDebug() << "<";
-        else
-            qDebug() << "=";*/
         // TODO
         rotateXMatrix.rotate((float) (lastPos.y() - currentPos.y()) / 2.0f, -1, 0, 0);
         rotateYMatrix.rotate((float) (lastPos.x() - currentPos.x()) / 2.0f, 0, -1, 0);
@@ -783,17 +652,18 @@ void GWindow::render()
 
     // Move of scene by right mouse click
     if (rightButton) {
-        QPointF lastPosRl = convertToOpenGLRelative(lastPos);
-        QPointF currentPosRl = convertToOpenGLRelative(currentPos);
-        position.setX(position.x() - (lastPosRl.x() - currentPosRl.x()));
-        position.setY(position.y() + (lastPosRl.y() - currentPosRl.y()));
+        QPointF lastPosRl = convertPointToOpenGLRelative(lastPos);
+        QPointF currentPosRl = convertPointToOpenGLRelative(currentPos);
+        position.setX(position.x() - float(lastPosRl.x() - currentPosRl.x()));
+        position.setY(position.y() + float(lastPosRl.y() - currentPosRl.y()));
         //actualCount = 30;
     }
 
     // Clear viewport
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, width(), height());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+    // Activate shader program
     m_program->bind();
 
     // Zoom
@@ -807,24 +677,26 @@ void GWindow::render()
     float ratio = float(width()) / float(height());
 
     if (orthogonal) {
-        if (zoom > 150.0f) {
-            zoom = 150.0f;
+        if (zoom > 200.0f) {
+            zoom = 200.0f;
         }
-        if (zoom < 0.01f) {
-            zoom = 0.01f;
+        if (zoom < 0.00001f) {
+            zoom = 0.00001f;
         }
+        projectionMatrix.translate(position.x(), position.y(), 0);
         projectionMatrix.ortho(-ratio * zoom, ratio * zoom, -zoom, zoom, -1.0f, 1000.0f);
 
     } else {
         float angle = zoom * 45.0f;
-        if (angle > 179.0f) {
-            angle = 179.0f;
-            zoom = 179.0f / 45.0f;
+        if (angle > 179.9999f) {
+            angle = 179.9999f;
+            zoom = 179.9999f / 45.0f;
         }
-        if (angle < 0.1f) {
-            angle = 0.1f;
-            zoom = 0.1f / 45.0f;
+        if (angle < 0.00001f) {
+            angle = 0.00001f;
+            zoom = 0.00001f / 45.0f;
         }
+        projectionMatrix.translate(position.x(), position.y(), 0);
         projectionMatrix.perspective(angle, ratio, 0.1f, 100.0f);
         projectionMatrix.translate(0, 0, -2.0f);
     }
@@ -833,47 +705,36 @@ void GWindow::render()
     QMatrix4x4 matrix;
     matrix = projectionMatrix * rotateXMatrix * rotateYMatrix;
 
-    // Move transformation
-    QVector4D pointC(0.0f, 0.0f, 0.0f, 1.0f);
-    pointC = matrix * pointC.normalized();
-    QMatrix4x4 invMatrix = matrix.inverted();
-    QVector4D point0(position.x(), position.y(), pointC.toVector3DAffine().z(), 1.0f);
-    point0 = invMatrix * point0.normalized();
-    QVector3D point03D = point0.toVector3DAffine();
-    QMatrix4x4 moveMatrix;
-    moveMatrix.translate(point03D);
-    matrix = matrix * moveMatrix;
-
     // Create vectors for scale 3D frame to the longest size = 1.0f
-    QVector3D vecScale((float) imageWidth, (float) imageHeight, (float) imageDepth);
-    QVector3D vecFullScale((float) fullWidth, (float) fullHeight, (float) fullDepth);
-    float max = qMax(vecScale.x(), qMax(vecScale.y(), vecScale.z()));
-    float fullMax = qMax(vecFullScale.x(), qMax(vecFullScale.y(), vecFullScale.z()));
-    vecFullScale = vecFullScale / fullMax; // longest size is 1.0f
+    float fullMax = qMax(fullSize.x(), qMax(fullSize.y(), fullSize.z()));
 
-    // Values to fragment shader for scaling 3D frame ->  operations +, -, /, * are faster here
-    QVector3D vecScale0 = vecScale / max;
-    m_program->setUniformValue(m_uWidth, (float) 1.0f / (vecScale0.x() / 2.0f));
-    m_program->setUniformValue(m_uHeight, (float) 1.0f / (vecScale0.y() / 2.0f));
-    m_program->setUniformValue(m_uDepth, (float) 1.0f / (vecScale0.z() / 2.0f));
+    QVector3D fullSizeScaled = fullSize / fullMax; // the longest size is 1.0f
+    QVector3D imageSizeScaled = imageSize / fullMax;
+    QVector3D imagePositionScaled = imagePosition / fullMax;
 
-    m_program->setUniformValue(m_uXMax, 0.5f + ((float) vecScale0.x() / 2.0f) / 2.0f);
-    m_program->setUniformValue(m_uXMin, 0.5f - ((float) vecScale0.x() / 2.0f) / 2.0f);
-    m_program->setUniformValue(m_uYMax, 0.5f + ((float) vecScale0.y() / 2.0f) / 2.0f);
-    m_program->setUniformValue(m_uYMin, 0.5f - ((float) vecScale0.y() / 2.0f) / 2.0f);
-    m_program->setUniformValue(m_uZMax, 0.5f + ((float) vecScale0.z() / 2.0f) / 2.0f);
-    m_program->setUniformValue(m_uZMin, 0.5f - ((float) vecScale0.z() / 2.0f) / 2.0f);
-
-    vecScale = vecScale / fullMax;
     // Translate to the midlle of 3D frame
-    matrix.translate(-vecFullScale.x() / 2.0f, -vecFullScale.y() / 2.0f, -vecFullScale.z() / 2.0f);
+    matrix.translate(-fullSizeScaled.x() / 2.0f, -fullSizeScaled.y() / 2.0f, -fullSizeScaled.z() / 2.0f);
+
+    float offset = 0.01f;
 
     // Send matrix to shader
     m_program->setUniformValue(m_uMatrix, matrix);
-    m_program->setUniformValue(m_uScalelMatrix, QMatrix4x4());
-    m_program->setUniformValue(m_uScaleMatrix, QMatrix4x4());
+    m_program->setUniformValue(m_uSliceMatrix, QMatrix4x4());
 
-    // Trim values
+    // Prepare framebuffer texture
+    glBindTexture(GL_TEXTURE_2D, textureFbo);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    m_program->setUniformValue(m_uWidth, float(width()));
+    m_program->setUniformValue(m_uHeight, float(height()));
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Trim values?
     if (trim) {
         m_program->setUniformValue(m_uTrim, true);
     } else {
@@ -882,230 +743,181 @@ void GWindow::render()
 
     // Frame
     if (frame) {
-        glDisable(GL_CULL_FACE);
         m_program->setUniformValue(m_uFrame, true);
-        QMatrix4x4 sMmatrix;
 
+        QMatrix4x4 sMatrix;
         QMatrix4x4 rMatrix;
-        rMatrix.scale(1.02f);
-        rMatrix.translate(-0.01f, -0.01f, 0);
+
+        rMatrix.scale(1 + 2 * offset);
+        rMatrix.translate(-offset, -offset, -offset);
 
         // Smaller frame
-        sMmatrix.translate((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax);
-        sMmatrix.scale(vecScale);
-        m_program->setUniformValue(m_uScaleMatrix, sMmatrix * rMatrix);
+        sMatrix.translate(imagePositionScaled);
+        sMatrix.scale(imageSizeScaled);
+        m_program->setUniformValue(m_uMatrix, matrix * sMatrix * rMatrix);
         renderFrame();
 
         // Big frame
-        if (imageWidth != fullWidth || imageHeight != fullHeight || imageDepth || fullDepth) {
-            QMatrix4x4 sMmatrix;
-            sMmatrix.scale(vecFullScale);
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * rMatrix);
+        if (imageSize != fullSize) {
+            QMatrix4x4 sMatrix;
+            sMatrix.scale(fullSizeScaled);
+            m_program->setUniformValue(m_uMatrix, matrix * sMatrix * rMatrix);
             renderFrame();
         }
 
         m_program->setUniformValue(m_uFrame, false);
-        glEnable(GL_CULL_FACE);
     }
 
     // Slices
     if (sliceXY || sliceXZ || sliceYZ) {
-        //mutex.lock();
         m_program->setUniformValue(m_uSlices, true);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_BLEND);
-        //qDebug() << glIsEnabled(GL_DEPTH_TEST);
 
-        QMatrix4x4 sMmatrix;
-        sMmatrix.translate((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax);
-        sMmatrix.scale(vecScale);
+        QMatrix4x4 imageMatrix;
+        imageMatrix.translate(imagePositionScaled);
+        imageMatrix.scale(imageSizeScaled);
 
-        QMatrix4x4 s2Mmatrix;
-        s2Mmatrix.scale(1.02f);
-        // Colored frames (along axis) transfomation
-        QMatrix4x4 s2XYMmatrix, s2XZMmatrix, s2YZMmatrix;
-        s2XYMmatrix = s2Mmatrix;
-        s2XZMmatrix = s2Mmatrix;
-        s2YZMmatrix = s2Mmatrix;
-        s2XYMmatrix.translate(-0.01f, -0.01f, 0);
-        s2XZMmatrix.translate(-0.01f, 0, -0.01f);
-        s2YZMmatrix.translate(0, -0.01f, -0.01f);
+        QMatrix4x4 offsetMatrix;
+        QMatrix4x4 offsetXYMatrix, offsetXZMatrix, offsetYZMatrix;
+        offsetMatrix.scale(1 + 2 * offset);
+        offsetXYMatrix = offsetMatrix;
+        offsetXZMatrix = offsetMatrix;
+        offsetYZMatrix = offsetMatrix;
+        offsetXYMatrix.translate(-offset, -offset, 0);
+        offsetXZMatrix.translate(-offset, 0, -offset);
+        offsetYZMatrix.translate(0, -offset, -offset);
 
-        // Translate by slice index
-        QMatrix4x4 xYMmatrix;
-        xYMmatrix.translate(0, 0, xYIndex);
-        QMatrix4x4 xZMmatrix;
-        xZMmatrix.translate(0, xZIndex, 0);
-        QMatrix4x4 yZMmatrix;
-        yZMmatrix.translate(yZIndex, 0, 0);
+        // Rotate and translate by slice index
+        QMatrix4x4 translateXYMatrix;
+        translateXYMatrix.translate(0, 0, index.z());
+        QMatrix4x4 translateXZMatrix;
+        translateXZMatrix.translate(0, index.y(), 0);
+        translateXZMatrix.rotate(90, 1, 0, 0);
+        QMatrix4x4 translateYZMatrix;
+        translateYZMatrix.translate(index.x(), 0, 0);
+        translateYZMatrix.rotate(-90, 0, 1, 0);
 
         glBindVertexArray(vao);
 
-        vboSliceTexCoords.bind();
-        glEnableVertexAttribArray(m_aTextureCoord);
-        glVertexAttribPointer(m_aTextureCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboPlaneElements);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboSliceElements);
 
         glEnableVertexAttribArray(m_aPosition);
 
+        glActiveTexture(GL_TEXTURE2);
+
+        vboSliceVertices.bind();
+
         if (sliceXY) {
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xYMmatrix);
-            vboSliceXYVertices.bind();
             glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-            glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureXY);
-            // Because some bug
-            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+
             // Draw slice
-            glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-            m_program->setUniformValue(m_uXYBorder, true);
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xYMmatrix * s2XYMmatrix);
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix);
+            m_program->setUniformValue(m_uSliceMatrix, translateXYMatrix);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+
+            m_program->setUniformValue(m_uVolumeRenderingBack, true);
+            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            m_program->setUniformValue(m_uVolumeRenderingBack, false);
+
             // Draw 2D frame
-            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix * offsetXYMatrix);
+            m_program->setUniformValue(m_uXYBorder, true);
+            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXYBorder, false);
-            vboSliceXYVertices.release();
         }
 
         if (sliceXZ) {
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xZMmatrix);
-            vboSliceXZVertices.bind();
             glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-            glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureXZ);
-            // Because some bug
-            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-            glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+
+            // Draw slice
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix);
+            m_program->setUniformValue(m_uSliceMatrix, translateXZMatrix);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+
+            m_program->setUniformValue(m_uVolumeRenderingBack, true);
+            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            m_program->setUniformValue(m_uVolumeRenderingBack, false);
+
+            // Draw 2D frame
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix * offsetXZMatrix);
             m_program->setUniformValue(m_uXZBorder, true);
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * xZMmatrix * s2XZMmatrix);
-            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXZBorder, false);
-            vboSliceXZVertices.release();
         }
 
         if (sliceYZ) {
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * yZMmatrix);
-            vboSliceYZVertices.bind();
             glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-            glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, textureYZ);
-            // Because some bug
-            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-            glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+
+            // Draw slice
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix);
+            m_program->setUniformValue(m_uSliceMatrix, translateYZMatrix);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+
+            m_program->setUniformValue(m_uVolumeRenderingBack, true);
+            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            m_program->setUniformValue(m_uVolumeRenderingBack, false);
+
+            // Draw 2D frame
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix * offsetYZMatrix);
             m_program->setUniformValue(m_uYZBorder, true);
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrix * yZMmatrix * s2YZMmatrix);
-            glDrawElements(GL_LINE_LOOP,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uYZBorder, false);
-            vboSliceYZVertices.release();
         }
 
-        glDisableVertexAttribArray(m_aTextureCoord);
-        glDisableVertexAttribArray(m_aPosition);
+        vboSliceVertices.release();
 
-        vboSliceTexCoords.release();
+        glDisableVertexAttribArray(m_aPosition);
 
         glBindVertexArray(0);
 
-        glEnable(GL_BLEND);
-        glEnable(GL_CULL_FACE);
-        //glDepthMask(GL_TRUE);
-
+        m_program->setUniformValue(m_uSliceMatrix, QMatrix4x4());
         m_program->setUniformValue(m_uSlices, false);
-        //mutex.unlock();
     }
 
     // Volume rendering
     if (volumeRendering) {
+        QMatrix4x4 sMatrix;
+        sMatrix.translate(imagePositionScaled);
+        sMatrix.scale(imageSizeScaled);
+        m_program->setUniformValue(m_uMatrix, matrix * sMatrix);
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
+        m_program->setUniformValue(m_uVolumeRenderingBack, true);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        renderBox();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        m_program->setUniformValue(m_uVolumeRenderingBack, false);
+
+        glCullFace(GL_FRONT);
+
         m_program->setUniformValue(m_uVolumeRendering, true);
 
-        //mutex.lock();
-        // Because of same opacity from all directions
-        glDepthMask(GL_FALSE);
-        //glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        //glDisable(GL_BLEND);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, textureFbo);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, texture);
 
-        // Recompute alpha and set alpha + colors
-        qDebug() << (GLfloat) (1 - pow(1 - alpha, 5 / (double(count) / 2)));
-        m_program->setUniformValue(m_uAlpha, (GLfloat) (1 - pow(1 - alpha, 5 / (double(count) / 2))));
-        //m_program->setUniformValue(m_uRed, (GLfloat) (1.0f - pow(1.0f - red, 5.0f / (float) count)));
-        //m_program->setUniformValue(m_uGreen, (GLfloat) (1.0f - pow(1.0f - green, 5.0f / (float) count)));
-        //m_program->setUniformValue(m_uBlue, (GLfloat) (1.0f - pow(1.0f - blue, 5.0f / (float) count)));
-        m_program->setUniformValue(m_uRed, (GLfloat) (red));
-        m_program->setUniformValue(m_uGreen, (GLfloat) (green));
-        m_program->setUniformValue(m_uBlue, (GLfloat) (blue));
+        renderBox();
 
-        glBindVertexArray(vao);
+        glBindTexture(GL_TEXTURE_3D, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-        vboPlaneVertices.bind();
-        glEnableVertexAttribArray(m_aPosition);
-        glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboPlaneElements);
-
-        // Scale 3D frame for VR
-        QVector4D vec((float) posX / fullMax, (float) posY / fullMax, (float) posZ / fullMax, 1.0f);
-        vec += QVector4D(-vecFullScale.x() / 2.0f, -vecFullScale.y() / 2.0f, -vecFullScale.z() / 2.0f, 0.0f);
-        vec -= QVector4D(-vecScale.x() / 2.0f, -vecScale.y() / 2.0f, -vecScale.z() / 2.0f, 0.0f);
-        vec = rotateXMatrix * rotateYMatrix * vec;
-        QMatrix4x4 sMmatrix;
-        sMmatrix.translate(vec.toVector3DAffine());
-        sMmatrix.scale((float) max / fullMax * 2.0f, (float) max / fullMax * 2.0f, (float) max / fullMax * 2.0f);
-        sMmatrix.translate(-0.5f, -0.5f, -0.5f);
-
-        QMatrix4x4 t1lMmatrix;
-        t1lMmatrix.translate(0.5f, 0.5f, 0.5f);
-        QMatrix4x4 t2lMmatrix;
-        t2lMmatrix.translate(-0.5f, -0.5f, -0.5f);
-
-        QMatrix4x4 tlMmatrix = t1lMmatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted() * t2lMmatrix;
-
-        m_program->setUniformValue(m_uMatrix, projectionMatrix * rotateXMatrix * rotateYMatrix * moveMatrix * rotateYMatrix.inverted() * rotateXMatrix.inverted());
-
-        float step = 1.0f / (count - 1);
-        // For number of slices
-        for (float i = 0.0f; i <= 1.0f + step; i += step) {
-            if (i >= 1.0f + step / 0.5f) break; // round check
-
-            QMatrix4x4 sMmatrixTmp = sMmatrix;
-            sMmatrixTmp.translate(0.0f, 0.0f, i);
-
-            // Matrix without scene rotaion
-            QMatrix4x4 slMmatrix;
-            slMmatrix.translate(0.0f, 0.0f, i);
-            slMmatrix = tlMmatrix * slMmatrix;
-
-            m_program->setUniformValue(m_uScaleMatrix, sMmatrixTmp);
-            m_program->setUniformValue(m_uScalelMatrix, slMmatrix);
-            glDrawElements(GL_TRIANGLES,  sizeof(planeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-        }
-
-        glDisableVertexAttribArray(m_aPosition);
-
-        vboPlaneVertices.release();
-
-        glBindVertexArray(0);
-
-        glDepthMask(GL_TRUE);
-        //mutex.unlock();
         m_program->setUniformValue(m_uVolumeRendering, false);
-    }
 
-    // Sace 3D scene to png image
-    if (flagSave) {
-        flagSave = false;
-        uchar *data = new uchar[width() * height() * 4];
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
-        cv::Mat image = cv::Mat(height(), width(), CV_8UC4, data);
-        cv::flip(image, image, 0);
-        //imshow("image", image);
-        cv::imwrite(fileName.toStdString(), image);
-        delete [] data;
-        renderLater();
+        glDisable(GL_CULL_FACE);
     }
 
     m_program->release();
@@ -1113,119 +925,128 @@ void GWindow::render()
 
 // Some slots for user interaction
 
-void GWindow::saveImage(QString _fileName)
+void GWindow::saveImage(QString fileName)
 {
-    flagSave = true;
-    fileName = _fileName;
-    renderLater();
+    // Save 3D scene to png image
+
+    uchar *data = new uchar[width() * height() * 4];
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
+    cv::Mat image = cv::Mat(height(), width(), CV_8UC4, data);
+    cv::flip(image, image, 0);
+    //imshow("image", image);
+    cv::imwrite(fileName.toStdString(), image);
+    delete [] data;
 }
 
 void GWindow::setAlpha(int value)
 {
-    alpha = double(value) / 1000;;
-    renderLater();
+    setAlpha(double(value) / 1000.0f);
 }
 
 void GWindow::setRed(int value)
 {
-    red = float(value) / 1000.0f;
-    renderLater();
+    setRed(double(value) / 1000.0f);
 }
 
 void GWindow::setGreen(int value)
 {
-    green = float(value) / 1000.0f;
-    renderLater();
+    setGreen(double(value) / 1000.0f);
 }
 
 void GWindow::setBlue(int value)
 {
-    blue = float(value) / 1000.0f;
-    renderLater();
+    setBlue(double(value) / 1000.0f);
 }
 
 void GWindow::setAlpha(double value)
 {
-    alpha = value;
+    color.setAlphaF(float(value));
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uColor, color);
+        m_program->release();
+    }
     renderLater();
 }
 
 void GWindow::setRed(double value)
 {
-    red = float(value);
+    color.setRedF(float(value));
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uColor, color);
+        m_program->release();
+    }
     renderLater();
 }
 
 void GWindow::setGreen(double value)
 {
-    green = float(value);
+    color.setGreenF(float(value));
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uColor, color);
+        m_program->release();
+    }
     renderLater();
 }
 
 void GWindow::setBlue(double value)
 {
-    blue = float(value);
+    color.setBlueF(float(value));
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uColor, color);
+        m_program->release();
+    }
     renderLater();
 }
 
 void GWindow::setViewFrame(bool value)
 {
-    //mutex.lock();
     frame = value;
-    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewVR(bool value)
 {
-    //mutex.lock();
     volumeRendering = value;
-    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setSlicesCount(int value)
 {
-    //mutex.lock();
-    count = value;
-    //alpha = float(1 - pow(1 - alpha, 5 / double(count)));
-    //setAlpha(alpha);
-
-    emit setStatusMessage(QString("Slices: %1").arg(count));
-    //mutex.unlock();
+    steps = value;
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uSteps, steps);
+        m_program->release();
+    }
     renderLater();
 }
 
 void GWindow::setViewXYSlice(bool value)
 {
-    //mutex.lock();
     sliceXY = value;
-    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewXZSlice(bool value)
 {
-    //mutex.lock();
     sliceXZ = value;
-    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setViewYZSlice(bool value)
 {
-    //mutex.lock();
     sliceYZ = value;
-    //mutex.unlock();
     renderLater();
 }
 
 void GWindow::setTrim(bool value)
 {
-    //mutex.lock();
     trim = value;
-    emit setStatusMessage(QString("Trim: %1").arg(trim));
-    //mutex.unlock();
     renderLater();
 }
 
@@ -1291,116 +1112,75 @@ bool GWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::KeyPress: {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Plus) {
-            //mutex.lock();
-            count = count + 2;
-            if (count < 3) count = 3;
-            emit setStatusMessage(QString("Slices: %1").arg(count));
-            //mutex.unlock();
+        QKeyEvent *key = static_cast<QKeyEvent *>(event);
+        if (key->key() == Qt::Key_Plus) {
+            steps = steps + 2;
+            if (steps < 3) steps = 3;
+            emit setStatusMessage(QString("Slices: %1").arg(steps));
         }
-        if (ke->key() == Qt::Key_Minus) {
-            //mutex.lock();
-            count = count - 2;
-            if (count < 3) count = 3;
-            emit setStatusMessage(QString("Slices: %1").arg(count));
-            //mutex.unlock();
+        if (key->key() == Qt::Key_Minus) {
+            steps = steps - 2;
+            if (steps < 3) steps = 3;
+            emit setStatusMessage(QString("Slices: %1").arg(steps));
         }
-        if (ke->key() == Qt::Key_Up) {
-            //mutex.lock();
-            imageHeight += 1.0f;
-            //mutex.unlock();
-        }
-        if (ke->key() == Qt::Key_Down) {
-            //mutex.lock();
-            imageHeight -= 1.0f;
-            if (imageHeight <= 1.0f) imageHeight = 1.0f;
-            //mutex.unlock();
-        }
-        if (ke->key() == Qt::Key_Right) {
-            //mutex.lock();
-            imageWidth += 1.0f;
-            //mutex.unlock();
-        }
-        if (ke->key() == Qt::Key_Left) {
-            //mutex.lock();
-            imageWidth -= 1.0f;
-            if (imageWidth <= 1.0f) imageWidth = 1.0f;
-            //mutex.unlock();
-        }
-        if (ke->key() == Qt::Key_S) {
-            //mutex.lock();
-            imageHeight = origImageHeight;
-            imageWidth = origImageWidth;
-            emit setStatusMessage(QString("Size was reset"));
-            //mutex.unlock();
-        }
-        if (ke->key() == Qt::Key_F) {
-            //mutex.lock();
+        if (key->key() == Qt::Key_F) {
             if (frame)
                 frame = false;
             else
                 frame = true;
             emit setStatusMessage(QString("Frame: %1").arg(frame));
-            //mutex.unlock();
         }
-        if (ke->key() == Qt::Key_A) {
-            //mutex.lock();
-            alpha += 0.01f;
-            if (alpha >= 1.0f) alpha = 1.0f;
-            emit setStatusMessage(QString("Alpha: %1").arg(alpha));
-            //mutex.unlock();
+        if (key->key() == Qt::Key_A) {
+            color.setAlphaF(color.alphaF() + 0.01f);
+            if (color.alphaF() >= 1.0f) color.setAlphaF(1.0f);
+            emit setStatusMessage(QString("Alpha: %1").arg(color.alphaF()));
         }
-        if (ke->key() == Qt::Key_Q) {
-            //mutex.lock();
-            alpha -= 0.01f;
-            if (alpha <= 0.0f) alpha = 0.0f;
-            emit setStatusMessage(QString("Alpha: %1").arg(alpha));
-            //mutex.unlock();
+        if (key->key() == Qt::Key_Q) {
+            color.setAlphaF(color.alphaF() - 0.01f);
+            if (color.alphaF() <= 0.0f) color.setAlphaF(0.0f);
+            emit setStatusMessage(QString("Alpha: %1").arg(color.alphaF()));
         }
-        if (ke->key() == Qt::Key_T) {
-            //mutex.lock();
+        if (key->key() == Qt::Key_T) {
             if (trim)
                 trim = false;
             else
                 trim = true;
             emit setStatusMessage(QString("Trim: %1").arg(trim));
-            //mutex.unlock();
         }
-        if (ke->key() == Qt::Key_Z) {
+        if (key->key() == Qt::Key_Z) {
             rotateXMatrix.setToIdentity();
             rotateYMatrix.setToIdentity();
         }
-        if (ke->key() == Qt::Key_Y) {
+        if (key->key() == Qt::Key_Y) {
             rotateXMatrix.setToIdentity();
             rotateXMatrix.rotate(90, 1, 0, 0);
             rotateYMatrix.setToIdentity();
         }
-        if (ke->key() == Qt::Key_X) {
+        if (key->key() == Qt::Key_X) {
             rotateXMatrix.setToIdentity();
             rotateYMatrix.setToIdentity();
             rotateYMatrix.rotate(90, 0, -1, 0);
         }
-        if (ke->key() == Qt::Key_B) {
+        if (key->key() == Qt::Key_B) {
             rotateXMatrix.setToIdentity();
             rotateXMatrix.rotate(180, 0, -1, 0);
             rotateYMatrix.setToIdentity();
         }
-        if (ke->key() == Qt::Key_G) {
+        if (key->key() == Qt::Key_G) {
             rotateXMatrix.setToIdentity();
             rotateXMatrix.rotate(90 + 180, 1, 0, 0);
             rotateYMatrix.setToIdentity();
         }
-        if (ke->key() == Qt::Key_R) {
+        if (key->key() == Qt::Key_R) {
             rotateXMatrix.setToIdentity();
             rotateYMatrix.setToIdentity();
             rotateYMatrix.rotate(90 + 180, 0, -1, 0);
         }
-        if (ke->key() == Qt::Key_C) {
+        if (key->key() == Qt::Key_C) {
             position.setX(0);
             position.setY(0);
         }
-        if (ke->key() == Qt::Key_O) {
+        if (key->key() == Qt::Key_O) {
             setOrthogonal(!orthogonal);
         }
         renderLater();

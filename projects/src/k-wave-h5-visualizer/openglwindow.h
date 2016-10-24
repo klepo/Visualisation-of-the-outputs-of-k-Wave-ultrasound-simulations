@@ -60,16 +60,18 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent *event);
     GLenum checkGlError();
+    void checkInitAndMakeCurrentContext();
 
     bool mouseDown;
     bool leftButton;
     bool rightButton;
-    int wheelDelta;
+    int wheelDelta = 0;
     QElapsedTimer timer;
     QTimer *moveTimer;
     QPointF lastPos;
     QPointF currentPos;
     QPointF diffPos;
+    QPointF pos;
 
 private:
     bool hasDebugExtension();
