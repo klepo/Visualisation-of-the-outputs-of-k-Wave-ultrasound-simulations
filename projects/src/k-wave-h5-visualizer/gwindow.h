@@ -23,17 +23,10 @@
 #include <QMainWindow>
 #include <QMessageBox>
 
-#include "qVector3DI.h"
-
+#include "qvector3di.h"
+#include "colormap.h"
 #include "openglwindow.h"
 #include "hdf5readingthread.h"
-
-#include <opencv2/opencv_modules.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#ifdef HAVE_OPENCV_CONTRIB
-    #include <opencv2/contrib/contrib.hpp>
-#endif
 
 #include <hdf5helper.h>
 
@@ -51,6 +44,8 @@ public:
 
     HDF5ReadingThread *getThread();
     bool isTexture3DInitialized();
+
+    QImage getImage();
 
 signals:
     void loaded(std::string datasetName);
@@ -80,7 +75,7 @@ public slots:
     void setPosition(HDF5Helper::HDF5Vector3D position);
 
     void load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index);
-    void changeColormap(int colormap = cv::COLORMAP_JET);
+    void changeColormap(ColorMap::Type colormap = ColorMap::JET);
     void changeMinValue(float value);
     void changeMaxValue(float value);
 
@@ -179,7 +174,7 @@ private:
     float minG = 0.0f;
     float maxG = 1.0f;
 
-    int colormap = cv::COLORMAP_JET;
+    ColorMap::Type colormap = ColorMap::JET;
     int steps = 100;
 
     QColor color;

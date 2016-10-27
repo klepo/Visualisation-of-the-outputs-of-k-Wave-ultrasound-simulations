@@ -40,7 +40,7 @@ public:
     std::string readAttributeS(const std::string name);
 
     HDF5Attribute *getAttribute(const std::string name);
-    HDF5Attribute *getAttribute(const unsigned int idx);
+    HDF5Attribute *getAttribute(const hsize_t idx);
 
     void setAttribute(HDF5Attribute *attribute, bool flag = true);
 
@@ -49,7 +49,7 @@ public:
 
     bool hasAttribute(const std::string name);
 
-    unsigned int getNumAttrs();
+    hsize_t getNumAttrs();
 
     File *getFile();
 

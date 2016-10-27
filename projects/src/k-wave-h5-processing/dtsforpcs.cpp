@@ -212,12 +212,12 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, S
                 }
                 // Unknown type
                 else {
-                    hDF5SimOutputFile->closeDataset(name);
+                    hDF5SimOutputFile->closeDataset(dataset);
                 }
             }
             // Unknown type
             else {
-                hDF5SimOutputFile->closeDataset(name);
+                hDF5SimOutputFile->closeDataset(dataset);
             }
         }
         // Groups
@@ -260,16 +260,16 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, S
                         group->closeDataset(0);
                     } else {
                         group->closeDataset(0);
-                        hDF5SimOutputFile->closeGroup(name);
+                        hDF5SimOutputFile->closeGroup(group);
                     }
                 } else {
                     group->closeDataset(0);
-                    hDF5SimOutputFile->closeGroup(name);
+                    hDF5SimOutputFile->closeGroup(group);
                 }
             }
             // Unknown type - empty group
             else {
-                hDF5SimOutputFile->closeGroup(name);
+                hDF5SimOutputFile->closeGroup(group);
             }
         }
     }

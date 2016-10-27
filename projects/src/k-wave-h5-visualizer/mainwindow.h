@@ -52,9 +52,9 @@ public:
     ~MainWindow();
 
 public slots:
-    void repaintXYImage(cv::Mat image, uint64_t index);
-    void repaintXZImage(cv::Mat image, uint64_t index);
-    void repaintYZImage(cv::Mat image, uint64_t index);
+    void repaintXYImage(QImage image, uint64_t index);
+    void repaintXZImage(QImage image, uint64_t index);
+    void repaintYZImage(QImage image, uint64_t index);
 
     void loaded3D(std::string datasetName);
 
@@ -73,8 +73,6 @@ private slots:
     void on_actionCloseHDF5File_triggered();
     void selectDataset();
 
-    void on_checkBoxUseGlobal_clicked(bool checked);
-
     void on_horizontalSliderGlobalMin_valueChanged(int value);
     void on_horizontalSliderGlobalMax_valueChanged(int value);
     void on_doubleSpinBoxMinGlobal_valueChanged(double value);
@@ -89,21 +87,6 @@ private slots:
     void on_toolButtonEnd_clicked();
 
     void on_spinBoxTMInterval_valueChanged(int value);
-
-    void on_horizontalSliderXYMin_valueChanged(int value);
-    void on_doubleSpinBoxXYMin_valueChanged(double value);
-    void on_horizontalSliderXYMax_valueChanged(int value);
-    void on_doubleSpinBoxXYMax_valueChanged(double value);
-
-    void on_horizontalSliderXZMin_valueChanged(int value);
-    void on_doubleSpinBoxXZMin_valueChanged(double value);
-    void on_horizontalSliderXZMax_valueChanged(int value);
-    void on_doubleSpinBoxXZMax_valueChanged(double value);
-
-    void on_horizontalSliderYZMin_valueChanged(int value);
-    void on_doubleSpinBoxYZMin_valueChanged(double value);
-    void on_horizontalSliderYZMax_valueChanged(int value);
-    void on_doubleSpinBoxYZMax_valueChanged(double value);
 
     void on_imageWidgetXY_hoveredPointInImage(int x, int y);
     void on_imageWidgetXZ_hoveredPointInImage(int x, int y);
@@ -130,6 +113,8 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_saveVideoButton_clicked();
+
 public:
     Ui::MainWindow *ui;
 
@@ -154,7 +139,9 @@ private:
 
     QTimer *timer;
 
-    bool play;
+    bool playing = false;
+
+    bool recording = false;
 
     QMovie *movie;
 

@@ -89,6 +89,7 @@ public:
 
     void closeDataset(const std::string datasetName);
     void closeDataset(hsize_t idx);
+    void closeDataset(HDF5Dataset *dataset);
 
     void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
     void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
@@ -98,6 +99,7 @@ public:
 
     void closeGroup(const std::string groupName);
     void closeGroup(hsize_t idx);
+    void closeGroup(HDF5Group *group);
 
     void createGroup(const std::string groupName, bool rewrite = false);
 

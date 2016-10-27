@@ -419,6 +419,11 @@ void File::closeDataset(hsize_t idx)
     closeDataset(name);
 }
 
+void File::closeDataset(HDF5Dataset *dataset)
+{
+    closeDataset(dataset->getName());
+}
+
 /**
  * @brief openGroup Open group (create new HDF5Group) with given name in HDF5 file
  * @param groupName
@@ -465,6 +470,11 @@ void File::closeGroup(hsize_t idx)
 {
     std::string name = getObjNameByIdx(idx);
     closeGroup(name);
+}
+
+void File::closeGroup(HDF5Group *group)
+{
+    closeGroup(group->getName());
 }
 
 /**

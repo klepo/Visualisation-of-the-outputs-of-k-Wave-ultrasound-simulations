@@ -33,8 +33,6 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
 {
     // Open HDF5 file, operations with file can throw exceptions
     file = new HDF5Helper::File(fileName.toStdString(), HDF5Helper::File::OPEN);
-    // No object is selected
-    selectedObject = 0;
 
     // Load dimensions
     nDims = file->getNdims();
@@ -43,16 +41,16 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
 
     // Load info
     HDF5Helper::HDF5Group *group = file->openGroup("/");
-    for (unsigned int i = 0; i < group->getNumAttrs(); i++) {
+    for (hsize_t i = 0; i < group->getNumAttrs(); i++) {
         HDF5Helper::HDF5Attribute *attribute = group->getAttribute(i);
         QString value(static_cast<const char *>(attribute->getData()));
         info.insert(QString::fromStdString(attribute->getName()), value);
     }
-    file->closeGroup("/");
+    file->closeGroup(group);
 
     qRegisterMetaType<OpenedH5File::H5ObjectToVisualize *>("OpenedH5File::H5ObjectToVisualize");
 
-     qDebug() << "Find datasets for visualization...";
+    qDebug() << "Find datasets for visualization...";
 
     // Find datasets for visualization
     for (hsize_t i = 0; i < file->getNumObjs(); i++) {
@@ -62,82 +60,78 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
                 HDF5Helper::HDF5Dataset *dataset = file->openDataset(i);
                 HDF5Helper::HDF5Vector3D size = dataset->getDims();
                 // 3D type
-                if (dataset->getDataTypeClass() == H5T_FLOAT && dataset->getRank() == 3 && size.z() == nDims.z() && size.y() == nDims.y() && size.x() == nDims.x()) {
-                    QString name = QString::fromStdString(dataset->getName());
-
-                    qDebug() << "----> 3D type dataset: " << name << "; size: " << QString::fromStdString(size);
-
-                    if (!objects.contains(name)) {
-                        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, OpenedH5File::DATASET_TYPE, this));
-                        objects[name]->addSubobject(dataset);
-                    } else {
-                        objects[name]->addSubobject(dataset);
+                if (dataset->getRank() == 3 && dataset->getDataTypeClass() == H5T_FLOAT) {
+                    if (size == HDF5Helper::HDF5Vector3D(nDims)) {
+                        QString name = QString::fromStdString(dataset->getName());
+                        qDebug() << "----> 3D type dataset: " << name << "; size: " << QString::fromStdString(size);
+                        setObject(name, dataset);
+                    }
+                    // Downsampled 3D type
+                    else if (dataset->hasAttribute("dwnsmpl") && dataset->hasAttribute("src_dataset_name")) {
+                        QString name = QString::fromStdString(dataset->readAttributeS("src_dataset_name"));
+                        qDebug() << "----> 3D type dataset (downsampled): " << name << "; size: " << QString::fromStdString(size);
+                        setObject(name, dataset);
+                    }
+                    // Something other
+                    else {
+                        file->closeDataset(dataset);
                     }
                 }
-                // Downsampled 3D type
-                else if (dataset->getDataTypeClass() == H5T_FLOAT && dataset->getRank() == 3 && dataset->hasAttribute("dwnsmpl") && dataset->hasAttribute("src_dataset_name")) {
-                    QString name = QString::fromStdString(dataset->readAttributeS("src_dataset_name"));
-                    // TODO Check other attributes...
-
-                    qDebug() << "----> 3D type dataset (downsampled): " << name << "; size: " << QString::fromStdString(size);
-
-                    if (!objects.contains(name)) {
-                        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, OpenedH5File::DATASET_TYPE, this));
-                        objects[name]->addSubobject(dataset);
-                    } else {
-                        objects[name]->addSubobject(dataset);
-                    }
-                } else
-                    file->closeDataset(dataset->getName());
+                // Something other
+                else {
+                    file->closeDataset(dataset);
+                }
             } catch(std::exception &e) {
                 std::cerr << e.what() << std::endl;
-                file->closeGroup(group->getName());
             }
         } else if (type == H5G_GROUP) {
             // Reshaped mask type group
             try {
                 HDF5Helper::HDF5Group *group = file->openGroup(i);
-
                 HDF5Helper::HDF5Dataset *dataset = group->openDataset(0);
-
-                if (dataset->getRank() == 4) {
+                // 4D type
+                if (dataset->getRank() == 4 && dataset->getDataTypeClass() == H5T_FLOAT) {
                     // Downsampled reshaped mask type group
-                    if (group->hasAttribute("src_group_name") && group->hasAttribute("dwnsmpl")) {
-                        // TODO Check other attributes...
-
+                    if (group->hasAttribute("dwnsmpl") && group->hasAttribute("src_group_name")) {
                         QString name = QString::fromStdString(group->readAttributeS("src_group_name"));
-
                         qDebug() << "----> Reshaped mask type group (downsampled): "<< name;
-
-                        if (!objects.contains(name)) {
-                            objects.insert(name, new H5ObjectToVisualize(name, OpenedH5File::GROUP_TYPE, this));
-                            objects[name]->addSubobject(group);
-                        } else {
-                            objects[name]->addSubobject(group);
-                        }
+                        setObject(name, group);
                     }
                     // Original reshaped mask type group
                     else {
                         QString name = QString::fromStdString(group->getName());
-
                         qDebug() << "----> Reshaped mask type group: "<< name;
-
-                        // TODO check
-
-                        if (!objects.contains(name)) {
-                            objects.insert(name, new H5ObjectToVisualize(name, OpenedH5File::GROUP_TYPE, this));
-                            objects[name]->addSubobject(group);
-                        } else {
-                            objects[name]->addSubobject(group);
-                        }
+                        setObject(name, group);
                     }
+                }
+                // Something other
+                else {
+                    file->closeGroup(group);
                 }
             } catch(std::exception &e) {
                 std::cerr << e.what() << std::endl;
-                std::cout << "Object " << file->getObjNameByIdx(i) << " is not reshaped group" << std::endl;
-                file->closeGroup(group->getName());
             }
         }
+    }
+}
+
+void OpenedH5File::setObject(QString name, HDF5Helper::HDF5Dataset *dataset)
+{
+    if (!objects.contains(name)) {
+        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, H5G_DATASET, this));
+        objects[name]->addSubobject(dataset);
+    } else {
+        objects[name]->addSubobject(dataset);
+    }
+}
+
+void OpenedH5File::setObject(QString name, HDF5Helper::HDF5Group *group)
+{
+    if (!objects.contains(name)) {
+        objects.insert(name, new H5ObjectToVisualize(name, H5G_GROUP, this));
+        objects[name]->addSubobject(group);
+    } else {
+        objects[name]->addSubobject(group);
     }
 }
 
@@ -161,7 +155,7 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
         return objects[mainName];
         //if (objects[name]->getNames().contains(name))
     } else
-        return NULL;
+        return 0;
 }
 
 /**
@@ -172,12 +166,12 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QString name)
 {
     foreach (QString key, objects.keys()) {
-        if (objects.value(key)->getSubobjectNames().contains(name)) {
-            objects.value(key)->setSelectedSubobject(name);
-            return objects.value(key);
+        if (objects[key]->getSubobjectNames().contains(name)) {
+            objects[key]->setSelectedSubobject(name);
+            return objects[key];
         }
     }
-    return NULL;
+    return 0;
 }
 
 /**
@@ -188,8 +182,8 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QStrin
 void OpenedH5File::setSelectedSubobject(QString name)
 {
     foreach (QString key, objects.keys()) {
-        if (objects.value(key)->getSubobjectNames().contains(name)) {
-            objects.value(key)->setSelectedSubobject(name);
+        if (objects[key]->getSubobjectNames().contains(name)) {
+            objects[key]->setSelectedSubobject(name);
         }
     }
 }
@@ -202,7 +196,7 @@ void OpenedH5File::setSelectedSubobject(QString name)
 void OpenedH5File::setObjectSelected(QString mainName, bool value)
 {
     if (objects.contains(mainName)) {
-        objects.value(mainName)->setSelected(value);
+        objects[mainName]->setSelected(value);
     }
 }
 
@@ -213,7 +207,7 @@ void OpenedH5File::setObjectSelected(QString mainName, bool value)
 void OpenedH5File::toogleObjectSelected(QString mainName)
 {
     if (objects.contains(mainName)) {
-        objects.value(mainName)->toogleSelected();
+        objects[mainName]->toogleSelected();
     }
 }
 
@@ -228,7 +222,7 @@ HDF5Helper::HDF5Vector4D OpenedH5File::getNDims() const
 OpenedH5File::~OpenedH5File()
 {
     foreach (QString key, objects.keys())
-        delete objects.value(key);
+        delete objects[key];
     delete file;
 }
 
@@ -236,7 +230,7 @@ OpenedH5File::~OpenedH5File()
  * @brief OpenedH5File::getNT
  * @return number of time steps (Nt)
  */
-uint64_t OpenedH5File::getNT()
+uint64_t OpenedH5File::getNT() const
 {
     return nDims.w();
 }
@@ -245,7 +239,7 @@ uint64_t OpenedH5File::getNT()
  * @brief OpenedH5File::getNX
  * @return Nx dimension
  */
-uint64_t OpenedH5File::getNX()
+uint64_t OpenedH5File::getNX() const
 {
     return nDims.x();
 }
@@ -254,7 +248,7 @@ uint64_t OpenedH5File::getNX()
  * @brief OpenedH5File::getNY
  * @return Ny dimension
  */
-uint64_t OpenedH5File::getNY()
+uint64_t OpenedH5File::getNY() const
 {
     return nDims.y();
 }
@@ -263,7 +257,7 @@ uint64_t OpenedH5File::getNY()
  * @brief OpenedH5File::getNZ
  * @return Nz dimension
  */
-uint64_t OpenedH5File::getNZ()
+uint64_t OpenedH5File::getNZ() const
 {
     return nDims.z();
 }
@@ -290,7 +284,7 @@ HDF5Helper::File *OpenedH5File::getFile()
  * @brief OpenedH5File::getFilename Get filename
  * @return filename
  */
-QString OpenedH5File::getFilename()
+QString OpenedH5File::getFilename() const
 {
     return QString::fromStdString(file->getFilename());
 }
@@ -299,7 +293,7 @@ QString OpenedH5File::getFilename()
  * @brief OpenedH5File::getRawFilename Get filename without extension
  * @return filename without extension
  */
-QString OpenedH5File::getRawFilename()
+QString OpenedH5File::getRawFilename() const
 {
     std::string fileName = file->getFilename();
     size_t lastindex = fileName.find_last_of(".");

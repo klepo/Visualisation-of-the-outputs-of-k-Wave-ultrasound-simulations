@@ -24,6 +24,7 @@
 #include "h5objecttovisualize.h"
 #include "hdf5readingthread.h"
 #include "cvimagewidget.h"
+#include "colormap.h"
 
 class OpenedH5File::H5SubobjectToVisualize : public QObject
 {
@@ -38,22 +39,10 @@ public:
     uint64_t getYIndex();
     uint64_t getZIndex();
 
-    float getMinVG();
-    float getMaxVG();
-    float getOriginalMinVG();
-    float getOriginalMaxVG();
-    float getMinVXY();
-    float getMaxVXY();
-    float getOriginalMinVXY();
-    float getOriginalMaxVXY();
-    float getMinVXZ();
-    float getMaxVXZ();
-    float getOriginalMinVXZ();
-    float getOriginalMaxVXZ();
-    float getMinVYZ();
-    float getMaxVYZ();
-    float getOriginalMinVYZ();
-    float getOriginalMaxVYZ();
+    float getMinValue();
+    float getMaxValue();
+    float getOriginalMinValue();
+    float getOriginalMaxValue();
 
     HDF5Helper::HDF5Dataset *getDataset();
     HDF5Helper::HDF5Group *getGroup();
@@ -70,10 +59,8 @@ public:
     float getValueAtPointFromYZ(int y, int z);
 
     QString getName();
-    int getType();
-    // Other setting getters
-    int getColormap();
-    bool getUseGlobal();
+    H5G_obj_t getType();
+    ColorMap::Type getColormap();
 
     HDF5Helper::HDF5Vector3D getFrameSize();
     HDF5Helper::HDF5Vector3D getOriginalFrameSize();
@@ -91,9 +78,6 @@ public:
     int getCount();
 
     bool isGUIInitialized();
-    bool isGUIXYInitialized();
-    bool isGUIXZInitialized();
-    bool isGUIYZInitialized();
 
     bool isCurrentXYLoaded();
     bool isCurrentXZLoaded();
@@ -102,9 +86,9 @@ public:
     bool areCurrentSlicesLoaded();
 
 signals:
-    void imageXYChanged(cv::Mat, uint64_t index);
-    void imageXZChanged(cv::Mat, uint64_t index);
-    void imageYZChanged(cv::Mat, uint64_t index);
+    void imageXYChanged(QImage, uint64_t index);
+    void imageXZChanged(QImage, uint64_t index);
+    void imageYZChanged(QImage, uint64_t index);
 
 private slots:
     void sliceXYLoaded(Request *r);
@@ -116,18 +100,10 @@ public slots:
     void setYIndex(uint64_t index);
     void setZIndex(uint64_t index);
 
-    void setColormap(int value);
+    void setColormap(ColorMap::Type colormap);
 
-    void setUseGlobal(bool value);
-
-    void setMinVG(float value);
-    void setMaxVG(float value);
-    void setMinVXY(float value);
-    void setMaxVXY(float value);
-    void setMinVXZ(float value);
-    void setMaxVXZ(float value);
-    void setMinVYZ(float value);
-    void setMaxVYZ(float value);
+    void setMinValue(float value);
+    void setMaxValue(float value);
 
     void setAlpha(float value);
     void setRed(float value);
@@ -138,9 +114,6 @@ public slots:
     void setCurrentStep(uint64_t value);
 
     void setGUIInitialized(bool value);
-    void setGUIXYInitialized(bool value);
-    void setGUIXZInitialized(bool value);
-    void setGUIYZInitialized(bool value);
 
     void reloadImages();
 
@@ -150,78 +123,67 @@ private:
 
     void changeImages();
 
-    cv::Mat createImageXY();
-    cv::Mat createImageXZ();
-    cv::Mat createImageYZ();
+    QImage createImageXY();
+    QImage createImageXZ();
+    QImage createImageYZ();
 
-    OpenedH5File *openedH5File;
+    OpenedH5File *openedH5File = 0;
+    QString objectName;
+    H5G_obj_t type;
+    HDF5Helper::HDF5Group *group = 0;
+    HDF5Helper::HDF5Dataset *dataset = 0;
 
-    QString name;
+    bool XYloadedFlag = false;
+    bool XZloadedFlag = false;
+    bool YZloadedFlag = false;
 
-    HDF5Helper::HDF5Dataset *dataset;
-    HDF5Helper::HDF5Group *group;
+    HDF5Helper::HDF5Vector3D index;
+    HDF5Helper::HDF5Vector3D lastLoadedIndex;
 
-    int type;
+    HDF5ReadingThread *threadXY = 0;
+    HDF5ReadingThread *threadXZ = 0;
+    HDF5ReadingThread *threadYZ = 0;
 
-    uint64_t xIndex;
-    uint64_t yIndex;
-    uint64_t zIndex;
-    uint64_t lastLoadedXIndex;
-    uint64_t lastLoadedYIndex;
-    uint64_t lastLoadedZIndex;
 
-    QMutex mutexXY;
-    QMutex mutexXZ;
-    QMutex mutexYZ;
+    float minValue = 0;
+    float maxValue = 0;
+    float originalMinValue = 0;
+    float originalMaxValue = 0;
 
-    HDF5ReadingThread *threadXY;
-    HDF5ReadingThread *threadXZ;
-    HDF5ReadingThread *threadYZ;
+    ColorMap::Type colormap = ColorMap::JET;
 
-    bool XYloadedFlag;
-    bool XZloadedFlag;
-    bool YZloadedFlag;
+    float *dataXY = 0;
+    float *dataXZ = 0;
+    float *dataYZ = 0;
 
-    float minVG, maxVG, originalMinVG, originalMaxVG;
-    float minVXY, maxVXY, originalMinVXY, originalMaxVXY;
-    float minVXZ, maxVXZ, originalMinVXZ, originalMaxVXZ;
-    float minVYZ, maxVYZ, originalMinVYZ, originalMaxVYZ;
-
-    int colormap;
-
-    bool useGlobal;
-
-    float *dataXY;
-    float *dataXZ;
-    float *dataYZ;
-
-    float alpha;
-    float red;
-    float green;
-    float blue;
-    int count;
+    float alpha = 1;
+    float red = 1;
+    float green = 1;
+    float blue = 1;
+    int count = 100;
 
     // Datasets characteristics variables
     HDF5Helper::HDF5Vector3D originalFrameSize;
     HDF5Helper::HDF5Vector3D frameSize;
     HDF5Helper::HDF5Vector3D originalSize;
     HDF5Helper::HDF5Vector3D size;
-    HDF5Helper::HDF5Vector chunkSize;
     HDF5Helper::HDF5Vector3D originalPos;
     HDF5Helper::HDF5Vector3D pos;
-    uint64_t steps;
-    uint64_t dwnsmpl;
-    uint64_t currentStep;
+    HDF5Helper::HDF5Vector chunkSize;
+
+    uint64_t steps = 1;
+    uint64_t dwnsmpl = 0;
+    uint64_t currentStep = 0;
 
     // GUI initialization flags
-    bool GUIInitialized;
-    bool GUIXYInitialized;
-    bool GUIXZInitialized;
-    bool GUIYZInitialized;
+    bool GUIInitialized = false;
+    bool GUIXYInitialized = false;
+    bool GUIXZInitialized = false;
+    bool GUIYZInitialized = false;
 
-    bool currentXYLodaded;
-    bool currentXZLodaded;
-    bool currentYZLodaded;
+    bool currentXYLodaded = false;
+    bool currentXZLodaded = false;
+    bool currentYZLodaded = false;
 };
 
 #endif // H5SUBOBJECTTOVISUALIZE_H

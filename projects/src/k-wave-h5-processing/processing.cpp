@@ -469,7 +469,7 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     double t1 = HDF5Helper::getTime();
     std::cout << "Time of changing chunks of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 
-    hDF5OutputFile->closeDataset(dstDataset->getName());
+    hDF5OutputFile->closeDataset(dstDataset);
 }
 
 void Processing::resamplingOfDataset3D(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D dimsSrc, HDF5Helper::HDF5Vector3D dimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal)
@@ -560,7 +560,7 @@ void Processing::resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5
 
 void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset)
 {
-    for (unsigned int i = 0; i < srcDataset->getNumAttrs(); i++) {
+    for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
         HDF5Helper::HDF5Attribute *attr = srcDataset->getAttribute(i);
         dstDataset->setAttribute(attr);
         delete attr;

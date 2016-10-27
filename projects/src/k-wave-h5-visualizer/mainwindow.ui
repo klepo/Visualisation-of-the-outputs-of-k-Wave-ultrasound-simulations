@@ -288,7 +288,7 @@
           <x>0</x>
           <y>0</y>
           <width>483</width>
-          <height>794</height>
+          <height>505</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -548,287 +548,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxUseGlobal">
-           <property name="text">
-            <string>Use global minimal and maximal values</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButtonLocalValues">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Local minimal and maximal values</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextBesideIcon</enum>
-           </property>
-           <property name="autoRaise">
-            <bool>false</bool>
-           </property>
-           <property name="arrowType">
-            <enum>Qt::DownArrow</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxXY">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(0, 0, 255);</string>
-           </property>
-           <property name="title">
-            <string>XY slice</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_5">
-            <item row="1" column="2">
-             <widget class="QSlider" name="horizontalSliderXYMin">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXYMax">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXYMin">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QSlider" name="horizontalSliderXYMax">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="labelXYMax">
-              <property name="text">
-               <string>max:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxXYMax</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelXYMin">
-              <property name="text">
-               <string>min:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxXYMin</cstring>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxXZ">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(0, 170, 0);</string>
-           </property>
-           <property name="title">
-            <string>XZ slice</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_6">
-            <item row="0" column="0">
-             <widget class="QLabel" name="labelXZMin">
-              <property name="text">
-               <string>min:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxXZMin</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelXZMax">
-              <property name="text">
-               <string>max:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxXZMax</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QSlider" name="horizontalSliderXZMin">
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXZMax">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QSlider" name="horizontalSliderXZMax">
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxXZMin">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxYZ">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 0, 0);</string>
-           </property>
-           <property name="title">
-            <string>YZ slice</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="2" column="0">
-             <widget class="QLabel" name="labelYZMax">
-              <property name="text">
-               <string>max:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxYZMax</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxYZMax">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QSlider" name="horizontalSliderYZMin">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelYZMin">
-              <property name="text">
-               <string>min:</string>
-              </property>
-              <property name="buddy">
-               <cstring>doubleSpinBoxYZMin</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QSlider" name="horizontalSliderYZMax">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxYZMin">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="groupBoxSelectedDatasetTMSeries">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -840,7 +559,107 @@
             <string>Time-varying series</string>
            </property>
            <layout class="QGridLayout" name="gridLayoutSelectedDatasetTMSeries">
-            <item row="2" column="0" rowspan="3" colspan="4" alignment="Qt::AlignLeft">
+            <item row="3" column="4" rowspan="3">
+             <widget class="QLabel" name="label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Step increment:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" rowspan="2">
+             <widget class="QSpinBox" name="spinBoxSelectedDatasetStep">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximum">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" rowspan="2">
+             <widget class="QLabel" name="labelSelectedDatasetStep">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Step:</string>
+              </property>
+              <property name="buddy">
+               <cstring>spinBoxSelectedDatasetStep</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" rowspan="2" colspan="6">
+             <widget class="QSlider" name="horizontalSliderSelectedDatasetStep">
+              <property name="maximum">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="5" rowspan="3">
+             <widget class="QSpinBox" name="spinBoxTMIncrement">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="7" rowspan="3">
+             <widget class="QSpinBox" name="spinBoxTMInterval">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>5000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="6" rowspan="3">
+             <widget class="QLabel" name="label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Interval (ms):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" rowspan="3" colspan="4" alignment="Qt::AlignLeft">
              <widget class="QWidget" name="widgetSelectedDatasetTMButtons" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <property name="spacing">
@@ -934,100 +753,10 @@
               </layout>
              </widget>
             </item>
-            <item row="0" column="2" rowspan="2" colspan="6">
-             <widget class="QSlider" name="horizontalSliderSelectedDatasetStep">
-              <property name="maximum">
-               <number>0</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" rowspan="2">
-             <widget class="QSpinBox" name="spinBoxSelectedDatasetStep">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximum">
-               <number>0</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" rowspan="2">
-             <widget class="QLabel" name="labelSelectedDatasetStep">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+            <item row="0" column="0" colspan="8">
+             <widget class="QPushButton" name="saveVideoButton">
               <property name="text">
-               <string>Step:</string>
-              </property>
-              <property name="buddy">
-               <cstring>spinBoxSelectedDatasetStep</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="4" rowspan="3">
-             <widget class="QLabel" name="label_2">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Step increment:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="5" rowspan="3">
-             <widget class="QSpinBox" name="spinBoxTMIncrement">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="6" rowspan="3">
-             <widget class="QLabel" name="label">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Interval (ms):</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="7" rowspan="3">
-             <widget class="QSpinBox" name="spinBoxTMInterval">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimum">
-               <number>5</number>
-              </property>
-              <property name="maximum">
-               <number>5000</number>
-              </property>
-              <property name="singleStep">
-               <number>10</number>
+               <string>Save video</string>
               </property>
              </widget>
             </item>
@@ -2081,18 +1810,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>verticalSliderXY</tabstop>
   <tabstop>textBrowserInfo</tabstop>
   <tabstop>scrollAreaSelectedDataset</tabstop>
-  <tabstop>doubleSpinBoxXYMin</tabstop>
-  <tabstop>horizontalSliderXYMin</tabstop>
-  <tabstop>doubleSpinBoxXYMax</tabstop>
-  <tabstop>horizontalSliderXYMax</tabstop>
-  <tabstop>doubleSpinBoxXZMin</tabstop>
-  <tabstop>horizontalSliderXZMin</tabstop>
-  <tabstop>doubleSpinBoxXZMax</tabstop>
-  <tabstop>horizontalSliderXZMax</tabstop>
-  <tabstop>doubleSpinBoxYZMin</tabstop>
-  <tabstop>horizontalSliderYZMin</tabstop>
-  <tabstop>doubleSpinBoxYZMax</tabstop>
-  <tabstop>horizontalSliderYZMax</tabstop>
   <tabstop>spinBoxSelectedDatasetStep</tabstop>
   <tabstop>horizontalSliderSelectedDatasetStep</tabstop>
   <tabstop>toolButtonPlay</tabstop>
@@ -2212,102 +1929,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>199</x>
      <y>606</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonLocalValues</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBoxXY</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1102</x>
-     <y>-145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1102</x>
-     <y>-117</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonLocalValues</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBoxXZ</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1102</x>
-     <y>-145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1102</x>
-     <y>-32</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonLocalValues</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBoxYZ</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1102</x>
-     <y>-145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1102</x>
-     <y>53</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxUseGlobal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBoxXY</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1102</x>
-     <y>-253</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1102</x>
-     <y>-117</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxUseGlobal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBoxXZ</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1102</x>
-     <y>-253</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1102</x>
-     <y>-32</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxUseGlobal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBoxYZ</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1102</x>
-     <y>-253</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1102</x>
-     <y>53</y>
     </hint>
    </hints>
   </connection>

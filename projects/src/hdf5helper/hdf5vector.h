@@ -30,6 +30,7 @@ public:
     HDF5Vector(int length, hsize_t value = 0);
     HDF5Vector(const HDF5Vector &hDF5Vector);
     virtual ~HDF5Vector();
+    virtual bool operator ==(const HDF5Vector &hDF5Vector) const;
     virtual HDF5Vector &operator =(const HDF5Vector &hDF5Vector);
     virtual hsize_t &operator [](hsize_t i) final;
     virtual hsize_t &operator [](int i) final;

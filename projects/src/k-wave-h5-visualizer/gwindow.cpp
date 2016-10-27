@@ -375,7 +375,7 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 
     // Init 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, 0);
 
     // Check OUT_OF_MEMORY, dataset is too big
     if (checkGlError() != GL_NO_ERROR) {
@@ -396,7 +396,7 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 void GWindow::unload3DTexture()
 {
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, 0);
 }
 
 /**
@@ -514,41 +514,25 @@ void GWindow::clearSlices()
 {
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
 }
 
 /**
  * @brief GWindow::changeColormap Change colormap
  * @param colormap
  */
-void GWindow::changeColormap(int colormap)
+void GWindow::changeColormap(ColorMap::Type colormap)
 {
     this->colormap = colormap;
-
-    m_program->bind();
-
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
-
-    // Fill 1D texture with colormap values
-    cv::Mat colormapImage = cv::Mat::zeros(1, 256, CV_8UC1);
-    for (unsigned int i = 0; i < 256; i++)
-        colormapImage.data[i] = uchar(i);
-    cv::applyColorMap(colormapImage, colormapImage, this->colormap);
-    cv::cvtColor(colormapImage, colormapImage, cv::COLOR_BGR2RGB);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, colormapImage.data);
-
-    // Set to shader
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_1D, colormapTexture);
-    m_program->setUniformValue(uColormapTexture, 1);
-
-    m_program->release();
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, ColorMap::data[colormap]);
+    glBindTexture(GL_TEXTURE_1D, 0);
     renderLater();
 }
 
@@ -794,13 +778,18 @@ void GWindow::render()
         translateXZMatrix.rotate(90, 1, 0, 0);
         QMatrix4x4 translateYZMatrix;
         translateYZMatrix.translate(index.x(), 0, 0);
-        translateYZMatrix.rotate(-90, 0, 1, 0);
+        translateYZMatrix.rotate(90, 1, 0, 0);
+        translateYZMatrix.rotate(90, 0, 1, 0);
+        //translateYZMatrix.scale(-1, 1, 1);
 
         glBindVertexArray(vao);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboSliceElements);
 
         glEnableVertexAttribArray(m_aPosition);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_1D, colormapTexture);
 
         glActiveTexture(GL_TEXTURE2);
 
@@ -874,6 +863,9 @@ void GWindow::render()
 
         vboSliceVertices.release();
 
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_1D, 0);
+
         glDisableVertexAttribArray(m_aPosition);
 
         glBindVertexArray(0);
@@ -904,6 +896,9 @@ void GWindow::render()
 
         m_program->setUniformValue(m_uVolumeRendering, true);
 
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_1D, colormapTexture);
+
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, textureFbo);
 
@@ -914,6 +909,7 @@ void GWindow::render()
 
         glBindTexture(GL_TEXTURE_3D, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_1D, 0);
 
         m_program->setUniformValue(m_uVolumeRendering, false);
 
@@ -928,15 +924,18 @@ void GWindow::render()
 void GWindow::saveImage(QString fileName)
 {
     // Save 3D scene to png image
-
-    uchar *data = new uchar[width() * height() * 4];
+    QImage image(width(), height(), QImage::Format_ARGB32);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, data);
-    cv::Mat image = cv::Mat(height(), width(), CV_8UC4, data);
-    cv::flip(image, image, 0);
-    //imshow("image", image);
-    cv::imwrite(fileName.toStdString(), image);
-    delete [] data;
+    glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+    image.save(fileName);
+}
+
+QImage GWindow::getImage()
+{
+    QImage image(width(), height(), QImage::Format_RGB888);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, image.bits());
+    return image.mirrored();
 }
 
 void GWindow::setAlpha(int value)

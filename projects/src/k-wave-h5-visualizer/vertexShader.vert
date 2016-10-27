@@ -10,6 +10,7 @@ out vec3 vTextureCoordBox;
 
 void main() {
    vTextureCoordBox = (uSliceMatrix * vec4(aPosition, 1.0f)).xyz;
+   //vTextureCoord = vec2(aPosition.x, 1 - aPosition.y);
    vTextureCoord = aPosition.xy;
    gl_Position = uMatrix * vec4(aPosition, 1.0f);
 }

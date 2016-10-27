@@ -61,11 +61,11 @@ void CVImageWidget::refreshImage()
     // If image is set
     if (isSetImage) {
         // Create new QImage
-        qimage = QImage(tmpMat.data, tmpMat.cols, tmpMat.rows, tmpMat.cols * 3, QImage::Format_RGB888);
+        qimage = QImage(tmpMat);
         // if is adjusting enabled
         if (point.x() == 0 && point.y() == 0 && adjustFlag) {
             // Scale to width or height accodring to widget size
-            if ((double) tmpMat.cols / tmpMat.rows >= (double) width() / height())
+            if (double(tmpMat.width()) / tmpMat.height() >= double(width()) / height())
                 qimage = qimage.scaledToWidth(width(), Qt::SmoothTransformation);
             else
                 qimage = qimage.scaledToHeight(height(), Qt::SmoothTransformation);
@@ -74,10 +74,10 @@ void CVImageWidget::refreshImage()
             setMinimumHeight(10);
         } else {
             //  Original image size
-            if ((tmpMat.cols + point.x()) > width())
-                setMinimumWidth(tmpMat.cols + point.x());
-            if ((tmpMat.rows + point.y()) > height())
-                setMinimumHeight(tmpMat.rows + point.y());
+            if ((tmpMat.width() + point.x()) > width())
+                setMinimumWidth(tmpMat.width() + point.x());
+            if ((tmpMat.height() + point.y()) > height())
+                setMinimumHeight(tmpMat.height() + point.y());
         }
     }
     repaint();
@@ -89,27 +89,12 @@ void CVImageWidget::refreshImage()
  * @param point position of sensor mask image (unused)
  * @param fileName Name for png image save
  */
-void CVImageWidget::showImage(const cv::Mat &image, QPoint point, QString fileName)
+void CVImageWidget::showImage(const QImage &image, QPoint point, QString fileName)
 {
     // Save some info
     this->fileName =  fileName;
     this->point = point;
-    // Convert the image to the RGB888 format
-    switch (image.type()) {
-    case CV_8UC1:
-        cv::cvtColor(image, tmpMat, cv::COLOR_BGR2RGB);
-        break;
-    case CV_8UC3:
-        cv::cvtColor(image, tmpMat, cv::COLOR_BGR2RGB);
-        break;
-    }
-
-    // QImage needs the data to be stored continuously in memory
-    CV_Assert(tmpMat.isContinuous());
-    // Assign OpenCV's image buffer to the QImage. Note that the bytesPerLine parameter
-    // (http://qt-project.org/doc/qt-4.8/qimage.html#QImage-6) is 3*width because each pixel
-    // has three bytes.
-    //_qimage = QImage(_tmp.data, _tmp.cols, _tmp.rows, _tmp.cols*3, QImage::Format_RGB888);
+    tmpMat = image;
     isSetImage = true;
     clearFlag = false;
     refreshImage();
@@ -138,11 +123,11 @@ void CVImageWidget::mouseMoveEvent(QMouseEvent *event)
         //qDebug() << "orig:" << event->pos().x() << event->pos().y();
         QPoint p;
         // Compute mouse position on image
-        p.setX((event->pos().x() - point.x()) * tmpMat.cols / qimage.width());
-        p.setY((event->pos().y() - point.y()) * tmpMat.rows / qimage.height());
+        p.setX((event->pos().x() - point.x()) * tmpMat.width() / qimage.width());
+        p.setY((event->pos().y() - point.y()) * tmpMat.height() / qimage.height());
         //qDebug() << p.x() << p.y();
         // If mouse is not out of image send event
-        if (p.x() >= 0 && p.x() < tmpMat.cols && p.y() >= 0 && p.y() < tmpMat.rows) {
+        if (p.x() >= 0 && p.x() < tmpMat.width() && p.y() >= 0 && p.y() < tmpMat.height()) {
             //QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this, rect());
             emit hoveredPointInImage(p.x(), p.y());
         }

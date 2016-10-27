@@ -146,13 +146,13 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilenam
     try {
         HDF5Helper::HDF5Group *srcGroup = hDF5SimOutputFile->openGroup("/");
         HDF5Helper::HDF5Group *dstGroup = file->openGroup("/");
-        for (unsigned int i = 0; i < srcGroup->getNumAttrs(); i++) {
+        for (hsize_t i = 0; i < srcGroup->getNumAttrs(); i++) {
             HDF5Helper::HDF5Attribute *attr = srcGroup->getAttribute(i);
             dstGroup->setAttribute(attr, false);
             delete attr;
         }
-        hDF5SimOutputFile->closeGroup("/");
-        file->closeGroup("/");
+        hDF5SimOutputFile->closeGroup(srcGroup);
+        file->closeGroup(dstGroup);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);

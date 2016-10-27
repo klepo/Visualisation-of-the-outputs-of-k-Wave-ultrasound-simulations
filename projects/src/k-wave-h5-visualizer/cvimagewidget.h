@@ -26,13 +26,6 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-#include <opencv2/opencv_modules.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#ifdef HAVE_OPENCV_CONTRIB
-    #include <opencv2/contrib/contrib.hpp>
-#endif
-
 class LoadingThread;
 
 class CVImageWidget : public QWidget
@@ -49,7 +42,7 @@ signals:
     void hoveredPointInImage(int x, int y);
 
 public slots:
-    void showImage(const cv::Mat &image, QPoint = QPoint(0,0), QString fileName = "");
+    void showImage(const QImage &image, QPoint = QPoint(0,0), QString fileName = "");
     void clearImage();
     void saveImage();
     void setAdjust(bool adjust);
@@ -63,7 +56,7 @@ private:
     QImage qimage;
     QPoint point;
     QString fileName;
-    cv::Mat tmpMat;
+    QImage tmpMat;
     bool clearFlag;
     bool adjustFlag;
     bool isSetImage;

@@ -28,9 +28,6 @@ include($$PWD/../hdf5helper/hdf5helper.pri)
 # HDF5 library
 include($$PWD/../hdf5.pri)
 
-# OpenCV library
-include($$PWD/../opencv.pri)
-
 SOURCES += \
     main.cpp\
     mainwindow.cpp \
@@ -42,7 +39,8 @@ SOURCES += \
     openedh5file.cpp \
     h5objecttovisualize.cpp \
     h5subobjecttovisualize.cpp \
-    qvector3di.cpp
+    qvector3di.cpp \
+    colormap.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -54,7 +52,8 @@ HEADERS += \
     openedh5file.h \
     h5objecttovisualize.h \
     h5subobjecttovisualize.h \
-    qvector3di.h
+    qvector3di.h \
+    colormap.h
 
 FORMS += \
     mainwindow.ui \

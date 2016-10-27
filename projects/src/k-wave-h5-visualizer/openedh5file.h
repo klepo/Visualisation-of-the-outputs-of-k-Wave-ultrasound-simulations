@@ -43,18 +43,14 @@ public:
 
     HDF5Helper::File *getFile();
 
-    QString getFilename();
-    QString getRawFilename();
+    QString getFilename() const;
+    QString getRawFilename() const;
 
     HDF5Helper::HDF5Vector4D getNDims() const;
-    uint64_t getNT();
-    uint64_t getNX();
-    uint64_t getNY();
-    uint64_t getNZ();
-
-    static const int DATASET_TYPE = 0;
-    static const int GROUP_TYPE = 1;
-
+    uint64_t getNT() const;
+    uint64_t getNX() const;
+    uint64_t getNY() const;
+    uint64_t getNZ() const;
 
 signals:
 
@@ -64,13 +60,16 @@ public slots:
     void toogleObjectSelected(QString mainName);
 
 private:
-    HDF5Helper::File *file;
+    HDF5Helper::File *file = 0;
     HDF5Helper::HDF5Vector4D nDims;
 
     QMap<QString, QString> info;
     QMap<QString, H5ObjectToVisualize *> objects;
 
-    H5ObjectToVisualize *selectedObject;
+    H5ObjectToVisualize *selectedObject = 0;
+
+    void setObject(QString name, HDF5Helper::HDF5Dataset *dataset);
+    void setObject(QString name, HDF5Helper::HDF5Group *group);
 };
 
 #endif // H5FILE_H

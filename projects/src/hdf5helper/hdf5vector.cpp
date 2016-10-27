@@ -63,6 +63,17 @@ HDF5Vector::~HDF5Vector()
     delete[] vector;
 }
 
+bool HDF5Vector::operator ==(const HDF5Vector &hDF5Vector) const
+{
+    if (length != hDF5Vector.length)
+        return false;
+    for (hsize_t i = 0; i < length; i++) {
+        if (vector[i] != hDF5Vector.vector[i])
+            return false;
+    }
+    return true;
+}
+
 hsize_t &HDF5Vector::operator [](hsize_t i)
 {
     if (i >= length){

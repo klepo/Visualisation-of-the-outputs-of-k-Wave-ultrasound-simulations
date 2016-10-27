@@ -42,7 +42,7 @@ HDF5Object::~HDF5Object()
  * @brief HDF5Object::getNumAttrs Get number of attributes in object
  * @return number of attributes
  */
-unsigned int HDF5Object::getNumAttrs()
+hsize_t HDF5Object::getNumAttrs()
 {
     H5O_info_t object_info;
     err = H5Oget_info(object, &object_info);
@@ -50,7 +50,7 @@ unsigned int HDF5Object::getNumAttrs()
         throw std::runtime_error("H5Oget_info error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    return (unsigned int) object_info.num_attrs;
+    return object_info.num_attrs;
 }
 
 /**
@@ -82,7 +82,7 @@ HDF5Attribute *HDF5Object::getAttribute(const std::string name)
  * @return attribute (HDF5Attribute)
  * @throw std::runtime_error
  */
-HDF5Attribute *HDF5Object::getAttribute(const unsigned int idx)
+HDF5Attribute *HDF5Object::getAttribute(const hsize_t idx)
 {
     HDF5Attribute *at = new HDF5Attribute(object, idx);
     return at;
