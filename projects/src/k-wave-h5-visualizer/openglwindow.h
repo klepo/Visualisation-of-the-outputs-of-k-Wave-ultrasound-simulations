@@ -75,6 +75,7 @@ protected:
 
 private:
     bool hasDebugExtension();
+    bool isOpenGLVersionSupported();
     static void messageLogged(const QOpenGLDebugMessage &message);
     QOpenGLContext *m_context;
     QOpenGLPaintDevice *m_device;

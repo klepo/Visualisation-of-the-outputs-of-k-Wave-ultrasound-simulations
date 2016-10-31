@@ -26,7 +26,7 @@ class HDF5Attribute
 {
 public:
     HDF5Attribute(hid_t object, std::string name);
-    HDF5Attribute(hid_t object, hid_t idx);
+    HDF5Attribute(hid_t object, hsize_t idx);
     ~HDF5Attribute();
 
     hid_t getDatatype() const;

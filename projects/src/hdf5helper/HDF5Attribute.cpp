@@ -81,9 +81,9 @@ HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
  * @param idx
  * @throw std::runtime_error
  */
-HDF5Attribute::HDF5Attribute(hid_t object, hid_t idx)
+HDF5Attribute::HDF5Attribute(hid_t object, hsize_t idx)
 {
-    attribute = H5Aopen_idx(object, idx);
+    attribute = H5Aopen_idx(object, unsigned(idx));
     if (attribute < 0){
         throw std::runtime_error("H5Aopen_name error");
         //MPI::COMM_WORLD.Abort(1);

@@ -51,15 +51,14 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     QSurfaceFormat surfaceFormat = requestedFormat();
 
     surfaceFormat.setVersion(3, 3);
-    surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     surfaceFormat.setOption(QSurfaceFormat::DebugContext);
+    surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
     surfaceFormat.setDepthBufferSize(24);
     surfaceFormat.setRedBufferSize(8);
     surfaceFormat.setGreenBufferSize(8);
     surfaceFormat.setBlueBufferSize(8);
     surfaceFormat.setAlphaBufferSize(8);
-
     // Smoother lines
     surfaceFormat.setSamples(4);
     setFormat(surfaceFormat);
@@ -279,8 +278,14 @@ void OpenGLWindow::checkInitAndMakeCurrentContext()
     }
 
     if (needsInitialize) {
-        initializeOpenGLFunctions();
-        initialize();
+        if (!isOpenGLVersionSupported()) {
+            qCritical("Could not obtain required OpenGL context version");
+            Q_ASSERT_X(false, "OpenGL error", "Could not obtain required OpenGL context version");
+            exit(1);
+        } else {
+            initializeOpenGLFunctions();
+            initialize();
+        }
     }
 
     m_context->makeCurrent(this);
@@ -293,6 +298,13 @@ void OpenGLWindow::checkInitAndMakeCurrentContext()
 bool OpenGLWindow::hasDebugExtension()
 {
     return m_context->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
+}
+
+bool OpenGLWindow::isOpenGLVersionSupported()
+{
+    QOpenGLFunctions_3_3_Core* funcs = 0;
+    funcs = m_context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    return funcs;
 }
 
 /**
