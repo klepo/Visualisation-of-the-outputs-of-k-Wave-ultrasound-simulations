@@ -390,12 +390,12 @@ void GWindow::setPosition(HDF5Helper::HDF5Vector3D position)
 void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 {
     selectedDataset = dataset;
-
     texture3DInitialized = false;
 
     // Init 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, 0);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
     // Check OUT_OF_MEMORY, dataset is too big
     if (checkGlError() != GL_NO_ERROR) {
@@ -417,6 +417,7 @@ void GWindow::unload3DTexture()
 {
     glBindTexture(GL_TEXTURE_3D, texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, 0);
+    glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 /**
@@ -455,15 +456,18 @@ void GWindow::clearData()
  */
 void GWindow::setLoaded(Request *r)
 {
-    texture3DInitialized = false;
-    glBindTexture(GL_TEXTURE_3D, texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    if (selectedDataset != r->dataset)
+        return;
 
+    texture3DInitialized = false;
     HDF5Helper::HDF5Vector3D offset = r->offset;
     HDF5Helper::HDF5Vector3D count = r->count;
 
     // Set 3D data to 3D texture
+    glBindTexture(GL_TEXTURE_3D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexSubImage3D(GL_TEXTURE_3D, 0, offset.x(), offset.y(), offset.z(), count.x(), count.y(), count.z(), GL_RED, GL_FLOAT, r->data);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
     // Last block of 3D data
     if (offset.z() + count.z() == imageSize.z()) {
@@ -489,6 +493,7 @@ void GWindow::setXYSlice(float *data, unsigned int width, unsigned int height, f
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
     this->index.setZ(index);
     renderLater();
 }
@@ -506,6 +511,7 @@ void GWindow::setXZSlice(float *data, unsigned int width, unsigned int height, f
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
     this->index.setY(index);
     renderLater();
 }
@@ -523,6 +529,7 @@ void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, f
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
     this->index.setX(index);
     renderLater();
 }
@@ -1157,8 +1164,6 @@ bool GWindow::event(QEvent *event)
 
 void GWindow::resizeEvent(QResizeEvent *event)
 {
-    qDebug() << event->size();
-
     if (initialized) {
         // Resize framebuffer texture
         glBindTexture(GL_TEXTURE_2D, textureFbo);

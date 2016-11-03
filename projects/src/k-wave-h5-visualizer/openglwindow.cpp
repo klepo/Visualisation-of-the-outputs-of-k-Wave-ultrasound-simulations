@@ -305,6 +305,6 @@ void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
 {
     if (message.type() == QOpenGLDebugMessage::ErrorType)
         qCritical() << message;
-    else// if (message.type() == QOpenGLDebugMessage::PerformanceType)
+    else if (message.type() == QOpenGLDebugMessage::PerformanceType)
         qDebug() << message;
 }

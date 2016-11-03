@@ -503,8 +503,12 @@ void Processing::resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5He
                 srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dimsSrc.z(), dimsSrc.y(), dimsSrc.x()), srcData);
             else
                 srcDataset->readDataset(srcData);
-            dstData = new float[dimsDst.x() * dimsDst.y()];
+            dstData = new float[dimsDst.x() * dimsDst.y() * dimsDst.z()]();
             resize3D(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsSrc.z(), dimsDst.x(), dimsDst.y(), dimsDst.z());
+            if (dimsSrc.getLength() == 4)
+                dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dimsDst.z(), dimsSrc.y(), dimsDst.x()), dstData, true);
+            else
+                dstDataset->writeDataset(dstData, true);
             delete[] srcData;
             delete[] dstData;
         } else {
@@ -514,7 +518,7 @@ void Processing::resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5He
                     srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, z, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, dimsSrc.y(), dimsSrc.x()), srcData);
                 else
                     srcDataset->readDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsSrc.y(), dimsSrc.x()), srcData);
-                dstData = new float[dimsDst.x() * dimsDst.y()];
+                dstData = new float[dimsDst.x() * dimsDst.y()]();
                 resize2D(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsDst.x(), dimsDst.y());
                 tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst.y(), dimsDst.x()), dstData, true);
                 delete[] srcData;
@@ -524,7 +528,7 @@ void Processing::resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5He
             // and after 2D slices XZ plane
             for (unsigned int y = 0; y < dimsDst.y(); y++) {
                 tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData);
-                dstData = new float[dimsDst.x() * dimsDst.z()];
+                dstData = new float[dimsDst.x() * dimsDst.z()]();
                 resize2D(srcData, dstData, dimsDst.x(), dimsSrc.z(), dimsDst.x(), dimsDst.z());
                 if (dimsSrc.getLength() == 4)
                     dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, y, 0), HDF5Helper::HDF5Vector4D(1, dimsDst.z(), 1, dimsDst.x()), dstData, true);
@@ -613,7 +617,7 @@ void Processing::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
                 hsize_t xSrc = Helper::round(newX);
                 hsize_t ySrc = Helper::round(newY);
                 hsize_t zSrc = Helper::round(newZ);
-                dataDst[x + y * dstWidth + z * dstWidth * dstHeight] = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcDepth];
+                dataDst[x + y * dstWidth + z * dstWidth * dstHeight] = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcHeight];
             }
         }
     }

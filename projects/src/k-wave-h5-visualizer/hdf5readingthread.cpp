@@ -145,7 +145,7 @@ QMutex HDF5ReadingThread::mutex;
 void HDF5ReadingThread::deleteDoneRequest(Request *r)
 {
     QMutexLocker locker(&requestMutex);
-    if(doneRequests.contains(r)) {
+    if (doneRequests.contains(r)) {
         doneRequests.removeOne(r);
         delete r;
     }
