@@ -1,14 +1,14 @@
 /**
  * @file        HDF5Vector.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@stud.fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        16 June      2016 (created)
  *              8  September 2016 (updated)
  *
  * @brief       The implementation file containing HDF5Vector class definition.
  *              This class is for multidimensional point representation.
  *
- * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ * @license     This file is part of the hdf5helper library for k-Wave h5 processing
  *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *              The hdf5helper library is free software.
  *

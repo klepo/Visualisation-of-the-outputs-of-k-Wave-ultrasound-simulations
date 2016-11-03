@@ -1,8 +1,9 @@
 /**
  * @file        processing.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with Processing class declaration.
  *
@@ -34,11 +35,12 @@ private:
     void findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &min, HDF5Helper::HDF5Vector3D &max);
     void computeDstDims(HDF5Helper::HDF5Vector3D dimsSrc, double ratio, HDF5Helper::HDF5Vector3D &dimsDst, HDF5Helper::HDF5Vector3D &chunkSize, Settings *settings);
     void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset);
-    void resamplingOfDataset3D(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D nDims, HDF5Helper::HDF5Vector3D nDimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal);
-    void resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector4D nDims, HDF5Helper::HDF5Vector4D nDimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal);
+    void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector dimsSrc, HDF5Helper::HDF5Vector dimsDst, HDF5Helper::HDF5Dataset *dstDataset);
     void copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset);
-    void resize(float *dataSrc, float *dataDst, unsigned int w, unsigned int h, unsigned int wDst, unsigned int hDst);
-    void resize(float *dataSrc, float *dataDst, hsize_t w, hsize_t h, hsize_t wDst, hsize_t hDst);
+    void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);
+    void resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);
+    void resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth);
+    void resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth);
 
     HDF5Helper::File *hDF5OutputFile;
     DtsForPcs *dtsForPcs;

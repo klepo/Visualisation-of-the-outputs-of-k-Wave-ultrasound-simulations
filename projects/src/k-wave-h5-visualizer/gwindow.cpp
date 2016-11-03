@@ -1,15 +1,16 @@
 /**
  * @file        gwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              19 October   2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing the GWindow class - 3D scene window.
  *
-
- * @license     This file is partof k-Wave visualiser application
+ *
+ * @license     This file is part of k-Wave visualiser application
  * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *
  * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -77,8 +78,6 @@ GWindow::GWindow(QMainWindow *qMainWindow)
 {
     this->qMainWindow = qMainWindow;
 
-    color = QColor(255, 255, 255, 255);
-
     // Default sizes for 3D frames
     imageSize = QVector3DI(1, 1, 1);
     imageSizeOrig = QVector3DI(1, 1, 1);
@@ -101,6 +100,7 @@ GWindow::~GWindow()
 
     glDeleteTextures(1, &texture);
     glDeleteTextures(1, &colormapTexture);
+    glDeleteTextures(1, &opacityTexture);
     glDeleteTextures(1, &textureXY);
     glDeleteTextures(1, &textureXZ);
     glDeleteTextures(1, &textureYZ);
@@ -148,6 +148,7 @@ void GWindow::initialize()
 
     uVolumeTexture = m_program->uniformLocation("uVolume");
     uColormapTexture = m_program->uniformLocation("uColormap");
+    uOpacityTexture = m_program->uniformLocation("uOpacity");
     uSliceTexture = m_program->uniformLocation("uSlice");
     uBoxSampler = m_program->uniformLocation("uBoxSampler");
 
@@ -172,6 +173,8 @@ void GWindow::initialize()
 
     m_uMin = m_program->uniformLocation("uMin");
     m_uMax = m_program->uniformLocation("uMax");
+
+    m_uMode = m_program->uniformLocation("uMode");
 
     // Generate buffers
     // for slices
@@ -213,16 +216,24 @@ void GWindow::initialize()
     // 3D texture
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_3D, 0);
 
-    // 1D texture
+    // 1D colormap texture
     glGenTextures(1, &colormapTexture);
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_1D, 0);
+
+    // 1D opacity texture
+    glGenTextures(1, &opacityTexture);
+    glBindTexture(GL_TEXTURE_1D, opacityTexture);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -257,11 +268,15 @@ void GWindow::initialize()
     glGenRenderbuffers(1, &rbo);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindTexture(GL_TEXTURE_2D, textureFbo);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFbo, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     //TODO
     //glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -282,6 +297,8 @@ void GWindow::initialize()
 
     changeColormap();
 
+    changeOpacity();
+
     // Default scene rotation
     //rotateXMatrix.rotate(-20, -1, 0, 0);
     //rotateXMatrix.rotate(-45, 0, 1, 0);
@@ -293,6 +310,7 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uMin, 0.0f);
     m_program->setUniformValue(m_uMax, 0.0f);
 
+    m_program->setUniformValue(uOpacityTexture, 4);
     m_program->setUniformValue(uBoxSampler, 3);
     m_program->setUniformValue(uSliceTexture, 2);
     m_program->setUniformValue(uColormapTexture, 1);
@@ -312,7 +330,9 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uYZBorder, false);
 
     m_program->setUniformValue(m_uSteps, steps);
-    m_program->setUniformValue(m_uColor, color);
+
+    m_program->setUniformValue(m_uWidth, float(width()));
+    m_program->setUniformValue(m_uHeight, float(height()));
 
     m_program->release();
 
@@ -448,7 +468,7 @@ void GWindow::setLoaded(Request *r)
     // Last block of 3D data
     if (offset.z() + count.z() == imageSize.z()) {
         texture3DInitialized = true;
-        changeColormap(colormap);
+        //changeColormap(colormap);
         renderLater();
         emit loaded(selectedDataset->getName());
     }
@@ -529,9 +549,18 @@ void GWindow::clearSlices()
  */
 void GWindow::changeColormap(ColorMap::Type colormap)
 {
-    this->colormap = colormap;
+    //this->colormap = colormap;
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, ColorMap::data[colormap]);
+    glBindTexture(GL_TEXTURE_1D, 0);
+    renderLater();
+}
+
+void GWindow::changeOpacity(QVector<float> opacity)
+{
+    //this->colormap = colormap;
+    glBindTexture(GL_TEXTURE_1D, opacityTexture);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, opacity.length(), 0, GL_RED, GL_FLOAT, opacity.data());
     glBindTexture(GL_TEXTURE_1D, 0);
     renderLater();
 }
@@ -542,10 +571,10 @@ void GWindow::changeColormap(ColorMap::Type colormap)
  */
 void GWindow::changeMinValue(float value)
 {
-    minG = value;
+    //minG = value;
     if (initialized) {
         m_program->bind();
-        m_program->setUniformValue(m_uMin, minG);
+        m_program->setUniformValue(m_uMin, value);
         m_program->release();
     }
     renderLater();
@@ -557,10 +586,20 @@ void GWindow::changeMinValue(float value)
  */
 void GWindow::changeMaxValue(float value)
 {
-    maxG = value;
+    //maxG = value;
     if (initialized) {
         m_program->bind();
-        m_program->setUniformValue(m_uMax, maxG);
+        m_program->setUniformValue(m_uMax, value);
+        m_program->release();
+    }
+    renderLater();
+}
+
+void GWindow::changeMode(int mode)
+{
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uMode, mode);
         m_program->release();
     }
     renderLater();
@@ -652,9 +691,9 @@ void GWindow::render()
 
     // Zoom
     if (wheelDelta > 0)
-        zoom *= 1.0f / 1.2f;
+        zoom *= 1.0f / 1.1f;
     else if (wheelDelta < 0)
-        zoom *= 1.2f;
+        zoom *= 1.1f;
 
     // Projection
     QMatrix4x4 projectionMatrix;
@@ -689,6 +728,7 @@ void GWindow::render()
     QMatrix4x4 matrix;
     matrix = projectionMatrix * rotateXMatrix * rotateYMatrix;
 
+
     // Create vectors for scale 3D frame to the longest size = 1.0f
     float fullMax = qMax(fullSize.x(), qMax(fullSize.y(), fullSize.z()));
 
@@ -705,15 +745,6 @@ void GWindow::render()
     m_program->setUniformValue(m_uMatrix, matrix);
     m_program->setUniformValue(m_uSliceMatrix, QMatrix4x4());
 
-    // Prepare framebuffer texture
-    glBindTexture(GL_TEXTURE_2D, textureFbo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    m_program->setUniformValue(m_uWidth, float(width()));
-    m_program->setUniformValue(m_uHeight, float(height()));
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -899,6 +930,9 @@ void GWindow::render()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_1D, colormapTexture);
 
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_1D, opacityTexture);
+
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, textureFbo);
 
@@ -936,70 +970,6 @@ QImage GWindow::getImage()
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, image.bits());
     return image.mirrored();
-}
-
-void GWindow::setAlpha(int value)
-{
-    setAlpha(double(value) / 1000.0f);
-}
-
-void GWindow::setRed(int value)
-{
-    setRed(double(value) / 1000.0f);
-}
-
-void GWindow::setGreen(int value)
-{
-    setGreen(double(value) / 1000.0f);
-}
-
-void GWindow::setBlue(int value)
-{
-    setBlue(double(value) / 1000.0f);
-}
-
-void GWindow::setAlpha(double value)
-{
-    color.setAlphaF(float(value));
-    if (initialized) {
-        m_program->bind();
-        m_program->setUniformValue(m_uColor, color);
-        m_program->release();
-    }
-    renderLater();
-}
-
-void GWindow::setRed(double value)
-{
-    color.setRedF(float(value));
-    if (initialized) {
-        m_program->bind();
-        m_program->setUniformValue(m_uColor, color);
-        m_program->release();
-    }
-    renderLater();
-}
-
-void GWindow::setGreen(double value)
-{
-    color.setGreenF(float(value));
-    if (initialized) {
-        m_program->bind();
-        m_program->setUniformValue(m_uColor, color);
-        m_program->release();
-    }
-    renderLater();
-}
-
-void GWindow::setBlue(double value)
-{
-    color.setBlueF(float(value));
-    if (initialized) {
-        m_program->bind();
-        m_program->setUniformValue(m_uColor, color);
-        m_program->release();
-    }
-    renderLater();
 }
 
 void GWindow::setViewFrame(bool value)
@@ -1129,16 +1099,6 @@ bool GWindow::event(QEvent *event)
                 frame = true;
             emit setStatusMessage(QString("Frame: %1").arg(frame));
         }
-        if (key->key() == Qt::Key_A) {
-            color.setAlphaF(color.alphaF() + 0.01f);
-            if (color.alphaF() >= 1.0f) color.setAlphaF(1.0f);
-            emit setStatusMessage(QString("Alpha: %1").arg(color.alphaF()));
-        }
-        if (key->key() == Qt::Key_Q) {
-            color.setAlphaF(color.alphaF() - 0.01f);
-            if (color.alphaF() <= 0.0f) color.setAlphaF(0.0f);
-            emit setStatusMessage(QString("Alpha: %1").arg(color.alphaF()));
-        }
         if (key->key() == Qt::Key_T) {
             if (trim)
                 trim = false;
@@ -1193,4 +1153,27 @@ bool GWindow::event(QEvent *event)
     default:
         return OpenGLWindow::event(event);
     }
+}
+
+void GWindow::resizeEvent(QResizeEvent *event)
+{
+    qDebug() << event->size();
+
+    if (initialized) {
+        // Resize framebuffer texture
+        glBindTexture(GL_TEXTURE_2D, textureFbo);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        m_program->bind();
+        m_program->setUniformValue(m_uWidth, float(width()));
+        m_program->setUniformValue(m_uHeight, float(height()));
+        m_program->release();
+
+    }
+
+    if (isExposed())
+        renderNow();
 }

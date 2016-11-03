@@ -1,8 +1,9 @@
 /**
  * @file        processing.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing processing functions.
  *
@@ -172,7 +173,7 @@ void Processing::reshape()
 
                 HDF5Helper::HDF5Dataset *sensorMaskCornersDataset = dtsForPcs->getSensorMaskCornersDataset();
                 hsize_t *data;
-                sensorMaskCornersDataset->readFullDataset(data);
+                sensorMaskCornersDataset->readDataset(data);
 
                 // For every mask type dataset
                 map = dtsForPcs->getGroupsCuboidType();
@@ -296,7 +297,7 @@ void Processing::donwsampling()
                 HDF5Helper::HDF5Dataset *dstDatasetFinal = hDF5OutputFile->openDataset(srcDataset->getName() + "_" + std::to_string(settings->getMaxSize()));
 
                 // Downsampling
-                resamplingOfDataset3D(srcDataset, dims, dimsDst, dstDatasetFinal);
+                resamplingOfDataset(srcDataset, dims, dimsDst, dstDatasetFinal);
 
                 dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
 
@@ -339,7 +340,7 @@ void Processing::donwsampling()
                     group->createDatasetF(srcDataset->getOnlyName(), dimsDst4D, chunkSize4D, true);
                     HDF5Helper::HDF5Dataset *dstDatasetFinal = group->openDataset(srcDataset->getOnlyName());
 
-                    resamplingOfDataset4D(srcDataset, dims4D, dimsDst4D, dstDatasetFinal);
+                    resamplingOfDataset(srcDataset, dims4D, dimsDst4D, dstDatasetFinal);
 
                     dstDatasetFinal->findAndSetGlobalMinAndMaxValue();
 
@@ -472,82 +473,66 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hDF5OutputFile->closeDataset(dstDataset);
 }
 
-void Processing::resamplingOfDataset3D(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D dimsSrc, HDF5Helper::HDF5Vector3D dimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal)
+void Processing::resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector dimsSrcO, HDF5Helper::HDF5Vector dimsDstO, HDF5Helper::HDF5Dataset *dstDataset)
 {
     double t0 = HDF5Helper::getTime();
 
+    HDF5Helper::HDF5Vector3D dimsSrc(dimsSrcO);
+    HDF5Helper::HDF5Vector3D dimsDst(dimsDstO);
+
     // Tmp has original Z dimension (hDF5SimOutputFile->getNZ())
     HDF5Helper::HDF5Vector3D newTmpDatasetSize(dimsSrc.z(), dimsDst.y(), dimsDst.x());
+    HDF5Helper::HDF5Vector3D newTmpDatasetChunkSize(dimsSrc.z(), 1, dimsDst.x());
 
     // Create temp file and dataset
     HDF5Helper::File *tmpFile = new HDF5Helper::File("tmp.h5", HDF5Helper::File::CREATE);
-    tmpFile->createDatasetF("tmp", newTmpDatasetSize, HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()));
+    tmpFile->createDatasetF("tmp", newTmpDatasetSize, newTmpDatasetChunkSize);
     HDF5Helper::HDF5Dataset *tmpDataset = tmpFile->openDataset("tmp");
 
     float *srcData = 0;
     float *dstData = 0;
 
-    // First 2D slices in XY plane
-    for (unsigned int z = 0; z < dimsSrc.z(); z++) {
-        srcDataset->readDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsSrc.y(), dimsSrc.x()), srcData);
-        dstData = new float[dimsDst.x() * dimsDst.y()];
-        resize(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsDst.x(), dimsDst.y());
-        tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst.y(), dimsDst.x()), dstData, true);
-        delete[] srcData;
-        delete[] dstData;
-    }
+    hsize_t steps = 1;
+    if (dimsSrcO.getLength() == 4)
+        steps = HDF5Helper::HDF5Vector4D(dimsSrcO).w();
 
-    // and after 2d slices XZ plane
-    for (unsigned int y = 0; y < dimsDst.y(); y++) {
-        tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData);
-        dstData = new float[dimsDst.x() * dimsDst.z()];
-        resize(srcData, dstData, dimsDst.x(), dimsSrc.z(), dimsDst.x(), dimsDst.z());
-        dstDatasetFinal->writeDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsDst.z(), 1, dimsDst.x()), dstData, true);
-        delete[] srcData;
-        delete[] dstData;
-    }
-
-    delete tmpFile;
-    remove("tmp.h5");
-
-    double t1 = HDF5Helper::getTime();
-    std::cout << "Time of resampling of the whole 3D dataset: " << (t1 - t0) << " ms; \t" << std::endl;
-}
-
-void Processing::resamplingOfDataset4D(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector4D dimsSrc, HDF5Helper::HDF5Vector4D dimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal)
-{
-    double t0 = HDF5Helper::getTime();
-
-    // Tmp has original Z dimension (hDF5SimOutputFile->getNZ())
-    HDF5Helper::HDF5Vector3D newTmpDatasetSize(dimsSrc.z(), dimsDst.y(), dimsDst.x());
-
-    // Create temp file and dataset
-    HDF5Helper::File *tmpFile = new HDF5Helper::File("tmp.h5", HDF5Helper::File::CREATE);
-    tmpFile->createDatasetF("tmp", newTmpDatasetSize, HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()));
-    HDF5Helper::HDF5Dataset *tmpDataset = tmpFile->openDataset("tmp");
-
-    float *srcData = 0;
-    float *dstData = 0;
-
-    for (unsigned int t = 0; t < dimsSrc.w(); t++) {
-        // First 2D slices in XY plane
-        for (unsigned int z = 0; z < dimsSrc.z(); z++) {
-            srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, z, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, dimsSrc.y(), dimsSrc.x()), srcData);
+    for (unsigned int t = 0; t < steps; t++) {
+        // If we have enough memory, resample full 3D dataset
+        if (srcDataset->getNumberOfElmsToLoad() >= srcDataset->getSize()) {
+            if (dimsSrc.getLength() == 4)
+                srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dimsSrc.z(), dimsSrc.y(), dimsSrc.x()), srcData);
+            else
+                srcDataset->readDataset(srcData);
             dstData = new float[dimsDst.x() * dimsDst.y()];
-            resize(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsDst.x(), dimsDst.y());
-            tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst.y(), dimsDst.x()), dstData, true);
+            resize3D(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsSrc.z(), dimsDst.x(), dimsDst.y(), dimsDst.z());
             delete[] srcData;
             delete[] dstData;
-        }
+        } else {
+            // First 2D slices in XY plane
+            for (unsigned int z = 0; z < dimsSrc.z(); z++) {
+                if (dimsSrc.getLength() == 4)
+                    srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, z, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, dimsSrc.y(), dimsSrc.x()), srcData);
+                else
+                    srcDataset->readDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsSrc.y(), dimsSrc.x()), srcData);
+                dstData = new float[dimsDst.x() * dimsDst.y()];
+                resize2D(srcData, dstData, dimsSrc.x(), dimsSrc.y(), dimsDst.x(), dimsDst.y());
+                tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst.y(), dimsDst.x()), dstData, true);
+                delete[] srcData;
+                delete[] dstData;
+            }
 
-        // and after 2d slices XZ plane
-        for (unsigned int y = 0; y < dimsDst.y(); y++) {
-            tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData);
-            dstData = new float[dimsDst.x() * dimsDst.z()];
-            resize(srcData, dstData, dimsDst.x(), dimsSrc.z(), dimsDst.x(), dimsDst.z());
-            dstDatasetFinal->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, y, 0), HDF5Helper::HDF5Vector4D(1, dimsDst.z(), 1, dimsDst.x()), dstData, true);
-            delete[] srcData;
-            delete[] dstData;
+            // and after 2D slices XZ plane
+            for (unsigned int y = 0; y < dimsDst.y(); y++) {
+                tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc.z(), 1, dimsDst.x()), srcData);
+                dstData = new float[dimsDst.x() * dimsDst.z()];
+                resize2D(srcData, dstData, dimsDst.x(), dimsSrc.z(), dimsDst.x(), dimsDst.z());
+                if (dimsSrc.getLength() == 4)
+                    dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, y, 0), HDF5Helper::HDF5Vector4D(1, dimsDst.z(), 1, dimsDst.x()), dstData, true);
+                else
+                    dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsDst.z(), 1, dimsDst.x()), dstData, true);
+                delete[] srcData;
+                delete[] dstData;
+            }
         }
     }
 
@@ -567,21 +552,21 @@ void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper:
     }
 }
 
-void Processing::resize(float *dataSrc, float *dataDst, unsigned int wSrc, unsigned int hSrc, unsigned int wDst, unsigned int hDst)
+void Processing::resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight)
 {
-    resize(dataSrc, dataDst, static_cast<hsize_t>(wSrc), static_cast<hsize_t>(hSrc), static_cast<hsize_t>(wDst), static_cast<hsize_t>(hDst));
+    resize2D(dataSrc, dataDst, static_cast<hsize_t>(srcWidth), static_cast<hsize_t>(srcHeight), static_cast<hsize_t>(dstWidth), static_cast<hsize_t>(dstHeight));
 }
 
-void Processing::resize(float *dataSrc, float *dataDst, hsize_t wSrc, hsize_t hSrc, hsize_t wDst, hsize_t hDst)
+void Processing::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight)
 {
-    float scaleWidth = static_cast<float>(wDst) / wSrc;
-    float scaleHeight = static_cast<float>(hDst) / hSrc;
+    float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
+    float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
 
-    for (unsigned int y = 0; y < hDst; y++) {
-        for (unsigned int x = 0; x < wDst; x++) {
+    for (unsigned int y = 0; y < dstHeight; y++) {
+        for (unsigned int x = 0; x < dstWidth; x++) {
 
-            float newX = static_cast<float>(x) / scaleWidth;
-            float newY = static_cast<float>(y) / scaleHeight;
+            //float newX = static_cast<float>(x) / scaleWidth;
+            //float newY = static_cast<float>(y) / scaleHeight;
             //hsize_t left = static_cast<hsize_t>(floor(newX));
             //hsize_t right = static_cast<hsize_t>(ceil(newX));
             //hsize_t top = static_cast<hsize_t>(floor(newY));
@@ -594,12 +579,43 @@ void Processing::resize(float *dataSrc, float *dataDst, hsize_t wSrc, hsize_t hS
             //float topL = dataSrc[left + top * w] * wX + dataSrc[right + top * w] * (1 - wX);
             //float bottomL = dataSrc[left + bottom * w] * wX + dataSrc[right + bottom * w] * (1 - wX);
 
-            hsize_t xSrc = Helper::round(newX);
-            hsize_t ySrc = Helper::round(newY);
-
             //dataDst[ceil(x / s), ceil(y / s)] = dataSrc[x, y];
             //dataDst[x + y * wDst] = topL * wY + bottomL  * (1 - wY);
-            dataDst[x + y * wDst] = dataSrc[xSrc + ySrc * wSrc];
+
+            // Nearest-neighbour interpolation
+            float newX = static_cast<float>(x) / scaleWidth;
+            float newY = static_cast<float>(y) / scaleHeight;
+            hsize_t xSrc = Helper::round(newX);
+            hsize_t ySrc = Helper::round(newY);
+            dataDst[x + y * dstWidth] = dataSrc[xSrc + ySrc * srcWidth];
         }
     }
 }
+
+void Processing::resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth)
+{
+    resize3D(dataSrc, dataDst, static_cast<hsize_t>(srcWidth), static_cast<hsize_t>(srcHeight), static_cast<hsize_t>(srcDepth), static_cast<hsize_t>(dstWidth), static_cast<hsize_t>(dstHeight), static_cast<hsize_t>(dstDepth));
+}
+
+void Processing::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth)
+{
+    float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
+    float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
+    float scaleDepth = static_cast<float>(dstDepth) / srcDepth;
+
+    for (unsigned int z = 0; z < dstDepth; z++) {
+        for (unsigned int y = 0; y < dstHeight; y++) {
+            for (unsigned int x = 0; x < dstWidth; x++) {
+                // Nearest-neighbour interpolation
+                float newX = static_cast<float>(x) / scaleWidth;
+                float newY = static_cast<float>(y) / scaleHeight;
+                float newZ = static_cast<float>(z) / scaleDepth;
+                hsize_t xSrc = Helper::round(newX);
+                hsize_t ySrc = Helper::round(newY);
+                hsize_t zSrc = Helper::round(newZ);
+                dataDst[x + y * dstWidth + z * dstWidth * dstHeight] = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcDepth];
+            }
+        }
+    }
+}
+

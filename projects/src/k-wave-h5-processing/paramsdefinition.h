@@ -1,8 +1,9 @@
 /**
  * @file        paramsDefinition.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with ParamsDefinition class declaration.
  *
@@ -83,7 +84,6 @@ public:
             std::vector<long double> valuesLongDouble;
             std::vector<std::string> valuesString;
             std::vector<ListOfStrings> valuesStringSeparated;
-
         };
 
         Flag(std::string name);

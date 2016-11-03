@@ -1,7 +1,7 @@
 /**
  * @file        h5subobjecttovisualize.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
@@ -10,8 +10,8 @@
  *              Object of class H5ObjectToVisualize is for one dataset or group of datasets
  *              with time series and has own threads and view settings.
  *
-
- * @license     This file is partof k-Wave visualiser application
+ *
+ * @license     This file is part of k-Wave visualiser application
  * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *
  * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.

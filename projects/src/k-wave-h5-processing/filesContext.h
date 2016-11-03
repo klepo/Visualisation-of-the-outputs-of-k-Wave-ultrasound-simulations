@@ -1,8 +1,9 @@
 /**
  * @file        filescontext.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with FilesContext class declaration.
  *
@@ -28,17 +29,14 @@ public:
 
     HDF5Helper::File *getHDF5SimOutputFile() const;
     HDF5Helper::File *getHDF5SimInputFile() const;
-    HDF5Helper::File *getHDF5OutputFile() const;
-    HDF5Helper::File *getHDF5ViewFile() const;
-    void setHDF5ViewFile(HDF5Helper::File *value);
+    HDF5Helper::File *getHDF5PcsOutputFile() const;
 
 private:
     HDF5Helper::File *loadSimulationFile(std::string simulationFilename);
     HDF5Helper::File *createOrOpenOutputFile(std::string outputFilename, Settings *settings);
-    HDF5Helper::File *hDF5SimOutputFile = NULL;
-    HDF5Helper::File *hDF5SimInputFile = NULL;
-    HDF5Helper::File *hDF5OutputFile = NULL;
-    HDF5Helper::File *hDF5ViewFile = NULL;
+    HDF5Helper::File *hDF5SimOutputFile = 0;
+    HDF5Helper::File *hDF5SimInputFile = 0;
+    HDF5Helper::File *hDF5PcsOutputFile = 0;
 
 private:
     // Disable copy

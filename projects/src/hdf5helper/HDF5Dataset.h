@@ -1,13 +1,14 @@
 /**
  * @file        HDF5Dataset.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with HDF5Dataset class declaration.
  *
- * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ * @license     This file is part of the hdf5helper library for k-Wave h5 processing
  *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *              The hdf5helper library is free software.
  *
@@ -61,16 +62,19 @@ public:
 
     void setMPIOAccess(H5FD_mpio_xfer_t type);
 
-    void readFullDataset(float *&data, bool log = true);
-    void readFullDataset(hsize_t *&data, bool log = true);
-
     void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, bool log = true);
     void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
     void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, bool log = true);
     void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, bool log = true);
+    void readDataset(float *&data, bool log = true);
+    void readDataset(hsize_t *&data, bool log = true);
+    void readDataset(float *&data, float &min, float &max, bool log = true);
+    void readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
 
     void writeDataset(HDF5Vector offset, HDF5Vector count, float *data, bool log = false);
     void writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *data, bool log = false);
+    void writeDataset(float *data, bool log = false);
+    void writeDataset(hsize_t *data, bool log = false);
 
     void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max, bool log = true);
     void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);

@@ -1,15 +1,16 @@
 /**
  * @file        mainwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with MainWindow class declaration.
  *
-
- * @license     This file is partof k-Wave visualiser application
+ *
+ * @license     This file is part of k-Wave visualiser application
  * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *
  * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -96,15 +97,6 @@ private slots:
 
     void on_actionExportImageFrom3DScene_triggered();
 
-    void on_horizontalSliderVRAlpha_valueChanged(int value);
-    void on_horizontalSliderVRRed_valueChanged(int value);
-    void on_horizontalSliderVRGreen_valueChanged(int value);
-    void on_horizontalSliderVRBlue_valueChanged(int value);
-    void on_doubleSpinBoxVRAlpha_valueChanged(double value);
-    void on_doubleSpinBoxVRRed_valueChanged(double value);
-    void on_doubleSpinBoxVRGreen_valueChanged(double value);
-    void on_doubleSpinBoxVRBlue_valueChanged(double value);
-
     void on_verticalSliderXY_valueChanged(int value);
     void on_verticalSliderXZ_valueChanged(int value);
     void on_verticalSliderYZ_valueChanged(int value);
@@ -114,6 +106,19 @@ private slots:
     void on_actionAbout_triggered();
 
     void on_saveVideoButton_clicked();
+
+    void on_comboBoxMode_currentIndexChanged(int index);
+
+    void on_doubleSpinBox_0_valueChanged(double value);
+    void on_verticalSlider_0_valueChanged(int value);
+    void on_doubleSpinBox_1_valueChanged(double value);
+    void on_verticalSlider_1_valueChanged(int value);
+    void on_doubleSpinBox_2_valueChanged(double value);
+    void on_verticalSlider_2_valueChanged(int value);
+    void on_doubleSpinBox_3_valueChanged(double value);
+    void on_verticalSlider_3_valueChanged(int value);
+    void on_doubleSpinBox_4_valueChanged(double value);
+    void on_verticalSlider_4_valueChanged(int value);
 
 public:
     Ui::MainWindow *ui;
@@ -138,6 +143,8 @@ private:
     bool flagVRLoaded;
 
     QTimer *timer;
+
+    QVector<float> opacity;
 
     bool playing = false;
 

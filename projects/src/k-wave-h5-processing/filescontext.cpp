@@ -1,8 +1,9 @@
 /**
  * @file        filescontext.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing context for HDF5 files.
  *
@@ -25,20 +26,23 @@ FilesContext::FilesContext(Settings *settings)
         exit(EXIT_FAILURE);
     } else {
         hDF5SimOutputFile = loadSimulationFile(settings->getSimulationOutputFilename());
-        hDF5SimOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+        if (settings->getBlockSize() != 0)
+            hDF5SimOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
     }
 
     if (!settings->getSimulationInputFilename().empty()) {
         // Load simulation input file
         Helper::printDebugTitle("Loading of simulation input file");
         hDF5SimInputFile = loadSimulationFile(settings->getSimulationInputFilename());
-        hDF5SimInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+        if (settings->getBlockSize() != 0)
+            hDF5SimInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
     }
 
     // Create new file
     Helper::printDebugTitle("Create or open output file");
-    hDF5OutputFile = createOrOpenOutputFile(settings->getOutputFilename(), settings);
-    hDF5OutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+    hDF5PcsOutputFile = createOrOpenOutputFile(settings->getProcessingOutputFilename(), settings);
+    if (settings->getBlockSize() != 0)
+        hDF5PcsOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
 }
 
 FilesContext::~FilesContext()
@@ -51,11 +55,7 @@ FilesContext::~FilesContext()
         delete hDF5SimOutputFile;
         hDF5SimInputFile = NULL;
     }
-    if (hDF5OutputFile != NULL) {
-        delete hDF5SimOutputFile;
-        hDF5SimOutputFile = 0;
-    }
-    if (hDF5ViewFile != NULL) {
+    if (hDF5PcsOutputFile != NULL) {
         delete hDF5SimOutputFile;
         hDF5SimOutputFile = 0;
     }
@@ -71,14 +71,9 @@ HDF5Helper::File *FilesContext::getHDF5SimInputFile() const
     return hDF5SimInputFile;
 }
 
-HDF5Helper::File *FilesContext::getHDF5OutputFile() const
+HDF5Helper::File *FilesContext::getHDF5PcsOutputFile() const
 {
-    return hDF5OutputFile;
-}
-
-HDF5Helper::File *FilesContext::getHDF5ViewFile() const
-{
-    return hDF5ViewFile;
+    return hDF5PcsOutputFile;
 }
 
 HDF5Helper::File *FilesContext::loadSimulationFile(std::string simulationFilename)
@@ -160,9 +155,4 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilenam
 
 
     return file;
-}
-
-void FilesContext::setHDF5ViewFile(HDF5Helper::File *value)
-{
-    hDF5ViewFile = value;
 }

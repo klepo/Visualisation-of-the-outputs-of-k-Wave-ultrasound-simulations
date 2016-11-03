@@ -1,8 +1,9 @@
 /**
  * @file        helper.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing helper stuff.
  *
@@ -33,9 +34,8 @@ void printErrorMsg(std::string msg)
     std::cerr << msg << std::endl;
 }
 
-hsize_t round(double number)
+unsigned long long round(double number)
 {
-    return static_cast<hsize_t>(floor(number + 0.5));
+    return static_cast<unsigned long long>(floor(number + 0.5));
 }
-
 }

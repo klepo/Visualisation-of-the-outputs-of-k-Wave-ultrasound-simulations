@@ -1,16 +1,17 @@
 /**
  * @file        mainwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing the MainWindow class.
  *              Main window of application.
  *
-
- * @license     This file is partof k-Wave visualiser application
+ *
+ * @license     This file is part of k-Wave visualiser application
  * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *
  * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -39,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
 
+    opacity = QVector<float>(5, 1);
+
     // Create OpenGL window
     gWindow = new GWindow(this);
 
@@ -66,12 +69,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Show/hide 3D frame
     connect(ui->actionViewFrame, SIGNAL(toggled(bool)), gWindow, SLOT(setViewFrame(bool)));
-
-    // VR colors and alpha settings
-    connect(ui->horizontalSliderVRAlpha, SIGNAL(valueChanged(int)), gWindow, SLOT(setAlpha(int)));
-    connect(ui->horizontalSliderVRRed, SIGNAL(valueChanged(int)), gWindow, SLOT(setRed(int)));
-    connect(ui->horizontalSliderVRGreen, SIGNAL(valueChanged(int)), gWindow, SLOT(setGreen(int)));
-    connect(ui->horizontalSliderVRBlue, SIGNAL(valueChanged(int)), gWindow, SLOT(setBlue(int)));
 
     // Align to basic views
     connect(ui->actionAlignToXY, SIGNAL(triggered()), gWindow, SLOT(alignToXY()));
@@ -922,48 +919,6 @@ void MainWindow::on_actionExportImageFrom3DScene_triggered()
     }
 }
 
-// Alpha, r, g, b sliders recomputing, connected together
-
-void MainWindow::on_horizontalSliderVRAlpha_valueChanged(int value)
-{
-    ui->doubleSpinBoxVRAlpha->setValue((double) value / 1000);
-}
-
-void MainWindow::on_horizontalSliderVRRed_valueChanged(int value)
-{
-    ui->doubleSpinBoxVRRed->setValue((double) value / 1000);
-}
-
-void MainWindow::on_horizontalSliderVRGreen_valueChanged(int value)
-{
-    ui->doubleSpinBoxVRGreen->setValue((double) value / 1000);
-}
-
-void MainWindow::on_horizontalSliderVRBlue_valueChanged(int value)
-{
-    ui->doubleSpinBoxVRBlue->setValue((double) value / 1000);
-}
-
-void MainWindow::on_doubleSpinBoxVRAlpha_valueChanged(double value)
-{
-    ui->horizontalSliderVRAlpha->setValue((int) (value * 1000));
-}
-
-void MainWindow::on_doubleSpinBoxVRRed_valueChanged(double value)
-{
-    ui->horizontalSliderVRRed->setValue((int) (value * 1000));
-}
-
-void MainWindow::on_doubleSpinBoxVRGreen_valueChanged(double value)
-{
-    ui->horizontalSliderVRGreen->setValue((int) (value * 1000));
-}
-
-void MainWindow::on_doubleSpinBoxVRBlue_valueChanged(double value)
-{
-    ui->horizontalSliderVRBlue->setValue((int) (value * 1000));
-}
-
 // Index sliders
 
 void MainWindow::on_verticalSliderXY_valueChanged(int value)
@@ -1028,4 +983,78 @@ void MainWindow::on_saveVideoButton_clicked()
         subobject->setCurrentStep(0);
 
     }
+}
+
+void MainWindow::on_comboBoxMode_currentIndexChanged(int index)
+{
+    if (gWindow != 0)
+        gWindow->changeMode(index);
+    //if (subobject != 0 && subobject->isGUIInitialized()) {
+    //    subobject->setColormap(static_cast<ColorMap::Type>(index));
+    //}
+}
+
+void MainWindow::on_doubleSpinBox_0_valueChanged(double value)
+{
+    ui->verticalSlider_0->setValue(int(value * 1000));
+    opacity[0] = float(value);
+    if (gWindow != 0)
+        gWindow->changeOpacity(opacity);
+}
+
+void MainWindow::on_verticalSlider_0_valueChanged(int value)
+{
+    ui->doubleSpinBox_0->setValue(double(value) / 1000);
+}
+
+void MainWindow::on_doubleSpinBox_1_valueChanged(double value)
+{
+    ui->verticalSlider_1->setValue(int(value * 1000));
+    opacity[1] = float(value);
+    if (gWindow != 0)
+        gWindow->changeOpacity(opacity);
+}
+
+void MainWindow::on_verticalSlider_1_valueChanged(int value)
+{
+    ui->doubleSpinBox_1->setValue(double(value) / 1000);
+}
+
+void MainWindow::on_doubleSpinBox_2_valueChanged(double value)
+{
+    ui->verticalSlider_2->setValue(int(value * 1000));
+    opacity[2] = float(value);
+    if (gWindow != 0)
+        gWindow->changeOpacity(opacity);
+}
+
+void MainWindow::on_verticalSlider_2_valueChanged(int value)
+{
+    ui->doubleSpinBox_2->setValue(double(value) / 1000);
+}
+
+void MainWindow::on_doubleSpinBox_3_valueChanged(double value)
+{
+    ui->verticalSlider_3->setValue(int(value * 1000));
+    opacity[3] = float(value);
+    if (gWindow != 0)
+        gWindow->changeOpacity(opacity);
+}
+
+void MainWindow::on_verticalSlider_3_valueChanged(int value)
+{
+    ui->doubleSpinBox_3->setValue(double(value) / 1000);
+}
+
+void MainWindow::on_doubleSpinBox_4_valueChanged(double value)
+{
+    ui->verticalSlider_4->setValue(int(value * 1000));
+    opacity[4] = float(value);
+    if (gWindow != 0)
+        gWindow->changeOpacity(opacity);
+}
+
+void MainWindow::on_verticalSlider_4_valueChanged(int value)
+{
+    ui->doubleSpinBox_4->setValue(double(value) / 1000);
 }

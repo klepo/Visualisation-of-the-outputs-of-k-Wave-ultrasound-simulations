@@ -1,13 +1,13 @@
 ﻿/**
  * @file        HDF5File.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              8  September 2016 (updated)
  *
  * @brief       The header file with HDF5File class declaration.
  *
- * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ * @license     This file is part of the hdf5helper library for k-Wave h5 processing
  *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *              The hdf5helper library is free software.
  *
@@ -64,9 +64,6 @@ class HDF5Attribute;
 
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector size);
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector size);
-
-
-static const unsigned int NUMBER_OF_ELEMENTS_TO_LOAD = 100 * 64 * 64 * 64;
 
 typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
 typedef std::map<const std::string, HDF5Group *> MapOfGroups;
@@ -139,7 +136,7 @@ private:
     hsize_t nZ;
     std::string filename;
 
-    hsize_t numberOfElementsToLoad;
+    hsize_t numberOfElementsToLoad = 64 * 64 * 64 * 100;
 
     hid_t plist_FILE_ACCESS;
 

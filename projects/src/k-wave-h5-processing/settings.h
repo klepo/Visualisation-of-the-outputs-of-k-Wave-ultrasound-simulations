@@ -1,8 +1,9 @@
 /**
  * @file        settings.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with Settings class declaration.
  *
@@ -23,7 +24,7 @@
 #include <list>
 
 #include <helper.h>
-#include <hdf5helper.h>
+//#include <hdf5helper.h>
 
 #include <paramsdefinition.h>
 
@@ -43,25 +44,29 @@ public:
     static const std::string NY_DATASET;
     static const std::string NZ_DATASET;
 
+    // Simulation data files
     std::string getSimulationOutputFilename();
     void setSimulationOutputFilename(const std::string &value);
     std::string getSimulationInputFilename();
     void setSimulationInputFilename(const std::string &value);
-    std::string getOutputFilename();
-    void setOutputFilename(const std::string &value);
+    std::string getProcessingOutputFilename();
+    void setProcessingOutputFilename(const std::string &value);
 
-    hsize_t getMaxSize();
-    void setMaxSize(const hsize_t &value);
-    hsize_t getMaxChunkSize();
-    void setMaxChunkSize(const hsize_t &value);
-    hsize_t getBlockSize();
-    void setBlockSize(const hsize_t &value);
+    // Sizes
+    unsigned long long getMaxSize();
+    void setMaxSize(const unsigned long long &value);
+    unsigned long long getMaxChunkSize();
+    void setMaxChunkSize(const unsigned long long &value);
+    unsigned long long getBlockSize();
+    void setBlockSize(const unsigned long long &value);
 
+    // Selected names
     std::list<std::string> getNames();
     void setNames(const std::list<std::string> &value);
     bool getFlagNames();
     void setFlagNames(bool value);
 
+    // Application modes
     bool getFlagReshape();
     void setFlagReshape(bool value);
     bool getFlagChangeChunks();
@@ -75,14 +80,14 @@ private:
     // Filenames
     std::string simulationOutputFilename;
     std::string simulationInputFilename;
-    std::string outputFilename;
+    std::string processingOutputFilename;
 
     // Size vars
-    hsize_t maxSize;
-    hsize_t maxChunkSize;
-    hsize_t blockSize;
+    unsigned long long maxSize;
+    unsigned long long maxChunkSize;
+    unsigned long long blockSize;
 
-    // Filter by names
+    // Filter/selestion by names
     std::list<std::string> names;
     bool flagNames;
 
@@ -91,6 +96,7 @@ private:
     bool flagRechunk;
     bool flagDwnsmpl;
 
+    // Params definition
     ParamsDefinition paramsDefinition;
 };
 

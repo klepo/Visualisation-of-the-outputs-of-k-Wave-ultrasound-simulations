@@ -1,14 +1,15 @@
 /**
  * @file        HDF5File.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing HDF5File class definition.
  *              This class contains HDF5Dataset class and HDF5Group class.
  *
- * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ * @license     This file is part of the hdf5helper library for k-Wave h5 processing
  *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *              The hdf5helper library is free software.
  *
@@ -49,10 +50,9 @@ File::File(std::string filename, unsigned int flag, bool log)
         if (error)
             throw std::runtime_error("MPI is not initialized");
     #endif
+
     // Set size of memory
-    numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD;
-    //numberOfElementsToLoad = (getAvailableSystemPhysicalMemory() / 2) / 4;
-    //numberOfElementsToLoad = 64 * 64 * 32;
+    numberOfElementsToLoad = (getAvailableSystemPhysicalMemory() / 2) / 4;
 
     // Disable error HDF5 output
     H5Eset_auto(H5E_DEFAULT, NULL, NULL);
@@ -120,19 +120,19 @@ File::File(std::string filename, unsigned int flag, bool log)
             //Set dimensions
             hsize_t *data = NULL;
 
-            openDataset(File::NT)->readFullDataset(data);
+            openDataset(File::NT)->readDataset(data);
             nT = data[0];
             delete [] data;
 
-            openDataset(File::NX)->readFullDataset(data);
+            openDataset(File::NX)->readDataset(data);
             nX = data[0];
             delete [] data;
 
-            openDataset(File::NY)->readFullDataset(data);
+            openDataset(File::NY)->readDataset(data);
             nY = data[0];
             delete [] data;
 
-            openDataset(File::NZ)->readFullDataset(data);
+            openDataset(File::NZ)->readDataset(data);
             nZ = data[0];
             delete [] data;
 

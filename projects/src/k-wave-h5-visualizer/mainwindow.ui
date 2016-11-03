@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1366</width>
-    <height>800</height>
+    <width>1189</width>
+    <height>759</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,8 +53,8 @@
      <widget class="QDockWidget" name="dockWidget3D">
       <property name="minimumSize">
        <size>
-        <width>500</width>
-        <height>500</height>
+        <width>300</width>
+        <height>300</height>
        </size>
       </property>
       <property name="features">
@@ -88,7 +88,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>32</height>
+            <height>20</height>
            </size>
           </property>
           <property name="text">
@@ -135,6 +135,7 @@
    <addaction name="actionFillSpace"/>
    <addaction name="separator"/>
    <addaction name="actionOrthogonal"/>
+   <addaction name="separator"/>
    <addaction name="actionAlignToXY"/>
    <addaction name="actionAlignToXZ"/>
    <addaction name="actionAlignToYZ"/>
@@ -153,7 +154,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1366</width>
+     <width>1189</width>
      <height>21</height>
     </rect>
    </property>
@@ -238,8 +239,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>500</width>
-     <height>91</height>
+     <width>405</width>
+     <height>0</height>
     </size>
    </property>
    <property name="floating">
@@ -282,20 +283,17 @@
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
        <widget class="QWidget" name="scrollAreaWidgetContentsSelectedDataset">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>483</width>
-          <height>505</height>
+          <width>388</width>
+          <height>539</height>
          </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
         </property>
         <layout class="QVBoxLayout" name="verticalLayoutSelectedDatasetScroll">
          <property name="spacing">
@@ -487,6 +485,32 @@
               </property>
              </widget>
             </item>
+            <item row="2" column="2">
+             <widget class="QSlider" name="horizontalSliderGlobalMax">
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMinGlobal">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="labelGlobalMin">
               <property name="text">
@@ -497,33 +521,19 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMinGlobal">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="1">
              <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMaxGlobal">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="decimals">
                <number>4</number>
               </property>
               <property name="maximum">
                <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QSlider" name="horizontalSliderGlobalMax">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
@@ -548,6 +558,311 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="groupBoxVolumeRendering">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title">
+            <string>Volume rendering</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="2" column="2" colspan="2">
+             <widget class="QSlider" name="horizontalSliderVRSlices">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>2</number>
+              </property>
+              <property name="maximum">
+               <number>1200</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" colspan="3">
+             <widget class="QComboBox" name="comboBoxMode">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <item>
+               <property name="text">
+                <string>Alpha blending</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Maximum intesity projection</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Minimum intensity projection</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Average intensity projection</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Resolution:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="spinBoxVRSlices">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>3</number>
+              </property>
+              <property name="maximum">
+               <number>1200</number>
+              </property>
+              <property name="value">
+               <number>500</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Mode:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="4">
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="title">
+               <string>Opacity:</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="1" column="4">
+                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_4">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="4" alignment="Qt::AlignHCenter">
+                <widget class="QSlider" name="verticalSlider_4">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="pageStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_0">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" alignment="Qt::AlignHCenter">
+                <widget class="QSlider" name="verticalSlider_1">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="pageStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_1">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3" alignment="Qt::AlignHCenter">
+                <widget class="QSlider" name="verticalSlider_3">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="pageStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" alignment="Qt::AlignHCenter">
+                <widget class="QSlider" name="verticalSlider_2">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="pageStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>1.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" alignment="Qt::AlignHCenter">
+                <widget class="QSlider" name="verticalSlider_0">
+                 <property name="maximum">
+                  <number>1000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="pageStep">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>1000</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBoxSelectedDatasetTMSeries">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -559,20 +874,7 @@
             <string>Time-varying series</string>
            </property>
            <layout class="QGridLayout" name="gridLayoutSelectedDatasetTMSeries">
-            <item row="3" column="4" rowspan="3">
-             <widget class="QLabel" name="label_2">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Step increment:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" rowspan="2">
+            <item row="0" column="1" rowspan="2">
              <widget class="QSpinBox" name="spinBoxSelectedDatasetStep">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -585,7 +887,43 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0" rowspan="2">
+            <item row="0" column="2" rowspan="2" colspan="6">
+             <widget class="QSlider" name="horizontalSliderSelectedDatasetStep">
+              <property name="maximum">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="6" rowspan="3">
+             <widget class="QLabel" name="label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Interval (ms):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="5" rowspan="3">
+             <widget class="QSpinBox" name="spinBoxTMIncrement">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" rowspan="2">
              <widget class="QLabel" name="labelSelectedDatasetStep">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -601,30 +939,7 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="2" rowspan="2" colspan="6">
-             <widget class="QSlider" name="horizontalSliderSelectedDatasetStep">
-              <property name="maximum">
-               <number>0</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="5" rowspan="3">
-             <widget class="QSpinBox" name="spinBoxTMIncrement">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="7" rowspan="3">
+            <item row="2" column="7" rowspan="3">
              <widget class="QSpinBox" name="spinBoxTMInterval">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -646,20 +961,7 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="6" rowspan="3">
-             <widget class="QLabel" name="label">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Interval (ms):</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" rowspan="3" colspan="4" alignment="Qt::AlignLeft">
+            <item row="2" column="0" rowspan="3" colspan="4" alignment="Qt::AlignLeft">
              <widget class="QWidget" name="widgetSelectedDatasetTMButtons" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_4">
                <property name="spacing">
@@ -753,214 +1055,16 @@
               </layout>
              </widget>
             </item>
-            <item row="0" column="0" colspan="8">
-             <widget class="QPushButton" name="saveVideoButton">
-              <property name="text">
-               <string>Save video</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxVolumeRendering">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Volume rendering</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <item row="0" column="2">
-             <widget class="QSlider" name="horizontalSliderVRAlpha">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="value">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="enabled">
-               <bool>false</bool>
+            <item row="2" column="4" rowspan="3">
+             <widget class="QLabel" name="label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <property name="text">
-               <string>Alpha:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Red:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QSlider" name="horizontalSliderVRRed">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="value">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Blue:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QSlider" name="horizontalSliderVRGreen">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="value">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>Slices:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Green:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QSlider" name="horizontalSliderVRBlue">
-              <property name="maximum">
-               <number>1000</number>
-              </property>
-              <property name="value">
-               <number>1000</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRAlpha">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.010000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRGreen">
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.010000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRRed">
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.010000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QSlider" name="horizontalSliderVRSlices">
-              <property name="minimum">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <number>1200</number>
-              </property>
-              <property name="value">
-               <number>100</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QSpinBox" name="spinBoxVRSlices">
-              <property name="minimum">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <number>1200</number>
-              </property>
-              <property name="value">
-               <number>100</number>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxVRBlue">
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.010000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
+               <string>Step increment:</string>
               </property>
              </widget>
             </item>
@@ -1101,7 +1205,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>194</height>
+          <height>180</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -1223,7 +1327,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>195</height>
+          <height>182</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1372,7 +1476,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>194</height>
+          <height>180</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1775,7 +1879,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Toogle orthogonal/perspective</string>
+    <string>Isometric</string>
    </property>
    <property name="toolTip">
     <string>Toogle orthogonal/perspective</string>
@@ -1809,7 +1913,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>spinBoxXY</tabstop>
   <tabstop>verticalSliderXY</tabstop>
   <tabstop>textBrowserInfo</tabstop>
-  <tabstop>scrollAreaSelectedDataset</tabstop>
   <tabstop>spinBoxSelectedDatasetStep</tabstop>
   <tabstop>horizontalSliderSelectedDatasetStep</tabstop>
   <tabstop>toolButtonPlay</tabstop>

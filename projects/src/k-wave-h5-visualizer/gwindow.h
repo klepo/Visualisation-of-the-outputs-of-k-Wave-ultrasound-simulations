@@ -1,15 +1,16 @@
 /**
  * @file        gwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
-
- * @license     This file is partof k-Wave visualiser application
+ *
+ * @license     This file is part of k-Wave visualiser application
  * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *
  * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -41,6 +42,7 @@ public:
     void initialize();
     void render();
     bool event(QEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
     HDF5ReadingThread *getThread();
     bool isTexture3DInitialized();
@@ -51,15 +53,6 @@ signals:
     void loaded(std::string datasetName);
 
 public slots:
-    void setAlpha(int);
-    void setRed(int);
-    void setGreen(int);
-    void setBlue(int);
-    void setAlpha(double);
-    void setRed(double);
-    void setGreen(double);
-    void setBlue(double);
-
     void setViewFrame(bool);
     void setSlicesCount(int);
     void setViewVR(bool);
@@ -76,8 +69,10 @@ public slots:
 
     void load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index);
     void changeColormap(ColorMap::Type colormap = ColorMap::JET);
+    void changeOpacity(QVector<float> opacity = QVector<float>(5, 1));
     void changeMinValue(float value);
     void changeMaxValue(float value);
+    void changeMode(int mode = 0);
 
     void clearData();
     void unloadDataset();
@@ -113,6 +108,7 @@ private:
 
     GLint uVolumeTexture;
     GLint uColormapTexture;
+    GLint uOpacityTexture;
     GLint uSliceTexture;
     GLint uBoxSampler;
 
@@ -138,6 +134,8 @@ private:
     GLint m_uMin;
     GLint m_uMax;
 
+    GLint m_uMode;
+
     GLint m_aPosition;
 
     GLint m_uMatrix;
@@ -160,6 +158,7 @@ private:
     GLuint textureXZ;
     GLuint textureYZ;
     GLuint colormapTexture;
+    GLuint opacityTexture;
 
     QMatrix4x4 rotateXMatrix;
     QMatrix4x4 rotateYMatrix;
@@ -174,10 +173,9 @@ private:
     float minG = 0.0f;
     float maxG = 1.0f;
 
-    ColorMap::Type colormap = ColorMap::JET;
-    int steps = 100;
+    //ColorMap::Type colormap = ColorMap::JET;
+    int steps = 500;
 
-    QColor color;
     QVector3D index;
 
     bool frame = true;

@@ -1,16 +1,17 @@
 /**
  * @file        openglwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing the OpenGLWindow class.
  *              This class is mainly for OpenGL context creation, render, and mouse move tracking with buttons.
  *
-
- * @license     This file is partof k-Wave visualiser application
+ *
+ * @license     This file is part of k-Wave visualiser application
  * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *
  * @copyright   Copyright © 2016, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -107,18 +108,6 @@ void OpenGLWindow::exposeEvent(QExposeEvent *event)
 }
 
 /**
- * @brief OpenGLWindow::resizeEvent Redraw scene on window resize
- * @param event
- */
-void OpenGLWindow::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
-
-    if (isExposed())
-        renderNow();
-}
-
-/**
  * @brief OpenGLWindow::renderLater Create update request (event) for render
  */
 void OpenGLWindow::renderLater()
@@ -143,9 +132,10 @@ void OpenGLWindow::renderNow()
 
     render();
 
+    glFinish();
     m_context->swapBuffers(this);
 
-    QTest::qSleep(17); // max cca 60 fps
+    //QTest::qSleep(17); // max cca 60 fps
 
     //QString framesPerSecond;
     //framesPerSecond.setNum( 1000.0 / (timer.nsecsElapsed() / 1000000.0), 'f', 2);
@@ -315,6 +305,6 @@ void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
 {
     if (message.type() == QOpenGLDebugMessage::ErrorType)
         qCritical() << message;
-    else if (message.type() == QOpenGLDebugMessage::PerformanceType)
+    else// if (message.type() == QOpenGLDebugMessage::PerformanceType)
         qDebug() << message;
 }

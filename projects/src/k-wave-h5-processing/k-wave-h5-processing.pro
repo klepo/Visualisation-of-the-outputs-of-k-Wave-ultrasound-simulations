@@ -29,13 +29,14 @@ include($$PWD/../hdf5helper/hdf5helper.pri)
 # HDF5 library
 include($$PWD/../hdf5.pri)
 
-SOURCES += k-wave-h5-processing.cpp \
+SOURCES += \
     helper.cpp \
     settings.cpp \
     filescontext.cpp \
     dtsforpcs.cpp \
     paramsdefinition.cpp \
-    processing.cpp
+    processing.cpp \
+    main.cpp
 
 HEADERS += \
     helper.h \

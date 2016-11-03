@@ -1,14 +1,15 @@
 /**
  * @file        HDF5Dataset.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing HDF5Dataset class definition.
  *              This class is for better work with HDF5 dataset (read, write, find min/max values, ...).
  *
- * @license     This file is partof the hdf5helper library for k-Wave h5 processing
+ * @license     This file is part of the hdf5helper library for k-Wave h5 processing
  *              for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *              The hdf5helper library is free software.
  *
@@ -329,16 +330,6 @@ void HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
     #endif
 }
 
-void HDF5Dataset::readFullDataset(float *&data, bool log)
-{
-    readDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
-}
-
-void HDF5Dataset::readFullDataset(hsize_t *&data, bool log)
-{
-    readDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
-}
-
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, bool log)
 {
     checkTypeAndAllocation(data, H5T_NATIVE_FLOAT, count.getSize());
@@ -365,6 +356,26 @@ void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&dat
     readDatasetGeneral(offset, count, data, log);
 }
 
+void HDF5Dataset::readDataset(float *&data, bool log)
+{
+    readDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
+}
+
+void HDF5Dataset::readDataset(hsize_t *&data, bool log)
+{
+    readDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
+}
+
+void HDF5Dataset::readDataset(float *&data, float &min, float &max, bool log)
+{
+    readDataset(HDF5Vector(dims.getLength(), 0), dims, data, min, max, log);
+}
+
+void HDF5Dataset::readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, bool log)
+{
+    readDataset(HDF5Vector(dims.getLength(), 0), dims, data, min, max, log);
+}
+
 void HDF5Dataset::writeDataset(HDF5Vector offset, HDF5Vector count, float *data, bool log)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
@@ -379,6 +390,16 @@ void HDF5Dataset::writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *dat
         throw std::runtime_error("Wrong data type of dataset (not integer)");
 
     writeDatasetGeneral(offset, count, static_cast<void *>(data), log);
+}
+
+void HDF5Dataset::writeDataset(float *data, bool log)
+{
+    writeDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
+}
+
+void HDF5Dataset::writeDataset(hsize_t *data, bool log)
+{
+    writeDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
 }
 
 void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max, bool log)

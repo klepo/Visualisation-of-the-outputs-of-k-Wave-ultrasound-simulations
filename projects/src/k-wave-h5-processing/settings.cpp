@@ -1,8 +1,9 @@
 /**
  * @file        settings.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing settings.
  *
@@ -33,79 +34,92 @@ Settings::Settings()
 void Settings::loadParams(int argc, char **argv)
 {
     // Define expected params
+    // Modes
     paramsDefinition.defineParamsFlag("help");
     paramsDefinition.defineParamsFlag("reshape");
     paramsDefinition.defineParamsFlag("changeChunks");
     paramsDefinition.defineParamsFlag("dwnsmpl");
 
+    // Size
     ParamsDefinition::Flag::Params paramsS;
     paramsS.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("s", paramsS);
 
+    // Chnunk size
     ParamsDefinition::Flag::Params paramsCh;
     paramsCh.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("ch", paramsCh);
 
+    // Block size
     ParamsDefinition::Flag::Params paramsC;
     paramsC.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("c", paramsC);
 
+    // Names
     ParamsDefinition::Flag::Params paramsNames;
     paramsNames.defineParam(ParamsDefinition::STRINGS_SEPARATED);
     paramsDefinition.defineParamsFlag("names", paramsNames);
 
+    // HDF5 simulation output filename
     ParamsDefinition::Flag::Params paramsF;
     paramsF.defineParam(ParamsDefinition::STRING);
     paramsDefinition.defineParamsFlag("f", paramsF);
 
+    // HDF5 simulation input filename
     ParamsDefinition::Flag::Params paramsM;
     paramsM.defineParam(ParamsDefinition::STRING);
     paramsDefinition.defineParamsFlag("m", paramsM);
 
+    // HDF5 processing output filename
     ParamsDefinition::Flag::Params paramsO;
     paramsO.defineParam(ParamsDefinition::STRING);
     paramsDefinition.defineParamsFlag("o", paramsO);
 
+    // Help message
     paramsDefinition.setHelp("\n"
     "Usage: k-wave-h5-processing [options]\n"
     "where options include:\n\n"
     "  -f HDF5SimulationOutputFilename ...... Required parameter.\n"
     "                                         HDF5 file with simulation results.\n"
     "\n"
-    "  -m HDF5SimulationInputFilename ....... Optional parameter. Simulation HDF5 input file\n"
-    "                                         with sensor_mask_index dataset.\n"
+    "  -m HDF5SimulationInputFilename ....... Optional parameter. HDF5 simulation input filename \n"
+    "                                         (with sensor_mask_index or sensor_mask_corners dataset).\n"
     "\n"
-    "  -o HDF5OutputFilename ................ Optional parameter - output filename. Default value is\n"
-    "                                         HDF5SimulationOutputFilename + \"_modified.h5\".\n"
+    "  -o HDF5ProcessingOutputFilename ...... Optional parameter. HDF5 processing output filename. \n"
+    "                                         Default is HDF5SimulationOutputFilename + \"_modified.h5\".\n"
     "\n"
     "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
-    "                                         type datasets to group with series of 3D datasets\n"
-    "                                         and saves datasets to a new file.\n"
-    "                                         In hDF5SimOutputFile or hDF5SimInputFile\n"
-    "                                         must be sensor_mask_index dataset.\n"
+    "                                         type datasets to group with 4D datasets and saves datasets\n"
+    "                                         to the output file. In HDF5SimulationOutputFilename or \n"
+    "                                         HDF5SimulationInputFilename must be sensor_mask_index or\n"
+    "                                         sensor_mask_corners dataset.\n"
     "\n"
-    "  -changeChunks ........................ Optional parameter. Sets a new size chunks of 3D type\n"
-    "                                         datasets and saves datasets to a new file.\n"
+    "  -changeChunks ........................ Optional parameter. Sets a new chunks size of\n"
+    "                                         datasets and saves datasets to the output file.\n"
     "\n"
     "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
-    "                                         and saves them to new file.\n"
+    "                                         and saves them to the output file.\n"
     "\n"
     "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
+    "                                         Default size is 512.\n"
     "\n"
-    "  -ch chunkSize ........................ Optional parameter. Size for new chunks from 1 to\n"
-    "                                         maximal appropriately value.\n"
-    "                                         groups for processing.\n"
+    "  -ch chunkSize ........................ Optional parameter. The size for new chunks from 1 to\n"
+    "                                         maximal appropriately value. Default size is 64 (64^3).\n"
     "\n"
     "  -c blockSize ......................... Optional parameter. Set number of data elements\n"
-    "                                         for block reading.\n"
+    "                                         for block reading. Default value is based on available\n"
+    "                                         system physical memory.\n"
     "\n"
-    "  -names name1;name2;... ............... Optional parameter. Names of selected datasets or\n"
+    "  -names name1;name2;... ............... Optional parameter. Names of selected datasets or groups\n"
+    "                                         to processing.\n"
     "\n"
     "  -help ................................ Prints this help message.\n"
     "\n");
 
+    // Parse params from command line.
     paramsDefinition.commandLineParse(argc, argv);
 
+    // Set flags according to params
     ParamsDefinition::Flags flags = paramsDefinition.getFlags();
 
     if (flags.at("help").getEnabled()) {
@@ -140,23 +154,23 @@ void Settings::loadParams(int argc, char **argv)
     if (flags.at("o").getEnabled()) {
         std::string outputFilename;
         flags.at("o").getParams().readParam(0, &outputFilename);
-        setOutputFilename(outputFilename);
+        setProcessingOutputFilename(outputFilename);
     }
 
     if (flags.at("s").getEnabled()) {
-        hsize_t maxSize;
+        unsigned long long maxSize;
         flags.at("s").getParams().readParam(0, &maxSize);
         setMaxSize(maxSize);
     }
 
     if (flags.at("ch").getEnabled()) {
-        hsize_t maxChunkSize;
+        unsigned long long maxChunkSize;
         flags.at("ch").getParams().readParam(0, &maxChunkSize);
         setMaxChunkSize(maxChunkSize);
     }
 
     if (flags.at("c").getEnabled()) {
-        hsize_t blockSize;
+        unsigned long long blockSize;
         flags.at("c").getParams().readParam(0, &blockSize);
         setBlockSize(blockSize);
     }
@@ -167,12 +181,12 @@ void Settings::init()
     // Filenames
     simulationOutputFilename = "";
     simulationInputFilename = "";
-    outputFilename = "";
+    processingOutputFilename = "";
 
     // Size vars
     maxSize = 512;
     maxChunkSize = 64;
-    blockSize = HDF5Helper::NUMBER_OF_ELEMENTS_TO_LOAD; // From HDF5File.h
+    blockSize = 0;
 
     // Filter by names
     names.clear();
@@ -208,45 +222,45 @@ void Settings::setSimulationInputFilename(const std::string &value)
     std::cout << "\n  Simulation input filename:\n    " << simulationInputFilename << std::endl;
 }
 
-std::string Settings::getOutputFilename()
+std::string Settings::getProcessingOutputFilename()
 {
-    return outputFilename;
+    return processingOutputFilename;
 }
 
-void Settings::setOutputFilename(const std::string &value)
+void Settings::setProcessingOutputFilename(const std::string &value)
 {
-    outputFilename = value;
-    std::cout << "\n  Output filename:\n    " << outputFilename << std::endl;
+    processingOutputFilename = value;
+    std::cout << "\n  Output filename:\n    " << processingOutputFilename << std::endl;
 }
 
-hsize_t Settings::getMaxSize()
+unsigned long long Settings::getMaxSize()
 {
     return maxSize;
 }
 
-void Settings::setMaxSize(const hsize_t &value)
+void Settings::setMaxSize(const unsigned long long &value)
 {
     maxSize = value;
     std::cout << "\n  Max size for downsampling:\n    " << maxSize << std::endl;
 }
 
-hsize_t Settings::getMaxChunkSize()
+unsigned long long Settings::getMaxChunkSize()
 {
     return maxChunkSize;
 }
 
-void Settings::setMaxChunkSize(const hsize_t &value)
+void Settings::setMaxChunkSize(const unsigned long long &value)
 {
     maxChunkSize = value;
     std::cout << "\n  Chunk size:\n    " << maxChunkSize << std::endl;
 }
 
-hsize_t Settings::getBlockSize()
+unsigned long long Settings::getBlockSize()
 {
     return blockSize;
 }
 
-void Settings::setBlockSize(const hsize_t &value)
+void Settings::setBlockSize(const unsigned long long &value)
 {
     blockSize = value;
     std::cout << "\n  Max size for block reading:\n    " << blockSize << std::endl;
@@ -262,7 +276,7 @@ void Settings::setNames(const std::list<std::string> &value)
     names = value;
     std::cout << "\n  Selected datasets or groups names:    " << std::endl;
     for (std::list<std::string>::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
-        std::cout << *ci << " ";
+        std::cout << *ci << ", ";
     }
 }
 

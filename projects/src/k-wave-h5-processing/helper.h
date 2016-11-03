@@ -1,8 +1,9 @@
 /**
  * @file        helper.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        8  September 2016 (created)
+ *              3  November  2016 (updated)
  *
  * @brief       The header file with Helper namespace declaration.
  *
@@ -16,7 +17,8 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#include <hdf5helper.h>
+#include <iostream>
+#include <string>
 
 namespace Helper
 {
@@ -24,7 +26,7 @@ namespace Helper
 void printDebugTitle(std::string msg);
 void printDebugMsg(std::string msg);
 void printErrorMsg(std::string msg);
-hsize_t round(double number);
+unsigned long long round(double number);
 
 }
 

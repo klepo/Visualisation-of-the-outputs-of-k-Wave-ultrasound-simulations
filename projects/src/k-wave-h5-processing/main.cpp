@@ -1,10 +1,11 @@
 /**
- * @file        k-wave-h5-processing.cpp
+ * @file        main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
- * @version     1.0
+ * @version     1.1
  * @date        30 July      2014 (created)
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
+ *              3  November  2016 (updated)
  *
  * @brief       The implementation file containing k-Wave HDF5 processing application.
  *
@@ -15,30 +16,25 @@
  *
  */
 
-#include <iostream>
-#include <string>
-#include <time.h>
-
 #include <hdf5helper.h>
-
 #include <processing.h>
 
 /**
- * @brief main Main function
+ * @brief Main function
  * @param argc
  * @param argv
  * @return EXIT_SUCCESS
  */
 int main(int argc, char **argv)
 {
-    double t0 = HDF5Helper::getTime();
+    double t0 = HDF5Helper::getTime(); // Save the start time
 
     Settings *settings = new Settings();
     settings->loadParams(argc, argv);
 
     FilesContext *filesContext = new FilesContext(settings);
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
-    Processing *processing = new Processing(filesContext->getHDF5OutputFile(), dtsForPcs, settings);
+    Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
 
     // Processing of sensor mask
     if (settings->getFlagReshape()) {
@@ -63,7 +59,7 @@ int main(int argc, char **argv)
     // Close files
     delete filesContext;
 
-    double t1 = HDF5Helper::getTime();
+    double t1 = HDF5Helper::getTime(); // Save the final time
 
     std::cout << std::endl << std::endl << "Time of the entire process: " << (t1 - t0) << " ms; \t" << std::endl << std::endl << std::endl;
 
