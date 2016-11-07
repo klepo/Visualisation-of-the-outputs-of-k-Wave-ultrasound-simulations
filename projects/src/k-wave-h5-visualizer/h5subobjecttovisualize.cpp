@@ -156,7 +156,7 @@ HDF5Helper::HDF5Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
 
 /**
  * @brief OpenedH5File::H5SubobjectToVisualize::getGroup
- * @return group (can be NULL)
+ * @return group (can be 0)
  */
 HDF5Helper::HDF5Group *OpenedH5File::H5SubobjectToVisualize::getGroup()
 {

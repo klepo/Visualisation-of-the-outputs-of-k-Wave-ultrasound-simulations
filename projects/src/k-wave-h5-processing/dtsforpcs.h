@@ -37,15 +37,14 @@ public:
     HDF5Helper::MapOfGroups getGroupsCuboidTypeAttrDsp() const;
 
 private:
-    HDF5Helper::HDF5Dataset *findAndGetSensorMaskIndexDataset(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile);
-    HDF5Helper::HDF5Dataset *findAndGetSensorMaskCornersDataset(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile);
+    HDF5Helper::HDF5Dataset *findAndGetDataset(const std::string name, HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile);
     void findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, Settings *settings);
 
     HDF5Helper::HDF5Vector4D nDims;
 
-    // TODO set NULL
-    HDF5Helper::HDF5Dataset *sensorMaskIndexDataset;
-    HDF5Helper::HDF5Dataset *sensorMaskCornersDataset;
+    HDF5Helper::HDF5Dataset *sensorMaskIndexDataset = 0;
+    HDF5Helper::HDF5Dataset *sensorMaskCornersDataset = 0;
+    HDF5Helper::HDF5Dataset *sourceInputDataset = 0;
     hsize_t sensorMaskSize = 0;
     hsize_t sensorMaskType = 0;
     HDF5Helper::MapOfDatasets dts3DType;

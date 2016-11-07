@@ -27,7 +27,7 @@ void Processing::reshape()
 {
     try {
         if (dtsForPcs->getDtsMaskType().empty() && dtsForPcs->getGroupsCuboidType().empty()) {
-            std::cout << "No datasets or groups for reshape in simuation output file" << std::endl;
+            std::cout << "No datasets or groups for reshape in simulation output file" << std::endl;
         } else {
             // For every mask type dataset
             if (!dtsForPcs->getDtsMaskType().empty() && dtsForPcs->getSensorMaskIndexDataset()) {
@@ -370,6 +370,57 @@ void Processing::donwsampling()
     }
 }
 
+void Processing::compress()
+{
+    try {
+        if (dtsForPcs->getDtsMaskType().empty() && dtsForPcs->getGroupsCuboidType().empty()
+                && dtsForPcs->getGroupsCuboidTypeAttr().empty()) {
+            std::cout << "No datasets or groups to compress in simulation output file" << std::endl;
+        } else {
+            // For every mask type dataset
+            if (!dtsForPcs->getDtsMaskType().empty()) {
+                HDF5Helper::MapOfDatasets::iterator it;
+                HDF5Helper::MapOfDatasets map;
+                map = dtsForPcs->getDtsMaskType();
+                for (it = map.begin(); it != map.end(); ++it) {
+                    HDF5Helper::HDF5Dataset *srcDataset = it->second;
+                    compressDataset(srcDataset);
+                }
+            }
+            HDF5Helper::MapOfGroups::iterator itG;
+            HDF5Helper::MapOfGroups mapG;
+            // For every group cuboid attr type
+            mapG = dtsForPcs->getGroupsCuboidTypeAttr();
+            for (itG = mapG.begin(); itG != mapG.end(); ++itG) {
+                HDF5Helper::HDF5Group *srcGroup = itG->second;
+
+                hDF5OutputFile->createGroup(srcGroup->getName(), true);
+
+                for (hsize_t i = 0; i < srcGroup->getNumObjs(); i++) {
+                    HDF5Helper::HDF5Dataset *srcDataset = srcGroup->openDataset(i);
+                    compressDataset(srcDataset);
+                }
+            }
+
+            // For every group cuboid type
+            mapG = dtsForPcs->getGroupsCuboidType();
+            for (itG = mapG.begin(); itG != mapG.end(); ++itG) {
+                HDF5Helper::HDF5Group *srcGroup = itG->second;
+
+                hDF5OutputFile->createGroup(srcGroup->getName(), true);
+
+                for (hsize_t i = 0; i < srcGroup->getNumObjs(); i++) {
+                    HDF5Helper::HDF5Dataset *srcDataset = srcGroup->openDataset(i);
+                    compressDataset(srcDataset);
+                }
+            }
+        }
+    } catch(std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+}
+
 void Processing::findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &min, HDF5Helper::HDF5Vector3D &max)
 {
     // Find min and max position from linear saved values
@@ -447,6 +498,7 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     HDF5Helper::HDF5Vector offset;
     HDF5Helper::HDF5Vector count;
 
+    // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
         srcDataset->readBlock(i, offset, count, data, minV, maxV);
         dstDataset->writeDataset(offset, count, data, true);
@@ -547,6 +599,88 @@ void Processing::resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5He
     std::cout << "Time of resampling of the whole 4D dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
+void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
+{
+    HDF5Helper::HDF5Vector dims = srcDataset->getDims();
+
+    // Chunk size
+    HDF5Helper::HDF5Vector chunkSize(dims.getLength(), 1);
+
+    for (hsize_t i = 0; i < dims.getLength(); i++) {
+        chunkSize[i] = settings->getMaxChunkSize();
+        if (chunkSize[i] > dims[i]) chunkSize[i] = dims[i];
+    }
+
+    hsize_t steps = 0;
+    if (dims.getLength() == 4) {
+        steps = HDF5Helper::HDF5Vector4D(dims).w();
+    } else if (dims.getLength() == 3) {
+        steps = HDF5Helper::HDF5Vector3D(dims).y();
+    } else {
+        // Something wrong.
+        return;
+    }
+
+    // Coding parameters
+    // Period
+    hsize_t T;
+
+    // Multiple of overlap size
+    hsize_t s = 4;
+
+    // TODO
+
+
+
+    return;
+
+    // Dst number of steps
+    //dims
+
+    // Create dst dataset
+    hDF5OutputFile->createDatasetF(srcDataset->getName(), dims, chunkSize, true);
+    HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcDataset->getName());
+
+    double t0 = HDF5Helper::getTime();
+
+    float *data = 0;
+    //float minV, maxV;
+    //float minVG = 0, maxVG = 0;
+    //bool first = true;
+    HDF5Helper::HDF5Vector offset;
+    HDF5Helper::HDF5Vector count;
+
+    // Change chunks
+    for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
+        srcDataset->readBlock(i, offset, count, data);
+
+
+
+
+        dstDataset->writeDataset(offset, count, data);
+        delete[] data;
+        /*if (first) {
+            minVG = minV;
+            maxVG = maxV;
+            first = false;
+        }
+        if (minVG > minV) minVG = minV;
+        if (maxVG < maxV) maxVG = maxV;*/
+    }
+
+    // Copy attributes
+    copyAttributes(srcDataset, dstDataset);
+
+    // Set min/max values
+    //dstDataset->setAttribute("min", minVG);
+    //dstDataset->setAttribute("max", maxVG);
+
+    double t1 = HDF5Helper::getTime();
+    std::cout << "Time of compression of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
+
+    hDF5OutputFile->closeDataset(dstDataset);
+}
+
 void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset)
 {
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
@@ -554,6 +688,27 @@ void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper:
         dstDataset->setAttribute(attr);
         delete attr;
     }
+}
+
+hsize_t Processing::getPeriod(float *dataSrc, const hsize_t length)
+{
+    int lengthTmp = length * 2  - 1;
+    float *dataTmp = new float[lengthTmp];
+    int *peaksTmp = new int[lengthTmp];
+    int peaksCount;
+    hsize_t period;
+
+    xcorr(dataSrc, dataSrc, dataTmp, length, length);
+    findPeaks(dataTmp, peaksTmp, lengthTmp, peaksCount);
+    int *peaks = new int[peaksCount - 1];
+    diff(peaksTmp, peaks, peaksCount);
+    period = hsize_t(floor(mean(peaks, peaksCount - 1)) + 0.5);
+
+    delete[] dataTmp;
+    delete[] peaksTmp;
+    delete[] peaks;
+
+    return period;
 }
 
 void Processing::resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight)
@@ -621,5 +776,116 @@ void Processing::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
             }
         }
     }
+}
+
+void Processing::xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const int length1, const int length2)
+{
+    int i, j, i1;
+    float tmp;
+
+    for (i = 0; i < length1 + length2 - 1; i++) {
+        dataDst[i] = 0;
+        i1 = i;
+        tmp = 0.0;
+        for (j = 0; j < length2; j++) {
+            if (i1 >= 0 && i1 < length1)
+                tmp = tmp + (dataSrc1[i1] * dataSrc2[length2 - 1 - j]);
+
+            i1 = i1 - 1;
+            dataDst[i] = tmp;
+        }
+    }
+}
+
+void Processing::conv(float *dataSrc1, float *dataSrc2, float *dataDst, const int length1, const int length2)
+{
+    int i, j, i1;
+    float tmp;
+
+    for (i = 0; i < length1 + length2 - 1; i++) {
+        dataDst[i] = 0;
+        i1 = i;
+        tmp = 0.0;
+        for (j = 0; j < length2; j++) {
+            if (i1 >= 0 && i1 < length1)
+                tmp = tmp + (dataSrc1[i1] * dataSrc2[j]);
+
+            i1 = i1 - 1;
+            dataDst[i] = tmp;
+        }
+    }
+}
+
+void Processing::findPeaks(float *dataSrc, int *dataDst, const int length, int &lengthDst)
+{
+    for (int i = 0; i < length; i++) {
+        dataDst[i] = -1;
+    }
+
+    lengthDst = 0;
+
+    for (int i = 0; i < length; i++) {
+        // If the peak is only one
+        /*if (length == 1) {
+            dataDst[0] = 0;
+            break;
+        }*/
+
+        // If first element is peak
+        /*if (i == 0 && length > 1) {
+            if (dataSrc[i + 1] < dataSrc[i]) {
+                dataDst[j] = i;
+                j++;
+            }
+            continue;
+        }*/
+
+        // If last element is peak
+        /*if (i == length - 1 && length > 1) {
+            if (dataSrc[i - 1] < dataSrc[i]) {
+                dataDst[j] = i;
+                j++;
+            }
+            break;
+        }*/
+
+        // Peaks between
+        if (i > 0 && i < length - 1 && length > 2 && dataSrc[i] > dataSrc[i - 1] && dataSrc[i] >= dataSrc[i + 1]) {
+            dataDst[lengthDst] = i;
+            lengthDst++;
+        }
+    }
+}
+
+void Processing::diff(float *dataSrc, float *dataDst, const int length)
+{
+    for (int i = 0; i < length - 1; i++) {
+        dataDst[i] = dataSrc[i + 1] - dataSrc[i];
+    }
+}
+
+void Processing::diff(int *dataSrc, int *dataDst, const int length)
+{
+    for (int i = 0; i < length - 1; i++) {
+        dataDst[i] = dataSrc[i + 1] - dataSrc[i];
+    }
+}
+
+float Processing::mean(float *dataSrc, const int length)
+{
+    float sum = 0;
+    for (int i = 0; i < length; i++) {
+        sum += dataSrc[i];
+    }
+    return sum / length;
+}
+
+int Processing::mean(int *dataSrc, const int length)
+{
+    int sum = 0;
+    for (int i = 0; i < length; i++) {
+        sum += dataSrc[i];
+    }
+    return int(round(float(sum) / length));
 }
 

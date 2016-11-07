@@ -166,7 +166,7 @@ void HDF5ReadingThread::run()
     while (1) {
         // Reading mutex
         QMutexLocker lock(&mutex);
-        Request *r = NULL;
+        Request *r = 0;
         // Queue mutex
         queueMutex.lock();
         if (!queue.isEmpty())
@@ -178,7 +178,7 @@ void HDF5ReadingThread::run()
         }
         queueMutex.unlock();
 
-        if (r != NULL) {
+        if (r != 0) {
             try {
                 //usleep(1000000);
                 if (r->full) {

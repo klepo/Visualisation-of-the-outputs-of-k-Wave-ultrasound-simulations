@@ -43,6 +43,7 @@ public:
     static const std::string NX_DATASET;
     static const std::string NY_DATASET;
     static const std::string NZ_DATASET;
+    static const std::string P_SOURCE_INPUT_DATASET;
 
     // Simulation data files
     std::string getSimulationOutputFilename();

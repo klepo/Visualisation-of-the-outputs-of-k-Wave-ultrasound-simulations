@@ -108,7 +108,7 @@ void CVImageWidget::saveImage()
 {
     if (isSetImage) {
         QString fileName = QFileDialog::getSaveFileName(this, "Save image", this->fileName + ".png", "Image (*.png)");
-        if (fileName != NULL)
+        if (fileName != 0)
             qimage.save(fileName, 0, 100);
     }
 }

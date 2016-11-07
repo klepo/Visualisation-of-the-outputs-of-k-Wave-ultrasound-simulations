@@ -147,7 +147,7 @@ QMap<QString, OpenedH5File::H5ObjectToVisualize *> OpenedH5File::getObjects()
 /**
  * @brief OpenedH5File::getObject
  * @param mainName name of object
- * @return object or NULL
+ * @return object or 0
  */
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
 {
@@ -161,7 +161,7 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
 /**
  * @brief OpenedH5File::getObjectBySubobjectName
  * @param name name of subobject (dataset or group)
- * @return subobject or NULL
+ * @return subobject or 0
  */
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QString name)
 {

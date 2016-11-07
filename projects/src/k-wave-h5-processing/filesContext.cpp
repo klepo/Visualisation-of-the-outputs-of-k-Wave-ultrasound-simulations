@@ -47,15 +47,15 @@ FilesContext::FilesContext(Settings *settings)
 
 FilesContext::~FilesContext()
 {
-    if (hDF5SimOutputFile != NULL) {
+    if (hDF5SimOutputFile != 0) {
         delete hDF5SimOutputFile;
-        hDF5SimOutputFile = NULL;
+        hDF5SimOutputFile = 0;
     }
-    if (hDF5SimInputFile != NULL) {
+    if (hDF5SimInputFile != 0) {
         delete hDF5SimOutputFile;
-        hDF5SimInputFile = NULL;
+        hDF5SimInputFile = 0;
     }
-    if (hDF5PcsOutputFile != NULL) {
+    if (hDF5PcsOutputFile != 0) {
         delete hDF5SimOutputFile;
         hDF5SimOutputFile = 0;
     }
@@ -78,7 +78,7 @@ HDF5Helper::File *FilesContext::getHDF5PcsOutputFile() const
 
 HDF5Helper::File *FilesContext::loadSimulationFile(std::string simulationFilename)
 {
-    HDF5Helper::File *hDF5SimulationFile = NULL;
+    HDF5Helper::File *hDF5SimulationFile = 0;
     try {
         hDF5SimulationFile = new HDF5Helper::File(simulationFilename, HDF5Helper::File::OPEN);
     } catch (std::exception &e) {
@@ -91,7 +91,7 @@ HDF5Helper::File *FilesContext::loadSimulationFile(std::string simulationFilenam
 HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilename, Settings *settings)
 {
     std::string filename = "";
-    HDF5Helper::File *file = NULL;
+    HDF5Helper::File *file = 0;
     if (outputFilename.empty()) {
         // Create auto filename
         size_t lastindex = settings->getSimulationOutputFilename().find_last_of(".");

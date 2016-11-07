@@ -56,7 +56,7 @@ HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5
     dims = HDF5Vector(rank);
     chunkDims = HDF5Vector(rank);
 
-    int dimsCount = H5Sget_simple_extent_dims(dataspace, dims.getVectorPtr(), NULL);
+    int dimsCount = H5Sget_simple_extent_dims(dataspace, dims.getVectorPtr(), 0);
     if (dimsCount < 0){
         throw std::runtime_error("H5Sget_simple_extent_dims error");
     }
@@ -435,11 +435,11 @@ void HDF5Dataset::readEmptyBlock()
     hid_t dataspace = H5Dget_space(dataset);
     H5Sselect_none(dataspace);
     HDF5Vector3D count;
-    hid_t memspace = H5Screate_simple(3, count.getVectorPtr(), NULL);
+    hid_t memspace = H5Screate_simple(3, count.getVectorPtr(), 0);
     H5Sselect_none(memspace);
     double t0 = 0, t1 = 0;
     t0 = getTime();
-    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, NULL);
+    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
     t1 = getTime();
     if (err < 0){
         throw std::runtime_error("H5Dread error");
@@ -453,16 +453,16 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
     HDF5Vector mem_offset(offset.getLength());
 
     hid_t dataspace = H5Dget_space(dataset);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), NULL, count.getVectorPtr(), NULL);
+    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
-    hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), NULL);
+    hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), 0);
     if (memspace < 0){
         throw std::runtime_error("H5Screate_simple error");
     }
 
-    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), NULL, count.getVectorPtr(), NULL);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -503,17 +503,17 @@ void HDF5Dataset::writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void 
     HDF5Vector mem_offset(offset.getLength());
 
     hid_t dataspace = H5Dget_space(dataset);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), NULL, count.getVectorPtr(), NULL);
+    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
 
-    hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), NULL);
+    hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), 0);
     if (memspace < 0){
         throw std::runtime_error("H5Screate_simple error");
     }
 
-    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), NULL, count.getVectorPtr(), NULL);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -684,7 +684,7 @@ void HDF5Dataset::checkTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 
     try {
         data = new hsize_t[size](); // TODO check available memory
-        if (data == nullptr)
+        if (data == 0)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
         throw std::runtime_error(memoryErrorMessage(size, H5T_NATIVE_UINT64));
@@ -701,7 +701,7 @@ void HDF5Dataset::checkTypeAndAllocation(float *&data, int type, hsize_t size)
 
     try {
         data = new float[size](); // TODO check available memory
-        if (data == nullptr)
+        if (data == 0)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
         throw std::runtime_error(memoryErrorMessage(size, H5T_NATIVE_FLOAT));

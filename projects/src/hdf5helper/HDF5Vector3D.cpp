@@ -39,6 +39,11 @@ HDF5Vector3D::HDF5Vector3D(const HDF5Vector &hDF5Vector)
     set(tmp[length - 3], tmp[length - 2], tmp[length - 1]);
 }
 
+HDF5Vector3D::HDF5Vector3D(const hsize_t value) : HDF5Vector(3 , value)
+{
+
+}
+
 HDF5Vector3D::HDF5Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
     : HDF5Vector(3)
 {

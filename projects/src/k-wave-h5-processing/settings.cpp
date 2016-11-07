@@ -24,6 +24,7 @@ const std::string Settings::NT_DATASET("Nt");
 const std::string Settings::NX_DATASET("Nx");
 const std::string Settings::NY_DATASET("Ny");
 const std::string Settings::NZ_DATASET("Nz");
+const std::string Settings::P_SOURCE_INPUT_DATASET("p_source_input");
 
 
 Settings::Settings()

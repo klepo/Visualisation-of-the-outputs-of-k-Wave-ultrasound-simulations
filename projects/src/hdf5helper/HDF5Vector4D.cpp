@@ -39,7 +39,12 @@ HDF5Vector4D::HDF5Vector4D(const HDF5Vector &hDF5Vector)
     set(tmp[length - 4], tmp[length - 3], tmp[length - 2], tmp[length - 1]);
 }
 
-HDF5Vector4D::HDF5Vector4D(hsize_t value, const HDF5Vector3D &hDF5Vector)
+HDF5Vector4D::HDF5Vector4D(const hsize_t value) : HDF5Vector(4, value)
+{
+
+}
+
+HDF5Vector4D::HDF5Vector4D(const hsize_t value, const HDF5Vector3D &hDF5Vector)
     : HDF5Vector(4)
 {
     set(value, hDF5Vector.z(), hDF5Vector.y(), hDF5Vector.x());

@@ -18,11 +18,14 @@
 
 DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 {
-    // Find and get sensor mask dataset
-    sensorMaskIndexDataset = findAndGetSensorMaskIndexDataset(filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
-    sensorMaskCornersDataset = findAndGetSensorMaskCornersDataset(filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    // Try to open the p_source_input dataset for getting the simulation frequency
+    sourceInputDataset = findAndGetDataset(Settings::P_SOURCE_INPUT_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
 
-    if (sensorMaskIndexDataset != NULL) {
+    // Find and get sensor mask dataset
+    sensorMaskIndexDataset = findAndGetDataset(Settings::SENSOR_MASK_INDEX_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    sensorMaskCornersDataset = findAndGetDataset(Settings::SENSOR_MASK_CORNERS_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+
+    if (sensorMaskIndexDataset != 0) {
         // Get sensor mask size
         HDF5Helper::HDF5Vector3D size = sensorMaskIndexDataset->getDims();
         if (sensorMaskIndexDataset->getRank() == 3 && size.z() == 1 && size.y() == 1) {
@@ -32,7 +35,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             Helper::printErrorMsg("Wrong sensor mask index dataset");
             exit(EXIT_FAILURE);
         }
-    } else if (sensorMaskCornersDataset != NULL) {
+    } else if (sensorMaskCornersDataset != 0) {
         // Get sensor mask size
         HDF5Helper::HDF5Vector3D size = sensorMaskCornersDataset->getDims();
         if ((size.x() % 6) == 0 && size.z() == 1 && size.y() == 1) {
@@ -112,58 +115,31 @@ HDF5Helper::MapOfGroups DtsForPcs::getGroupsCuboidTypeAttrDsp() const
     return groupsCuboidTypeAttrDsp;
 }
 
-HDF5Helper::HDF5Dataset *DtsForPcs::findAndGetSensorMaskIndexDataset(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile)
+HDF5Helper::HDF5Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile = 0)
 {
-    HDF5Helper::HDF5Dataset *sensorMaskIndexDataset = NULL;
-    Helper::printDebugTitle("Find and get sensor mask index dataset");
+    HDF5Helper::HDF5Dataset *dataset = 0;
+    Helper::printDebugTitle("Find and get "+ name +" dataset");
 
-    if (hDF5SimOutputFile->objExistsByName(Settings::SENSOR_MASK_INDEX_DATASET)) {
-        // Try to load sensor mask index from simulation output file
+    if (hDF5SimOutputFile->objExistsByName(name)) {
+        // Try to load dataset from simulation output file
         try {
-            sensorMaskIndexDataset = hDF5SimOutputFile->openDataset(Settings::SENSOR_MASK_INDEX_DATASET);
+            dataset = hDF5SimOutputFile->openDataset(name);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
-    } else if (hDF5SimInputFile != NULL && hDF5SimInputFile->objExistsByName(Settings::SENSOR_MASK_INDEX_DATASET)){
-        // Try to load sensor mask index from simulation input file
+    } else if (hDF5SimInputFile != 0 && hDF5SimInputFile->objExistsByName(name)){
+        // Try to load dataset from simulation input file
         try {
-            sensorMaskIndexDataset = hDF5SimInputFile->openDataset(Settings::SENSOR_MASK_INDEX_DATASET);
+            dataset = hDF5SimInputFile->openDataset(name);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
     } else {
-        Helper::printDebugMsg("Sensor mask index dataset is not in simulation output or input file");
+        Helper::printDebugMsg("The " + name + " dataset is not in simulation output or input file");
     }
-    return sensorMaskIndexDataset;
-}
-
-HDF5Helper::HDF5Dataset *DtsForPcs::findAndGetSensorMaskCornersDataset(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile)
-{
-    HDF5Helper::HDF5Dataset *sensorMaskCornersDataset = NULL;
-    Helper::printDebugTitle("Find and get sensor mask corners dataset");
-
-    if (hDF5SimOutputFile->objExistsByName(Settings::SENSOR_MASK_CORNERS_DATASET)) {
-        // Try to load sensor mask corners from simulation output file
-        try {
-            sensorMaskCornersDataset = hDF5SimOutputFile->openDataset(Settings::SENSOR_MASK_CORNERS_DATASET);
-        } catch(std::exception &e) {
-            Helper::printErrorMsg(e.what());
-            std::exit(EXIT_FAILURE);
-        }
-    } else if (hDF5SimInputFile != NULL && hDF5SimInputFile->objExistsByName(Settings::SENSOR_MASK_CORNERS_DATASET)){
-        // Try to load sensor mask corners from simulation input file
-        try {
-            sensorMaskCornersDataset = hDF5SimInputFile->openDataset(Settings::SENSOR_MASK_CORNERS_DATASET);
-        } catch(std::exception &e) {
-            Helper::printErrorMsg(e.what());
-            std::exit(EXIT_FAILURE);
-        }
-    } else {
-        Helper::printDebugMsg("Sensor mask corners dataset is not in simulation output or input file");
-    }
-    return sensorMaskCornersDataset;
+    return dataset;
 }
 
 void DtsForPcs::findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, Settings *settings)
@@ -204,7 +180,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, S
                 }
                 // Sensor mask type
                 else if (dataset->getDataTypeClass() == H5T_FLOAT
-                         && sensorMaskIndexDataset != NULL
+                         && sensorMaskIndexDataset != 0
                          && size.z() == 1
                          && size.y() <= nDims.w()
                          && size.x() == sensorMaskSize) {

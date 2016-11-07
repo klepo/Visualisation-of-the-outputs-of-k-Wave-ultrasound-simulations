@@ -55,14 +55,14 @@ File::File(std::string filename, unsigned int flag, bool log)
     numberOfElementsToLoad = (getAvailableSystemPhysicalMemory() / 2) / 4;
 
     // Disable error HDF5 output
-    H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    H5Eset_auto(H5E_DEFAULT, 0, 0);
 
     // Save filename
     this->filename = filename;
 
     // Create log file
     if (log) {
-        logFileStream.open(filename + "_" + std::to_string(time(NULL)) + ".log");
+        logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
         logFileStream << filename << std::endl;
     }
 
@@ -118,7 +118,7 @@ File::File(std::string filename, unsigned int flag, bool log)
             insertDataset(File::NZ);
 
             //Set dimensions
-            hsize_t *data = NULL;
+            hsize_t *data = 0;
 
             openDataset(File::NT)->readDataset(data);
             nT = data[0];
@@ -281,7 +281,7 @@ void File::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Ve
  */
 void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vector size, HDF5Vector chunkSize, bool rewrite)
 {
-    hid_t dataspace = H5Screate_simple(static_cast<int>(size.getLength()), size.getVectorPtr(), NULL);
+    hid_t dataspace = H5Screate_simple(static_cast<int>(size.getLength()), size.getVectorPtr(), 0);
     if (dataspace < 0){
         throw std::runtime_error("H5Screate_simple error");
         //MPI::COMM_WORLD.Abort(1);
@@ -503,7 +503,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t fileGroupId)
     if (fileGroupId <= 0)
         fGIdTmp = file;
 
-    char *nameC = NULL;
+    char *nameC = 0;
     size_t size = 0;
     ssize_t sizeR = 0;
     sizeR = H5Gget_objname_by_idx(fGIdTmp, idx, nameC, size);
@@ -634,7 +634,7 @@ double getTime()
     #endif
     #ifdef __unix
         timeval tv;
-        gettimeofday (&tv, NULL);
+        gettimeofday (&tv, 0);
         return double (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
     #endif
 

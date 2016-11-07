@@ -28,7 +28,8 @@ class HDF5Vector4D : public HDF5Vector
 public:
     HDF5Vector4D();
     HDF5Vector4D(const HDF5Vector &hDF5Vector);
-    HDF5Vector4D(hsize_t value, const HDF5Vector3D &hDF5Vector);
+    HDF5Vector4D(const hsize_t value);
+    HDF5Vector4D(const hsize_t value, const HDF5Vector3D &hDF5Vector);
     HDF5Vector4D(const hsize_t w, const hsize_t z, const hsize_t y, const hsize_t x);
     void set(const hsize_t w, const hsize_t z, const hsize_t y, const hsize_t x);
     void set(const int w, const int z, const int y, const int x);

@@ -33,7 +33,7 @@ void HDF5Attribute::loadAttribute(hid_t attribute)
         //MPI::COMM_WORLD.Abort(1);
     }
     size = H5Aget_storage_size(attribute);
-    ssize_t nameSize = H5Aget_name(attribute, 0, NULL);
+    ssize_t nameSize = H5Aget_name(attribute, 0, 0);
     if (nameSize < 0){
         throw std::runtime_error("H5Aget_name error");
         //MPI::COMM_WORLD.Abort(1);
