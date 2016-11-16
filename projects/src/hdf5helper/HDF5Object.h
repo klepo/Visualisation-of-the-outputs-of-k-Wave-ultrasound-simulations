@@ -18,38 +18,43 @@
 #ifndef HDF5OBJECT_H
 #define HDF5OBJECT_H
 
-#include "HDF5File.h"
-#include "HDF5Vector.h"
+#include <string>
+#include <iostream>
+
+#include <hdf5.h>  // HDF5
+
+#include <HDF5Attribute.h>
 
 namespace HDF5Helper
 {
+class File;
 class HDF5Object
 {
 public:
     HDF5Object(const hid_t object);
     ~HDF5Object();
 
-    void setAttribute(const std::string name, const int value);
-    void setAttribute(const std::string name, const hsize_t value);
-    void setAttribute(const std::string name, const float value);
-    void setAttribute(const std::string name, const double value);
-    void setAttribute(const std::string name, const std::string value);
+    void setAttribute(const std::string name, const int value, bool log = true);
+    void setAttribute(const std::string name, const hsize_t value, bool log = true);
+    void setAttribute(const std::string name, const float value, bool log = true);
+    void setAttribute(const std::string name, const double value, bool log = true);
+    void setAttribute(const std::string name, const std::string value, bool log = true);
 
-    float readAttributeF(const std::string name);
-    hsize_t readAttributeI(const std::string name);
-    std::string readAttributeS(const std::string name);
+    float readAttributeF(const std::string name, bool log = true) const;
+    hsize_t readAttributeI(const std::string name, bool log = true) const;
+    std::string readAttributeS(const std::string name, bool log = true) const;
 
-    HDF5Attribute *getAttribute(const std::string name);
-    HDF5Attribute *getAttribute(const hsize_t idx);
+    HDF5Attribute *getAttribute(const std::string name) const;
+    HDF5Attribute *getAttribute(const hsize_t idx) const;
 
-    void setAttribute(HDF5Attribute *attribute, bool flag = true);
+    void setAttribute(HDF5Attribute *attribute, bool log = true);
 
-    void removeAttribute(const unsigned int idx, bool flag = true);
-    void removeAttribute(const std::string name, bool flag = true);
+    void removeAttribute(const unsigned int idx, bool log = true);
+    void removeAttribute(const std::string name, bool log = true);
 
-    bool hasAttribute(const std::string name);
+    bool hasAttribute(const std::string name) const;
 
-    hsize_t getNumAttrs();
+    hsize_t getNumAttrs() const;
 
     File *getFile();
 
@@ -59,11 +64,11 @@ protected:
     herr_t err;
 
 private:
-    void setAttribute(const std::string name, const hid_t type, const void *value, bool flag = true);
-    void createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value, bool flag = true);
+    void setAttribute(const std::string name, const hid_t type, const void *value, bool log = true);
+    void createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value, bool log = true);
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
-    std::string getStringValueByType(const hid_t type, const void *value);
-    std::string getStringTypeByType(const hid_t type);
+    std::string getStringValueByType(const hid_t type, const void *value) const;
+    std::string getStringTypeByType(const hid_t type) const;
 
 
 };

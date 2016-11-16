@@ -28,6 +28,12 @@ class OpenedH5File : public QObject
 {
     Q_OBJECT
 public:
+
+    typedef enum ObjectType {
+        dataset3D_t,
+        dataset4D_t
+    } ObjectType;
+
     explicit OpenedH5File(QString fileName, QObject *parent = 0);
     ~OpenedH5File();
 
@@ -68,8 +74,7 @@ private:
 
     H5ObjectToVisualize *selectedObject = 0;
 
-    void setObject(QString name, HDF5Helper::HDF5Dataset *dataset);
-    void setObject(QString name, HDF5Helper::HDF5Group *group);
+    void setObject(QString name, HDF5Helper::HDF5Dataset *dataset, ObjectType type);
 };
 
 #endif // H5FILE_H

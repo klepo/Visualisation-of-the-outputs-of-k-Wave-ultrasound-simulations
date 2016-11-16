@@ -32,22 +32,13 @@ public:
     void compress();
     void testOfReading();
 
-    void static xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const int length1, const int length2);
-    void static conv(float *dataSrc1, float *dataSrc2, float *dataDst, const int length1, const int length2);
-    void static findPeaks(float *dataSrc, int *dataDst, const int length, int &lengthDst);
-    void static diff(float *dataSrc, float *dataDst, const int length);
-    void static diff(int *dataSrc, int *dataDst, const int length);
-    float static mean(float *dataSrc, const int length);
-    int static mean(int *dataSrc, const int length);
-
 private:
     void findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &min, HDF5Helper::HDF5Vector3D &max);
-    void computeDstDims(HDF5Helper::HDF5Vector3D dimsSrc, double ratio, HDF5Helper::HDF5Vector3D &dimsDst, HDF5Helper::HDF5Vector3D &chunkSize, Settings *settings);
+    void computeDstDims(HDF5Helper::HDF5Vector3D dimsSrc, float ratio, HDF5Helper::HDF5Vector3D &dimsDst, HDF5Helper::HDF5Vector3D &chunkSize, Settings *settings);
     void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset);
-    void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector dimsSrc, HDF5Helper::HDF5Vector dimsDst, HDF5Helper::HDF5Dataset *dstDataset);
+    void resampleDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void compressDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset);
-    hsize_t getPeriod(float *dataSrc, const hsize_t length);
     void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);
     void resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);
     void resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth);

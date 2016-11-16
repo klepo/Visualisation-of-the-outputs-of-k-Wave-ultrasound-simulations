@@ -64,13 +64,17 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
                     if (size == HDF5Helper::HDF5Vector3D(nDims)) {
                         QString name = QString::fromStdString(dataset->getName());
                         qDebug() << "----> 3D type dataset: " << name << "; size: " << QString::fromStdString(size);
-                        setObject(name, dataset);
+                        setObject(name, dataset, dataset3D_t);
                     }
                     // Downsampled 3D type
-                    else if (dataset->hasAttribute("dwnsmpl") && dataset->hasAttribute("src_dataset_name")) {
-                        QString name = QString::fromStdString(dataset->readAttributeS("src_dataset_name"));
+                    else if (dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_X_ATTR)
+                             && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Y_ATTR)
+                             && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Z_ATTR)
+                             && dataset->hasAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR)
+                             ) {
+                        QString name = QString::fromStdString(dataset->readAttributeS(HDF5Helper::File::SRC_DATASET_NAME_ATTR));
                         qDebug() << "----> 3D type dataset (downsampled): " << name << "; size: " << QString::fromStdString(size);
-                        setObject(name, dataset);
+                        setObject(name, dataset, dataset3D_t);
                     }
                     // Something other
                     else {
@@ -88,26 +92,37 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
             // Reshaped mask type group
             try {
                 HDF5Helper::HDF5Group *group = file->openGroup(i);
-                HDF5Helper::HDF5Dataset *dataset = group->openDataset(0);
-                // 4D type
-                if (dataset->getRank() == 4 && dataset->getDataTypeClass() == H5T_FLOAT) {
-                    // Downsampled reshaped mask type group
-                    if (group->hasAttribute("dwnsmpl") && group->hasAttribute("src_group_name")) {
-                        QString name = QString::fromStdString(group->readAttributeS("src_group_name"));
-                        qDebug() << "----> Reshaped mask type group (downsampled): "<< name;
-                        setObject(name, group);
-                    }
-                    // Original reshaped mask type group
-                    else {
-                        QString name = QString::fromStdString(group->getName());
-                        qDebug() << "----> Reshaped mask type group: "<< name;
-                        setObject(name, group);
+                for (hsize_t j = 0; j < group->getNumObjs(); j++) {
+                    H5G_obj_t type = file->getObjTypeByIdx(j);
+                    if (type == H5G_DATASET) {
+                        HDF5Helper::HDF5Dataset *dataset = group->openDataset(j);
+                        HDF5Helper::HDF5Vector4D size = dataset->getDims();
+                        // 4D type
+                        if (dataset->getRank() == 4 && dataset->getDataTypeClass() == H5T_FLOAT) {
+                            // Downsampled reshaped mask type group
+                            if (dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_X_ATTR)
+                                    && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Y_ATTR)
+                                    && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Z_ATTR)
+                                    && dataset->hasAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR)
+                                    ) {
+                                QString name = QString::fromStdString(group->getName());
+                                qDebug() << "----> 4D type dataset (downsampled): " << name  << "; size: " << QString::fromStdString(size);
+                                setObject(name, dataset, dataset4D_t);
+                            }
+                            // Original reshaped mask type group
+                            else {
+                                QString name = QString::fromStdString(group->getName());
+                                qDebug() << "----> 4D type dataset: " << name << "; size: " << QString::fromStdString(size);
+                                setObject(name, dataset, dataset4D_t);
+                            }
+                        }
+                        // Something other
+                        else {
+                            file->closeGroup(group);
+                        }
                     }
                 }
-                // Something other
-                else {
-                    file->closeGroup(group);
-                }
+                file->closeGroup(group);
             } catch(std::exception &e) {
                 std::cerr << e.what() << std::endl;
             }
@@ -115,23 +130,13 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     }
 }
 
-void OpenedH5File::setObject(QString name, HDF5Helper::HDF5Dataset *dataset)
+void OpenedH5File::setObject(QString name, HDF5Helper::HDF5Dataset *dataset, ObjectType type)
 {
     if (!objects.contains(name)) {
-        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, H5G_DATASET, this));
+        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, type, this));
         objects[name]->addSubobject(dataset);
     } else {
         objects[name]->addSubobject(dataset);
-    }
-}
-
-void OpenedH5File::setObject(QString name, HDF5Helper::HDF5Group *group)
-{
-    if (!objects.contains(name)) {
-        objects.insert(name, new H5ObjectToVisualize(name, H5G_GROUP, this));
-        objects[name]->addSubobject(group);
-    } else {
-        objects[name]->addSubobject(group);
     }
 }
 

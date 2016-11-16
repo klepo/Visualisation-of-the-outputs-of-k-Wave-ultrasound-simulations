@@ -91,7 +91,7 @@ public slots:
     void saveImage(QString fileName);
 
 private slots:
-    void setLoaded(Request *r);
+    void setLoaded(Request *request);
 
 private:
     void renderFrame();

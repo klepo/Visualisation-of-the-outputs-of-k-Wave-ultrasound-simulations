@@ -461,12 +461,9 @@ void MainWindow::selectDataset()
         ui->dockWidgetXZ->setEnabled(true);
         ui->dockWidgetYZ->setEnabled(true);
 
-        // TODO
-        //connect(ui->horizontalSliderVRAlpha, SIGNAL(valueChanged(int)), subobject, SLOT(setAlpha(int)));
-
 
         // Group of datasets (time series) is selected
-        if (subobject->getGroup() != 0) {
+        if (subobject->getType() == OpenedH5File::dataset4D_t) {
             ui->groupBoxSelectedDatasetTMSeries->setEnabled(true);
             ui->actionFillSpace->setEnabled(true);
         } else {
@@ -676,7 +673,7 @@ void MainWindow::loaded3D(std::string datasetName)
     flagVRLoaded = true;
     ui->label3DLoading->clear();
 
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         // If animation is running...
         if (playing && subobject->areCurrentSlicesLoaded() && datasetName == subobject->getDataset()->getName())
             timer->start(ui->spinBoxTMInterval->value());
@@ -796,7 +793,7 @@ void MainWindow::on_comboBoxColormap_currentIndexChanged(int index)
 
 void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         // Set step in subobject structure
         subobject->setCurrentStep(step/*, gWindow->getThread()*/);
         // For VR
@@ -812,7 +809,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 
 void MainWindow::updateStep()
 {
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         // Get current step
         uint64_t step = subobject->getCurrentStep();
         // Increment of step
@@ -836,7 +833,7 @@ void MainWindow::updateStep()
 
 void MainWindow::on_toolButtonPlay_clicked(bool checked)
 {
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         if (checked) {
             timer->start(ui->spinBoxTMInterval->value());
             playing = true;
@@ -849,7 +846,7 @@ void MainWindow::on_toolButtonPlay_clicked(bool checked)
 
 void MainWindow::on_toolButtonStart_clicked()
 {
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         timer->stop();
         playing = false;
         ui->toolButtonPlay->setChecked(false);
@@ -859,7 +856,7 @@ void MainWindow::on_toolButtonStart_clicked()
 
 void MainWindow::on_toolButtonEnd_clicked()
 {
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         timer->stop();
         playing = false;
         ui->toolButtonPlay->setChecked(false);
@@ -978,7 +975,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_saveVideoButton_clicked()
 {
-    if (subobject != 0 && subobject->isGUIInitialized() && subobject->getGroup() != 0) {
+    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         recording = true;
         subobject->setCurrentStep(0);
 

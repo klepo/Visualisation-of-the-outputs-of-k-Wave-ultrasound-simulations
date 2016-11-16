@@ -183,6 +183,7 @@ void HDF5ReadingThread::run()
                 //usleep(1000000);
                 if (r->full) {
                     // Reading of full dataset with block reading
+                    r->dataset->setMaxNumberOfElmsToLoad(HDF5Helper::HDF5Vector3D(r->dataset->getDims()).getSize());
                     hsize_t c = HDF5Helper::HDF5Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
                     for (hsize_t i = 0; i < c; i++) {
                         // Request for returning part of 3D data (block)
@@ -197,7 +198,7 @@ void HDF5ReadingThread::run()
                     delete r;
                 } else {
                     // One block data reading (slice)
-                    //qDebug() << "start reading 3D dataset... ";
+                    //qDebug() << "start reading a slice... ";
                     r->dataset->readDataset(r->offset, r->count, r->data, r->min, r->max);
                     QMutexLocker locker(&requestMutex);
                     doneRequests.append(r);

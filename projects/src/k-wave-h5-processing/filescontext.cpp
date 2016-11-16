@@ -52,12 +52,12 @@ FilesContext::~FilesContext()
         hDF5SimOutputFile = 0;
     }
     if (hDF5SimInputFile != 0) {
-        delete hDF5SimOutputFile;
+        delete hDF5SimInputFile;
         hDF5SimInputFile = 0;
     }
     if (hDF5PcsOutputFile != 0) {
-        delete hDF5SimOutputFile;
-        hDF5SimOutputFile = 0;
+        delete hDF5PcsOutputFile;
+        hDF5PcsOutputFile = 0;
     }
 }
 
@@ -118,20 +118,10 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilenam
 
     // Copy nT, nX, nY, nZ
     try {
-        HDF5Helper::HDF5Vector3D size(1, 1, 1);
-        hsize_t data;
-        data = hDF5SimOutputFile->getNT();
-        file->createDatasetI(Settings::NT_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        file->openDataset(Settings::NT_DATASET)->writeDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), &data);
-        data = hDF5SimOutputFile->getNX();
-        file->createDatasetI(Settings::NX_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        file->openDataset(Settings::NX_DATASET)->writeDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), &data);
-        data = hDF5SimOutputFile->getNY();
-        file->createDatasetI(Settings::NY_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        file->openDataset(Settings::NY_DATASET)->writeDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), &data);
-        data = hDF5SimOutputFile->getNZ();
-        file->createDatasetI(Settings::NZ_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        file->openDataset(Settings::NZ_DATASET)->writeDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), &data);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NX_DATASET);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NY_DATASET);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NZ_DATASET);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NT_DATASET);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);

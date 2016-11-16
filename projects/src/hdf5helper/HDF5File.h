@@ -27,48 +27,30 @@
 
 #ifdef _WIN32
 #define NOMINMAX
-#include <windows.h>
+#include <windows.h> // GetTickCount etc.
 #endif
 
-#include <stdint.h> // int64_t
-#include <string>
 #include <iostream>
 #include <fstream>
-#include <map>
 #include <algorithm>
-#include <limits>
 #include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <mutex>
 
 #ifdef PARALLEL_HDF5
 #include <mpi.h>
 #endif
 
-#include <hdf5.h>  // HDF5
+#include <HDF5Vector3D.h>
+#include <HDF5Vector4D.h>
+#include <HDF5Group.h>
+#include <HDF5Dataset.h>
 
 namespace HDF5Helper
 {
 double getTime();
 size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();
-
-class HDF5Vector;
-class HDF5Vector3D;
-class HDF5Vector4D;
-class HDF5Dataset;
-class HDF5Group;
-class HDF5Attribute;
-
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector size);
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector size);
-
-typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
-typedef std::map<const std::string, HDF5Group *> MapOfGroups;
-typedef std::pair<const std::string, HDF5Dataset *> PairOfDatasets;
-typedef std::pair<const std::string, HDF5Group *> PairOfGroups;
 
 class File
 {
@@ -81,22 +63,24 @@ public:
 
     ~File();
 
-    HDF5Dataset *openDataset(const std::string datasetName);
-    HDF5Dataset *openDataset(hsize_t idx);
+    HDF5Dataset *openDataset(const std::string datasetName, bool log = true);
+    HDF5Dataset *openDataset(hsize_t idx, bool log = true);
 
-    void closeDataset(const std::string datasetName);
-    void closeDataset(hsize_t idx);
-    void closeDataset(HDF5Dataset *dataset);
+    void closeDataset(const std::string datasetName, bool log = true);
+    void closeDataset(hsize_t idx, bool log = true);
+    void closeDataset(HDF5Dataset *dataset, bool log = true);
 
     void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
     void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
+    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
+    void createDataset(HDF5Dataset *dataset, bool rewrite = false);
 
-    HDF5Group *openGroup(const std::string groupName);
-    HDF5Group *openGroup(hsize_t idx);
+    HDF5Group *openGroup(const std::string groupName, bool log = true);
+    HDF5Group *openGroup(hsize_t idx, bool log = true);
 
-    void closeGroup(const std::string groupName);
-    void closeGroup(hsize_t idx);
-    void closeGroup(HDF5Group *group);
+    void closeGroup(const std::string groupName, bool log = true);
+    void closeGroup(hsize_t idx, bool log = true);
+    void closeGroup(HDF5Group *group, bool log = true);
 
     void createGroup(const std::string groupName, bool rewrite = false);
 
@@ -111,10 +95,28 @@ public:
     void setNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad();
 
-    static const std::string NT;
-    static const std::string NX;
-    static const std::string NY;
-    static const std::string NZ;
+    // Dataset names
+    static const std::string SENSOR_MASK_TYPE_DATASET;
+    static const std::string SENSOR_MASK_INDEX_DATASET;
+    static const std::string SENSOR_MASK_CORNERS_DATASET;
+    static const std::string NT_DATASET;
+    static const std::string NX_DATASET;
+    static const std::string NY_DATASET;
+    static const std::string NZ_DATASET;
+    static const std::string P_SOURCE_INPUT_DATASET;
+
+    // Attribute names
+    static const std::string MIN_ATTR;
+    static const std::string MAX_ATTR;
+    static const std::string SRC_DATASET_NAME_ATTR;
+    static const std::string C_TYPE_ATTR;
+    static const std::string POSITION_Z_ATTR;
+    static const std::string POSITION_Y_ATTR;
+    static const std::string POSITION_X_ATTR;
+    static const std::string SRC_SIZE_Z_ATTR;
+    static const std::string SRC_SIZE_Y_ATTR;
+    static const std::string SRC_SIZE_X_ATTR;
+
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
 
@@ -130,36 +132,32 @@ public:
     int getMPISize() const;
 
 private:
-    hsize_t nT;
-    hsize_t nX;
-    hsize_t nY;
-    hsize_t nZ;
+    HDF5Vector4D nDims;
     std::string filename;
 
-    hsize_t numberOfElementsToLoad = 64 * 64 * 64 * 100;
+    hsize_t numberOfElementsToLoad = 1024 * 1024 * 1024;
 
     hid_t plist_FILE_ACCESS;
 
     std::ofstream logFileStream;
 
-    static std::mutex mutex;
-
     hid_t file; // HDF file handle
     MapOfDatasets datasets;
     MapOfGroups groups;
 
-    void insertDataset(const std::string datasetName);
-    void insertGroup(const std::string groupName);
+    void insertDataset(const std::string datasetName, bool log = true);
+    void insertGroup(const std::string groupName, bool log = true);
 
     void closeFileAndObjects();
 
     class HDF5Object;
     herr_t err;
     int mPISize;
-
-    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
-
 };
+
+void copyDataset(HDF5Dataset *srcDataset, File *dstFile);
+void copyDataset(File *srcFile, File *dstFile, std::string name);
+
 }
 
 #endif // HDF5FILE_H

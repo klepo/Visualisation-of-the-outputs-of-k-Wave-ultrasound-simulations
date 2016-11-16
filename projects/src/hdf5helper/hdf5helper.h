@@ -22,5 +22,7 @@
 #include <HDF5Dataset.h>
 #include <HDF5Group.h>
 #include <HDF5Attribute.h>
+#include <HDF5Vector3D.h>
+#include <HDF5Vector4D.h>
 
 #endif // HDF5HELPER_H

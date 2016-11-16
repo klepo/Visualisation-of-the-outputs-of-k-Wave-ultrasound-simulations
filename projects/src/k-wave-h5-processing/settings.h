@@ -35,16 +35,6 @@ public:
     void loadParams(int argc, char **argv);
     void init();
 
-    // Dataset names
-    static const std::string SENSOR_MASK_TYPE_DATASET;
-    static const std::string SENSOR_MASK_INDEX_DATASET;
-    static const std::string SENSOR_MASK_CORNERS_DATASET;
-    static const std::string NT_DATASET;
-    static const std::string NX_DATASET;
-    static const std::string NY_DATASET;
-    static const std::string NZ_DATASET;
-    static const std::string P_SOURCE_INPUT_DATASET;
-
     // Simulation data files
     std::string getSimulationOutputFilename();
     void setSimulationOutputFilename(const std::string &value);
@@ -61,6 +51,10 @@ public:
     unsigned long long getBlockSize();
     void setBlockSize(const unsigned long long &value);
 
+    // Period
+    unsigned long long getPeriod() const;
+    void setPeriod(unsigned long long value);
+
     // Selected names
     std::list<std::string> getNames();
     void setNames(const std::list<std::string> &value);
@@ -74,28 +68,32 @@ public:
     void setFlagChangeChunks(bool value);
     bool getFlagDwnsmpl();
     void setFlagDwnsmpl(bool value);
+    bool getFlagCompress() const;
+    void setFlagCompress(bool value);
 
     ParamsDefinition getParamsDefinition() const;
 
 private:
     // Filenames
-    std::string simulationOutputFilename;
-    std::string simulationInputFilename;
-    std::string processingOutputFilename;
+    std::string simulationOutputFilename = "";
+    std::string simulationInputFilename = "";
+    std::string processingOutputFilename = "";
 
     // Size vars
-    unsigned long long maxSize;
-    unsigned long long maxChunkSize;
-    unsigned long long blockSize;
+    unsigned long long maxSize = 512;
+    unsigned long long maxChunkSize = 64;
+    unsigned long long blockSize = 0;
+    unsigned long long period = 0;
 
-    // Filter/selestion by names
+    // Filter/selection by names
     std::list<std::string> names;
-    bool flagNames;
+    bool flagNames = false;
 
     // Application modes
-    bool flagReshape;
-    bool flagRechunk;
-    bool flagDwnsmpl;
+    bool flagReshape = false;
+    bool flagRechunk = false;
+    bool flagDwnsmpl = false;
+    bool flagCompress = false;
 
     // Params definition
     ParamsDefinition paramsDefinition;

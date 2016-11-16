@@ -39,7 +39,7 @@ void HDF5Attribute::loadAttribute(hid_t attribute)
         //MPI::COMM_WORLD.Abort(1);
     }
     char *nameC = new char[nameSize + 1];
-    H5Aget_name(attribute, nameSize + 1, nameC);
+    H5Aget_name(attribute, size_t(nameSize + 1), nameC);
     name = std::string(nameC);
     delete [] nameC;
     dataspace = H5Aget_space(attribute);
@@ -47,7 +47,7 @@ void HDF5Attribute::loadAttribute(hid_t attribute)
         throw std::runtime_error("H5Aget_space error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    buffer = malloc(size);
+    buffer = malloc(size_t(size));
     err = H5Aread(attribute, datatype, buffer);
     if (err < 0){
         throw std::runtime_error("H5Aread error");

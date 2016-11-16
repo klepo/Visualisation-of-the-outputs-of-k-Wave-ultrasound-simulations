@@ -29,7 +29,7 @@
  * @param openedH5File hdf5 file
  * @param parent
  */
-OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, H5G_obj_t type, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
+OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, ObjectType type, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
 {
     // Params
     this->openedH5File = openedH5File;
@@ -52,25 +52,13 @@ OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
  */
 void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::HDF5Dataset *dataset)
 {
-    if (type == H5G_DATASET && !subobjects.contains(QString::fromStdString(dataset->getName()))) {
-        H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(dataset, openedH5File);
-        subobjects.insert(QString::fromStdString(dataset->getName()), subobject);
+    if (!subobjects.contains(QString::fromStdString(dataset->getOnlyName()))) {
+        H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(dataset, type, openedH5File);
+        subobjects.insert(QString::fromStdString(dataset->getOnlyName()), subobject);
         selectedSubobject = subobject;
     }
 }
 
-/**
- * @brief OpenedH5File::H5ObjectToVisualize::addSubobject Add group to Qmap of subobjects
- * @param group HDF5HDF5Group * object
- */
-void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::HDF5Group *group)
-{
-    if (type == H5G_GROUP && !subobjects.contains(QString::fromStdString(group->getName()))) {
-        H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(group, openedH5File);
-        subobjects.insert(QString::fromStdString(group->getName()), subobject);
-        selectedSubobject = subobject;
-    }
-}
 
 /**
  * @brief OpenedH5File::H5ObjectToVisualize::getName
@@ -85,7 +73,7 @@ QString OpenedH5File::H5ObjectToVisualize::getName()
  * @brief OpenedH5File::H5ObjectToVisualize::getType
  * @return GROUP_TYPE or DATASET_TYPE
  */
-H5G_obj_t OpenedH5File::H5ObjectToVisualize::getType()
+OpenedH5File::ObjectType OpenedH5File::H5ObjectToVisualize::getType()
 {
     return type;
 }

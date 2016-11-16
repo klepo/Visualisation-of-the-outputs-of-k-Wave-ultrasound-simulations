@@ -19,12 +19,46 @@
 #ifndef HDF5DATASET_H
 #define HDF5DATASET_H
 
-#include "HDF5Object.h"
-#include "HDF5Vector3D.h"
-#include "HDF5Vector4D.h"
+#include <map>
+#include <assert.h>
+
+#include <HDF5Object.h>
+#include <HDF5Vector3D.h>
+#include <HDF5Vector4D.h>
 
 namespace HDF5Helper
 {
+
+enum class HDF5DatasetType
+{
+    ALL,
+    UNKNOWN,
+    N_DIM_X,
+    N_DIM_Y,
+    N_DIM_Z,
+    N_DIM_T,
+    MASK_INDEX,
+    MASK_CORNERS,
+    P_SOURCE_INPUT,
+    BASIC_3D,
+    DWNSMPL_3D,
+    BASIC_MASK,
+    FI_MASK,
+    K_MASK,
+    CUBOID,
+    CUBOID_FI,
+    CUBOID_K,
+    CUBOID_DWNSMPL,
+    CUBOID_DWNSMPL_FI,
+    CUBOID_DWNSMPL_K,
+    CUBOID_ATTR,
+    CUBOID_ATTR_FI,
+    CUBOID_ATTR_K,
+    CUBOID_ATTR_DWNSMPL,
+    CUBOID_ATTR_DWNSMPL_FI,
+    CUBOID_ATTR_DWNSMPL_K,
+};
+
 class HDF5Dataset : public HDF5Object
 {
 public:
@@ -39,6 +73,9 @@ public:
     HDF5Vector getChunkDims() const;
     hsize_t getSize() const;
     H5T_class_t getDataTypeClass() const;
+    hid_t getDataType() const;
+    HDF5DatasetType getType(HDF5Helper::HDF5Vector4D nDims, hsize_t sensorMaskSize = 0) const;
+    std::string getTypeString(HDF5DatasetType type) const;
 
     void getGlobalMaxValue(float &value, bool reset = false);
     void getGlobalMinValue(float &value, bool reset = false);
@@ -57,7 +94,7 @@ public:
 
     void setNumberOfElmsToLoad(hsize_t size);
     void setMaxNumberOfElmsToLoad(hsize_t size);
-    hsize_t getNumberOfElmsToLoad();
+    hsize_t getNumberOfElmsToLoad() const;
     HDF5Vector getGeneralBlockDims() const;
 
     void setMPIOAccess(H5FD_mpio_xfer_t type);
@@ -70,6 +107,8 @@ public:
     void readDataset(hsize_t *&data, bool log = true);
     void readDataset(float *&data, float &min, float &max, bool log = true);
     void readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
+    void readDataset(float &data, bool log = true);
+    void readDataset(hsize_t &data, bool log = true);
 
     void writeDataset(HDF5Vector offset, HDF5Vector count, float *data, bool log = false);
     void writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *data, bool log = false);
@@ -95,12 +134,14 @@ private:
 
     void initBlockReading();
 
-    void checkTypeAndAllocation(float *&data, int type, hsize_t size);
-    void checkTypeAndAllocation(hsize_t *&data, int type, hsize_t size);
+    void checkDataTypeAndAllocation(float *&data, int type, hsize_t size);
+    void checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size);
 
-    std::string memoryErrorMessage(hsize_t size, int type);
-    std::string readErrorMessage(hsize_t size, int type);
-    std::string typeString(int type);
+    void checkType();
+
+    std::string memoryErrorMessage(hsize_t size, int type) const;
+    std::string readErrorMessage(hsize_t size, int type) const;
+    std::string dataTypeString(int type) const;
 
     hid_t plist;
     hid_t plist_DATASET_XFER;
@@ -122,6 +163,7 @@ private:
     int rank;
     HDF5Vector dims;
     HDF5Vector chunkDims;
+    HDF5DatasetType type;
 
     std::string name;
 
@@ -133,6 +175,9 @@ private:
 
     bool issetGlobalMinAndMaxValue;
 };
+
+typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
+typedef std::pair<const std::string, HDF5Dataset *> PairOfDatasets;
 }
 
 #endif // HDF5DATASET_H

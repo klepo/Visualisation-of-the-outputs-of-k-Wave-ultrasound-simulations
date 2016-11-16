@@ -17,6 +17,7 @@
  */
 
 #include "HDF5Group.h"
+#include <HDF5File.h>
 
 namespace HDF5Helper {
 
@@ -45,24 +46,35 @@ HDF5Group::~HDF5Group()
 
 }
 
-HDF5Dataset *HDF5Group::openDataset(const std::string datasetName)
+HDF5Dataset *HDF5Group::openDataset(const std::string datasetName, bool log)
 {
-    return hDF5File->openDataset(name + "/" + datasetName);
+    if (name == "/")
+        return hDF5File->openDataset(datasetName, log);
+    else
+        return hDF5File->openDataset(name + "/" + datasetName, log);
 }
 
-HDF5Dataset *HDF5Group::openDataset(hsize_t idx)
+HDF5Dataset *HDF5Group::openDataset(hsize_t idx, bool log)
 {
-    return hDF5File->openDataset(name + "/" + getObjNameByIdx(idx));
+    return openDataset(getObjNameByIdx(idx), log);
 }
 
-void HDF5Group::closeDataset(const std::string datasetName)
+void HDF5Group::closeDataset(const std::string datasetName, bool log)
 {
-    hDF5File->closeDataset(name + "/" + datasetName);
+    if (name == "/")
+        hDF5File->closeDataset(datasetName, log);
+    else
+        hDF5File->closeDataset(name + "/" + datasetName, log);
 }
 
-void HDF5Group::closeDataset(hsize_t idx)
+void HDF5Group::closeDataset(hsize_t idx, bool log)
 {
-    hDF5File->closeDataset(name + "/" + getObjNameByIdx(idx));
+    closeDataset(getObjNameByIdx(idx), log);
+}
+
+void HDF5Group::closeDataset(HDF5Helper::HDF5Dataset *dataset, bool log)
+{
+    hDF5File->closeDataset(dataset->getName(), log);
 }
 
 void HDF5Group::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite)
@@ -75,19 +87,32 @@ void HDF5Group::createDatasetF(const std::string datasetName, HDF5Vector size, H
     hDF5File->createDatasetF(name + "/" + datasetName, size, chunk_size, rewrite);
 }
 
-HDF5Group *HDF5Group::openGroup(const std::string groupName)
+HDF5Group *HDF5Group::openGroup(const std::string groupName, bool log)
 {
-    return hDF5File->openGroup(name + "/" + groupName);
+    if (name == "/")
+        return hDF5File->openGroup(groupName, log);
+    else
+        return hDF5File->openGroup(name + "/" + groupName, log);
 }
 
-HDF5Group *HDF5Group::openGroup(hsize_t idx)
+HDF5Group *HDF5Group::openGroup(hsize_t idx, bool log)
 {
-    return hDF5File->openGroup(name + "/" + getObjNameByIdx(idx));
+    return openGroup(getObjNameByIdx(idx), log);
 }
 
-void HDF5Group::closeGroup(const std::string groupName)
+void HDF5Group::closeGroup(const std::string groupName, bool log)
 {
-    hDF5File->closeGroup(name + "/" + groupName);
+    hDF5File->closeGroup(name + "/" + groupName, log);
+}
+
+void HDF5Group::closeGroup(hsize_t idx, bool log)
+{
+    hDF5File->closeGroup(name + "/" + getObjNameByIdx(idx), log);
+}
+
+void HDF5Group::closeGroup(HDF5Group *group, bool log)
+{
+    hDF5File->closeGroup(group->getName(), log);
 }
 
 void HDF5Group::createGroup(const std::string groupName, bool rewrite)

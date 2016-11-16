@@ -23,12 +23,27 @@
 
 namespace HDF5Helper {
 
-const std::string File::NT("Nt");
-const std::string File::NX("Nx");
-const std::string File::NY("Ny");
-const std::string File::NZ("Nz");
+// Dataset names
+const std::string File::SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
+const std::string File::SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
+const std::string File::SENSOR_MASK_CORNERS_DATASET("sensor_mask_corners");
+const std::string File::NT_DATASET("Nt");
+const std::string File::NX_DATASET("Nx");
+const std::string File::NY_DATASET("Ny");
+const std::string File::NZ_DATASET("Nz");
+const std::string File::P_SOURCE_INPUT_DATASET("p_source_input");
 
-std::mutex File::mutex;
+// Attribute names
+const std::string File::MIN_ATTR("min");
+const std::string File::MAX_ATTR("max");
+const std::string File::SRC_DATASET_NAME_ATTR("src_dataset_name");
+const std::string File::C_TYPE_ATTR("c_type");
+const std::string File::POSITION_Z_ATTR("position_z");
+const std::string File::POSITION_Y_ATTR("position_y");
+const std::string File::POSITION_X_ATTR("position_x");
+const std::string File::SRC_SIZE_Z_ATTR("src_size_z");
+const std::string File::SRC_SIZE_Y_ATTR("src_size_y");
+const std::string File::SRC_SIZE_X_ATTR("src_size_x");
 
 /**
  * @brief HDF5File
@@ -43,16 +58,20 @@ File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info
 File::File(std::string filename, unsigned int flag, bool log)
 #endif
 {
-    #ifdef PARALLEL_HDF5
-        // Check MPI is initialized
-        int started, error = 0;
-        error = MPI_Initialized(&started);
-        if (error)
-            throw std::runtime_error("MPI is not initialized");
-    #endif
+#ifdef PARALLEL_HDF5
+    // Check MPI is initialized
+    int started, error = 0;
+    error = MPI_Initialized(&started);
+    if (error)
+        throw std::runtime_error("MPI is not initialized");
+#endif
 
     // Set size of memory
-    numberOfElementsToLoad = (getAvailableSystemPhysicalMemory() / 2) / 4;
+    //std::cout << getAvailableSystemPhysicalMemory() << std::endl;
+    //numberOfElementsToLoad = (getAvailableSystemPhysicalMemory() / 2) / 4;
+    //numberOfElementsToLoad = 1024 * 1024 * 1024 * 2; // cca 10 GB
+    //numberOfElementsToLoad = 1024 * 1024 * 1024;
+    // 4 x numberOfElementsToLoad == in bytes
 
     // Disable error HDF5 output
     H5Eset_auto(H5E_DEFAULT, 0, 0);
@@ -69,18 +88,18 @@ File::File(std::string filename, unsigned int flag, bool log)
     // Create File Access Property List
     plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
 
-    #ifdef PARALLEL_HDF5
-        // Get number of processes -> set NUMBER_OF_ELEMENTS_TO_LOAD to max int (MPI limit)
-        MPI_Comm_size(comm, &mPISize);
-        if (mPISize > 1) {
-            numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD < std::numeric_limits<int>::max() ? NUMBER_OF_ELEMENTS_TO_LOAD : std::numeric_limits<int>::max();
-            err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
-            if (err < 0){
-                throw std::runtime_error("H5Pset_fapl_mpio error");
-                //MPI::COMM_WORLD.Abort(1);
-            }
+#ifdef PARALLEL_HDF5
+    // Get number of processes -> set NUMBER_OF_ELEMENTS_TO_LOAD to max int (MPI limit)
+    MPI_Comm_size(comm, &mPISize);
+    if (mPISize > 1) {
+        numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD < std::numeric_limits<int>::max() ? NUMBER_OF_ELEMENTS_TO_LOAD : std::numeric_limits<int>::max();
+        err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
+        if (err < 0){
+            throw std::runtime_error("H5Pset_fapl_mpio error");
+            //MPI::COMM_WORLD.Abort(1);
         }
-    #endif
+    }
+#endif
 
     // Set cache
     err = H5Pset_cache(plist_FILE_ACCESS, 0, 0, 1024 * 1024 * 64, 0);
@@ -111,35 +130,25 @@ File::File(std::string filename, unsigned int flag, bool log)
         std::cout << "... OK " << std::endl;
 
         try {
-            // Load basic datasets
-            insertDataset(File::NT);
-            insertDataset(File::NX);
-            insertDataset(File::NY);
-            insertDataset(File::NZ);
+            // Load basic datasets values
+            hsize_t data;
 
-            //Set dimensions
-            hsize_t *data = 0;
+            openDataset(File::NT_DATASET, false)->readDataset(data, false);
+            nDims.w(data);
+            closeDataset(File::NT_DATASET);
 
-            openDataset(File::NT)->readDataset(data);
-            nT = data[0];
-            delete [] data;
+            openDataset(File::NX_DATASET, false)->readDataset(data, false);
+            nDims.x(data);
+            closeDataset(File::NX_DATASET);
 
-            openDataset(File::NX)->readDataset(data);
-            nX = data[0];
-            delete [] data;
+            openDataset(File::NY_DATASET, false)->readDataset(data, false);
+            nDims.y(data);
+            closeDataset(File::NY_DATASET);
 
-            openDataset(File::NY)->readDataset(data);
-            nY = data[0];
-            delete [] data;
+            openDataset(File::NZ_DATASET, false)->readDataset(data, false);
+            nDims.z(data);
+            closeDataset(File::NZ_DATASET);
 
-            openDataset(File::NZ)->readDataset(data);
-            nZ = data[0];
-            delete [] data;
-
-            closeDataset(File::NT);
-            closeDataset(File::NX);
-            closeDataset(File::NY);
-            closeDataset(File::NZ);
         } catch(std::exception) {
             closeFileAndObjects();
             throw std::runtime_error("Wrong HDF5File");
@@ -203,17 +212,20 @@ std::ofstream *File::getLogFileStream()
  * @param datasetName name of dataset
  * @throw std::runtime_error
  */
-void File::insertDataset(const std::string datasetName)
+void File::insertDataset(const std::string datasetName, bool log)
 {
-    std::cout << "Opening dataset \"" << datasetName << "\" ";
+    if (log)
+        std::cout << "Opening dataset \"" << datasetName << "\" ";
     hid_t d = H5Dopen(file, datasetName.c_str(), H5P_DEFAULT);
-    if (d < 0){
-        std::cout << "... error" << std::endl;
+    if (d < 0) {
+        if (log)
+            std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dopen error");
         //MPI::COMM_WORLD.Abort(1);
     }
     HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName, this);
-    std::cout << "... OK" << std::endl;
+    if (log)
+        std::cout << "... OK" << std::endl;
     datasets.insert(HDF5Helper::PairOfDatasets(datasetName, hDF5Dataset));
 }
 
@@ -222,17 +234,20 @@ void File::insertDataset(const std::string datasetName)
  * @param groupName name of group
  * @throw std::runtime_error
  */
-void File::insertGroup(const std::string groupName)
+void File::insertGroup(const std::string groupName, bool log)
 {
-    std::cout << "Opening group \"" << groupName << "\" ";
+    if (log)
+        std::cout << "Opening group \"" << groupName << "\" ";
     hid_t g = H5Gopen(file, groupName.c_str(), H5P_DEFAULT);
     if (g < 0){
-        std::cout << "... error" << std::endl;
+        if (log)
+            std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Gopen error");
         //MPI::COMM_WORLD.Abort(1);
     }
     HDF5Group *hDF5Group = new HDF5Group(g, groupName, this);
-    std::cout << "... OK" << std::endl;
+    if (log)
+        std::cout << "... OK" << std::endl;
     groups.insert(HDF5Helper::PairOfGroups(groupName, hDF5Group));
 }
 
@@ -316,10 +331,22 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
         }
     }
 
+    // Create groups
+    std::string s = datasetName;
+    std::string delimiter = "/";
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        createGroup(token, false);
+        s.erase(0, pos + delimiter.length());
+    }
+
     std::cout << "Creating dataset \"" << datasetName << "\" ";
     if (rewrite) {
         H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
-        std::cout << "... rewrite";
+        std::cout << "... rewrite ";
     }
 
     hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
@@ -343,6 +370,11 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
     std::cout << "... OK" << std::endl;
 }
 
+void File::createDataset(HDF5Dataset *dataset, bool rewrite)
+{
+    createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite);
+}
+
 /**
  * @brief createGroup Create new group
  * @param name
@@ -351,12 +383,13 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
  */
 void File::createGroup(const std::string name, bool rewrite)
 {
-        std::cout << "Creating group \"" << name << "\" ";
-        if (rewrite) {
-            H5Ldelete(file, name.c_str(), H5P_DEFAULT);
-            std::cout << "... rewrite";
-        }
+    std::cout << "Creating group \"" << name << "\" ";
+    if (rewrite) {
+        H5Ldelete(file, name.c_str(), H5P_DEFAULT);
+        std::cout << "... rewrite ";
+    }
 
+    if (!H5Lexists(file, name.c_str(), H5P_DEFAULT)) {
         hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         if (group < 0){
             std::cout << "... error" << std::endl;
@@ -367,6 +400,9 @@ void File::createGroup(const std::string name, bool rewrite)
             throw std::runtime_error("H5Gclose error");
         }
         std::cout << "... OK" << std::endl;
+    } else {
+        std::cout << "... OK - group already exists" << std::endl;
+    }
 }
 
 /**
@@ -375,10 +411,10 @@ void File::createGroup(const std::string name, bool rewrite)
  * @return dataset (HDF5Dataset)
  * @throw std::runtime_error
  */
-HDF5Dataset *File::openDataset(hsize_t idx)
+HDF5Dataset *File::openDataset(hsize_t idx, bool log)
 {
     std::string name = getObjNameByIdx(idx);
-    return openDataset(name);
+    return openDataset(name, log);
 }
 
 /**
@@ -387,11 +423,11 @@ HDF5Dataset *File::openDataset(hsize_t idx)
  * @return dataset (HDF5Dataset)
  * @throw std::runtime_error
  */
-HDF5Dataset *File::openDataset(const std::string datasetName)
+HDF5Dataset *File::openDataset(const std::string datasetName, bool log)
 {
     if (datasets.find(datasetName) == datasets.end()) {
-        insertDataset(datasetName);
-        return openDataset(datasetName);
+        insertDataset(datasetName, log);
+        return openDataset(datasetName, log);
     } else
         return datasets.find(datasetName)->second;
 }
@@ -400,7 +436,7 @@ HDF5Dataset *File::openDataset(const std::string datasetName)
  * @brief closeDataset Close dataset with given name in HDF5 file
  * @param datasetName
  */
-void File::closeDataset(const std::string datasetName)
+void File::closeDataset(const std::string datasetName, bool log)
 {
     if (datasets.find(datasetName) != datasets.end()){
         HDF5Dataset *dataset = datasets.find(datasetName)->second;
@@ -413,15 +449,15 @@ void File::closeDataset(const std::string datasetName)
  * @brief File::closeDataset
  * @param idx
  */
-void File::closeDataset(hsize_t idx)
+void File::closeDataset(hsize_t idx, bool log)
 {
     std::string name = getObjNameByIdx(idx);
-    closeDataset(name);
+    closeDataset(name, log);
 }
 
-void File::closeDataset(HDF5Dataset *dataset)
+void File::closeDataset(HDF5Dataset *dataset, bool log)
 {
-    closeDataset(dataset->getName());
+    closeDataset(dataset->getName(), log);
 }
 
 /**
@@ -429,11 +465,11 @@ void File::closeDataset(HDF5Dataset *dataset)
  * @param groupName
  * @return group
  */
-HDF5Group *File::openGroup(const std::string groupName)
+HDF5Group *File::openGroup(const std::string groupName, bool log)
 {
     if (groups.find(groupName) == groups.end()) {
-        insertGroup(groupName);
-        return openGroup(groupName);
+        insertGroup(groupName, log);
+        return openGroup(groupName, log);
     } else
         return groups.find(groupName)->second;
 }
@@ -443,17 +479,17 @@ HDF5Group *File::openGroup(const std::string groupName)
  * @param idx
  * @return group
  */
-HDF5Group *File::openGroup(hsize_t idx)
+HDF5Group *File::openGroup(hsize_t idx, bool log)
 {
     std::string name = getObjNameByIdx(idx);
-    return openGroup(name);
+    return openGroup(name, log);
 }
 
 /**
  * @brief closeGroup Close group with given name in HDF5 file
  * @param groupName
  */
-void File::closeGroup(const std::string groupName)
+void File::closeGroup(const std::string groupName, bool log)
 {
     if (groups.find(groupName) != groups.end()){
         HDF5Group *group = groups.find(groupName)->second;
@@ -466,15 +502,15 @@ void File::closeGroup(const std::string groupName)
  * @brief closeGroup Close group with given index
  * @param idx
  */
-void File::closeGroup(hsize_t idx)
+void File::closeGroup(hsize_t idx, bool log)
 {
     std::string name = getObjNameByIdx(idx);
-    closeGroup(name);
+    closeGroup(name, log);
 }
 
-void File::closeGroup(HDF5Group *group)
+void File::closeGroup(HDF5Group *group, bool log)
 {
-    closeGroup(group->getName());
+    closeGroup(group->getName(), log);
 }
 
 /**
@@ -561,42 +597,6 @@ std::string File::getFilename()
 }
 
 /**
- * @brief getNT
- * @return Nt
- */
-hsize_t File::getNT()
-{
-    return nT;
-}
-
-/**
- * @brief getNX
- * @return Nx
- */
-hsize_t File::getNX()
-{
-    return nX;
-}
-
-/**
- * @brief getNY
- * @return Ny
- */
-hsize_t File::getNY()
-{
-    return nY;
-}
-
-/**
- * @brief getNZ
- * @return Nz
- */
-hsize_t File::getNZ()
-{
-    return nZ;
-}
-
-/**
  * @brief setSizeOfDataPart
  * @param size
  */
@@ -620,7 +620,7 @@ hsize_t File::getNumberOfElmsToLoad()
 
 HDF5Vector4D File::getNdims()
 {
-    return HDF5Vector4D(nT, nZ, nY, nX);
+    return nDims;
 }
 
 /**
@@ -707,4 +707,46 @@ void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector dim
         index += position[i] * prod;
     }
 }
+
+void copyDataset(HDF5Dataset *srcDataset, File *dstFile)
+{
+    dstFile->createDataset(srcDataset, true);
+    HDF5Dataset *dstDataset = dstFile->openDataset(srcDataset->getName());
+
+    HDF5Vector offset;
+    HDF5Vector count;
+
+    if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_FLOAT)) {
+        float *data = 0;
+        for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
+            srcDataset->readBlock(i, offset, count, data, false);
+            dstDataset->writeDataset(offset, count, data);
+            delete[] data;
+        }
+    } else if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_UINT64)) {
+        hsize_t *data = 0;
+        for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
+            srcDataset->readBlock(i, offset, count, data, false);
+            dstDataset->writeDataset(offset, count, data);
+            delete[] data;
+        }
+    } else {
+        throw std::runtime_error("Wrong data type of dataset (not float or 64-bit unsigned integer)");
+    }
+
+    // Copy attributes
+    for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
+        HDF5Attribute *attr = srcDataset->getAttribute(i);
+        dstDataset->setAttribute(attr, false);
+        delete attr;
+    }
+    dstFile->closeDataset(srcDataset->getName());
+}
+
+void copyDataset(File *srcFile, File *dstFile, std::string name)
+{
+    HDF5Dataset *srcDataset = srcFile->openDataset(name);
+    copyDataset(srcDataset, dstFile);
+}
+
 }

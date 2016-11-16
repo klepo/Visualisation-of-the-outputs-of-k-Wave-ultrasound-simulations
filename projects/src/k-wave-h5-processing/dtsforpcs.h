@@ -27,18 +27,16 @@ public:
     HDF5Helper::HDF5Vector4D getNDims() const;
     HDF5Helper::HDF5Dataset *getSensorMaskIndexDataset() const;
     HDF5Helper::HDF5Dataset *getSensorMaskCornersDataset() const;
+    HDF5Helper::HDF5Dataset *getSourceInputDataset() const;
     hsize_t getSensorMaskSize() const;
     hsize_t getSensorMaskType() const;
-    HDF5Helper::MapOfDatasets getDts3DType() const;
-    HDF5Helper::MapOfDatasets getDts3DTypeDsp() const;
-    HDF5Helper::MapOfDatasets getDtsMaskType() const;
-    HDF5Helper::MapOfGroups getGroupsCuboidType() const;
-    HDF5Helper::MapOfGroups getGroupsCuboidTypeAttr() const;
-    HDF5Helper::MapOfGroups getGroupsCuboidTypeAttrDsp() const;
+    HDF5Helper::MapOfDatasets getDatasets(HDF5Helper::HDF5DatasetType datasetType = HDF5Helper::HDF5DatasetType::ALL) const;
 
 private:
     HDF5Helper::HDF5Dataset *findAndGetDataset(const std::string name, HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile);
-    void findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, Settings *settings);
+    void findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings *settings);
+
+    bool isFiltered(std::string name, Settings *settings);
 
     HDF5Helper::HDF5Vector4D nDims;
 
@@ -47,13 +45,7 @@ private:
     HDF5Helper::HDF5Dataset *sourceInputDataset = 0;
     hsize_t sensorMaskSize = 0;
     hsize_t sensorMaskType = 0;
-    HDF5Helper::MapOfDatasets dts3DType;
-    HDF5Helper::MapOfDatasets dts3DTypeDsp;
-    HDF5Helper::MapOfDatasets dtsMaskType;
-    HDF5Helper::MapOfGroups groupsCuboidType;
-    HDF5Helper::MapOfGroups groupsCuboidTypeAttr;
-    HDF5Helper::MapOfGroups groupsCuboidTypeAttrDsp;
-
+    HDF5Helper::MapOfDatasets datasets;
 
 private:
     // Disable copy

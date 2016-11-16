@@ -30,8 +30,7 @@ class OpenedH5File::H5SubobjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, OpenedH5File *openedH5File, QObject *parent = 0);
-    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Group *group, OpenedH5File *openedH5File, QObject *parent = 0);
+    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, QObject *parent = 0);
     ~H5SubobjectToVisualize();
 
     // Getters for current settings and min/max values
@@ -45,7 +44,6 @@ public:
     float getOriginalMaxValue();
 
     HDF5Helper::HDF5Dataset *getDataset();
-    HDF5Helper::HDF5Group *getGroup();
 
     // Simulation info from file
     QList<QPair<QString, QString>> getInfo();
@@ -59,7 +57,7 @@ public:
     float getValueAtPointFromYZ(int y, int z);
 
     QString getName();
-    H5G_obj_t getType();
+    ObjectType getType();
     ColorMap::Type getColormap();
 
     HDF5Helper::HDF5Vector3D getFrameSize();
@@ -129,8 +127,7 @@ private:
 
     OpenedH5File *openedH5File = 0;
     QString objectName;
-    H5G_obj_t type;
-    HDF5Helper::HDF5Group *group = 0;
+    ObjectType type;
     HDF5Helper::HDF5Dataset *dataset = 0;
 
     bool XYloadedFlag = false;
@@ -172,7 +169,6 @@ private:
     HDF5Helper::HDF5Vector chunkSize;
 
     uint64_t steps = 1;
-    uint64_t dwnsmpl = 0;
     uint64_t currentStep = 0;
 
     // GUI initialization flags

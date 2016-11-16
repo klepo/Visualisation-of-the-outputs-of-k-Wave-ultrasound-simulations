@@ -18,7 +18,9 @@
 #ifndef HDF5ATTRIBUTE_H
 #define HDF5ATTRIBUTE_H
 
-#include "HDF5Object.h"
+#include <string>
+
+#include <hdf5.h>  // HDF5
 
 namespace HDF5Helper
 {

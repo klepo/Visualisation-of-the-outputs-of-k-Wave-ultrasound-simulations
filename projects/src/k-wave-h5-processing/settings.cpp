@@ -16,20 +16,9 @@
 
 #include "settings.h"
 
-// Dataset names
-const std::string Settings::SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
-const std::string Settings::SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
-const std::string Settings::SENSOR_MASK_CORNERS_DATASET("sensor_mask_corners");
-const std::string Settings::NT_DATASET("Nt");
-const std::string Settings::NX_DATASET("Nx");
-const std::string Settings::NY_DATASET("Ny");
-const std::string Settings::NZ_DATASET("Nz");
-const std::string Settings::P_SOURCE_INPUT_DATASET("p_source_input");
-
-
 Settings::Settings()
 {
-    init();
+
 }
 
 void Settings::loadParams(int argc, char **argv)
@@ -40,6 +29,7 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("reshape");
     paramsDefinition.defineParamsFlag("changeChunks");
     paramsDefinition.defineParamsFlag("dwnsmpl");
+    paramsDefinition.defineParamsFlag("compress");
 
     // Size
     ParamsDefinition::Flag::Params paramsS;
@@ -55,6 +45,11 @@ void Settings::loadParams(int argc, char **argv)
     ParamsDefinition::Flag::Params paramsC;
     paramsC.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("c", paramsC);
+
+    // Period
+    ParamsDefinition::Flag::Params paramsP;
+    paramsP.defineParam(ParamsDefinition::ULONGLONG);
+    paramsDefinition.defineParamsFlag("p", paramsP);
 
     // Names
     ParamsDefinition::Flag::Params paramsNames;
@@ -78,47 +73,59 @@ void Settings::loadParams(int argc, char **argv)
 
     // Help message
     paramsDefinition.setHelp("\n"
-    "Usage: k-wave-h5-processing [options]\n"
-    "where options include:\n\n"
-    "  -f HDF5SimulationOutputFilename ...... Required parameter.\n"
-    "                                         HDF5 file with simulation results.\n"
-    "\n"
-    "  -m HDF5SimulationInputFilename ....... Optional parameter. HDF5 simulation input filename \n"
-    "                                         (with sensor_mask_index or sensor_mask_corners dataset).\n"
-    "\n"
-    "  -o HDF5ProcessingOutputFilename ...... Optional parameter. HDF5 processing output filename. \n"
-    "                                         Default is HDF5SimulationOutputFilename + \"_modified.h5\".\n"
-    "\n"
-    "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
-    "                                         type datasets to group with 4D datasets and saves datasets\n"
-    "                                         to the output file. In HDF5SimulationOutputFilename or \n"
-    "                                         HDF5SimulationInputFilename must be sensor_mask_index or\n"
-    "                                         sensor_mask_corners dataset.\n"
-    "\n"
-    "  -changeChunks ........................ Optional parameter. Sets a new chunks size of\n"
-    "                                         datasets and saves datasets to the output file.\n"
-    "\n"
-    "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
-    "                                         and saves them to the output file.\n"
-    "\n"
-    "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
-    "                                         Default size is 512.\n"
-    "\n"
-    "  -ch chunkSize ........................ Optional parameter. The size for new chunks from 1 to\n"
-    "                                         maximal appropriately value. Default size is 64 (64^3).\n"
-    "\n"
-    "  -c blockSize ......................... Optional parameter. Set number of data elements\n"
-    "                                         for block reading. Default value is based on available\n"
-    "                                         system physical memory.\n"
-    "\n"
-    "  -names name1;name2;... ............... Optional parameter. Names of selected datasets or groups\n"
-    "                                         to processing.\n"
-    "\n"
-    "  -help ................................ Prints this help message.\n"
-    "\n");
+                             "Usage: k-wave-h5-processing [options]\n"
+                             "where options include:\n\n"
+                             "  -f HDF5SimulationOutputFilename ....... Required parameter.\n"
+                             "                                          HDF5 file with simulation results.\n"
+                             "\n"
+                             "  -m HDF5SimulationInputFilename ........ Optional parameter. HDF5 simulation input filename \n"
+                             "                                          (with sensor_mask_index or sensor_mask_corners\n"
+                             "                                          or p_source_input dataset).\n"
+                             "\n"
+                             "  -o HDF5ProcessingOutputFilename ....... Optional parameter. HDF5 processing output filename. \n"
+                             "                                          Default is HDF5SimulationOutputFilename + \"_modified.h5\".\n"
+                             "\n"
+                             "  -reshape .............................. Optional parameter. Performs processing sensor mask\n"
+                             "                                          type datasets to group with 4D datasets and saves datasets\n"
+                             "                                          to the output file. In HDF5SimulationOutputFilename or \n"
+                             "                                          HDF5SimulationInputFilename must be sensor_mask_index or\n"
+                             "                                          sensor_mask_corners dataset.\n"
+                             "\n"
+                             "  -changeChunks ......................... Optional parameter. Sets a new chunks size of\n"
+                             "                                          datasets and saves datasets to the output file.\n"
+                             "\n"
+                             "  -dwnsmpl .............................. Optional parameter. Performs downsampling of datasets\n"
+                             "                                          and saves them to the output file.\n"
+                             "\n"
+                             "  -compress ............................. Optional parameter. Performs compression of time series\n"
+                             "                                          dataset data.\n"
+                             "\n"
+                             "  -s size ............................... Optional parameter. Max size for donwsampling.\n"
+                             "                                          Default size is 512.\n"
+                             "\n"
+                             "  -ch chunkSize ......................... Optional parameter. The size for new chunks from 1 to\n"
+                             "                                          maximal appropriately value. Default size is 64 (64^3).\n"
+                             "\n"
+                             "  -c blockSize .......................... Optional parameter. Set number of data elements\n"
+                             "                                          for block reading. Default value is based on available\n"
+                             "                                          system physical memory.\n"
+                             "\n"
+                             "  -p period ............................. Optional parameter. Set period of input signal for\n"
+                             "                                          compression of time series HIFU data.\n"
+                             "\n"
+                             "  -names name1;name2;... ................ Optional parameter. Names of selected datasets or groups\n"
+                             "                                          to processing.\n"
+                             "\n"
+                             "  -help ................................. Prints this help message.\n"
+                             "\n");
 
-    // Parse params from command line.
-    paramsDefinition.commandLineParse(argc, argv);
+    // Parse params from command line
+    try {
+        paramsDefinition.commandLineParse(argc, argv);
+    } catch (std::exception &e) {
+        std::cerr << "\n  Wrong parameter " << e.what() << std::endl << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
     // Set flags according to params
     ParamsDefinition::Flags flags = paramsDefinition.getFlags();
@@ -131,6 +138,7 @@ void Settings::loadParams(int argc, char **argv)
     setFlagReshape(flags.at("reshape").getEnabled());
     setFlagChangeChunks(flags.at("changeChunks").getEnabled());
     setFlagDwnsmpl(flags.at("dwnsmpl").getEnabled());
+    setFlagCompress(flags.at("compress").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
 
@@ -175,30 +183,12 @@ void Settings::loadParams(int argc, char **argv)
         flags.at("c").getParams().readParam(0, &blockSize);
         setBlockSize(blockSize);
     }
-}
 
-void Settings::init()
-{
-    // Filenames
-    simulationOutputFilename = "";
-    simulationInputFilename = "";
-    processingOutputFilename = "";
-
-    // Size vars
-    maxSize = 512;
-    maxChunkSize = 64;
-    blockSize = 0;
-
-    // Filter by names
-    names.clear();
-    flagNames = false;
-
-    // Application modes
-    flagReshape = false;
-    flagRechunk = false;
-    flagDwnsmpl = false;
-
-    paramsDefinition = ParamsDefinition();
+    if (flags.at("p").getEnabled()) {
+        unsigned long long period;
+        flags.at("p").getParams().readParam(0, &period);
+        setPeriod(period);
+    }
 }
 
 std::string Settings::getSimulationOutputFilename()
@@ -267,6 +257,17 @@ void Settings::setBlockSize(const unsigned long long &value)
     std::cout << "\n  Max size for block reading:\n    " << blockSize << std::endl;
 }
 
+unsigned long long Settings::getPeriod() const
+{
+    return period;
+}
+
+void Settings::setPeriod(unsigned long long value)
+{
+    period = value;
+    std::cout << "\n  Period for compression:\n    " << period << std::endl;
+}
+
 std::list<std::string> Settings::getNames()
 {
     return names;
@@ -331,6 +332,20 @@ void Settings::setFlagDwnsmpl(bool value)
         std::cout << "\n  Downsampling mode: ON\n" << std::endl;
     else
         std::cout << "\n  Downsampling mode: OFF\n" << std::endl;
+}
+
+bool Settings::getFlagCompress() const
+{
+    return flagCompress;
+}
+
+void Settings::setFlagCompress(bool value)
+{
+    flagCompress = value;
+    if (value)
+        std::cout << "\n  Compression mode: ON\n" << std::endl;
+    else
+        std::cout << "\n  Compression mode: OFF\n" << std::endl;
 }
 
 ParamsDefinition Settings::getParamsDefinition() const

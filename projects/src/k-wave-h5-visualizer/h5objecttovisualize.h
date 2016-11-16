@@ -28,15 +28,14 @@ class OpenedH5File::H5ObjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5ObjectToVisualize(QString name, H5G_obj_t type, OpenedH5File *openedH5File, QObject *parent = 0);
+    explicit H5ObjectToVisualize(QString name, ObjectType type, OpenedH5File *openedH5File, QObject *parent = 0);
     ~H5ObjectToVisualize();
 
     void addSubobject(HDF5Helper::HDF5Dataset *dataset);
-    void addSubobject(HDF5Helper::HDF5Group *group);
     bool setSelectedSubobject(QString name);
     OpenedH5File::H5SubobjectToVisualize *getSelectedSubobject();
     QString getName();
-    H5G_obj_t getType();
+    ObjectType getType();
     QList<QString> getSubobjectNames();
     QMap<QString, OpenedH5File::H5SubobjectToVisualize *> getSubobjects();
 
@@ -50,7 +49,7 @@ private:
     // One subobject is selected
     OpenedH5File::H5SubobjectToVisualize *selectedSubobject = 0;
     QMap<QString, OpenedH5File::H5SubobjectToVisualize *> subobjects;
-    H5G_obj_t type;
+    ObjectType type;
     OpenedH5File *openedH5File;
     QString name;
     // This is for future implementation of multiple selection of datasets

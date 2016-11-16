@@ -27,25 +27,6 @@
  */
 int main(int argc, char **argv)
 {
-    /*float u[] = {2, 4, 5};
-    float v[] = {3, 2, 7};
-    //float w[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    const int s = 5;
-    float w[s];
-    int p[s];
-
-    //Processing::conv(u, v, w, 3, 7);
-    Processing::xcorr(u, v, w, 3, 3);
-    //Processing::diff(v, w, 8);
-    //Processing::findPeaks(v, p, s);
-
-    for (int i = 0; i < s; i++)
-        std::cout << w[i] << std::endl;
-
-    //std::cout << Processing::mean(v, s);
-    return 0;*/
-
-
     double t0 = HDF5Helper::getTime(); // Save the start time
 
     Settings *settings = new Settings();
@@ -71,6 +52,12 @@ int main(int argc, char **argv)
     if (settings->getFlagChangeChunks()) {
         Helper::printDebugTitle("Change chunks");
         processing->changeChunks();
+    }
+
+    // Compression of time series data
+    if (settings->getFlagCompress()) {
+        Helper::printDebugTitle("Compression");
+        processing->compress();
     }
 
     Helper::printDebugTitle("Closing files");

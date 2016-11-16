@@ -454,19 +454,19 @@ void GWindow::clearData()
  * @brief GWindow::setLoaded Action on part of 3D dataset loaded
  * @param r loading request
  */
-void GWindow::setLoaded(Request *r)
+void GWindow::setLoaded(Request *request)
 {
-    if (selectedDataset != r->dataset)
+    if (selectedDataset != request->dataset)
         return;
 
     texture3DInitialized = false;
-    HDF5Helper::HDF5Vector3D offset = r->offset;
-    HDF5Helper::HDF5Vector3D count = r->count;
+    HDF5Helper::HDF5Vector3D offset = request->offset;
+    HDF5Helper::HDF5Vector3D count = request->count;
 
     // Set 3D data to 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexSubImage3D(GL_TEXTURE_3D, 0, offset.x(), offset.y(), offset.z(), count.x(), count.y(), count.z(), GL_RED, GL_FLOAT, r->data);
+    glTexSubImage3D(GL_TEXTURE_3D, 0, offset.x(), offset.y(), offset.z(), count.x(), count.y(), count.z(), GL_RED, GL_FLOAT, request->data);
     glBindTexture(GL_TEXTURE_3D, 0);
 
     // Last block of 3D data
@@ -477,7 +477,7 @@ void GWindow::setLoaded(Request *r)
         emit loaded(selectedDataset->getName());
     }
 
-    thread->deleteDoneRequest(r);
+    thread->deleteDoneRequest(request);
 }
 
 /**
@@ -1162,7 +1162,7 @@ bool GWindow::event(QEvent *event)
     }
 }
 
-void GWindow::resizeEvent(QResizeEvent *event)
+void GWindow::resizeEvent(QResizeEvent *)
 {
     if (initialized) {
         // Resize framebuffer texture

@@ -278,8 +278,8 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
         ParamsDefinition::Flags::iterator search = flags.find(flagString);
         if (search == flags.end()) {
             // Not found
-            std::cerr << "\n  Wrong parameter " << argv[i] << std::endl;
             std::cout << help << std::endl;
+            throw std::invalid_argument(argv[i]);
             // Throw an exception
         } else {
             // Found
@@ -291,8 +291,8 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
                 ParamsDefinition::Type type = flag->getParams().getParamType(j);
                 i++;
                 if (argc <= i) {
-                    std::cerr << "\n  Wrong parameter " << flag->getName() << std::endl;
                     std::cout << help << std::endl;
+                    throw std::invalid_argument(flag->getName());
                     break;
                     // Throw an exception
                 }

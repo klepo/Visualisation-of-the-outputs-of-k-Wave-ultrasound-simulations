@@ -18,7 +18,10 @@
 #ifndef HDF5VECTOR_H
 #define HDF5VECTOR_H
 
-#include "HDF5File.h"
+#include <iostream>
+#include <string>
+
+#include <hdf5.h>  // HDF5
 
 namespace HDF5Helper
 {
@@ -31,6 +34,7 @@ public:
     HDF5Vector(const HDF5Vector &hDF5Vector);
     virtual ~HDF5Vector();
     virtual bool operator ==(const HDF5Vector &hDF5Vector) const;
+    virtual bool operator !=(const HDF5Vector &hDF5Vector) const;
     virtual HDF5Vector &operator =(const HDF5Vector &hDF5Vector);
     virtual hsize_t &operator [](hsize_t i) final;
     virtual hsize_t &operator [](int i) final;
@@ -41,11 +45,7 @@ public:
     bool hasZeros() const;
 
     friend std::ostream &operator<<(std::ostream &os, HDF5Vector const &hDF5Vector) {
-        for (hsize_t i = 0; i < hDF5Vector.length; i++) {
-            os << hDF5Vector.vector[i];
-            if (i < hDF5Vector.length - 1)
-                os << " x ";
-        }
+        os << std::string(hDF5Vector);
         return os;
     }
 

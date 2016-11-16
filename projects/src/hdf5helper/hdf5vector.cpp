@@ -74,6 +74,13 @@ bool HDF5Vector::operator ==(const HDF5Vector &hDF5Vector) const
     return true;
 }
 
+bool HDF5Vector::operator !=(const HDF5Vector &hDF5Vector) const
+{
+    if (hDF5Vector == *this)
+        return false;
+    return true;
+}
+
 hsize_t &HDF5Vector::operator [](hsize_t i)
 {
     if (i >= length){

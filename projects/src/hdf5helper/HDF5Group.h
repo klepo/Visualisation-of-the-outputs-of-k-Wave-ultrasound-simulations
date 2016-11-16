@@ -19,6 +19,9 @@
 #define HDF5GROUP_H
 
 #include "HDF5Object.h"
+#include "HDF5Vector3D.h"
+#include "HDF5Vector4D.h"
+#include "HDF5Dataset.h"
 
 namespace HDF5Helper
 {
@@ -28,19 +31,22 @@ public:
     HDF5Group(const hid_t group, const std::string name, File *hDF5File);
     ~HDF5Group();
 
-    HDF5Dataset *openDataset(const std::string datasetName);
-    HDF5Dataset *openDataset(hsize_t idx);
+    HDF5Dataset *openDataset(const std::string datasetName, bool log = true);
+    HDF5Dataset *openDataset(hsize_t idx, bool log = true);
 
-    void closeDataset(const std::string datasetName);
-    void closeDataset(hsize_t idx);
+    void closeDataset(const std::string datasetName, bool log = true);
+    void closeDataset(hsize_t idx, bool log = true);
+    void closeDataset(HDF5Dataset *dataset, bool log = true);
 
     void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
     void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunk_size, bool rewrite = false);
 
-    HDF5Group *openGroup(const std::string groupName);
-    HDF5Group *openGroup(hsize_t idx);
+    HDF5Group *openGroup(const std::string groupName, bool log = true);
+    HDF5Group *openGroup(hsize_t idx, bool log = true);
 
-    void closeGroup(const std::string groupName);
+    void closeGroup(const std::string groupName, bool log = true);
+    void closeGroup(hsize_t idx, bool log = true);
+    void closeGroup(HDF5Group *group, bool log = true);
 
     void createGroup(const std::string groupName, bool rewrite = false);
 
@@ -55,6 +61,9 @@ private:
     std::string name;
 
 };
+
+typedef std::map<const std::string, HDF5Group *> MapOfGroups;
+typedef std::pair<const std::string, HDF5Group *> PairOfGroups;
 }
 
 #endif // HDF5GROUP_H
