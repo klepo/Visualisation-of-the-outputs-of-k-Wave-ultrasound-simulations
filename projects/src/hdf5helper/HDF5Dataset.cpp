@@ -166,26 +166,26 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
         HDF5Vector3D size = getDims();
         if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
             if (dims == HDF5Vector3D(1, 1, 1)) {
-                if (name == File::NT_DATASET) {
+                if (getOnlyName() == File::NT_DATASET) {
                     return HDF5DatasetType::N_DIM_T;
                 }
-                if (name == File::NX_DATASET) {
+                if (getOnlyName() == File::NX_DATASET) {
                     return HDF5DatasetType::N_DIM_X;
                 }
-                if (name == File::NY_DATASET) {
+                if (getOnlyName() == File::NY_DATASET) {
                     return HDF5DatasetType::N_DIM_Y;
                 }
-                if (name == File::NZ_DATASET) {
+                if (getOnlyName() == File::NZ_DATASET) {
                     return HDF5DatasetType::N_DIM_Z;
                 }
             }
-            if (name == File::SENSOR_MASK_INDEX_DATASET) {
+            if (getOnlyName() == File::SENSOR_MASK_INDEX_DATASET) {
                 return HDF5DatasetType::MASK_INDEX;
             }
-            if (name == File::SENSOR_MASK_CORNERS_DATASET) {
+            if (getOnlyName() == File::SENSOR_MASK_CORNERS_DATASET) {
                 return HDF5DatasetType::MASK_CORNERS;
             }
-            if (name == File::P_SOURCE_INPUT_DATASET) {
+            if (getOnlyName() == File::P_SOURCE_INPUT_DATASET) {
                 return HDF5DatasetType::P_SOURCE_INPUT;
             }
         }
@@ -218,7 +218,7 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
                     && size.x() == sensorMaskSize
                     && hasAttribute(File::SRC_DATASET_NAME_ATTR)
                     && hasAttribute(File::C_TYPE_ATTR)
-                    && readAttributeS(File::C_TYPE_ATTR) == "fi"
+                    && readAttributeS(File::C_TYPE_ATTR, false) == "fi"
                     ) {
                 return HDF5DatasetType::FI_MASK;
             }
@@ -227,14 +227,13 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
                     && size.x() == sensorMaskSize
                     && hasAttribute(File::SRC_DATASET_NAME_ATTR)
                     && hasAttribute(File::C_TYPE_ATTR)
-                    && readAttributeS(File::C_TYPE_ATTR) == "k"
+                    && readAttributeS(File::C_TYPE_ATTR, false) == "k"
                     ) {
                 return HDF5DatasetType::K_MASK;
             }
         }
     }
     if (getDims().getLength() == 4) { // 4D type (cuboids)
-        HDF5Vector4D size = getDims();
         if (H5Tequal(datatype, H5T_FLOAT)) {
             // Downsampled
             if (hasAttribute("src_dataset_size_x")
@@ -248,11 +247,13 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
                         && hasAttribute("positionZ")
                         ) {
                     if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "fi"
+                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI;
                     } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "k"
+                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_DWNSMPL_K;
                     } else {
@@ -260,11 +261,13 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
                     }
                 } else { // Without position attributes
                     if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "fi"
+                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
                             ) {
                         return HDF5DatasetType::CUBOID_DWNSMPL_FI;
                     } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "k"
+                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
                             ) {
                         return HDF5DatasetType::CUBOID_DWNSMPL_K;
                     } else {
@@ -278,12 +281,14 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
                         && hasAttribute("positionZ")
                         ) {
                     if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "fi"
+                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
                             && hasAttribute("src_dataset_name")
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_FI;
                     } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "k"
+                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
                                && hasAttribute("src_dataset_name")
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_K;
@@ -292,12 +297,14 @@ HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize)
                     }
                 } else { // Without position attributes
                     if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "fi"
+                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
                             && hasAttribute("src_dataset_name")
                             ) {
                         return HDF5DatasetType::CUBOID_FI;
                     } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR) == "k"
+                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
                                && hasAttribute("src_dataset_name")
                             ) {
                         return HDF5DatasetType::CUBOID_K;
@@ -332,37 +339,37 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
         case HDF5DatasetType::BASIC_3D:
             return "3D type";
         case HDF5DatasetType::DWNSMPL_3D:
-            return "3D type - donwsampled";
+            return "3D type (donwsampled)";
         case HDF5DatasetType::BASIC_MASK:
             return "Sensor mask type";
         case HDF5DatasetType::FI_MASK:
-            return "Sensor mask type - compressed fi";
+            return "Sensor mask type (compressed fi)";
         case HDF5DatasetType::K_MASK:
-            return "Sensor mask type - compressed k";
+            return "Sensor mask type (compressed k)";
         case HDF5DatasetType::CUBOID:
             return "Cuboid type";
         case HDF5DatasetType::CUBOID_FI:
-            return "Cuboid type - compressed fi";
+            return "Cuboid type (compressed fi)";
         case HDF5DatasetType::CUBOID_K:
-            return "Cuboid type - compressed k";
+            return "Cuboid type (compressed k)";
         case HDF5DatasetType::CUBOID_DWNSMPL:
-            return "Cuboid type - donwsampled";
+            return "Cuboid type (donwsampled";
         case HDF5DatasetType::CUBOID_DWNSMPL_FI:
-            return "Cuboid type - donwsampled compressed fi";
+            return "Cuboid type (donwsampled compressed fi)";
         case HDF5DatasetType::CUBOID_DWNSMPL_K:
-            return "Cuboid type - donwsampled compressed k";
+            return "Cuboid type (donwsampled compressed k)";
         case HDF5DatasetType::CUBOID_ATTR:
             return "Cuboid type with attributes";
         case HDF5DatasetType::CUBOID_ATTR_FI:
-            return "Cuboid type with attributes - compressed fi";
+            return "Cuboid type with attributes (compressed fi)";
         case HDF5DatasetType::CUBOID_ATTR_K:
-            return "Cuboid type with attributes - compressed k";
+            return "Cuboid type with attributes (compressed k)";
         case HDF5DatasetType::CUBOID_ATTR_DWNSMPL:
-            return "Cuboid type with attributes - donwsampled";
+            return "Cuboid type with attributes (donwsampled)";
         case HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI:
-            return "Cuboid type with attributes - donwsampled compressed fi";
+            return "Cuboid type with attributes (donwsampled compressed fi)";
         case HDF5DatasetType::CUBOID_ATTR_DWNSMPL_K:
-            return "Cuboid type with attributes - donwsampled compressed k";
+            return "Cuboid type with attributes (donwsampled compressed k)";
     };
     return "Unknow type";
 }

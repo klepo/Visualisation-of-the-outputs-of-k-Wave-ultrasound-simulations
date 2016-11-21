@@ -46,88 +46,14 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
         QString value(static_cast<const char *>(attribute->getData()));
         info.insert(QString::fromStdString(attribute->getName()), value);
     }
-    file->closeGroup(group);
 
     qRegisterMetaType<OpenedH5File::H5ObjectToVisualize *>("OpenedH5File::H5ObjectToVisualize");
 
     qDebug() << "Find datasets for visualization...";
 
     // Find datasets for visualization
-    for (hsize_t i = 0; i < file->getNumObjs(); i++) {
-        H5G_obj_t type = file->getObjTypeByIdx(i);
-        if (type == H5G_DATASET) {
-            try {
-                HDF5Helper::HDF5Dataset *dataset = file->openDataset(i);
-                HDF5Helper::HDF5Vector3D size = dataset->getDims();
-                // 3D type
-                if (dataset->getRank() == 3 && dataset->getDataTypeClass() == H5T_FLOAT) {
-                    if (size == HDF5Helper::HDF5Vector3D(nDims)) {
-                        QString name = QString::fromStdString(dataset->getName());
-                        qDebug() << "----> 3D type dataset: " << name << "; size: " << QString::fromStdString(size);
-                        setObject(name, dataset, dataset3D_t);
-                    }
-                    // Downsampled 3D type
-                    else if (dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_X_ATTR)
-                             && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Y_ATTR)
-                             && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Z_ATTR)
-                             && dataset->hasAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR)
-                             ) {
-                        QString name = QString::fromStdString(dataset->readAttributeS(HDF5Helper::File::SRC_DATASET_NAME_ATTR));
-                        qDebug() << "----> 3D type dataset (downsampled): " << name << "; size: " << QString::fromStdString(size);
-                        setObject(name, dataset, dataset3D_t);
-                    }
-                    // Something other
-                    else {
-                        file->closeDataset(dataset);
-                    }
-                }
-                // Something other
-                else {
-                    file->closeDataset(dataset);
-                }
-            } catch(std::exception &e) {
-                std::cerr << e.what() << std::endl;
-            }
-        } else if (type == H5G_GROUP) {
-            // Reshaped mask type group
-            try {
-                HDF5Helper::HDF5Group *group = file->openGroup(i);
-                for (hsize_t j = 0; j < group->getNumObjs(); j++) {
-                    H5G_obj_t type = file->getObjTypeByIdx(j);
-                    if (type == H5G_DATASET) {
-                        HDF5Helper::HDF5Dataset *dataset = group->openDataset(j);
-                        HDF5Helper::HDF5Vector4D size = dataset->getDims();
-                        // 4D type
-                        if (dataset->getRank() == 4 && dataset->getDataTypeClass() == H5T_FLOAT) {
-                            // Downsampled reshaped mask type group
-                            if (dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_X_ATTR)
-                                    && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Y_ATTR)
-                                    && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Z_ATTR)
-                                    && dataset->hasAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR)
-                                    ) {
-                                QString name = QString::fromStdString(group->getName());
-                                qDebug() << "----> 4D type dataset (downsampled): " << name  << "; size: " << QString::fromStdString(size);
-                                setObject(name, dataset, dataset4D_t);
-                            }
-                            // Original reshaped mask type group
-                            else {
-                                QString name = QString::fromStdString(group->getName());
-                                qDebug() << "----> 4D type dataset: " << name << "; size: " << QString::fromStdString(size);
-                                setObject(name, dataset, dataset4D_t);
-                            }
-                        }
-                        // Something other
-                        else {
-                            file->closeGroup(group);
-                        }
-                    }
-                }
-                file->closeGroup(group);
-            } catch(std::exception &e) {
-                std::cerr << e.what() << std::endl;
-            }
-        }
-    }
+    findDatasetsForVisualization(group);
+    file->closeGroup(group);
 }
 
 void OpenedH5File::setObject(QString name, HDF5Helper::HDF5Dataset *dataset, ObjectType type)
@@ -213,6 +139,54 @@ void OpenedH5File::toogleObjectSelected(QString mainName)
 {
     if (objects.contains(mainName)) {
         objects[mainName]->toogleSelected();
+    }
+}
+
+void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
+{
+    for (hsize_t i = 0; i < group->getNumObjs(); i++) {
+        H5G_obj_t type = group->getObjTypeByIdx(i);
+        std::string name = group->getObjNameByIdx(i);
+
+        // Datasets
+        if (type == H5G_DATASET) {
+            HDF5Helper::HDF5Dataset *dataset = group->openDataset(i);
+            HDF5Helper::HDF5DatasetType datasetType = dataset->getType(nDims);
+
+            if (datasetType == HDF5Helper::HDF5DatasetType::BASIC_3D) {
+                setObject(QString::fromStdString(dataset->getName()), dataset, dataset3D_t);
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+            } else if (datasetType == HDF5Helper::HDF5DatasetType::DWNSMPL_3D) {
+                setObject(QString::fromStdString(group->getName()), dataset, dataset3D_t);
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+            } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
+                       ) {
+                setObject(QString::fromStdString(group->getName()), dataset, dataset4D_t);
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+            } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_K
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_FI
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_K
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_FI
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_K
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_K
+                       ) {
+                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::File::SRC_DATASET_NAME_ATTR)), dataset, dataset4D_t);
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+            } else { // Unknown type
+                group->closeDataset(dataset);
+            }
+        }
+        // Groups
+        if (type == H5G_GROUP) {
+            HDF5Helper::HDF5Group *nextGroup = group->openGroup(i);
+            findDatasetsForVisualization(nextGroup);
+            group->closeGroup(nextGroup);
+        }
     }
 }
 

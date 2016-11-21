@@ -30,13 +30,14 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("changeChunks");
     paramsDefinition.defineParamsFlag("dwnsmpl");
     paramsDefinition.defineParamsFlag("compress");
+    paramsDefinition.defineParamsFlag("decompress");
 
     // Size
     ParamsDefinition::Flag::Params paramsS;
     paramsS.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("s", paramsS);
 
-    // Chnunk size
+    // Chunk size
     ParamsDefinition::Flag::Params paramsCh;
     paramsCh.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("ch", paramsCh);
@@ -98,7 +99,10 @@ void Settings::loadParams(int argc, char **argv)
                              "                                          and saves them to the output file.\n"
                              "\n"
                              "  -compress ............................. Optional parameter. Performs compression of time series\n"
-                             "                                          dataset data.\n"
+                             "                                          dataset data, creates 2 new datasets for fi and k. \n"
+                             "\n"
+                             "  -decompress ........................... Optional parameter. Performs decompression of time series\n"
+                             "                                          dataset data, needs datasets fi and k.\n"
                              "\n"
                              "  -s size ............................... Optional parameter. Max size for donwsampling.\n"
                              "                                          Default size is 512.\n"
@@ -139,6 +143,7 @@ void Settings::loadParams(int argc, char **argv)
     setFlagChangeChunks(flags.at("changeChunks").getEnabled());
     setFlagDwnsmpl(flags.at("dwnsmpl").getEnabled());
     setFlagCompress(flags.at("compress").getEnabled());
+    setFlagDecompress(flags.at("decompress").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
 
@@ -276,10 +281,11 @@ std::list<std::string> Settings::getNames()
 void Settings::setNames(const std::list<std::string> &value)
 {
     names = value;
-    std::cout << "\n  Selected datasets or groups names:    " << std::endl;
+    std::cout << "\n  Selected datasets or groups names:\n    ";
     for (std::list<std::string>::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
         std::cout << *ci << ", ";
     }
+    std::cout << std::endl;
 }
 
 bool Settings::getFlagNames()
@@ -346,6 +352,20 @@ void Settings::setFlagCompress(bool value)
         std::cout << "\n  Compression mode: ON\n" << std::endl;
     else
         std::cout << "\n  Compression mode: OFF\n" << std::endl;
+}
+
+bool Settings::getFlagDecompress() const
+{
+    return flagDecompress;
+}
+
+void Settings::setFlagDecompress(bool value)
+{
+    flagDecompress = value;
+    if (value)
+        std::cout << "\n  Decompression mode: ON\n" << std::endl;
+    else
+        std::cout << "\n  Decompression mode: OFF\n" << std::endl;
 }
 
 ParamsDefinition Settings::getParamsDefinition() const

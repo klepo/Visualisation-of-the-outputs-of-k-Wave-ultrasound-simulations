@@ -36,6 +36,8 @@ int main(int argc, char **argv)
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
     Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
 
+    std::exit(EXIT_SUCCESS);
+
     // Processing of sensor mask
     if (settings->getFlagReshape()) {
         Helper::printDebugTitle("Reshaping");
@@ -58,6 +60,12 @@ int main(int argc, char **argv)
     if (settings->getFlagCompress()) {
         Helper::printDebugTitle("Compression");
         processing->compress();
+    }
+
+    // Decompression of time series data
+    if (settings->getFlagDecompress()) {
+        Helper::printDebugTitle("Decompression");
+        processing->decompress();
     }
 
     Helper::printDebugTitle("Closing files");

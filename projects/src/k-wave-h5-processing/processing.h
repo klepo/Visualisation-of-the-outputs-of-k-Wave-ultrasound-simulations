@@ -30,6 +30,7 @@ public:
     void changeChunks();
     void donwsampling();
     void compress();
+    void decompress();
     void testOfReading();
 
 private:
@@ -38,6 +39,7 @@ private:
     void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void resampleDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void compressDataset(HDF5Helper::HDF5Dataset *srcDataset);
+    void decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5Helper::HDF5Dataset *srcDatasetK);
     void copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset);
     void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);
     void resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);

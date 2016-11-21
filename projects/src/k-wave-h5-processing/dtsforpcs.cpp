@@ -150,6 +150,10 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
 
         // Datasets
         if (type == H5G_DATASET) {
+            if (group->getName() != "/")
+                name = group->getName() + "/" + name;
+            else
+                name = "/" + name;
             // Filter by selected names
             if (isFiltered(name, settings))
                 continue;
@@ -158,8 +162,9 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
             HDF5Helper::HDF5DatasetType datasetType = dataset->getType(nDims, sensorMaskSize);
 
             if (datasetType != HDF5Helper::HDF5DatasetType::UNKNOWN) {
-                datasets.insert(HDF5Helper::PairOfDatasets(name, dataset));
-                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+                datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
+                std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << std::endl;
+                std::cout << std::endl;
             }
             // Unknown type
             else {
@@ -177,6 +182,23 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
 
 bool DtsForPcs::isFiltered(std::string name, Settings *settings)
 {
-    std::list<std::string> names = settings->getNames();
-    return (settings->getFlagNames() && std::find(names.begin(), names.end(), name) == names.end());
+    if (settings->getFlagNames()) {
+        std::list<std::string> names = settings->getNames();
+        // Iterate
+        for (std::list<std::string>::const_iterator it = names.begin(); it != names.end(); ++it) {
+            std::string str = *it;
+            if (str.find("/") != 0)
+                str.insert(0, "/");
+            if (str == name)
+                return false;
+            if (str.find("/") != str.length() - 1)
+                str.append("/");
+            if (name.find(str) != std::string::npos) {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
 }

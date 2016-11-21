@@ -190,7 +190,7 @@ void Processing::reshape()
 
             delete[] data;
         } else {
-            std::cout << "No dataset for reshape in simulation output file" << std::endl;
+            std::cout << "No datasets for reshaping in simulation output file" << std::endl;
         }
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -215,13 +215,13 @@ void Processing::changeChunks()
                     || datasetType == HDF5Helper::HDF5DatasetType::CUBOID
                     || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
                     ) {
-                count++;
                 changeChunksOfDataset(dataset);
+                count++;
             }
         }
 
         if (count == 0) {
-            std::cout << "No dataset for change chunks in simulation output file" << std::endl;
+            std::cout << "No datasets for changing chunks in simulation output file" << std::endl;
         }
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -232,6 +232,7 @@ void Processing::changeChunks()
 void Processing::donwsampling()
 {
     try {
+        // TODO - downsampling of FI an K datasets
         // For 3D type datasets
         if (!dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::BASIC_3D).empty()) {
 
@@ -242,7 +243,7 @@ void Processing::donwsampling()
                 resampleDataset(dataset);
             }
         } else if (!dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::CUBOID).empty()) {
-
+            // Cuboid datasets
             HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::CUBOID);
             HDF5Helper::MapOfDatasets::iterator it;
             for (it = map.begin(); it != map.end(); ++it) {
@@ -250,7 +251,7 @@ void Processing::donwsampling()
                 resampleDataset(dataset);
             }
         } else if (!dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::CUBOID_ATTR).empty()) {
-
+            // Cuboid datasets with attributes
             HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::CUBOID_ATTR);
             HDF5Helper::MapOfDatasets::iterator it;
             for (it = map.begin(); it != map.end(); ++it) {
@@ -258,7 +259,7 @@ void Processing::donwsampling()
                 resampleDataset(dataset);
             }
         } else {
-            std::cout << "No dataset for downsampling in simulation output file" << std::endl;
+            std::cout << "No datasets for downsampling in simulation output file" << std::endl;
         }
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -287,13 +288,54 @@ void Processing::compress()
                     || datasetType == HDF5Helper::HDF5DatasetType::CUBOID
                     || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
                     ) {
-                count++;
                 compressDataset(dataset);
+                count++;
             }
         }
 
         if (count == 0) {
-            std::cout << "No datasets or groups to compress in simulation output file" << std::endl;
+            std::cout << "No datasets for compression in simulation output file" << std::endl;
+        }
+    } catch(std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+void Processing::decompress()
+{
+    try {
+        HDF5Helper::MapOfDatasets::iterator it;
+        HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets();
+        HDF5Helper::HDF5Vector4D nDims4D = hDF5OutputFile->getNdims();
+        hsize_t sensorMaskSize = dtsForPcs->getSensorMaskSize();
+        int count = 0;
+        //std::cout << "Compression with period: " << settings->getPeriod() << " steps" << std::endl;
+        for (it = map.begin(); it != map.end(); ++it) {
+            HDF5Helper::HDF5Dataset *datasetFi = it->second;
+            HDF5Helper::HDF5DatasetType datasetType = datasetFi->getType(nDims4D, sensorMaskSize);
+
+            if (datasetType == HDF5Helper::HDF5DatasetType::FI_MASK
+                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI
+                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_FI
+                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_FI
+                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI
+                    ) {
+
+                std::string srcName = datasetFi->readAttributeS(HDF5Helper::File::SRC_DATASET_NAME_ATTR);
+                std::string kName = srcName + "_k";
+                if (map.find(kName) == map.end())
+                    continue;
+
+                HDF5Helper::HDF5Dataset *datasetK = map.at(kName);
+
+                decompressDatasets(datasetFi, datasetK);
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            std::cout << "No datasets for decompression in simulation output file" << std::endl;
         }
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -755,16 +797,28 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     dstDatasetK->setAttribute(HDF5Helper::File::MAX_ATTR, maxVK);
     dstDatasetK->setAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDatasetK->setAttribute(HDF5Helper::File::C_TYPE_ATTR, "k");
+    dstDatasetK->setAttribute(HDF5Helper::File::C_PERIOD_ATTR, settings->getPeriod());
+    dstDatasetK->setAttribute(HDF5Helper::File::C_S_ATTR, s);
     dstDatasetFi->setAttribute(HDF5Helper::File::MIN_ATTR, minVFi);
     dstDatasetFi->setAttribute(HDF5Helper::File::MAX_ATTR, maxVFi);
     dstDatasetFi->setAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDatasetFi->setAttribute(HDF5Helper::File::C_TYPE_ATTR, "fi");
+    dstDatasetFi->setAttribute(HDF5Helper::File::C_PERIOD_ATTR, settings->getPeriod());
+    dstDatasetFi->setAttribute(HDF5Helper::File::C_S_ATTR, s);
 
     double t1 = HDF5Helper::getTime();
     std::cout << "Time of the whole dataset compression: " << (t1 - t0) << " ms; \t" << std::endl;
 
     hDF5OutputFile->closeDataset(dstDatasetK);
     hDF5OutputFile->closeDataset(dstDatasetFi);
+}
+
+void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5Helper::HDF5Dataset *srcDatasetK)
+{
+    // Only one decoding parameter - multiple of overlap size
+    hsize_t s = 1;
+    if (srcDatasetFi->hasAttribute(HDF5Helper::File::C_S_ATTR))
+        s = srcDatasetFi->readAttributeI(HDF5Helper::File::C_S_ATTR);
 }
 
 void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset)

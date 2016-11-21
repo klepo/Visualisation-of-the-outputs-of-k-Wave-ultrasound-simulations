@@ -68,6 +68,7 @@ public slots:
 private:
     HDF5Helper::File *file = 0;
     HDF5Helper::HDF5Vector4D nDims;
+    void findDatasetsForVisualization(HDF5Helper::HDF5Group *group);
 
     QMap<QString, QString> info;
     QMap<QString, H5ObjectToVisualize *> objects;

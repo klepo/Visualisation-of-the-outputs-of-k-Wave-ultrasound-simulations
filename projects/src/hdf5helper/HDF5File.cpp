@@ -38,6 +38,8 @@ const std::string File::MIN_ATTR("min");
 const std::string File::MAX_ATTR("max");
 const std::string File::SRC_DATASET_NAME_ATTR("src_dataset_name");
 const std::string File::C_TYPE_ATTR("c_type");
+const std::string File::C_S_ATTR("c_s");
+const std::string File::C_PERIOD_ATTR("c_period");
 const std::string File::POSITION_Z_ATTR("position_z");
 const std::string File::POSITION_Y_ATTR("position_y");
 const std::string File::POSITION_X_ATTR("position_x");
@@ -214,19 +216,22 @@ std::ofstream *File::getLogFileStream()
  */
 void File::insertDataset(const std::string datasetName, bool log)
 {
+    std::string datasetNameTmp = datasetName;
+    if (datasetNameTmp.find("/") != 0)
+        datasetNameTmp = "/" + datasetNameTmp;
     if (log)
-        std::cout << "Opening dataset \"" << datasetName << "\" ";
-    hid_t d = H5Dopen(file, datasetName.c_str(), H5P_DEFAULT);
+        std::cout << "Opening dataset \"" << datasetNameTmp << "\" ";
+    hid_t d = H5Dopen(file, datasetNameTmp.c_str(), H5P_DEFAULT);
     if (d < 0) {
         if (log)
             std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dopen error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetName, this);
+    HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetNameTmp, this);
     if (log)
         std::cout << "... OK" << std::endl;
-    datasets.insert(HDF5Helper::PairOfDatasets(datasetName, hDF5Dataset));
+    datasets.insert(HDF5Helper::PairOfDatasets(datasetNameTmp, hDF5Dataset));
 }
 
 /**
@@ -236,19 +241,22 @@ void File::insertDataset(const std::string datasetName, bool log)
  */
 void File::insertGroup(const std::string groupName, bool log)
 {
+    std::string groupNameTmp = groupName;
+    if (groupNameTmp.find("/") != 0)
+        groupNameTmp = "/" + groupNameTmp;
     if (log)
-        std::cout << "Opening group \"" << groupName << "\" ";
-    hid_t g = H5Gopen(file, groupName.c_str(), H5P_DEFAULT);
+        std::cout << "Opening group \"" << groupNameTmp << "\" ";
+    hid_t g = H5Gopen(file, groupNameTmp.c_str(), H5P_DEFAULT);
     if (g < 0){
         if (log)
             std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Gopen error");
         //MPI::COMM_WORLD.Abort(1);
     }
-    HDF5Group *hDF5Group = new HDF5Group(g, groupName, this);
+    HDF5Group *hDF5Group = new HDF5Group(g, groupNameTmp, this);
     if (log)
         std::cout << "... OK" << std::endl;
-    groups.insert(HDF5Helper::PairOfGroups(groupName, hDF5Group));
+    groups.insert(HDF5Helper::PairOfGroups(groupNameTmp, hDF5Group));
 }
 
 int File::getMPISize() const
@@ -339,7 +347,8 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
     std::string token;
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token = s.substr(0, pos);
-        createGroup(token, false);
+        if (token.length() > 0)
+            createGroup(token, false);
         s.erase(0, pos + delimiter.length());
     }
 
@@ -425,11 +434,14 @@ HDF5Dataset *File::openDataset(hsize_t idx, bool log)
  */
 HDF5Dataset *File::openDataset(const std::string datasetName, bool log)
 {
-    if (datasets.find(datasetName) == datasets.end()) {
-        insertDataset(datasetName, log);
-        return openDataset(datasetName, log);
+    std::string datasetNameTmp = datasetName;
+    if (datasetNameTmp.find("/") != 0)
+        datasetNameTmp = "/" + datasetNameTmp;
+    if (datasets.find(datasetNameTmp) == datasets.end()) {
+        insertDataset(datasetNameTmp, log);
+        return openDataset(datasetNameTmp, log);
     } else
-        return datasets.find(datasetName)->second;
+        return datasets.find(datasetNameTmp)->second;
 }
 
 /**
@@ -438,10 +450,13 @@ HDF5Dataset *File::openDataset(const std::string datasetName, bool log)
  */
 void File::closeDataset(const std::string datasetName, bool log)
 {
-    if (datasets.find(datasetName) != datasets.end()){
-        HDF5Dataset *dataset = datasets.find(datasetName)->second;
+    std::string datasetNameTmp = datasetName;
+    if (datasetNameTmp.find("/") != 0)
+        datasetNameTmp = "/" + datasetNameTmp;
+    if (datasets.find(datasetNameTmp) != datasets.end()){
+        HDF5Dataset *dataset = datasets.find(datasetNameTmp)->second;
         delete dataset;
-        datasets.erase(datasets.find(datasetName));
+        datasets.erase(datasets.find(datasetNameTmp));
     }
 }
 
@@ -467,11 +482,14 @@ void File::closeDataset(HDF5Dataset *dataset, bool log)
  */
 HDF5Group *File::openGroup(const std::string groupName, bool log)
 {
-    if (groups.find(groupName) == groups.end()) {
-        insertGroup(groupName, log);
-        return openGroup(groupName, log);
+    std::string groupNameTmp = groupName;
+    if (groupNameTmp.find("/") != 0)
+        groupNameTmp = "/" + groupNameTmp;
+    if (groups.find(groupNameTmp) == groups.end()) {
+        insertGroup(groupNameTmp, log);
+        return openGroup(groupNameTmp, log);
     } else
-        return groups.find(groupName)->second;
+        return groups.find(groupNameTmp)->second;
 }
 
 /**
@@ -491,10 +509,13 @@ HDF5Group *File::openGroup(hsize_t idx, bool log)
  */
 void File::closeGroup(const std::string groupName, bool log)
 {
-    if (groups.find(groupName) != groups.end()){
-        HDF5Group *group = groups.find(groupName)->second;
+    std::string groupNameTmp = groupName;
+    if (groupNameTmp.find("/") != 0)
+        groupNameTmp = "/" + groupNameTmp;
+    if (groups.find(groupNameTmp) != groups.end()){
+        HDF5Group *group = groups.find(groupNameTmp)->second;
         delete group;
-        groups.erase(groups.find(groupName));
+        groups.erase(groups.find(groupNameTmp));
     }
 }
 

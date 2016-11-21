@@ -70,6 +70,8 @@ public:
     void setFlagDwnsmpl(bool value);
     bool getFlagCompress() const;
     void setFlagCompress(bool value);
+    bool getFlagDecompress() const;
+    void setFlagDecompress(bool value);
 
     ParamsDefinition getParamsDefinition() const;
 
@@ -94,6 +96,7 @@ private:
     bool flagRechunk = false;
     bool flagDwnsmpl = false;
     bool flagCompress = false;
+    bool flagDecompress = false;
 
     // Params definition
     ParamsDefinition paramsDefinition;
