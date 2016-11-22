@@ -58,10 +58,13 @@ public:
 
     File *getFile();
 
+    void setDeleteLog(bool value);
+
 protected:
     hid_t object;
     File *hDF5File;
     herr_t err;
+    bool deleteLog = true;
 
 private:
     void setAttribute(const std::string name, const hid_t type, const void *value, bool log = true);

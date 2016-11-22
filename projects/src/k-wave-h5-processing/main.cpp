@@ -36,7 +36,14 @@ int main(int argc, char **argv)
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
     Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
 
-    std::exit(EXIT_SUCCESS);
+    // TODO:
+    // - odzkoušet downsampling cuboidů atd.
+    // - udělat rozdíl datasetů - výpočet chyby
+    // - šlo by odhadnout mos?
+    // -
+
+
+    //std::exit(EXIT_SUCCESS);
 
     // Processing of sensor mask
     if (settings->getFlagReshape()) {

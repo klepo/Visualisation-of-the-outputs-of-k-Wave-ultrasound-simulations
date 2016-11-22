@@ -38,7 +38,7 @@ const std::string File::MIN_ATTR("min");
 const std::string File::MAX_ATTR("max");
 const std::string File::SRC_DATASET_NAME_ATTR("src_dataset_name");
 const std::string File::C_TYPE_ATTR("c_type");
-const std::string File::C_S_ATTR("c_s");
+const std::string File::C_MOS_ATTR("c_mos");
 const std::string File::C_PERIOD_ATTR("c_period");
 const std::string File::POSITION_Z_ATTR("position_z");
 const std::string File::POSITION_Y_ATTR("position_y");
@@ -137,19 +137,19 @@ File::File(std::string filename, unsigned int flag, bool log)
 
             openDataset(File::NT_DATASET, false)->readDataset(data, false);
             nDims.w(data);
-            closeDataset(File::NT_DATASET);
+            closeDataset(File::NT_DATASET, false);
 
             openDataset(File::NX_DATASET, false)->readDataset(data, false);
             nDims.x(data);
-            closeDataset(File::NX_DATASET);
+            closeDataset(File::NX_DATASET, false);
 
             openDataset(File::NY_DATASET, false)->readDataset(data, false);
             nDims.y(data);
-            closeDataset(File::NY_DATASET);
+            closeDataset(File::NY_DATASET, false);
 
             openDataset(File::NZ_DATASET, false)->readDataset(data, false);
             nDims.z(data);
-            closeDataset(File::NZ_DATASET);
+            closeDataset(File::NZ_DATASET, false);
 
         } catch(std::exception) {
             closeFileAndObjects();
@@ -455,6 +455,7 @@ void File::closeDataset(const std::string datasetName, bool log)
         datasetNameTmp = "/" + datasetNameTmp;
     if (datasets.find(datasetNameTmp) != datasets.end()){
         HDF5Dataset *dataset = datasets.find(datasetNameTmp)->second;
+        dataset->setDeleteLog(log);
         delete dataset;
         datasets.erase(datasets.find(datasetNameTmp));
     }
@@ -514,6 +515,7 @@ void File::closeGroup(const std::string groupName, bool log)
         groupNameTmp = "/" + groupNameTmp;
     if (groups.find(groupNameTmp) != groups.end()){
         HDF5Group *group = groups.find(groupNameTmp)->second;
+        group->setDeleteLog(log);
         delete group;
         groups.erase(groups.find(groupNameTmp));
     }

@@ -40,16 +40,18 @@ HDF5Group::HDF5Group(const hid_t group, const std::string name, File *hDF5File) 
  */
 HDF5Group::~HDF5Group()
 {
-    std::cout << "Closing group \"" << name << "\"";
+    if (deleteLog)
+        std::cout << "Closing group \"" << name << "\"";
     H5Gclose(group);
-    std::cout << " ... OK" << std::endl;
+    if (deleteLog)
+        std::cout << " ... OK" << std::endl;
 
 }
 
 HDF5Dataset *HDF5Group::openDataset(const std::string datasetName, bool log)
 {
     if (name == "/")
-        return hDF5File->openDataset("/" + datasetName, log);
+        return hDF5File->openDataset(datasetName, log);
     else
         return hDF5File->openDataset(name + "/" + datasetName, log);
 }
@@ -62,7 +64,7 @@ HDF5Dataset *HDF5Group::openDataset(hsize_t idx, bool log)
 void HDF5Group::closeDataset(const std::string datasetName, bool log)
 {
     if (name == "/")
-        hDF5File->closeDataset("/" + datasetName, log);
+        hDF5File->closeDataset(datasetName, log);
     else
         hDF5File->closeDataset(name + "/" + datasetName, log);
 }
@@ -90,7 +92,7 @@ void HDF5Group::createDatasetF(const std::string datasetName, HDF5Vector size, H
 HDF5Group *HDF5Group::openGroup(const std::string groupName, bool log)
 {
     if (name == "/")
-        return hDF5File->openGroup("/" + groupName, log);
+        return hDF5File->openGroup(groupName, log);
     else
         return hDF5File->openGroup(name + "/" + groupName, log);
 }
@@ -103,7 +105,7 @@ HDF5Group *HDF5Group::openGroup(hsize_t idx, bool log)
 void HDF5Group::closeGroup(const std::string groupName, bool log)
 {
     if (name == "/")
-        hDF5File->closeGroup("/" + groupName, log);
+        hDF5File->closeGroup(groupName, log);
     else
         hDF5File->closeGroup(name + "/" + groupName, log);
 }

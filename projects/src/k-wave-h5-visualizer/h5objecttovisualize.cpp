@@ -52,9 +52,9 @@ OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
  */
 void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::HDF5Dataset *dataset)
 {
-    if (!subobjects.contains(QString::fromStdString(dataset->getOnlyName()))) {
+    if (!subobjects.contains(QString::fromStdString(dataset->getName()))) {
         H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(dataset, type, openedH5File);
-        subobjects.insert(QString::fromStdString(dataset->getOnlyName()), subobject);
+        subobjects.insert(QString::fromStdString(dataset->getName()), subobject);
         selectedSubobject = subobject;
     }
 }

@@ -110,7 +110,7 @@ public:
     static const std::string MAX_ATTR;
     static const std::string SRC_DATASET_NAME_ATTR;
     static const std::string C_TYPE_ATTR;
-    static const std::string C_S_ATTR;
+    static const std::string C_MOS_ATTR;
     static const std::string C_PERIOD_ATTR;
     static const std::string POSITION_Z_ATTR;
     static const std::string POSITION_Y_ATTR;

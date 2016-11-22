@@ -105,8 +105,6 @@ private slots:
 
     void on_actionAbout_triggered();
 
-    void on_saveVideoButton_clicked();
-
     void on_comboBoxMode_currentIndexChanged(int index);
 
     void on_doubleSpinBox_0_valueChanged(double value);

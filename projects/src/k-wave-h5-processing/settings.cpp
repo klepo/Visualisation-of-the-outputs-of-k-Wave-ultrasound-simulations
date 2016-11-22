@@ -52,6 +52,11 @@ void Settings::loadParams(int argc, char **argv)
     paramsP.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("p", paramsP);
 
+    // Multiple of overlap size
+    ParamsDefinition::Flag::Params paramsMOS;
+    paramsMOS.defineParam(ParamsDefinition::ULONGLONG);
+    paramsDefinition.defineParamsFlag("mos", paramsMOS);
+
     // Names
     ParamsDefinition::Flag::Params paramsNames;
     paramsNames.defineParam(ParamsDefinition::STRINGS_SEPARATED);
@@ -110,11 +115,14 @@ void Settings::loadParams(int argc, char **argv)
                              "  -ch chunkSize ......................... Optional parameter. The size for new chunks from 1 to\n"
                              "                                          maximal appropriately value. Default size is 64 (64^3).\n"
                              "\n"
-                             "  -c blockSize .......................... Optional parameter. Set number of data elements\n"
+                             "  -c blockSize .......................... Optional parameter. Sets number of data elements\n"
                              "                                          for block reading. Default value is based on available\n"
                              "                                          system physical memory.\n"
                              "\n"
-                             "  -p period ............................. Optional parameter. Set period of input signal for\n"
+                             "  -p period ............................. Optional parameter. Sets period of input signal for\n"
+                             "                                          compression of time series HIFU data.\n"
+                             "\n"
+                             "  -mos size ............................. Optional parameter. Sets multiple of overlap size for\n"
                              "                                          compression of time series HIFU data.\n"
                              "\n"
                              "  -names name1;name2;... ................ Optional parameter. Names of selected datasets or groups\n"
@@ -194,9 +202,15 @@ void Settings::loadParams(int argc, char **argv)
         flags.at("p").getParams().readParam(0, &period);
         setPeriod(period);
     }
+
+    if (flags.at("mos").getEnabled()) {
+        unsigned long long mOs;
+        flags.at("mos").getParams().readParam(0, &mOs);
+        setMOS(mOs);
+    }
 }
 
-std::string Settings::getSimulationOutputFilename()
+std::string Settings::getSimulationOutputFilename() const
 {
     return simulationOutputFilename;
 }
@@ -207,7 +221,7 @@ void Settings::setSimulationOutputFilename(const std::string &value)
     std::cout << "\n  Simulation output filename:\n    " << simulationOutputFilename << std::endl;
 }
 
-std::string Settings::getSimulationInputFilename()
+std::string Settings::getSimulationInputFilename() const
 {
     return simulationInputFilename;
 }
@@ -218,7 +232,7 @@ void Settings::setSimulationInputFilename(const std::string &value)
     std::cout << "\n  Simulation input filename:\n    " << simulationInputFilename << std::endl;
 }
 
-std::string Settings::getProcessingOutputFilename()
+std::string Settings::getProcessingOutputFilename() const
 {
     return processingOutputFilename;
 }
@@ -229,7 +243,7 @@ void Settings::setProcessingOutputFilename(const std::string &value)
     std::cout << "\n  Output filename:\n    " << processingOutputFilename << std::endl;
 }
 
-unsigned long long Settings::getMaxSize()
+unsigned long long Settings::getMaxSize() const
 {
     return maxSize;
 }
@@ -240,7 +254,7 @@ void Settings::setMaxSize(const unsigned long long &value)
     std::cout << "\n  Max size for downsampling:\n    " << maxSize << std::endl;
 }
 
-unsigned long long Settings::getMaxChunkSize()
+unsigned long long Settings::getMaxChunkSize() const
 {
     return maxChunkSize;
 }
@@ -251,7 +265,7 @@ void Settings::setMaxChunkSize(const unsigned long long &value)
     std::cout << "\n  Chunk size:\n    " << maxChunkSize << std::endl;
 }
 
-unsigned long long Settings::getBlockSize()
+unsigned long long Settings::getBlockSize() const
 {
     return blockSize;
 }
@@ -262,18 +276,29 @@ void Settings::setBlockSize(const unsigned long long &value)
     std::cout << "\n  Max size for block reading:\n    " << blockSize << std::endl;
 }
 
+unsigned long long Settings::getMOS() const
+{
+    return mOS;
+}
+
+void Settings::setMOS(const unsigned long long &value)
+{
+    mOS = value;
+    std::cout << "\n  Multiple of overlap size:\n    " << mOS << std::endl;
+}
+
 unsigned long long Settings::getPeriod() const
 {
     return period;
 }
 
-void Settings::setPeriod(unsigned long long value)
+void Settings::setPeriod(const unsigned long long &value)
 {
     period = value;
     std::cout << "\n  Period for compression:\n    " << period << std::endl;
 }
 
-std::list<std::string> Settings::getNames()
+std::list<std::string> Settings::getNames() const
 {
     return names;
 }
@@ -288,7 +313,7 @@ void Settings::setNames(const std::list<std::string> &value)
     std::cout << std::endl;
 }
 
-bool Settings::getFlagNames()
+bool Settings::getFlagNames() const
 {
     return flagNames;
 }
@@ -298,7 +323,7 @@ void Settings::setFlagNames(bool value)
     flagNames = value;
 }
 
-bool Settings::getFlagReshape()
+bool Settings::getFlagReshape() const
 {
     return flagReshape;
 }
@@ -312,7 +337,7 @@ void Settings::setFlagReshape(bool value)
         std::cout << "\n  Reshape mode: OFF\n" << std::endl;
 }
 
-bool Settings::getFlagChangeChunks()
+bool Settings::getFlagChangeChunks() const
 {
     return flagRechunk;
 }
@@ -326,7 +351,7 @@ void Settings::setFlagChangeChunks(bool value)
         std::cout << "\n  Change chunks mode: OFF\n" << std::endl;
 }
 
-bool Settings::getFlagDwnsmpl()
+bool Settings::getFlagDwnsmpl() const
 {
     return flagDwnsmpl;
 }

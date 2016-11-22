@@ -229,6 +229,8 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     QApplication::processEvents();
 
     timer->stop();
+    playing = false;
+    ui->toolButtonPlay->setChecked(false);
 
     // Clear requets
     clearRequestsAndWaitThreads();
@@ -503,7 +505,7 @@ void MainWindow::selectDataset()
             //if (!gWindow->isTexture3DInitialized())
             ui->label3DLoading->setMovie(movie);
             // Start loading 3D texture
-            gWindow->load3DTexture(subobject->getDataset(), 0);
+            gWindow->load3DTexture(subobject->getDataset(), subobject->getCurrentStep());
         } else {
             // Disable VR
             ui->actionVolumeRendering->setEnabled(true);
@@ -797,7 +799,7 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
         // Set step in subobject structure
         subobject->setCurrentStep(step/*, gWindow->getThread()*/);
         // For VR
-        if (gWindow != 0 && ui->actionVolumeRendering->isChecked()) {
+        if (gWindow && ui->actionVolumeRendering->isChecked()) {
             // Enable loading animation
             ui->label3DLoading->setMovie(movie);
             // Load 3D data
@@ -971,15 +973,6 @@ void MainWindow::on_actionAbout_triggered()
    QByteArray dump = file.readAll();
    help->setHtml(dump);
    help->show();
-}
-
-void MainWindow::on_saveVideoButton_clicked()
-{
-    if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
-        recording = true;
-        subobject->setCurrentStep(0);
-
-    }
 }
 
 void MainWindow::on_comboBoxMode_currentIndexChanged(int index)

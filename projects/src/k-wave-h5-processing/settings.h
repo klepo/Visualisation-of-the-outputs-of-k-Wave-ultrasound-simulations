@@ -36,37 +36,39 @@ public:
     void init();
 
     // Simulation data files
-    std::string getSimulationOutputFilename();
+    std::string getSimulationOutputFilename() const;
     void setSimulationOutputFilename(const std::string &value);
-    std::string getSimulationInputFilename();
+    std::string getSimulationInputFilename() const;
     void setSimulationInputFilename(const std::string &value);
-    std::string getProcessingOutputFilename();
+    std::string getProcessingOutputFilename() const;
     void setProcessingOutputFilename(const std::string &value);
 
     // Sizes
-    unsigned long long getMaxSize();
+    unsigned long long getMaxSize() const;
     void setMaxSize(const unsigned long long &value);
-    unsigned long long getMaxChunkSize();
+    unsigned long long getMaxChunkSize() const;
     void setMaxChunkSize(const unsigned long long &value);
-    unsigned long long getBlockSize();
+    unsigned long long getBlockSize() const;
     void setBlockSize(const unsigned long long &value);
+    unsigned long long getMOS() const;
+    void setMOS(const unsigned long long &value);
 
     // Period
     unsigned long long getPeriod() const;
-    void setPeriod(unsigned long long value);
+    void setPeriod(const unsigned long long &value);
 
     // Selected names
-    std::list<std::string> getNames();
+    std::list<std::string> getNames() const;
     void setNames(const std::list<std::string> &value);
-    bool getFlagNames();
+    bool getFlagNames() const;
     void setFlagNames(bool value);
 
     // Application modes
-    bool getFlagReshape();
+    bool getFlagReshape() const;
     void setFlagReshape(bool value);
-    bool getFlagChangeChunks();
+    bool getFlagChangeChunks() const;
     void setFlagChangeChunks(bool value);
-    bool getFlagDwnsmpl();
+    bool getFlagDwnsmpl() const;
     void setFlagDwnsmpl(bool value);
     bool getFlagCompress() const;
     void setFlagCompress(bool value);
@@ -86,6 +88,7 @@ private:
     unsigned long long maxChunkSize = 64;
     unsigned long long blockSize = 0;
     unsigned long long period = 0;
+    unsigned long long mOS = 1;
 
     // Filter/selection by names
     std::list<std::string> names;

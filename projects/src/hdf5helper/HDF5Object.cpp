@@ -400,4 +400,9 @@ File *HDF5Object::getFile()
 {
     return hDF5File;
 }
+
+void HDF5Object::setDeleteLog(bool value)
+{
+    deleteLog = value;
+}
 }
