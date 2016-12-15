@@ -35,22 +35,22 @@ void printErrorMsg(std::string msg)
 
 unsigned long long round(float number)
 {
-    return static_cast<unsigned long long>(floor(float(number) + 0.5));
+    return static_cast<unsigned long long>(floor(double(number) + 0.5));
 }
 
-void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long length1, const unsigned long long length2)
+void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long lengthSrc1, const unsigned long long lengthSrc2)
 {
     unsigned long long i, j;
     long long i1;
     float tmp;
 
-    for (i = 0; i < length1 + length2 - 1; i++) {
+    for (i = 0; i < lengthSrc1 + lengthSrc2 - 1; i++) {
         dataDst[i] = 0;
         i1 = static_cast<long long>(i);
         tmp = 0.0;
-        for (j = 0; j < length2; j++) {
-            if (i1 >= 0 && i1 < static_cast<long long>(length1))
-                tmp = tmp + (dataSrc1[i1] * dataSrc2[length2 - 1 - j]);
+        for (j = 0; j < lengthSrc2; j++) {
+            if (i1 >= 0 && i1 < static_cast<long long>(lengthSrc1))
+                tmp = tmp + (dataSrc1[i1] * dataSrc2[lengthSrc2 - 1 - j]);
 
             i1 = i1 - 1;
             dataDst[i] = tmp;
@@ -58,18 +58,18 @@ void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long
     }
 }
 
-void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long length1, const unsigned long long length2)
+void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long lengthSrc1, const unsigned long long lengthSrc2)
 {
     unsigned long long i, j;
     long long i1;
     float tmp;
 
-    for (i = 0; i < length1 + length2 - 1; i++) {
+    for (i = 0; i < lengthSrc1 + lengthSrc2 - 1; i++) {
         dataDst[i] = 0;
         i1 = static_cast<long long>(i);
         tmp = 0.0;
-        for (j = 0; j < length2; j++) {
-            if (i1 >= 0 && i1 < static_cast<long long>(length1))
+        for (j = 0; j < lengthSrc2; j++) {
+            if (i1 >= 0 && i1 < static_cast<long long>(lengthSrc1))
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[j]);
 
             i1 = i1 - 1;
@@ -78,15 +78,15 @@ void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long 
     }
 }
 
-void findPeaks(float *dataSrc, unsigned long long *dataDst, const unsigned long long length, unsigned long long &lengthDst)
+void findPeaks(float *dataSrc, unsigned long long *dataDst, const unsigned long long lengthSrc, unsigned long long &lengthDst)
 {
-    for (unsigned long long i = 0; i < length; i++) {
-        dataDst[i] = -1;
+    for (unsigned long long i = 0; i < lengthSrc; i++) {
+        dataDst[i] = 0;
     }
 
     lengthDst = 0;
 
-    for (unsigned long long i = 0; i < length; i++) {
+    for (unsigned long long i = 0; i < lengthSrc; i++) {
         // If the peak is only one
         /*if (length == 1) {
             dataDst[0] = 0;
@@ -112,7 +112,7 @@ void findPeaks(float *dataSrc, unsigned long long *dataDst, const unsigned long 
         }*/
 
         // Peaks between
-        if (i > 0 && i < length - 1 && length > 2 && dataSrc[i] > dataSrc[i - 1] && dataSrc[i] >= dataSrc[i + 1]) {
+        if (i > 0 && i < lengthSrc - 1 && lengthSrc > 2 && dataSrc[i] > dataSrc[i - 1] && dataSrc[i] >= dataSrc[i + 1]) {
             dataDst[lengthDst] = i;
             lengthDst++;
         }
@@ -151,19 +151,25 @@ unsigned long long mean(unsigned long long *dataSrc, const unsigned long long le
     return round(sum / length);
 }
 
+unsigned long long median(unsigned long long *dataSrc, const unsigned long long length)
+{
+    std::vector<unsigned long long> dataSrcVector(dataSrc, dataSrc + length);
+    std::sort(dataSrcVector.begin(), dataSrcVector.end());
+    return dataSrcVector[size_t(length / 2)];
+}
+
 unsigned long long getPeriod(float *dataSrc, const unsigned long long length)
 {
-    unsigned long long lengthTmp = length * 2  - 1;
-    float *dataTmp = new float[lengthTmp];
-    unsigned long long *peaksTmp = new unsigned long long[lengthTmp];
+    float *dataTmp = new float[length];
+    unsigned long long *peaksTmp = new unsigned long long[length];
     unsigned long long peaksCount;
     unsigned long long period;
 
-    xcorr(dataSrc, dataSrc, dataTmp, length, length);
-    findPeaks(dataTmp, peaksTmp, lengthTmp, peaksCount);
+    //xcorr(dataSrc, dataSrc, dataTmp, length, length);
+    findPeaks(dataSrc, peaksTmp, length, peaksCount);
     unsigned long long *peaks = new unsigned long long[peaksCount - 1];
     diff(peaksTmp, peaks, peaksCount);
-    period = mean(peaks, peaksCount - 1);
+    period = median(peaks, peaksCount - 1);
 
     delete[] dataTmp;
     delete[] peaksTmp;

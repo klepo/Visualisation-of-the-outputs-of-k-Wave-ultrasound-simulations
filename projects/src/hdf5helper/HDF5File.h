@@ -34,6 +34,7 @@
 #include <fstream>
 #include <algorithm>
 #include <time.h>
+//#include <sys/stat.h>
 
 #ifdef PARALLEL_HDF5
 #include <mpi.h>
@@ -51,6 +52,39 @@ size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector size);
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector size);
+
+/*inline bool fileExists(const std::string& name) {
+  struct stat buffer;
+  return (stat(name.c_str(), &buffer) == 0);
+}*/
+
+inline bool fileExists(const std::string& name) {
+    std::ifstream infile(name);
+    return infile.good();}
+
+// Dataset names
+const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
+const std::string SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
+const std::string SENSOR_MASK_CORNERS_DATASET("sensor_mask_corners");
+const std::string NT_DATASET("Nt");
+const std::string NX_DATASET("Nx");
+const std::string NY_DATASET("Ny");
+const std::string NZ_DATASET("Nz");
+const std::string P_SOURCE_INPUT_DATASET("p_source_input");
+
+// Attribute names
+const std::string MIN_ATTR("min");
+const std::string MAX_ATTR("max");
+const std::string SRC_DATASET_NAME_ATTR("src_dataset_name");
+const std::string C_TYPE_ATTR("c_type");
+const std::string C_MOS_ATTR("c_mos");
+const std::string C_PERIOD_ATTR("c_period");
+const std::string POSITION_Z_ATTR("position_z");
+const std::string POSITION_Y_ATTR("position_y");
+const std::string POSITION_X_ATTR("position_x");
+const std::string SRC_SIZE_Z_ATTR("src_size_z");
+const std::string SRC_SIZE_Y_ATTR("src_size_y");
+const std::string SRC_SIZE_X_ATTR("src_size_x");
 
 class File
 {
@@ -70,10 +104,10 @@ public:
     void closeDataset(hsize_t idx, bool log = true);
     void closeDataset(HDF5Dataset *dataset, bool log = true);
 
-    void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
-    void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
-    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false);
-    void createDataset(HDF5Dataset *dataset, bool rewrite = false);
+    void createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDataset(const std::string datasetName, hid_t type, HDF5Vector size, HDF5Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDataset(HDF5Dataset *dataset, bool rewrite = false, bool log = true);
 
     HDF5Group *openGroup(const std::string groupName, bool log = true);
     HDF5Group *openGroup(hsize_t idx, bool log = true);
@@ -82,7 +116,7 @@ public:
     void closeGroup(hsize_t idx, bool log = true);
     void closeGroup(HDF5Group *group, bool log = true);
 
-    void createGroup(const std::string groupName, bool rewrite = false);
+    void createGroup(const std::string groupName, bool rewrite = false, bool log = true);
 
     hsize_t getNumObjs();
     std::string getObjNameByIdx(hsize_t idx, hid_t fileGroupId = -1);
@@ -94,30 +128,6 @@ public:
 
     void setNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad();
-
-    // Dataset names
-    static const std::string SENSOR_MASK_TYPE_DATASET;
-    static const std::string SENSOR_MASK_INDEX_DATASET;
-    static const std::string SENSOR_MASK_CORNERS_DATASET;
-    static const std::string NT_DATASET;
-    static const std::string NX_DATASET;
-    static const std::string NY_DATASET;
-    static const std::string NZ_DATASET;
-    static const std::string P_SOURCE_INPUT_DATASET;
-
-    // Attribute names
-    static const std::string MIN_ATTR;
-    static const std::string MAX_ATTR;
-    static const std::string SRC_DATASET_NAME_ATTR;
-    static const std::string C_TYPE_ATTR;
-    static const std::string C_MOS_ATTR;
-    static const std::string C_PERIOD_ATTR;
-    static const std::string POSITION_Z_ATTR;
-    static const std::string POSITION_Y_ATTR;
-    static const std::string POSITION_X_ATTR;
-    static const std::string SRC_SIZE_Z_ATTR;
-    static const std::string SRC_SIZE_Y_ATTR;
-    static const std::string SRC_SIZE_X_ATTR;
 
     static const unsigned int OPEN = 0;
     static const unsigned int CREATE = 1;
@@ -157,8 +167,8 @@ private:
     int mPISize;
 };
 
-void copyDataset(HDF5Dataset *srcDataset, File *dstFile);
-void copyDataset(File *srcFile, File *dstFile, std::string name);
+void copyDataset(HDF5Dataset *srcDataset, File *dstFile, bool rewrite = true, bool log = true);
+void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite = true, bool log = true);
 
 }
 

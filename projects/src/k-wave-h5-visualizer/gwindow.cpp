@@ -799,14 +799,8 @@ void GWindow::render()
         imageMatrix.scale(imageSizeScaled);
 
         QMatrix4x4 offsetMatrix;
-        QMatrix4x4 offsetXYMatrix, offsetXZMatrix, offsetYZMatrix;
         offsetMatrix.scale(1 + 2 * offset);
-        offsetXYMatrix = offsetMatrix;
-        offsetXZMatrix = offsetMatrix;
-        offsetYZMatrix = offsetMatrix;
-        offsetXYMatrix.translate(-offset, -offset, 0);
-        offsetXZMatrix.translate(-offset, 0, -offset);
-        offsetYZMatrix.translate(0, -offset, -offset);
+        offsetMatrix.translate(-offset, -offset, 0);
 
         // Rotate and translate by slice index
         QMatrix4x4 translateXYMatrix;
@@ -849,7 +843,7 @@ void GWindow::render()
             m_program->setUniformValue(m_uVolumeRenderingBack, false);
 
             // Draw 2D frame
-            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix * offsetXYMatrix);
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix * offsetMatrix);
             m_program->setUniformValue(m_uXYBorder, true);
             glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXYBorder, false);
@@ -871,7 +865,7 @@ void GWindow::render()
             m_program->setUniformValue(m_uVolumeRenderingBack, false);
 
             // Draw 2D frame
-            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix * offsetXZMatrix);
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix * offsetMatrix);
             m_program->setUniformValue(m_uXZBorder, true);
             glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uXZBorder, false);
@@ -893,7 +887,7 @@ void GWindow::render()
             m_program->setUniformValue(m_uVolumeRenderingBack, false);
 
             // Draw 2D frame
-            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix * offsetYZMatrix);
+            m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix * offsetMatrix);
             m_program->setUniformValue(m_uYZBorder, true);
             glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             m_program->setUniformValue(m_uYZBorder, false);

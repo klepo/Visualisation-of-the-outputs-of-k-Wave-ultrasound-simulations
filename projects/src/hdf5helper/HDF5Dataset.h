@@ -46,22 +46,27 @@ enum class HDF5DatasetType
     FI_MASK,
     K_MASK,
     D_MASK,
+    S_MASK,
     CUBOID,
     CUBOID_FI,
     CUBOID_K,
     CUBOID_D,
+    CUBOID_S,
     CUBOID_DWNSMPL,
     CUBOID_DWNSMPL_FI,
     CUBOID_DWNSMPL_K,
     CUBOID_DWNSMPL_D,
+    CUBOID_DWNSMPL_S,
     CUBOID_ATTR,
     CUBOID_ATTR_FI,
     CUBOID_ATTR_K,
     CUBOID_ATTR_D,
+    CUBOID_ATTR_S,
     CUBOID_ATTR_DWNSMPL,
     CUBOID_ATTR_DWNSMPL_FI,
     CUBOID_ATTR_DWNSMPL_K,
     CUBOID_ATTR_DWNSMPL_D,
+    CUBOID_ATTR_DWNSMPL_S,
 };
 
 class HDF5Dataset : public HDF5Object
@@ -148,37 +153,36 @@ private:
     std::string readErrorMessage(hsize_t size, int type) const;
     std::string dataTypeString(int type) const;
 
-    hid_t plist;
-    hid_t plist_DATASET_XFER;
-    void *convBuffer;
-    void *bkgBuffer;
+    hid_t plist = 0;
+    hid_t plist_DATASET_XFER = 0;
+    //void *convBuffer;
+    //void *bkgBuffer;
 
     // Block reading
-    hsize_t numberOfBlocks;
+    hsize_t numberOfBlocks = 0;
     HDF5Vector numberOfBlocksInDims;
     HDF5Vector *offsets;
     HDF5Vector *counts;
-    hsize_t numberOfElementsToLoad;
-    hsize_t realNumberOfElementsToLoad;
+    hsize_t numberOfElementsToLoad = 0;
+    hsize_t realNumberOfElementsToLoad = 0;
 
-    hid_t dataset;
-    hid_t dataspace;
-    hid_t datatype;
+    hid_t dataset = 0;
+    hid_t dataspace = 0;
+    hid_t datatype = 0;
 
-    int rank;
+    int rank = 0;
     HDF5Vector dims;
     HDF5Vector chunkDims;
-    HDF5DatasetType type;
 
     std::string name;
 
-    hsize_t maxVI;
-    hsize_t minVI;
+    hsize_t maxVI = 0;
+    hsize_t minVI = 0;
 
-    float maxVF;
-    float minVF;
+    float maxVF = 0;
+    float minVF = 0;
 
-    bool issetGlobalMinAndMaxValue;
+    bool issetGlobalMinAndMaxValue = false;
 };
 
 typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;

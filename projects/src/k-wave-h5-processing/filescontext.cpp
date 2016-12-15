@@ -47,17 +47,28 @@ FilesContext::FilesContext(Settings *settings)
 
 FilesContext::~FilesContext()
 {
-    if (hDF5SimOutputFile != 0) {
-        delete hDF5SimOutputFile;
-        hDF5SimOutputFile = 0;
-    }
-    if (hDF5SimInputFile != 0) {
-        delete hDF5SimInputFile;
-        hDF5SimInputFile = 0;
-    }
-    if (hDF5PcsOutputFile != 0) {
-        delete hDF5PcsOutputFile;
-        hDF5PcsOutputFile = 0;
+    if (hDF5SimOutputFile == hDF5PcsOutputFile) {
+        if (hDF5SimOutputFile) {
+            delete hDF5SimOutputFile;
+            hDF5SimOutputFile = 0;
+        }
+        if (hDF5SimInputFile) {
+            delete hDF5SimInputFile;
+            hDF5SimInputFile = 0;
+        }
+    } else {
+        if (hDF5SimOutputFile) {
+            delete hDF5SimOutputFile;
+            hDF5SimOutputFile = 0;
+        }
+        if (hDF5SimInputFile) {
+            delete hDF5SimInputFile;
+            hDF5SimInputFile = 0;
+        }
+        if (hDF5PcsOutputFile) {
+            delete hDF5PcsOutputFile;
+            hDF5PcsOutputFile = 0;
+        }
     }
 }
 
@@ -101,13 +112,24 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilenam
         filename = outputFilename;
     }
 
-    try {
-        // Try open file
-        file = new HDF5Helper::File(filename, HDF5Helper::File::OPEN);
-    } catch (std::exception) {
+    if (filename == hDF5SimOutputFile->getFilename()) {
+        Helper::printDebugMsg("Simulation output file == processing output file");
+        file = hDF5SimOutputFile;
+        //return hDF5SimOutputFile;
+    }
+
+    if (!HDF5Helper::fileExists(filename)) {
         try {
             // Try create file
             file = new HDF5Helper::File(filename, HDF5Helper::File::CREATE);
+        } catch (std::exception &e) {
+            std::cerr << e.what() << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+    } else {
+        try {
+            // Try open file
+            file = new HDF5Helper::File(filename, HDF5Helper::File::OPEN);
         } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);
@@ -117,32 +139,35 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilenam
     Helper::printDebugTitle("Copy dimensions and root attributes to output file");
 
     // Copy nT, nX, nY, nZ
+    std::cout << "Copy nT, nX, nY, nZ ... ";
     try {
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NX_DATASET);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NY_DATASET);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NZ_DATASET);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::File::NT_DATASET);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NX_DATASET, true, false);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NY_DATASET, true, false);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NZ_DATASET, true, false);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NT_DATASET, true, false);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
+    std::cout << "OK" << std::endl;
 
     // Copy root (info) attributes to destination h5 file
+    std::cout << "Copy root (info) attributes ... ";
     try {
-        HDF5Helper::HDF5Group *srcGroup = hDF5SimOutputFile->openGroup("/");
-        HDF5Helper::HDF5Group *dstGroup = file->openGroup("/");
+        HDF5Helper::HDF5Group *srcGroup = hDF5SimOutputFile->openGroup("/", false);
+        HDF5Helper::HDF5Group *dstGroup = file->openGroup("/", false);
         for (hsize_t i = 0; i < srcGroup->getNumAttrs(); i++) {
             HDF5Helper::HDF5Attribute *attr = srcGroup->getAttribute(i);
             dstGroup->setAttribute(attr, false);
             delete attr;
         }
-        hDF5SimOutputFile->closeGroup(srcGroup);
-        file->closeGroup(dstGroup);
+        hDF5SimOutputFile->closeGroup(srcGroup, false);
+        file->closeGroup(dstGroup, false);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
-
+    std::cout << "OK" << std::endl;
 
     return file;
 }

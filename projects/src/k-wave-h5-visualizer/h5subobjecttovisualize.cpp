@@ -143,14 +143,14 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
     originalFrameSize = frameSize;
 
     // If downsampled
-    if (dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_X_ATTR)
-            && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Y_ATTR)
-            && dataset->hasAttribute(HDF5Helper::File::SRC_SIZE_Z_ATTR)
-            && dataset->hasAttribute(HDF5Helper::File::SRC_DATASET_NAME_ATTR)
+    if (dataset->hasAttribute(HDF5Helper::SRC_SIZE_X_ATTR)
+            && dataset->hasAttribute(HDF5Helper::SRC_SIZE_Y_ATTR)
+            && dataset->hasAttribute(HDF5Helper::SRC_SIZE_Z_ATTR)
+            && dataset->hasAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR)
             ) {
-        originalSize.x(dataset->readAttributeI(HDF5Helper::File::SRC_SIZE_X_ATTR));
-        originalSize.y(dataset->readAttributeI(HDF5Helper::File::SRC_SIZE_Y_ATTR));
-        originalSize.z(dataset->readAttributeI(HDF5Helper::File::SRC_SIZE_Z_ATTR));
+        originalSize.x(dataset->readAttributeI(HDF5Helper::SRC_SIZE_X_ATTR));
+        originalSize.y(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Y_ATTR));
+        originalSize.z(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Z_ATTR));
         originalFrameSize = originalSize;
     }
 
@@ -173,10 +173,10 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         originalFrameSize = frameSize;
 
         // Get position (was defined by sensor mask)
-        if (dataset->hasAttribute(HDF5Helper::File::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::File::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::File::POSITION_Z_ATTR)) {
-            originalPos.z(dataset->readAttributeI(HDF5Helper::File::POSITION_Z_ATTR));
-            originalPos.y(dataset->readAttributeI(HDF5Helper::File::POSITION_Y_ATTR));
-            originalPos.x(dataset->readAttributeI(HDF5Helper::File::POSITION_X_ATTR));
+        if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
+            originalPos.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR));
+            originalPos.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR));
+            originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR));
             pos = originalPos;
         }
 

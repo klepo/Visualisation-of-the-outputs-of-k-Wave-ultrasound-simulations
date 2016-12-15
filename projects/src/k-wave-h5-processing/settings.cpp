@@ -31,6 +31,7 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("dwnsmpl");
     paramsDefinition.defineParamsFlag("compress");
     paramsDefinition.defineParamsFlag("decompress");
+    paramsDefinition.defineParamsFlag("difference");
 
     // Size
     ParamsDefinition::Flag::Params paramsS;
@@ -109,6 +110,9 @@ void Settings::loadParams(int argc, char **argv)
                              "  -decompress ........................... Optional parameter. Performs decompression of time series\n"
                              "                                          dataset data, needs datasets fi and k.\n"
                              "\n"
+                             "  -difference ........................... Optional parameter. Performs substraction of time series\n"
+                             "                                          dataset data, needs original dataset and decoded (name_d).\n"
+                             "\n"
                              "  -s size ............................... Optional parameter. Max size for donwsampling.\n"
                              "                                          Default size is 512.\n"
                              "\n"
@@ -152,6 +156,7 @@ void Settings::loadParams(int argc, char **argv)
     setFlagDwnsmpl(flags.at("dwnsmpl").getEnabled());
     setFlagCompress(flags.at("compress").getEnabled());
     setFlagDecompress(flags.at("decompress").getEnabled());
+    setFlagDifference(flags.at("difference").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
 
@@ -240,7 +245,7 @@ std::string Settings::getProcessingOutputFilename() const
 void Settings::setProcessingOutputFilename(const std::string &value)
 {
     processingOutputFilename = value;
-    std::cout << "\n  Output filename:\n    " << processingOutputFilename << std::endl;
+    std::cout << "\n  Processing output filename:\n    " << processingOutputFilename << std::endl;
 }
 
 unsigned long long Settings::getMaxSize() const
@@ -391,6 +396,20 @@ void Settings::setFlagDecompress(bool value)
         std::cout << "\n  Decompression mode: ON\n" << std::endl;
     else
         std::cout << "\n  Decompression mode: OFF\n" << std::endl;
+}
+
+bool Settings::getFlagDifference() const
+{
+    return flagDifference;
+}
+
+void Settings::setFlagDifference(bool value)
+{
+    flagDifference = value;
+    if (value)
+        std::cout << "\n  Difference mode: ON\n" << std::endl;
+    else
+        std::cout << "\n  Difference mode: OFF\n" << std::endl;
 }
 
 ParamsDefinition Settings::getParamsDefinition() const

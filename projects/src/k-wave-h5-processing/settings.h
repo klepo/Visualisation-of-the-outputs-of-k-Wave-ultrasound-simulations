@@ -74,6 +74,8 @@ public:
     void setFlagCompress(bool value);
     bool getFlagDecompress() const;
     void setFlagDecompress(bool value);
+    bool getFlagDifference() const;
+    void setFlagDifference(bool value);
 
     ParamsDefinition getParamsDefinition() const;
 
@@ -100,6 +102,7 @@ private:
     bool flagDwnsmpl = false;
     bool flagCompress = false;
     bool flagDecompress = false;
+    bool flagDifference = false;
 
     // Params definition
     ParamsDefinition paramsDefinition;

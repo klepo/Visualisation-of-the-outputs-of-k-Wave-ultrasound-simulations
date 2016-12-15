@@ -102,8 +102,16 @@ HDF5Attribute::HDF5Attribute(hid_t object, hsize_t idx)
 HDF5Attribute::~HDF5Attribute()
 {
     free(buffer);
-    H5Tclose(datatype);
-    H5Sclose(dataspace);
+    err = H5Tclose(datatype);
+    if (err < 0){
+        throw std::runtime_error("H5Tclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Sclose(dataspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 }
 
 /**

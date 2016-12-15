@@ -61,6 +61,7 @@ HDF5Vector &HDF5Vector::operator =(const HDF5Vector &hDF5Vector)
 HDF5Vector::~HDF5Vector()
 {
     delete[] vector;
+    vector = 0;
 }
 
 bool HDF5Vector::operator ==(const HDF5Vector &hDF5Vector) const

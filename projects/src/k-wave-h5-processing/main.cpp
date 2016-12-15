@@ -40,7 +40,13 @@ int main(int argc, char **argv)
     // - odzkoušet downsampling cuboidů atd.
     // - udělat rozdíl datasetů - výpočet chyby
     // - šlo by odhadnout mos?
-    // -
+    // - potřebuji znát periodu
+    // - funkce pro přidávání lomítka
+    // - sjednotit určité části komprese a dekomprese
+    // - ošetřit maximální počet prvků podle RAM
+    // - extrapolace sinus
+    // - funkce pro error hlášky
+    // - vyřešit případy, kdy je vstup i výstup stejný
 
 
     //std::exit(EXIT_SUCCESS);
@@ -73,6 +79,12 @@ int main(int argc, char **argv)
     if (settings->getFlagDecompress()) {
         Helper::printDebugTitle("Decompression");
         processing->decompress();
+    }
+
+    // Substraction of time series datasets
+    if (settings->getFlagDifference()) {
+        Helper::printDebugTitle("Difference");
+        processing->difference();
     }
 
     Helper::printDebugTitle("Closing files");

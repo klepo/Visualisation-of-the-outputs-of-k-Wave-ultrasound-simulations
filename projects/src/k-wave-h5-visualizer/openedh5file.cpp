@@ -160,7 +160,7 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
                 setObject(QString::fromStdString(dataset->getName()), dataset, dataset3D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == HDF5Helper::HDF5DatasetType::DWNSMPL_3D) {
-                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::File::SRC_DATASET_NAME_ATTR)), dataset, dataset3D_t);
+                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR)), dataset, dataset3D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
@@ -170,19 +170,23 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
             } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_K
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_D
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_S
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_FI
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_K
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_D
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_S
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_FI
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_K
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_D
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_S
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_K
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_D
+                       || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_S
                        ) {
-                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::File::SRC_DATASET_NAME_ATTR)), dataset, dataset4D_t);
+                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR)), dataset, dataset4D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else { // Unknown type
                 group->closeDataset(dataset);

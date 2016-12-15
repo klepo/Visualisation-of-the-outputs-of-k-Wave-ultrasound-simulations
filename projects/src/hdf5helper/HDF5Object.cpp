@@ -267,8 +267,16 @@ void HDF5Object::setAttribute(const std::string name, const hid_t type, const vo
         //MPI::COMM_WORLD.Abort(1);
     }
     createAttribute(name, datatype, dataspace, value, log);
-    H5Tclose(datatype);
-    H5Sclose(dataspace);
+    err = H5Tclose(datatype);
+    if (err < 0){
+        throw std::runtime_error("H5Tclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Sclose(dataspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 }
 
 /**

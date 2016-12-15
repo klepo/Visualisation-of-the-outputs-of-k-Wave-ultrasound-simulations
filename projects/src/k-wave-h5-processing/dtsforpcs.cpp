@@ -19,8 +19,8 @@
 DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 {
     // Find and get sensor mask dataset
-    sensorMaskIndexDataset = findAndGetDataset(HDF5Helper::File::SENSOR_MASK_INDEX_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
-    sensorMaskCornersDataset = findAndGetDataset(HDF5Helper::File::SENSOR_MASK_CORNERS_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    sensorMaskIndexDataset = findAndGetDataset(HDF5Helper::SENSOR_MASK_INDEX_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    sensorMaskCornersDataset = findAndGetDataset(HDF5Helper::SENSOR_MASK_CORNERS_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
 
     if (sensorMaskIndexDataset) {
         // Get sensor mask size
@@ -47,7 +47,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     }
 
     // Try to open the p_source_input dataset for getting the simulation frequency
-    sourceInputDataset = findAndGetDataset(HDF5Helper::File::P_SOURCE_INPUT_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    sourceInputDataset = findAndGetDataset(HDF5Helper::P_SOURCE_INPUT_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
 
     // Get period from input signal
     if (sourceInputDataset) {

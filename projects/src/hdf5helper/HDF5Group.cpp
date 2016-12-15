@@ -42,7 +42,11 @@ HDF5Group::~HDF5Group()
 {
     if (deleteLog)
         std::cout << "Closing group \"" << name << "\"";
-    H5Gclose(group);
+    err = H5Gclose(group);
+    if (err < 0){
+        throw std::runtime_error("H5Gclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     if (deleteLog)
         std::cout << " ... OK" << std::endl;
 

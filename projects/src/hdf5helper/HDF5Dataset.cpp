@@ -73,7 +73,11 @@ HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5
         }
     }
 
-    H5Pclose(plist);
+    err = H5Pclose(plist);
+    if (err < 0){
+        throw std::runtime_error("H5Pclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 
     plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
     if (plist_DATASET_XFER < 0){
@@ -101,12 +105,28 @@ HDF5Dataset::~HDF5Dataset()
 {
     if (deleteLog)
         std::cout << "Closing dataset \"" << name << "\"";
-    H5Pclose(plist_DATASET_XFER);
+    err = H5Pclose(plist_DATASET_XFER);
+    if (err < 0){
+        throw std::runtime_error("H5Pclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     //free(convBuffer);
     //free(bkgBuffer);
-    H5Sclose(dataspace);
-    H5Tclose(datatype);
-    H5Dclose(dataset);
+    err = H5Sclose(dataspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Tclose(datatype);
+    if (err < 0){
+        throw std::runtime_error("H5Tclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Dclose(dataset);
+    if (err < 0){
+        throw std::runtime_error("H5Dclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
     if (deleteLog)
         std::cout << " ... OK" << std::endl;
 }
@@ -165,180 +185,207 @@ hid_t HDF5Dataset::getDataType() const
 HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize) const
 {
     if (getDims().getLength() == 3) { // 3D type
-        HDF5Vector3D size = getDims();
+        HDF5Vector3D dims = getDims();
         if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
             if (dims == HDF5Vector3D(1, 1, 1)) {
-                if (getOnlyName() == File::NT_DATASET) {
+                if (getOnlyName() == NT_DATASET) {
                     return HDF5DatasetType::N_DIM_T;
                 }
-                if (getOnlyName() == File::NX_DATASET) {
+                if (getOnlyName() == NX_DATASET) {
                     return HDF5DatasetType::N_DIM_X;
                 }
-                if (getOnlyName() == File::NY_DATASET) {
+                if (getOnlyName() == NY_DATASET) {
                     return HDF5DatasetType::N_DIM_Y;
                 }
-                if (getOnlyName() == File::NZ_DATASET) {
+                if (getOnlyName() == NZ_DATASET) {
                     return HDF5DatasetType::N_DIM_Z;
                 }
             }
-            if (getOnlyName() == File::SENSOR_MASK_INDEX_DATASET) {
+            if (getOnlyName() == SENSOR_MASK_INDEX_DATASET) {
                 return HDF5DatasetType::MASK_INDEX;
             }
-            if (getOnlyName() == File::SENSOR_MASK_CORNERS_DATASET) {
+            if (getOnlyName() == SENSOR_MASK_CORNERS_DATASET) {
                 return HDF5DatasetType::MASK_CORNERS;
             }
-            if (getOnlyName() == File::P_SOURCE_INPUT_DATASET) {
+            if (getOnlyName() == P_SOURCE_INPUT_DATASET) {
                 return HDF5DatasetType::P_SOURCE_INPUT;
             }
         }
         if (H5Tequal(datatype, H5T_FLOAT)) {
-            if (size.z() == nDims.z()
-                    && size.y() == nDims.y()
-                    && size.x() == nDims.x()
+            if (dims.z() == nDims.z()
+                    && dims.y() == nDims.y()
+                    && dims.x() == nDims.x()
                     ) {
                 return HDF5DatasetType::BASIC_3D;
             }
-            if (size.z() < nDims.z()
-                    && size.y() < nDims.y()
-                    && size.x() < nDims.x()
-                    && this->hasAttribute(File::SRC_SIZE_X_ATTR)
-                    && hasAttribute(File::SRC_SIZE_Y_ATTR)
-                    && hasAttribute(File::SRC_SIZE_Z_ATTR)
-                    && hasAttribute(File::SRC_DATASET_NAME_ATTR)
+            if (dims.z() < nDims.z()
+                    && dims.y() < nDims.y()
+                    && dims.x() < nDims.x()
+                    && this->hasAttribute(SRC_SIZE_X_ATTR)
+                    && hasAttribute(SRC_SIZE_Y_ATTR)
+                    && hasAttribute(SRC_SIZE_Z_ATTR)
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
                     ) {
                 return HDF5DatasetType::DWNSMPL_3D;
             }
-            if (size.z() == 1
-                    && size.y() <= nDims.w()
-                    && size.x() == sensorMaskSize
-                    && !hasAttribute(File::SRC_DATASET_NAME_ATTR)
+            if (dims.z() == 1
+                    && dims.y() <= nDims.w()
+                    && dims.x() == sensorMaskSize
+                    && !hasAttribute(SRC_DATASET_NAME_ATTR)
                     ) {
                 return HDF5DatasetType::BASIC_MASK;
             }
-            if (size.z() == 1
-                    && size.y() <= nDims.w()
-                    && size.x() == sensorMaskSize
-                    && hasAttribute(File::SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                    && hasAttribute(File::C_TYPE_ATTR)
-                    && readAttributeS(File::C_TYPE_ATTR, false) == "fi"
+            if (dims.z() == 1
+                    && dims.y() <= nDims.w()
+                    && dims.x() == sensorMaskSize
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
+                    && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                    && hasAttribute(C_TYPE_ATTR)
+                    && readAttributeS(C_TYPE_ATTR, false) == "fi"
                     ) {
                 return HDF5DatasetType::FI_MASK;
             }
-            if (size.z() == 1
-                    && size.y() <= nDims.w()
-                    && size.x() == sensorMaskSize
-                    && hasAttribute(File::SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                    && hasAttribute(File::C_TYPE_ATTR)
-                    && readAttributeS(File::C_TYPE_ATTR, false) == "k"
+            if (dims.z() == 1
+                    && dims.y() <= nDims.w()
+                    && dims.x() == sensorMaskSize
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
+                    && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                    && hasAttribute(C_TYPE_ATTR)
+                    && readAttributeS(C_TYPE_ATTR, false) == "k"
                     ) {
                 return HDF5DatasetType::K_MASK;
             }
-            if (size.z() == 1
-                    && size.y() <= nDims.w()
-                    && size.x() == sensorMaskSize
-                    && hasAttribute(File::SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(File::C_TYPE_ATTR)
-                    && readAttributeS(File::C_TYPE_ATTR, false) == "d"
+            if (dims.z() == 1
+                    && dims.y() <= nDims.w()
+                    && dims.x() == sensorMaskSize
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
+                    && hasAttribute(C_TYPE_ATTR)
+                    && readAttributeS(C_TYPE_ATTR, false) == "d"
                     ) {
                 return HDF5DatasetType::D_MASK;
+            }
+            if (dims.z() == 1
+                    && dims.y() <= nDims.w()
+                    && dims.x() == sensorMaskSize
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
+                    && hasAttribute(C_TYPE_ATTR)
+                    && readAttributeS(C_TYPE_ATTR, false) == "s"
+                    ) {
+                return HDF5DatasetType::S_MASK;
             }
         }
     }
     if (getDims().getLength() == 4) { // 4D type (cuboids)
         if (H5Tequal(datatype, H5T_FLOAT)) {
             // Downsampled
-            if (hasAttribute("src_dataset_size_x")
-                    && hasAttribute("src_dataset_size_y")
-                    && hasAttribute("src_dataset_size_z")
-                    && hasAttribute("src_dataset_name")
+            if (hasAttribute(SRC_SIZE_X_ATTR)
+                    && hasAttribute(SRC_SIZE_Y_ATTR)
+                    && hasAttribute(SRC_SIZE_Z_ATTR)
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
                     ) {
                 // With position attributtes
-                if (hasAttribute("positionX")
-                        && hasAttribute("positionY")
-                        && hasAttribute("positionZ")
+                if (hasAttribute(POSITION_X_ATTR)
+                        && hasAttribute(POSITION_Y_ATTR)
+                        && hasAttribute(POSITION_Z_ATTR)
                         ) {
-                    if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
+                    if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                            && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_DWNSMPL_K;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "d"
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_DWNSMPL_D;
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "s"
+                            ) {
+                        return HDF5DatasetType::CUBOID_ATTR_DWNSMPL_S;
                     } else {
                         return HDF5DatasetType::CUBOID_ATTR_DWNSMPL;
                     }
                 } else { // Without position attributes
-                    if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
+                    if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                            && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
                             ) {
                         return HDF5DatasetType::CUBOID_DWNSMPL_FI;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
                             ) {
                         return HDF5DatasetType::CUBOID_DWNSMPL_K;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "d"
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
                             ) {
                         return HDF5DatasetType::CUBOID_DWNSMPL_D;
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "s"
+                            ) {
+                        return HDF5DatasetType::CUBOID_DWNSMPL_S;
                     } else {
                         return HDF5DatasetType::CUBOID_DWNSMPL;
                     }
                 }
             } else { // Original
                 // With position attributtes
-                if (hasAttribute("positionX")
-                        && hasAttribute("positionY")
-                        && hasAttribute("positionZ")
+                if (hasAttribute(POSITION_X_ATTR)
+                        && hasAttribute(POSITION_Y_ATTR)
+                        && hasAttribute(POSITION_Z_ATTR)
                         ) {
-                    if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
-                            && hasAttribute("src_dataset_name")
+                    if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                            && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
+                            && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_FI;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
-                               && hasAttribute("src_dataset_name")
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
+                               && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_K;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "d"
-                               && hasAttribute("src_dataset_name")
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
+                               && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
                         return HDF5DatasetType::CUBOID_ATTR_D;
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "s"
+                               && hasAttribute(SRC_DATASET_NAME_ATTR)
+                            ) {
+                        return HDF5DatasetType::CUBOID_ATTR_S;
                     } else {
                         return HDF5DatasetType::CUBOID_ATTR;
                     }
                 } else { // Without position attributes
-                    if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                            && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "fi"
-                            && hasAttribute("src_dataset_name")
+                    if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                            && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
+                            && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
                         return HDF5DatasetType::CUBOID_FI;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::File::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "k"
-                               && hasAttribute("src_dataset_name")
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
+                               && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
                         return HDF5DatasetType::CUBOID_K;
-                    } else if (hasAttribute(HDF5Helper::File::C_TYPE_ATTR)
-                               && readAttributeS(HDF5Helper::File::C_TYPE_ATTR, false) == "d"
-                               && hasAttribute("src_dataset_name")
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
+                               && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
                         return HDF5DatasetType::CUBOID_D;
+                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
+                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "s"
+                               && hasAttribute(SRC_DATASET_NAME_ATTR)
+                            ) {
+                        return HDF5DatasetType::CUBOID_S;
                     } else {
                         return HDF5DatasetType::CUBOID;
                     }
@@ -476,33 +523,33 @@ void HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
     if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
-            HDF5Dataset::setAttribute(File::MIN_ATTR, minVF);
-            HDF5Dataset::setAttribute(File::MAX_ATTR, maxVF);
+            HDF5Dataset::setAttribute(MIN_ATTR, minVF);
+            HDF5Dataset::setAttribute(MAX_ATTR, maxVF);
         } else {
-            if (this->hasAttribute(File::MIN_ATTR) && this->hasAttribute(File::MAX_ATTR)) {
-                minVF = HDF5Dataset::readAttributeF(File::MIN_ATTR);
-                maxVF = HDF5Dataset::readAttributeF(File::MAX_ATTR);
+            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
+                minVF = HDF5Dataset::readAttributeF(MIN_ATTR);
+                maxVF = HDF5Dataset::readAttributeF(MAX_ATTR);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
-                HDF5Dataset::setAttribute(File::MIN_ATTR, minVF);
-                HDF5Dataset::setAttribute(File::MAX_ATTR, maxVF);
+                HDF5Dataset::setAttribute(MIN_ATTR, minVF);
+                HDF5Dataset::setAttribute(MAX_ATTR, maxVF);
             }
         }
     } else {
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueI();
-            HDF5Dataset::setAttribute(File::MIN_ATTR, minVI);
-            HDF5Dataset::setAttribute(File::MAX_ATTR, maxVI);
+            HDF5Dataset::setAttribute(MIN_ATTR, minVI);
+            HDF5Dataset::setAttribute(MAX_ATTR, maxVI);
         } else {
-            if (this->hasAttribute(File::MIN_ATTR) && this->hasAttribute(File::MAX_ATTR)) {
-                minVI = HDF5Dataset::readAttributeI(File::MIN_ATTR);
-                maxVI = HDF5Dataset::readAttributeI(File::MAX_ATTR);
+            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
+                minVI = HDF5Dataset::readAttributeI(MIN_ATTR);
+                maxVI = HDF5Dataset::readAttributeI(MAX_ATTR);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
-                HDF5Dataset::setAttribute(File::MIN_ATTR, minVI);
-                HDF5Dataset::setAttribute(File::MAX_ATTR, maxVI);
+                HDF5Dataset::setAttribute(MIN_ATTR, minVI);
+                HDF5Dataset::setAttribute(MAX_ATTR, maxVI);
             }
         }
     }
@@ -514,9 +561,9 @@ void HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueF();
         } else {
-            if (this->hasAttribute(File::MIN_ATTR) && this->hasAttribute(File::MAX_ATTR)) {
-                minVF = HDF5Dataset::readAttributeF(File::MIN_ATTR);
-                maxVF = HDF5Dataset::readAttributeF(File::MAX_ATTR);
+            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
+                minVF = HDF5Dataset::readAttributeF(MIN_ATTR);
+                maxVF = HDF5Dataset::readAttributeF(MAX_ATTR);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
@@ -526,9 +573,9 @@ void HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
         if (reset) {
             HDF5Dataset::findGlobalMinAndMaxValueI();
         } else {
-            if (this->hasAttribute(File::MIN_ATTR) && this->hasAttribute(File::MAX_ATTR)) {
-                minVI = HDF5Dataset::readAttributeI(File::MIN_ATTR);
-                maxVI = HDF5Dataset::readAttributeI(File::MAX_ATTR);
+            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
+                minVI = HDF5Dataset::readAttributeI(MIN_ATTR);
+                maxVI = HDF5Dataset::readAttributeI(MAX_ATTR);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
@@ -728,6 +775,7 @@ void HDF5Dataset::readEmptyBlock()
     t1 = getTime();
     if (err < 0){
         throw std::runtime_error("H5Dread error");
+        //MPI::COMM_WORLD.Abort(1);
     }
     std::cout << name << " \tread time:  \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
 }
@@ -741,15 +789,18 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
+        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), 0);
     if (memspace < 0){
         throw std::runtime_error("H5Screate_simple error");
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
     if (err < 0){
         throw std::runtime_error("H5Sselect_hyperslab error");
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     double t0 = 0, t1 = 0;
@@ -761,13 +812,22 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
     if (err < 0){
         throw std::runtime_error("H5Dread error");
+        //MPI::COMM_WORLD.Abort(1);
     }
 
     if (log)
         t1 = getTime();
 
-    H5Sclose(dataspace);
-    H5Sclose(memspace);
+    err = H5Sclose(dataspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Sclose(memspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 
     if (log)
         std::cout << name << " \tread time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
@@ -817,8 +877,16 @@ void HDF5Dataset::writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void 
     if (log)
         t1 = getTime();
 
-    H5Sclose(dataspace);
-    H5Sclose(memspace);
+    err = H5Sclose(dataspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
+    err = H5Sclose(memspace);
+    if (err < 0){
+        throw std::runtime_error("H5Sclose error");
+        //MPI::COMM_WORLD.Abort(1);
+    }
 
     if (log)
         std::cout << name << " \twrite time:  \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;

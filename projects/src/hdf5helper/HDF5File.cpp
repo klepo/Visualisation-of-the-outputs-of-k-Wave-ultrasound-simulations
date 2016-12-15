@@ -23,30 +23,6 @@
 
 namespace HDF5Helper {
 
-// Dataset names
-const std::string File::SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
-const std::string File::SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
-const std::string File::SENSOR_MASK_CORNERS_DATASET("sensor_mask_corners");
-const std::string File::NT_DATASET("Nt");
-const std::string File::NX_DATASET("Nx");
-const std::string File::NY_DATASET("Ny");
-const std::string File::NZ_DATASET("Nz");
-const std::string File::P_SOURCE_INPUT_DATASET("p_source_input");
-
-// Attribute names
-const std::string File::MIN_ATTR("min");
-const std::string File::MAX_ATTR("max");
-const std::string File::SRC_DATASET_NAME_ATTR("src_dataset_name");
-const std::string File::C_TYPE_ATTR("c_type");
-const std::string File::C_MOS_ATTR("c_mos");
-const std::string File::C_PERIOD_ATTR("c_period");
-const std::string File::POSITION_Z_ATTR("position_z");
-const std::string File::POSITION_Y_ATTR("position_y");
-const std::string File::POSITION_X_ATTR("position_x");
-const std::string File::SRC_SIZE_Z_ATTR("src_size_z");
-const std::string File::SRC_SIZE_Y_ATTR("src_size_y");
-const std::string File::SRC_SIZE_X_ATTR("src_size_x");
-
 /**
  * @brief HDF5File
  * @param filename path to HDF5 file
@@ -135,21 +111,21 @@ File::File(std::string filename, unsigned int flag, bool log)
             // Load basic datasets values
             hsize_t data;
 
-            openDataset(File::NT_DATASET, false)->readDataset(data, false);
+            openDataset(NT_DATASET, false)->readDataset(data, false);
             nDims.w(data);
-            closeDataset(File::NT_DATASET, false);
+            closeDataset(NT_DATASET, false);
 
-            openDataset(File::NX_DATASET, false)->readDataset(data, false);
+            openDataset(NX_DATASET, false)->readDataset(data, false);
             nDims.x(data);
-            closeDataset(File::NX_DATASET, false);
+            closeDataset(NX_DATASET, false);
 
-            openDataset(File::NY_DATASET, false)->readDataset(data, false);
+            openDataset(NY_DATASET, false)->readDataset(data, false);
             nDims.y(data);
-            closeDataset(File::NY_DATASET, false);
+            closeDataset(NY_DATASET, false);
 
-            openDataset(File::NZ_DATASET, false)->readDataset(data, false);
+            openDataset(NZ_DATASET, false)->readDataset(data, false);
             nDims.z(data);
-            closeDataset(File::NZ_DATASET, false);
+            closeDataset(NZ_DATASET, false);
 
         } catch(std::exception) {
             closeFileAndObjects();
@@ -273,9 +249,9 @@ int File::getMPISize() const
  * @param rewrite flag for rewriting existing dataset
  * @throw std::runtime_error
  */
-void File::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite)
+void File::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite, bool log)
 {
-    File::createDataset(datasetName, H5T_NATIVE_UINT64, size, chunkSize, rewrite);
+    File::createDataset(datasetName, H5T_NATIVE_UINT64, size, chunkSize, rewrite, log);
 }
 
 /**
@@ -287,9 +263,9 @@ void File::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Ve
  * @param rewrite flag for rewriting existing dataset
  * @throw std::runtime_error
  */
-void File::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite)
+void File::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite, bool log)
 {
-    File::createDataset(datasetName, H5T_NATIVE_FLOAT, size, chunkSize, rewrite);
+    File::createDataset(datasetName, H5T_NATIVE_FLOAT, size, chunkSize, rewrite, log);
 }
 
 /**
@@ -302,7 +278,7 @@ void File::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Ve
  * @param type (H5T_NATIVE_FLOAT | H5T_NATIVE_UINT64)
  * @throw std::runtime_error
  */
-void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vector size, HDF5Vector chunkSize, bool rewrite)
+void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vector size, HDF5Vector chunkSize, bool rewrite, bool log)
 {
     hid_t dataspace = H5Screate_simple(static_cast<int>(size.getLength()), size.getVectorPtr(), 0);
     if (dataspace < 0){
@@ -352,15 +328,18 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
         s.erase(0, pos + delimiter.length());
     }
 
-    std::cout << "Creating dataset \"" << datasetName << "\" ";
+    if (log)
+        std::cout << "Creating dataset \"" << datasetName << "\" ";
     if (rewrite) {
         H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
-        std::cout << "... rewrite ";
+        if (log)
+            std::cout << "... rewrite ";
     }
 
     hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
     if (dataset < 0){
-        std::cout << "... error" << std::endl;
+        if (log)
+            std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dcreate error");
     }
 
@@ -376,12 +355,13 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
     if (err < 0){
         throw std::runtime_error("H5Dclose error");
     }
-    std::cout << "... OK" << std::endl;
+    if (log)
+        std::cout << "... OK" << std::endl;
 }
 
-void File::createDataset(HDF5Dataset *dataset, bool rewrite)
+void File::createDataset(HDF5Dataset *dataset, bool rewrite, bool log)
 {
-    createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite);
+    createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite, log);
 }
 
 /**
@@ -390,27 +370,32 @@ void File::createDataset(HDF5Dataset *dataset, bool rewrite)
  * @param rewrite flag for rewriting existing group
  * @throw std::runtime_error
  */
-void File::createGroup(const std::string name, bool rewrite)
+void File::createGroup(const std::string name, bool rewrite, bool log)
 {
-    std::cout << "Creating group \"" << name << "\" ";
+    if (log)
+        std::cout << "Creating group \"" << name << "\" ";
     if (rewrite) {
         H5Ldelete(file, name.c_str(), H5P_DEFAULT);
-        std::cout << "... rewrite ";
+        if (log)
+            std::cout << "... rewrite ";
     }
 
     if (!H5Lexists(file, name.c_str(), H5P_DEFAULT)) {
         hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         if (group < 0){
-            std::cout << "... error" << std::endl;
+            if (log)
+                std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Dcreate error");
         }
         H5Gclose(group);
         if (err < 0){
             throw std::runtime_error("H5Gclose error");
         }
-        std::cout << "... OK" << std::endl;
+        if (log)
+            std::cout << "... OK" << std::endl;
     } else {
-        std::cout << "... OK - group already exists" << std::endl;
+        if (log)
+            std::cout << "... OK - group already exists" << std::endl;
     }
 }
 
@@ -731,10 +716,10 @@ void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector dim
     }
 }
 
-void copyDataset(HDF5Dataset *srcDataset, File *dstFile)
+void copyDataset(HDF5Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
 {
-    dstFile->createDataset(srcDataset, true);
-    HDF5Dataset *dstDataset = dstFile->openDataset(srcDataset->getName());
+    dstFile->createDataset(srcDataset, rewrite, log);
+    HDF5Dataset *dstDataset = dstFile->openDataset(srcDataset->getName(), log);
 
     HDF5Vector offset;
     HDF5Vector count;
@@ -742,15 +727,15 @@ void copyDataset(HDF5Dataset *srcDataset, File *dstFile)
     if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_FLOAT)) {
         float *data = 0;
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-            srcDataset->readBlock(i, offset, count, data, false);
-            dstDataset->writeDataset(offset, count, data);
+            srcDataset->readBlock(i, offset, count, data, log);
+            dstDataset->writeDataset(offset, count, data, log);
             delete[] data;
         }
     } else if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_UINT64)) {
         hsize_t *data = 0;
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-            srcDataset->readBlock(i, offset, count, data, false);
-            dstDataset->writeDataset(offset, count, data);
+            srcDataset->readBlock(i, offset, count, data, log);
+            dstDataset->writeDataset(offset, count, data, log);
             delete[] data;
         }
     } else {
@@ -760,16 +745,22 @@ void copyDataset(HDF5Dataset *srcDataset, File *dstFile)
     // Copy attributes
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
         HDF5Attribute *attr = srcDataset->getAttribute(i);
-        dstDataset->setAttribute(attr, false);
+        dstDataset->setAttribute(attr, log);
         delete attr;
     }
-    dstFile->closeDataset(srcDataset->getName());
+    dstFile->closeDataset(dstDataset, log);
 }
 
-void copyDataset(File *srcFile, File *dstFile, std::string name)
+void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite, bool log)
 {
-    HDF5Dataset *srcDataset = srcFile->openDataset(name);
-    copyDataset(srcDataset, dstFile);
+    if (srcFile->getFilename() != dstFile->getFilename()) {
+        HDF5Dataset *srcDataset = srcFile->openDataset(name, log);
+        copyDataset(srcDataset, dstFile, rewrite, log);
+        srcFile->closeDataset(srcDataset, log);
+    } else {
+        if (log)
+            std::cout << "Source file == destination file -> cannot copy datasets" << std::endl;
+    }
 }
 
 }
