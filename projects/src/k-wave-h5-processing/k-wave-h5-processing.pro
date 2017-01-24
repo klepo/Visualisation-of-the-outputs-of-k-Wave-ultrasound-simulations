@@ -45,3 +45,9 @@ HEADERS += \
     dtsforpcs.h \
     paramsdefinition.h \
     processing.h
+
+# Copy built files to destination
+QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install\" $(MKDIR) \"$$PWD/../../install\") &
+QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../install/$$BUILD_MODE\") &
+#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$$BUILD_MODE\\$${TARGET}.lib\" \"$$PWD\\lib\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.lib\" &
+QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$${TARGET}.exe\" \"$$PWD\\..\\..\\install\\$$BUILD_MODE\\$${TARGET}.exe\" &

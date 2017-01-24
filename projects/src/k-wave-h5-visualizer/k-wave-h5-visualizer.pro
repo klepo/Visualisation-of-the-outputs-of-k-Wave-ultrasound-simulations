@@ -67,3 +67,15 @@ OTHER_FILES += \
     vertexShader.vert \
 
 win32:RC_ICONS = $$PWD/icons/images/icons_33.ico
+
+# Copy built files to destination
+#QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$ARCH\" $(MKDIR) \"$$PWD/../../install/$$ARCH\") &
+#QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$ARCH/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../install/$$ARCH/$$BUILD_MODE\") &
+#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$$BUILD_MODE\\$${TARGET}.lib\" \"$$PWD\\lib\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.lib\" &
+#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$${TARGET}.exe\" \"$$PWD\\..\\..\\install\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.exe\" &
+
+QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install\" $(MKDIR) \"$$PWD/../../install\") &
+QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../install/$$BUILD_MODE\") &
+#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$$BUILD_MODE\\$${TARGET}.lib\" \"$$PWD\\lib\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.lib\" &
+QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$${TARGET}.exe\" \"$$PWD\\..\\..\\install\\$$BUILD_MODE\\$${TARGET}.exe\" &
+
