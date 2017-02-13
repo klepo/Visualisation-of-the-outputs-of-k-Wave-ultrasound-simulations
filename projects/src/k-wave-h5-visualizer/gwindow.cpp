@@ -6,6 +6,7 @@
  *              6  December  2015 (updated)
  *              19 October   2016 (updated)
  *              3  November  2016 (updated)
+ *              13 February  2017 (updated)
  *
  * @brief       The implementation file containing the GWindow class - 3D scene window.
  *
