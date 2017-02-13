@@ -47,6 +47,7 @@ int main(int argc, char **argv)
     // - extrapolace sinus
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
+    // - harmonické frekvence
 
 
     //std::exit(EXIT_SUCCESS);

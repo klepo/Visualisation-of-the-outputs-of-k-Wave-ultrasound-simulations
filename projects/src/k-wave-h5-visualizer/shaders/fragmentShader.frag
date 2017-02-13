@@ -118,8 +118,8 @@ void main() {
                 texel = min(texture(uVolume, point).r, texel);
             } else if (uMode == 0) { // Accumulation
                 vec4 cIn = computeColor(texture(uVolume, point).r);
-                if (cIn.a == 0.0f)
-                    continue;
+                //if (cIn.a == 0.0f)
+                //    continue;
                 cIn.a = 50 * cIn.a / uSteps;
                 cOut.rgb = cOut.rgb + (1 - cOut.a) * cIn.rgb * cIn.a;
                 cOut.a   = cOut.a   + (1 - cOut.a) * cIn.a;

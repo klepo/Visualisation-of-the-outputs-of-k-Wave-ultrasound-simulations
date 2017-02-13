@@ -653,8 +653,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     }
 
     for (hsize_t x = 0; x < bSize; x++) {
-        bE[x] = b[x] * e[x];
-        bE_1[x] = b[(x + oSize) % (bSize - 1)] * e[(x + oSize) % (bSize - 1)];
+        bE[x] = b[x] * e[x] * (2.0f / float(oSize));
+        bE_1[x] = b[(x + oSize) % (bSize - 1)] * e[(x + oSize) % (bSize - 1)] * (2.0f / float(oSize));
     }
 
     // Get dims
@@ -667,12 +667,12 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = HDF5Helper::HDF5Vector4D(dims).w();
-        outputSteps = hsize_t(ceil(float(steps) / oSize));
+        outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::HDF5Vector3D(dims).y();
-        outputSteps = hsize_t(ceil(float(steps) / oSize));
+        outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
     } else { // Something wrong.
@@ -772,7 +772,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                         }
 
                         // Normalization
-                        sC = sC * 2.0f / float(oSize);
+                        //sC = sC * 2.0f / float(oSize);
 
                         // Computing amplitude
                         float k = abs(sC);
@@ -821,6 +821,19 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                 }
             }
 
+            // Last frame (copy last)
+            if (frame - 1 == outputSteps) {
+                std::cout << "Saving frame " << frame - 1 << " ... ";
+                if (dims.getLength() == 4) { // 4D dataset
+                    dstDatasetK->writeDataset(HDF5Helper::HDF5Vector4D(frame - 2, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), dataK);
+                    dstDatasetFi->writeDataset(HDF5Helper::HDF5Vector4D(frame - 2, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), dataFi);
+                } else if (dims.getLength() == 3) {
+                    dstDatasetK->writeDataset(HDF5Helper::HDF5Vector3D(0, frame - 2, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), dataK);
+                    dstDatasetFi->writeDataset(HDF5Helper::HDF5Vector3D(0, frame - 2, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), dataFi);
+                }
+                std::cout << "saved" << std::endl;
+            }
+
             delete[] dataK;
             delete[] dataFi;
 
@@ -833,7 +846,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
 
     } else {
         // Not implemented yet
-        std::cout << "Not implemented yet" << std::endl;
+        std::cout << "Not implemented for such big datasets yet" << std::endl;
         return;
     }
 
@@ -998,6 +1011,12 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
                             // Save last coefficient
                             lastK[cKFi]  = k[cKFi];
                             lastFi[cKFi]  = fi[cKFi];
+
+                            // Copy first coefficients
+                            if (step == 0) {
+                                lastK[cKFi] = dataK[cKFi];
+                                lastFi[cKFi] = dataFi[cKFi];
+                            }
 
                             // Read coefficient
                             k[cKFi] = dataK[step * stepSize + cKFi];
