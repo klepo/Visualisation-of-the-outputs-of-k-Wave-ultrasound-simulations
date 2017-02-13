@@ -19,54 +19,7 @@
  */
 
 #include "gwindow.h"
-
-// Some helper arrays for slices and 3d frame
-
-GLfloat sliceVertices[] = {
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-};
-
-GLint sliceElements[] = {
-    0, 1, 2,
-    2, 3, 0,
-};
-
-GLfloat cubeVertices[] = {
-    // front
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-    // back
-    0.0, 0.0, 1.0,
-    1.0, 0.0, 1.0,
-    1.0, 1.0, 1.0,
-    0.0, 1.0, 1.0,
-};
-
-GLint cubeElements[] = {
-    // front
-    0, 1, 2,
-    2, 3, 0,
-    // left
-    4, 0, 3,
-    3, 7, 4,
-    // back
-    5, 4, 7,
-    7, 6, 5,
-    // right
-    1, 5, 6,
-    6, 2, 1,
-    // top
-    2, 6, 7,
-    7, 3, 2,
-    // right
-    1, 0, 4,
-    4, 5, 1,
-};
+#include "vertices.h"
 
 /**
  * @brief GWindow::GWindow
@@ -120,23 +73,14 @@ GWindow::~GWindow()
 }
 
 /**
- * @brief GWindow::getThread
- * @return 3D data loading thread
- */
-HDF5ReadingThread *GWindow::getThread()
-{
-    return thread;
-}
-
-/**
  * @brief GWindow::initialize Initialization of OpenGL
  */
 void GWindow::initialize()
 {
     // Load, create and link shaders
     m_program = new QOpenGLShaderProgram(this);
-    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexShader.vert");
-    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentShader.frag");
+    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertexShader");
+    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragmentShader");
     m_program->link();
 
     // Init attribute variables
@@ -150,14 +94,15 @@ void GWindow::initialize()
     uColormapTexture = m_program->uniformLocation("uColormap");
     uOpacityTexture = m_program->uniformLocation("uOpacity");
     uSliceTexture = m_program->uniformLocation("uSlice");
-    uBoxSampler = m_program->uniformLocation("uBoxSampler");
+    uBoxBackSampler = m_program->uniformLocation("uBoxBackSampler");
+    uBoxFrontSampler = m_program->uniformLocation("uBoxFrontSampler");
 
     m_uFrame = m_program->uniformLocation("uFrame");
     m_uSlices = m_program->uniformLocation("uSlices");
     m_uXYBorder = m_program->uniformLocation("uXYBorder");
     m_uXZBorder = m_program->uniformLocation("uXZBorder");
     m_uYZBorder = m_program->uniformLocation("uYZBorder");
-    m_uVolumeRenderingBack = m_program->uniformLocation("uVolumeRenderingBack");
+    m_uVolumeRenderingBox = m_program->uniformLocation("uVolumeRenderingBox");
     m_uVolumeRendering = m_program->uniformLocation("uVolumeRendering");
 
     m_uTrim = m_program->uniformLocation("uTrim");
@@ -204,8 +149,17 @@ void GWindow::initialize()
     // VAO
     glGenVertexArrays(1, &vao);
 
-    glGenTextures(1, &textureFbo);
-    glBindTexture(GL_TEXTURE_2D, textureFbo);
+    glGenTextures(1, &textureFboBack);
+    glBindTexture(GL_TEXTURE_2D, textureFboBack);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &textureFboFront);
+    glBindTexture(GL_TEXTURE_2D, textureFboFront);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -216,8 +170,8 @@ void GWindow::initialize()
     // 3D texture
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -268,10 +222,13 @@ void GWindow::initialize()
     glGenRenderbuffers(1, &rbo);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glBindTexture(GL_TEXTURE_2D, textureFbo);
+    glBindTexture(GL_TEXTURE_2D, textureFboBack);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFbo, 0);
+    glBindTexture(GL_TEXTURE_2D, textureFboFront);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFboBack, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
@@ -311,7 +268,8 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uMax, 0.0f);
 
     m_program->setUniformValue(uOpacityTexture, 4);
-    m_program->setUniformValue(uBoxSampler, 3);
+    m_program->setUniformValue(uBoxBackSampler, 3);
+    m_program->setUniformValue(uBoxFrontSampler, 5);
     m_program->setUniformValue(uSliceTexture, 2);
     m_program->setUniformValue(uColormapTexture, 1);
     m_program->setUniformValue(uVolumeTexture, 0);
@@ -323,7 +281,7 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uSlices, false);
 
     m_program->setUniformValue(m_uVolumeRendering, false);
-    m_program->setUniformValue(m_uVolumeRenderingBack, false);
+    m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
     m_program->setUniformValue(m_uXYBorder, false);
     m_program->setUniformValue(m_uXZBorder, false);
@@ -338,6 +296,15 @@ void GWindow::initialize()
 
     initialized = true;
     renderLater();
+}
+
+/**
+ * @brief GWindow::getThread
+ * @return 3D data loading thread
+ */
+HDF5ReadingThread *GWindow::getThread()
+{
+    return thread;
 }
 
 /**
@@ -622,7 +589,7 @@ void GWindow::renderFrame()
     glEnableVertexAttribArray(m_aPosition);
     glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
-    glDrawElements(GL_LINE_LOOP,  sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
+    glDrawElements(GL_LINE_LOOP, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
     glDisableVertexAttribArray(m_aPosition);
     vboCubeVertices.release();
     glBindVertexArray(0);
@@ -635,7 +602,7 @@ void GWindow::renderBox()
     glEnableVertexAttribArray(m_aPosition);
     glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
-    glDrawElements(GL_TRIANGLES,  sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
+    glDrawElements(GL_TRIANGLES, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
     glDisableVertexAttribArray(m_aPosition);
     vboCubeVertices.release();
     glBindVertexArray(0);
@@ -675,15 +642,15 @@ void GWindow::render()
     // Rotation of scene by left mouse click
     if (leftButton) {
         // TODO
-        rotateXMatrix.rotate((float) (lastPos.y() - currentPos.y()) / 2.0f, -1, 0, 0);
-        rotateYMatrix.rotate((float) (lastPos.x() - currentPos.x()) / 2.0f, 0, -1, 0);
+        rotateXMatrix.rotate((float) (lastPositionPressed.y() - currentPositionPressed.y()) / 2.0f, -1, 0, 0);
+        rotateYMatrix.rotate((float) (lastPositionPressed.x() - currentPositionPressed.x()) / 2.0f, 0, -1, 0);
         //actualCount = 30;
     }
 
     // Move of scene by right mouse click
     if (rightButton) {
-        QPointF lastPosRl = convertPointToOpenGLRelative(lastPos);
-        QPointF currentPosRl = convertPointToOpenGLRelative(currentPos);
+        QPointF lastPosRl = convertPointToOpenGLRelative(lastPositionPressed);
+        QPointF currentPosRl = convertPointToOpenGLRelative(currentPositionPressed);
         position.setX(position.x() - float(lastPosRl.x() - currentPosRl.x()));
         position.setY(position.y() + float(lastPosRl.y() - currentPosRl.y()));
         //actualCount = 30;
@@ -753,6 +720,9 @@ void GWindow::render()
     m_program->setUniformValue(m_uSliceMatrix, QMatrix4x4());
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFboFront, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFboBack, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -836,11 +806,11 @@ void GWindow::render()
             m_program->setUniformValue(m_uSliceMatrix, translateXYMatrix);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
 
-            m_program->setUniformValue(m_uVolumeRenderingBack, true);
+            m_program->setUniformValue(m_uVolumeRenderingBox, true);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            m_program->setUniformValue(m_uVolumeRenderingBack, false);
+            m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix * offsetMatrix);
@@ -858,11 +828,11 @@ void GWindow::render()
             m_program->setUniformValue(m_uSliceMatrix, translateXZMatrix);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
 
-            m_program->setUniformValue(m_uVolumeRenderingBack, true);
+            m_program->setUniformValue(m_uVolumeRenderingBox, true);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            m_program->setUniformValue(m_uVolumeRenderingBack, false);
+            m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix * offsetMatrix);
@@ -880,11 +850,11 @@ void GWindow::render()
             m_program->setUniformValue(m_uSliceMatrix, translateYZMatrix);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
 
-            m_program->setUniformValue(m_uVolumeRenderingBack, true);
+            m_program->setUniformValue(m_uVolumeRenderingBox, true);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            m_program->setUniformValue(m_uVolumeRenderingBack, false);
+            m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix * offsetMatrix);
@@ -916,15 +886,17 @@ void GWindow::render()
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
-        m_program->setUniformValue(m_uVolumeRenderingBack, true);
+        m_program->setUniformValue(m_uVolumeRenderingBox, true);
 
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         renderBox();
+        glCullFace(GL_FRONT);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFboFront, 0);
+        renderBox();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        m_program->setUniformValue(m_uVolumeRenderingBack, false);
+        m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
-        glCullFace(GL_FRONT);
 
         m_program->setUniformValue(m_uVolumeRendering, true);
 
@@ -935,7 +907,10 @@ void GWindow::render()
         glBindTexture(GL_TEXTURE_1D, opacityTexture);
 
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, textureFbo);
+        glBindTexture(GL_TEXTURE_2D, textureFboBack);
+
+        glActiveTexture(GL_TEXTURE5);
+        glBindTexture(GL_TEXTURE_2D, textureFboFront);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, texture);
@@ -1160,7 +1135,10 @@ void GWindow::resizeEvent(QResizeEvent *)
 {
     if (initialized) {
         // Resize framebuffer texture
-        glBindTexture(GL_TEXTURE_2D, textureFbo);
+        glBindTexture(GL_TEXTURE_2D, textureFboBack);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, textureFboFront);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);

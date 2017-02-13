@@ -49,6 +49,11 @@ public:
 
     QImage getImage();
 
+    static const GLfloat sliceVertices[];
+    static const GLint sliceElements[] ;
+    static const GLfloat cubeVertices[];
+    static const GLint cubeElements[];
+
 signals:
     void loaded(std::string datasetName);
 
@@ -110,7 +115,8 @@ private:
     GLint uColormapTexture;
     GLint uOpacityTexture;
     GLint uSliceTexture;
-    GLint uBoxSampler;
+    GLint uBoxBackSampler;
+    GLint uBoxFrontSampler;
 
     GLint m_uFrame;
     GLint m_uSlices;
@@ -118,7 +124,7 @@ private:
     GLint m_uXZBorder;
     GLint m_uYZBorder;
     GLint m_uVolumeRendering;
-    GLint m_uVolumeRenderingBack;
+    GLint m_uVolumeRenderingBox;
 
     GLint m_uTrim;
 
@@ -150,7 +156,8 @@ private:
 
     GLuint vao;
     GLuint texture;
-    GLuint textureFbo;
+    GLuint textureFboBack;
+    GLuint textureFboFront;
     GLuint fbo;
     GLuint rbo;
 

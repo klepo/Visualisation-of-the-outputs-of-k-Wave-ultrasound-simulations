@@ -28,7 +28,7 @@ QDoubleSpinBoxTS::QDoubleSpinBoxTS(QWidget *parent) :
 
 QString QDoubleSpinBoxTS::textFromValue(double value) const
 {
-    return QWidget::locale().toString(value, 'f', 4);
+    return QWidget::locale().toString(value, 'f', 3);
 }
 
 double QDoubleSpinBoxTS::valueFromText(const QString &text) const

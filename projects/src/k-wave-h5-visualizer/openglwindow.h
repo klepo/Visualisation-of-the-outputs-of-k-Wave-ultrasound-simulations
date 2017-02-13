@@ -45,6 +45,7 @@ public:
     virtual void render() = 0;
     virtual void initialize() = 0;
     bool event(QEvent *event);
+    double getElapsedMs() const;
 
 public slots:
     void renderLater();
@@ -52,6 +53,8 @@ public slots:
 
 signals:
     void setStatusMessage(QString, int timeout = 3000);
+    /// Rendered signal
+    void rendered();
 
 protected:
     void exposeEvent(QExposeEvent *event);
@@ -68,20 +71,22 @@ protected:
     int wheelDelta = 0;
     QElapsedTimer timer;
     QTimer *moveTimer;
-    QPointF lastPos;
-    QPointF currentPos;
+    QPointF lastPositionPressed;
+    QPointF currentPositionPressed;
     QPointF diffPos;
-    QPointF pos;
+    QPointF currentPosition;
 
 private:
     bool hasDebugExtension();
     bool isOpenGLVersionSupported();
     static void messageLogged(const QOpenGLDebugMessage &message);
-    QOpenGLContext *m_context;
-    QOpenGLPaintDevice *m_device;
+    QOpenGLContext *context;
+    QOpenGLPaintDevice *device;
     QOpenGLDebugLogger *logger;
     bool m_update_pending;
     float r;
+    double elapsedMs = 0;
+
 };
 
 #endif // OPENGLWINDOW_H

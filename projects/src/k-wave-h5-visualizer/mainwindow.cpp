@@ -55,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
     connect(gWindow, SIGNAL(loaded(std::string)), this, SLOT(loaded3D(std::string)));
 
+    connect(gWindow, SIGNAL(rendered()), this, SLOT(showFPS()));
+
     // Connect signals to gWindow
     // Enable/disable VR
     connect(ui->actionVolumeRendering, SIGNAL(toggled(bool)), gWindow, SLOT(setViewVR(bool)));
@@ -245,6 +247,19 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     subobject = 0;
 
     clearGUI();
+}
+
+// Show FPS
+
+/**
+ * @brief MainWindow::showFPS
+ */
+void MainWindow::showFPS()
+{
+    QString framesPerSecond, ms;
+    framesPerSecond.setNum(1000.0 / gWindow->getElapsedMs(), 'f', 2);
+    ms.setNum(gWindow->getElapsedMs(), 'f', 2);
+    ui->dockWidget3D->setWindowTitle("3D view, last render time: " + ms + "ms (" + framesPerSecond + " fps)");
 }
 
 /**
@@ -1038,7 +1053,8 @@ void MainWindow::on_verticalSlider_3_valueChanged(int value)
 
 void MainWindow::on_doubleSpinBox_4_valueChanged(double value)
 {
-    ui->verticalSlider_4->setValue(int(value * 1000));
+    int nv = int(value * 1000);
+    ui->verticalSlider_4->setValue(nv);
     opacity[4] = float(value);
     if (gWindow != 0)
         gWindow->changeOpacity(opacity);
@@ -1046,5 +1062,6 @@ void MainWindow::on_doubleSpinBox_4_valueChanged(double value)
 
 void MainWindow::on_verticalSlider_4_valueChanged(int value)
 {
-    ui->doubleSpinBox_4->setValue(double(value) / 1000);
+    double nv = double(value) / 1000;
+    ui->doubleSpinBox_4->setValue(nv);
 }

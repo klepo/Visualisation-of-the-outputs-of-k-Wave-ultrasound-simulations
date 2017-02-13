@@ -30,7 +30,7 @@
 #include "ui_dialog.h"
 #include "ui_mainwindow.h"
 
-#include "cvimagewidget.h"
+#include "imagewidget.h"
 #include "gwindow.h"
 #include "h5objecttovisualize.h"
 #include "h5subobjecttovisualize.h"
@@ -117,6 +117,8 @@ private slots:
     void on_verticalSlider_3_valueChanged(int value);
     void on_doubleSpinBox_4_valueChanged(double value);
     void on_verticalSlider_4_valueChanged(int value);
+
+    void showFPS();
 
 public:
     Ui::MainWindow *ui;

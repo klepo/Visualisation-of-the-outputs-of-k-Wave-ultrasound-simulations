@@ -23,7 +23,7 @@
 #include "openedh5file.h"
 #include "h5objecttovisualize.h"
 #include "hdf5readingthread.h"
-#include "cvimagewidget.h"
+#include "imagewidget.h"
 #include "colormap.h"
 
 class OpenedH5File::H5SubobjectToVisualize : public QObject

@@ -31,7 +31,6 @@ include($$PWD/../hdf5.pri)
 SOURCES += \
     main.cpp\
     mainwindow.cpp \
-    cvimagewidget.cpp \
     qdoublespinboxts.cpp \
     hdf5readingthread.cpp \
     openglwindow.cpp \
@@ -40,20 +39,22 @@ SOURCES += \
     h5objecttovisualize.cpp \
     h5subobjecttovisualize.cpp \
     qvector3di.cpp \
-    colormap.cpp
+    colormap.cpp \
+    imagewidget.cpp
 
 HEADERS += \
     mainwindow.h \
-    cvimagewidget.h \
     qdoublespinboxts.h \
     hdf5readingthread.h \
     openglwindow.h \
+    vertices.h \
     gwindow.h \
     openedh5file.h \
     h5objecttovisualize.h \
     h5subobjecttovisualize.h \
     qvector3di.h \
-    colormap.h
+    colormap.h \
+    imagewidget.h
 
 FORMS += \
     mainwindow.ui \
@@ -63,8 +64,8 @@ RESOURCES += \
     resources.qrc \
 
 OTHER_FILES += \
-    fragmentShader.frag \
-    vertexShader.vert \
+    shaders/fragmentShader.frag \
+    shaders/vertexShader.vert \
 
 win32:RC_ICONS = $$PWD/icons/images/icons_33.ico
 

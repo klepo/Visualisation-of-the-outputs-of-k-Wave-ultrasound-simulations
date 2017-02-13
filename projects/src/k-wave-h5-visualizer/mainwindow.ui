@@ -290,7 +290,7 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-115</y>
           <width>388</width>
           <height>539</height>
          </rect>
@@ -662,11 +662,14 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
                  <property name="maximum">
                   <double>1.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.100000000000000</double>
+                  <double>0.001000000000000</double>
                  </property>
                  <property name="value">
                   <double>1.000000000000000</double>
@@ -679,10 +682,10 @@
                   <number>1000</number>
                  </property>
                  <property name="singleStep">
-                  <number>10</number>
+                  <number>1</number>
                  </property>
                  <property name="pageStep">
-                  <number>100</number>
+                  <number>10</number>
                  </property>
                  <property name="value">
                   <number>1000</number>
@@ -700,11 +703,14 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
                  <property name="maximum">
                   <double>1.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.010000000000000</double>
+                  <double>0.001000000000000</double>
                  </property>
                  <property name="value">
                   <double>1.000000000000000</double>
@@ -717,10 +723,10 @@
                   <number>1000</number>
                  </property>
                  <property name="singleStep">
-                  <number>10</number>
+                  <number>1</number>
                  </property>
                  <property name="pageStep">
-                  <number>100</number>
+                  <number>10</number>
                  </property>
                  <property name="value">
                   <number>1000</number>
@@ -738,11 +744,14 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
                  <property name="maximum">
                   <double>1.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.010000000000000</double>
+                  <double>0.001000000000000</double>
                  </property>
                  <property name="value">
                   <double>1.000000000000000</double>
@@ -757,11 +766,14 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
                  <property name="maximum">
                   <double>1.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.010000000000000</double>
+                  <double>0.001000000000000</double>
                  </property>
                  <property name="value">
                   <double>1.000000000000000</double>
@@ -774,10 +786,10 @@
                   <number>1000</number>
                  </property>
                  <property name="singleStep">
-                  <number>10</number>
+                  <number>1</number>
                  </property>
                  <property name="pageStep">
-                  <number>100</number>
+                  <number>10</number>
                  </property>
                  <property name="value">
                   <number>1000</number>
@@ -793,10 +805,10 @@
                   <number>1000</number>
                  </property>
                  <property name="singleStep">
-                  <number>10</number>
+                  <number>1</number>
                  </property>
                  <property name="pageStep">
-                  <number>100</number>
+                  <number>10</number>
                  </property>
                  <property name="value">
                   <number>1000</number>
@@ -814,11 +826,14 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="decimals">
+                  <number>3</number>
+                 </property>
                  <property name="maximum">
                   <double>1.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.010000000000000</double>
+                  <double>0.001000000000000</double>
                  </property>
                  <property name="value">
                   <double>1.000000000000000</double>
@@ -831,10 +846,10 @@
                   <number>1000</number>
                  </property>
                  <property name="singleStep">
-                  <number>10</number>
+                  <number>1</number>
                  </property>
                  <property name="pageStep">
-                  <number>100</number>
+                  <number>10</number>
                  </property>
                  <property name="value">
                   <number>1000</number>
@@ -1225,7 +1240,7 @@ p, li { white-space: pre-wrap; }
           <number>0</number>
          </property>
          <item>
-          <widget class="CVImageWidget" name="imageWidgetXY" native="true">
+          <widget class="ImageWidget" name="imageWidgetXY" native="true">
            <property name="cursor">
             <cursorShape>CrossCursor</cursorShape>
            </property>
@@ -1347,7 +1362,7 @@ p, li { white-space: pre-wrap; }
           <number>0</number>
          </property>
          <item>
-          <widget class="CVImageWidget" name="imageWidgetXZ" native="true">
+          <widget class="ImageWidget" name="imageWidgetXZ" native="true">
            <property name="cursor">
             <cursorShape>CrossCursor</cursorShape>
            </property>
@@ -1496,7 +1511,7 @@ p, li { white-space: pre-wrap; }
           <number>0</number>
          </property>
          <item>
-          <widget class="CVImageWidget" name="imageWidgetYZ" native="true">
+          <widget class="ImageWidget" name="imageWidgetYZ" native="true">
            <property name="cursor">
             <cursorShape>CrossCursor</cursorShape>
            </property>
@@ -1889,9 +1904,9 @@ p, li { white-space: pre-wrap; }
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>CVImageWidget</class>
+   <class>ImageWidget</class>
    <extends>QWidget</extends>
-   <header location="global">cvimagewidget.h</header>
+   <header location="global">imagewidget.h</header>
    <container>1</container>
    <slots>
     <signal>imageResized(int,int)</signal>

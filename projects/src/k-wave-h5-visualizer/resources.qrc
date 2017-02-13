@@ -51,8 +51,8 @@
         <file>icons/colorscale_winter.jpg</file>
     </qresource>
     <qresource prefix="/shaders">
-        <file>fragmentShader.frag</file>
-        <file>vertexShader.vert</file>
+        <file alias="fragmentShader">shaders/fragmentShader.frag</file>
+        <file alias="vertexShader">shaders/vertexShader.vert</file>
     </qresource>
     <qresource prefix="/html">
         <file>help.html</file>

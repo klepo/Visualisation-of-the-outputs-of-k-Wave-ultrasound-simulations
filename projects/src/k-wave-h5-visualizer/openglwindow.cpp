@@ -42,8 +42,8 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     , mouseDown(false)
     , leftButton(false)
     , rightButton(false)
-    , m_context(0)
-    , m_device(0)
+    , context(0)
+    , device(0)
     , logger(0)
     , m_update_pending(false)
 {
@@ -73,7 +73,7 @@ OpenGLWindow::~OpenGLWindow()
     //moveTimer->stop();
     //delete moveTimer;
     //delete m_context; // Some BUG - deletion causes wrong freeing memory
-    delete m_device;
+    delete device;
     //thread->deleteLater();
 }
 
@@ -130,21 +130,32 @@ void OpenGLWindow::renderNow()
 
     checkInitAndMakeCurrentContext();
 
+    glFinish();
+
+    // timer
+    QElapsedTimer timer;
+    timer.start();
+
     render();
 
     glFinish();
-    m_context->swapBuffers(this);
+
+    context->swapBuffers(this);
 
     //QTest::qSleep(17); // max cca 60 fps
 
-    //QString framesPerSecond;
-    //framesPerSecond.setNum( 1000.0 / (timer.nsecsElapsed() / 1000000.0), 'f', 2);
+    qint64 elapsed = timer.nsecsElapsed();
+    elapsedMs = double(elapsed / 1000000.0);
+    emit rendered();
 
-    //qDebug() << "render time:" << (timer.nsecsElapsed() / 1000000.0) << "ms";
+    //QString framesPerSecond;
+    //framesPerSecond.setNum(1000.0 / elapsedMs, 'f', 2);
+
+    //qDebug() << "render time:" << elapsedMs << "ms";
     //qDebug() << framesPerSecond.toDouble() << "fps";
 
     // Change last position
-    lastPos = currentPos;
+    lastPositionPressed = currentPositionPressed;
     wheelDelta = 0;
 }
 
@@ -158,11 +169,10 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
         rightButton = true;
     if (event->buttons() == Qt::LeftButton)
         leftButton = true;
-
     mouseDown = true;
     // Save mouse position
-    lastPos = event->pos();
-    currentPos = event->pos();
+    currentPositionPressed = event->pos();
+    lastPositionPressed = currentPositionPressed;
     renderLater();
 }
 
@@ -172,10 +182,10 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
  */
 void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    pos = event->pos();
+    currentPosition = event->pos();
     if (mouseDown) {
         // Change current position
-        currentPos = pos;
+        currentPositionPressed = currentPosition;
         // Render
         renderLater();
     }
@@ -246,17 +256,21 @@ GLenum OpenGLWindow::checkGlError()
     return ret;
 }
 
+/**
+ * @brief OpenGLWindow::checkInitAndMakeCurrentContext
+ */
 void OpenGLWindow::checkInitAndMakeCurrentContext()
 {
     bool needsInitialize = false;
 
-    if (!m_context) {
+    if (!context) {
         // OpenGL context creation
-        m_context = new QOpenGLContext();
-        m_context->setFormat(requestedFormat());
-        m_context->create();
-        m_context->makeCurrent(this);
+        context = new QOpenGLContext();
+        context->setFormat(requestedFormat());
+        context->create();
+        context->makeCurrent(this);
 
+        // Activate debug extension
         if (hasDebugExtension()) {
             logger = new QOpenGLDebugLogger();
             logger->initialize();
@@ -273,27 +287,32 @@ void OpenGLWindow::checkInitAndMakeCurrentContext()
             Q_ASSERT_X(false, "OpenGL error", "Could not obtain required OpenGL context version");
             exit(1);
         } else {
+            // Initialize
             initializeOpenGLFunctions();
             initialize();
         }
     }
 
-    m_context->makeCurrent(this);
+    context->makeCurrent(this);
 }
 
 /**
  * @brief OpenGLWindow::hasDebugExtension
- * @return
+ * @return true/false
  */
 bool OpenGLWindow::hasDebugExtension()
 {
-    return m_context->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
+    return context->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
 }
 
+/**
+ * @brief OpenGLWindow::isOpenGLVersionSupported
+ * @return true/false
+ */
 bool OpenGLWindow::isOpenGLVersionSupported()
 {
     QOpenGLFunctions_3_3_Core* funcs = 0;
-    funcs = m_context->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    funcs = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
     return funcs;
 }
 
@@ -305,6 +324,11 @@ void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
 {
     if (message.type() == QOpenGLDebugMessage::ErrorType)
         qCritical() << message;
-    else if (message.type() == QOpenGLDebugMessage::PerformanceType)
+    else
         qDebug() << message;
+}
+
+double OpenGLWindow::getElapsedMs() const
+{
+    return elapsedMs;
 }
