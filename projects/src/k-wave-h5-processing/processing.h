@@ -19,6 +19,7 @@
 
 #include <dtsforpcs.h>
 
+// Only for reshape
 #define MAX_NUMBER_OF_FRAMES 0 // TODO set 0 -> all steps (frames)
 
 class Processing

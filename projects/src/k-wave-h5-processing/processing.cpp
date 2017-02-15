@@ -667,12 +667,12 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = HDF5Helper::HDF5Vector4D(dims).w();
-        outputSteps = hsize_t(floor(float(steps) / oSize));
+        outputSteps = hsize_t(floor(float(steps - 1) / oSize));
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::HDF5Vector3D(dims).y();
-        outputSteps = hsize_t(floor(float(steps) / oSize));
+        outputSteps = hsize_t(floor(float(steps - 1) / oSize));
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
     } else { // Something wrong.
@@ -758,7 +758,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                     //std::cout << "step * stepSize: " << step << std::endl;
 
                     // Check if we are at saving point
-                    if (stepLocal == oSize - 1 || stepLocal == oSize * 2 - 1) {
+                    //if (stepLocal + 1 == oSize || stepLocal + 1 == oSize * 2) {
+                    if ((stepLocal + 1) % oSize == 0) {
 
                         Helper::floatC sC;
 
@@ -805,7 +806,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                 }
 
                 // Increment frame
-                if (stepLocal == oSize - 1 || stepLocal == oSize * 2 - 1) {
+                //if (stepLocal == oSize - 1 || stepLocal == oSize * 2 - 1) {
+                if ((stepLocal + 1) % oSize == 0) {
                     if (frame > 1) {
                         std::cout << "Saving frame " << frame - 1 << " ... ";
                         if (dims.getLength() == 4) { // 4D dataset
@@ -928,12 +930,12 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = HDF5Helper::HDF5Vector4D(dims).w();
-        outputSteps = steps * oSize;
+        outputSteps = (steps + 1) * oSize + 1;
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::HDF5Vector3D(dims).y();
-        outputSteps = steps * oSize;
+        outputSteps = (steps + 1) * oSize + 1;
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
     } else { // Something wrong.
