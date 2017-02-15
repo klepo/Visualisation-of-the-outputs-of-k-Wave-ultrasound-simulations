@@ -984,26 +984,26 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
         float *lastFi = new float[stepSize]();
         float *data = new float[stepSize]();
 
-        hsize_t step = 0;
+        hsize_t frame = 0;
 
         // Reading and decompression
         for (hsize_t i = 0; i < srcDatasetFi->getNumberOfBlocks(); i++) {
             srcDatasetFi->readBlock(i, offset, count, dataFi);
             srcDatasetK->readBlock(i, offset, count, dataK);
 
-            hsize_t stepsCount;
+            hsize_t framesCount;
             hsize_t stepsOffset;
 
             if (dims.getLength() == 4) { // 4D dataset
-                stepsCount = count[0];
+                framesCount = count[0];
                 stepsOffset = offset[0];
             } else { // 3D dataset
-                stepsCount = count[1];
+                framesCount = count[1];
                 stepsOffset = offset[1];
             }
 
             // For every step
-            for (step = 0; step < stepsCount; step++) {
+            for (frame = 0; frame < framesCount; frame++) {
                 //std::cout << "Step: " << step << std::endl;
                 // For every decoded point
                 for (hsize_t p = 0; p < oSize; p++) {
@@ -1015,14 +1015,14 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
                             lastFi[cKFi]  = fi[cKFi];
 
                             // Copy first coefficients
-                            if (step == 0) {
+                            if (frame == 0) {
                                 lastK[cKFi] = dataK[cKFi];
                                 lastFi[cKFi] = dataFi[cKFi];
                             }
 
                             // Read coefficient
-                            k[cKFi] = dataK[step * stepSize + cKFi];
-                            fi[cKFi] = dataFi[step * stepSize + cKFi];
+                            k[cKFi] = dataK[frame * stepSize + cKFi];
+                            fi[cKFi] = dataFi[frame * stepSize + cKFi];
                         }
 
                         // Compute new point value
@@ -1040,11 +1040,11 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
                         }
                     }
 
-                    std::cout << "Saving frame " << step * oSize + p << " ... ";
+                    std::cout << "Saving frame " << frame * oSize + p << " ... ";
                     if (dims.getLength() == 4) { // 4D dataset
-                        dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(step * oSize + p, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), data);
+                        dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(frame * oSize + p, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), data);
                     } else if (dims.getLength() == 3) {
-                        dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, step * oSize + p, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), data);
+                        dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, frame * oSize + p, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), data);
                     }
                     std::cout << "saved" << std::endl;
                 }
