@@ -50,12 +50,17 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     sourceInputDataset = findAndGetDataset(HDF5Helper::P_SOURCE_INPUT_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
 
     // Get period from input signal
-    if (sourceInputDataset) {
-        HDF5Helper::HDF5Vector3D dims = sourceInputDataset->getDims();
-        float *data = 0;
-        sourceInputDataset->readDataset(HDF5Helper::HDF5Vector3D(0, 0, 0), HDF5Helper::HDF5Vector3D(1, dims.y(), 1), data);
-        settings->setPeriod(Helper::getPeriod(data, dims.y()));
-        delete[] data;
+    if (!settings->getPeriod() && sourceInputDataset) {
+        if (sourceInputDataset->hasAttribute("period")) {
+            settings->setPeriod(sourceInputDataset->readAttributeI("period"));
+        } else {
+            HDF5Helper::HDF5Vector3D dims = sourceInputDataset->getDims();
+            float *data = 0;
+            sourceInputDataset->readDataset(HDF5Helper::HDF5Vector3D(0, 0, 0), HDF5Helper::HDF5Vector3D(1, dims.y(), 1), data);
+            settings->setPeriod(Helper::getPeriod(data, dims.y()));
+            sourceInputDataset->setAttribute("period", settings->getPeriod());
+            delete[] data;
+        }
     }
 
     // Save original dims

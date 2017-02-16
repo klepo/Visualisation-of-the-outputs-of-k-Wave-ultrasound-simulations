@@ -291,7 +291,7 @@ void Processing::compress()
                 std::cout << "Compression of dataset " << dataset->getName() << std::endl;
                 compressDataset(dataset);
                 count++;
-                std::cout << "Compression of dataset " << dataset->getName() << "done" << std::endl << std::endl;
+                std::cout << "Compression of dataset " << dataset->getName() << " done" << std::endl << std::endl;
             }
         }
 
@@ -667,12 +667,12 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = HDF5Helper::HDF5Vector4D(dims).w();
-        outputSteps = hsize_t(floor(float(steps - 1) / oSize));
+        outputSteps = hsize_t(ceil(float(steps - 1) / oSize));
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::HDF5Vector3D(dims).y();
-        outputSteps = hsize_t(floor(float(steps - 1) / oSize));
+        outputSteps = hsize_t(ceil(float(steps - 1) / oSize));
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
     } else { // Something wrong.
@@ -720,7 +720,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
         Helper::floatC *sCTmp1 = new Helper::floatC[stepSize]();
         Helper::floatC *sCTmp2 = new Helper::floatC[stepSize]();
 
-        hsize_t step = 0;
+        //hsize_t step = 0;
         hsize_t frame = 1;
 
         // Reading and compression
@@ -742,8 +742,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
             }
 
             // For every step
-            for (step = 0; step < stepsCount; step++) {
-                //std::cout << "Step: " << step << std::endl;
+            for (hsize_t step = 0; step < stepsCount; step++) {
+                //std::cout << "Encoding step " << stepsOffset + step << std::endl;
 
                 // Compute local index
                 hsize_t stepLocal = step % (bSize - 1);
@@ -821,6 +821,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                     }
                     frame++;
                 }
+                //std::cout << "encoded" << std::endl;
             }
 
             // Last frame (copy last)
@@ -930,12 +931,12 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = HDF5Helper::HDF5Vector4D(dims).w();
-        outputSteps = (steps + 1) * oSize + 1;
+        outputSteps = (steps + 1) * oSize ;
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::HDF5Vector3D(dims).y();
-        outputSteps = (steps + 1) * oSize + 1;
+        outputSteps = (steps + 1) * oSize;
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
     } else { // Something wrong.
@@ -984,7 +985,7 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
         float *lastFi = new float[stepSize]();
         float *data = new float[stepSize]();
 
-        hsize_t frame = 0;
+        hsize_t frameDst = 0;
 
         // Reading and decompression
         for (hsize_t i = 0; i < srcDatasetFi->getNumberOfBlocks(); i++) {
@@ -992,22 +993,32 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
             srcDatasetK->readBlock(i, offset, count, dataK);
 
             hsize_t framesCount;
-            hsize_t stepsOffset;
+            hsize_t framesOffset;
 
             if (dims.getLength() == 4) { // 4D dataset
                 framesCount = count[0];
-                stepsOffset = offset[0];
+                framesOffset = offset[0];
             } else { // 3D dataset
                 framesCount = count[1];
-                stepsOffset = offset[1];
+                framesOffset = offset[1];
             }
 
-            // For every step
-            for (frame = 0; frame < framesCount; frame++) {
-                //std::cout << "Step: " << step << std::endl;
-                // For every decoded point
+            // Because of last coefficient duplication
+            bool lastFlag = false;
+            if (framesOffset + framesCount == steps) {
+                lastFlag = true;
+                framesCount++;
+            }
+
+            // For every frame
+            for (hsize_t frame = 0; frame < framesCount; frame++) {
+                std::cout << "Decoding frame " << frameDst << std::endl;
+                // Decode steps
                 for (hsize_t p = 0; p < oSize; p++) {
                     // For every coefficient in step
+
+                    double t0 = HDF5Helper::getTime();
+
                     for (hsize_t cKFi = 0; cKFi < stepSize; cKFi++) {
                         if (p == 0) {
                             // Save last coefficient
@@ -1020,9 +1031,15 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
                                 lastFi[cKFi] = dataFi[cKFi];
                             }
 
-                            // Read coefficient
-                            k[cKFi] = dataK[frame * stepSize + cKFi];
-                            fi[cKFi] = dataFi[frame * stepSize + cKFi];
+                            if (frame == framesCount - 1 && lastFlag) {
+                                // Duplicate last coefficient
+                                k[cKFi] = dataK[(frame - 1) * stepSize + cKFi];
+                                fi[cKFi] = dataFi[(frame - 1) * stepSize + cKFi];
+                            } else {
+                                // Read coefficient
+                                k[cKFi] = dataK[frame * stepSize + cKFi];
+                                fi[cKFi] = dataFi[frame * stepSize + cKFi];
+                            }
                         }
 
                         // Compute new point value
@@ -1039,15 +1056,19 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
                             if (maxV < data[cKFi]) maxV = data[cKFi];
                         }
                     }
+                    double t1 = HDF5Helper::getTime();
+                    std::cout << "Time of the one step decoding: " << (t1 - t0) << " ms; \t" << std::endl;
 
-                    std::cout << "Saving frame " << frame * oSize + p << " ... ";
+                    std::cout << "Saving step " << frameDst * oSize + p << " ... ";
                     if (dims.getLength() == 4) { // 4D dataset
-                        dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(frame * oSize + p, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), data);
+                        dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(frameDst * oSize + p, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), data, true);
                     } else if (dims.getLength() == 3) {
-                        dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, frame * oSize + p, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), data);
+                        dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, frameDst * oSize + p, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), data, true);
                     }
                     std::cout << "saved" << std::endl;
                 }
+                frameDst++;
+                std::cout << "encoded" << std::endl;
             }
 
             delete[] dataK;

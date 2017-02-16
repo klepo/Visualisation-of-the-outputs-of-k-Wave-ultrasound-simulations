@@ -246,12 +246,14 @@ void GWindow::initialize()
     glEnable(GL_MULTISAMPLE);
     QColor colorW = qMainWindow->palette().color(QPalette::Window);
     glClearColor(float(colorW.redF()), float(colorW.greenF()), float(colorW.blueF()), 0.0f/*float(colorW.alphaF())*/);
+    //glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendEquation(GL_FUNC_ADD);
 
     changeColormap();
 
@@ -935,10 +937,14 @@ void GWindow::render()
 void GWindow::saveImage(QString fileName)
 {
     // Save 3D scene to png image
-    QImage image(width(), height(), QImage::Format_ARGB32);
+    QImage image(width(), height(), QImage::Format_RGBA8888);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(0, 0, width(), height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+    glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+    image = image.mirrored();
     image.save(fileName);
+    //QLabel myLabel;
+    //myLabel.setPixmap(QPixmap::fromImage(image));
+    //myLabel.show();
 }
 
 QImage GWindow::getImage()

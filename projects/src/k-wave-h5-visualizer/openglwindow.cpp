@@ -325,8 +325,8 @@ void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
 {
     if (message.type() == QOpenGLDebugMessage::ErrorType)
         qCritical() << message;
-    else
-        qDebug() << message;
+    /*else
+        qDebug() << message;*/
 }
 
 double OpenGLWindow::getElapsedMs() const

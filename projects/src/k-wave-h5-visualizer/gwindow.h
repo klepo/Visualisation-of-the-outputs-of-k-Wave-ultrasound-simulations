@@ -24,6 +24,7 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QLabel>
 
 #include "qvector3di.h"
 #include "colormap.h"

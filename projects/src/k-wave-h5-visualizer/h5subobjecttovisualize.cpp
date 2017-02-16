@@ -28,11 +28,13 @@
  * @param openedH5File
  * @param parent
  */
-OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
+OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent) : QObject(parent)
 {
     // Params
     this->openedH5File = openedH5File;
+    this->h5ObjectToVisualize = h5ObjectToVisualize;
     this->objectName = QString::fromStdString(dataset->getName());
+    this->objectOnlyName = QString::fromStdString(dataset->getOnlyName());
     this->type = type;
     this->dataset = dataset;
 
@@ -109,6 +111,15 @@ bool OpenedH5File::H5SubobjectToVisualize::isGUIInitialized()
 QString OpenedH5File::H5SubobjectToVisualize::getName()
 {
     return objectName;
+}
+
+/**
+ * @brief OpenedH5File::H5SubobjectToVisualize::getObjectOnlyName
+ * @return
+ */
+QString OpenedH5File::H5SubobjectToVisualize::getOnlyName() const
+{
+    return objectOnlyName;
 }
 
 /**
@@ -350,6 +361,16 @@ QImage OpenedH5File::H5SubobjectToVisualize::createImageYZ()
         ColorMap::applyColorMap(int(size.y() * size.z()), minValue, maxValue, dataYZ, qimage.bits(), colormap);
     }
     return qimage;
+}
+
+OpenedH5File::H5ObjectToVisualize *OpenedH5File::H5SubobjectToVisualize::getH5ObjectToVisualize() const
+{
+    return h5ObjectToVisualize;
+}
+
+OpenedH5File *OpenedH5File::H5SubobjectToVisualize::getOpenedH5File() const
+{
+    return openedH5File;
 }
 
 /**

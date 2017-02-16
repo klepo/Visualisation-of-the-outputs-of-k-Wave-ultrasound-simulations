@@ -59,8 +59,8 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
 void OpenedH5File::setObject(QString nameTmp, HDF5Helper::HDF5Dataset *dataset, ObjectType type)
 {
     QString name = nameTmp;
-    if (name.at(0) != '/')
-        name = "/" + name;
+    if (name.at(0) == '/')
+        name.remove(0, 1);
     if (!objects.contains(name)) {
         objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, type, this));
         objects[name]->addSubobject(dataset);
@@ -165,7 +165,7 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
             } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
                        ) {
-                setObject(QString::fromStdString(dataset->getName()), dataset, dataset4D_t);
+                setObject(QString::fromStdString(group->getName()), dataset, dataset4D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_K

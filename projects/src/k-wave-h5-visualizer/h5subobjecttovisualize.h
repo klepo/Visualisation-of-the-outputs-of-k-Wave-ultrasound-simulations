@@ -30,7 +30,7 @@ class OpenedH5File::H5SubobjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, QObject *parent = 0);
+    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent = 0);
     ~H5SubobjectToVisualize();
 
     // Getters for current settings and min/max values
@@ -57,6 +57,7 @@ public:
     float getValueAtPointFromYZ(int y, int z);
 
     QString getName();
+    QString getOnlyName() const;
     ObjectType getType();
     ColorMap::Type getColormap();
 
@@ -82,6 +83,9 @@ public:
     bool isCurrentYZLoaded();
 
     bool areCurrentSlicesLoaded();
+
+    OpenedH5File *getOpenedH5File() const;
+    H5ObjectToVisualize *getH5ObjectToVisualize() const;
 
 signals:
     void imageXYChanged(QImage, uint64_t index);
@@ -126,7 +130,9 @@ private:
     QImage createImageYZ();
 
     OpenedH5File *openedH5File = 0;
+    H5ObjectToVisualize *h5ObjectToVisualize = 0;
     QString objectName;
+    QString objectOnlyName;
     ObjectType type;
     HDF5Helper::HDF5Dataset *dataset = 0;
 

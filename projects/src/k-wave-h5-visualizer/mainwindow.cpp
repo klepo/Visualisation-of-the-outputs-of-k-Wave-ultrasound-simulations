@@ -927,10 +927,15 @@ void MainWindow::on_actionExportImageFrom3DScene_triggered()
 {
     if (gWindow != 0) {
         QString name = "no_name";
-        if (subobject != 0 && subobject->isGUIInitialized()) name = subobject->getName();
-        QString fileName = QFileDialog::getSaveFileName(this, "Save image", name + "_3Dscene.png", "Image (*.png)");
-        if (fileName != 0)
-            gWindow->saveImage(fileName);
+        if (subobject != 0 && subobject->isGUIInitialized()) {
+            QString fileName = subobject->getOpenedH5File()->getFilename();
+            QString objectName = subobject->getH5ObjectToVisualize()->getName();
+            QString subobjectName = subobject->getOnlyName();
+            name = fileName + "_" + objectName + "_" + subobjectName + "_3Dscene.png";
+        }
+        QString imagefileName = QFileDialog::getSaveFileName(this, "Save image", name, "Image (*.png)");
+        if (imagefileName != 0)
+            gWindow->saveImage(imagefileName);
     }
 }
 
