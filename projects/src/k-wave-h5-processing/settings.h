@@ -57,6 +57,10 @@ public:
     unsigned long long getPeriod() const;
     void setPeriod(const unsigned long long &value);
 
+    // Harmonic
+    unsigned long long getHarmonic() const;
+    void setHarmonic(const unsigned long long &value);
+
     // Selected names
     std::list<std::string> getNames() const;
     void setNames(const std::list<std::string> &value);
@@ -90,6 +94,7 @@ private:
     unsigned long long maxChunkSize = 64;
     unsigned long long blockSize = 0;
     unsigned long long period = 0;
+    unsigned long long harmonic = 1;
     unsigned long long mOS = 1;
 
     // Filter/selection by names

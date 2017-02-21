@@ -53,6 +53,11 @@ void Settings::loadParams(int argc, char **argv)
     paramsP.defineParam(ParamsDefinition::ULONGLONG);
     paramsDefinition.defineParamsFlag("p", paramsP);
 
+    // Harmonic
+    ParamsDefinition::Flag::Params paramsH;
+    paramsH.defineParam(ParamsDefinition::ULONGLONG);
+    paramsDefinition.defineParamsFlag("h", paramsH);
+
     // Multiple of overlap size
     ParamsDefinition::Flag::Params paramsMOS;
     paramsMOS.defineParam(ParamsDefinition::ULONGLONG);
@@ -124,6 +129,9 @@ void Settings::loadParams(int argc, char **argv)
                              "                                          system physical memory.\n"
                              "\n"
                              "  -p period ............................. Optional parameter. Sets period of input signal for\n"
+                             "                                          compression of time series HIFU data.\n"
+                             "\n"
+                             "  -h harmonic ........................... Optional parameter. Sets multiple of harmonic frequency for\n"
                              "                                          compression of time series HIFU data.\n"
                              "\n"
                              "  -mos size ............................. Optional parameter. Sets multiple of overlap size for\n"
@@ -206,6 +214,12 @@ void Settings::loadParams(int argc, char **argv)
         unsigned long long period;
         flags.at("p").getParams().readParam(0, &period);
         setPeriod(period);
+    }
+
+    if (flags.at("h").getEnabled()) {
+        unsigned long long harmonic;
+        flags.at("h").getParams().readParam(0, &harmonic);
+        setHarmonic(harmonic);
     }
 
     if (flags.at("mos").getEnabled()) {
@@ -302,6 +316,18 @@ void Settings::setPeriod(const unsigned long long &value)
     period = value;
     std::cout << "\n  Period for compression:\n    " << period << std::endl;
 }
+
+unsigned long long Settings::getHarmonic() const
+{
+    return harmonic;
+}
+
+void Settings::setHarmonic(const unsigned long long &value)
+{
+    harmonic = value;
+    std::cout << "\n  Multiple of harmonic frequency for compression:\n    " << harmonic << std::endl;
+}
+
 
 std::list<std::string> Settings::getNames() const
 {

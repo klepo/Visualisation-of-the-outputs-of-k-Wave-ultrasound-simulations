@@ -149,6 +149,8 @@ std::string HDF5Object::getStringValueByType(const hid_t type, const void *value
         return std::to_string(*static_cast<const int *>(value));
     else if (H5Tequal(type, H5T_NATIVE_UINT64))
         return std::to_string(*static_cast<const hsize_t *>(value));
+    else if (H5Tequal(type, H5T_NATIVE_INT64))
+        return std::to_string(*static_cast<const hssize_t *>(value));
     else if (H5Tequal(type, H5T_NATIVE_DOUBLE))
         return std::to_string(*static_cast<const double *>(value));
     else if (H5Tequal(type, H5T_NATIVE_FLOAT))
@@ -174,6 +176,8 @@ std::string HDF5Object::getStringTypeByType(const hid_t type) const
         return "H5T_NATIVE_INT";
     else if (H5Tequal(type, H5T_NATIVE_UINT64))
         return "H5T_NATIVE_UINT64";
+    else if (H5Tequal(type, H5T_NATIVE_INT64))
+        return "H5T_NATIVE_INT64";
     else if (H5Tequal(type, H5T_NATIVE_DOUBLE))
         return "H5T_NATIVE_DOUBLE";
     else if (H5Tequal(type, H5T_NATIVE_FLOAT))

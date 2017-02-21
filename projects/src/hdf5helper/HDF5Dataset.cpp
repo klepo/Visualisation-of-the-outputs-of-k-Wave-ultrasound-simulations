@@ -771,6 +771,7 @@ void HDF5Dataset::readEmptyBlock()
     H5Sselect_none(memspace);
     double t0 = 0, t1 = 0;
     t0 = getTime();
+    std::cout << "Reading dataset" << name << "..." << std::endl;
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
     t1 = getTime();
     if (err < 0){
@@ -807,6 +808,9 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
 
     if (log)
         t0 = getTime();
+
+    if (log)
+        std::cout << "Reading dataset" << name << "..." << std::endl;
 
     // Reading
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);

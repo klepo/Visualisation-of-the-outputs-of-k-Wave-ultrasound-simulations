@@ -279,7 +279,7 @@ void Processing::compress()
         HDF5Helper::HDF5Vector4D nDims4D = hDF5OutputFile->getNdims();
         hsize_t sensorMaskSize = dtsForPcs->getSensorMaskSize();
         int count = 0;
-        std::cout << "Compression with period: " << settings->getPeriod() << " steps" << std::endl;
+        std::cout << "Compression with period " << settings->getPeriod() << " steps of " << settings->getHarmonic() << ". harmonic frequency" << std::endl;
         for (it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::HDF5Dataset *dataset = it->second;
             HDF5Helper::HDF5DatasetType datasetType = dataset->getType(nDims4D, sensorMaskSize);
@@ -324,25 +324,51 @@ void Processing::decompress()
                     //|| datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI
                     ) {
 
-                std::string srcName = datasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR);
-                std::string kName = srcName + "_k";
-                if (kName.find("/") != 0)
-                    kName = "/" + kName;
-                if (map.find(kName) == map.end())
-                    continue;
+                std::string nameFi = datasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR);
+                hsize_t periodFi = datasetFi->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
+                hsize_t harmonicFi = 1;
+                if (datasetFi->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
+                    harmonicFi = datasetFi->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
+                }
 
-                HDF5Helper::HDF5Dataset *datasetK = map.at(kName);
+                HDF5Helper::HDF5Dataset *datasetK = 0;
 
-                HDF5Helper::HDF5DatasetType datasetType = datasetK->getType(nDims4D, sensorMaskSize);
-                if (datasetType != HDF5Helper::HDF5DatasetType::K_MASK
-                        && datasetType != HDF5Helper::HDF5DatasetType::CUBOID_K
-                        && datasetType != HDF5Helper::HDF5DatasetType::CUBOID_ATTR_K
-                        )
-                    continue;
+                for (it = map.begin(); it != map.end(); ++it) {
+                    HDF5Helper::HDF5Dataset *dataset = it->second;
+                    HDF5Helper::HDF5DatasetType datasetKType = dataset->getType(nDims4D, sensorMaskSize);
+                    if ((datasetKType == HDF5Helper::HDF5DatasetType::K_MASK && datasetType == HDF5Helper::HDF5DatasetType::FI_MASK)
+                            || (datasetKType == HDF5Helper::HDF5DatasetType::CUBOID_K && datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI)
+                            || (datasetKType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_FI)
+                            ) {
+                        hsize_t harmonicK = 1;
+                        if (dataset->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
+                            harmonicK = dataset->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
+                        }
+                        // TODO Check C_MOS_ATTR
+                        if (periodFi == dataset->readAttributeI(HDF5Helper::C_PERIOD_ATTR)
+                                && nameFi == dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR)
+                                && harmonicK == harmonicFi) {
+                            datasetK = dataset;
+                            break;
+                        }
+                    }
+                }
 
-                decompressDatasets(datasetFi, datasetK);
-                count++;
+                if (datasetK) {
+                    decompressDatasets(datasetFi, datasetK);
+                    count++;
+                }
             }
+
+            // TODO
+            // Sum of decompressed datasets with different harnomic frequency to one dataset
+
+            /*HDF5Helper::MapOfDatasets::iterator it2;
+            HDF5Helper::MapOfDatasets decompressedDatasets;
+            for (it2 = decompressedDatasets.begin(); it2 != decompressedDatasets.end(); ++it2) {
+                HDF5Helper::HDF5Dataset *dataset = it2->second;
+            }   */
+
         }
 
         if (count == 0) {
@@ -649,7 +675,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     // Generate complex exponential functions
     Helper::floatC i(0,-1);
     for (hsize_t x = 0; x < bSize; x++) {
-        e[x] = std::exp(i * (2.0f * float(M_PI) / settings->getPeriod()) * float(x));
+        e[x] = std::exp(i * (2.0f * float(M_PI) / (float(settings->getPeriod()) / settings->getHarmonic())) * float(x));
     }
 
     for (hsize_t x = 0; x < bSize; x++) {
@@ -667,12 +693,12 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = HDF5Helper::HDF5Vector4D(dims).w();
-        outputSteps = hsize_t(ceil(float(steps - 1) / oSize));
+        outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::HDF5Vector3D(dims).y();
-        outputSteps = hsize_t(ceil(float(steps - 1) / oSize));
+        outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
     } else { // Something wrong.
@@ -698,10 +724,10 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     std::cout << "stepSize:    " << stepSize << std::endl;
 
     // Create dst datasets
-    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_k", outputDims, chunkDims, true);
-    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_fi", outputDims, chunkDims, true);
-    HDF5Helper::HDF5Dataset *dstDatasetK = hDF5OutputFile->openDataset(srcDataset->getName() + "_k");
-    HDF5Helper::HDF5Dataset *dstDatasetFi = hDF5OutputFile->openDataset(srcDataset->getName() + "_fi");
+    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_k_" + std::to_string(settings->getHarmonic()), outputDims, chunkDims, true);
+    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_fi_" + std::to_string(settings->getHarmonic()), outputDims, chunkDims, true);
+    HDF5Helper::HDF5Dataset *dstDatasetK = hDF5OutputFile->openDataset(srcDataset->getName() + "_k_" + std::to_string(settings->getHarmonic()));
+    HDF5Helper::HDF5Dataset *dstDatasetFi = hDF5OutputFile->openDataset(srcDataset->getName() + "_fi_" + std::to_string(settings->getHarmonic()));
 
     double t0 = HDF5Helper::getTime();
 
@@ -723,12 +749,12 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
         //hsize_t step = 0;
         hsize_t frame = 1;
 
+        float *dataK = new float[stepSize];
+        float *dataFi = new float[stepSize];
+
         // Reading and compression
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
             srcDataset->readBlock(i, offset, count, data);
-
-            float *dataK = new float[stepSize];
-            float *dataFi = new float[stepSize];
 
             hsize_t stepsCount;
             hsize_t stepsOffset;
@@ -746,7 +772,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                 //std::cout << "Encoding step " << stepsOffset + step << std::endl;
 
                 // Compute local index
-                hsize_t stepLocal = step % (bSize - 1);
+                hsize_t stepLocal = (stepsOffset + step) % (bSize - 1);
 
                 // For every point
                 for (hsize_t p = 0; p < stepSize; p++) {
@@ -837,11 +863,11 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                 std::cout << "saved" << std::endl;
             }
 
-            delete[] dataK;
-            delete[] dataFi;
-
             delete[] data;
         }
+
+        delete[] dataK;
+        delete[] dataFi;
 
         // Delete complex buffers
         delete[] sCTmp1;
@@ -869,12 +895,14 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     dstDatasetK->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDatasetK->setAttribute(HDF5Helper::C_TYPE_ATTR, "k");
     dstDatasetK->setAttribute(HDF5Helper::C_PERIOD_ATTR, settings->getPeriod());
+    dstDatasetK->setAttribute(HDF5Helper::C_HARMONIC_ATTR, settings->getHarmonic());
     dstDatasetK->setAttribute(HDF5Helper::C_MOS_ATTR, settings->getMOS());
     dstDatasetFi->setAttribute(HDF5Helper::MIN_ATTR, minVFi);
     dstDatasetFi->setAttribute(HDF5Helper::MAX_ATTR, maxVFi);
     dstDatasetFi->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDatasetFi->setAttribute(HDF5Helper::C_TYPE_ATTR, "fi");
     dstDatasetFi->setAttribute(HDF5Helper::C_PERIOD_ATTR, settings->getPeriod());
+    dstDatasetFi->setAttribute(HDF5Helper::C_HARMONIC_ATTR, settings->getHarmonic());
     dstDatasetFi->setAttribute(HDF5Helper::C_MOS_ATTR, settings->getMOS());
 
     double t1 = HDF5Helper::getTime();
@@ -892,6 +920,11 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
         s = srcDatasetFi->readAttributeI(HDF5Helper::C_MOS_ATTR);
     // Second decoding parametr - period
     hsize_t period = srcDatasetFi->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
+    // Harmonic frequency
+    hsize_t harmonic = 1;
+    if (srcDatasetFi->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
+        harmonic = srcDatasetFi->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
+    }
 
     // Overlap size
     hsize_t oSize = period * s;
@@ -911,7 +944,7 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
     // Generate complex exponential functions
     Helper::floatC i(0,-1);
     for (hsize_t x = 0; x < bSize; x++) {
-        e[x] = std::exp(i * (2.0f * float(M_PI) / settings->getPeriod()) * float(x));
+        e[x] = std::exp(i * (2.0f * float(M_PI) / (float(period) / harmonic)) * float(x));
     }
 
     for (hsize_t x = 0; x < bSize; x++) {
@@ -963,7 +996,7 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
 
     // Create dst dataset
     std::string srcName = srcDatasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
-    hDF5OutputFile->createDatasetF(srcName + "_d", outputDims, chunkDims, true);
+    hDF5OutputFile->createDatasetF(srcName + "_d_" + std::to_string(harmonic), outputDims, chunkDims, true);
     HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcName + "_d");
 
     double t0 = HDF5Helper::getTime();
