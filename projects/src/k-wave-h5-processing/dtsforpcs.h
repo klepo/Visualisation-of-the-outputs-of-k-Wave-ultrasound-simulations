@@ -5,7 +5,7 @@
  * @date        8  September 2016 (created)
  *              3  November  2016 (updated)
  *
- * @brief       The header file with HDF5Attribute class declaration.
+ * @brief       The header file with DtsForPcs class declaration.
  *
  * @license     This application is for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
  *              k-Wave h5 processing is free software.

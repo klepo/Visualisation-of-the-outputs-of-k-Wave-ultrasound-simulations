@@ -25,6 +25,9 @@
 
 namespace HDF5Helper
 {
+/**
+ * @brief The HDF5Vector class represents structure for integer vectors
+ */
 class HDF5Vector
 {
 public:
