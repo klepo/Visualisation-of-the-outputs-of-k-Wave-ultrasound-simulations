@@ -40,6 +40,7 @@ public:
     virtual bool operator !=(const HDF5Vector &hDF5Vector) const;
     virtual HDF5Vector &operator =(const HDF5Vector &hDF5Vector);
     virtual hsize_t &operator [](hsize_t i) final;
+    virtual hsize_t &operator [](hssize_t i) final;
     virtual hsize_t &operator [](int i) final;
     virtual hsize_t &operator [](unsigned int i) final;
     virtual hsize_t getSize() const final;

@@ -312,6 +312,8 @@ void Processing::decompress()
         HDF5Helper::HDF5Vector4D nDims4D = hDF5OutputFile->getNdims();
         hsize_t sensorMaskSize = dtsForPcs->getSensorMaskSize();
         int count = 0;
+        std::vector<HDF5Helper::HDF5Dataset *> datasetsFi;
+        std::vector<HDF5Helper::HDF5Dataset *> datasetsK;
         for (it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::HDF5Dataset *datasetFi = it->second;
             HDF5Helper::HDF5DatasetType datasetType = datasetFi->getType(nDims4D, sensorMaskSize);
@@ -333,8 +335,9 @@ void Processing::decompress()
 
                 HDF5Helper::HDF5Dataset *datasetK = 0;
 
-                for (it = map.begin(); it != map.end(); ++it) {
-                    HDF5Helper::HDF5Dataset *dataset = it->second;
+                HDF5Helper::MapOfDatasets::iterator it2;
+                for (it2 = map.begin(); it2 != map.end(); ++it2) {
+                    HDF5Helper::HDF5Dataset *dataset = it2->second;
                     HDF5Helper::HDF5DatasetType datasetKType = dataset->getType(nDims4D, sensorMaskSize);
                     if ((datasetKType == HDF5Helper::HDF5DatasetType::K_MASK && datasetType == HDF5Helper::HDF5DatasetType::FI_MASK)
                             || (datasetKType == HDF5Helper::HDF5DatasetType::CUBOID_K && datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI)
@@ -344,10 +347,12 @@ void Processing::decompress()
                         if (dataset->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
                             harmonicK = dataset->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
                         }
-                        // TODO Check C_MOS_ATTR
+                        // TODO Check C_MOS_ATTR, number of coefficients, same periods, harmonic indices
                         if (periodFi == dataset->readAttributeI(HDF5Helper::C_PERIOD_ATTR)
                                 && nameFi == dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR)
-                                && harmonicK == harmonicFi) {
+                                && harmonicK == harmonicFi
+                                //&& harmonicK == settings->getHarmonic()
+                                ) {
                             datasetK = dataset;
                             break;
                         }
@@ -355,25 +360,21 @@ void Processing::decompress()
                 }
 
                 if (datasetK) {
-                    decompressDatasets(datasetFi, datasetK);
+                    datasetsFi.push_back(datasetFi);
+                    datasetsK.push_back(datasetK);
                     count++;
                 }
             }
-
-            // TODO
-            // Sum of decompressed datasets with different harnomic frequency to one dataset
-
-            /*HDF5Helper::MapOfDatasets::iterator it2;
-            HDF5Helper::MapOfDatasets decompressedDatasets;
-            for (it2 = decompressedDatasets.begin(); it2 != decompressedDatasets.end(); ++it2) {
-                HDF5Helper::HDF5Dataset *dataset = it2->second;
-            }   */
-
         }
 
         if (count == 0) {
             std::cout << "No datasets for decompression in simulation output file" << std::endl;
+        } else {
+            std::cout << "Decompression of datasets ..." << std::endl;
+            decompressDatasets(datasetsFi, datasetsK);
+            std::cout << "Decompression of datasets  done" << std::endl << std::endl;
         }
+
     } catch(std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
@@ -485,7 +486,8 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     // Chunk dims
     HDF5Helper::HDF5Vector chunkDims(dims.getLength(), 1);
 
-    for (hsize_t i = 0; i < dims.getLength(); i++) {
+    #pragma omp parallel for
+    for (hssize_t i = 0; i < hssize_t(dims.getLength()); i++) {
         chunkDims[i] = settings->getMaxChunkSize();
         if (chunkDims[i] > dims[i]) chunkDims[i] = dims[i];
     }
@@ -673,12 +675,13 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     //Helper::hann(oSize, b);        // Hann window
 
     // Generate complex exponential functions
-    Helper::floatC i(0,-1);
-    for (hsize_t x = 0; x < bSize; x++) {
+    Helper::floatC i(0, -1);
+    #pragma omp parallel for
+    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
         e[x] = std::exp(i * (2.0f * float(M_PI) / (float(settings->getPeriod()) / settings->getHarmonic())) * float(x));
     }
-
-    for (hsize_t x = 0; x < bSize; x++) {
+    #pragma omp parallel for
+    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
         bE[x] = b[x] * e[x] * (2.0f / float(oSize));
         bE_1[x] = b[(x + oSize) % (bSize - 1)] * e[(x + oSize) % (bSize - 1)] * (2.0f / float(oSize));
     }
@@ -708,7 +711,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
 
     // Compute new chunk size
     HDF5Helper::HDF5Vector chunkDims(outputDims.getLength(), 1);
-    for (hsize_t i = 0; i < outputDims.getLength(); i++) {
+    #pragma omp parallel for
+    for (hssize_t i = 1; i < hssize_t(outputDims.getLength()); i++) {
         chunkDims[i] = settings->getMaxChunkSize();
         if (chunkDims[i] > outputDims[i]) chunkDims[i] = outputDims[i];
     }
@@ -775,7 +779,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                 hsize_t stepLocal = (stepsOffset + step) % (bSize - 1);
 
                 // For every point
-                for (hsize_t p = 0; p < stepSize; p++) {
+                #pragma omp parallel for
+                for (hssize_t p = 0; p < hssize_t(stepSize); p++) {
                     // Correlation step
                     sCTmp1[p] += bE[stepLocal] * data[step * stepSize + p];
                     sCTmp2[p] += bE_1[stepLocal] * data[step * stepSize + p];
@@ -814,18 +819,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                             dataFi[p] = fi;
 
                             // Min/max values
-                            if (first) {
-                                maxVK = k;
-                                maxVFi = fi;
-                                minVK = k;
-                                minVFi = fi;
-                                first = false;
-                            } else {
-                                if (minVK > k) minVK = k;
-                                if (maxVK < k) maxVK = k;
-                                if (minVFi > fi) minVFi = fi;
-                                if (maxVFi < fi) maxVFi = fi;
-                            }
+                            HDF5Helper::checkOrSetMinMaxValue(first, minVK, maxVK, k);
+                            HDF5Helper::checkOrSetMinMaxValue(first, minVFi, maxVFi, fi);
                         }
 
                     }
@@ -912,48 +907,57 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hDF5OutputFile->closeDataset(dstDatasetFi);
 }
 
-void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5Helper::HDF5Dataset *srcDatasetK)
+void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsFi, std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsK)
 {
     // First decoding parameter - multiple of overlap size
     hsize_t s = 1;
-    if (srcDatasetFi->hasAttribute(HDF5Helper::C_MOS_ATTR))
-        s = srcDatasetFi->readAttributeI(HDF5Helper::C_MOS_ATTR);
+    //if (srcDatasetFi->hasAttribute(HDF5Helper::C_MOS_ATTR))
+    //    s = srcDatasetFi->readAttributeI(HDF5Helper::C_MOS_ATTR);
     // Second decoding parametr - period
-    hsize_t period = srcDatasetFi->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
+    hsize_t period = srcDatasetsFi.at(0)->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
     // Harmonic frequency
-    hsize_t harmonic = 1;
-    if (srcDatasetFi->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
-        harmonic = srcDatasetFi->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
-    }
+    hsize_t harmonic = srcDatasetsFi.size();
+    //if (srcDatasetFi->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
+    //    harmonic = srcDatasetFi->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
+    //}
 
     // Overlap size
     hsize_t oSize = period * s;
     // Base size
     hsize_t bSize = oSize * 2 + 1;
 
-    // Memory for helper functions data
+    // Memory for helper functions data, 2d arrays for harmonics
     float *b = new float[bSize]();
-    Helper::floatC *e = new Helper::floatC[bSize]();
-    Helper::floatC *bE = new Helper::floatC[bSize]();
-    Helper::floatC *bE_1 = new Helper::floatC[bSize]();
+    Helper::floatC *e = new Helper::floatC[bSize * harmonic]();
+    Helper::floatC *bE = new Helper::floatC[bSize* harmonic]();
+    Helper::floatC *bE_1 = new Helper::floatC[bSize* harmonic]();
 
     // Generate basis function (window)
     Helper::triangular(oSize, b);  // Triangular window
     //Helper::hann(oSize, b);        // Hann window
 
     // Generate complex exponential functions
-    Helper::floatC i(0,-1);
-    for (hsize_t x = 0; x < bSize; x++) {
-        e[x] = std::exp(i * (2.0f * float(M_PI) / (float(period) / harmonic)) * float(x));
+    Helper::floatC i(0, -1);
+    #pragma omp parallel for
+    for (hssize_t h = 0; h < hssize_t(harmonic); h++) {
+        #pragma omp parallel for
+        for (hssize_t x = 0; x < hssize_t(bSize); x++) {
+            hsize_t hx = h * bSize + x;
+            e[hx] = std::exp(i * (2.0f * float(M_PI) / (float(period) / (h + 1))) * float(x));
+        }
     }
-
-    for (hsize_t x = 0; x < bSize; x++) {
-        bE[x] = b[x] * e[x];
-        bE_1[x] = b[(x + oSize) % (bSize - 1)] * e[(x + oSize) % (bSize - 1)];
+    #pragma omp parallel for
+    for (hssize_t h = 0; h < hssize_t(harmonic); h++) {
+        #pragma omp parallel for
+        for (hssize_t x = 0; x < hssize_t(bSize); x++) {
+            hsize_t hx = h * bSize + x;
+            bE[hx] = b[x] * e[hx];
+            bE_1[hx] = b[(x + oSize) % (bSize - 1)] * e[h * bSize + ((x + oSize) % (bSize - 1))];
+        }
     }
 
     // Get dims
-    HDF5Helper::HDF5Vector dims = srcDatasetFi->getDims();
+    HDF5Helper::HDF5Vector dims = srcDatasetsFi.at(0)->getDims();
     HDF5Helper::HDF5Vector outputDims = dims;
 
     // TODO - check same dims of srcDatasetFi and srcDatasetK
@@ -977,9 +981,10 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
         return;
     }
 
-    // Compute new chunk dims
+    // Compute new chunk dims (it is 1 for time dimension)
     HDF5Helper::HDF5Vector chunkDims(outputDims.getLength(), 1);
-    for (hsize_t i = 0; i < outputDims.getLength(); i++) {
+    #pragma omp parallel for
+    for (hssize_t i = 1; i < hssize_t(outputDims.getLength()); i++) {
         chunkDims[i] = settings->getMaxChunkSize();
         if (chunkDims[i] > outputDims[i]) chunkDims[i] = outputDims[i];
     }
@@ -995,35 +1000,41 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
     std::cout << "step size:    " << stepSize << std::endl;
 
     // Create dst dataset
-    std::string srcName = srcDatasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
-    hDF5OutputFile->createDatasetF(srcName + "_d_" + std::to_string(harmonic), outputDims, chunkDims, true);
+    std::string srcName = srcDatasetsFi.at(0)->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
+    hDF5OutputFile->createDatasetF(srcName + "_d", outputDims, chunkDims, true);
     HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcName + "_d");
 
     double t0 = HDF5Helper::getTime();
 
     // Variables for block reading
-    float *dataFi = 0;
-    float *dataK = 0;
+    float **dataFi = new float*[harmonic];
+    float **dataK = new float*[harmonic];
+    float *dataFiL = 0;
+    float *dataKL = 0;
     HDF5Helper::HDF5Vector offset;
     HDF5Helper::HDF5Vector count;
     float maxV = 0, minV = 0;
     bool first = true;
 
-    // If we have enough memory - minimal for one full step in 3D space
-    if (srcDatasetFi->getNumberOfElmsToLoad() >= stepSize) {
+    // If we have enough memory - minimal for one full step * (1 (data) + 4 buffers (k, fi, lastK, lastFi) * number of harmonics) in 3D space
+    if (srcDatasetsFi.at(0)->getFile()->getNumberOfElmsToLoad() >= stepSize * (1 + 4 * harmonic)) {
         // Buffers for last K and Fi
-        float *k = new float[stepSize]();
-        float *fi = new float[stepSize]();
-        float *lastK = new float[stepSize]();
-        float *lastFi = new float[stepSize]();
+        float *k = new float[stepSize * harmonic]();
+        float *fi = new float[stepSize * harmonic]();
+        float *lastK = new float[stepSize * harmonic]();
+        float *lastFi = new float[stepSize * harmonic]();
         float *data = new float[stepSize]();
 
         hsize_t frameDst = 0;
 
         // Reading and decompression
-        for (hsize_t i = 0; i < srcDatasetFi->getNumberOfBlocks(); i++) {
-            srcDatasetFi->readBlock(i, offset, count, dataFi);
-            srcDatasetK->readBlock(i, offset, count, dataK);
+        for (hsize_t i = 0; i < srcDatasetsFi.at(0)->getNumberOfBlocks(); i++) {
+            for (hsize_t h = 0; h < harmonic; h++) {
+                srcDatasetsFi.at(h)->readBlock(i, offset, count, dataFiL);
+                srcDatasetsK.at(h)->readBlock(i, offset, count, dataKL);
+                dataFi[h] = dataFiL;
+                dataK[h] = dataKL;
+            }
 
             hsize_t framesCount;
             hsize_t framesOffset;
@@ -1052,43 +1063,44 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
 
                     double t0 = HDF5Helper::getTime();
 
-                    for (hsize_t cKFi = 0; cKFi < stepSize; cKFi++) {
+                    #pragma omp parallel for
+                    for (hssize_t cKFi = 0; cKFi < hssize_t(stepSize); cKFi++) {
                         if (p == 0) {
-                            // Save last coefficient
-                            lastK[cKFi]  = k[cKFi];
-                            lastFi[cKFi]  = fi[cKFi];
+                            // Save last coefficients
+                            for (hsize_t h = 0; h < harmonic; h++) {
+                                hsize_t hcKFi = stepSize * h + hsize_t(cKFi);
+                                lastK[hcKFi] = k[hcKFi];
+                                lastFi[hcKFi] = fi[hcKFi];
 
-                            // Copy first coefficients
-                            if (frame == 0) {
-                                lastK[cKFi] = dataK[cKFi];
-                                lastFi[cKFi] = dataFi[cKFi];
-                            }
+                                // Copy first coefficients
+                                if (frame == 0) {
+                                    lastK[hcKFi] = dataK[h][cKFi];
+                                    lastFi[hcKFi] = dataFi[h][cKFi];
+                                }
 
-                            if (frame == framesCount - 1 && lastFlag) {
-                                // Duplicate last coefficient
-                                k[cKFi] = dataK[(frame - 1) * stepSize + cKFi];
-                                fi[cKFi] = dataFi[(frame - 1) * stepSize + cKFi];
-                            } else {
-                                // Read coefficient
-                                k[cKFi] = dataK[frame * stepSize + cKFi];
-                                fi[cKFi] = dataFi[frame * stepSize + cKFi];
+                                if (frame == framesCount - 1 && lastFlag) {
+                                    // Duplicate last coefficient
+                                    k[hcKFi] = dataK[h][(frame - 1) * stepSize + hsize_t(cKFi)];
+                                    fi[hcKFi] = dataFi[h][(frame - 1) * stepSize + hsize_t(cKFi)];
+                                } else {
+                                    // Read coefficient
+                                    k[hcKFi] = dataK[h][frame * stepSize + hsize_t(cKFi)];
+                                    fi[hcKFi] = dataFi[h][frame * stepSize + hsize_t(cKFi)];
+                                }
                             }
                         }
 
                         // Compute new point value
-                        Helper::floatC i(0,-1);
-                        data[cKFi] = real(k[cKFi] * std::exp(i * fi[cKFi]) * bE[p]) + real(lastK[cKFi] * std::exp(i * lastFi[cKFi]) * bE_1[p]);
-
-                        // Min/max values
-                        if (first) {
-                            minV = data[cKFi];
-                            maxV = data[cKFi];
-                            first = false;
-                        } else {
-                            if (minV > data[cKFi]) minV = data[cKFi];
-                            if (maxV < data[cKFi]) maxV = data[cKFi];
+                        data[cKFi] = 0;
+                        Helper::floatC i(0, -1);
+                        for (hsize_t h = 0; h < harmonic; h++) {
+                            hsize_t hcKFi = stepSize * h + hsize_t(cKFi);
+                            data[cKFi] += real(k[hcKFi] * std::exp(i * fi[hcKFi]) * bE[h * bSize + p]) + real(lastK[hcKFi] * std::exp(i * lastFi[hcKFi]) * bE_1[h * bSize + p]);
                         }
+                        // Min/max values
+                        HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, data[cKFi]);
                     }
+
                     double t1 = HDF5Helper::getTime();
                     std::cout << "Time of the one step decoding: " << (t1 - t0) << " ms; \t" << std::endl;
 
@@ -1104,6 +1116,11 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
                 std::cout << "encoded" << std::endl;
             }
 
+            #pragma omp parallel for
+            for (hssize_t h = 0; h < hssize_t(harmonic); h++) {
+                delete[] dataK[h];
+                delete[] dataFi[h];
+            }
             delete[] dataK;
             delete[] dataFi;
         }
@@ -1126,7 +1143,7 @@ void Processing::decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5H
     delete[] bE_1;
 
     // Copy attributes
-    copyAttributes(srcDatasetFi, dstDataset);
+    copyAttributes(srcDatasetsFi.at(0), dstDataset);
 
     // Set min/max values
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV);
@@ -1177,23 +1194,14 @@ void Processing::substractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF
         if (datasetOriginal->getNumberOfBlocks() == i + 1)
             stopFlag = true;
 
-        for (hsize_t i = 0; i < count.getSize(); i++) {
+        #pragma omp parallel for
+        for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
             if (stopFlag && count.getSize() - i <= 15 * stepSize) {
                 dataD[i] = 0;
             } else {
                 dataD[i] = dataO[i] - dataD[i];
-
                 // Min/max values
-                if (first) {
-                    minV = dataD[i];
-                    maxV = dataD[i];
-                    first = false;
-                } else {
-                    if (minV > dataD[i])
-                        minV = dataD[i];
-                    if (maxV < dataD[i])
-                        maxV = dataD[i];
-                }
+                HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i]);
             }
         }
 
@@ -1232,8 +1240,10 @@ void Processing::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
     float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
 
-    for (unsigned int y = 0; y < dstHeight; y++) {
-        for (unsigned int x = 0; x < dstWidth; x++) {
+    #pragma omp parallel for
+    for (int y = 0; y < dstHeight; y++) {
+        #pragma omp parallel for
+        for (int x = 0; x < dstWidth; x++) {
 
             //float newX = static_cast<float>(x) / scaleWidth;
             //float newY = static_cast<float>(y) / scaleHeight;
@@ -1273,9 +1283,12 @@ void Processing::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
     float scaleDepth = static_cast<float>(dstDepth) / srcDepth;
 
-    for (unsigned int z = 0; z < dstDepth; z++) {
-        for (unsigned int y = 0; y < dstHeight; y++) {
-            for (unsigned int x = 0; x < dstWidth; x++) {
+    #pragma omp parallel for
+    for (int z = 0; z < dstDepth; z++) {
+        #pragma omp parallel for
+        for (int y = 0; y < dstHeight; y++) {
+            #pragma omp parallel for
+            for (int x = 0; x < dstWidth; x++) {
                 // Nearest-neighbour interpolation
                 float newX = static_cast<float>(x) / scaleWidth;
                 float newY = static_cast<float>(y) / scaleHeight;

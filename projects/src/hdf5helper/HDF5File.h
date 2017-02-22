@@ -52,6 +52,8 @@ size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector size);
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector size);
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value);
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value);
 
 /*inline bool fileExists(const std::string& name) {
   struct stat buffer;

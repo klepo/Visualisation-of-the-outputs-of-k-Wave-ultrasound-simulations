@@ -18,6 +18,7 @@
 #define PROCESSING_H
 
 #include <dtsforpcs.h>
+#include <omp.h>
 
 // Only for reshape
 #define MAX_NUMBER_OF_FRAMES 0 // TODO set 0 -> all steps (frames)
@@ -41,7 +42,7 @@ private:
     void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void resampleDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void compressDataset(HDF5Helper::HDF5Dataset *srcDataset);
-    void decompressDatasets(HDF5Helper::HDF5Dataset *srcDatasetFi, HDF5Helper::HDF5Dataset *srcDatasetK);
+    void decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsFi, std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsK);
     void substractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5Helper::HDF5Dataset *datasetDecoded);
     void copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset);
     void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);

@@ -500,21 +500,18 @@ void HDF5Dataset::getGlobalMinValue(float &value, bool reset)
 
 void HDF5Dataset::getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF)
 {
-    maxVF = minVF = data[0];
+    bool first = true;
     for (hsize_t i = 0; i < size; i++) {
-        float value = data[i];
-        if (value < minVF) minVF = value;
-        if (value > maxVF) maxVF = value;
+        HDF5Helper::checkOrSetMinMaxValue(first, minVF, maxVF, data[i]);
+
     }
 }
 
 void HDF5Dataset::getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI)
 {
-    maxVI = minVI = data[0];
+    bool first = true;
     for (hsize_t i = 0; i < size; i++) {
-        hsize_t value = data[i];
-        if (value < minVI) minVI = value;
-        if (value > maxVI) maxVI = value;
+        HDF5Helper::checkOrSetMinMaxValue(first, minVI, maxVI, data[i]);
     }
 }
 
