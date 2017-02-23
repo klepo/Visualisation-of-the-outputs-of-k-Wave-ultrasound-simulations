@@ -147,7 +147,7 @@ private:
     HDF5Vector4D nDims;
     std::string filename;
 
-    hsize_t numberOfElementsToLoad = 1024 * 1024 * 1024;
+    hsize_t numberOfElementsToLoad = 512 * 512 * 512;
 
     hid_t plist_FILE_ACCESS;
 

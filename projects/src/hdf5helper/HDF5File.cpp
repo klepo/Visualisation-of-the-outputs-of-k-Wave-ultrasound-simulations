@@ -45,11 +45,11 @@ File::File(std::string filename, unsigned int flag, bool log)
 #endif
 
     // Set size of memory
-    //std::cout << getAvailableSystemPhysicalMemory() << std::endl;
-    //numberOfElementsToLoad = (getAvailableSystemPhysicalMemory() / 2) / 4;
-    //numberOfElementsToLoad = 1024 * 1024 * 1024 * 2; // cca 10 GB
-    //numberOfElementsToLoad = 1024 * 1024 * 1024;
-    // 4 x numberOfElementsToLoad == in bytes
+    std::cout << getAvailableSystemPhysicalMemory() << "Available system physical memory: " << std::endl;
+    // 1 x 32-bit float == 4 x bytes
+    setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 4) / 2);
+    // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // cca 10 GB
+    // setNumberOfElmsToLoad(1024 * 1024 * 1024);
 
     // Disable error HDF5 output
     H5Eset_auto(H5E_DEFAULT, 0, 0);
@@ -70,7 +70,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     // Get number of processes -> set NUMBER_OF_ELEMENTS_TO_LOAD to max int (MPI limit)
     MPI_Comm_size(comm, &mPISize);
     if (mPISize > 1) {
-        numberOfElementsToLoad = NUMBER_OF_ELEMENTS_TO_LOAD < std::numeric_limits<int>::max() ? NUMBER_OF_ELEMENTS_TO_LOAD : std::numeric_limits<int>::max();
+        setNumberOfElmsToLoad(getNumberOfElmsToLoad());
         err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
         if (err < 0){
             throw std::runtime_error("H5Pset_fapl_mpio error");

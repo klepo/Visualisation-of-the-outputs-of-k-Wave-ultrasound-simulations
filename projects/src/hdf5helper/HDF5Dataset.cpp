@@ -93,8 +93,8 @@ HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5
     // Init some flags for block reading
     offsets = 0;
     counts = 0;
-    numberOfElementsToLoad = hDF5File->getNumberOfElmsToLoad();
-    setNumberOfElmsToLoad(numberOfElementsToLoad);
+    //numberOfElementsToLoad = hDF5File->getNumberOfElmsToLoad();
+    setNumberOfElmsToLoad(hDF5File->getNumberOfElmsToLoad());
 
 
     // Min/max flag
@@ -606,12 +606,15 @@ void HDF5Dataset::setNumberOfElmsToLoad(hsize_t size)
         throw std::runtime_error("setNumberOfElmsToLoad error");
 #endif
     numberOfElementsToLoad = size;
+    if (dims.getSize() <= numberOfElementsToLoad) {
+        numberOfElementsToLoad = dims.getSize();
+    }
     initBlockReading();
 }
 
 void HDF5Dataset::setMaxNumberOfElmsToLoad(hsize_t size)
 {
-    if (size < numberOfElementsToLoad) {
+    if (size < getNumberOfElmsToLoad()) {
         setNumberOfElmsToLoad(size);
     }
 }
@@ -958,17 +961,13 @@ void HDF5Dataset::initBlockReading()
 
     hsize_t c = 0;
     bool diffSizeFlag = false;
-    realNumberOfElementsToLoad = numberOfElementsToLoad;
-    if (dims.getSize() <= numberOfElementsToLoad) {
-        numberOfElementsToLoad = dims.getSize();
-        realNumberOfElementsToLoad = numberOfElementsToLoad;
-    }
+    realNumberOfElementsToLoad = getNumberOfElmsToLoad();
 
     for (hsize_t i = dims.getLength(); i > 0; i--) {
         hsize_t j = i - 1;
         hsize_t newProd = prod * dims[j];
-        if (newProd > numberOfElementsToLoad) {
-            blockDims[j] = numberOfElementsToLoad / prod;
+        if (newProd > getNumberOfElmsToLoad()) {
+            blockDims[j] = getNumberOfElmsToLoad() / prod;
             blockDimsLast[j] = blockDims[j];
             numberOfBlocksInDims[j] = dims[j] / blockDims[j];
             c = numberOfBlocksInDims[j];
@@ -1036,7 +1035,7 @@ void HDF5Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t s
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
         throw std::runtime_error("Wrong data type of dataset (not " + dataTypeString(type) + ")");
 
-    if (size > numberOfElementsToLoad)
+    if (size > getNumberOfElmsToLoad())
         throw std::runtime_error(readErrorMessage(size, H5T_NATIVE_UINT64));
 
     try {
@@ -1053,7 +1052,7 @@ void HDF5Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t siz
     if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
         throw std::runtime_error("Wrong data type of dataset (not " + dataTypeString(type) + ")");
 
-    if (size > numberOfElementsToLoad)
+    if (size > getNumberOfElmsToLoad())
         throw std::runtime_error(readErrorMessage(size, H5T_NATIVE_FLOAT));
 
     try {
@@ -1084,7 +1083,7 @@ std::string HDF5Dataset::memoryErrorMessage(hsize_t size, int type) const
 
 std::string HDF5Dataset::readErrorMessage(hsize_t size, int type) const
 {
-    return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type) + " (max size: " + std::to_string(numberOfElementsToLoad) + " " + dataTypeString(type);
+    return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type) + " (max size: " + std::to_string(getNumberOfElmsToLoad()) + " " + dataTypeString(type);
 
 }
 }
