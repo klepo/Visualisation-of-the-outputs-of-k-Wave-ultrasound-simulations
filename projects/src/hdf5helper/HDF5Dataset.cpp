@@ -22,11 +22,10 @@
 
 namespace HDF5Helper {
 
-HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5Object(dataset)
+HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5Object(dataset, name)
 {
     // Save params
     this->hDF5File = hDF5File;
-    this->name = name;
     this->dataset = dataset;
     object = this->dataset;
 
@@ -131,11 +130,6 @@ HDF5Dataset::~HDF5Dataset()
         std::cout << " ... OK" << std::endl;
 }
 
-std::string HDF5Dataset::getName() const
-{
-    return name;
-}
-
 std::string HDF5Dataset::getOnlyName() const
 {
     std::string s = name;
@@ -182,8 +176,9 @@ hid_t HDF5Dataset::getDataType() const
     return datatype;
 }
 
-HDF5DatasetType HDF5Dataset::getType(HDF5Vector4D nDims, hsize_t sensorMaskSize) const
+HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
 {
+    HDF5Vector4D nDims = hDF5File->getNdims();
     if (getDims().getLength() == 3) { // 3D type
         HDF5Vector3D dims = getDims();
         if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
@@ -500,21 +495,18 @@ void HDF5Dataset::getGlobalMinValue(float &value, bool reset)
 
 void HDF5Dataset::getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF)
 {
-    maxVF = minVF = data[0];
+    bool first = true;
     for (hsize_t i = 0; i < size; i++) {
-        float value = data[i];
-        if (value < minVF) minVF = value;
-        if (value > maxVF) maxVF = value;
+        HDF5Helper::checkOrSetMinMaxValue(first, minVF, maxVF, data[i]);
+
     }
 }
 
 void HDF5Dataset::getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI)
 {
-    maxVI = minVI = data[0];
+    bool first = true;
     for (hsize_t i = 0; i < size; i++) {
-        hsize_t value = data[i];
-        if (value < minVI) minVI = value;
-        if (value > maxVI) maxVI = value;
+        HDF5Helper::checkOrSetMinMaxValue(first, minVI, maxVI, data[i]);
     }
 }
 
@@ -527,8 +519,8 @@ void HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
             HDF5Dataset::setAttribute(MAX_ATTR, maxVF);
         } else {
             if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
-                minVF = HDF5Dataset::readAttributeF(MIN_ATTR);
-                maxVF = HDF5Dataset::readAttributeF(MAX_ATTR);
+                minVF = HDF5Dataset::readAttributeF(MIN_ATTR, false);
+                maxVF = HDF5Dataset::readAttributeF(MAX_ATTR, false);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
@@ -543,8 +535,8 @@ void HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
             HDF5Dataset::setAttribute(MAX_ATTR, maxVI);
         } else {
             if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
-                minVI = HDF5Dataset::readAttributeI(MIN_ATTR);
-                maxVI = HDF5Dataset::readAttributeI(MAX_ATTR);
+                minVI = HDF5Dataset::readAttributeI(MIN_ATTR, false);
+                maxVI = HDF5Dataset::readAttributeI(MAX_ATTR, false);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
@@ -562,8 +554,8 @@ void HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
             HDF5Dataset::findGlobalMinAndMaxValueF();
         } else {
             if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
-                minVF = HDF5Dataset::readAttributeF(MIN_ATTR);
-                maxVF = HDF5Dataset::readAttributeF(MAX_ATTR);
+                minVF = HDF5Dataset::readAttributeF(MIN_ATTR, false);
+                maxVF = HDF5Dataset::readAttributeF(MAX_ATTR, false);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueF();
@@ -574,8 +566,8 @@ void HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
             HDF5Dataset::findGlobalMinAndMaxValueI();
         } else {
             if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR)) {
-                minVI = HDF5Dataset::readAttributeI(MIN_ATTR);
-                maxVI = HDF5Dataset::readAttributeI(MAX_ATTR);
+                minVI = HDF5Dataset::readAttributeI(MIN_ATTR, false);
+                maxVI = HDF5Dataset::readAttributeI(MAX_ATTR, false);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 HDF5Dataset::findGlobalMinAndMaxValueI();
@@ -774,6 +766,7 @@ void HDF5Dataset::readEmptyBlock()
     H5Sselect_none(memspace);
     double t0 = 0, t1 = 0;
     t0 = getTime();
+    std::cout << "Reading dataset " << name << " ..." << std::endl;
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
     t1 = getTime();
     if (err < 0){
@@ -810,6 +803,9 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
 
     if (log)
         t0 = getTime();
+
+    if (log)
+        std::cout << "Reading dataset " << name << " ..." << std::endl;
 
     // Reading
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);

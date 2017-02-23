@@ -75,7 +75,6 @@ public:
     HDF5Dataset(const hid_t dataset, const std::string name, File *hDF5File);
     ~HDF5Dataset();
 
-    std::string getName() const;
     std::string getOnlyName() const;
     hid_t getId() const;
     hsize_t getRank() const;
@@ -84,7 +83,7 @@ public:
     hsize_t getSize() const;
     H5T_class_t getDataTypeClass() const;
     hid_t getDataType() const;
-    HDF5DatasetType getType(HDF5Helper::HDF5Vector4D nDims, hsize_t sensorMaskSize = 0) const;
+    HDF5DatasetType getType(hsize_t sensorMaskSize = 0) const;
     std::string getTypeString(HDF5DatasetType type) const;
 
     void getGlobalMaxValue(float &value, bool reset = false);
@@ -174,8 +173,6 @@ private:
     HDF5Vector dims;
     HDF5Vector chunkDims;
 
-    std::string name;
-
     hsize_t maxVI = 0;
     hsize_t minVI = 0;
 
@@ -186,6 +183,7 @@ private:
 };
 
 typedef std::map<const std::string, HDF5Dataset *> MapOfDatasets;
+typedef HDF5Helper::MapOfDatasets::iterator MapOfDatasetsIt;
 typedef std::pair<const std::string, HDF5Dataset *> PairOfDatasets;
 }
 

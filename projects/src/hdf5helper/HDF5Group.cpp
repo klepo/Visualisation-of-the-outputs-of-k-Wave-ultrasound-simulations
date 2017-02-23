@@ -28,11 +28,10 @@ namespace HDF5Helper {
  * @param hDF5File file
  * @throw std::runtime_error
  */
-HDF5Group::HDF5Group(const hid_t group, const std::string name, File *hDF5File) : HDF5Object(group) {
+HDF5Group::HDF5Group(const hid_t group, const std::string name, File *hDF5File) : HDF5Object(group, name) {
     this->hDF5File = hDF5File;
     this->group = group;
     object = this->group;
-    this->name = name;
 }
 
 /**
@@ -136,15 +135,6 @@ void HDF5Group::createGroup(const std::string groupName, bool rewrite)
 hid_t HDF5Group::getId()
 {
     return group;
-}
-
-/**
- * @brief HDF5Group::getName Get name of group
- * @return name
- */
-std::string HDF5Group::getName()
-{
-    return name;
 }
 
 /**

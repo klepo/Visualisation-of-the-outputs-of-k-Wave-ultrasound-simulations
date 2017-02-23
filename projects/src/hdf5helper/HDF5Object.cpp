@@ -25,9 +25,10 @@ namespace HDF5Helper {
  * @brief HDF5Object::HDF5Object
  * @param object
  */
-HDF5Object::HDF5Object(const hid_t object)
+HDF5Object::HDF5Object(const hid_t object, std::string name)
 {
     this->object = object;
+    this->name = name;
 }
 
 /**
@@ -51,6 +52,11 @@ hsize_t HDF5Object::getNumAttrs() const
         //MPI::COMM_WORLD.Abort(1);
     }
     return object_info.num_attrs;
+}
+
+std::string HDF5Object::getName()
+{
+    return name;
 }
 
 /**
@@ -149,6 +155,8 @@ std::string HDF5Object::getStringValueByType(const hid_t type, const void *value
         return std::to_string(*static_cast<const int *>(value));
     else if (H5Tequal(type, H5T_NATIVE_UINT64))
         return std::to_string(*static_cast<const hsize_t *>(value));
+    else if (H5Tequal(type, H5T_NATIVE_INT64))
+        return std::to_string(*static_cast<const hssize_t *>(value));
     else if (H5Tequal(type, H5T_NATIVE_DOUBLE))
         return std::to_string(*static_cast<const double *>(value));
     else if (H5Tequal(type, H5T_NATIVE_FLOAT))
@@ -174,6 +182,8 @@ std::string HDF5Object::getStringTypeByType(const hid_t type) const
         return "H5T_NATIVE_INT";
     else if (H5Tequal(type, H5T_NATIVE_UINT64))
         return "H5T_NATIVE_UINT64";
+    else if (H5Tequal(type, H5T_NATIVE_INT64))
+        return "H5T_NATIVE_INT64";
     else if (H5Tequal(type, H5T_NATIVE_DOUBLE))
         return "H5T_NATIVE_DOUBLE";
     else if (H5Tequal(type, H5T_NATIVE_FLOAT))
@@ -412,5 +422,10 @@ File *HDF5Object::getFile()
 void HDF5Object::setDeleteLog(bool value)
 {
     deleteLog = value;
+}
+
+HDF5Helper::HDF5Object::operator std::string() const
+{
+    return this->name;
 }
 }

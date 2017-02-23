@@ -52,6 +52,8 @@ size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector size);
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector size);
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value);
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value);
 
 /*inline bool fileExists(const std::string& name) {
   struct stat buffer;
@@ -60,7 +62,8 @@ void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector siz
 
 inline bool fileExists(const std::string& name) {
     std::ifstream infile(name);
-    return infile.good();}
+    return infile.good();
+}
 
 // Dataset names
 const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
@@ -79,6 +82,7 @@ const std::string SRC_DATASET_NAME_ATTR("src_dataset_name");
 const std::string C_TYPE_ATTR("c_type");
 const std::string C_MOS_ATTR("c_mos");
 const std::string C_PERIOD_ATTR("c_period");
+const std::string C_HARMONIC_ATTR("c_harmonic");
 const std::string POSITION_Z_ATTR("position_z");
 const std::string POSITION_Y_ATTR("position_y");
 const std::string POSITION_X_ATTR("position_x");

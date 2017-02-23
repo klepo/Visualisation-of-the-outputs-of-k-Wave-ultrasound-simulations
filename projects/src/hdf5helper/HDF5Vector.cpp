@@ -90,6 +90,15 @@ hsize_t &HDF5Vector::operator [](hsize_t i)
     return vector[i];
 }
 
+hsize_t &HDF5Vector::operator [](hssize_t i)
+{
+    if (static_cast<hsize_t>(i) >= length){
+        throw std::runtime_error("Index to HDF5Vector is too big");
+    }
+    return vector[static_cast<hsize_t>(i)];
+}
+
+
 hsize_t &HDF5Vector::operator [](int i)
 {
     if (static_cast<hsize_t>(i) >= length){

@@ -17,6 +17,8 @@ TARGET = k-wave-h5-processing
 
 win32:QMAKE_LFLAGS += /ignore:4099
 
+win32:QMAKE_CXXFLAGS += -openmp
+
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 

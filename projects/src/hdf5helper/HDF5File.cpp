@@ -330,10 +330,29 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
 
     if (log)
         std::cout << "Creating dataset \"" << datasetName << "\" ";
+
     if (rewrite) {
-        H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
-        if (log)
-            std::cout << "... rewrite ";
+        if (H5Lexists(file, datasetName.c_str(), H5P_DEFAULT)) {
+            HDF5Dataset *hDF5Dataset = openDataset(datasetName, false);
+            if (H5Tequal(hDF5Dataset->getDataType(), datatype) && hDF5Dataset->getDims() == size && hDF5Dataset->getChunkDims() == chunkSize) {
+                if (log)
+                    std::cout << " rewrite original space ... OK" << std::endl;
+                err = H5Sclose(dataspace);
+                if (err < 0){
+                    throw std::runtime_error("H5Sclose error");
+                }
+                err = H5Pclose(plist);
+                if (err < 0){
+                    throw std::runtime_error("H5Pclose error");
+                }
+                closeDataset(hDF5Dataset, false);
+                return;
+            }
+            closeDataset(hDF5Dataset, false);
+            if (log)
+                std::cout << "... delete original link";
+            H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
+        }
     }
 
     hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
@@ -715,6 +734,61 @@ void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector dim
         index += position[i] * prod;
     }
 }
+
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value)
+{
+    if (first) {
+        #pragma omp critical
+        {
+            if (first) {
+                minV = value;
+                maxV = value;
+                first = false;
+            }
+        }
+    } else {
+        if (minV > value) {
+            #pragma omp critical
+            {
+                if (minV > value) minV = value;
+            }
+        }
+        if (maxV < value) {
+            #pragma omp critical
+            {
+                if (maxV < value) maxV = value;
+            }
+        }
+    }
+}
+
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value)
+{
+    if (first) {
+        #pragma omp critical
+        {
+            if (first) {
+                minV = value;
+                maxV = value;
+                first = false;
+            }
+        }
+    } else {
+        if (minV > value) {
+            #pragma omp critical
+            {
+                if (minV > value) minV = value;
+            }
+        }
+        if (maxV < value) {
+            #pragma omp critical
+            {
+                if (maxV < value) maxV = value;
+            }
+        }
+    }
+}
+
 
 void copyDataset(HDF5Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
 {

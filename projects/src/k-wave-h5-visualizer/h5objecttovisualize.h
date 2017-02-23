@@ -6,7 +6,7 @@
  *              6  December  2015 (updated)
  *              8  September 2016 (updated)
  *
- * @brief       The header file with H5ObjectToVisualize class declaration.
+ * @brief       The header file with OpenedH5File::H5ObjectToVisualize class declaration.
  *
  *
  * @license     This file is part of k-Wave visualiser application
