@@ -31,7 +31,9 @@ HDF5Vector::HDF5Vector(hsize_t length, hsize_t value)
 {
     this->length = length;
     vector = new hsize_t[length]();
-    std::fill_n(vector, length, value);
+    //std::fill_n(vector, length, value);
+    for (int i = 0; i < length; i++)
+        vector[i] = value;
 }
 
 HDF5Vector::HDF5Vector(int length, hsize_t value)
@@ -39,7 +41,9 @@ HDF5Vector::HDF5Vector(int length, hsize_t value)
     if (length >= 0) {
         this->length = static_cast<hsize_t>(length);
         vector = new hsize_t[static_cast<hsize_t>(length)]();
-        std::fill_n(vector, length, value);
+        //std::fill_n(vector, length, value);
+        for (int i = 0; i < length; i++)
+            vector[i] = value;
     } else {
         throw std::runtime_error("Length of HDF5Vector is less than zero");
     }
