@@ -52,7 +52,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     // Get period from input signal
     if (!settings->getPeriod() && sourceInputDataset) {
         if (sourceInputDataset->hasAttribute("period")) {
-            settings->setPeriod(sourceInputDataset->readAttributeI("period"));
+            settings->setPeriod(sourceInputDataset->readAttributeI("period", false));
         } else {
             HDF5Helper::HDF5Vector3D dims = sourceInputDataset->getDims();
             float *data = 0;
@@ -103,12 +103,11 @@ HDF5Helper::MapOfDatasets DtsForPcs::getDatasets(HDF5Helper::HDF5DatasetType dat
     if (datasetType == HDF5Helper::HDF5DatasetType::ALL) {
         return datasets;
     } else {
-        HDF5Helper::MapOfDatasets::iterator it;
         HDF5Helper::MapOfDatasets map = datasets;
         HDF5Helper::MapOfDatasets filteredDatasets;
-        for (it = map.begin(); it != map.end(); ++it) {
+        for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::HDF5Dataset *dataset = it->second;
-            if (datasetType == dataset->getType(nDims, sensorMaskSize))
+            if (datasetType == dataset->getType(sensorMaskSize))
                 filteredDatasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
         }
         return filteredDatasets;
@@ -164,7 +163,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
                 continue;
 
             HDF5Helper::HDF5Dataset *dataset = group->openDataset(i);
-            HDF5Helper::HDF5DatasetType datasetType = dataset->getType(nDims, sensorMaskSize);
+            HDF5Helper::HDF5DatasetType datasetType = dataset->getType(sensorMaskSize);
 
             if (datasetType != HDF5Helper::HDF5DatasetType::UNKNOWN) {
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));

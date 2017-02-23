@@ -159,9 +159,9 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
             && dataset->hasAttribute(HDF5Helper::SRC_SIZE_Z_ATTR)
             && dataset->hasAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR)
             ) {
-        originalSize.x(dataset->readAttributeI(HDF5Helper::SRC_SIZE_X_ATTR));
-        originalSize.y(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Y_ATTR));
-        originalSize.z(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Z_ATTR));
+        originalSize.x(dataset->readAttributeI(HDF5Helper::SRC_SIZE_X_ATTR, false));
+        originalSize.y(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Y_ATTR, false));
+        originalSize.z(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Z_ATTR, false));
         originalFrameSize = originalSize;
     }
 
@@ -185,9 +185,9 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 
         // Get position (was defined by sensor mask)
         if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
-            originalPos.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR));
-            originalPos.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR));
-            originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR));
+            originalPos.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
+            originalPos.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
+            originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
             pos = originalPos;
         }
 

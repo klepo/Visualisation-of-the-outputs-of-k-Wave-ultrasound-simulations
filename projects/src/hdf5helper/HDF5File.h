@@ -62,7 +62,8 @@ void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsiz
 
 inline bool fileExists(const std::string& name) {
     std::ifstream infile(name);
-    return infile.good();}
+    return infile.good();
+}
 
 // Dataset names
 const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");

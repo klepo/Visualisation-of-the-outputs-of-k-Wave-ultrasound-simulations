@@ -51,15 +51,12 @@ public:
     void createGroup(const std::string groupName, bool rewrite = false);
 
     hid_t getId();
-    std::string getName();
     hsize_t getNumObjs();
     std::string getObjNameByIdx(hsize_t idx);
     H5G_obj_t getObjTypeByIdx(hsize_t idx);
 
 private:
     hid_t group;
-    std::string name;
-
 };
 
 typedef std::map<const std::string, HDF5Group *> MapOfGroups;

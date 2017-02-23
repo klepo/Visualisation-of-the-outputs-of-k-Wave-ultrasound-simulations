@@ -43,7 +43,7 @@ private:
     void resampleDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void compressDataset(HDF5Helper::HDF5Dataset *srcDataset);
     void decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsFi, std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsK);
-    void substractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5Helper::HDF5Dataset *datasetDecoded);
+    void subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5Helper::HDF5Dataset *datasetDecoded);
     void copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset);
     void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);
     void resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);

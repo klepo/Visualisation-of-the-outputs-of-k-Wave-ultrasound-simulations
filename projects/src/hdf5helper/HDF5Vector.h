@@ -48,7 +48,7 @@ public:
     hsize_t getLength() const;
     bool hasZeros() const;
 
-    friend std::ostream &operator<<(std::ostream &os, HDF5Vector const &hDF5Vector) {
+    friend std::ostream &operator<<(std::ostream &os, const HDF5Vector &hDF5Vector) {
         os << std::string(hDF5Vector);
         return os;
     }

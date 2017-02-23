@@ -31,7 +31,7 @@ class File;
 class HDF5Object
 {
 public:
-    HDF5Object(const hid_t object);
+    HDF5Object(const hid_t object, std::string name);
     ~HDF5Object();
 
     void setAttribute(const std::string name, const int value, bool log = true);
@@ -56,12 +56,22 @@ public:
 
     hsize_t getNumAttrs() const;
 
+    std::string getName();
+
     File *getFile();
 
     void setDeleteLog(bool value);
 
+    friend std::ostream &operator<<(std::ostream &os, const HDF5Object &hDF5Object) {
+        os << std::string(hDF5Object);
+        return os;
+    }
+
+    operator std::string() const;
+
 protected:
     hid_t object;
+    std::string name;
     File *hDF5File;
     herr_t err;
     bool deleteLog = true;
@@ -72,7 +82,6 @@ private:
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
     std::string getStringValueByType(const hid_t type, const void *value) const;
     std::string getStringTypeByType(const hid_t type) const;
-
 
 };
 }

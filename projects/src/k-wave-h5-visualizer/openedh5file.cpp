@@ -154,13 +154,13 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
         // Datasets
         if (type == H5G_DATASET) {
             HDF5Helper::HDF5Dataset *dataset = group->openDataset(i);
-            HDF5Helper::HDF5DatasetType datasetType = dataset->getType(nDims);
+            HDF5Helper::HDF5DatasetType datasetType = dataset->getType();
 
             if (datasetType == HDF5Helper::HDF5DatasetType::BASIC_3D) {
                 setObject(QString::fromStdString(dataset->getName()), dataset, dataset3D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == HDF5Helper::HDF5DatasetType::DWNSMPL_3D) {
-                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR)), dataset, dataset3D_t);
+                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false)), dataset, dataset3D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
@@ -186,7 +186,7 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_D
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_S
                        ) {
-                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR)), dataset, dataset4D_t);
+                setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false)), dataset, dataset4D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else { // Unknown type
                 group->closeDataset(dataset);
