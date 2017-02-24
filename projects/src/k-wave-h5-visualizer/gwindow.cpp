@@ -386,7 +386,7 @@ void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
 void GWindow::unload3DTexture()
 {
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, 0);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 1, 1, 1, 0, GL_RED, GL_FLOAT, 0);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
@@ -632,7 +632,7 @@ QPointF GWindow::convertPointToOpenGLRelative(QPointF point)
  */
 float GWindow::round(float number, float precision)
 {
-    return (float) (floor(number * (1.0f / precision) + 0.5) / (1.0f / precision));
+    return float((floor(number * (1.0f / precision) + 0.5) / (1.0f / precision)));
 }
 
 /**
@@ -640,13 +640,18 @@ float GWindow::round(float number, float precision)
  */
 void GWindow::render()
 {
-    checkGlError();
+    if (checkGlError() == GL_OUT_OF_MEMORY) {
+        thread->stopCurrentBlockReading();
+        emit loaded(selectedDataset->getName());
+        unload3DTexture();
+        volumeRendering = false;
+    }
 
     // Rotation of scene by left mouse click
     if (leftButton) {
         // TODO
-        rotateXMatrix.rotate((float) (lastPositionPressed.y() - currentPositionPressed.y()) / 2.0f, -1, 0, 0);
-        rotateYMatrix.rotate((float) (lastPositionPressed.x() - currentPositionPressed.x()) / 2.0f, 0, -1, 0);
+        rotateXMatrix.rotate(float(lastPositionPressed.y() - currentPositionPressed.y()) / 2.0f, -1, 0, 0);
+        rotateYMatrix.rotate(float(lastPositionPressed.x() - currentPositionPressed.x()) / 2.0f, 0, -1, 0);
         //actualCount = 30;
     }
 

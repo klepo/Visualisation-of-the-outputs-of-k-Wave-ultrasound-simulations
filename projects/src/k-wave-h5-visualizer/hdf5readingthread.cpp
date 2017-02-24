@@ -102,6 +102,11 @@ void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t 
     queue.enqueue(new Request(dataset, step));
 }
 
+void HDF5ReadingThread::stopCurrentBlockReading()
+{
+    stopFlag = true;
+}
+
 /**
  * @brief HDF5ReadingThread::~HDF5ReadingThread
  */
@@ -186,6 +191,10 @@ void HDF5ReadingThread::run()
                     r->dataset->setMaxNumberOfElmsToLoad(HDF5Helper::HDF5Vector3D(r->dataset->getDims()).getSize());
                     hsize_t c = HDF5Helper::HDF5Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
                     for (hsize_t i = 0; i < c; i++) {
+                        if (stopFlag) {
+                            stopFlag = false;
+                            break;
+                        }
                         // Request for returning part of 3D data (block)
                         Request *newR = new Request(r->dataset, r->step);
                         //qDebug() << "start reading block... ";

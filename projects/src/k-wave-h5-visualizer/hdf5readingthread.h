@@ -51,6 +51,7 @@ public:
 public slots:
     void createRequest(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count, int limit = 0);
     void createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t step);
+    void stopCurrentBlockReading();
     void clearRequests();
     void clearDoneRequests();
     void deleteDoneRequest(Request *request);
@@ -68,7 +69,7 @@ private:
     QQueue<Request *> queue;
     QList<Request *> doneRequests;
     //bool stopFlag;
-    QMutex stopMutex;
+    bool stopFlag = false;
 
 };
 

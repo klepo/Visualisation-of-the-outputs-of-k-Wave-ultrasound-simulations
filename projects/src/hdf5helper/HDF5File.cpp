@@ -45,7 +45,7 @@ File::File(std::string filename, unsigned int flag, bool log)
 #endif
 
     // Set size of memory
-    std::cout << getAvailableSystemPhysicalMemory() << "Available system physical memory: " << std::endl;
+    std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << std::endl;
     // 1 x 32-bit float == 4 x bytes
     setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 4) / 2);
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // cca 10 GB
