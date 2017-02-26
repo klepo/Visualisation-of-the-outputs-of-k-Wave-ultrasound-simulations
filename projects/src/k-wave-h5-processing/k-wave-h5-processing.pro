@@ -25,7 +25,7 @@ DEPENDPATH += $$PWD
 # Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
 include($$PWD/../detect_arch_and_build_mode.pri)
 
-# hdf5file library
+# hdf5helper library
 include($$PWD/../hdf5helper/hdf5helper.pri)
 
 # HDF5 library
