@@ -11,7 +11,6 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= debug_and_release
 CONFIG += c++11
-CONFIG += warn_on
 
 TARGET = k-wave-h5-visualizer
 
@@ -70,14 +69,10 @@ OTHER_FILES += \
 
 win32:RC_ICONS = $$PWD/icons/images/icons_33.ico
 
-# Copy built files to destination
-#QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$ARCH\" $(MKDIR) \"$$PWD/../../install/$$ARCH\") &
-#QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$ARCH/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../install/$$ARCH/$$BUILD_MODE\") &
-#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$$BUILD_MODE\\$${TARGET}.lib\" \"$$PWD\\lib\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.lib\" &
-#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$${TARGET}.exe\" \"$$PWD\\..\\..\\install\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.exe\" &
-
-QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install\" $(MKDIR) \"$$PWD/../../install\") &
-QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../install/$$BUILD_MODE\") &
-#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$$BUILD_MODE\\$${TARGET}.lib\" \"$$PWD\\lib\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.lib\" &
-QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$${TARGET}.exe\" \"$$PWD\\..\\..\\install\\$$BUILD_MODE\\$${TARGET}.exe\" &
-
+# Copy built file to destination
+win32 {
+    WDIR = windows-binaries
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR\" $(MKDIR) \"$$PWD/../../$$WDIR\") &
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../$$WDIR/$$BUILD_MODE\") &
+    QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD/$${TARGET}.exe\" \"$$PWD/../../$$WDIR/$$BUILD_MODE/$${TARGET}.exe\" &
+}

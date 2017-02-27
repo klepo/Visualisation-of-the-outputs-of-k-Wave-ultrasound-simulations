@@ -151,6 +151,8 @@ private:
     QMovie *movie;
 
     QDialog *dialog;
+    Ui::Dialog *dialogUi;
+
 };
 
 #endif // MAINWINDOW_H

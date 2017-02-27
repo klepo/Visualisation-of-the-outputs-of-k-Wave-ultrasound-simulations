@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Create dialog to wait for the file is closed
     dialog = new QDialog(this, Qt::CustomizeWindowHint);
     //dialog->setModal(true);
-    Ui::Dialog *dialogUi = new Ui::Dialog;
+    dialogUi = new Ui::Dialog;
     dialogUi->setupUi(dialog);
     dialogUi->label->setText("Waiting for completion of reading the file...");
 }
@@ -118,6 +118,8 @@ MainWindow::~MainWindow()
     delete timer;
     delete ui;
     delete gWindow;
+    delete dialogUi;
+    delete dialog;
 }
 
 /**

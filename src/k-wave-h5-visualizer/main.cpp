@@ -2,7 +2,7 @@
  * @file
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n \n
+ * @date        30 July      2014 (created) \n
  *              27 February  2017 (updated)
  *
  * @brief       The main file with creation of graphics application (MainWindow window)
