@@ -112,9 +112,9 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string outputFilenam
         filename = outputFilename;
     }
 
-    if (filename == hDF5SimOutputFile->getFilename()) {
+    if (filename == settings->getSimulationOutputFilename()) {
         Helper::printDebugMsg("Simulation output file == processing output file");
-        file = hDF5SimOutputFile;
+        //file = hDF5SimOutputFile;
         //return hDF5SimOutputFile;
     }
 

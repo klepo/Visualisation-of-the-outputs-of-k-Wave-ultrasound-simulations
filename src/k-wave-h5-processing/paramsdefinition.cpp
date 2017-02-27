@@ -292,9 +292,8 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
                 i++;
                 if (argc <= i) {
                     std::cout << help << std::endl;
-                    throw std::invalid_argument(flag->getName());
-                    break;
                     // Throw an exception
+                    throw std::invalid_argument(flag->getName());
                 }
                 size_t size;
                 switch (type) {

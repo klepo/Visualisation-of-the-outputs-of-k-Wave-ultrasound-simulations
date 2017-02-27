@@ -132,7 +132,7 @@ HDF5Helper::HDF5Dataset *DtsForPcs::findAndGetDataset(const std::string name, HD
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
-    } else if (hDF5SimInputFile != 0 && hDF5SimInputFile->objExistsByName(name)){
+    } else if (hDF5SimInputFile != 0 && hDF5SimInputFile->objExistsByName(name)) {
         // Try to load dataset from simulation input file
         try {
             dataset = hDF5SimInputFile->openDataset(name);

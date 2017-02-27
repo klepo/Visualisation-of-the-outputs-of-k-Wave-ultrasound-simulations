@@ -654,28 +654,6 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     // Base size
     hsize_t bSize = oSize * 2 + 1;
 
-    // Memory for helper functions data
-    float *b = new float[bSize]();
-    Helper::floatC *e = new Helper::floatC[bSize]();
-    Helper::floatC *bE = new Helper::floatC[bSize]();
-    Helper::floatC *bE_1 = new Helper::floatC[bSize]();
-
-    // Generate basis function (window)
-    Helper::triangular(oSize, b);  // Triangular window
-    //Helper::hann(oSize, b);        // Hann window
-
-    // Generate complex exponential functions
-    Helper::floatC i(0, -1);
-    #pragma omp parallel for
-    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-        e[x] = std::exp(i * (2.0f * float(M_PI) / (float(settings->getPeriod()) / settings->getHarmonic())) * float(x));
-    }
-    #pragma omp parallel for
-    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-        bE[x] = b[x] * e[x] * (2.0f / float(oSize));
-        bE_1[x] = b[(x + oSize) % (bSize - 1)] * e[(x + oSize) % (bSize - 1)] * (2.0f / float(oSize));
-    }
-
     // Get dims
     HDF5Helper::HDF5Vector dims = srcDataset->getDims();
     HDF5Helper::HDF5Vector outputDims = dims;
@@ -697,6 +675,28 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     } else { // Something wrong.
         std::cout << "Something wrong with dataset dims" << std::endl;
         return;
+    }
+
+    // Memory for helper functions data
+    float *b = new float[bSize]();
+    Helper::floatC *e = new Helper::floatC[bSize]();
+    Helper::floatC *bE = new Helper::floatC[bSize]();
+    Helper::floatC *bE_1 = new Helper::floatC[bSize]();
+
+    // Generate basis function (window)
+    Helper::triangular(oSize, b);  // Triangular window
+    //Helper::hann(oSize, b);        // Hann window
+
+    // Generate complex exponential functions
+    Helper::floatC i(0, -1);
+    #pragma omp parallel for
+    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
+        e[x] = std::exp(i * (2.0f * float(M_PI) / (float(settings->getPeriod()) / settings->getHarmonic())) * float(x));
+    }
+    #pragma omp parallel for
+    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
+        bE[x] = b[x] * e[x] * (2.0f / float(oSize));
+        bE_1[x] = b[(hsize_t(x) + oSize) % (bSize - 1)] * e[(hsize_t(x) + oSize) % (bSize - 1)] * (2.0f / float(oSize));
     }
 
     // Compute new chunk size
@@ -772,8 +772,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                 #pragma omp parallel for
                 for (hssize_t p = 0; p < hssize_t(stepSize); p++) {
                     // Correlation step
-                    sCTmp1[p] += bE[stepLocal] * data[step * stepSize + p];
-                    sCTmp2[p] += bE_1[stepLocal] * data[step * stepSize + p];
+                    sCTmp1[p] += bE[stepLocal] * data[step * stepSize + hsize_t(p)];
+                    sCTmp2[p] += bE_1[stepLocal] * data[step * stepSize + hsize_t(p)];
 
                     //std::cout << "step: " << step << std::endl;
                     //std::cout << "step * stepSize: " << step << std::endl;
@@ -861,6 +861,12 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     } else {
         // Not implemented yet
         std::cout << "Not implemented for such big datasets yet" << std::endl;
+        delete[] b;
+        delete[] e;
+        delete[] bE;
+        delete[] bE_1;
+        hDF5OutputFile->closeDataset(dstDatasetK);
+        hDF5OutputFile->closeDataset(dstDatasetFi);
         return;
     }
 
@@ -906,7 +912,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     // Second decoding parametr - period
     hsize_t period = srcDatasetsFi.at(0)->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
     // Harmonic frequency
-    hsize_t harmonic = srcDatasetsFi.size();
+    hsize_t harmonics = srcDatasetsFi.size();
     //if (srcDatasetFi->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
     //    harmonic = srcDatasetFi->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
     //}
@@ -915,40 +921,6 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     hsize_t oSize = period * s;
     // Base size
     hsize_t bSize = oSize * 2 + 1;
-
-    // Memory for helper functions data, 2d arrays for harmonics
-    float *b = new float[bSize]();
-    Helper::floatC *e = new Helper::floatC[bSize * harmonic]();
-    Helper::floatC *bE = new Helper::floatC[bSize* harmonic]();
-    Helper::floatC *bE_1 = new Helper::floatC[bSize* harmonic]();
-
-    // Generate basis function (window)
-    Helper::triangular(oSize, b);  // Triangular window
-    //Helper::hann(oSize, b);        // Hann window
-
-    // Generate complex exponential functions
-    Helper::floatC i(0, -1);
-    #pragma omp parallel for
-    for (hssize_t h = 0; h < hssize_t(harmonic); h++) {
-        hsize_t ih = 1;
-        if (srcDatasetsFi.at(h)->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
-            ih = srcDatasetsFi.at(h)->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
-        }
-        #pragma omp parallel for
-        for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-            hsize_t hx = h * bSize + x;
-            e[hx] = std::exp(i * (2.0f * float(M_PI) / (float(period) / (ih))) * float(x));
-        }
-    }
-    #pragma omp parallel for
-    for (hssize_t h = 0; h < hssize_t(harmonic); h++) {
-        #pragma omp parallel for
-        for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-            hsize_t hx = h * bSize + x;
-            bE[hx] = b[x] * e[hx];
-            bE_1[hx] = b[(x + oSize) % (bSize - 1)] * e[h * bSize + ((x + oSize) % (bSize - 1))];
-        }
-    }
 
     // Get dims
     HDF5Helper::HDF5Vector dims = srcDatasetsFi.at(0)->getDims();
@@ -973,6 +945,41 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     } else { // Something wrong.
         std::cout << "Something wrong with dataset dims" << std::endl;
         return;
+    }
+
+
+    // Memory for helper functions data, 2d arrays for harmonics
+    float *b = new float[bSize]();
+    Helper::floatC *e = new Helper::floatC[bSize * harmonics]();
+    Helper::floatC *bE = new Helper::floatC[bSize* harmonics]();
+    Helper::floatC *bE_1 = new Helper::floatC[bSize* harmonics]();
+
+    // Generate basis function (window)
+    Helper::triangular(oSize, b);  // Triangular window
+    //Helper::hann(oSize, b);        // Hann window
+
+    // Generate complex exponential functions
+    Helper::floatC i(0, -1);
+    #pragma omp parallel for
+    for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
+        hsize_t ih = 1;
+        if (srcDatasetsFi.at(hsize_t(h))->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
+            ih = srcDatasetsFi.at(hsize_t(h))->readAttributeI(HDF5Helper::C_HARMONIC_ATTR);
+        }
+        #pragma omp parallel for
+        for (hssize_t x = 0; x < hssize_t(bSize); x++) {
+            hssize_t hx = h * hssize_t(bSize) + x;
+            e[hx] = std::exp(i * (2.0f * float(M_PI) / (float(period) / (ih))) * float(x));
+        }
+    }
+    #pragma omp parallel for
+    for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
+        #pragma omp parallel for
+        for (hssize_t x = 0; x < hssize_t(bSize); x++) {
+            hssize_t hx = h * hssize_t(bSize) + x;
+            bE[hx] = b[x] * e[hx];
+            bE_1[hx] = b[(hsize_t(x) + oSize) % (bSize - 1)] * e[hsize_t(h) * bSize + ((hsize_t(x) + oSize) % (bSize - 1))];
+        }
     }
 
     // Compute new chunk dims (it is 1 for time dimension)
@@ -1001,8 +1008,8 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     double t0 = HDF5Helper::getTime();
 
     // Variables for block reading
-    float **dataFi = new float*[harmonic];
-    float **dataK = new float*[harmonic];
+    float **dataFi = new float*[harmonics];
+    float **dataK = new float*[harmonics];
     float *dataFiL = 0;
     float *dataKL = 0;
     HDF5Helper::HDF5Vector offset;
@@ -1011,19 +1018,19 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     bool first = true;
 
     // If we have enough memory - minimal for one full step * (1 (data) + 4 buffers (k, fi, lastK, lastFi) * number of harmonics) in 3D space
-    if (srcDatasetsFi.at(0)->getFile()->getNumberOfElmsToLoad() >= stepSize * (1 + 4 * harmonic)) {
+    if (srcDatasetsFi.at(0)->getFile()->getNumberOfElmsToLoad() >= stepSize * (1 + 4 * harmonics)) {
         // Buffers for last K and Fi
-        float *k = new float[stepSize * harmonic]();
-        float *fi = new float[stepSize * harmonic]();
-        float *lastK = new float[stepSize * harmonic]();
-        float *lastFi = new float[stepSize * harmonic]();
+        float *k = new float[stepSize * harmonics]();
+        float *fi = new float[stepSize * harmonics]();
+        float *lastK = new float[stepSize * harmonics]();
+        float *lastFi = new float[stepSize * harmonics]();
         float *data = new float[stepSize]();
 
         hsize_t frameDst = 0;
 
         // Reading and decompression
         for (hsize_t i = 0; i < srcDatasetsFi.at(0)->getNumberOfBlocks(); i++) {
-            for (hsize_t h = 0; h < harmonic; h++) {
+            for (hsize_t h = 0; h < harmonics; h++) {
                 srcDatasetsFi.at(h)->readBlock(i, offset, count, dataFiL);
                 srcDatasetsK.at(h)->readBlock(i, offset, count, dataKL);
                 dataFi[h] = dataFiL;
@@ -1061,7 +1068,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
                     for (hssize_t cKFi = 0; cKFi < hssize_t(stepSize); cKFi++) {
                         if (p == 0) {
                             // Save last coefficients
-                            for (hsize_t h = 0; h < harmonic; h++) {
+                            for (hsize_t h = 0; h < harmonics; h++) {
                                 hsize_t hcKFi = stepSize * h + hsize_t(cKFi);
                                 lastK[hcKFi] = k[hcKFi];
                                 lastFi[hcKFi] = fi[hcKFi];
@@ -1087,7 +1094,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
                         // Compute new point value
                         data[cKFi] = 0;
                         Helper::floatC i(0, -1);
-                        for (hsize_t h = 0; h < harmonic; h++) {
+                        for (hsize_t h = 0; h < harmonics; h++) {
                             hsize_t hcKFi = stepSize * h + hsize_t(cKFi);
                             data[cKFi] += real(k[hcKFi] * std::exp(i * fi[hcKFi]) * bE[h * bSize + p]) + real(lastK[hcKFi] * std::exp(i * lastFi[hcKFi]) * bE_1[h * bSize + p]);
                         }
@@ -1111,7 +1118,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
             }
 
             #pragma omp parallel for
-            for (hssize_t h = 0; h < hssize_t(harmonic); h++) {
+            for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
                 delete[] dataK[h];
                 delete[] dataFi[h];
             }
@@ -1127,6 +1134,11 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     } else {
         // Not implemented yet
         std::cout << "Not implemented yet" << std::endl;
+        delete[] b;
+        delete[] e;
+        delete[] bE;
+        delete[] bE_1;
+        hDF5OutputFile->closeDataset(dstDataset);
         return;
     }
 
@@ -1138,6 +1150,9 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
 
     // Copy attributes
     copyAttributes(srcDatasetsFi.at(0), dstDataset);
+
+    dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR, false);
+    dstDataset->setAttribute(HDF5Helper::C_HARMONICS_ATTR, harmonics);
 
     // Set min/max values
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV);
@@ -1158,17 +1173,6 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     std::string srcName = datasetDecoded->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
     hDF5OutputFile->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true);
     HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcName + "_s");
-
-    // Set stepSize
-    hsize_t stepSize = 0;
-    if (outputDims.getLength() == 4) { // 4D dataset
-        stepSize = outputDims[1] * outputDims[2] * outputDims[3];
-    } else if (outputDims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        stepSize = outputDims[2];
-    } else { // Something wrong.
-        std::cout << "Something wrong with dataset dims" << std::endl;
-        return;
-    }
 
     // Variables for block reading
     float *dataO = 0;
@@ -1253,9 +1257,9 @@ void Processing::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
 
     #pragma omp parallel for
-    for (int y = 0; y < dstHeight; y++) {
+    for (hssize_t y = 0; y < hssize_t(dstHeight); y++) {
         #pragma omp parallel for
-        for (int x = 0; x < dstWidth; x++) {
+        for (hssize_t x = 0; x < hssize_t(dstWidth); x++) {
 
             //float newX = static_cast<float>(x) / scaleWidth;
             //float newY = static_cast<float>(y) / scaleHeight;
@@ -1279,7 +1283,7 @@ void Processing::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
             float newY = static_cast<float>(y) / scaleHeight;
             hsize_t xSrc = Helper::round(newX);
             hsize_t ySrc = Helper::round(newY);
-            dataDst[x + y * dstWidth] = dataSrc[xSrc + ySrc * srcWidth];
+            dataDst[hsize_t(x) + hsize_t(y) * dstWidth] = dataSrc[xSrc + ySrc * srcWidth];
         }
     }
 }
@@ -1296,11 +1300,11 @@ void Processing::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
     float scaleDepth = static_cast<float>(dstDepth) / srcDepth;
 
     #pragma omp parallel for
-    for (int z = 0; z < dstDepth; z++) {
+    for (hssize_t z = 0; z < hssize_t(dstDepth); z++) {
         #pragma omp parallel for
-        for (int y = 0; y < dstHeight; y++) {
+        for (hssize_t y = 0; y < hssize_t(dstHeight); y++) {
             #pragma omp parallel for
-            for (int x = 0; x < dstWidth; x++) {
+            for (hssize_t x = 0; x < hssize_t(dstWidth); x++) {
                 // Nearest-neighbour interpolation
                 float newX = static_cast<float>(x) / scaleWidth;
                 float newY = static_cast<float>(y) / scaleHeight;
@@ -1308,7 +1312,7 @@ void Processing::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsiz
                 hsize_t xSrc = Helper::round(newX);
                 hsize_t ySrc = Helper::round(newY);
                 hsize_t zSrc = Helper::round(newZ);
-                dataDst[x + y * dstWidth + z * dstWidth * dstHeight] = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcHeight];
+                dataDst[hsize_t(x) + hsize_t(y) * dstWidth + hsize_t(z) * dstWidth * dstHeight] = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcHeight];
             }
         }
     }

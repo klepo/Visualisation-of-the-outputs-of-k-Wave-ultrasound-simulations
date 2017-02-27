@@ -48,8 +48,10 @@ HEADERS += \
     paramsdefinition.h \
     processing.h
 
-# Copy built files to destination
-QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install\" $(MKDIR) \"$$PWD/../../install\") &
-QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../install/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../install/$$BUILD_MODE\") &
-#QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$$BUILD_MODE\\$${TARGET}.lib\" \"$$PWD\\lib\\$$ARCH\\$$BUILD_MODE\\$${TARGET}.lib\" &
-QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD\\$${TARGET}.exe\" \"$$PWD\\..\\..\\install\\$$BUILD_MODE\\$${TARGET}.exe\" &
+# Copy built file to destination
+win32 {
+    WDIR = windows-binaries
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR\" $(MKDIR) \"$$PWD/../../$$WDIR\") &
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../$$WDIR/$$BUILD_MODE\") &
+    QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD/$${TARGET}.exe\" \"$$PWD/../../$$WDIR/$$BUILD_MODE/$${TARGET}.exe\" &
+}

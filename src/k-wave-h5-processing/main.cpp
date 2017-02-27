@@ -88,6 +88,8 @@ int main(int argc, char **argv)
 
     Helper::printDebugTitle("Closing files");
 
+    delete processing;
+    delete dtsForPcs;
     // Close files
     delete filesContext;
 
