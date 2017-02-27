@@ -20,6 +20,8 @@
 
 #include <iostream>
 #include <string>
+#include <cstdint>
+#include <cstring>
 
 #include <hdf5.h>  // HDF5
 

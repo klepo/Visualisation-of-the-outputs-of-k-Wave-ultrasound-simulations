@@ -36,10 +36,12 @@ add_library(hdf5helper STATIC
     HDF5Attribute.h
     )
 
+#target_compile_features(hdf5helper PRIVATE cxx_range_for)
+
 # HDF5 library
-find_package(HDF5 COMPONENTS C HL NO_MODULE REQUIRED static)
-#find_package (HDF5 NAMES hdf5 COMPONENTS C static)
-#FIND_PACKAGE (HDF5 NAMES hdf5)
+#find_package(HDF5 COMPONENTS C HL NO_MODULE REQUIRED static)
+find_package(HDF5 NAMES hdf5 COMPONENTS C static)
+#FIND_PACKAGE(HDF5 NAMES hdf5)
 include_directories(${HDF5_INCLUDE_DIR})
 
 target_include_directories(hdf5helper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

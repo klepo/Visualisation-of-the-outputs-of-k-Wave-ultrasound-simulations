@@ -32,6 +32,8 @@ add_executable(k-wave-h5-processing
     processing.h
     )
 
+#target_compile_features(k-wave-h5-processing PRIVATE cxx_range_for)
+    
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # OpenMP library
@@ -42,9 +44,14 @@ if (OPENMP_FOUND)
 endif()
 
 # HDF5 library
-find_package(HDF5 COMPONENTS C HL NO_MODULE REQUIRED static)
-#FIND_PACKAGE (HDF5 NAMES hdf5)
+#find_package(HDF5 COMPONENTS C HL NO_MODULE REQUIRED static)
+find_package(HDF5 NAMES hdf5 COMPONENTS C static)
+#FIND_PACKAGE(HDF5 NAMES hdf5)
 include_directories(${HDF5_INCLUDE_DIR})
+
+if (NOT HDF5_C_STATIC_LIBRARY)
+    set(HDF5_C_STATIC_LIBRARY "hdf5")
+endif()
 
 # hdf5helper library
 target_link_libraries(k-wave-h5-processing hdf5helper ${HDF5_C_STATIC_LIBRARY})

@@ -20,6 +20,10 @@
 
 #include <string>
 
+#ifdef __unix
+#include <stdexcept>
+#endif
+
 #include <hdf5.h>  // HDF5
 
 namespace HDF5Helper

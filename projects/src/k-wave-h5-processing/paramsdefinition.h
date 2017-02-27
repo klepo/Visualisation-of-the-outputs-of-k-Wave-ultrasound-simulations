@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <cstring>
 
 class ParamsDefinition
 {
