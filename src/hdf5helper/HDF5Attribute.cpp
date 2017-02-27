@@ -28,30 +28,26 @@ namespace HDF5Helper {
 void HDF5Attribute::loadAttribute(hid_t attribute)
 {
     datatype = H5Aget_type(attribute);
-    if (datatype < 0){
+    if (datatype < 0) {
         throw std::runtime_error("H5Aget_type error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     size = H5Aget_storage_size(attribute);
     ssize_t nameSize = H5Aget_name(attribute, 0, 0);
-    if (nameSize < 0){
+    if (nameSize < 0) {
         throw std::runtime_error("H5Aget_name error");
-        //MPI::COMM_WORLD.Abort(1);
     }
-    char *nameC = new char[nameSize + 1];
+    char *nameC = new char[size_t(nameSize) + 1];
     H5Aget_name(attribute, size_t(nameSize + 1), nameC);
     name = std::string(nameC);
     delete [] nameC;
     dataspace = H5Aget_space(attribute);
-    if (dataspace < 0){
+    if (dataspace < 0) {
         throw std::runtime_error("H5Aget_space error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     buffer = malloc(size_t(size));
     err = H5Aread(attribute, datatype, buffer);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Aread error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 }
 
@@ -63,15 +59,13 @@ void HDF5Attribute::loadAttribute(hid_t attribute)
 HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
 {
     attribute = H5Aopen_name(object, name.c_str());
-    if (attribute < 0){
+    if (attribute < 0) {
         throw std::runtime_error("H5Aopen_name error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     loadAttribute(attribute);
     err = H5Aclose(attribute);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Aclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 }
 
@@ -84,15 +78,13 @@ HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
 HDF5Attribute::HDF5Attribute(hid_t object, hsize_t idx)
 {
     attribute = H5Aopen_idx(object, unsigned(idx));
-    if (attribute < 0){
+    if (attribute < 0) {
         throw std::runtime_error("H5Aopen_name error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     loadAttribute(attribute);
     err = H5Aclose(attribute);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Aclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 }
 
@@ -103,14 +95,12 @@ HDF5Attribute::~HDF5Attribute()
 {
     free(buffer);
     err = H5Tclose(datatype);
-    if (err < 0){
-        throw std::runtime_error("H5Tclose error");
-        //MPI::COMM_WORLD.Abort(1);
+    if (err < 0) {
+        //throw std::runtime_error("H5Tclose error");
     }
     err = H5Sclose(dataspace);
-    if (err < 0){
-        throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
+    if (err < 0) {
+        //throw std::runtime_error("H5Sclose error");
     }
 }
 

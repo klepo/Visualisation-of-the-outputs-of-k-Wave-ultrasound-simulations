@@ -20,6 +20,9 @@
 
 namespace HDF5Helper {
 
+/**
+ * @brief HDF5Vector::HDF5Vector
+ */
 HDF5Vector::HDF5Vector()
     : vector(0)
     , length(0)
@@ -27,15 +30,26 @@ HDF5Vector::HDF5Vector()
 
 }
 
+/**
+ * @brief HDF5Vector::HDF5Vector
+ * @param length
+ * @param value
+ */
 HDF5Vector::HDF5Vector(hsize_t length, hsize_t value)
 {
     this->length = length;
     vector = new hsize_t[length]();
     //std::fill_n(vector, length, value);
-    for (int i = 0; i < length; i++)
+    for (hsize_t i = 0; i < length; i++)
         vector[i] = value;
 }
 
+/**
+ * @brief HDF5Vector::HDF5Vector
+ * @param length
+ * @param value
+ * @throw std::runtime_error
+ */
 HDF5Vector::HDF5Vector(int length, hsize_t value)
 {
     if (length >= 0) {
@@ -49,11 +63,20 @@ HDF5Vector::HDF5Vector(int length, hsize_t value)
     }
 }
 
+/**
+ * @brief HDF5Vector::HDF5Vector
+ * @param hDF5Vector
+ */
 HDF5Vector::HDF5Vector(const HDF5Vector &hDF5Vector)
 {
     assign(hDF5Vector, false);
 }
 
+/**
+ * @brief HDF5Vector::operator =
+ * @param hDF5Vector
+ * @return
+ */
 HDF5Vector &HDF5Vector::operator =(const HDF5Vector &hDF5Vector)
 {
     if (this != &hDF5Vector) {
@@ -62,12 +85,20 @@ HDF5Vector &HDF5Vector::operator =(const HDF5Vector &hDF5Vector)
     return *this;
 }
 
+/**
+ * @brief HDF5Vector::~HDF5Vector
+ */
 HDF5Vector::~HDF5Vector()
 {
     delete[] vector;
     vector = 0;
 }
 
+/**
+ * @brief HDF5Vector::operator ==
+ * @param hDF5Vector
+ * @return
+ */
 bool HDF5Vector::operator ==(const HDF5Vector &hDF5Vector) const
 {
     if (length != hDF5Vector.length)
@@ -79,6 +110,11 @@ bool HDF5Vector::operator ==(const HDF5Vector &hDF5Vector) const
     return true;
 }
 
+/**
+ * @brief HDF5Vector::operator !=
+ * @param hDF5Vector
+ * @return
+ */
 bool HDF5Vector::operator !=(const HDF5Vector &hDF5Vector) const
 {
     if (hDF5Vector == *this)
@@ -86,39 +122,66 @@ bool HDF5Vector::operator !=(const HDF5Vector &hDF5Vector) const
     return true;
 }
 
+/**
+ * @brief HDF5Vector::operator []
+ * @param i
+ * @return
+ * @throw std::runtime_error
+ */
 hsize_t &HDF5Vector::operator [](hsize_t i)
 {
-    if (i >= length){
+    if (i >= length) {
         throw std::runtime_error("Index to HDF5Vector is too big");
     }
     return vector[i];
 }
 
+/**
+ * @brief HDF5Vector::operator []
+ * @param i
+ * @return
+ * @throw std::runtime_error
+ */
 hsize_t &HDF5Vector::operator [](hssize_t i)
 {
-    if (static_cast<hsize_t>(i) >= length){
+    if (static_cast<hsize_t>(i) >= length) {
         throw std::runtime_error("Index to HDF5Vector is too big");
     }
     return vector[static_cast<hsize_t>(i)];
 }
 
-
+/**
+ * @brief HDF5Vector::operator []
+ * @param i
+ * @return
+ * @throw std::runtime_error
+ */
 hsize_t &HDF5Vector::operator [](int i)
 {
-    if (static_cast<hsize_t>(i) >= length){
+    if (static_cast<hsize_t>(i) >= length) {
         throw std::runtime_error("Index to HDF5Vector is too big");
     }
     return vector[static_cast<hsize_t>(i)];
 }
 
+/**
+ * @brief HDF5Vector::operator []
+ * @param i
+ * @return
+ * @throw std::runtime_error
+ */
 hsize_t &HDF5Vector::operator [](unsigned int i)
 {
-    if (static_cast<hsize_t>(i) >= length){
+    if (static_cast<hsize_t>(i) >= length) {
         throw std::runtime_error("Index to HDF5Vector is too big");
     }
     return vector[static_cast<hsize_t>(i)];
 }
 
+/**
+ * @brief HDF5Vector::getSize
+ * @return
+ */
 hsize_t HDF5Vector::getSize() const
 {
     hsize_t size = 1;
@@ -128,11 +191,20 @@ hsize_t HDF5Vector::getSize() const
     return size;
 }
 
+/**
+ * @brief HDF5Vector::getVectorPtr
+ * @return
+ */
 hsize_t *HDF5Vector::getVectorPtr()
 {
     return vector;
 }
 
+/**
+ * @brief HDF5Vector::assign
+ * @param hDF5Vector
+ * @param deleteFlag
+ */
 void HDF5Vector::assign(const HDF5Vector &hDF5Vector, bool deleteFlag)
 {
     if (deleteFlag) {
@@ -144,11 +216,19 @@ void HDF5Vector::assign(const HDF5Vector &hDF5Vector, bool deleteFlag)
     std::memcpy(vector, hDF5Vector.vector, static_cast<size_t>(length) * sizeof(hsize_t));
 }
 
+/**
+ * @brief HDF5Vector::getLength
+ * @return
+ */
 hsize_t HDF5Vector::getLength() const
 {
     return length;
 }
 
+/**
+ * @brief HDF5Vector::hasZeros
+ * @return
+ */
 bool HDF5Vector::hasZeros() const
 {
     for (hsize_t i = 0; i < length; i++) {
@@ -158,6 +238,9 @@ bool HDF5Vector::hasZeros() const
     return false;
 }
 
+/**
+ * @brief HDF5Helper::HDF5Vector::operator std::string
+ */
 HDF5Helper::HDF5Vector::operator std::string() const
 {
     std::string str = "";

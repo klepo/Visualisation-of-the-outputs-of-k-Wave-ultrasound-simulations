@@ -42,6 +42,7 @@ HDF5Object::~HDF5Object()
 /**
  * @brief HDF5Object::getNumAttrs Get number of attributes in object
  * @return number of attributes
+ * @throw std::runtime_error
  */
 hsize_t HDF5Object::getNumAttrs() const
 {
@@ -49,11 +50,14 @@ hsize_t HDF5Object::getNumAttrs() const
     herr_t err = H5Oget_info(object, &object_info);
     if (err < 0) {
         throw std::runtime_error("H5Oget_info error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     return object_info.num_attrs;
 }
 
+/**
+ * @brief HDF5Object::getName
+ * @return
+ */
 std::string HDF5Object::getName()
 {
     return name;
@@ -63,7 +67,6 @@ std::string HDF5Object::getName()
  * @brief HDF5Object::hasAttribute
  * @param name name of attribute
  * @return true/false
- * @throw std::runtime_error
  */
 bool HDF5Object::hasAttribute(const std::string name) const
 {
@@ -74,7 +77,6 @@ bool HDF5Object::hasAttribute(const std::string name) const
  * @brief HDF5Object::getAttribute Get attribute by name
  * @param name name of attribute
  * @return attribute (HDF5Attribute)
- * @throw std::runtime_error
  */
 HDF5Attribute *HDF5Object::getAttribute(const std::string name) const
 {
@@ -85,7 +87,6 @@ HDF5Attribute *HDF5Object::getAttribute(const std::string name) const
  * @brief HDF5Object::getAttribute Get attribute by idx
  * @param idx idx of attribute
  * @return attribute (HDF5Attribute)
- * @throw std::runtime_error
  */
 HDF5Attribute *HDF5Object::getAttribute(const hsize_t idx) const
 {
@@ -95,7 +96,6 @@ HDF5Attribute *HDF5Object::getAttribute(const hsize_t idx) const
 /**
  * @brief HDF5Object::removeAttribute Remove attribute by idx
  * @param idx
- * @throw std::runtime_error
  */
 void HDF5Object::removeAttribute(const unsigned int idx, bool log)
 {
@@ -113,11 +113,10 @@ void HDF5Object::removeAttribute(const std::string name, bool log)
         std::cout << "Removing attribute \"" << name << "\"";
     if (HDF5Object::hasAttribute(name.c_str())) {
         err = H5Adelete(object, name.c_str());
-        if (err < 0){
+        if (err < 0) {
             if (log)
                 std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Adelete error");
-            //MPI::COMM_WORLD.Abort(1);
         }
     } else {
         if (log)
@@ -147,10 +146,13 @@ void HDF5Object::creatingAttributeMessage(const std::string name, const hid_t ty
 std::string HDF5Object::getStringValueByType(const hid_t type, const void *value) const
 {
     if (H5Tget_class(type) == H5Tget_class(H5T_C_S1)) {
-        if (H5Tis_variable_str(type))
-            return *(char **)(value);
-        else
-            return static_cast<const char *>(value);
+        if (H5Tis_variable_str(type)) {
+            void *voidValue = const_cast<void *>(value);
+            //return *(char **)(value);
+            return std::string(*static_cast<char **>(voidValue));
+        } else {
+             return static_cast<const char *>(value);
+        }
     } else if (H5Tequal(type, H5T_NATIVE_INT))
         return std::to_string(*static_cast<const int *>(value));
     else if (H5Tequal(type, H5T_NATIVE_UINT64))
@@ -198,6 +200,8 @@ std::string HDF5Object::getStringTypeByType(const hid_t type) const
  * @param type
  * @param space
  * @param value
+ * @param log
+ * @throw std::runtime_error
  */
 void HDF5Object::createAttribute(const std::string name, const hid_t type, const hid_t space, const void *value, bool log)
 {
@@ -207,25 +211,22 @@ void HDF5Object::createAttribute(const std::string name, const hid_t type, const
 
     // Copy attribute
     hid_t attr = H5Acreate(object, name.c_str(), type, space, H5P_DEFAULT, H5P_DEFAULT);
-    if (attr < 0){
+    if (attr < 0) {
         if (log)
             std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Acreate error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Awrite(attr, type, value);
-    if (err < 0){
+    if (err < 0) {
         if (log)
             std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Awrite error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Aclose(attr);
-    if (err < 0){
+    if (err < 0) {
         if (log)
             std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Aclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     if (log)
         std::cout << " ... OK" << std::endl;
@@ -234,7 +235,6 @@ void HDF5Object::createAttribute(const std::string name, const hid_t type, const
 /**
  * @brief HDF5Object::setAttribute Set attribute by HDF5Attribute
  * @param attribute
- * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(HDF5Attribute *attribute, bool log)
 {
@@ -246,46 +246,41 @@ void HDF5Object::setAttribute(HDF5Attribute *attribute, bool log)
  * @param name
  * @param type
  * @param value
+ * @param log
  * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(const std::string name, const hid_t type, const void *value, bool log)
 {
     hid_t datatype = H5Tcopy(type);
-    if (datatype < 0){
+    if (datatype < 0) {
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Tcopy error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     if (type == H5T_C_S1) {
         err = H5Tset_size(datatype, size_t(-1));
-        if (err < 0){
+        if (err < 0) {
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Tset_size error");
-            //MPI::COMM_WORLD.Abort(1);
         }
         err = H5Tset_cset(datatype, H5T_CSET_UTF8);
-        if (err < 0){
+        if (err < 0) {
             std::cout << " ... error" << std::endl;
             throw std::runtime_error("H5Tset_cset error");
-            //MPI::COMM_WORLD.Abort(1);
         }
     }
     hid_t dataspace = H5Screate(H5S_SCALAR);
-    if (dataspace < 0){
+    if (dataspace < 0) {
         std::cout << " ... error" << std::endl;
         throw std::runtime_error("H5Screate error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     createAttribute(name, datatype, dataspace, value, log);
     err = H5Tclose(datatype);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Tclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Sclose(dataspace);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 }
 
@@ -293,7 +288,6 @@ void HDF5Object::setAttribute(const std::string name, const hid_t type, const vo
  * @brief HDF5Object::setAttribute Set attribute by name and integer value
  * @param name
  * @param value
- * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(const std::string name, const int value, bool log)
 {
@@ -304,7 +298,6 @@ void HDF5Object::setAttribute(const std::string name, const int value, bool log)
  * @brief HDF5Object::setAttribute Set attribute by name and hsize_t value
  * @param name
  * @param value
- * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(const std::string name, const hsize_t value, bool log)
 {
@@ -315,7 +308,6 @@ void HDF5Object::setAttribute(const std::string name, const hsize_t value, bool 
  * @brief HDF5Object::setAttribute Set attribute by name and double value
  * @param name
  * @param value
- * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(const std::string name, const double value, bool log)
 {
@@ -326,7 +318,6 @@ void HDF5Object::setAttribute(const std::string name, const double value, bool l
  * @brief HDF5Object::setAttribute Set attribute by name and float value
  * @param name
  * @param value
- * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(const std::string name, const float value, bool log)
 {
@@ -337,7 +328,6 @@ void HDF5Object::setAttribute(const std::string name, const float value, bool lo
  * @brief HDF5Object::setAttribute Set attribute by name and string value
  * @param name
  * @param value
- * @throw std::runtime_error
  */
 void HDF5Object::setAttribute(const std::string name, const std::string value, bool log)
 {
@@ -358,7 +348,7 @@ float HDF5Object::readAttributeF(const std::string name, bool log) const
     HDF5Attribute *attr = getAttribute(name);
     if (log)
         std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
-    value = *(float *) attr->getData();
+    value = *static_cast<float *>(attr->getData());
     delete attr;
     if (log)
         std::cout << " = \"" << value << "\"";
@@ -380,7 +370,7 @@ hsize_t HDF5Object::readAttributeI(const std::string name, bool log) const
     HDF5Attribute *attr = getAttribute(name);
     if (log)
         std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
-    value = *(hsize_t *) attr->getData();
+    value = *static_cast<hsize_t *>(attr->getData());
     delete attr;
     if (log)
         std::cout << " = \"" << value << "\"";
@@ -403,9 +393,10 @@ std::string HDF5Object::readAttributeS(const std::string name, bool log) const
     if (log)
         std::cout << "(" << getStringTypeByType(attr->getDatatype()) << ")";
     if (H5Tget_class(attr->getDatatype()) == H5Tget_class(H5T_C_S1) && H5Tis_variable_str(attr->getDatatype()))
-        value = std::string(*(char **) attr->getData());
+        //value = std::string(*(char **) attr->getData());
+        value = std::string(*static_cast<char **>(attr->getData()));
     else
-        value = std::string((char *) attr->getData());
+        value = std::string(static_cast<char *>(attr->getData()));
     delete attr;
     if (log)
         std::cout << " = \"" << value << "\"";
@@ -414,16 +405,27 @@ std::string HDF5Object::readAttributeS(const std::string name, bool log) const
     return value;
 }
 
+/**
+ * @brief HDF5Object::getFile
+ * @return
+ */
 File *HDF5Object::getFile()
 {
     return hDF5File;
 }
 
+/**
+ * @brief HDF5Object::setDeleteLog
+ * @param value
+ */
 void HDF5Object::setDeleteLog(bool value)
 {
     deleteLog = value;
 }
 
+/**
+ * @brief HDF5Helper::HDF5Object::operator std::string
+ */
 HDF5Helper::HDF5Object::operator std::string() const
 {
     return this->name;

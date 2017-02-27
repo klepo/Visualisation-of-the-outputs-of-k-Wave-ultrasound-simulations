@@ -2,7 +2,7 @@
  * @file        HDF5File.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n \n
+ * @date        30 July      2014 (created) \n
  *              27 February  2017 (updated)
  *
  * @brief       The header file with HDF5File class declaration.
@@ -27,7 +27,7 @@
 
 #ifdef _WIN32
 #define NOMINMAX
-#include <windows.h> // GetTickCount etc.
+#include <Windows.h> // GetTickCount etc.
 #endif
 
 #include <iostream>
@@ -77,6 +77,7 @@ const std::string C_TYPE_ATTR("c_type");
 const std::string C_MOS_ATTR("c_mos");
 const std::string C_PERIOD_ATTR("c_period");
 const std::string C_HARMONIC_ATTR("c_harmonic");
+const std::string C_HARMONICS_ATTR("c_harmonics");
 const std::string POSITION_Z_ATTR("position_z");
 const std::string POSITION_Y_ATTR("position_y");
 const std::string POSITION_X_ATTR("position_x");

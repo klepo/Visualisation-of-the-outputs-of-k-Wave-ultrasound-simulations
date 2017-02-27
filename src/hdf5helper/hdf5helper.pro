@@ -12,8 +12,11 @@ CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG -= debug_and_release
 CONFIG += c++11
+#CONFIG += build_all
 
 TARGET = hdf5helper
+
+VERSION = 1.1
 
 win32:QMAKE_LFLAGS += /ignore:4099
 

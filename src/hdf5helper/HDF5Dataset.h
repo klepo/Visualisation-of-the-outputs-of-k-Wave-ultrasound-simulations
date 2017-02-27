@@ -28,6 +28,7 @@
 namespace HDF5Helper
 {
 
+/// k-Wave dataset types
 enum class HDF5DatasetType
 {
     ALL,
@@ -68,6 +69,9 @@ enum class HDF5DatasetType
     CUBOID_ATTR_DWNSMPL_S,
 };
 
+/**
+ * @brief The HDF5Dataset class represents wrapper for HDF5 datasets
+ */
 class HDF5Dataset : public HDF5Object
 {
 public:
@@ -153,8 +157,6 @@ private:
 
     hid_t plist = 0;
     hid_t plist_DATASET_XFER = 0;
-    //void *convBuffer;
-    //void *bkgBuffer;
 
     // Block reading
     hsize_t numberOfBlocks = 0;

@@ -21,6 +21,13 @@
 
 namespace HDF5Helper {
 
+/**
+ * @brief HDF5Dataset::HDF5Dataset
+ * @param dataset
+ * @param name
+ * @param hDF5File
+ * @throw std::runtime_error
+ */
 HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5Object(dataset, name)
 {
     // Save params
@@ -30,55 +37,53 @@ HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5
 
     // Init space
     dataspace = H5Dget_space(dataset);
-    if (dataspace < 0){
+    if (dataspace < 0) {
         throw std::runtime_error("H5Dget_space error");
     }
 
     // Get type
     datatype = H5Dget_type(dataset);
-    if (datatype < 0){
+    if (datatype < 0) {
         throw std::runtime_error("H5Dget_type error");
     }
 
-    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT) && !H5Tequal(datatype, H5T_NATIVE_UINT64))
+    if (!H5Tequal(datatype, H5T_NATIVE_FLOAT) && !H5Tequal(datatype, H5T_NATIVE_UINT64)) {
         throw std::runtime_error("Wrong data type of dataset");
+    }
 
     // Get rank, dims and chunk dims
     rank = H5Sget_simple_extent_ndims(dataspace);
-    if (rank < 0){
+    if (rank < 0) {
         throw std::runtime_error("H5Sget_simple_extent_ndims error");
     }
 
-    //if (rank > 3){
-    //    throw std::runtime_error("Wrong dataset rank");
-    //}
     dims = HDF5Vector(rank);
     chunkDims = HDF5Vector(rank);
 
     int dimsCount = H5Sget_simple_extent_dims(dataspace, dims.getVectorPtr(), 0);
-    if (dimsCount < 0){
+    if (dimsCount < 0) {
         throw std::runtime_error("H5Sget_simple_extent_dims error");
     }
 
     plist = H5Dget_create_plist(dataset);
-    if (plist < 0){
+    if (plist < 0) {
         throw std::runtime_error("H5Dget_create_plist error");
     }
+
     if (H5D_CHUNKED == H5Pget_layout(plist)) {
-        int chunkCount = H5Pget_chunk(plist, static_cast<int>(dims.getLength()), chunkDims.getVectorPtr());
-        if (chunkCount < 0){
+        int chunkCount = H5Pget_chunk(plist, int(dims.getLength()), chunkDims.getVectorPtr());
+        if (chunkCount < 0) {
             throw std::runtime_error("H5Pget_chunk error");
         }
     }
 
     err = H5Pclose(plist);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Pclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     plist_DATASET_XFER = H5Pcreate(H5P_DATASET_XFER);
-    if (plist_DATASET_XFER < 0){
+    if (plist_DATASET_XFER < 0) {
         throw std::runtime_error("H5Pcreate error");
     }
 
@@ -99,36 +104,37 @@ HDF5Dataset::HDF5Dataset(hid_t dataset, std::string name, File *hDF5File) : HDF5
     issetGlobalMinAndMaxValue = false;
 }
 
+/**
+ * @brief HDF5Dataset::~HDF5Dataset
+ */
 HDF5Dataset::~HDF5Dataset()
 {
     if (deleteLog)
         std::cout << "Closing dataset \"" << name << "\"";
     err = H5Pclose(plist_DATASET_XFER);
-    if (err < 0){
-        throw std::runtime_error("H5Pclose error");
-        //MPI::COMM_WORLD.Abort(1);
+    if (err < 0) {
+        //throw std::runtime_error("H5Pclose error");
     }
-    //free(convBuffer);
-    //free(bkgBuffer);
     err = H5Sclose(dataspace);
-    if (err < 0){
-        throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
+    if (err < 0) {
+        //throw std::runtime_error("H5Sclose error");
     }
     err = H5Tclose(datatype);
-    if (err < 0){
-        throw std::runtime_error("H5Tclose error");
-        //MPI::COMM_WORLD.Abort(1);
+    if (err < 0) {
+        //throw std::runtime_error("H5Tclose error");
     }
     err = H5Dclose(dataset);
-    if (err < 0){
-        throw std::runtime_error("H5Dclose error");
-        //MPI::COMM_WORLD.Abort(1);
+    if (err < 0) {
+        //throw std::runtime_error("H5Dclose error");
     }
     if (deleteLog)
         std::cout << " ... OK" << std::endl;
 }
 
+/**
+ * @brief HDF5Dataset::getOnlyName
+ * @return
+ */
 std::string HDF5Dataset::getOnlyName() const
 {
     std::string s = name;
@@ -140,41 +146,74 @@ std::string HDF5Dataset::getOnlyName() const
         return name;
 }
 
+/**
+ * @brief HDF5Dataset::getId
+ * @return
+ */
 hid_t HDF5Dataset::getId() const
 {
     return dataset;
 }
 
+/**
+ * @brief HDF5Dataset::getRank
+ * @return
+ */
 hsize_t HDF5Dataset::getRank() const
 {
     return dims.getLength();
 }
 
+/**
+ * @brief HDF5Dataset::getDims
+ * @return
+ */
 HDF5Vector HDF5Dataset::getDims() const
 {
     return dims;
 }
 
+/**
+ * @brief HDF5Dataset::getChunkDims
+ * @return
+ */
 HDF5Vector HDF5Dataset::getChunkDims() const
 {
     return chunkDims;
 }
 
+/**
+ * @brief HDF5Dataset::getSize
+ * @return
+ */
 hsize_t HDF5Dataset::getSize() const
 {
     return dims.getSize();
 }
 
+/**
+ * @brief HDF5Dataset::getDataTypeClass
+ * @return
+ */
 H5T_class_t HDF5Dataset::getDataTypeClass() const
 {
     return H5Tget_class(datatype);
 }
 
+/**
+ * @brief HDF5Dataset::getDataType
+ * @return
+ */
 hid_t HDF5Dataset::getDataType() const
 {
     return datatype;
 }
 
+/**
+ * @brief HDF5Dataset::getType
+ * @param sensorMaskSize
+ * @return
+ */
 HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
 {
     HDF5Vector4D nDims = hDF5File->getNdims();
@@ -391,9 +430,18 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
     return HDF5DatasetType::UNKNOWN;
 }
 
+/**
+ * @brief HDF5Dataset::getTypeString
+ * @param type
+ * @return
+ */
 std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
 {
     switch (type) {
+        case HDF5DatasetType::ALL:
+            return "General k-Wave dataset type";
+        case HDF5DatasetType::UNKNOWN:
+            return "Unknown type";
         case HDF5DatasetType::N_DIM_X:
             return "Nx type";
         case HDF5DatasetType::N_DIM_Y:
@@ -420,6 +468,8 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
             return "Sensor mask type (compressed k)";
         case HDF5DatasetType::D_MASK:
             return "Sensor mask type (decompressed)";
+        case HDF5DatasetType::S_MASK:
+            return "Sensor mask type (difference)";
         case HDF5DatasetType::CUBOID:
             return "Cuboid type";
         case HDF5DatasetType::CUBOID_FI:
@@ -428,6 +478,8 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
             return "Cuboid type (compressed k)";
         case HDF5DatasetType::CUBOID_D:
             return "Cuboid type (decompressed)";
+        case HDF5DatasetType::CUBOID_S:
+            return "Cuboid type (difference)";
         case HDF5DatasetType::CUBOID_DWNSMPL:
             return "Cuboid type (donwsampled";
         case HDF5DatasetType::CUBOID_DWNSMPL_FI:
@@ -436,6 +488,8 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
             return "Cuboid type (donwsampled compressed k)";
         case HDF5DatasetType::CUBOID_DWNSMPL_D:
             return "Cuboid type (donwsampled decompressed)";
+        case HDF5DatasetType::CUBOID_DWNSMPL_S:
+            return "Cuboid type (donwsampled difference)";
         case HDF5DatasetType::CUBOID_ATTR:
             return "Cuboid type with attributes";
         case HDF5DatasetType::CUBOID_ATTR_FI:
@@ -444,6 +498,8 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
             return "Cuboid type with attributes (compressed k)";
         case HDF5DatasetType::CUBOID_ATTR_D:
             return "Cuboid type with attributes (decompressed)";
+        case HDF5DatasetType::CUBOID_ATTR_S:
+            return "Cuboid type with attributes (difference)";
         case HDF5DatasetType::CUBOID_ATTR_DWNSMPL:
             return "Cuboid type with attributes (donwsampled)";
         case HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI:
@@ -452,10 +508,18 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
             return "Cuboid type with attributes (donwsampled compressed k)";
         case HDF5DatasetType::CUBOID_ATTR_DWNSMPL_D:
             return "Cuboid type with attributes (donwsampled decompressed)";
+        case HDF5DatasetType::CUBOID_ATTR_DWNSMPL_S:
+            return "Cuboid type with attributes (donwsampled difference)";
     };
     return "Unknow type";
 }
 
+/**
+ * @brief HDF5Dataset::getGlobalMaxValue
+ * @param value
+ * @param reset
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::getGlobalMaxValue(hsize_t &value, bool reset)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
@@ -465,6 +529,12 @@ void HDF5Dataset::getGlobalMaxValue(hsize_t &value, bool reset)
     value = maxVI;
 }
 
+/**
+ * @brief HDF5Dataset::getGlobalMinValue
+ * @param value
+ * @param reset
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::getGlobalMinValue(hsize_t &value, bool reset)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
@@ -474,6 +544,12 @@ void HDF5Dataset::getGlobalMinValue(hsize_t &value, bool reset)
     value = minVI;
 }
 
+/**
+ * @brief HDF5Dataset::getGlobalMaxValue
+ * @param value
+ * @param reset
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::getGlobalMaxValue(float &value, bool reset)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
@@ -483,6 +559,12 @@ void HDF5Dataset::getGlobalMaxValue(float &value, bool reset)
     value = maxVF;
 }
 
+/**
+ * @brief HDF5Dataset::getGlobalMinValue
+ * @param value
+ * @param reset
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::getGlobalMinValue(float &value, bool reset)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
@@ -492,6 +574,13 @@ void HDF5Dataset::getGlobalMinValue(float &value, bool reset)
     value = minVF;
 }
 
+/**
+ * @brief HDF5Dataset::getMinAndMaxValue
+ * @param data
+ * @param size
+ * @param minVF
+ * @param maxVF
+ */
 void HDF5Dataset::getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF)
 {
     bool first = true;
@@ -501,6 +590,13 @@ void HDF5Dataset::getMinAndMaxValue(const float *data, const hsize_t size, float
     }
 }
 
+/**
+ * @brief HDF5Dataset::getMinAndMaxValue
+ * @param data
+ * @param size
+ * @param minVI
+ * @param maxVI
+ */
 void HDF5Dataset::getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI)
 {
     bool first = true;
@@ -509,6 +605,10 @@ void HDF5Dataset::getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsi
     }
 }
 
+/**
+ * @brief HDF5Dataset::findAndSetGlobalMinAndMaxValue
+ * @param reset
+ */
 void HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
 {
     if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
@@ -546,6 +646,10 @@ void HDF5Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
     }
 }
 
+/**
+ * @brief HDF5Dataset::findGlobalMinAndMaxValue
+ * @param reset
+ */
 void HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
 {
     if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
@@ -575,21 +679,38 @@ void HDF5Dataset::findGlobalMinAndMaxValue(bool reset)
     }
 }
 
+/**
+ * @brief HDF5Dataset::getRealNumberOfElmsToLoad
+ * @return
+ */
 hsize_t HDF5Dataset::getRealNumberOfElmsToLoad() const
 {
     return realNumberOfElementsToLoad;
 }
 
+/**
+ * @brief HDF5Dataset::getNumberOfBlocks
+ * @return
+ */
 hsize_t HDF5Dataset::getNumberOfBlocks() const
 {
     return numberOfBlocks;
 }
 
+/**
+ * @brief HDF5Dataset::getGeneralBlockDims
+ * @return
+ */
 HDF5Vector HDF5Dataset::getGeneralBlockDims() const
 {
     return counts[0];
 }
 
+/**
+ * @brief HDF5Dataset::setNumberOfElmsToLoad
+ * @param size
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::setNumberOfElmsToLoad(hsize_t size)
 {
 #ifdef PARALLEL_HDF5
@@ -603,6 +724,10 @@ void HDF5Dataset::setNumberOfElmsToLoad(hsize_t size)
     initBlockReading();
 }
 
+/**
+ * @brief HDF5Dataset::setMaxNumberOfElmsToLoad
+ * @param size
+ */
 void HDF5Dataset::setMaxNumberOfElmsToLoad(hsize_t size)
 {
     if (size < getNumberOfElmsToLoad()) {
@@ -610,11 +735,20 @@ void HDF5Dataset::setMaxNumberOfElmsToLoad(hsize_t size)
     }
 }
 
+/**
+ * @brief HDF5Dataset::getNumberOfElmsToLoad
+ * @return
+ */
 hsize_t HDF5Dataset::getNumberOfElmsToLoad() const
 {
     return numberOfElementsToLoad;
 }
 
+/**
+ * @brief HDF5Dataset::setMPIOAccess
+ * @param type
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
 {
     if (type == H5FD_MPIO_COLLECTIVE) {
@@ -626,12 +760,21 @@ void HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
     }
     #ifdef PARALLEL_HDF5
     err = H5Pset_dxpl_mpio(plist_DATASET_XFER, type);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Pset_dxpl_mpio error");
     }
     #endif
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param offset
+ * @param count
+ * @param data
+ * @param min
+ * @param max
+ * @param log
+ */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, bool log)
 {
     checkDataTypeAndAllocation(data, H5T_NATIVE_FLOAT, count.getSize());
@@ -639,6 +782,15 @@ void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data,
     HDF5Dataset::getMinAndMaxValue(data, count.getSize(), min, max);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param offset
+ * @param count
+ * @param data
+ * @param min
+ * @param max
+ * @param log
+ */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log)
 {
     checkDataTypeAndAllocation(data, H5T_NATIVE_UINT64, count.getSize());
@@ -646,38 +798,82 @@ void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&dat
     HDF5Dataset::getMinAndMaxValue(data, count.getSize(), min, max);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data, bool log)
 {
     checkDataTypeAndAllocation(data, H5T_NATIVE_FLOAT, count.getSize());
     readDatasetGeneral(offset, count, data, log);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, bool log)
 {
     checkDataTypeAndAllocation(data, H5T_NATIVE_UINT64, count.getSize());
     readDatasetGeneral(offset, count, data, log);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::readDataset(float *&data, bool log)
 {
     readDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::readDataset(hsize_t *&data, bool log)
 {
     readDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param data
+ * @param min
+ * @param max
+ * @param log
+ */
 void HDF5Dataset::readDataset(float *&data, float &min, float &max, bool log)
 {
     readDataset(HDF5Vector(dims.getLength(), 0), dims, data, min, max, log);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param data
+ * @param min
+ * @param max
+ * @param log
+ */
 void HDF5Dataset::readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, bool log)
 {
     readDataset(HDF5Vector(dims.getLength(), 0), dims, data, min, max, log);
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param data
+ * @param log
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::readDataset(float &data, bool log)
 {
     if (dims.getSize() == 1) {
@@ -690,6 +886,12 @@ void HDF5Dataset::readDataset(float &data, bool log)
     }
 }
 
+/**
+ * @brief HDF5Dataset::readDataset
+ * @param data
+ * @param log
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::readDataset(hsize_t &data, bool log)
 {
     if (dims.getSize() == 1) {
@@ -702,6 +904,14 @@ void HDF5Dataset::readDataset(hsize_t &data, bool log)
     }
 }
 
+/**
+ * @brief HDF5Dataset::writeDataset
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::writeDataset(HDF5Vector offset, HDF5Vector count, float *data, bool log)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
@@ -710,6 +920,14 @@ void HDF5Dataset::writeDataset(HDF5Vector offset, HDF5Vector count, float *data,
     writeDatasetGeneral(offset, count, static_cast<void *>(data), log);
 }
 
+/**
+ * @brief HDF5Dataset::writeDataset
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *data, bool log)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
@@ -718,16 +936,36 @@ void HDF5Dataset::writeDataset(HDF5Vector offset, HDF5Vector count, hsize_t *dat
     writeDatasetGeneral(offset, count, static_cast<void *>(data), log);
 }
 
+/**
+ * @brief HDF5Dataset::writeDataset
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::writeDataset(float *data, bool log)
 {
     writeDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
 }
 
+/**
+ * @brief HDF5Dataset::writeDataset
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::writeDataset(hsize_t *data, bool log)
 {
     writeDataset(HDF5Vector(dims.getLength(), 0), dims, data, log);
 }
 
+/**
+ * @brief HDF5Dataset::readBlock
+ * @param index
+ * @param offset
+ * @param count
+ * @param data
+ * @param min
+ * @param max
+ * @param log
+ */
 void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max, bool log)
 {
     readDataset(offsets[index], counts[index], data, min, max, log);
@@ -735,6 +973,16 @@ void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector 
     count = counts[index];
 }
 
+/**
+ * @brief HDF5Dataset::readBlock
+ * @param index
+ * @param offset
+ * @param count
+ * @param data
+ * @param min
+ * @param max
+ * @param log
+ */
 void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log)
 {
     readDataset(offsets[index], counts[index], data, min, max, log);
@@ -742,6 +990,14 @@ void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector 
     count = counts[index];
 }
 
+/**
+ * @brief HDF5Dataset::readBlock
+ * @param index
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, bool log)
 {
     readDataset(offsets[index], counts[index], data, log);
@@ -749,6 +1005,14 @@ void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector 
     count = counts[index];
 }
 
+/**
+ * @brief HDF5Dataset::readBlock
+ * @param index
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ */
 void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, bool log)
 {
     readDataset(offsets[index], counts[index], data, log);
@@ -756,6 +1020,10 @@ void HDF5Dataset::readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector 
     count = counts[index];
 }
 
+/**
+ * @brief HDF5Dataset::readEmptyBlock
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::readEmptyBlock()
 {
     hid_t dataspace = H5Dget_space(dataset);
@@ -768,13 +1036,20 @@ void HDF5Dataset::readEmptyBlock()
     std::cout << "Reading dataset " << name << " ..." << std::endl;
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
     t1 = getTime();
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Dread error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     std::cout << name << " \tread time:  \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
 }
 
+/**
+ * @brief HDF5Dataset::readDatasetGeneral
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *data, bool log)
 {
     HDF5Dataset::checkOffsetAndCountParams(offset, count);
@@ -782,20 +1057,17 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
 
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
-        //MPI::COMM_WORLD.Abort(1);
     }
-    hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), 0);
-    if (memspace < 0){
+    hid_t memspace = H5Screate_simple(int(count.getLength()), count.getVectorPtr(), 0);
+    if (memspace < 0) {
         throw std::runtime_error("H5Screate_simple error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     double t0 = 0, t1 = 0;
@@ -808,23 +1080,20 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
 
     // Reading
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Dread error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     if (log)
         t1 = getTime();
 
     err = H5Sclose(dataspace);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Sclose(memspace);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     if (log)
@@ -840,6 +1109,14 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
     }
 }
 
+/**
+ * @brief HDF5Dataset::writeDatasetGeneral
+ * @param offset
+ * @param count
+ * @param data
+ * @param log
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *data, bool log)
 {
     HDF5Dataset::checkOffsetAndCountParams(offset, count);
@@ -847,17 +1124,17 @@ void HDF5Dataset::writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void 
 
     hid_t dataspace = H5Dget_space(dataset);
     err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
 
-    hid_t memspace = H5Screate_simple(static_cast<int>(count.getLength()), count.getVectorPtr(), 0);
-    if (memspace < 0){
+    hid_t memspace = H5Screate_simple(int(count.getLength()), count.getVectorPtr(), 0);
+    if (memspace < 0) {
         throw std::runtime_error("H5Screate_simple error");
     }
 
     err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
 
@@ -868,7 +1145,7 @@ void HDF5Dataset::writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void 
 
     // Writing
     err = H5Dwrite(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Dwrite error");
     }
 
@@ -876,20 +1153,24 @@ void HDF5Dataset::writeDatasetGeneral(HDF5Vector offset, HDF5Vector count, void 
         t1 = getTime();
 
     err = H5Sclose(dataspace);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     err = H5Sclose(memspace);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sclose error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     if (log)
         std::cout << name << " \twrite time:  \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
 }
 
+/**
+ * @brief HDF5Dataset::checkOffsetAndCountParams
+ * @param offset
+ * @param count
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::checkOffsetAndCountParams(HDF5Vector offset, HDF5Vector count)
 {
     if ((dims.getLength() != offset.getLength()) || (dims.getLength() != count.getLength()) || count.getLength() != getRank()) {
@@ -907,6 +1188,9 @@ void HDF5Dataset::checkOffsetAndCountParams(HDF5Vector offset, HDF5Vector count)
     }
 }
 
+/**
+ * @brief HDF5Dataset::findGlobalMinAndMaxValueF
+ */
 void HDF5Dataset::findGlobalMinAndMaxValueF()
 {
     HDF5Vector offset;
@@ -927,6 +1211,9 @@ void HDF5Dataset::findGlobalMinAndMaxValueF()
     issetGlobalMinAndMaxValue = true;
 }
 
+/**
+ * @brief HDF5Dataset::findGlobalMinAndMaxValueI
+ */
 void HDF5Dataset::findGlobalMinAndMaxValueI()
 {
     HDF5Vector offset;
@@ -947,6 +1234,9 @@ void HDF5Dataset::findGlobalMinAndMaxValueI()
     issetGlobalMinAndMaxValue = true;
 }
 
+/**
+ * @brief HDF5Dataset::initBlockReading
+ */
 void HDF5Dataset::initBlockReading()
 {
     hsize_t prod = 1;
@@ -1020,11 +1310,22 @@ void HDF5Dataset::initBlockReading()
     //std::cout << "mL " << blockDimsLast << std::endl << std::endl;
 }
 
+/**
+ * @brief HDF5Dataset::getNumberOfBlocksInDims
+ * @return
+ */
 HDF5Vector HDF5Dataset::getNumberOfBlocksInDims() const
 {
     return numberOfBlocksInDims;
 }
 
+/**
+ * @brief HDF5Dataset::checkDataTypeAndAllocation
+ * @param data
+ * @param type
+ * @param size
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_UINT64))
@@ -1035,6 +1336,7 @@ void HDF5Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t s
 
     try {
         data = new hsize_t[size](); // TODO check available memory
+        assert(data != 0 && "Bad memory allocation");
         if (data == 0)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
@@ -1042,6 +1344,13 @@ void HDF5Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t s
     }
 }
 
+/**
+ * @brief HDF5Dataset::checkDataTypeAndAllocation
+ * @param data
+ * @param type
+ * @param size
+ * @throw std::runtime_error
+ */
 void HDF5Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size)
 {
     if (!H5Tequal(datatype, H5T_NATIVE_FLOAT))
@@ -1052,7 +1361,7 @@ void HDF5Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t siz
 
     try {
         data = new float[size](); // TODO check available memory
-        assert(("Bad memory allocation", data != 0));
+        assert(data != 0 && "Bad memory allocation");
         if (data == 0)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
@@ -1060,6 +1369,12 @@ void HDF5Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t siz
     }
 }
 
+/**
+ * @brief HDF5Dataset::dataTypeString
+ * @param type
+ * @return
+ * @throw std::runtime_error
+ */
 std::string HDF5Dataset::dataTypeString(int type) const
 {
     std::string typeStr = "unknown type";
@@ -1070,15 +1385,26 @@ std::string HDF5Dataset::dataTypeString(int type) const
     return typeStr;
 }
 
+/**
+ * @brief HDF5Dataset::memoryErrorMessage
+ * @param size
+ * @param type
+ * @return
+ */
 std::string HDF5Dataset::memoryErrorMessage(hsize_t size, int type) const
 {
     return "There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " " + dataTypeString(type) + ")";
 
 }
 
+/**
+ * @brief HDF5Dataset::readErrorMessage
+ * @param size
+ * @param type
+ * @return
+ */
 std::string HDF5Dataset::readErrorMessage(hsize_t size, int type) const
 {
-    return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type) + " (max size: " + std::to_string(getNumberOfElmsToLoad()) + " " + dataTypeString(type);
-
+    return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type) + " (max size: " + std::to_string(getNumberOfElmsToLoad()) + " " + dataTypeString(type) + ")";
 }
 }

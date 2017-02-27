@@ -29,7 +29,7 @@
 namespace HDF5Helper
 {
 /**
- * @brief The HDF5Attribute class represents wrapper for
+ * @brief The HDF5Attribute class represents wrapper for HDF5 attributes
  */
 class HDF5Attribute
 {

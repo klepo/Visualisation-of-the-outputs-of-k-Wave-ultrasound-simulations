@@ -71,18 +71,16 @@ File::File(std::string filename, unsigned int flag, bool log)
     if (mPISize > 1) {
         setNumberOfElmsToLoad(getNumberOfElmsToLoad());
         err = H5Pset_fapl_mpio(plist_FILE_ACCESS, comm, info);
-        if (err < 0){
+        if (err < 0) {
             throw std::runtime_error("H5Pset_fapl_mpio error");
-            //MPI::COMM_WORLD.Abort(1);
         }
     }
 #endif
 
     // Set cache
     err = H5Pset_cache(plist_FILE_ACCESS, 0, 0, 1024 * 1024 * 64, 0);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Pset_cache error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     //herr_t H5Pset_alignment(hid_t plist, hsize_t threshold, hsize_t alignment )
@@ -90,9 +88,8 @@ File::File(std::string filename, unsigned int flag, bool log)
     hsize_t alignment = 64 * 64 * 64 * 4;
     // Set alignment
     err = H5Pset_alignment(plist_FILE_ACCESS, threshold, alignment);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Pset_alignment error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     // Open or create file
@@ -102,7 +99,6 @@ File::File(std::string filename, unsigned int flag, bool log)
         if (file < 0) {
             std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fopen error");
-            //MPI::COMM_WORLD.Abort(1);
         }
         std::cout << "... OK " << std::endl;
 
@@ -136,7 +132,6 @@ File::File(std::string filename, unsigned int flag, bool log)
         if (file < 0) {
             std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
-            //MPI::COMM_WORLD.Abort(1);
         }
         std::cout << "... OK " << std::endl;
     } else {
@@ -152,6 +147,10 @@ File::~File()
     closeFileAndObjects();
 }
 
+/**
+ * @brief File::closeFileAndObjects
+ * @throw std::runtime_error
+ */
 void File::closeFileAndObjects()
 {
     // Delete all loaded datasets
@@ -165,11 +164,11 @@ void File::closeFileAndObjects()
     logFileStream.close();
     std::cout << "Closing file \"" << filename << "\"";
     err = H5Pclose(plist_FILE_ACCESS);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Pclose error");
     }
     err = H5Fclose(file);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Fclose error");
     }
     std::cout << " ... OK" << std::endl;
@@ -201,7 +200,6 @@ void File::insertDataset(const std::string datasetName, bool log)
         if (log)
             std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dopen error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     HDF5Dataset *hDF5Dataset = new HDF5Dataset(d, datasetNameTmp, this);
     if (log)
@@ -222,11 +220,10 @@ void File::insertGroup(const std::string groupName, bool log)
     if (log)
         std::cout << "Opening group \"" << groupNameTmp << "\" ";
     hid_t g = H5Gopen(file, groupNameTmp.c_str(), H5P_DEFAULT);
-    if (g < 0){
+    if (g < 0) {
         if (log)
             std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Gopen error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     HDF5Group *hDF5Group = new HDF5Group(g, groupNameTmp, this);
     if (log)
@@ -234,6 +231,10 @@ void File::insertGroup(const std::string groupName, bool log)
     groups.insert(HDF5Helper::PairOfGroups(groupNameTmp, hDF5Group));
 }
 
+/**
+ * @brief File::getMPISize
+ * @return
+ */
 int File::getMPISize() const
 {
     return mPISize;
@@ -246,7 +247,6 @@ int File::getMPISize() const
  * @param size
  * @param chunk_size
  * @param rewrite flag for rewriting existing dataset
- * @throw std::runtime_error
  */
 void File::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite, bool log)
 {
@@ -260,7 +260,6 @@ void File::createDatasetI(const std::string datasetName, HDF5Vector size, HDF5Ve
  * @param size
  * @param chunk_size
  * @param rewrite flag for rewriting existing dataset
- * @throw std::runtime_error
  */
 void File::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Vector chunkSize, bool rewrite, bool log)
 {
@@ -279,38 +278,32 @@ void File::createDatasetF(const std::string datasetName, HDF5Vector size, HDF5Ve
  */
 void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vector size, HDF5Vector chunkSize, bool rewrite, bool log)
 {
-    hid_t dataspace = H5Screate_simple(static_cast<int>(size.getLength()), size.getVectorPtr(), 0);
-    if (dataspace < 0){
+    hid_t dataspace = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), 0);
+    if (dataspace < 0) {
         throw std::runtime_error("H5Screate_simple error");
-        //MPI::COMM_WORLD.Abort(1);
     }
-    if (datatype < 0){
+    if (datatype < 0) {
         throw std::runtime_error("HDF5 datatype error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
-    if (plist < 0){
+    if (plist < 0) {
         throw std::runtime_error("H5Pcreate error");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     // Set chunking
     if (chunkSize.getLength() != size.getLength()) {
         throw std::runtime_error("Error - Chunk size length is not equal dataset size length");
-        //MPI::COMM_WORLD.Abort(1);
     }
 
     if (!chunkSize.hasZeros()) {
-        err = H5Pset_chunk(plist, static_cast<int>(chunkSize.getLength()), chunkSize.getVectorPtr());
-        if (err < 0){
+        err = H5Pset_chunk(plist, int(chunkSize.getLength()), chunkSize.getVectorPtr());
+        if (err < 0) {
             throw std::runtime_error("H5Pset_chunk error");
-            //MPI::COMM_WORLD.Abort(1);
         }
     } else {
         err = H5Pset_layout(plist, H5D_CONTIGUOUS);
-        if (err < 0){
+        if (err < 0) {
             throw std::runtime_error("H5Pset_layout error");
-            //MPI::COMM_WORLD.Abort(1);
         }
     }
 
@@ -337,11 +330,11 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
                 if (log)
                     std::cout << " rewrite original space ... OK" << std::endl;
                 err = H5Sclose(dataspace);
-                if (err < 0){
+                if (err < 0) {
                     throw std::runtime_error("H5Sclose error");
                 }
                 err = H5Pclose(plist);
-                if (err < 0){
+                if (err < 0) {
                     throw std::runtime_error("H5Pclose error");
                 }
                 closeDataset(hDF5Dataset, false);
@@ -355,28 +348,34 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
     }
 
     hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
-    if (dataset < 0){
+    if (dataset < 0) {
         if (log)
             std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dcreate error");
     }
 
     err = H5Sclose(dataspace);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Sclose error");
     }
     err = H5Pclose(plist);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Pclose error");
     }
     err = H5Dclose(dataset);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Dclose error");
     }
     if (log)
         std::cout << "... OK" << std::endl;
 }
 
+/**
+ * @brief File::createDataset
+ * @param dataset
+ * @param rewrite
+ * @param log
+ */
 void File::createDataset(HDF5Dataset *dataset, bool rewrite, bool log)
 {
     createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite, log);
@@ -400,13 +399,13 @@ void File::createGroup(const std::string name, bool rewrite, bool log)
 
     if (!H5Lexists(file, name.c_str(), H5P_DEFAULT)) {
         hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        if (group < 0){
+        if (group < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Dcreate error");
         }
         H5Gclose(group);
-        if (err < 0){
+        if (err < 0) {
             throw std::runtime_error("H5Gclose error");
         }
         if (log)
@@ -418,10 +417,10 @@ void File::createGroup(const std::string name, bool rewrite, bool log)
 }
 
 /**
- * @brief openDataset Open dataset (create new HDF5Dataset) by index in HDF5 file
+ * @brief Open dataset (create new HDF5Dataset) by index in HDF5 file
  * @param idx
- * @return dataset (HDF5Dataset)
- * @throw std::runtime_error
+ * @param log
+ * @return dataset (HDF5Dataset *)
  */
 HDF5Dataset *File::openDataset(hsize_t idx, bool log)
 {
@@ -433,7 +432,6 @@ HDF5Dataset *File::openDataset(hsize_t idx, bool log)
  * @brief openDataset Open dataset (create new HDF5Dataset) by datasetName in HDF5 file
  * @param datasetName
  * @return dataset (HDF5Dataset)
- * @throw std::runtime_error
  */
 HDF5Dataset *File::openDataset(const std::string datasetName, bool log)
 {
@@ -456,7 +454,7 @@ void File::closeDataset(const std::string datasetName, bool log)
     std::string datasetNameTmp = datasetName;
     if (datasetNameTmp.find("/") != 0)
         datasetNameTmp = "/" + datasetNameTmp;
-    if (datasets.find(datasetNameTmp) != datasets.end()){
+    if (datasets.find(datasetNameTmp) != datasets.end()) {
         HDF5Dataset *dataset = datasets.find(datasetNameTmp)->second;
         dataset->setDeleteLog(log);
         delete dataset;
@@ -474,6 +472,11 @@ void File::closeDataset(hsize_t idx, bool log)
     closeDataset(name, log);
 }
 
+/**
+ * @brief File::closeDataset
+ * @param dataset
+ * @param log
+ */
 void File::closeDataset(HDF5Dataset *dataset, bool log)
 {
     closeDataset(dataset->getName(), log);
@@ -516,7 +519,7 @@ void File::closeGroup(const std::string groupName, bool log)
     std::string groupNameTmp = groupName;
     if (groupNameTmp.find("/") != 0)
         groupNameTmp = "/" + groupNameTmp;
-    if (groups.find(groupNameTmp) != groups.end()){
+    if (groups.find(groupNameTmp) != groups.end()) {
         HDF5Group *group = groups.find(groupNameTmp)->second;
         group->setDeleteLog(log);
         delete group;
@@ -534,6 +537,11 @@ void File::closeGroup(hsize_t idx, bool log)
     closeGroup(name, log);
 }
 
+/**
+ * @brief File::closeGroup
+ * @param group
+ * @param log
+ */
 void File::closeGroup(HDF5Group *group, bool log)
 {
     closeGroup(group->getName(), log);
@@ -542,14 +550,14 @@ void File::closeGroup(HDF5Group *group, bool log)
 /**
  * @brief getNumObjs Get number of objects in HDF5 file (root group)
  * @return
+ * @throw std::runtime_error
  */
 hsize_t File::getNumObjs()
 {
     H5G_info_t group_info;
     err = H5Gget_info(file, &group_info);
-    if (err < 0){
+    if (err < 0) {
         throw std::runtime_error("H5Gget_info error");
-        //MPI::COMM_WORLD.Abort(1);
     }
     return group_info.nlinks;
 }
@@ -558,6 +566,7 @@ hsize_t File::getNumObjs()
  * @brief getObjNameById Get object name by id
  * @param id
  * @return object name
+ * @throw std::runtime_error
  */
 std::string File::getObjNameByIdx(hsize_t idx, hid_t fileGroupId)
 {
@@ -569,12 +578,11 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t fileGroupId)
     size_t size = 0;
     ssize_t sizeR = 0;
     sizeR = H5Gget_objname_by_idx(fGIdTmp, idx, nameC, size);
-    if (sizeR <= 0){
+    if (sizeR <= 0) {
         throw std::runtime_error("H5Gget_objname_by_idx error");
-        //MPI::COMM_WORLD.Abort(1);
     }
-    nameC = new char[sizeR + 1];
-    H5Gget_objname_by_idx(fGIdTmp, idx, nameC, static_cast<size_t>(sizeR) + 1);
+    nameC = new char[size_t(sizeR) + 1];
+    H5Gget_objname_by_idx(fGIdTmp, idx, nameC, size_t(sizeR) + 1);
     std::string name(nameC);
     delete [] nameC;
     return name;
@@ -584,6 +592,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t fileGroupId)
  * @brief getObjTypeById Get object type by id
  * @param id
  * @return object type
+ * @throw std::runtime_error
  */
 H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t fileGroupId)
 {
@@ -593,11 +602,10 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t fileGroupId)
 
     int type = 0;
     type = H5Gget_objtype_by_idx(fGIdTmp, idx);
-    if (type < 0){
+    if (type < 0) {
         throw std::runtime_error("H5Gget_objtype_by_idx error");
-        //MPI::COMM_WORLD.Abort(1);
     }
-    return static_cast<H5G_obj_t>(type);
+    return H5G_obj_t(type);
 }
 
 /**
@@ -625,6 +633,7 @@ std::string File::getFilename()
 /**
  * @brief setSizeOfDataPart
  * @param size
+ * @throw std::runtime_error
  */
 void File::setNumberOfElmsToLoad(hsize_t size)
 {
@@ -644,6 +653,10 @@ hsize_t File::getNumberOfElmsToLoad()
     return numberOfElementsToLoad;
 }
 
+/**
+ * @brief File::getNdims
+ * @return
+ */
 HDF5Vector4D File::getNdims()
 {
     return nDims;
@@ -669,6 +682,10 @@ double getTime()
     #endif
 }
 
+/**
+ * @brief getTotalSystemPhysicalMemory
+ * @return
+ */
 size_t getTotalSystemPhysicalMemory()
 {
     #ifdef __unix
@@ -681,10 +698,14 @@ size_t getTotalSystemPhysicalMemory()
         MEMORYSTATUSEX status;
         status.dwLength = sizeof(status);
         GlobalMemoryStatusEx(&status);
-        return static_cast<size_t>(status.ullTotalPhys);
+        return size_t(status.ullTotalPhys);
     #endif
 }
 
+/**
+ * @brief getAvailableSystemPhysicalMemory
+ * @return
+ */
 size_t getAvailableSystemPhysicalMemory()
 {
     #ifdef __unix
@@ -697,7 +718,7 @@ size_t getAvailableSystemPhysicalMemory()
         MEMORYSTATUSEX status;
         status.dwLength = sizeof(status);
         GlobalMemoryStatusEx(&status);
-        return static_cast<size_t>(status.ullAvailPhys);
+        return size_t(status.ullAvailPhys);
     #endif
 }
 
@@ -734,6 +755,13 @@ void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector dim
     }
 }
 
+/**
+ * @brief checkOrSetMinMaxValue
+ * @param first
+ * @param minV
+ * @param maxV
+ * @param value
+ */
 void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value)
 {
     if (first) {
@@ -761,6 +789,13 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float va
     }
 }
 
+/**
+ * @brief checkOrSetMinMaxValue
+ * @param first
+ * @param minV
+ * @param maxV
+ * @param value
+ */
 void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value)
 {
     if (first) {
@@ -788,7 +823,14 @@ void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsiz
     }
 }
 
-
+/**
+ * @brief copyDataset
+ * @param srcDataset
+ * @param dstFile
+ * @param rewrite
+ * @param log
+ * @throw std::runtime_error
+ */
 void copyDataset(HDF5Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
 {
     dstFile->createDataset(srcDataset, rewrite, log);
@@ -824,6 +866,14 @@ void copyDataset(HDF5Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
     dstFile->closeDataset(dstDataset, log);
 }
 
+/**
+ * @brief copyDataset
+ * @param srcFile
+ * @param dstFile
+ * @param name
+ * @param rewrite
+ * @param log
+ */
 void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite, bool log)
 {
     if (srcFile->getFilename() != dstFile->getFilename()) {
