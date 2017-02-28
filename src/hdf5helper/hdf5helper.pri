@@ -20,3 +20,6 @@ hdf5helper.commands = cd $$OUT_PWD/../hdf5helper/ && $(MAKE)
 hdf5helper.depends = hdf5helperMakefile
 
 QMAKE_EXTRA_TARGETS += hdf5helperMakefile hdf5helper
+
+# OpenMP library
+include($$PWD/../openmp.pri)

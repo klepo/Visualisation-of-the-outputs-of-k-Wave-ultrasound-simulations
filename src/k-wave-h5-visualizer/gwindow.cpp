@@ -437,7 +437,7 @@ void GWindow::setLoaded(Request *request)
     glBindTexture(GL_TEXTURE_3D, 0);
 
     // Last block of 3D data
-    if (offset.z() + count.z() == imageSize.z()) {
+    if (offset.z() + count.z() == hsize_t(imageSize.z())) {
         texture3DInitialized = true;
         //changeColormap(colormap);
         renderLater();
