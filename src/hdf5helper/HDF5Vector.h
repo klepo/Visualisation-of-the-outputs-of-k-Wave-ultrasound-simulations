@@ -18,6 +18,10 @@
 #ifndef HDF5VECTOR_H
 #define HDF5VECTOR_H
 
+#ifdef __unix
+#include <stdexcept>
+#endif
+
 #include <iostream>
 #include <string>
 #include <cstdint>

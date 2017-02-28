@@ -52,10 +52,10 @@ public:
     QString getRawFilename() const;
 
     HDF5Helper::HDF5Vector4D getNDims() const;
-    uint64_t getNT() const;
-    uint64_t getNX() const;
-    uint64_t getNY() const;
-    uint64_t getNZ() const;
+    hsize_t getNT() const;
+    hsize_t getNX() const;
+    hsize_t getNY() const;
+    hsize_t getNZ() const;
 
 signals:
 

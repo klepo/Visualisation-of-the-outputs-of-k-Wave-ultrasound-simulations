@@ -219,7 +219,7 @@ OpenedH5File::~OpenedH5File()
  * @brief OpenedH5File::getNT
  * @return number of time steps (Nt)
  */
-uint64_t OpenedH5File::getNT() const
+hsize_t OpenedH5File::getNT() const
 {
     return nDims.w();
 }
@@ -228,7 +228,7 @@ uint64_t OpenedH5File::getNT() const
  * @brief OpenedH5File::getNX
  * @return Nx dimension
  */
-uint64_t OpenedH5File::getNX() const
+hsize_t OpenedH5File::getNX() const
 {
     return nDims.x();
 }
@@ -237,7 +237,7 @@ uint64_t OpenedH5File::getNX() const
  * @brief OpenedH5File::getNY
  * @return Ny dimension
  */
-uint64_t OpenedH5File::getNY() const
+hsize_t OpenedH5File::getNY() const
 {
     return nDims.y();
 }
@@ -246,7 +246,7 @@ uint64_t OpenedH5File::getNY() const
  * @brief OpenedH5File::getNZ
  * @return Nz dimension
  */
-uint64_t OpenedH5File::getNZ() const
+hsize_t OpenedH5File::getNZ() const
 {
     return nDims.z();
 }

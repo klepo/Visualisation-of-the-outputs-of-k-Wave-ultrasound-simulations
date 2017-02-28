@@ -33,9 +33,9 @@ public:
     ~H5SubobjectToVisualize();
 
     // Getters for current settings and min/max values
-    uint64_t getXIndex();
-    uint64_t getYIndex();
-    uint64_t getZIndex();
+    hsize_t getXIndex();
+    hsize_t getYIndex();
+    hsize_t getZIndex();
 
     float getMinValue();
     float getMaxValue();
@@ -66,8 +66,8 @@ public:
     HDF5Helper::HDF5Vector3D getOriginalSize();
     HDF5Helper::HDF5Vector3D getPos();
     HDF5Helper::HDF5Vector3D getOriginalPos();
-    uint64_t getSteps();
-    uint64_t getCurrentStep();
+    hsize_t getSteps();
+    hsize_t getCurrentStep();
 
     float getAlpha();
     float getRed();
@@ -87,9 +87,9 @@ public:
     H5ObjectToVisualize *getH5ObjectToVisualize() const;
 
 signals:
-    void imageXYChanged(QImage, uint64_t index);
-    void imageXZChanged(QImage, uint64_t index);
-    void imageYZChanged(QImage, uint64_t index);
+    void imageXYChanged(QImage, hsize_t index);
+    void imageXZChanged(QImage, hsize_t index);
+    void imageYZChanged(QImage, hsize_t index);
 
 private slots:
     void sliceXYLoaded(Request *r);
@@ -97,9 +97,9 @@ private slots:
     void sliceYZLoaded(Request *r);
 
 public slots:
-    void setXIndex(uint64_t index);
-    void setYIndex(uint64_t index);
-    void setZIndex(uint64_t index);
+    void setXIndex(hsize_t index);
+    void setYIndex(hsize_t index);
+    void setZIndex(hsize_t index);
 
     void setColormap(ColorMap::Type colormap);
 
@@ -112,7 +112,7 @@ public slots:
     void setBlue(float value);
     void setCount(int value);
 
-    void setCurrentStep(uint64_t value);
+    void setCurrentStep(hsize_t value);
 
     void setGUIInitialized(bool value);
 
@@ -173,8 +173,8 @@ private:
     HDF5Helper::HDF5Vector3D pos;
     HDF5Helper::HDF5Vector chunkSize;
 
-    uint64_t steps = 1;
-    uint64_t currentStep = 0;
+    hsize_t steps = 1;
+    hsize_t currentStep = 0;
 
     // GUI initialization flags
     bool GUIInitialized = false;

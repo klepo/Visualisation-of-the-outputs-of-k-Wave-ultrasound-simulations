@@ -428,9 +428,9 @@ void MainWindow::selectDataset()
     // Disconnect all last subobjects from image loading
     foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
         foreach (OpenedH5File::H5SubobjectToVisualize *subobject, object->getSubobjects()) {
-            disconnect(subobject, SIGNAL(imageXYChanged(QImage, uint64_t)), 0, 0);
-            disconnect(subobject, SIGNAL(imageXZChanged(QImage, uint64_t)), 0, 0);
-            disconnect(subobject, SIGNAL(imageYZChanged(QImage, uint64_t)), 0, 0);
+            disconnect(subobject, SIGNAL(imageXYChanged(QImage, hsize_t)), 0, 0);
+            disconnect(subobject, SIGNAL(imageXZChanged(QImage, hsize_t)), 0, 0);
+            disconnect(subobject, SIGNAL(imageYZChanged(QImage, hsize_t)), 0, 0);
         }
     }
 
@@ -469,9 +469,9 @@ void MainWindow::selectDataset()
         subobject->setYIndex(subobject->getYIndex());
         subobject->setZIndex(subobject->getZIndex());
         // Connect repainting image
-        connect(subobject, SIGNAL(imageXYChanged(QImage, uint64_t)), this, SLOT(repaintXYImage(QImage, uint64_t)));
-        connect(subobject, SIGNAL(imageXZChanged(QImage, uint64_t)), this, SLOT(repaintXZImage(QImage, uint64_t)));
-        connect(subobject, SIGNAL(imageYZChanged(QImage, uint64_t)), this, SLOT(repaintYZImage(QImage, uint64_t)));
+        connect(subobject, SIGNAL(imageXYChanged(QImage, hsize_t)), this, SLOT(repaintXYImage(QImage, hsize_t)));
+        connect(subobject, SIGNAL(imageXZChanged(QImage, hsize_t)), this, SLOT(repaintXZImage(QImage, hsize_t)));
+        connect(subobject, SIGNAL(imageYZChanged(QImage, hsize_t)), this, SLOT(repaintYZImage(QImage, hsize_t)));
         // Enable controls
         ui->dockWidgetSelectedDataset->setEnabled(true);
         ui->dockWidgetXY->setEnabled(true);
@@ -537,7 +537,7 @@ void MainWindow::selectDataset()
  * @param image Image data of XY slice
  * @param index Index of XY slice
  */
-void MainWindow::repaintXYImage(QImage image, uint64_t index)
+void MainWindow::repaintXYImage(QImage image, hsize_t index)
 {
     if (subobject != 0) {
         // Send data to 3D scene
@@ -569,7 +569,7 @@ void MainWindow::repaintXYImage(QImage image, uint64_t index)
  * @param image Image data of XZ slice
  * @param index Index of XZ slice
  */
-void MainWindow::repaintXZImage(QImage image, uint64_t index)
+void MainWindow::repaintXZImage(QImage image, hsize_t index)
 {
     if (subobject != 0) {
         // Send data to 3D scene
@@ -602,7 +602,7 @@ void MainWindow::repaintXZImage(QImage image, uint64_t index)
  * @param image Image data of YZ slice
  * @param index Index of YZ slice
  */
-void MainWindow::repaintYZImage(QImage image, uint64_t index)
+void MainWindow::repaintYZImage(QImage image, hsize_t index)
 {
     if (subobject != 0) {
         // Send data to 3D scene
@@ -828,7 +828,7 @@ void MainWindow::updateStep()
 {
     if (subobject && subobject->isGUIInitialized() && subobject->getType() == OpenedH5File::dataset4D_t) {
         // Get current step
-        uint64_t step = subobject->getCurrentStep();
+        hsize_t step = subobject->getCurrentStep();
         // Increment of step
         step += ui->spinBoxTMIncrement->value();
         // End of time series

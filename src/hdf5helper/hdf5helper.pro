@@ -12,7 +12,6 @@ CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG -= debug_and_release
 CONFIG += c++11
-#CONFIG += build_all
 
 TARGET = hdf5helper
 
@@ -25,6 +24,9 @@ DEPENDPATH += $$PWD
 
 # Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
 include($$PWD/../detect_arch_and_build_mode.pri)
+
+# OpenMP library
+include($$PWD/../openmp.pri)
 
 # HDF5 library
 include($$PWD/../hdf5.pri)

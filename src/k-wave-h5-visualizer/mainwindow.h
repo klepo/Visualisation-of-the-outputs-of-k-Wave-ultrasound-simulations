@@ -51,9 +51,9 @@ public:
     ~MainWindow();
 
 public slots:
-    void repaintXYImage(QImage image, uint64_t index);
-    void repaintXZImage(QImage image, uint64_t index);
-    void repaintYZImage(QImage image, uint64_t index);
+    void repaintXYImage(QImage image, hsize_t index);
+    void repaintXZImage(QImage image, hsize_t index);
+    void repaintYZImage(QImage image, hsize_t index);
 
     void loaded3D(std::string datasetName);
 

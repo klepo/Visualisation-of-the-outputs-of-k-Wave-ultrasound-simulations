@@ -403,7 +403,7 @@ float *OpenedH5File::H5SubobjectToVisualize::getDataYZ()
  * @brief OpenedH5File::H5SubobjectToVisualize::getXIndex
  * @return current X index
  */
-uint64_t OpenedH5File::H5SubobjectToVisualize::getXIndex()
+hsize_t OpenedH5File::H5SubobjectToVisualize::getXIndex()
 {
     return index.x();
 }
@@ -412,7 +412,7 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getXIndex()
  * @brief OpenedH5File::H5SubobjectToVisualize::getYIndex
  * @return current Y index
  */
-uint64_t OpenedH5File::H5SubobjectToVisualize::getYIndex()
+hsize_t OpenedH5File::H5SubobjectToVisualize::getYIndex()
 {
     return index.y();
 }
@@ -421,7 +421,7 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getYIndex()
  * @brief OpenedH5File::H5SubobjectToVisualize::getZIndex
  * @return current Z index
  */
-uint64_t OpenedH5File::H5SubobjectToVisualize::getZIndex()
+hsize_t OpenedH5File::H5SubobjectToVisualize::getZIndex()
 {
     return index.z();
 }
@@ -430,7 +430,7 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getZIndex()
  * @brief OpenedH5File::H5SubobjectToVisualize::setXIndex Start loading image data with new index
  * @param value index
  */
-void OpenedH5File::H5SubobjectToVisualize::setXIndex(uint64_t value)
+void OpenedH5File::H5SubobjectToVisualize::setXIndex(hsize_t value)
 {
     index.x(value);
     currentXYLodaded = false;
@@ -446,7 +446,7 @@ void OpenedH5File::H5SubobjectToVisualize::setXIndex(uint64_t value)
  * @brief OpenedH5File::H5SubobjectToVisualize::setYIndex Start loading image data with new index
  * @param value index
  */
-void OpenedH5File::H5SubobjectToVisualize::setYIndex(uint64_t value)
+void OpenedH5File::H5SubobjectToVisualize::setYIndex(hsize_t value)
 {
     index.y(value);
     currentXZLodaded = false;
@@ -461,7 +461,7 @@ void OpenedH5File::H5SubobjectToVisualize::setYIndex(uint64_t value)
  * @brief OpenedH5File::H5SubobjectToVisualize::setZIndex Start loading image data with new index
  * @param value index
  */
-void OpenedH5File::H5SubobjectToVisualize::setZIndex(uint64_t value)
+void OpenedH5File::H5SubobjectToVisualize::setZIndex(hsize_t value)
 {
     index.z(value);
     currentYZLodaded = false;
@@ -620,7 +620,7 @@ HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalPos()
  * @brief OpenedH5File::H5SubobjectToVisualize::getSteps
  * @return number of steps
  */
-uint64_t OpenedH5File::H5SubobjectToVisualize::getSteps()
+hsize_t OpenedH5File::H5SubobjectToVisualize::getSteps()
 {
     return steps;
 }
@@ -629,7 +629,7 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getSteps()
  * @brief OpenedH5File::H5SubobjectToVisualize::getCurrentStep
  * @return current step
  */
-uint64_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
+hsize_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
 {
     return currentStep;
 }
@@ -639,7 +639,7 @@ uint64_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
  * @param value step
  * @param thread3D 3D data loading thread for sycnhronization
  */
-void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(uint64_t value)
+void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(hsize_t value)
 {
     if (type == dataset4D_t) {
         try {

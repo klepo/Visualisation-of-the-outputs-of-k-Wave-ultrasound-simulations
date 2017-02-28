@@ -17,8 +17,6 @@ TARGET = k-wave-h5-processing
 
 win32:QMAKE_LFLAGS += /ignore:4099
 
-win32:QMAKE_CXXFLAGS += -openmp
-
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
@@ -27,6 +25,9 @@ include($$PWD/../detect_arch_and_build_mode.pri)
 
 # hdf5helper library
 include($$PWD/../hdf5helper/hdf5helper.pri)
+
+# OpenMP library
+include($$PWD/../openmp.pri)
 
 # HDF5 library
 include($$PWD/../hdf5.pri)
