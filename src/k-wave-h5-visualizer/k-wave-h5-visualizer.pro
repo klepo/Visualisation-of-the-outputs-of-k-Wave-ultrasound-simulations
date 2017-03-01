@@ -67,7 +67,7 @@ OTHER_FILES += \
     shaders/fragmentShader.frag \
     shaders/vertexShader.vert \
 
-win32:RC_ICONS = $$PWD/icons/images/icons_33.ico
+RC_FILE = appicon.rc
 
 # Copy built file to destination
 win32 {
