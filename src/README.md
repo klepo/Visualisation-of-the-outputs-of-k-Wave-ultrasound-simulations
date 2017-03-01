@@ -30,7 +30,7 @@ Acknowledgment
 
 Author
 -------
- * Petr Kleparnik   (<ikleparnik@fit.vutbr.cz>)
+* Petr Kleparnik   (<ikleparnik@fit.vutbr.cz>)
 
 References
 ----------
