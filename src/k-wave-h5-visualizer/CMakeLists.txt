@@ -20,15 +20,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-SET(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 
 file(GLOB k-wave-h5-visualizer_SRCS "*.h" "*.cpp" "*.qrc" "*.ui" "*.rc")
-    
-add_executable(${PROJECT_NAME} ${k-wave-h5-visualizer_SRCS}) 
- 
+
+add_executable(${PROJECT_NAME} ${k-wave-h5-visualizer_SRCS})
+
 # hdf5helper library
 target_link_libraries(${PROJECT_NAME} hdf5helper Qt5::Widgets)
