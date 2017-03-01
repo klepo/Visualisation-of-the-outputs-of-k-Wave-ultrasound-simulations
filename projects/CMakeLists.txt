@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-cmake_minimum_required(VERSION 2.9)
+cmake_minimum_required(VERSION 2.8)
 
 project(k-wave-h5-projects)
 
