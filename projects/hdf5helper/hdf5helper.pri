@@ -21,5 +21,8 @@ hdf5helper.depends = hdf5helperMakefile
 
 QMAKE_EXTRA_TARGETS += hdf5helperMakefile hdf5helper
 
+# HDF5 library
+include($$PWD/../hdf5.pri)
+
 # OpenMP library
 include($$PWD/../openmp.pri)

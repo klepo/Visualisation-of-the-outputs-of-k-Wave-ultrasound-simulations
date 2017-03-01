@@ -21,7 +21,10 @@ file(GLOB hdf5helper_SRCS "*.h" "*.cpp")
 add_library(${PROJECT_NAME} STATIC ${hdf5helper_SRCS})
 
 # HDF5 library
-find_package(HDF5 COMPONENTS C NO_MODULE REQUIRED static)
+find_package(HDF5 NAMES hdf5 COMPONENTS C static)
+if (NOT ${HDF5_FOUND})
+    find_package(HDF5 REQUIRED)
+endif()
 
 # OpenMP library
 find_package(OpenMP)
@@ -31,4 +34,4 @@ if (OPENMP_FOUND)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${HDF5_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${HDF5_C_STATIC_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${HDF5_C_STATIC_LIBRARY} ${HDF5_LIBRARIES})

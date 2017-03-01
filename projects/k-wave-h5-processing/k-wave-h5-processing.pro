@@ -26,9 +26,6 @@ include($$PWD/../detect_arch_and_build_mode.pri)
 # hdf5helper library
 include($$PWD/../hdf5helper/hdf5helper.pri)
 
-# HDF5 library
-include($$PWD/../hdf5.pri)
-
 SOURCES += \
     helper.cpp \
     settings.cpp \
