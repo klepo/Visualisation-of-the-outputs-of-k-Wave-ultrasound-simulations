@@ -26,17 +26,12 @@ set(CMAKE_AUTORCC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 
-file(GLOB k-wave-h5-visualizer_SRCS "*.h" "*.cpp" "*.qrc" "*.ui" "*.rc")
+file(GLOB SRCS "*.h" "*.cpp" "*.qrc" "*.ui" "*.rc")
+file(GLOB UIS "*.ui")
 
-add_executable(${PROJECT_NAME} ${k-wave-h5-visualizer_SRCS})
+qt5_wrap_ui(UIS_WRAPPED ${UIS})
 
-# OpenMP library
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
+add_executable(${PROJECT_NAME} ${SRCS} ${UIS_WRAPPED})
 
 # hdf5helper library
 target_link_libraries(${PROJECT_NAME} hdf5helper Qt5::Widgets)

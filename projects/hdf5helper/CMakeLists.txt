@@ -16,9 +16,9 @@ if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099")
 endif()
 
-file(GLOB hdf5helper_SRCS "*.h" "*.cpp")
+file(GLOB SRCS "*.h" "*.cpp")
 
-add_library(${PROJECT_NAME} STATIC ${hdf5helper_SRCS})
+add_library(${PROJECT_NAME} STATIC ${SRCS})
 
 # HDF5 library
 find_package(HDF5 NAMES hdf5 COMPONENTS C static)
@@ -36,4 +36,4 @@ if (OPENMP_FOUND)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${HDF5_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${HDF5_C_STATIC_LIBRARY} ${HDF5_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${OpenMP_CXX_FLAGS} ${HDF5_C_STATIC_LIBRARY} ${HDF5_LIBRARIES})
