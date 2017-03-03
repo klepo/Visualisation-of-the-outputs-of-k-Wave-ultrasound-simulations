@@ -21,6 +21,9 @@ endif()
 
 #message(STATUS "${DIRS}")
 
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 subdirs(${DIRS})
 
 include_directories(${DIRS})
