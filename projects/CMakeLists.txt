@@ -13,7 +13,7 @@ set(DIRS
     k-wave-h5-processing
     )
     
-option(BUILD_K-WAVE-H5-VISUALIZER "Build the k-wave-h5-visualizer" ON)
+option(BUILD_K-WAVE-H5-VISUALIZER "Build the k-wave-h5-visualizer" OFF)
 
 if (BUILD_K-WAVE-H5-VISUALIZER)
     set(DIRS ${DIRS} k-wave-h5-visualizer)
