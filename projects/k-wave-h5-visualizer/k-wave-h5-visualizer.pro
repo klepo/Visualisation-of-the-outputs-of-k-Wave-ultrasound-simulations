@@ -19,6 +19,9 @@ win32:QMAKE_LFLAGS += /ignore:4099
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
+# Check Qt version
+lessThan(QT_VERSION, 5.2): error(Qt version is too old)
+
 # Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
 include($$PWD/../detect_arch_and_build_mode.pri)
 
