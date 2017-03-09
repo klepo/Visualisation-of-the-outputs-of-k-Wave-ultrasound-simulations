@@ -1,4 +1,4 @@
-/src/projects.pro.user
+/src/*.user
 /src/hdf5_paths.pri
 /src/hdf5-parallel_paths.pri
 /build*
