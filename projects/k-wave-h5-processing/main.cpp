@@ -42,7 +42,6 @@ int main(int argc, char **argv)
     // - funkce pro přidávání lomítka
     // - sjednotit určité části komprese a dekomprese
     // - ošetřit maximální počet prvků podle RAM
-    // - extrapolace sinus
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
     // - harmonické frekvence

@@ -1221,6 +1221,8 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV);
     dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV);
     dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "s");
+    dstDataset->setAttribute("sum", sum);
+    dstDataset->setAttribute("sum_2", sum2);
     dstDataset->setAttribute("mean_error", (meanError / maxValue) * 100);
     dstDataset->setAttribute("mean_error_value", meanError);
     dstDataset->setAttribute("max_error", (maxError / maxValue) * 100);
