@@ -118,6 +118,8 @@ private slots:
 
     void showFPS();
 
+    void on_comboBox_currentIndexChanged(int index);
+
 public:
     Ui::MainWindow *ui;
 

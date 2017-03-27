@@ -34,33 +34,32 @@ in vec3 vTextureCoordBox;
 
 out vec4 outColor;
 
-void trim(float value) {
+bool isTrimmed(float value) {
     if (uTrim) {
         if (uMin <= uMax) {
             if (value > uMax) {
-                discard;
-                return;
+                return true;
             }
             if (value < uMin) {
-                discard;
-                return;
+                return true;
             }
         } else {
             if (value < uMax) {
-                discard;
-                return;
+                return true;
             }
             if (value > uMin) {
-                discard;
-                return;
+                return true;
             }
         }
     }
+    return false;
 }
 
 vec4 computeColor(float texel)
 {
-    trim(texel);
+    if (isTrimmed(texel)) {
+        return vec4(0, 0, 0, 0);
+    }
     texel = ((texel - uMin) * 1.0f) / (uMax - uMin);
     vec4 color = texture(uColormap, texel);
     vec4 opacity = texture(uOpacity, texel);
@@ -81,7 +80,10 @@ void main() {
             outColor = vec4(0.8f, 0.0f, 0.0f, 1.0f);
         } else {
             float value = texture(uSlice, vTextureCoord).r;
-            trim(value);
+            if (isTrimmed(value)) {
+                discard;
+                return;
+            }
             value = ((value - uMin) * 1.0f) / (uMax - uMin);
             outColor = vec4(texture(uColormap, value).rgb, 1.0f);
             //outColor = vec4(vTextureCoordBox.stp, 1.0f);
@@ -140,7 +142,6 @@ void main() {
         if (uMode == 0) { // Accumulation
             outColor = cOut;
         } else {
-            //trim(texel);
             outColor = computeColor(texel);
         }
 

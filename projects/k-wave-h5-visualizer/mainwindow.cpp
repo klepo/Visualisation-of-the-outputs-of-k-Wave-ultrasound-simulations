@@ -1070,3 +1070,9 @@ void MainWindow::on_verticalSlider_4_valueChanged(int value)
     double nv = double(value) / 1000;
     ui->doubleSpinBox_4->setValue(nv);
 }
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    if (gWindow != 0)
+        gWindow->changeInterpolation(index);
+}

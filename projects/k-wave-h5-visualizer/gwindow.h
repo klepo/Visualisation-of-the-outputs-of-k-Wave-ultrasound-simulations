@@ -77,6 +77,7 @@ public slots:
     void changeMinValue(float value);
     void changeMaxValue(float value);
     void changeMode(int mode = 0);
+    void changeInterpolation(int mode = 0);
 
     void clearData();
     void unloadDataset();
