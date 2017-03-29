@@ -46,12 +46,12 @@ File::File(std::string filename, unsigned int flag, bool log)
     // 1 x 32-bit float == 4 x bytes
 
     // max cca 4 GB
-    //hsize_t maxCount = 1024 * 1024 * 1024;
-    //if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
-    //    setNumberOfElmsToLoad(maxCount);
-    //} else {
+    hsize_t maxCount = 1024 * 1024 * 1024;
+    if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
+        setNumberOfElmsToLoad(maxCount);
+    } else {
         setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 8));
-    //}
+    }
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // cca 10 GB
     // setNumberOfElmsToLoad(1024 * 1024 * 1024);
 
