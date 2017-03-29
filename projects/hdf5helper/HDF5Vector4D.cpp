@@ -16,7 +16,8 @@
  *
  */
 
-#include "HDF5Vector4D.h"
+#include <HDF5Vector4D.h>
+#include <HDF5Vector3D.h>
 
 namespace HDF5Helper {
 
@@ -51,7 +52,8 @@ HDF5Vector4D::HDF5Vector4D(const HDF5Vector &hDF5Vector)
  * @brief HDF5Vector4D::HDF5Vector4D
  * @param value
  */
-HDF5Vector4D::HDF5Vector4D(const hsize_t value) : HDF5Vector(4, value)
+HDF5Vector4D::HDF5Vector4D(const hsize_t value)
+    : HDF5Vector(4, value)
 {
 
 }

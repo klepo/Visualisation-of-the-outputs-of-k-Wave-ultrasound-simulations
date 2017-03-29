@@ -16,8 +16,7 @@
  *
  */
 
-#include "HDF5Object.h"
-#include "HDF5Attribute.h"
+#include <HDF5Object.h>
 
 namespace HDF5Helper {
 

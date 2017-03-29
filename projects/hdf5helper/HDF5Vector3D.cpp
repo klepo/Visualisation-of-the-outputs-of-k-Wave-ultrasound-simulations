@@ -16,7 +16,8 @@
  *
  */
 
-#include "HDF5Vector3D.h"
+#include <HDF5Vector3D.h>
+#include <HDF5Vector4D.h>
 
 namespace HDF5Helper {
 
@@ -47,11 +48,18 @@ HDF5Vector3D::HDF5Vector3D(const HDF5Vector &hDF5Vector)
     set(tmp[length - 3], tmp[length - 2], tmp[length - 1]);
 }
 
+HDF5Vector3D::HDF5Vector3D(const HDF5Vector4D &hDF5Vector)
+    : HDF5Vector(3)
+{
+    set(hDF5Vector.z(), hDF5Vector.y(), hDF5Vector.x());
+}
+
 /**
  * @brief HDF5Vector3D::HDF5Vector3D
  * @param value
  */
-HDF5Vector3D::HDF5Vector3D(const hsize_t value) : HDF5Vector(3 , value)
+HDF5Vector3D::HDF5Vector3D(const hsize_t value)
+    : HDF5Vector(3 , value)
 {
 
 }

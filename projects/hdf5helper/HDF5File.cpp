@@ -16,9 +16,7 @@
  *
  */
 
-#include "HDF5File.h"
-#include "HDF5Dataset.h"
-#include "HDF5Group.h"
+#include <HDF5File.h>
 
 namespace HDF5Helper {
 
@@ -44,14 +42,21 @@ File::File(std::string filename, unsigned int flag, bool log)
 #endif
 
     // Set size of memory
-    std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << std::endl;
+    std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
     // 1 x 32-bit float == 4 x bytes
-    setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 4) / 2);
+
+    // max cca 4 GB
+    //hsize_t maxCount = 1024 * 1024 * 1024;
+    //if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
+    //    setNumberOfElmsToLoad(maxCount);
+    //} else {
+        setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 4) / 2);
+    //}
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // cca 10 GB
     // setNumberOfElmsToLoad(1024 * 1024 * 1024);
 
     // Disable error HDF5 output
-    H5Eset_auto(H5E_DEFAULT, 0, 0);
+    H5Eset_auto(0, 0, 0);
 
     // Save filename
     this->filename = filename;
@@ -78,7 +83,9 @@ File::File(std::string filename, unsigned int flag, bool log)
 #endif
 
     // Set cache
-    err = H5Pset_cache(plist_FILE_ACCESS, 0, 0, 1024 * 1024 * 64, 0);
+    hsize_t chunkBytes = 64 * 64 * 64 * 4;
+    //521
+    err = H5Pset_cache(plist_FILE_ACCESS, 0, 521, 521 * chunkBytes, 0.75);
     if (err < 0) {
         throw std::runtime_error("H5Pset_cache error");
     }
@@ -128,7 +135,7 @@ File::File(std::string filename, unsigned int flag, bool log)
         }
     } else if (flag == CREATE) {
         std::cout << "Creating file \"" << filename << "\" ";
-        file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, plist_FILE_ACCESS);
+        file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, 0, plist_FILE_ACCESS);
         if (file < 0) {
             std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
@@ -195,7 +202,7 @@ void File::insertDataset(const std::string datasetName, bool log)
         datasetNameTmp = "/" + datasetNameTmp;
     if (log)
         std::cout << "Opening dataset \"" << datasetNameTmp << "\" ";
-    hid_t d = H5Dopen(file, datasetNameTmp.c_str(), H5P_DEFAULT);
+    hid_t d = H5Dopen(file, datasetNameTmp.c_str(), 0);
     if (d < 0) {
         if (log)
             std::cout << "... error" << std::endl;
@@ -219,7 +226,7 @@ void File::insertGroup(const std::string groupName, bool log)
         groupNameTmp = "/" + groupNameTmp;
     if (log)
         std::cout << "Opening group \"" << groupNameTmp << "\" ";
-    hid_t g = H5Gopen(file, groupNameTmp.c_str(), H5P_DEFAULT);
+    hid_t g = H5Gopen(file, groupNameTmp.c_str(), 0);
     if (g < 0) {
         if (log)
             std::cout << "... error" << std::endl;
@@ -324,7 +331,7 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
         std::cout << "Creating dataset \"" << datasetName << "\" ";
 
     if (rewrite) {
-        if (H5Lexists(file, datasetName.c_str(), H5P_DEFAULT)) {
+        if (H5Lexists(file, datasetName.c_str(), 0)) {
             HDF5Dataset *hDF5Dataset = openDataset(datasetName, false);
             if (H5Tequal(hDF5Dataset->getDataType(), datatype) && hDF5Dataset->getDims() == size && hDF5Dataset->getChunkDims() == chunkSize) {
                 if (log)
@@ -343,11 +350,11 @@ void File::createDataset(const std::string datasetName, hid_t datatype, HDF5Vect
             closeDataset(hDF5Dataset, false);
             if (log)
                 std::cout << "... delete original link";
-            H5Ldelete(file, datasetName.c_str(), H5P_DEFAULT);
+            H5Ldelete(file, datasetName.c_str(), 0);
         }
     }
 
-    hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+    hid_t dataset = H5Dcreate(file, datasetName.c_str(), datatype, dataspace, 0, plist, 0);
     if (dataset < 0) {
         if (log)
             std::cout << "... error" << std::endl;
@@ -392,13 +399,13 @@ void File::createGroup(const std::string name, bool rewrite, bool log)
     if (log)
         std::cout << "Creating group \"" << name << "\" ";
     if (rewrite) {
-        H5Ldelete(file, name.c_str(), H5P_DEFAULT);
+        H5Ldelete(file, name.c_str(), 0);
         if (log)
             std::cout << "... rewrite ";
     }
 
-    if (!H5Lexists(file, name.c_str(), H5P_DEFAULT)) {
-        hid_t group = H5Gcreate(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (!H5Lexists(file, name.c_str(), 0)) {
+        hid_t group = H5Gcreate(file, name.c_str(), 0, 0, 0);
         if (group < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
@@ -615,8 +622,8 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t fileGroupId)
  */
 bool File::objExistsByName(const std::string name)
 {
-    if (H5Lexists(file, name.c_str(), H5P_DEFAULT))
-        return H5Oexists_by_name(file, name.c_str(), H5P_DEFAULT) != 0;
+    if (H5Lexists(file, name.c_str(), 0))
+        return H5Oexists_by_name(file, name.c_str(), 0) != 0;
     else
         return false;
 }
@@ -641,6 +648,7 @@ void File::setNumberOfElmsToLoad(hsize_t size)
         if (mPISize > 1 && size > std::numeric_limits<int>::max())
             throw std::runtime_error("setNumberOfElmsToLoad error");
     #endif
+    std::cout << "Number of elements to load: " << size << " (floats: " << size * 4 << " bytes, unsigned 64-bit integers: " << size * 8 << " bytes)" << std::endl;
     numberOfElementsToLoad = size;
 }
 

@@ -16,7 +16,7 @@
  *
  */
 
-#include "HDF5Vector.h"
+#include <HDF5Vector.h>
 
 namespace HDF5Helper {
 

@@ -486,7 +486,7 @@ void MainWindow::selectDataset()
         } else {
             // One dataset
             ui->groupBoxSelectedDatasetTMSeries->setEnabled(false);
-            ui->actionFillSpace->setEnabled(false);
+            ui->actionFillSpace->setEnabled(true);
         }
 
         if (gWindow != 0) {

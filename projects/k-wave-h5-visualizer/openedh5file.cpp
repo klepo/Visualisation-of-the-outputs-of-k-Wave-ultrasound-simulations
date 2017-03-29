@@ -161,6 +161,9 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::HDF5Group *group)
             } else if (datasetType == HDF5Helper::HDF5DatasetType::DWNSMPL_3D) {
                 setObject(QString::fromStdString(dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false)), dataset, dataset3D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+            } else if (datasetType == HDF5Helper::HDF5DatasetType::MASK_3D) {
+                setObject(QString::fromStdString(dataset->getName()), dataset, dataset3D_t);
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == HDF5Helper::HDF5DatasetType::CUBOID
                        || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
                        ) {

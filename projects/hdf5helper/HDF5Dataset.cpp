@@ -16,7 +16,7 @@
  *
  */
 
-#include "HDF5Dataset.h"
+#include <HDF5Dataset.h>
 #include <HDF5File.h>
 
 namespace HDF5Helper {
@@ -261,12 +261,25 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                     ) {
                 return HDF5DatasetType::DWNSMPL_3D;
             }
+            if (hasAttribute(POSITION_X_ATTR)
+                    && hasAttribute(POSITION_Y_ATTR)
+                    && hasAttribute(POSITION_Z_ATTR)
+                    ) {
+                return HDF5DatasetType::MASK_3D;
+            }
+            if (dims.z() == 1
+                    && dims.y() == 1
+                    && dims.x() == sensorMaskSize
+                    && !hasAttribute(SRC_DATASET_NAME_ATTR)
+                    ) {
+                return HDF5DatasetType::BASIC_MASK;
+            }
             if (dims.z() == 1
                     && dims.y() <= nDims.w()
                     && dims.x() == sensorMaskSize
                     && !hasAttribute(SRC_DATASET_NAME_ATTR)
                     ) {
-                return HDF5DatasetType::BASIC_MASK;
+                return HDF5DatasetType::TIME_STEPS_MASK;
             }
             if (dims.z() == 1
                     && dims.y() <= nDims.w()
@@ -276,7 +289,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(C_TYPE_ATTR)
                     && readAttributeS(C_TYPE_ATTR, false) == "fi"
                     ) {
-                return HDF5DatasetType::FI_MASK;
+                return HDF5DatasetType::TIME_STEPS_FI_MASK;
             }
             if (dims.z() == 1
                     && dims.y() <= nDims.w()
@@ -286,7 +299,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(C_TYPE_ATTR)
                     && readAttributeS(C_TYPE_ATTR, false) == "k"
                     ) {
-                return HDF5DatasetType::K_MASK;
+                return HDF5DatasetType::TIME_STEPS_K_MASK;
             }
             if (dims.z() == 1
                     && dims.y() <= nDims.w()
@@ -295,7 +308,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(C_TYPE_ATTR)
                     && readAttributeS(C_TYPE_ATTR, false) == "d"
                     ) {
-                return HDF5DatasetType::D_MASK;
+                return HDF5DatasetType::TIME_STEPS_D_MASK;
             }
             if (dims.z() == 1
                     && dims.y() <= nDims.w()
@@ -304,7 +317,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(C_TYPE_ATTR)
                     && readAttributeS(C_TYPE_ATTR, false) == "s"
                     ) {
-                return HDF5DatasetType::S_MASK;
+                return HDF5DatasetType::TIME_STEPS_S_MASK;
             }
         }
     }
@@ -460,15 +473,19 @@ std::string HDF5Dataset::getTypeString(HDF5DatasetType type) const
             return "3D type";
         case HDF5DatasetType::DWNSMPL_3D:
             return "3D type (donwsampled)";
+        case HDF5DatasetType::MASK_3D:
+            return "3D type (reshaped mask)";
         case HDF5DatasetType::BASIC_MASK:
             return "Sensor mask type";
-        case HDF5DatasetType::FI_MASK:
+        case HDF5DatasetType::TIME_STEPS_MASK:
+            return "Sensor mask type (time steps)";
+        case HDF5DatasetType::TIME_STEPS_FI_MASK:
             return "Sensor mask type (compressed fi)";
-        case HDF5DatasetType::K_MASK:
+        case HDF5DatasetType::TIME_STEPS_K_MASK:
             return "Sensor mask type (compressed k)";
-        case HDF5DatasetType::D_MASK:
+        case HDF5DatasetType::TIME_STEPS_D_MASK:
             return "Sensor mask type (decompressed)";
-        case HDF5DatasetType::S_MASK:
+        case HDF5DatasetType::TIME_STEPS_S_MASK:
             return "Sensor mask type (difference)";
         case HDF5DatasetType::CUBOID:
             return "Cuboid type";
@@ -777,6 +794,8 @@ void HDF5Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
  */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, bool log)
 {
+    if (log)
+        std::cout << "Reading dataset " << name << " ..." << std::endl;
     checkDataTypeAndAllocation(data, H5T_NATIVE_FLOAT, count.getSize());
     readDatasetGeneral(offset, count, data, log);
     HDF5Dataset::getMinAndMaxValue(data, count.getSize(), min, max);
@@ -793,6 +812,8 @@ void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data,
  */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log)
 {
+    if (log)
+        std::cout << "Reading dataset " << name << " ..." << std::endl;
     checkDataTypeAndAllocation(data, H5T_NATIVE_UINT64, count.getSize());
     readDatasetGeneral(offset, count, data, log);
     HDF5Dataset::getMinAndMaxValue(data, count.getSize(), min, max);
@@ -807,6 +828,8 @@ void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&dat
  */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data, bool log)
 {
+    if (log)
+        std::cout << "Reading dataset " << name << " ..." << std::endl;
     checkDataTypeAndAllocation(data, H5T_NATIVE_FLOAT, count.getSize());
     readDatasetGeneral(offset, count, data, log);
 }
@@ -820,6 +843,8 @@ void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, float *&data,
  */
 void HDF5Dataset::readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, bool log)
 {
+    if (log)
+        std::cout << "Reading dataset " << name << " ..." << std::endl;
     checkDataTypeAndAllocation(data, H5T_NATIVE_UINT64, count.getSize());
     readDatasetGeneral(offset, count, data, log);
 }
@@ -1074,9 +1099,6 @@ void HDF5Dataset::readDatasetGeneral(HDF5Vector offset, HDF5Vector count, void *
 
     if (log)
         t0 = getTime();
-
-    if (log)
-        std::cout << "Reading dataset " << name << " ..." << std::endl;
 
     // Reading
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, data);

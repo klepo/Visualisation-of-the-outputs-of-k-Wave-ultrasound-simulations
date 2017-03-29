@@ -18,10 +18,10 @@
 #ifndef HDF5GROUP_H
 #define HDF5GROUP_H
 
-#include "HDF5Object.h"
-#include "HDF5Vector3D.h"
-#include "HDF5Vector4D.h"
-#include "HDF5Dataset.h"
+#include <HDF5Object.h>
+#include <HDF5Vector3D.h>
+#include <HDF5Vector4D.h>
+#include <HDF5Dataset.h>
 
 namespace HDF5Helper
 {

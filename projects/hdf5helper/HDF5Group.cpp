@@ -16,7 +16,7 @@
  *
  */
 
-#include "HDF5Group.h"
+#include <HDF5Group.h>
 #include <HDF5File.h>
 
 namespace HDF5Helper {

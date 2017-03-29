@@ -177,6 +177,16 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
     if (type == dataset3D_t) {
         // Default step
         steps = 1;
+        if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
+            originalPos.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
+            originalPos.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
+            originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
+            pos = originalPos;
+
+            frameSize = HDF5Helper::HDF5Vector3D(openedH5File->getNDims());;
+            originalFrameSize = frameSize;
+        }
+
     } else if (type == dataset4D_t) {
 
         frameSize = HDF5Helper::HDF5Vector3D(openedH5File->getNDims());;
@@ -778,9 +788,13 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
     if (type == dataset3D_t) {
         info.append(QPair<QString, QString>("Name", objectName));
         info.append(QPair<QString, QString>("Type", "3D dataset"));
+        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
+            info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
         info.append(QPair<QString, QString>("Size", QString::fromStdString(originalSize)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
             info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(size)));
+        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
+            info.append(QPair<QString, QString>("Position", QString::fromStdString(pos)));
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
     } else if (type == dataset4D_t) {
         info.append(QPair<QString, QString>("Name", objectName));

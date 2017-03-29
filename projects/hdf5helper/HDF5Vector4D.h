@@ -18,11 +18,11 @@
 #ifndef HDF5VECTOR4D_H
 #define HDF5VECTOR4D_H
 
-#include "HDF5Vector.h"
-#include "HDF5Vector3D.h"
+#include <HDF5Vector.h>
 
 namespace HDF5Helper
 {
+class HDF5Vector3D;
 class HDF5Vector4D : public HDF5Vector
 {
 public:
