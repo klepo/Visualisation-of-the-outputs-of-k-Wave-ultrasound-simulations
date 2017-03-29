@@ -25,6 +25,8 @@
  */
 int main(int argc, char **argv)
 {
+    std::cout << "omp_get_max_threads: " << omp_get_max_threads() << std::endl;
+
     double t0 = HDF5Helper::getTime(); // Save the start time
 
     Settings *settings = new Settings();
@@ -45,7 +47,6 @@ int main(int argc, char **argv)
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
     // - harmonické frekvence
-
 
     //std::exit(EXIT_SUCCESS);
 
