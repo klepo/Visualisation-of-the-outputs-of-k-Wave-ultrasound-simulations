@@ -282,7 +282,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                 return HDF5DatasetType::TIME_STEPS_MASK;
             }
             if (dims.z() == 1
-                    && dims.y() <= nDims.w()
+                    //&& dims.y() <= nDims.w()
                     && dims.x() == sensorMaskSize
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
@@ -292,7 +292,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                 return HDF5DatasetType::TIME_STEPS_FI_MASK;
             }
             if (dims.z() == 1
-                    && dims.y() <= nDims.w()
+                    //&& dims.y() <= nDims.w()
                     && dims.x() == sensorMaskSize
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
@@ -302,7 +302,7 @@ HDF5DatasetType HDF5Dataset::getType(hsize_t sensorMaskSize) const
                 return HDF5DatasetType::TIME_STEPS_K_MASK;
             }
             if (dims.z() == 1
-                    && dims.y() <= nDims.w()
+                    //&& dims.y() <= nDims.w()
                     && dims.x() == sensorMaskSize
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(C_TYPE_ATTR)
