@@ -969,7 +969,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
 
     // Generate complex exponential functions
     Helper::floatC i(0, -1);
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
         hsize_t ih = 1;
         if (srcDatasetsFi.at(hsize_t(h))->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
