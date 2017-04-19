@@ -1,3 +1,3 @@
-[Visualisation of Ultrasound Propagation in Human Body](src/README.md)
+[Visualisation of Ultrasound Propagation in Human Body](projects/README.md)
 =====================
 
