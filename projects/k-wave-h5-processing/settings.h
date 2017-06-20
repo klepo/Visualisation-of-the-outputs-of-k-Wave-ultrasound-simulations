@@ -22,6 +22,7 @@
 #include <sstream>
 #include <math.h>
 #include <list>
+#include <iomanip>
 
 #include <helper.h>
 
@@ -41,6 +42,8 @@ public:
     void setSimulationInputFilename(const std::string &value);
     std::string getProcessingOutputFilename() const;
     void setProcessingOutputFilename(const std::string &value);
+    std::string getProcessingInputFilename() const;
+    void setProcessingInputFilename(const std::string &value);
 
     // Sizes
     unsigned long long getMaxSize() const;
@@ -79,6 +82,8 @@ public:
     void setFlagDecompress(bool value);
     bool getFlagDifference() const;
     void setFlagDifference(bool value);
+    bool getFlagInfo() const;
+    void setFlagInfo(bool value);
 
     ParamsDefinition getParamsDefinition() const;
 
@@ -87,6 +92,7 @@ private:
     std::string simulationOutputFilename = "";
     std::string simulationInputFilename = "";
     std::string processingOutputFilename = "";
+    std::string processingInputFilename = "";
 
     // Size vars
     unsigned long long maxSize = 512;
@@ -107,6 +113,7 @@ private:
     bool flagCompress = false;
     bool flagDecompress = false;
     bool flagDifference = false;
+    bool flagInfo = false;
 
     // Params definition
     ParamsDefinition paramsDefinition;

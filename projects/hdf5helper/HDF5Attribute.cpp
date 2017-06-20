@@ -148,4 +148,28 @@ void *HDF5Attribute::getData()
 {
     return buffer;
 }
+
+std::string HDF5Attribute::getStringValue() const
+{
+    if (H5Tget_class(datatype) == H5Tget_class(H5T_C_S1)) {
+        if (H5Tis_variable_str(datatype)) {
+            void *voidValue = const_cast<void *>(buffer);
+            //return *(char **)(value);
+            return std::string(*static_cast<char **>(voidValue));
+        } else {
+             return static_cast<const char *>(buffer);
+        }
+    } else if (H5Tequal(datatype, H5T_NATIVE_INT))
+        return std::to_string(*static_cast<const int *>(buffer));
+    else if (H5Tequal(datatype, H5T_NATIVE_UINT64))
+        return std::to_string(*static_cast<const hsize_t *>(buffer));
+    else if (H5Tequal(datatype, H5T_NATIVE_INT64))
+        return std::to_string(*static_cast<const hssize_t *>(buffer));
+    else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE))
+        return std::to_string(*static_cast<const double *>(buffer));
+    else if (H5Tequal(datatype, H5T_NATIVE_FLOAT))
+        return std::to_string(*static_cast<const float *>(buffer));
+    else
+        return static_cast<const char *>(buffer);
+}
 }

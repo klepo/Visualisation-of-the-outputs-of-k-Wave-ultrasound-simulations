@@ -47,6 +47,7 @@ int main(int argc, char **argv)
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
     // - harmonické frekvence
+    // - kolize souborů
 
     //std::exit(EXIT_SUCCESS);
 

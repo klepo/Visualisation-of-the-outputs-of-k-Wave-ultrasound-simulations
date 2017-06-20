@@ -91,13 +91,13 @@ public:
     HDF5DatasetType getType(hsize_t sensorMaskSize = 0) const;
     std::string getTypeString(HDF5DatasetType type) const;
 
-    void getGlobalMaxValue(float &value, bool reset = false);
-    void getGlobalMinValue(float &value, bool reset = false);
-    void getGlobalMaxValue(hsize_t &value, bool reset = false);
-    void getGlobalMinValue(hsize_t &value, bool reset = false);
+    void getGlobalMaxValue(float &value, hsize_t &maxVFIndex, bool reset = false);
+    void getGlobalMinValue(float &value, hsize_t &minVFIndex, bool reset = false);
+    void getGlobalMaxValue(hsize_t &value, hsize_t &maxVIIndex, bool reset = false);
+    void getGlobalMinValue(hsize_t &value, hsize_t &minVIIndex, bool reset = false);
 
-    void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF);
-    void getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI);
+    void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex);
+    void getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex);
 
     void findAndSetGlobalMinAndMaxValue(bool reset = false);
 
@@ -113,14 +113,14 @@ public:
 
     void setMPIOAccess(H5FD_mpio_xfer_t type);
 
-    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, bool log = true);
-    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
-    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, bool log = true);
-    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, bool log = true);
+    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true, hsize_t block = 0);
+    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true, hsize_t block = 0);
+    void readDataset(HDF5Vector offset, HDF5Vector count, float *&data, bool log = true, hsize_t block = 0);
+    void readDataset(HDF5Vector offset, HDF5Vector count, hsize_t *&data, bool log = true, hsize_t block = 0);
     void readDataset(float *&data, bool log = true);
     void readDataset(hsize_t *&data, bool log = true);
-    void readDataset(float *&data, float &min, float &max, bool log = true);
-    void readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
+    void readDataset(float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
+    void readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
     void readDataset(float &data, bool log = true);
     void readDataset(hsize_t &data, bool log = true);
 
@@ -129,8 +129,8 @@ public:
     void writeDataset(float *data, bool log = false);
     void writeDataset(hsize_t *data, bool log = false);
 
-    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max, bool log = true);
-    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, bool log = true);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
+    void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
     void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, float *&data, bool log = true);
     void readBlock(const hsize_t index, HDF5Vector &offset, HDF5Vector &count, hsize_t *&data, bool log = true);
 
@@ -176,11 +176,14 @@ private:
     HDF5Vector dims;
     HDF5Vector chunkDims;
 
-    hsize_t maxVI = 0;
     hsize_t minVI = 0;
+    hsize_t maxVI = 0;
 
-    float maxVF = 0;
     float minVF = 0;
+    float maxVF = 0;
+
+    hsize_t minVIndex = 0;
+    hsize_t maxVIndex = 0;
 
     bool issetGlobalMinAndMaxValue = false;
 };

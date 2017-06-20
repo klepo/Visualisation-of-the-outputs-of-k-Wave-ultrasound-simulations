@@ -169,10 +169,16 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 
     // Get global min/max values
     dataset->findAndSetGlobalMinAndMaxValue();
-    dataset->getGlobalMinValue(minValue);
-    dataset->getGlobalMaxValue(maxValue);
-    dataset->getGlobalMinValue(originalMinValue);
-    dataset->getGlobalMaxValue(originalMaxValue);
+    hsize_t minValueIndex;
+    hsize_t maxValueIndex;
+    dataset->getGlobalMinValue(minValue, minValueIndex);
+    dataset->getGlobalMaxValue(maxValue, maxValueIndex);
+    dataset->getGlobalMinValue(originalMinValue, minValueIndex);
+    dataset->getGlobalMaxValue(originalMaxValue, maxValueIndex);
+
+    HDF5Helper::convertlinearToMultiDim(minValueIndex, minValuePosition, dataset->getDims());
+    HDF5Helper::convertlinearToMultiDim(maxValueIndex, maxValuePosition, dataset->getDims());
+
 
     if (type == dataset3D_t) {
         // Default step
@@ -796,6 +802,8 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
         if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
             info.append(QPair<QString, QString>("Position", QString::fromStdString(pos)));
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
+        info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
+        info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
     } else if (type == dataset4D_t) {
         info.append(QPair<QString, QString>("Name", objectName));
         info.append(QPair<QString, QString>("Type", "4D dataset"));
@@ -809,6 +817,8 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
         if (pos.x() != originalPos.x() || pos.y() != originalPos.y() || pos.z() != originalPos.z())
             info.append(QPair<QString, QString>("Downsampling position", QString::fromStdString(pos)));
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
+        info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
+        info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
         info.append(QPair<QString, QString>("Steps", QString::number(steps)));
     }
     return info;

@@ -151,6 +151,8 @@ private:
     float maxValue = 0;
     float originalMinValue = 0;
     float originalMaxValue = 0;
+    HDF5Helper::HDF5Vector minValuePosition;
+    HDF5Helper::HDF5Vector maxValuePosition;
 
     ColorMap::Type colormap = ColorMap::JET;
 

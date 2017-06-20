@@ -71,6 +71,11 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     HDF5Helper::HDF5Group *group = filesContext->getHDF5SimOutputFile()->openGroup("/");
     findDatasetsForProcessing(group, settings);
     filesContext->getHDF5SimOutputFile()->closeGroup("/");
+    if (filesContext->getHDF5PcsInputFile()) {
+        group = filesContext->getHDF5PcsInputFile()->openGroup("/");
+        findDatasetsForProcessing(group, settings);
+        filesContext->getHDF5PcsInputFile()->closeGroup("/");
+    }
 }
 
 HDF5Helper::HDF5Vector4D DtsForPcs::getNDims() const
@@ -168,6 +173,16 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
             if (datasetType != HDF5Helper::HDF5DatasetType::UNKNOWN) {
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
                 std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << std::endl;
+                if (settings->getFlagInfo()) {
+                    if (dataset->getNumAttrs() > 0) {
+                        std::cout << "    attributes:" << std::endl;
+                    }
+                    for (hsize_t i = 0; i < dataset->getNumAttrs(); i++) {
+                        HDF5Helper::HDF5Attribute *attr = dataset->getAttribute(i);
+                        std::cout << "\t" << std::setw(20) << std::left << attr->getName() << std::setw(20) << std::left << attr->getStringValue() << std::endl;
+                        delete attr;
+                    }
+                }
                 std::cout << std::endl;
             }
             // Unknown type

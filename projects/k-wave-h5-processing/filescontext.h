@@ -30,6 +30,7 @@ public:
     HDF5Helper::File *getHDF5SimOutputFile() const;
     HDF5Helper::File *getHDF5SimInputFile() const;
     HDF5Helper::File *getHDF5PcsOutputFile() const;
+    HDF5Helper::File *getHDF5PcsInputFile() const;
 
 private:
     HDF5Helper::File *loadSimulationFile(std::string simulationFilename);
@@ -37,6 +38,7 @@ private:
     HDF5Helper::File *hDF5SimOutputFile = 0;
     HDF5Helper::File *hDF5SimInputFile = 0;
     HDF5Helper::File *hDF5PcsOutputFile = 0;
+    HDF5Helper::File *hDF5PcsInputFile = 0;
 
 private:
     // Disable copy

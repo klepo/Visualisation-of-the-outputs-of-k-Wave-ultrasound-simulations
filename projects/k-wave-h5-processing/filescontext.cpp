@@ -43,6 +43,14 @@ FilesContext::FilesContext(Settings *settings)
     hDF5PcsOutputFile = createOrOpenOutputFile(settings->getProcessingOutputFilename(), settings);
     if (settings->getBlockSize() != 0)
         hDF5PcsOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+
+    if (!settings->getProcessingInputFilename().empty()) {
+        // Load processing input file
+        Helper::printDebugTitle("Loading of processing input file");
+        hDF5PcsInputFile = loadSimulationFile(settings->getProcessingInputFilename());
+        if (settings->getBlockSize() != 0)
+            hDF5PcsInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+    }
 }
 
 FilesContext::~FilesContext()
@@ -56,6 +64,10 @@ FilesContext::~FilesContext()
             delete hDF5SimInputFile;
             hDF5SimInputFile = 0;
         }
+        if (hDF5PcsInputFile) {
+            delete hDF5PcsInputFile;
+            hDF5PcsInputFile = 0;
+        }
     } else {
         if (hDF5SimOutputFile) {
             delete hDF5SimOutputFile;
@@ -68,6 +80,10 @@ FilesContext::~FilesContext()
         if (hDF5PcsOutputFile) {
             delete hDF5PcsOutputFile;
             hDF5PcsOutputFile = 0;
+        }
+        if (hDF5PcsInputFile) {
+            delete hDF5PcsInputFile;
+            hDF5PcsInputFile = 0;
         }
     }
 }
@@ -85,6 +101,11 @@ HDF5Helper::File *FilesContext::getHDF5SimInputFile() const
 HDF5Helper::File *FilesContext::getHDF5PcsOutputFile() const
 {
     return hDF5PcsOutputFile;
+}
+
+HDF5Helper::File *FilesContext::getHDF5PcsInputFile() const
+{
+    return hDF5PcsInputFile;
 }
 
 HDF5Helper::File *FilesContext::loadSimulationFile(std::string simulationFilename)

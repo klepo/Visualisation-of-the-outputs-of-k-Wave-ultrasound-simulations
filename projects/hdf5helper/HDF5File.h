@@ -72,6 +72,8 @@ const std::string P_SOURCE_INPUT_DATASET("p_source_input");
 // Attribute names
 const std::string MIN_ATTR("min");
 const std::string MAX_ATTR("max");
+const std::string MIN_INDEX_ATTR("min_index");
+const std::string MAX_INDEX_ATTR("max_index");
 const std::string SRC_DATASET_NAME_ATTR("src_dataset_name");
 const std::string C_TYPE_ATTR("c_type");
 const std::string C_MOS_ATTR("c_mos");

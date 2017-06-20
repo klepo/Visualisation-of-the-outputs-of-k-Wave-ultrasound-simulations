@@ -43,6 +43,7 @@ public:
     std::string getName() const;
     hid_t getDataspace() const;
     void *getData();
+    std::string getStringValue() const;
 
 protected:
     hid_t attribute;

@@ -32,6 +32,7 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("compress");
     paramsDefinition.defineParamsFlag("decompress");
     paramsDefinition.defineParamsFlag("difference");
+    paramsDefinition.defineParamsFlag("info");
 
     // Size
     ParamsDefinition::Flag::Params paramsS;
@@ -83,6 +84,11 @@ void Settings::loadParams(int argc, char **argv)
     paramsO.defineParam(ParamsDefinition::STRING);
     paramsDefinition.defineParamsFlag("o", paramsO);
 
+    // HDF5 processing input filename with decompressed datasets
+    ParamsDefinition::Flag::Params paramsD;
+    paramsD.defineParam(ParamsDefinition::STRING);
+    paramsDefinition.defineParamsFlag("d", paramsD);
+
     // Help message
     paramsDefinition.setHelp("\n"
                              "Usage: k-wave-h5-processing [options]\n"
@@ -96,6 +102,9 @@ void Settings::loadParams(int argc, char **argv)
                              "\n"
                              "  -o HDF5ProcessingOutputFilename ....... Optional parameter. HDF5 processing output filename. \n"
                              "                                          Default is HDF5SimulationOutputFilename + \"_modified.h5\".\n"
+                             "\n"
+                             "  -o HDF5ProcessingInputFilename ........ Optional parameter. HDF5 processing input filename for \n"
+                             "                                          reading decompressed datasets from a separate file.\n"
                              "\n"
                              "  -reshape .............................. Optional parameter. Performs processing sensor mask\n"
                              "                                          type datasets to group with 4D datasets and saves datasets\n"
@@ -140,6 +149,8 @@ void Settings::loadParams(int argc, char **argv)
                              "  -names name1;name2;... ................ Optional parameter. Names of selected datasets or groups\n"
                              "                                          to processing.\n"
                              "\n"
+                             "  -info ................................. Prints the values of attributes of selected datasets.\n"
+                             "\n"
                              "  -help ................................. Prints this help message.\n"
                              "\n");
 
@@ -165,6 +176,7 @@ void Settings::loadParams(int argc, char **argv)
     setFlagCompress(flags.at("compress").getEnabled());
     setFlagDecompress(flags.at("decompress").getEnabled());
     setFlagDifference(flags.at("difference").getEnabled());
+    setFlagInfo(flags.at("info").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
 
@@ -187,9 +199,15 @@ void Settings::loadParams(int argc, char **argv)
     }
 
     if (flags.at("o").getEnabled()) {
-        std::string outputFilename;
-        flags.at("o").getParams().readParam(0, &outputFilename);
-        setProcessingOutputFilename(outputFilename);
+        std::string processingOutputFilename;
+        flags.at("o").getParams().readParam(0, &processingOutputFilename);
+        setProcessingOutputFilename(processingOutputFilename);
+    }
+
+    if (flags.at("d").getEnabled()) {
+        std::string processingInputFilename;
+        flags.at("d").getParams().readParam(0, &processingInputFilename);
+        setProcessingInputFilename(processingInputFilename);
     }
 
     if (flags.at("s").getEnabled()) {
@@ -260,6 +278,18 @@ void Settings::setProcessingOutputFilename(const std::string &value)
 {
     processingOutputFilename = value;
     std::cout << "\n  Processing output filename:\n    " << processingOutputFilename << std::endl;
+}
+
+std::string Settings::getProcessingInputFilename() const
+{
+    return processingInputFilename;
+}
+
+
+void Settings::setProcessingInputFilename(const std::string &value)
+{
+    processingInputFilename = value;
+    std::cout << "\n  Processing input filename:\n    " << processingInputFilename << std::endl;
 }
 
 unsigned long long Settings::getMaxSize() const
@@ -436,6 +466,20 @@ void Settings::setFlagDifference(bool value)
         std::cout << "\n  Difference mode: ON\n" << std::endl;
     else
         std::cout << "\n  Difference mode: OFF\n" << std::endl;
+}
+
+bool Settings::getFlagInfo() const
+{
+    return flagInfo;
+}
+
+void Settings::setFlagInfo(bool value)
+{
+    flagInfo = value;
+    if (value)
+        std::cout << "\n  Info mode: ON\n" << std::endl;
+    else
+        std::cout << "\n  Info mode: OFF\n" << std::endl;
 }
 
 ParamsDefinition Settings::getParamsDefinition() const

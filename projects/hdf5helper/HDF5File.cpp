@@ -731,7 +731,7 @@ size_t getAvailableSystemPhysicalMemory()
 }
 
 /**
- * @brief convertlinearTo3D Convert linear index to 3D position (z, y, x)
+ * @brief convertlinearToMultiDim Convert linear index to space position
  */
 void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector dims)
 {
@@ -749,7 +749,7 @@ void convertlinearToMultiDim(hsize_t index, HDF5Vector &position, HDF5Vector dim
 }
 
 /**
- * @brief convert3DToLinear Convert 3D position (z, y, x) to linear index
+ * @brief convertMultiDimToLinear Convert space position to linear index
  */
 void convertMultiDimToLinear(HDF5Vector position, hsize_t &index, HDF5Vector dims)
 {

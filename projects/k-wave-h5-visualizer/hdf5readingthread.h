@@ -34,6 +34,7 @@ public:
     HDF5Helper::HDF5Vector offset;
     HDF5Helper::HDF5Vector count;
     float min, max;
+    hsize_t minIndex, maxIndex;
     bool full;
     hsize_t step;
     HDF5Helper::HDF5Dataset *dataset;

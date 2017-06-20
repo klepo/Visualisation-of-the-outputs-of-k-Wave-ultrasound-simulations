@@ -72,6 +72,8 @@ void Processing::reshape()
                     // Min/max values vars
                     float minVFG = std::numeric_limits<float>::infinity();
                     float maxVFG = -std::numeric_limits<float>::infinity();
+                    hsize_t minVFGIndex = 0;
+                    hsize_t maxVFGIndex = 0;
 
                     // Set same block size as sensorMaskIndexDataset
                     dataset->setNumberOfElmsToLoad(sensorMaskIndexDataset->getRealNumberOfElmsToLoad());
@@ -115,11 +117,22 @@ void Processing::reshape()
 
                         float minVF;
                         float maxVF;
-                        dataset->readBlock(i, offset, count, datasetData, minVF, maxVF);
+                        hsize_t minVFIndex;
+                        hsize_t maxVFIndex;
+                        dataset->readBlock(i, offset, count, datasetData, minVF, maxVF, minVFIndex, maxVFIndex);
                         frame = offset.y();
 
-                        if (minVFG > minVF) minVFG = minVF;
-                        if (maxVFG < maxVF) maxVFG = maxVF;
+                        hsize_t linearOffset;
+                        convertMultiDimToLinear(offset, linearOffset, dataset->getDims());
+
+                        if (minVFG > minVF) {
+                            minVFG = minVF;
+                            minVFGIndex = linearOffset + minVFIndex;
+                        }
+                        if (maxVFG < maxVF) {
+                            maxVFG = maxVF;
+                            maxVFGIndex = linearOffset + maxVFIndex;
+                        }
 
                         double t0 = HDF5Helper::getTime();
                         // For the entire block write "voxels"
@@ -170,6 +183,8 @@ void Processing::reshape()
 
                     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minVFG);
                     dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxVFG);
+                    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVFGIndex);
+                    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVFGIndex);
 
                     if (useTmpFlag) {
                         delete[] tmpData;
@@ -500,14 +515,16 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
 
     float *data = 0;
     float minV, maxV;
+    hsize_t minVIndex, maxVIndex;
     float minVG = 0, maxVG = 0;
+    hsize_t minVGIndex = 0, maxVGIndex = 0;
     bool first = true;
     HDF5Helper::HDF5Vector offset;
     HDF5Helper::HDF5Vector count;
 
     // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-        srcDataset->readBlock(i, offset, count, data, minV, maxV);
+        srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex);
         dstDataset->writeDataset(offset, count, data, true);
         delete[] data;
         if (first) {
@@ -515,8 +532,18 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
             maxVG = maxV;
             first = false;
         }
-        if (minVG > minV) minVG = minV;
-        if (maxVG < maxV) maxVG = maxV;
+
+        hsize_t linearOffset;
+        convertMultiDimToLinear(offset, linearOffset, srcDataset->getDims());
+
+        if (minVG > minV) {
+            minVG = minV;
+            minVGIndex = linearOffset + minVIndex;
+        }
+        if (maxVG < maxV) {
+            maxVG = maxV;
+            maxVGIndex = linearOffset + maxVIndex;
+        }
     }
 
     // Copy attributes
@@ -525,6 +552,8 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     // Set min/max values
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minVG);
     dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxVG);
+    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVGIndex);
+    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVGIndex);
 
     double t1 = HDF5Helper::getTime();
     std::cout << "Time of changing chunks of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
@@ -741,6 +770,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     HDF5Helper::HDF5Vector count;
     float maxVK = 0, maxVFi = 0;
     float minVK = 0, minVFi = 0;
+    hsize_t maxVKIndex = 0, maxVFiIndex = 0;
+    hsize_t minVKIndex = 0, minVFiIndex = 0;
     bool first = true;
 
     // If we have enough memory - minimal for one full step in 3D space
@@ -821,6 +852,18 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                             // Min/max values
                             HDF5Helper::checkOrSetMinMaxValue(first, minVK, maxVK, k);
                             HDF5Helper::checkOrSetMinMaxValue(first, minVFi, maxVFi, fi);
+
+                            #pragma omp critical
+                            {
+                                if (k == minVK)
+                                    minVKIndex = (frame - 2) * stepSize + p;
+                                if (k == maxVK)
+                                    maxVKIndex = (frame - 2) * stepSize + p;
+                                if (k == minVFi)
+                                    minVFiIndex = (frame - 2) * stepSize + p;
+                                if (k == maxVFi)
+                                    maxVFiIndex = (frame - 2) * stepSize + p;
+                            }
                         }
 
                     }
@@ -867,7 +910,6 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
         // Delete complex buffers
         delete[] sCTmp1;
         delete[] sCTmp2;
-
     } else {
         // Not implemented yet
         std::cout << "Not implemented for such big datasets yet" << std::endl;
@@ -893,6 +935,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     // Set min/max values
     dstDatasetK->setAttribute(HDF5Helper::MIN_ATTR, minVK);
     dstDatasetK->setAttribute(HDF5Helper::MAX_ATTR, maxVK);
+    dstDatasetK->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVKIndex);
+    dstDatasetK->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVKIndex);
     dstDatasetK->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDatasetK->setAttribute(HDF5Helper::C_TYPE_ATTR, "k");
     dstDatasetK->setAttribute(HDF5Helper::C_PERIOD_ATTR, settings->getPeriod());
@@ -900,6 +944,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     dstDatasetK->setAttribute(HDF5Helper::C_MOS_ATTR, settings->getMOS());
     dstDatasetFi->setAttribute(HDF5Helper::MIN_ATTR, minVFi);
     dstDatasetFi->setAttribute(HDF5Helper::MAX_ATTR, maxVFi);
+    dstDatasetFi->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVFiIndex);
+    dstDatasetFi->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVFiIndex);
     dstDatasetFi->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDatasetFi->setAttribute(HDF5Helper::C_TYPE_ATTR, "fi");
     dstDatasetFi->setAttribute(HDF5Helper::C_PERIOD_ATTR, settings->getPeriod());
@@ -1024,6 +1070,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     HDF5Helper::HDF5Vector offset;
     HDF5Helper::HDF5Vector count;
     float maxV = 0, minV = 0;
+    hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
 
     // If we have enough memory - minimal for one full step * (1 (data) + 4 buffers (k, fi, lastK, lastFi) * number of harmonics) in 3D space
@@ -1109,6 +1156,13 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
                         }
                         // Min/max values
                         HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, data[cKFi]);
+                        #pragma omp critical
+                        {
+                            if (data[cKFi] == minV)
+                                minVIndex = (frameDst * oSize + p) * stepSize  + cKFi;
+                            if (data[cKFi] == maxV)
+                                maxVIndex = (frameDst * oSize + p) * stepSize  + cKFi;
+                        }
                     }
 
                     double t1 = HDF5Helper::getTime();
@@ -1139,7 +1193,6 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
         delete[] data;
         delete[] k;
         delete[] fi;
-
     } else {
         // Not implemented yet
         std::cout << "Not implemented yet" << std::endl;
@@ -1166,6 +1219,8 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     // Set min/max values
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV);
     dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV);
+    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex);
+    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex);
     dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "d");
 
     double t1 = HDF5Helper::getTime();
@@ -1189,6 +1244,7 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     HDF5Helper::HDF5Vector offset;
     HDF5Helper::HDF5Vector count;
     float maxV = 0, minV = 0;
+    hsize_t minVIndex = 0, maxVIndex = 0;
     bool first = true;
     float sum = 0.0f;
     float sum2 = 0.0f;
@@ -1208,6 +1264,17 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
             sum2 += (dataD[i] * dataD[i]);
             // Min/max values
             HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i]);
+
+            hsize_t linearOffset;
+            convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
+
+            #pragma omp critical
+            {
+                if (dataD[i] == minV)
+                    minVIndex = linearOffset + i;
+                if (dataD[i] == maxV)
+                    maxVIndex = linearOffset + i;
+            }
         }
 
         dstDataset->writeDataset(offset, count, dataD, true);
@@ -1220,16 +1287,22 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
 
     float minVO;
     float maxVO;
-    datasetOriginal->getGlobalMinValue(minVO);
-    datasetOriginal->getGlobalMaxValue(maxVO);
+    hsize_t minVOIndex;
+    hsize_t maxVOIndex;
+    datasetOriginal->getGlobalMinValue(minVO, minVOIndex);
+    datasetOriginal->getGlobalMaxValue(maxVO, maxVOIndex);
     float maxError = std::max(abs(minV), abs(maxV));
     float meanError = sum / float(outputDims.getSize());
     float maxValue = std::max(abs(minVO), abs(maxVO));
     float mse = sum2 / float(outputDims.getSize());
 
+    dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR);
+
     // Set min/max values
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV);
     dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV);
+    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex);
+    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex);
     dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "s");
     dstDataset->setAttribute("sum", sum);
     dstDataset->setAttribute("sum_2", sum2);
