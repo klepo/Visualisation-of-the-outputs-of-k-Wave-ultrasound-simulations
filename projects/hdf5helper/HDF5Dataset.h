@@ -99,7 +99,7 @@ public:
     void getMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex);
     void getMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex);
 
-    void findAndSetGlobalMinAndMaxValue(bool reset = false);
+    void findAndSetGlobalMinAndMaxValue(bool reset = false, bool log = false);
 
     // Block reading
     hsize_t getRealNumberOfElmsToLoad() const;

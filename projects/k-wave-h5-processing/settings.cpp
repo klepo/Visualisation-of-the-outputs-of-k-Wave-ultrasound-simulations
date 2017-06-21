@@ -33,6 +33,8 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("decompress");
     paramsDefinition.defineParamsFlag("difference");
     paramsDefinition.defineParamsFlag("info");
+    paramsDefinition.defineParamsFlag("computePeriod");
+    paramsDefinition.defineParamsFlag("findMinMax");
 
     // Size
     ParamsDefinition::Flag::Params paramsS;
@@ -103,7 +105,7 @@ void Settings::loadParams(int argc, char **argv)
                              "  -o HDF5ProcessingOutputFilename ....... Optional parameter. HDF5 processing output filename. \n"
                              "                                          Default is HDF5SimulationOutputFilename + \"_modified.h5\".\n"
                              "\n"
-                             "  -o HDF5ProcessingInputFilename ........ Optional parameter. HDF5 processing input filename for \n"
+                             "  -d HDF5ProcessingInputFilename ........ Optional parameter. HDF5 processing input filename for \n"
                              "                                          reading decompressed datasets from a separate file.\n"
                              "\n"
                              "  -reshape .............................. Optional parameter. Performs processing sensor mask\n"
@@ -151,6 +153,11 @@ void Settings::loadParams(int argc, char **argv)
                              "\n"
                              "  -info ................................. Prints the values of attributes of selected datasets.\n"
                              "\n"
+                             "  -computePeriod ........................ Computes period from p_source_input.\n"
+                             "\n"
+                             "  -findMinMax ........................... Finds and stores minimal and maximal values and their\n"
+                             "                                          indices of known datasets from input files.\n"
+                             "\n"
                              "  -help ................................. Prints this help message.\n"
                              "\n");
 
@@ -177,6 +184,8 @@ void Settings::loadParams(int argc, char **argv)
     setFlagDecompress(flags.at("decompress").getEnabled());
     setFlagDifference(flags.at("difference").getEnabled());
     setFlagInfo(flags.at("info").getEnabled());
+    setFlagComputePeriod(flags.at("computePeriod").getEnabled());
+    setFlagFindMinMax(flags.at("findMinMax").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
 
@@ -480,6 +489,34 @@ void Settings::setFlagInfo(bool value)
         std::cout << "\n  Info mode: ON\n" << std::endl;
     else
         std::cout << "\n  Info mode: OFF\n" << std::endl;
+}
+
+bool Settings::getFlagComputePeriod() const
+{
+    return flagComputePeriod;
+}
+
+void Settings::setFlagComputePeriod(bool value)
+{
+    flagComputePeriod = value;
+    if (value)
+        std::cout << "\n  Compute Period mode: ON\n" << std::endl;
+    else
+        std::cout << "\n  Compute Period mode: OFF\n" << std::endl;
+}
+
+bool Settings::getFlagFindMinMax() const
+{
+    return flagFindMinMax;
+}
+
+void Settings::setFlagFindMinMax(bool value)
+{
+    flagFindMinMax = value;
+    if (value)
+        std::cout << "\n  Find min/max mode: ON\n" << std::endl;
+    else
+        std::cout << "\n  Find min/max mode: OFF\n" << std::endl;
 }
 
 ParamsDefinition Settings::getParamsDefinition() const

@@ -53,7 +53,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     if (!settings->getPeriod() && sourceInputDataset) {
         if (sourceInputDataset->hasAttribute("period")) {
             settings->setPeriod(sourceInputDataset->readAttributeI("period", false));
-        } else {
+        } else if (settings->getFlagComputePeriod()){
             HDF5Helper::HDF5Vector3D dims = sourceInputDataset->getDims();
             float *data = 0;
             sourceInputDataset->readDataset(HDF5Helper::HDF5Vector3D(0, 0, 0), HDF5Helper::HDF5Vector3D(1, dims.y(), 1), data);
@@ -71,6 +71,8 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     HDF5Helper::HDF5Group *group = filesContext->getHDF5SimOutputFile()->openGroup("/");
     findDatasetsForProcessing(group, settings);
     filesContext->getHDF5SimOutputFile()->closeGroup("/");
+
+    // Find datasets for processing in HDF5PcsInputFile
     if (filesContext->getHDF5PcsInputFile()) {
         group = filesContext->getHDF5PcsInputFile()->openGroup("/");
         findDatasetsForProcessing(group, settings);
@@ -173,9 +175,14 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
             if (datasetType != HDF5Helper::HDF5DatasetType::UNKNOWN) {
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
                 std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << std::endl;
+                // Find min/max values
+                if (settings->getFlagFindMinMax()) {
+                    dataset->findAndSetGlobalMinAndMaxValue(false, true);
+                }
+                // Print attributtes
                 if (settings->getFlagInfo()) {
                     if (dataset->getNumAttrs() > 0) {
-                        std::cout << "    attributes:" << std::endl;
+                        std::cout << "  Attributes:" << std::endl;
                     }
                     for (hsize_t i = 0; i < dataset->getNumAttrs(); i++) {
                         HDF5Helper::HDF5Attribute *attr = dataset->getAttribute(i);

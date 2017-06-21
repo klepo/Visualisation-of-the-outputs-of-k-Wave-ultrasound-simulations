@@ -34,7 +34,6 @@ int main(int argc, char **argv)
 
     FilesContext *filesContext = new FilesContext(settings);
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
-    Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
 
     // TODO:
     // - odzkoušet downsampling cuboidů atd.
@@ -51,46 +50,56 @@ int main(int argc, char **argv)
 
     //std::exit(EXIT_SUCCESS);
 
-    // Processing of sensor mask
-    if (settings->getFlagReshape()) {
-        Helper::printDebugTitle("Reshaping");
-        processing->reshape();
+    if (settings->getFlagReshape()
+            || settings->getFlagDwnsmpl()
+            || settings->getFlagChangeChunks()
+            || settings->getFlagCompress()
+            || settings->getFlagDecompress()
+            || settings->getFlagDifference()
+            ) {
+        Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+
+        // Processing of sensor mask
+        if (settings->getFlagReshape()) {
+            Helper::printDebugTitle("Reshaping");
+            processing->reshape();
+        }
+
+        // Downsampling
+        if (settings->getFlagDwnsmpl()) {
+            Helper::printDebugTitle("Downsampling");
+            processing->donwsampling();
+        }
+
+        // Copy 3D datasets a set new chunking
+        if (settings->getFlagChangeChunks()) {
+            Helper::printDebugTitle("Change chunks");
+            processing->changeChunks();
+        }
+
+        // Compression of time series data
+        if (settings->getFlagCompress()) {
+            Helper::printDebugTitle("Compression");
+            processing->compress();
+        }
+
+        // Decompression of time series data
+        if (settings->getFlagDecompress()) {
+            Helper::printDebugTitle("Decompression");
+            processing->decompress();
+        }
+
+        // Substraction of time series datasets
+        if (settings->getFlagDifference()) {
+            Helper::printDebugTitle("Difference");
+            processing->difference();
+        }
+
+        delete processing;
     }
 
-    // Downsampling
-    if (settings->getFlagDwnsmpl()) {
-        Helper::printDebugTitle("Downsampling");
-        processing->donwsampling();
-    }
-
-    // Copy 3D datasets a set new chunking
-    if (settings->getFlagChangeChunks()) {
-        Helper::printDebugTitle("Change chunks");
-        processing->changeChunks();
-    }
-
-    // Compression of time series data
-    if (settings->getFlagCompress()) {
-        Helper::printDebugTitle("Compression");
-        processing->compress();
-    }
-
-    // Decompression of time series data
-    if (settings->getFlagDecompress()) {
-        Helper::printDebugTitle("Decompression");
-        processing->decompress();
-    }
-
-    // Substraction of time series datasets
-    if (settings->getFlagDifference()) {
-        Helper::printDebugTitle("Difference");
-        processing->difference();
-    }
-
-    Helper::printDebugTitle("Closing files");
-
-    delete processing;
     delete dtsForPcs;
+    Helper::printDebugTitle("Closing files");
     // Close files
     delete filesContext;
 

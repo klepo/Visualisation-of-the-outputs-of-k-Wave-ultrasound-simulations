@@ -84,6 +84,10 @@ public:
     void setFlagDifference(bool value);
     bool getFlagInfo() const;
     void setFlagInfo(bool value);
+    bool getFlagComputePeriod() const;
+    void setFlagComputePeriod(bool value);
+    bool getFlagFindMinMax() const;
+    void setFlagFindMinMax(bool value);
 
     ParamsDefinition getParamsDefinition() const;
 
@@ -114,6 +118,8 @@ private:
     bool flagDecompress = false;
     bool flagDifference = false;
     bool flagInfo = false;
+    bool flagComputePeriod = false;
+    bool flagFindMinMax = false;
 
     // Params definition
     ParamsDefinition paramsDefinition;

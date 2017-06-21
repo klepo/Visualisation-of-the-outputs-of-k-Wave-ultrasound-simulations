@@ -29,12 +29,13 @@ public:
 
     HDF5Helper::File *getHDF5SimOutputFile() const;
     HDF5Helper::File *getHDF5SimInputFile() const;
-    HDF5Helper::File *getHDF5PcsOutputFile() const;
+    HDF5Helper::File *getHDF5PcsOutputFile();
     HDF5Helper::File *getHDF5PcsInputFile() const;
 
 private:
-    HDF5Helper::File *loadSimulationFile(std::string simulationFilename);
-    HDF5Helper::File *createOrOpenOutputFile(std::string outputFilename, Settings *settings);
+    HDF5Helper::File *loadSimulationFile(std::string filename);
+    void resolveOutputFilename(Settings *settings);
+    HDF5Helper::File *createOrOpenOutputFile(std::string filename);
     HDF5Helper::File *hDF5SimOutputFile = 0;
     HDF5Helper::File *hDF5SimInputFile = 0;
     HDF5Helper::File *hDF5PcsOutputFile = 0;
@@ -43,6 +44,9 @@ private:
 private:
     // Disable copy
     FilesContext(const FilesContext &);
+
+    bool newEmptyOutputFileFlag = false;
+    std::string outputFilename = "";
 };
 
 #endif // FILESCONTEXT_H
