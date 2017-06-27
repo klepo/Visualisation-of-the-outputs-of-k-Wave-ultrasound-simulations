@@ -157,7 +157,7 @@ std::string HDF5Attribute::getStringValue() const
             //return *(char **)(value);
             return std::string(*static_cast<char **>(voidValue));
         } else {
-             return static_cast<const char *>(buffer);
+             return std::string(static_cast<const char *>(buffer), size);
         }
     } else if (H5Tequal(datatype, H5T_NATIVE_INT))
         return std::to_string(*static_cast<const int *>(buffer));
