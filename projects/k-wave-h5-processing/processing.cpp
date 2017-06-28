@@ -963,8 +963,8 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
 {
     // First decoding parameter - multiple of overlap size
     hsize_t s = 1;
-    //if (srcDatasetFi->hasAttribute(HDF5Helper::C_MOS_ATTR))
-    //    s = srcDatasetFi->readAttributeI(HDF5Helper::C_MOS_ATTR);
+    if (srcDatasetsFi.at(0)->hasAttribute(HDF5Helper::C_MOS_ATTR))
+        s = srcDatasetsFi.at(0)->readAttributeI(HDF5Helper::C_MOS_ATTR);
     // Second decoding parametr - period
     hsize_t period = srcDatasetsFi.at(0)->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
     // Harmonic frequency

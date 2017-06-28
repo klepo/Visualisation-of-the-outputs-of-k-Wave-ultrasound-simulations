@@ -7,15 +7,29 @@ exists($$PWD/hdf5_paths.pri) {
 win32 {
     INCLUDEPATH += $$HDF5_INCLUDE_DIR
     CONFIG(debug, debug|release) {
-        LIBS += -L$$HDF5_LIBS_DIR \
-            -llibhdf5_D
 
-        exists($$HDF5_LIBS_DIR/libzlib_D.lib) {
-                LIBS += -llibzlib_D
-        }
+        exists($$HDF5_LIBS_DIR/libhdf5_D.lib) {
+            LIBS += -L$$HDF5_LIBS_DIR \
+                -llibhdf5_D
 
-        exists($$HDF5_LIBS_DIR/libszip_D.lib) {
-                LIBS += -llibszip_D
+            exists($$HDF5_LIBS_DIR/libzlib_D.lib) {
+                    LIBS += -llibzlib_D
+            }
+
+            exists($$HDF5_LIBS_DIR/libszip_D.lib) {
+                    LIBS += -llibszip_D
+            }
+        } else {
+            LIBS += -L$$HDF5_LIBS_DIR \
+                -llibhdf5
+
+            exists($$HDF5_LIBS_DIR/libzlib.lib) {
+                    LIBS += -llibzlib
+            }
+
+            exists($$HDF5_LIBS_DIR/libszip.lib) {
+                    LIBS += -llibszip
+            }
         }
     }
 
