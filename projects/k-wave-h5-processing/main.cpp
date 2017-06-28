@@ -57,6 +57,7 @@ int main(int argc, char **argv)
             || settings->getFlagDecompress()
             || settings->getFlagDifference()
             ) {
+
         Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
 
         // Processing of sensor mask

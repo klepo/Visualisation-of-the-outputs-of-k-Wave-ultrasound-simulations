@@ -328,6 +328,7 @@ void Processing::decompress()
         int count = 0;
         std::vector<HDF5Helper::HDF5Dataset *> datasetsFi;
         std::vector<HDF5Helper::HDF5Dataset *> datasetsK;
+
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::HDF5Dataset *datasetFi = it->second;
             HDF5Helper::HDF5DatasetType datasetType = datasetFi->getType(sensorMaskSize);

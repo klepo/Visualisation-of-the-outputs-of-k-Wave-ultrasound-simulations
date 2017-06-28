@@ -175,10 +175,10 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy nT, nX, nY, nZ
     std::cout << "Copy nT, nX, nY, nZ ... ";
     try {
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NX_DATASET, true, false);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NY_DATASET, true, false);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NZ_DATASET, true, false);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NT_DATASET, true, false);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NX_DATASET, true, true);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NY_DATASET, true, true);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NZ_DATASET, true, true);
+        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NT_DATASET, true, true);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);

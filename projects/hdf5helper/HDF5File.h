@@ -101,6 +101,9 @@ public:
     HDF5Dataset *openDataset(const std::string datasetName, bool log = true);
     HDF5Dataset *openDataset(hsize_t idx, bool log = true);
 
+    bool isDatasetOpened(hsize_t idx);
+    bool isDatasetOpened(const std::string datasetName);
+
     void closeDataset(const std::string datasetName, bool log = true);
     void closeDataset(hsize_t idx, bool log = true);
     void closeDataset(HDF5Dataset *dataset, bool log = true);

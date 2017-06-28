@@ -65,8 +65,8 @@ private:
     void assign(const HDF5Vector &hDF5Vector, bool deleteFlag);
 
 protected:
-    hsize_t *vector;
-    hsize_t length;
+    hsize_t *vector = 0;
+    hsize_t length = 0;
 };
 }
 

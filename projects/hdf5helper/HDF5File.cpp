@@ -431,8 +431,7 @@ void File::createGroup(const std::string name, bool rewrite, bool log)
  */
 HDF5Dataset *File::openDataset(hsize_t idx, bool log)
 {
-    std::string name = getObjNameByIdx(idx);
-    return openDataset(name, log);
+    return openDataset(getObjNameByIdx(idx), log);
 }
 
 /**
@@ -450,6 +449,32 @@ HDF5Dataset *File::openDataset(const std::string datasetName, bool log)
         return openDataset(datasetNameTmp, log);
     } else
         return datasets.find(datasetNameTmp)->second;
+}
+
+/**
+ * @brief File::isDatasetOpened
+ * @param idx
+ * @return true/false
+ */
+bool File::isDatasetOpened(hsize_t idx)
+{
+    return isDatasetOpened(getObjNameByIdx(idx));
+}
+
+/**
+ * @brief File::isDatasetOpened
+ * @param datasetName
+ * @return true/false
+ */
+bool File::isDatasetOpened(const std::string datasetName)
+{
+    std::string datasetNameTmp = datasetName;
+    if (datasetNameTmp.find("/") != 0)
+        datasetNameTmp = "/" + datasetNameTmp;
+    if (datasets.find(datasetNameTmp) == datasets.end())
+        return false;
+    else
+        return true;
 }
 
 /**
@@ -885,9 +910,13 @@ void copyDataset(HDF5Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
 void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite, bool log)
 {
     if (srcFile->getFilename() != dstFile->getFilename()) {
+        bool openedFlag = false;
+        if (srcFile->isDatasetOpened(name))
+            openedFlag = true;
         HDF5Dataset *srcDataset = srcFile->openDataset(name, log);
         copyDataset(srcDataset, dstFile, rewrite, log);
-        srcFile->closeDataset(srcDataset, log);
+        if (!openedFlag)
+            srcFile->closeDataset(srcDataset, log);
     } else {
         if (log)
             std::cout << "Source file == destination file -> cannot copy datasets" << std::endl;
