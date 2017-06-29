@@ -1248,6 +1248,7 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     hsize_t minVIndex = 0, maxVIndex = 0;
     bool first = true;
     float sum = 0.0f;
+    float sumO = 0.0f;
     float sum2 = 0.0f;
 
     datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
@@ -1258,10 +1259,11 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
         datasetOriginal->readBlock(i, offset, count, dataO);
         // The count is from original dataset and is smaller for last step than is in the decoded dataset
 
-        #pragma omp parallel for reduction(+ : sum) reduction(+ : sum2)
+        #pragma omp parallel for reduction(+ : sum) reduction(+ : sumO) reduction(+ : sum2)
         for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
             dataD[i] = dataO[i] - dataD[i];
             sum += abs(dataD[i]);
+            sumO += abs(dataO[i]);
             sum2 += (dataD[i] * dataD[i]);
             // Min/max values
             HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i]);
@@ -1306,18 +1308,22 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex);
     dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "s");
     dstDataset->setAttribute("sum", sum);
+    dstDataset->setAttribute("sum_original", sumO);
     dstDataset->setAttribute("sum_2", sum2);
+    dstDataset->setAttribute("max_original", maxValue);
     dstDataset->setAttribute("mean_error", (meanError / maxValue) * 100);
     dstDataset->setAttribute("mean_error_value", meanError);
     dstDataset->setAttribute("max_error", (maxError / maxValue) * 100);
     dstDataset->setAttribute("max_error_value", maxError);
     dstDataset->setAttribute("mean_squared_error", mse);
+    dstDataset->setAttribute("snr", sumO / mse);
+    dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / mse));
 
     std::cout << std::endl;
     std::cout << "Mean error: " << (meanError / maxValue) * 100 << " %" << std::endl;
     std::cout << "Max error:  " << (maxError / maxValue) * 100  << " %" << std::endl;
     std::cout << "MSE:        " << mse << std::endl;
-    std::cout << "SNR:        " << sum / mse << std::endl;
+    std::cout << "SNR:        " << sumO / mse << std::endl;
     std::cout << "PSNR:       " << 10 * log10((maxValue * maxValue) / mse) << " dB" << std::endl;
     std::cout << std::endl;
 
