@@ -17,7 +17,7 @@ Prerequisites
 -------------
 * HDF5 library is required (1.8.12+)
 * Qt Toolkit version 5.2x or later for **k-wave-h5-visualizer** is required.
-* Cmake or Qt(qmake) is required for building.
+* Cmake or Qt (qmake) is required for building.
 
 Examples
 --------
