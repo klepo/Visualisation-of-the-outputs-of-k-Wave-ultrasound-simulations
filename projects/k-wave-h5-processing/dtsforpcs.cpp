@@ -174,7 +174,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
 
             if (datasetType != HDF5Helper::HDF5DatasetType::UNKNOWN) {
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
-                std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << std::endl;
+                std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << ", chunk size: " << dataset->getChunkDims() << std::endl;
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
                     dataset->findAndSetGlobalMinAndMaxValue(false, true);

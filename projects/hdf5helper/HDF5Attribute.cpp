@@ -77,7 +77,10 @@ HDF5Attribute::HDF5Attribute(hid_t object, std::string name)
  */
 HDF5Attribute::HDF5Attribute(hid_t object, hsize_t idx)
 {
-    attribute = H5Aopen_idx(object, unsigned(idx));
+    //attribute = H5Aopen_idx(object, unsigned(idx));
+
+    attribute = H5Aopen_by_idx(object, ".", H5_INDEX_NAME, H5_ITER_INC, unsigned(idx), 0, 0);
+
     if (attribute < 0) {
         throw std::runtime_error("H5Aopen_name error");
     }

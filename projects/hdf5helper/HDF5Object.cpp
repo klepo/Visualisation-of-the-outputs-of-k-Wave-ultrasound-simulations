@@ -45,12 +45,26 @@ HDF5Object::~HDF5Object()
  */
 hsize_t HDF5Object::getNumAttrs() const
 {
-    H5O_info_t object_info;
+    hsize_t count = 0;
+    hid_t attribute;
+    while (1) {
+        attribute = H5Aopen_by_idx(object, ".", H5_INDEX_NAME, H5_ITER_INC, count, 0, 0);
+        if (attribute >= 0) {
+            count++;
+            H5Aclose(attribute);
+        } else {
+            break;
+            H5Aclose(attribute);
+        }
+    }
+
+    /*H5O_info_t object_info;
     herr_t err = H5Oget_info(object, &object_info);
     if (err < 0) {
         throw std::runtime_error("H5Oget_info error");
-    }
-    return object_info.num_attrs;
+    }*/
+    //return object_info.num_attrs;
+    return count;
 }
 
 /**

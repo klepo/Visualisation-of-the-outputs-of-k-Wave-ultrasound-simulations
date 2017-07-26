@@ -1247,9 +1247,9 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     float maxV = 0, minV = 0;
     hsize_t minVIndex = 0, maxVIndex = 0;
     bool first = true;
-    float sum = 0.0f;
-    float sumO = 0.0f;
-    float sum2 = 0.0f;
+    double sum = 0.0;
+    double sumO = 0.0;
+    double sum2 = 0.0;
 
     datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
     // Reading and substraction
@@ -1259,12 +1259,12 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
         datasetOriginal->readBlock(i, offset, count, dataO);
         // The count is from original dataset and is smaller for last step than is in the decoded dataset
 
-        #pragma omp parallel for reduction(+ : sum) reduction(+ : sumO) reduction(+ : sum2)
+        #pragma omp parallel for reduction(+ : sum, sumO, sum2)
         for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
             dataD[i] = dataO[i] - dataD[i];
-            sum += abs(dataD[i]);
-            sumO += abs(dataO[i]);
-            sum2 += (dataD[i] * dataD[i]);
+            sum += double(abs(dataD[i]));
+            sumO += double(abs(dataO[i]));
+            sum2 += double((dataD[i] * dataD[i]));
             // Min/max values
             HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i]);
 
@@ -1295,9 +1295,9 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     datasetOriginal->getGlobalMinValue(minVO, minVOIndex);
     datasetOriginal->getGlobalMaxValue(maxVO, maxVOIndex);
     float maxError = std::max(abs(minV), abs(maxV));
-    float meanError = sum / float(outputDims.getSize());
+    double meanError = sum / double(outputDims.getSize());
     float maxValue = std::max(abs(minVO), abs(maxVO));
-    float mse = sum2 / float(outputDims.getSize());
+    double mse = sum2 / double(outputDims.getSize());
 
     dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR);
 
@@ -1307,24 +1307,29 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex);
     dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex);
     dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "s");
-    dstDataset->setAttribute("sum", sum);
-    dstDataset->setAttribute("sum_original", sumO);
-    dstDataset->setAttribute("sum_2", sum2);
+    dstDataset->setAttribute("sum", float(sum));
+    dstDataset->setAttribute("sum_original", float(sumO));
+    dstDataset->setAttribute("sum_2", float(sum2));
     dstDataset->setAttribute("max_original", maxValue);
     dstDataset->setAttribute("mean_error", (meanError / maxValue) * 100);
     dstDataset->setAttribute("mean_error_value", meanError);
     dstDataset->setAttribute("max_error", (maxError / maxValue) * 100);
     dstDataset->setAttribute("max_error_value", maxError);
-    dstDataset->setAttribute("mean_squared_error", mse);
-    dstDataset->setAttribute("snr", sumO / mse);
-    dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / mse));
+    dstDataset->setAttribute("mean_squared_error", float(mse));
+    dstDataset->setAttribute("snr", float(sumO / mse));
+    dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / float(mse)));
+
+    std::cout << "sum:          " << sum << std::endl;
+    std::cout << "sum_original: " << sumO << std::endl;
+    std::cout << "sum_2:        " << sum2 << std::endl;
+
 
     std::cout << std::endl;
     std::cout << "Mean error: " << (meanError / maxValue) * 100 << " %" << std::endl;
     std::cout << "Max error:  " << (maxError / maxValue) * 100  << " %" << std::endl;
     std::cout << "MSE:        " << mse << std::endl;
     std::cout << "SNR:        " << sumO / mse << std::endl;
-    std::cout << "PSNR:       " << 10 * log10((maxValue * maxValue) / mse) << " dB" << std::endl;
+    std::cout << "PSNR:       " << 10 * log10((maxValue * maxValue) / float(mse)) << " dB" << std::endl;
     std::cout << std::endl;
 
     hDF5OutputFile->closeDataset(dstDataset);
