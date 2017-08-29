@@ -51,7 +51,7 @@ public:
     QString getFilename() const;
     QString getRawFilename() const;
 
-    HDF5Helper::HDF5Vector4D getNDims() const;
+    HDF5Helper::Vector4D getNDims() const;
     hsize_t getNT() const;
     hsize_t getNX() const;
     hsize_t getNY() const;
@@ -66,15 +66,15 @@ public slots:
 
 private:
     HDF5Helper::File *file = 0;
-    HDF5Helper::HDF5Vector4D nDims;
-    void findDatasetsForVisualization(HDF5Helper::HDF5Group *group);
+    HDF5Helper::Vector4D nDims;
+    void findDatasetsForVisualization(HDF5Helper::Group *group);
 
     QMap<QString, QString> info;
     QMap<QString, H5ObjectToVisualize *> objects;
 
     H5ObjectToVisualize *selectedObject = 0;
 
-    void setObject(QString name, HDF5Helper::HDF5Dataset *dataset, ObjectType type);
+    void setObject(QString name, HDF5Helper::Dataset *dataset, ObjectType type);
 };
 
 #endif // H5FILE_H

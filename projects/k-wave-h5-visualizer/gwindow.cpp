@@ -322,7 +322,7 @@ bool GWindow::isTexture3DInitialized()
  * @param height
  * @param width
  */
-void GWindow::setMainSize(HDF5Helper::HDF5Vector3D size)
+void GWindow::setMainSize(HDF5Helper::Vector3D size)
 {
     fullSize = QVector3DI(size.x(), size.y(), size.z());
 }
@@ -333,7 +333,7 @@ void GWindow::setMainSize(HDF5Helper::HDF5Vector3D size)
  * @param height
  * @param width
  */
-void GWindow::setSize(HDF5Helper::HDF5Vector3D size)
+void GWindow::setSize(HDF5Helper::Vector3D size)
 {
     imageSize = QVector3DI(size.x(), size.y(), size.z());
     imageSizeOrig = imageSize;
@@ -345,7 +345,7 @@ void GWindow::setSize(HDF5Helper::HDF5Vector3D size)
  * @param posY
  * @param posX
  */
-void GWindow::setPosition(HDF5Helper::HDF5Vector3D position)
+void GWindow::setPosition(HDF5Helper::Vector3D position)
 {
     imagePosition = QVector3DI(position.x(), position.y(), position.z());
 }
@@ -354,7 +354,7 @@ void GWindow::setPosition(HDF5Helper::HDF5Vector3D position)
  * @brief GWindow::load3DTexture Performs loading of 3D data for VR
  * @param dataset
  */
-void GWindow::load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index)
+void GWindow::load3DTexture(HDF5Helper::Dataset *dataset, hsize_t index)
 {
     selectedDataset = dataset;
     texture3DInitialized = false;
@@ -427,8 +427,8 @@ void GWindow::setLoaded(Request *request)
         return;
 
     texture3DInitialized = false;
-    HDF5Helper::HDF5Vector3D offset = request->offset;
-    HDF5Helper::HDF5Vector3D count = request->count;
+    HDF5Helper::Vector3D offset = request->offset;
+    HDF5Helper::Vector3D count = request->count;
 
     // Set 3D data to 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);

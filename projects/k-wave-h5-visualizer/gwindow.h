@@ -67,11 +67,11 @@ public slots:
     void setTrim(bool);
     void setOrthogonal(bool);
 
-    void setMainSize(HDF5Helper::HDF5Vector3D size);
-    void setSize(HDF5Helper::HDF5Vector3D size);
-    void setPosition(HDF5Helper::HDF5Vector3D position);
+    void setMainSize(HDF5Helper::Vector3D size);
+    void setSize(HDF5Helper::Vector3D size);
+    void setPosition(HDF5Helper::Vector3D position);
 
-    void load3DTexture(HDF5Helper::HDF5Dataset *dataset, hsize_t index);
+    void load3DTexture(HDF5Helper::Dataset *dataset, hsize_t index);
     void changeColormap(ColorMap::Type colormap = ColorMap::JET);
     void changeOpacity(QVector<float> opacity = QVector<float>(5, 1));
     void changeMinValue(float value);
@@ -108,7 +108,7 @@ private:
     float round(float number, float precision);
 
     QMainWindow *qMainWindow = 0;
-    HDF5Helper::HDF5Dataset *selectedDataset = 0;
+    HDF5Helper::Dataset *selectedDataset = 0;
     HDF5ReadingThread *thread = 0;
 
     GLint uVolumeTexture;

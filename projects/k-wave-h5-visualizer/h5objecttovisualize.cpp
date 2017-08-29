@@ -47,9 +47,9 @@ OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
 
 /**
  * @brief OpenedH5File::H5ObjectToVisualize::addSubobject Add dataset to Qmap of subobjects
- * @param dataset HDF5HDF5Dataset * object
+ * @param dataset HDF5dataset * object
  */
-void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::HDF5Dataset *dataset)
+void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::Dataset *dataset)
 {
     QString name = QString::fromStdString(dataset->getOnlyName());
     if (!subobjects.contains(name)) {

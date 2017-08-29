@@ -500,7 +500,7 @@ void MainWindow::selectDataset()
             // Fill space by mask?
             if (ui->actionFillSpace->isChecked()) {
                 gWindow->setMainSize(subobject->getSize());
-                gWindow->setPosition(HDF5Helper::HDF5Vector3D(0, 0, 0));
+                gWindow->setPosition(HDF5Helper::Vector3D(0, 0, 0));
             }
         }
 
@@ -971,7 +971,7 @@ void MainWindow::on_actionFillSpace_toggled(bool value)
     if (subobject != 0 && subobject->isGUIInitialized()) {
         if (value == true) {
             gWindow->setMainSize(subobject->getSize());
-            gWindow->setPosition(HDF5Helper::HDF5Vector3D(0, 0, 0));
+            gWindow->setPosition(HDF5Helper::Vector3D(0, 0, 0));
             gWindow->renderLater();
         } else {
             gWindow->setMainSize(subobject->getFrameSize());

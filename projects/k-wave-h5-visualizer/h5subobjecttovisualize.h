@@ -29,7 +29,7 @@ class OpenedH5File::H5SubobjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent = 0);
+    explicit H5SubobjectToVisualize(HDF5Helper::Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent = 0);
     ~H5SubobjectToVisualize();
 
     // Getters for current settings and min/max values
@@ -42,7 +42,7 @@ public:
     float getOriginalMinValue();
     float getOriginalMaxValue();
 
-    HDF5Helper::HDF5Dataset *getDataset();
+    HDF5Helper::Dataset *getDataset();
 
     // Simulation info from file
     QList<QPair<QString, QString>> getInfo();
@@ -60,12 +60,12 @@ public:
     ObjectType getType();
     ColorMap::Type getColormap();
 
-    HDF5Helper::HDF5Vector3D getFrameSize();
-    HDF5Helper::HDF5Vector3D getOriginalFrameSize();
-    HDF5Helper::HDF5Vector3D getSize();
-    HDF5Helper::HDF5Vector3D getOriginalSize();
-    HDF5Helper::HDF5Vector3D getPos();
-    HDF5Helper::HDF5Vector3D getOriginalPos();
+    HDF5Helper::Vector3D getFrameSize();
+    HDF5Helper::Vector3D getOriginalFrameSize();
+    HDF5Helper::Vector3D getSize();
+    HDF5Helper::Vector3D getOriginalSize();
+    HDF5Helper::Vector3D getPos();
+    HDF5Helper::Vector3D getOriginalPos();
     hsize_t getSteps();
     hsize_t getCurrentStep();
 
@@ -133,14 +133,14 @@ private:
     QString objectName;
     QString objectOnlyName;
     ObjectType type;
-    HDF5Helper::HDF5Dataset *dataset = 0;
+    HDF5Helper::Dataset *dataset = 0;
 
     bool XYloadedFlag = false;
     bool XZloadedFlag = false;
     bool YZloadedFlag = false;
 
-    HDF5Helper::HDF5Vector3D index;
-    HDF5Helper::HDF5Vector3D lastLoadedIndex;
+    HDF5Helper::Vector3D index;
+    HDF5Helper::Vector3D lastLoadedIndex;
 
     HDF5ReadingThread *threadXY = 0;
     HDF5ReadingThread *threadXZ = 0;
@@ -151,8 +151,8 @@ private:
     float maxValue = 0;
     float originalMinValue = 0;
     float originalMaxValue = 0;
-    HDF5Helper::HDF5Vector minValuePosition;
-    HDF5Helper::HDF5Vector maxValuePosition;
+    HDF5Helper::Vector minValuePosition;
+    HDF5Helper::Vector maxValuePosition;
 
     ColorMap::Type colormap = ColorMap::JET;
 
@@ -167,13 +167,13 @@ private:
     int count = 100;
 
     // Datasets characteristics variables
-    HDF5Helper::HDF5Vector3D originalFrameSize;
-    HDF5Helper::HDF5Vector3D frameSize;
-    HDF5Helper::HDF5Vector3D originalSize;
-    HDF5Helper::HDF5Vector3D size;
-    HDF5Helper::HDF5Vector3D originalPos;
-    HDF5Helper::HDF5Vector3D pos;
-    HDF5Helper::HDF5Vector chunkSize;
+    HDF5Helper::Vector3D originalFrameSize;
+    HDF5Helper::Vector3D frameSize;
+    HDF5Helper::Vector3D originalSize;
+    HDF5Helper::Vector3D size;
+    HDF5Helper::Vector3D originalPos;
+    HDF5Helper::Vector3D pos;
+    HDF5Helper::Vector chunkSize;
 
     hsize_t steps = 1;
     hsize_t currentStep = 0;

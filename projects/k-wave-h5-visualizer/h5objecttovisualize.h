@@ -30,7 +30,7 @@ public:
     explicit H5ObjectToVisualize(QString name, ObjectType type, OpenedH5File *openedH5File, QObject *parent = 0);
     ~H5ObjectToVisualize();
 
-    void addSubobject(HDF5Helper::HDF5Dataset *dataset);
+    void addSubobject(HDF5Helper::Dataset *dataset);
     bool setSelectedSubobject(QString name);
     OpenedH5File::H5SubobjectToVisualize *getSelectedSubobject();
     QString getName();

@@ -19,7 +19,7 @@
 
 #include "hdf5readingthread.h"
 
-Request::Request(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count)
+Request::Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count)
 {
     this->dataset = dataset;
     this->offset = offset;
@@ -32,7 +32,7 @@ Request::Request(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset
  * @brief Request::Request Create request for full 3D dataset reading.
  * @param dataset
  */
-Request::Request(HDF5Helper::HDF5Dataset *dataset, hsize_t step)
+Request::Request(HDF5Helper::Dataset *dataset, hsize_t step)
 {
     this->dataset = dataset;
     this->full = true;
@@ -75,7 +75,7 @@ HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
  * @param count
  * @param limit (volatile) length of waiting queue
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count, int limit)
+void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit)
 {
     QMutexLocker locker(&queueMutex);
     if (queue.size() > limit) {
@@ -91,7 +91,7 @@ void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, HDF5Help
  * @brief HDF5ReadingThread::createRequest Create request for full dataset read in thread
  * @param dataset
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t step)
+void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -187,8 +187,8 @@ void HDF5ReadingThread::run()
                 //usleep(1000000);
                 if (r->full) {
                     // Reading of full dataset with block reading
-                    r->dataset->setMaxNumberOfElmsToLoad(HDF5Helper::HDF5Vector3D(r->dataset->getDims()).getSize());
-                    hsize_t c = HDF5Helper::HDF5Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
+                    r->dataset->setMaxNumberOfElmsToLoad(HDF5Helper::Vector3D(r->dataset->getDims()).getSize());
+                    hsize_t c = HDF5Helper::Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
                     for (hsize_t i = 0; i < c; i++) {
                         if (stopFlag) {
                             stopFlag = false;

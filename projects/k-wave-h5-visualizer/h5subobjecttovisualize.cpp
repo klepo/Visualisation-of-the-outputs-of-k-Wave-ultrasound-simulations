@@ -27,7 +27,7 @@
  * @param openedH5File
  * @param parent
  */
-OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::HDF5Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent) : QObject(parent)
+OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent) : QObject(parent)
 {
     // Params
     this->openedH5File = openedH5File;
@@ -134,7 +134,7 @@ OpenedH5File::ObjectType OpenedH5File::H5SubobjectToVisualize::getType()
  * @brief OpenedH5File::H5SubobjectToVisualize::getDataset
  * @return dataset
  */
-HDF5Helper::HDF5Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
+HDF5Helper::Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
 {
     return dataset;
 }
@@ -145,7 +145,7 @@ HDF5Helper::HDF5Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
 void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 {
     // Size of dataset (can be downsampled)
-    size = HDF5Helper::HDF5Vector3D(dataset->getDims());
+    size = HDF5Helper::Vector3D(dataset->getDims());
     originalSize = size;
 
     // Set 3D frame size
@@ -189,13 +189,13 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
             originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
             pos = originalPos;
 
-            frameSize = HDF5Helper::HDF5Vector3D(openedH5File->getNDims());;
+            frameSize = HDF5Helper::Vector3D(openedH5File->getNDims());;
             originalFrameSize = frameSize;
         }
 
     } else if (type == dataset4D_t) {
 
-        frameSize = HDF5Helper::HDF5Vector3D(openedH5File->getNDims());;
+        frameSize = HDF5Helper::Vector3D(openedH5File->getNDims());;
         originalFrameSize = frameSize;
 
         // Get position (was defined by sensor mask)
@@ -219,7 +219,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         }
 
         // Get number of steps
-        steps = HDF5Helper::HDF5Vector4D(dataset->getDims()).w();
+        steps = HDF5Helper::Vector4D(dataset->getDims()).w();
     }
 }
 
@@ -253,11 +253,11 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
     // Copy image data from request
     memcpy(dataXY, r->data, static_cast<size_t>(size.y() * size.x()) * sizeof(float));
     XYloadedFlag = true;
-    if (index.z() == HDF5Helper::HDF5Vector3D(r->offset).z())
+    if (index.z() == HDF5Helper::Vector3D(r->offset).z())
         currentXYLodaded = true;
     else
         currentXYLodaded = false;
-    emit imageXYChanged(createImageXY(), HDF5Helper::HDF5Vector3D(r->offset).z());
+    emit imageXYChanged(createImageXY(), HDF5Helper::Vector3D(r->offset).z());
     threadXY->deleteDoneRequest(r);
 }
 
@@ -271,11 +271,11 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
     // Copy image data from request
     memcpy(dataXZ, r->data, static_cast<size_t>(size.z() * size.x()) * sizeof(float));
     XZloadedFlag = true;
-    if (index.y() == HDF5Helper::HDF5Vector3D(r->offset).y())
+    if (index.y() == HDF5Helper::Vector3D(r->offset).y())
         currentXZLodaded = true;
     else
         currentXZLodaded = false;
-    emit imageXZChanged(createImageXZ(), HDF5Helper::HDF5Vector3D(r->offset).y());
+    emit imageXZChanged(createImageXZ(), HDF5Helper::Vector3D(r->offset).y());
     threadXZ->deleteDoneRequest(r);
 }
 
@@ -289,11 +289,11 @@ void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
     // Copy image data from request
     memcpy(dataYZ, r->data, static_cast<size_t>(size.z() * size.y()) * sizeof(float));
     YZloadedFlag = true;
-    if (index.x() == HDF5Helper::HDF5Vector3D(r->offset).x())
+    if (index.x() == HDF5Helper::Vector3D(r->offset).x())
         currentYZLodaded = true;
     else
         currentYZLodaded = false;
-    emit imageYZChanged(createImageYZ(), HDF5Helper::HDF5Vector3D(r->offset).x());
+    emit imageYZChanged(createImageYZ(), HDF5Helper::Vector3D(r->offset).x());
     threadYZ->deleteDoneRequest(r);
 }
 
@@ -451,9 +451,9 @@ void OpenedH5File::H5SubobjectToVisualize::setXIndex(hsize_t value)
     index.x(value);
     currentXYLodaded = false;
     if (type == dataset3D_t)
-        threadYZ->createRequest(dataset, HDF5Helper::HDF5Vector3D(0, 0, value), HDF5Helper::HDF5Vector3D(size.z(), size.y(), 1));
+        threadYZ->createRequest(dataset, HDF5Helper::Vector3D(0, 0, value), HDF5Helper::Vector3D(size.z(), size.y(), 1));
     else
-        threadYZ->createRequest(dataset, HDF5Helper::HDF5Vector4D(currentStep, 0, 0, value), HDF5Helper::HDF5Vector4D(1, size.z(), size.y(), 1));
+        threadYZ->createRequest(dataset, HDF5Helper::Vector4D(currentStep, 0, 0, value), HDF5Helper::Vector4D(1, size.z(), size.y(), 1));
 
     threadYZ->start();
 }
@@ -467,9 +467,9 @@ void OpenedH5File::H5SubobjectToVisualize::setYIndex(hsize_t value)
     index.y(value);
     currentXZLodaded = false;
     if (type == dataset3D_t)
-        threadXZ->createRequest(dataset, HDF5Helper::HDF5Vector3D(0, value, 0), HDF5Helper::HDF5Vector3D(size.z(), 1, size.x()));
+        threadXZ->createRequest(dataset, HDF5Helper::Vector3D(0, value, 0), HDF5Helper::Vector3D(size.z(), 1, size.x()));
     else
-        threadXZ->createRequest(dataset, HDF5Helper::HDF5Vector4D(currentStep, 0, value, 0), HDF5Helper::HDF5Vector4D(1, size.z(), 1, size.x()));
+        threadXZ->createRequest(dataset, HDF5Helper::Vector4D(currentStep, 0, value, 0), HDF5Helper::Vector4D(1, size.z(), 1, size.x()));
     threadXZ->start();
 }
 
@@ -482,9 +482,9 @@ void OpenedH5File::H5SubobjectToVisualize::setZIndex(hsize_t value)
     index.z(value);
     currentYZLodaded = false;
     if (type == dataset3D_t)
-        threadXY->createRequest(dataset, HDF5Helper::HDF5Vector3D(value, 0, 0), HDF5Helper::HDF5Vector3D(1, size.y(), size.x()));
+        threadXY->createRequest(dataset, HDF5Helper::Vector3D(value, 0, 0), HDF5Helper::Vector3D(1, size.y(), size.x()));
     else
-        threadXY->createRequest(dataset, HDF5Helper::HDF5Vector4D(currentStep, value, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, size.y(), size.x()));
+        threadXY->createRequest(dataset, HDF5Helper::Vector4D(currentStep, value, 0, 0), HDF5Helper::Vector4D(1, 1, size.y(), size.x()));
     threadXY->start();
 }
 
@@ -582,7 +582,7 @@ void OpenedH5File::H5SubobjectToVisualize::setCount(int value)
  * @brief OpenedH5File::H5SubobjectToVisualize::getSize
  * @return size
  */
-HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getSize()
+HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getSize()
 {
     return size;
 }
@@ -591,7 +591,7 @@ HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getSize()
  * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalSize
  * @return original size
  */
-HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalSize()
+HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalSize()
 {
     return originalSize;
 }
@@ -600,7 +600,7 @@ HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalSize()
  * @brief OpenedH5File::H5SubobjectToVisualize::getFrameSize
  * @return frame size
  */
-HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getFrameSize()
+HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getFrameSize()
 {
     return frameSize;
 }
@@ -609,7 +609,7 @@ HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getFrameSize()
  * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalFrameSize
  * @return original frame size
  */
-HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalFrameSize()
+HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalFrameSize()
 {
     return originalFrameSize;
 }
@@ -618,7 +618,7 @@ HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalFrameS
  * @brief OpenedH5File::H5SubobjectToVisualize::getPos
  * @return position
  */
-HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getPos()
+HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getPos()
 {
     return pos;
 }
@@ -627,7 +627,7 @@ HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getPos()
  * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalPos
  * @return original position
  */
-HDF5Helper::HDF5Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalPos()
+HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalPos()
 {
     return originalPos;
 }

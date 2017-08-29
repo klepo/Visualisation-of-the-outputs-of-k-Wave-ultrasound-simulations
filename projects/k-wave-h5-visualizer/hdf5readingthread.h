@@ -26,18 +26,18 @@
 class Request
 {
 public:
-    Request(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count);
-    Request(HDF5Helper::HDF5Dataset *dataset, hsize_t step);
+    Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count);
+    Request(HDF5Helper::Dataset *dataset, hsize_t step);
     ~Request();
     QString toQString();
 
-    HDF5Helper::HDF5Vector offset;
-    HDF5Helper::HDF5Vector count;
+    HDF5Helper::Vector offset;
+    HDF5Helper::Vector count;
     float min, max;
     hsize_t minIndex, maxIndex;
     bool full;
     hsize_t step;
-    HDF5Helper::HDF5Dataset *dataset;
+    HDF5Helper::Dataset *dataset;
     float *data;
 };
 
@@ -49,8 +49,8 @@ public:
     ~HDF5ReadingThread();
 
 public slots:
-    void createRequest(HDF5Helper::HDF5Dataset *dataset, HDF5Helper::HDF5Vector offset, HDF5Helper::HDF5Vector count, int limit = 0);
-    void createRequest(HDF5Helper::HDF5Dataset *dataset, hsize_t step);
+    void createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit = 0);
+    void createRequest(HDF5Helper::Dataset *dataset, hsize_t step);
     void stopCurrentBlockReading();
     void clearRequests();
     void clearDoneRequests();
