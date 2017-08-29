@@ -24,25 +24,25 @@ class DtsForPcs
 {
 public:
     DtsForPcs(FilesContext *filesContext, Settings *settings);
-    HDF5Helper::HDF5Vector4D getNDims() const;
-    HDF5Helper::HDF5Dataset *getSensorMaskIndexDataset() const;
-    HDF5Helper::HDF5Dataset *getSensorMaskCornersDataset() const;
-    HDF5Helper::HDF5Dataset *getSourceInputDataset() const;
+    HDF5Helper::Vector4D getNDims() const;
+    HDF5Helper::Dataset *getSensorMaskIndexDataset() const;
+    HDF5Helper::Dataset *getSensorMaskCornersDataset() const;
+    HDF5Helper::Dataset *getSourceInputDataset() const;
     hsize_t getSensorMaskSize() const;
     hsize_t getSensorMaskType() const;
-    HDF5Helper::MapOfDatasets getDatasets(HDF5Helper::HDF5DatasetType datasetType = HDF5Helper::HDF5DatasetType::ALL) const;
+    HDF5Helper::MapOfDatasets getDatasets(HDF5Helper::DatasetType datasetType = HDF5Helper::DatasetType::ALL) const;
 
 private:
-    HDF5Helper::HDF5Dataset *findAndGetDataset(const std::string name, HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile);
-    void findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings *settings);
+    HDF5Helper::Dataset *findAndGetDataset(const std::string name, HDF5Helper::File *simOutputFile, HDF5Helper::File *simInputFile);
+    void findDatasetsForProcessing(HDF5Helper::Group *group, Settings *settings);
 
     bool isFiltered(std::string name, Settings *settings);
 
-    HDF5Helper::HDF5Vector4D nDims;
+    HDF5Helper::Vector4D nDims;
 
-    HDF5Helper::HDF5Dataset *sensorMaskIndexDataset = 0;
-    HDF5Helper::HDF5Dataset *sensorMaskCornersDataset = 0;
-    HDF5Helper::HDF5Dataset *sourceInputDataset = 0;
+    HDF5Helper::Dataset *sensorMaskIndexDataset = 0;
+    HDF5Helper::Dataset *sensorMaskCornersDataset = 0;
+    HDF5Helper::Dataset *sourceInputDataset = 0;
     hsize_t sensorMaskSize = 0;
     hsize_t sensorMaskType = 0;
     HDF5Helper::MapOfDatasets datasets;

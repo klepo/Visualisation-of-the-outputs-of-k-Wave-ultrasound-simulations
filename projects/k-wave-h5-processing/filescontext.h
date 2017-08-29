@@ -36,10 +36,10 @@ private:
     HDF5Helper::File *loadSimulationFile(std::string filename);
     void resolveOutputFilename(Settings *settings);
     HDF5Helper::File *createOrOpenOutputFile(std::string filename);
-    HDF5Helper::File *hDF5SimOutputFile = 0;
-    HDF5Helper::File *hDF5SimInputFile = 0;
-    HDF5Helper::File *hDF5PcsOutputFile = 0;
-    HDF5Helper::File *hDF5PcsInputFile = 0;
+    HDF5Helper::File *simOutputFile = 0;
+    HDF5Helper::File *simInputFile = 0;
+    HDF5Helper::File *pcsOutputFile = 0;
+    HDF5Helper::File *pcsInputFile = 0;
 
 private:
     // Disable copy

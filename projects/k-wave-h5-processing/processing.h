@@ -26,7 +26,7 @@
 class Processing
 {
 public:
-    Processing(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs, Settings *settings);
+    Processing(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
 
     void reshape();
     void changeChunks();
@@ -37,21 +37,21 @@ public:
     void testOfReading();
 
 private:
-    void findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &min, HDF5Helper::HDF5Vector3D &max);
-    void computeDstDims(HDF5Helper::HDF5Vector3D dimsSrc, float ratio, HDF5Helper::HDF5Vector3D &dimsDst, HDF5Helper::HDF5Vector3D &chunkSize, Settings *settings);
-    void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset);
-    void resampleDataset(HDF5Helper::HDF5Dataset *srcDataset);
-    void compressDataset(HDF5Helper::HDF5Dataset *srcDataset);
-    void decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsFi, std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsK);
-    void subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5Helper::HDF5Dataset *datasetDecoded);
-    void copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset);
+    void findMinAndMaxPositionFromSensorMask(HDF5Helper::Vector3D &min, HDF5Helper::Vector3D &max);
+    void computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF5Helper::Vector3D &dimsDst, HDF5Helper::Vector3D &chunkSize, Settings *settings);
+    void changeChunksOfDataset(HDF5Helper::Dataset *srcDataset);
+    void resampleDataset(HDF5Helper::Dataset *srcDataset);
+    void compressDataset(HDF5Helper::Dataset *srcDataset);
+    void decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatasetsFi, std::vector<HDF5Helper::Dataset *> srcDatasetsK);
+    void subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded);
+    void copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dataset *dstDataset);
     void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);
     void resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);
     void resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth);
     void resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth);
 
 
-    HDF5Helper::File *hDF5OutputFile;
+    HDF5Helper::File *outputFile;
     DtsForPcs *dtsForPcs;
     Settings *settings;
 };

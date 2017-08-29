@@ -21,9 +21,9 @@ FilesContext::FilesContext(Settings *settings)
     Helper::printDebugTitle("Loading of simulation output file");
     // Load simulation output file
     if (!settings->getSimulationOutputFilename().empty()) {
-        hDF5SimOutputFile = loadSimulationFile(settings->getSimulationOutputFilename());
+        simOutputFile = loadSimulationFile(settings->getSimulationOutputFilename());
         if (settings->getBlockSize() != 0)
-            hDF5SimOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+            simOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
     } else {
         Helper::printErrorMsg("Missing parameter -f (simulation output filename)");
         Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
@@ -33,92 +33,92 @@ FilesContext::FilesContext(Settings *settings)
     // Load simulation input file
     if (!settings->getSimulationInputFilename().empty()) {
         Helper::printDebugTitle("Loading of simulation input file");
-        hDF5SimInputFile = loadSimulationFile(settings->getSimulationInputFilename());
+        simInputFile = loadSimulationFile(settings->getSimulationInputFilename());
         if (settings->getBlockSize() != 0)
-            hDF5SimInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+            simInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
     }
 
     // Create or open processing output file
     Helper::printDebugTitle("Create or open processing output file");
     resolveOutputFilename(settings);
-    hDF5PcsOutputFile = createOrOpenOutputFile(outputFilename);
+    pcsOutputFile = createOrOpenOutputFile(outputFilename);
 
     // Load processing input file
     if (!settings->getProcessingInputFilename().empty()) {
         Helper::printDebugTitle("Loading of processing input file");
-        hDF5PcsInputFile = loadSimulationFile(settings->getProcessingInputFilename());
+        pcsInputFile = loadSimulationFile(settings->getProcessingInputFilename());
         if (settings->getBlockSize() != 0)
-            hDF5PcsInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+            pcsInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
     }
 }
 
 FilesContext::~FilesContext()
 {
-    if (hDF5SimOutputFile == hDF5PcsOutputFile) {
-        if (hDF5SimOutputFile) {
-            delete hDF5SimOutputFile;
-            hDF5SimOutputFile = 0;
+    if (simOutputFile == pcsOutputFile) {
+        if (simOutputFile) {
+            delete simOutputFile;
+            simOutputFile = 0;
         }
-        if (hDF5SimInputFile) {
-            delete hDF5SimInputFile;
-            hDF5SimInputFile = 0;
+        if (simInputFile) {
+            delete simInputFile;
+            simInputFile = 0;
         }
-        if (hDF5PcsInputFile) {
-            delete hDF5PcsInputFile;
-            hDF5PcsInputFile = 0;
+        if (pcsInputFile) {
+            delete pcsInputFile;
+            pcsInputFile = 0;
         }
     } else {
-        if (hDF5SimOutputFile) {
-            delete hDF5SimOutputFile;
-            hDF5SimOutputFile = 0;
+        if (simOutputFile) {
+            delete simOutputFile;
+            simOutputFile = 0;
         }
-        if (hDF5SimInputFile) {
-            delete hDF5SimInputFile;
-            hDF5SimInputFile = 0;
+        if (simInputFile) {
+            delete simInputFile;
+            simInputFile = 0;
         }
-        if (hDF5PcsOutputFile) {
-            delete hDF5PcsOutputFile;
-            hDF5PcsOutputFile = 0;
+        if (pcsOutputFile) {
+            delete pcsOutputFile;
+            pcsOutputFile = 0;
         }
-        if (hDF5PcsInputFile) {
-            delete hDF5PcsInputFile;
-            hDF5PcsInputFile = 0;
+        if (pcsInputFile) {
+            delete pcsInputFile;
+            pcsInputFile = 0;
         }
     }
 }
 
 HDF5Helper::File *FilesContext::getHDF5SimOutputFile() const
 {
-    return hDF5SimOutputFile;
+    return simOutputFile;
 }
 
 HDF5Helper::File *FilesContext::getHDF5SimInputFile() const
 {
-    return hDF5SimInputFile;
+    return simInputFile;
 }
 
 HDF5Helper::File *FilesContext::getHDF5PcsOutputFile()
 {
     if (newEmptyOutputFileFlag)
-        hDF5PcsOutputFile = createOrOpenOutputFile(outputFilename);
-    return hDF5PcsOutputFile;
+        pcsOutputFile = createOrOpenOutputFile(outputFilename);
+    return pcsOutputFile;
 }
 
 HDF5Helper::File *FilesContext::getHDF5PcsInputFile() const
 {
-    return hDF5PcsInputFile;
+    return pcsInputFile;
 }
 
 HDF5Helper::File *FilesContext::loadSimulationFile(std::string filename)
 {
-    HDF5Helper::File *hDF5SimulationFile = 0;
+    HDF5Helper::File *simulationFile = 0;
     try {
-        hDF5SimulationFile = new HDF5Helper::File(filename, HDF5Helper::File::OPEN);
+        simulationFile = new HDF5Helper::File(filename, HDF5Helper::File::OPEN);
     } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
-    return hDF5SimulationFile;
+    return simulationFile;
 }
 
 void FilesContext::resolveOutputFilename(Settings *settings)
@@ -134,8 +134,8 @@ void FilesContext::resolveOutputFilename(Settings *settings)
 
     if (outputFilename == settings->getSimulationOutputFilename()) {
         Helper::printDebugMsg("Simulation output file == processing output file");
-        //file = hDF5SimOutputFile;
-        //return hDF5SimOutputFile;
+        //file = simOutputFile;
+        //return simOutputFile;
     }
 }
 
@@ -168,17 +168,17 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         }
     }
 
-    file->setNumberOfElmsToLoad(hDF5SimOutputFile->getNumberOfElmsToLoad());
+    file->setNumberOfElmsToLoad(simOutputFile->getNumberOfElmsToLoad());
 
     Helper::printDebugTitle("Copy dimensions and root attributes to output file");
 
     // Copy nT, nX, nY, nZ
     std::cout << "Copy nT, nX, nY, nZ ... ";
     try {
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NX_DATASET, true, true);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NY_DATASET, true, true);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NZ_DATASET, true, true);
-        HDF5Helper::copyDataset(hDF5SimOutputFile, file, HDF5Helper::NT_DATASET, true, true);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NX_DATASET, true, true);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NY_DATASET, true, true);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NZ_DATASET, true, true);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NT_DATASET, true, true);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
@@ -188,14 +188,14 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy root (info) attributes to destination h5 file
     std::cout << "Copy root (info) attributes ... ";
     try {
-        HDF5Helper::HDF5Group *srcGroup = hDF5SimOutputFile->openGroup("/", false);
-        HDF5Helper::HDF5Group *dstGroup = file->openGroup("/", false);
+        HDF5Helper::Group *srcGroup = simOutputFile->openGroup("/", false);
+        HDF5Helper::Group *dstGroup = file->openGroup("/", false);
         for (hsize_t i = 0; i < srcGroup->getNumAttrs(); i++) {
-            HDF5Helper::HDF5Attribute *attr = srcGroup->getAttribute(i);
+            HDF5Helper::Attribute *attr = srcGroup->getAttribute(i);
             dstGroup->setAttribute(attr, false);
             delete attr;
         }
-        hDF5SimOutputFile->closeGroup(srcGroup, false);
+        simOutputFile->closeGroup(srcGroup, false);
         file->closeGroup(dstGroup, false);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;

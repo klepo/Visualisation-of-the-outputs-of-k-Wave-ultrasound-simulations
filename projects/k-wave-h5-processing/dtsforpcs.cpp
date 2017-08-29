@@ -24,7 +24,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 
     if (sensorMaskIndexDataset) {
         // Get sensor mask size
-        HDF5Helper::HDF5Vector3D size = sensorMaskIndexDataset->getDims();
+        HDF5Helper::Vector3D size = sensorMaskIndexDataset->getDims();
         if (sensorMaskIndexDataset->getRank() == 3 && size.z() == 1 && size.y() == 1) {
             sensorMaskSize = size.x();
             sensorMaskType = 0;
@@ -34,7 +34,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
         }
     } else if (sensorMaskCornersDataset) {
         // Get sensor mask size
-        HDF5Helper::HDF5Vector3D size = sensorMaskCornersDataset->getDims();
+        HDF5Helper::Vector3D size = sensorMaskCornersDataset->getDims();
         if ((size.x() % 6) == 0 && size.z() == 1 && size.y() == 1) {
             sensorMaskSize = size.x();
             sensorMaskType = 1;
@@ -54,9 +54,9 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
         if (sourceInputDataset->hasAttribute("period")) {
             settings->setPeriod(sourceInputDataset->readAttributeI("period", false));
         } else if (settings->getFlagComputePeriod()){
-            HDF5Helper::HDF5Vector3D dims = sourceInputDataset->getDims();
+            HDF5Helper::Vector3D dims = sourceInputDataset->getDims();
             float *data = 0;
-            sourceInputDataset->readDataset(HDF5Helper::HDF5Vector3D(0, 0, 0), HDF5Helper::HDF5Vector3D(1, dims.y(), 1), data);
+            sourceInputDataset->readDataset(HDF5Helper::Vector3D(0, 0, 0), HDF5Helper::Vector3D(1, dims.y(), 1), data);
             settings->setPeriod(Helper::getPeriod(data, dims.y()));
             sourceInputDataset->setAttribute("period", settings->getPeriod());
             delete[] data;
@@ -68,7 +68,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 
     // Find datasets for processing
     Helper::printDebugTitle("Find datasets for processing");
-    HDF5Helper::HDF5Group *group = filesContext->getHDF5SimOutputFile()->openGroup("/");
+    HDF5Helper::Group *group = filesContext->getHDF5SimOutputFile()->openGroup("/");
     findDatasetsForProcessing(group, settings);
     filesContext->getHDF5SimOutputFile()->closeGroup("/");
 
@@ -80,22 +80,22 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     }
 }
 
-HDF5Helper::HDF5Vector4D DtsForPcs::getNDims() const
+HDF5Helper::Vector4D DtsForPcs::getNDims() const
 {
     return nDims;
 }
 
-HDF5Helper::HDF5Dataset *DtsForPcs::getSensorMaskIndexDataset() const
+HDF5Helper::Dataset *DtsForPcs::getSensorMaskIndexDataset() const
 {
     return sensorMaskIndexDataset;
 }
 
-HDF5Helper::HDF5Dataset *DtsForPcs::getSensorMaskCornersDataset() const
+HDF5Helper::Dataset *DtsForPcs::getSensorMaskCornersDataset() const
 {
     return sensorMaskCornersDataset;
 }
 
-HDF5Helper::HDF5Dataset *DtsForPcs::getSourceInputDataset() const
+HDF5Helper::Dataset *DtsForPcs::getSourceInputDataset() const
 {
     return sourceInputDataset;
 }
@@ -105,15 +105,15 @@ hsize_t DtsForPcs::getSensorMaskType() const
     return sensorMaskType;
 }
 
-HDF5Helper::MapOfDatasets DtsForPcs::getDatasets(HDF5Helper::HDF5DatasetType datasetType) const
+HDF5Helper::MapOfDatasets DtsForPcs::getDatasets(HDF5Helper::DatasetType datasetType) const
 {
-    if (datasetType == HDF5Helper::HDF5DatasetType::ALL) {
+    if (datasetType == HDF5Helper::DatasetType::ALL) {
         return datasets;
     } else {
         HDF5Helper::MapOfDatasets map = datasets;
         HDF5Helper::MapOfDatasets filteredDatasets;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::HDF5Dataset *dataset = it->second;
+            HDF5Helper::Dataset *dataset = it->second;
             if (datasetType == dataset->getType(sensorMaskSize))
                 filteredDatasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
         }
@@ -126,23 +126,23 @@ hsize_t DtsForPcs::getSensorMaskSize() const
     return sensorMaskSize;
 }
 
-HDF5Helper::HDF5Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile = 0)
+HDF5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5Helper::File *simOutputFile, HDF5Helper::File *simInputFile = 0)
 {
-    HDF5Helper::HDF5Dataset *dataset = 0;
+    HDF5Helper::Dataset *dataset = 0;
     Helper::printDebugTitle("Find and get "+ name +" dataset");
 
-    if (hDF5SimOutputFile->objExistsByName(name)) {
+    if (simOutputFile->objExistsByName(name)) {
         // Try to load dataset from simulation output file
         try {
-            dataset = hDF5SimOutputFile->openDataset(name);
+            dataset = simOutputFile->openDataset(name);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
-    } else if (hDF5SimInputFile != 0 && hDF5SimInputFile->objExistsByName(name)) {
+    } else if (simInputFile != 0 && simInputFile->objExistsByName(name)) {
         // Try to load dataset from simulation input file
         try {
-            dataset = hDF5SimInputFile->openDataset(name);
+            dataset = simInputFile->openDataset(name);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
@@ -153,7 +153,7 @@ HDF5Helper::HDF5Dataset *DtsForPcs::findAndGetDataset(const std::string name, HD
     return dataset;
 }
 
-void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings *settings)
+void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *settings)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
         H5G_obj_t type = group->getObjTypeByIdx(i);
@@ -169,10 +169,10 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
             if (isFiltered(name, settings))
                 continue;
 
-            HDF5Helper::HDF5Dataset *dataset = group->openDataset(i);
-            HDF5Helper::HDF5DatasetType datasetType = dataset->getType(sensorMaskSize);
+            HDF5Helper::Dataset *dataset = group->openDataset(i);
+            HDF5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
-            if (datasetType != HDF5Helper::HDF5DatasetType::UNKNOWN) {
+            if (datasetType != HDF5Helper::DatasetType::UNKNOWN) {
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
                 std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << ", chunk size: " << dataset->getChunkDims() << std::endl;
                 // Find min/max values
@@ -185,7 +185,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
                         std::cout << "  Attributes:" << std::endl;
                     }
                     for (hsize_t i = 0; i < dataset->getNumAttrs(); i++) {
-                        HDF5Helper::HDF5Attribute *attr = dataset->getAttribute(i);
+                        HDF5Helper::Attribute *attr = dataset->getAttribute(i);
                         std::cout << "\t" << std::setw(20) << std::left << attr->getName() << std::setw(20) << std::left << attr->getStringValue() << std::endl;
                         delete attr;
                     }
@@ -199,7 +199,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::HDF5Group *group, Settings
         }
         // Groups
         if (type == H5G_GROUP) {
-            HDF5Helper::HDF5Group *nextGroup = group->openGroup(i);
+            HDF5Helper::Group *nextGroup = group->openGroup(i);
             findDatasetsForProcessing(nextGroup, settings);
             group->closeGroup(nextGroup);
         }

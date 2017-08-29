@@ -16,9 +16,9 @@
 
 #include "processing.h"
 
-Processing::Processing(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Processing::Processing(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
 {
-    this->hDF5OutputFile = hDF5OutputFile;
+    this->outputFile = outputFile;
     this->dtsForPcs = dtsForPcs;
     this->settings = settings;
 }
@@ -26,19 +26,19 @@ Processing::Processing(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs, S
 void Processing::reshape()
 {
     try {
-        if ((!dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK).empty() || !dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::BASIC_MASK).empty()) && dtsForPcs->getSensorMaskIndexDataset()) {
+        if ((!dtsForPcs->getDatasets(HDF5Helper::DatasetType::TIME_STEPS_MASK).empty() || !dtsForPcs->getDatasets(HDF5Helper::DatasetType::BASIC_MASK).empty()) && dtsForPcs->getSensorMaskIndexDataset()) {
             // For mask type datasets
             // Prepare somethings
-            HDF5Helper::HDF5Dataset *sensorMaskIndexDataset = dtsForPcs->getSensorMaskIndexDataset();
-            HDF5Helper::HDF5Vector3D nDims = dtsForPcs->getNDims();
+            HDF5Helper::Dataset *sensorMaskIndexDataset = dtsForPcs->getSensorMaskIndexDataset();
+            HDF5Helper::Vector3D nDims = dtsForPcs->getNDims();
 
             // Find min and max position from sensor mask
-            HDF5Helper::HDF5Vector3D min = nDims;
-            HDF5Helper::HDF5Vector3D max = HDF5Helper::HDF5Vector3D(0, 0, 0);
+            HDF5Helper::Vector3D min = nDims;
+            HDF5Helper::Vector3D max = HDF5Helper::Vector3D(0, 0, 0);
             findMinAndMaxPositionFromSensorMask(min, max);
 
             // Compute chunk size according to min/max position
-            HDF5Helper::HDF5Vector4D chunkDims;
+            HDF5Helper::Vector4D chunkDims;
             chunkDims.w(1);
             chunkDims.z(std::min(settings->getMaxChunkSize(), max.z() - min.z() + 1));
             chunkDims.y(std::min(settings->getMaxChunkSize(), max.y() - min.y() + 1));
@@ -47,27 +47,27 @@ void Processing::reshape()
 
             HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets();
             for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-                HDF5Helper::HDF5Dataset *dataset = it->second;
-                HDF5Helper::HDF5DatasetType datasetType = dataset->getType(dtsForPcs->getSensorMaskSize());
-                if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK
-                        || datasetType == HDF5Helper::HDF5DatasetType::BASIC_MASK
+                HDF5Helper::Dataset *dataset = it->second;
+                HDF5Helper::DatasetType datasetType = dataset->getType(dtsForPcs->getSensorMaskSize());
+                if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK
+                        || datasetType == HDF5Helper::DatasetType::BASIC_MASK
                         ) {
                     hsize_t steps = dataset->getDims()[1];
 
                     // Compute dataset size
-                    HDF5Helper::HDF5Vector4D datasetDims(steps, max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
-                    HDF5Helper::HDF5Vector4D stepSize(1, max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
+                    HDF5Helper::Vector4D datasetDims(steps, max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
+                    HDF5Helper::Vector4D stepSize(1, max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
                     std::cout << "   new dataset size:\t" << datasetDims.w() << " x " << datasetDims.z() << " x " << datasetDims.y() << " x " << datasetDims.x() << std::endl;
 
                     // Helper variables
-                    HDF5Helper::HDF5Dataset *dstDataset = 0;
+                    HDF5Helper::Dataset *dstDataset = 0;
                     hsize_t *sensorMaskData = 0;
                     float *datasetData = 0;
                     hsize_t frame = 0;
                     hsize_t index = 0;
-                    HDF5Helper::HDF5Vector3D dstPos;
-                    HDF5Helper::HDF5Vector3D offset; // Offset
-                    HDF5Helper::HDF5Vector3D count;  // Count
+                    HDF5Helper::Vector3D dstPos;
+                    HDF5Helper::Vector3D offset; // Offset
+                    HDF5Helper::Vector3D count;  // Count
 
                     // Min/max values vars
                     float minVFG = std::numeric_limits<float>::infinity();
@@ -90,18 +90,18 @@ void Processing::reshape()
                         sensorMaskIndexDataset->readBlock(0, offset, count, sensorMaskData);
                     }
 
-                    // TODO check hDF5OutputFile != dataset->getFile()
-                    if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK) {
+                    // TODO check outputFile != dataset->getFile()
+                    if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK) {
                         // Create new group for dataset
-                        hDF5OutputFile->createGroup(dataset->getName(), true);
-                        HDF5Helper::HDF5Group *group = hDF5OutputFile->openGroup(dataset->getName());
+                        outputFile->createGroup(dataset->getName(), true);
+                        HDF5Helper::Group *group = outputFile->openGroup(dataset->getName());
                         // Create dataset in group
                         group->createDatasetF("0", datasetDims, chunkDims, true);
                         dstDataset = group->openDataset("0");
                     } else {
                         // 3D dataset
-                        hDF5OutputFile->createDatasetF(dataset->getName(), HDF5Helper::HDF5Vector3D(datasetDims), HDF5Helper::HDF5Vector3D(chunkDims), true);
-                        dstDataset = hDF5OutputFile->openDataset(dataset->getName());
+                        outputFile->createDatasetF(dataset->getName(), HDF5Helper::Vector3D(datasetDims), HDF5Helper::Vector3D(chunkDims), true);
+                        dstDataset = outputFile->openDataset(dataset->getName());
                     }
 
                     dstDataset->setAttribute(HDF5Helper::POSITION_Z_ATTR, min.z());
@@ -146,10 +146,10 @@ void Processing::reshape()
                                     if (useTmpFlag) {
                                         tmpData[(dstPos.z() - min.z()) * (datasetDims.y() * datasetDims.x()) + (dstPos.y() - min.y()) * datasetDims.x() + (dstPos.x() - min.x())] = data;
                                     } else {
-                                        if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK) {
-                                            dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(frame, dstPos.z() - min.z(), dstPos.y() - min.y(), dstPos.x() - min.x()), HDF5Helper::HDF5Vector4D(1, 1, 1, 1), &data, false);
+                                        if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK) {
+                                            dstDataset->writeDataset(HDF5Helper::Vector4D(frame, dstPos.z() - min.z(), dstPos.y() - min.y(), dstPos.x() - min.x()), HDF5Helper::Vector4D(1, 1, 1, 1), &data, false);
                                         } else {
-                                            dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(dstPos.z() - min.z(), dstPos.y() - min.y(), dstPos.x() - min.x()), HDF5Helper::HDF5Vector3D(1, 1, 1), &data, false);
+                                            dstDataset->writeDataset(HDF5Helper::Vector3D(dstPos.z() - min.z(), dstPos.y() - min.y(), dstPos.x() - min.x()), HDF5Helper::Vector3D(1, 1, 1), &data, false);
                                         }
                                     }
                                 }
@@ -169,10 +169,10 @@ void Processing::reshape()
                         // Next time step for group of datasets (step)?
                         if (i % sensorMaskIndexDataset->getNumberOfBlocks() + 1 == sensorMaskIndexDataset->getNumberOfBlocks()) {
                             if (useTmpFlag) {
-                                if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK) {
-                                    dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(frame, 0, 0, 0), stepSize, tmpData, true);
+                                if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK) {
+                                    dstDataset->writeDataset(HDF5Helper::Vector4D(frame, 0, 0, 0), stepSize, tmpData, true);
                                 } else {
-                                    dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, 0, 0), HDF5Helper::HDF5Vector3D(stepSize), tmpData, true);
+                                    dstDataset->writeDataset(HDF5Helper::Vector3D(0, 0, 0), HDF5Helper::Vector3D(stepSize), tmpData, true);
                                 }
                             }
                             if (MAX_NUMBER_OF_FRAMES > 0) // TODO
@@ -192,21 +192,21 @@ void Processing::reshape()
                     }
                 }
             }
-        } else if (!dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::CUBOID).empty() && dtsForPcs->getSensorMaskCornersDataset()) {
+        } else if (!dtsForPcs->getDatasets(HDF5Helper::DatasetType::CUBOID).empty() && dtsForPcs->getSensorMaskCornersDataset()) {
             // For cuboid type datasets
             // Prepare something
-            HDF5Helper::HDF5Dataset *sensorMaskCornersDataset = dtsForPcs->getSensorMaskCornersDataset();
+            HDF5Helper::Dataset *sensorMaskCornersDataset = dtsForPcs->getSensorMaskCornersDataset();
             hsize_t *data;
             sensorMaskCornersDataset->readDataset(data);
 
-            HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets(HDF5Helper::HDF5DatasetType::CUBOID);
+            HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets(HDF5Helper::DatasetType::CUBOID);
             for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-                HDF5Helper::HDF5Dataset *dataset = it->second;
+                HDF5Helper::Dataset *dataset = it->second;
 
                 // Copy to new file
-                if (hDF5OutputFile != dataset->getFile()) {
+                if (outputFile != dataset->getFile()) {
                     changeChunksOfDataset(dataset);
-                    dataset = hDF5OutputFile->openDataset(dataset->getName());
+                    dataset = outputFile->openDataset(dataset->getName());
                 }
 
                 // Name of the dataset to index
@@ -236,12 +236,12 @@ void Processing::changeChunks()
         HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets();
         int count = 0;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::HDF5Dataset *dataset = it->second;
-            HDF5Helper::HDF5DatasetType datasetType = dataset->getType();
-            if (datasetType == HDF5Helper::HDF5DatasetType::BASIC_3D
-                    || datasetType == HDF5Helper::HDF5DatasetType::DWNSMPL_3D
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
+            HDF5Helper::Dataset *dataset = it->second;
+            HDF5Helper::DatasetType datasetType = dataset->getType();
+            if (datasetType == HDF5Helper::DatasetType::BASIC_3D
+                    || datasetType == HDF5Helper::DatasetType::DWNSMPL_3D
+                    || datasetType == HDF5Helper::DatasetType::CUBOID
+                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
                     ) {
                 std::cout << "Change chunks of dataset " << dataset->getName() << std::endl;
                 changeChunksOfDataset(dataset);
@@ -264,12 +264,12 @@ void Processing::donwsampling()
         HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets();
         int count = 0;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::HDF5Dataset *dataset = it->second;
-            HDF5Helper::HDF5DatasetType datasetType = dataset->getType();
+            HDF5Helper::Dataset *dataset = it->second;
+            HDF5Helper::DatasetType datasetType = dataset->getType();
             // TODO - downsampling of MASK_3D FI, K, D, S datasets
-            if (datasetType == HDF5Helper::HDF5DatasetType::BASIC_3D
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
+            if (datasetType == HDF5Helper::DatasetType::BASIC_3D
+                    || datasetType == HDF5Helper::DatasetType::CUBOID
+                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
                     ) {
                 std::cout << "Downsampling of dataset " << dataset->getName() << std::endl;
                 resampleDataset(dataset);
@@ -298,12 +298,12 @@ void Processing::compress()
         int count = 0;
         std::cout << "Compression with period " << settings->getPeriod() << " steps of " << settings->getHarmonic() << ". harmonic frequency" << std::endl;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::HDF5Dataset *dataset = it->second;
-            HDF5Helper::HDF5DatasetType datasetType = dataset->getType(sensorMaskSize);
+            HDF5Helper::Dataset *dataset = it->second;
+            HDF5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
-            if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
+            if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK
+                    || datasetType == HDF5Helper::DatasetType::CUBOID
+                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
                     ) {
                 std::cout << "Compression of dataset " << dataset->getName() << std::endl;
                 compressDataset(dataset);
@@ -326,19 +326,19 @@ void Processing::decompress()
         HDF5Helper::MapOfDatasets map = dtsForPcs->getDatasets();
         hsize_t sensorMaskSize = dtsForPcs->getSensorMaskSize();
         int count = 0;
-        std::vector<HDF5Helper::HDF5Dataset *> datasetsFi;
-        std::vector<HDF5Helper::HDF5Dataset *> datasetsK;
+        std::vector<HDF5Helper::Dataset *> datasetsFi;
+        std::vector<HDF5Helper::Dataset *> datasetsK;
 
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::HDF5Dataset *datasetFi = it->second;
-            HDF5Helper::HDF5DatasetType datasetType = datasetFi->getType(sensorMaskSize);
+            HDF5Helper::Dataset *datasetFi = it->second;
+            HDF5Helper::DatasetType datasetType = datasetFi->getType(sensorMaskSize);
 
             // TODO downsampled datasets
-            if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_FI_MASK
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_FI
-                    //|| datasetType == HDF5Helper::HDF5DatasetType::CUBOID_DWNSMPL_FI
-                    //|| datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_DWNSMPL_FI
+            if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_FI_MASK
+                    || datasetType == HDF5Helper::DatasetType::CUBOID_FI
+                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_FI
+                    //|| datasetType == HDF5Helper::datasetType::CUBOID_DWNSMPL_FI
+                    //|| datasetType == HDF5Helper::datasetType::CUBOID_ATTR_DWNSMPL_FI
                     ) {
 
                 std::string nameFi = datasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
@@ -348,14 +348,14 @@ void Processing::decompress()
                     harmonicFi = datasetFi->readAttributeI(HDF5Helper::C_HARMONIC_ATTR, false);
                 }
 
-                HDF5Helper::HDF5Dataset *datasetK = 0;
+                HDF5Helper::Dataset *datasetK = 0;
 
                 for (HDF5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
-                    HDF5Helper::HDF5Dataset *dataset = it2->second;
-                    HDF5Helper::HDF5DatasetType datasetKType = dataset->getType(sensorMaskSize);
-                    if ((datasetKType == HDF5Helper::HDF5DatasetType::TIME_STEPS_K_MASK && datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_FI_MASK)
-                            || (datasetKType == HDF5Helper::HDF5DatasetType::CUBOID_K && datasetType == HDF5Helper::HDF5DatasetType::CUBOID_FI)
-                            || (datasetKType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_FI)
+                    HDF5Helper::Dataset *dataset = it2->second;
+                    HDF5Helper::DatasetType datasetKType = dataset->getType(sensorMaskSize);
+                    if ((datasetKType == HDF5Helper::DatasetType::TIME_STEPS_K_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_FI_MASK)
+                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_K && datasetType == HDF5Helper::DatasetType::CUBOID_FI)
+                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_FI)
                             ) {
                         hsize_t harmonicK = 1;
                         if (dataset->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
@@ -401,23 +401,23 @@ void Processing::difference()
         hsize_t sensorMaskSize = dtsForPcs->getSensorMaskSize();
         int count = 0;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::HDF5Dataset *datasetOriginal = it->second;
-            HDF5Helper::HDF5DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
+            HDF5Helper::Dataset *datasetOriginal = it->second;
+            HDF5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
 
             // TODO downsampled datasets
-            if (datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID
-                    || datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR
+            if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK
+                    || datasetType == HDF5Helper::DatasetType::CUBOID
+                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
                     ) {
 
-                HDF5Helper::HDF5Dataset *datasetDecoded = 0;
+                HDF5Helper::Dataset *datasetDecoded = 0;
 
                 for (HDF5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
-                    HDF5Helper::HDF5Dataset *dataset = it2->second;
-                    HDF5Helper::HDF5DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
-                    if ((datasetDecodedType == HDF5Helper::HDF5DatasetType::TIME_STEPS_D_MASK && datasetType == HDF5Helper::HDF5DatasetType::TIME_STEPS_MASK)
-                            || (datasetDecodedType == HDF5Helper::HDF5DatasetType::CUBOID_D && datasetType == HDF5Helper::HDF5DatasetType::CUBOID)
-                            || (datasetDecodedType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR_D && datasetType == HDF5Helper::HDF5DatasetType::CUBOID_ATTR)
+                    HDF5Helper::Dataset *dataset = it2->second;
+                    HDF5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
+                    if ((datasetDecodedType == HDF5Helper::DatasetType::TIME_STEPS_D_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK)
+                            || (datasetDecodedType == HDF5Helper::DatasetType::CUBOID_D && datasetType == HDF5Helper::DatasetType::CUBOID)
+                            || (datasetDecodedType == HDF5Helper::DatasetType::CUBOID_ATTR_D && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR)
                             ) {
                         if (datasetOriginal->getName() == dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false)) {
                             datasetDecoded = dataset;
@@ -444,14 +444,14 @@ void Processing::difference()
     }
 }
 
-void Processing::findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &min, HDF5Helper::HDF5Vector3D &max)
+void Processing::findMinAndMaxPositionFromSensorMask(HDF5Helper::Vector3D &min, HDF5Helper::Vector3D &max)
 {
     // Find min and max position from linear saved values
     hsize_t index = 0;
     hsize_t *data;
-    HDF5Helper::HDF5Vector3D offset;
-    HDF5Helper::HDF5Vector3D count;
-    HDF5Helper::HDF5Vector3D dstPos;
+    HDF5Helper::Vector3D offset;
+    HDF5Helper::Vector3D count;
+    HDF5Helper::Vector3D dstPos;
 
     for (hsize_t i = 0; i < dtsForPcs->getSensorMaskIndexDataset()->getNumberOfBlocks(); i++) {
         dtsForPcs->getSensorMaskIndexDataset()->readBlock(i, offset, count, data);
@@ -460,7 +460,7 @@ void Processing::findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &m
                 for (hsize_t x = 0; x < count.x(); x++) {
                     // [x + y * count.x() + z * count.x() * count.y()] is from 0, but value of index is from 1
                     index = data[x + y * count.x() + z * count.x() * count.y()] - 1;
-                    HDF5Helper::convertlinearToMultiDim(index, dstPos, HDF5Helper::HDF5Vector3D(dtsForPcs->getNDims()));
+                    HDF5Helper::convertlinearToMultiDim(index, dstPos, HDF5Helper::Vector3D(dtsForPcs->getNDims()));
 
                     if (dstPos.x() < min.x()) min.x(dstPos.x());
                     if (dstPos.y() < min.y()) min.y(dstPos.y());
@@ -476,7 +476,7 @@ void Processing::findMinAndMaxPositionFromSensorMask(HDF5Helper::HDF5Vector3D &m
     std::cout << "   max point:\t" << max << std::endl;
 }
 
-void Processing::computeDstDims(HDF5Helper::HDF5Vector3D dimsSrc, float ratio, HDF5Helper::HDF5Vector3D &dimsDst, HDF5Helper::HDF5Vector3D &chunkDims, Settings *settings)
+void Processing::computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF5Helper::Vector3D &dimsDst, HDF5Helper::Vector3D &chunkDims, Settings *settings)
 {
     dimsDst.z(Helper::round(dimsSrc.z() * ratio));
     dimsDst.y(Helper::round(dimsSrc.y() * ratio));
@@ -495,12 +495,12 @@ void Processing::computeDstDims(HDF5Helper::HDF5Vector3D dimsSrc, float ratio, H
     std::cout << "   new size:\t" << dimsDst << std::endl;
 }
 
-void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
+void Processing::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
 {
-    HDF5Helper::HDF5Vector dims = srcDataset->getDims();
+    HDF5Helper::Vector dims = srcDataset->getDims();
 
     // Chunk dims
-    HDF5Helper::HDF5Vector chunkDims(dims.getLength(), 1);
+    HDF5Helper::Vector chunkDims(dims.getLength(), 1);
 
     #pragma omp parallel for
     for (hssize_t i = 0; i < hssize_t(dims.getLength()); i++) {
@@ -509,8 +509,8 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     }
 
     // Create dst dataset
-    hDF5OutputFile->createDatasetF(srcDataset->getName(), dims, chunkDims, true);
-    HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcDataset->getName());
+    outputFile->createDatasetF(srcDataset->getName(), dims, chunkDims, true);
+    HDF5Helper::Dataset *dstDataset = outputFile->openDataset(srcDataset->getName());
 
     double t0 = HDF5Helper::getTime();
 
@@ -520,8 +520,8 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     float minVG = 0, maxVG = 0;
     hsize_t minVGIndex = 0, maxVGIndex = 0;
     bool first = true;
-    HDF5Helper::HDF5Vector offset;
-    HDF5Helper::HDF5Vector count;
+    HDF5Helper::Vector offset;
+    HDF5Helper::Vector count;
 
     // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
@@ -559,18 +559,18 @@ void Processing::changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset)
     double t1 = HDF5Helper::getTime();
     std::cout << "Time of changing chunks of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 
-    hDF5OutputFile->closeDataset(dstDataset);
+    outputFile->closeDataset(dstDataset);
 }
 
-void Processing::resampleDataset(HDF5Helper::HDF5Dataset *srcDataset)
+void Processing::resampleDataset(HDF5Helper::Dataset *srcDataset)
 {
     // Dims
-    HDF5Helper::HDF5Vector dimsSrc = srcDataset->getDims();
-    HDF5Helper::HDF5Vector3D dimsSrc3D = dimsSrc;
-    HDF5Helper::HDF5Vector dimsDst;
-    HDF5Helper::HDF5Vector3D dimsDst3D;
-    HDF5Helper::HDF5Vector chunkDimsDst;
-    HDF5Helper::HDF5Vector3D chunkDimsDst3D;
+    HDF5Helper::Vector dimsSrc = srcDataset->getDims();
+    HDF5Helper::Vector3D dimsSrc3D = dimsSrc;
+    HDF5Helper::Vector dimsDst;
+    HDF5Helper::Vector3D dimsDst3D;
+    HDF5Helper::Vector chunkDimsDst;
+    HDF5Helper::Vector3D chunkDimsDst3D;
 
     // Compute ratio
     float ratio = float(settings->getMaxSize()) / std::max(std::max(dimsSrc3D.z(), dimsSrc3D.y()), dimsSrc3D.x());
@@ -585,46 +585,46 @@ void Processing::resampleDataset(HDF5Helper::HDF5Dataset *srcDataset)
 
     // For 4D datasets
     if (dimsSrc.getLength() == 4) {
-        chunkDimsDst = HDF5Helper::HDF5Vector4D(settings->getMaxChunkSize(), chunkDimsDst3D); // Maybe better is (1, chunkSizeDst3D)
-        dimsDst = HDF5Helper::HDF5Vector4D(HDF5Helper::HDF5Vector4D(dimsSrc).w(), dimsDst3D);
+        chunkDimsDst = HDF5Helper::Vector4D(settings->getMaxChunkSize(), chunkDimsDst3D); // Maybe better is (1, chunkSizeDst3D)
+        dimsDst = HDF5Helper::Vector4D(HDF5Helper::Vector4D(dimsSrc).w(), dimsDst3D);
     } else { // 3D datasets
         chunkDimsDst = chunkDimsDst3D;
         dimsDst = dimsDst3D;
     }
 
     // Create dst dataset
-    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_" + std::to_string(settings->getMaxSize()), dimsDst, chunkDimsDst, true);
-    HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcDataset->getName() + "_" + std::to_string(settings->getMaxSize()));
+    outputFile->createDatasetF(srcDataset->getName() + "_" + std::to_string(settings->getMaxSize()), dimsDst, chunkDimsDst, true);
+    HDF5Helper::Dataset *dstDataset = outputFile->openDataset(srcDataset->getName() + "_" + std::to_string(settings->getMaxSize()));
 
     double t0 = HDF5Helper::getTime();
 
-    // Tmp has original Z dimension (hDF5SimOutputFile->getNZ())
-    HDF5Helper::HDF5Vector3D newTmpDatasetDims(dimsSrc3D.z(), dimsDst3D.y(), dimsDst3D.x());
-    HDF5Helper::HDF5Vector3D newTmpDatasetChunkDims(dimsSrc3D.z(), 1, dimsDst3D.x());
+    // Tmp has original Z dimension (simOutputFile->getNZ())
+    HDF5Helper::Vector3D newTmpDatasetDims(dimsSrc3D.z(), dimsDst3D.y(), dimsDst3D.x());
+    HDF5Helper::Vector3D newTmpDatasetChunkDims(dimsSrc3D.z(), 1, dimsDst3D.x());
 
     // Create temp file and dataset
     HDF5Helper::File *tmpFile = new HDF5Helper::File("tmp.h5", HDF5Helper::File::CREATE);
     tmpFile->createDatasetF("tmp", newTmpDatasetDims, newTmpDatasetChunkDims);
-    HDF5Helper::HDF5Dataset *tmpDataset = tmpFile->openDataset("tmp");
+    HDF5Helper::Dataset *tmpDataset = tmpFile->openDataset("tmp");
 
     float *srcData = 0;
     float *dstData = 0;
 
     hsize_t steps = 1;
     if (dimsSrc.getLength() == 4)
-        steps = HDF5Helper::HDF5Vector4D(dimsSrc).w();
+        steps = HDF5Helper::Vector4D(dimsSrc).w();
 
     for (unsigned int t = 0; t < steps; t++) {
         // If we have enough memory, resample full 3D dataset
         if (srcDataset->getNumberOfElmsToLoad() >= srcDataset->getSize()) {
             if (dimsSrc.getLength() == 4)
-                srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData);
+                srcDataset->readDataset(HDF5Helper::Vector4D(t, 0, 0, 0), HDF5Helper::Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData);
             else
                 srcDataset->readDataset(srcData);
             dstData = new float[dimsDst3D.x() * dimsDst3D.y() * dimsDst3D.z()]();
             resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(), dimsDst3D.z());
             if (dimsSrc.getLength() == 4)
-                dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dimsDst3D.z(), dimsSrc3D.y(), dimsDst3D.x()), dstData, true);
+                dstDataset->writeDataset(HDF5Helper::Vector4D(t, 0, 0, 0), HDF5Helper::Vector4D(1, dimsDst3D.z(), dimsSrc3D.y(), dimsDst3D.x()), dstData, true);
             else
                 dstDataset->writeDataset(dstData, true);
             delete[] srcData;
@@ -633,25 +633,25 @@ void Processing::resampleDataset(HDF5Helper::HDF5Dataset *srcDataset)
             // First 2D slices in XY plane
             for (unsigned int z = 0; z < dimsSrc3D.z(); z++) {
                 if (dimsSrc.getLength() == 4)
-                    srcDataset->readDataset(HDF5Helper::HDF5Vector4D(t, z, 0, 0), HDF5Helper::HDF5Vector4D(1, 1, dimsSrc3D.y(), dimsSrc3D.x()), srcData);
+                    srcDataset->readDataset(HDF5Helper::Vector4D(t, z, 0, 0), HDF5Helper::Vector4D(1, 1, dimsSrc3D.y(), dimsSrc3D.x()), srcData);
                 else
-                    srcDataset->readDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsSrc3D.y(), dimsSrc3D.x()), srcData);
+                    srcDataset->readDataset(HDF5Helper::Vector3D(z, 0, 0), HDF5Helper::Vector3D(1, dimsSrc3D.y(), dimsSrc3D.x()), srcData);
                 dstData = new float[dimsDst3D.x() * dimsDst3D.y()]();
                 resize2D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsDst3D.x(), dimsDst3D.y());
-                tmpDataset->writeDataset(HDF5Helper::HDF5Vector3D(z, 0, 0), HDF5Helper::HDF5Vector3D(1, dimsDst3D.y(), dimsDst3D.x()), dstData, true);
+                tmpDataset->writeDataset(HDF5Helper::Vector3D(z, 0, 0), HDF5Helper::Vector3D(1, dimsDst3D.y(), dimsDst3D.x()), dstData, true);
                 delete[] srcData;
                 delete[] dstData;
             }
 
             // and after 2D slices XZ plane
             for (unsigned int y = 0; y < dimsDst3D.y(); y++) {
-                tmpDataset->readDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsSrc3D.z(), 1, dimsDst3D.x()), srcData);
+                tmpDataset->readDataset(HDF5Helper::Vector3D(0, y, 0), HDF5Helper::Vector3D(dimsSrc3D.z(), 1, dimsDst3D.x()), srcData);
                 dstData = new float[dimsDst3D.x() * dimsDst3D.z()]();
                 resize2D(srcData, dstData, dimsDst3D.x(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.z());
                 if (dimsSrc.getLength() == 4)
-                    dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(t, 0, y, 0), HDF5Helper::HDF5Vector4D(1, dimsDst3D.z(), 1, dimsDst3D.x()), dstData, true);
+                    dstDataset->writeDataset(HDF5Helper::Vector4D(t, 0, y, 0), HDF5Helper::Vector4D(1, dimsDst3D.z(), 1, dimsDst3D.x()), dstData, true);
                 else
-                    dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, y, 0), HDF5Helper::HDF5Vector3D(dimsDst3D.z(), 1, dimsDst3D.x()), dstData, true);
+                    dstDataset->writeDataset(HDF5Helper::Vector3D(0, y, 0), HDF5Helper::Vector3D(dimsDst3D.z(), 1, dimsDst3D.x()), dstData, true);
                 delete[] srcData;
                 delete[] dstData;
             }
@@ -686,7 +686,7 @@ void Processing::resampleDataset(HDF5Helper::HDF5Dataset *srcDataset)
     std::cout << "Time of resampling of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
-void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
+void Processing::compressDataset(HDF5Helper::Dataset *srcDataset)
 {
     // Only one coding parameter - multiple of overlap size
     // Overlap size
@@ -695,20 +695,20 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     hsize_t bSize = oSize * 2 + 1;
 
     // Get dims
-    HDF5Helper::HDF5Vector dims = srcDataset->getDims();
-    HDF5Helper::HDF5Vector outputDims = dims;
+    HDF5Helper::Vector dims = srcDataset->getDims();
+    HDF5Helper::Vector outputDims = dims;
 
     // Compute steps, step size and output dims
     hsize_t steps = 0;
     hsize_t outputSteps = 0;
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
-        steps = HDF5Helper::HDF5Vector4D(dims).w();
+        steps = HDF5Helper::Vector4D(dims).w();
         outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        steps = HDF5Helper::HDF5Vector3D(dims).y();
+        steps = HDF5Helper::Vector3D(dims).y();
         outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
@@ -725,7 +725,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
 
     // Generate basis function (window)
     Helper::triangular(oSize, b);  // Triangular window
-    //Helper::hann(oSize, b);        // Hann window
+    //HDF5Helper::hann(oSize, b);        // Hann window
 
     // Generate complex exponential functions
     Helper::floatC i(0, -1);
@@ -740,7 +740,7 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     }
 
     // Compute new chunk size
-    HDF5Helper::HDF5Vector chunkDims(outputDims.getLength(), 1);
+    HDF5Helper::Vector chunkDims(outputDims.getLength(), 1);
     #pragma omp parallel for
     for (hssize_t i = 1; i < hssize_t(outputDims.getLength()); i++) {
         chunkDims[i] = settings->getMaxChunkSize();
@@ -758,17 +758,17 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     std::cout << "stepSize:    " << stepSize << std::endl;
 
     // Create dst datasets
-    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_k_" + std::to_string(settings->getHarmonic()), outputDims, chunkDims, true);
-    hDF5OutputFile->createDatasetF(srcDataset->getName() + "_fi_" + std::to_string(settings->getHarmonic()), outputDims, chunkDims, true);
-    HDF5Helper::HDF5Dataset *dstDatasetK = hDF5OutputFile->openDataset(srcDataset->getName() + "_k_" + std::to_string(settings->getHarmonic()));
-    HDF5Helper::HDF5Dataset *dstDatasetFi = hDF5OutputFile->openDataset(srcDataset->getName() + "_fi_" + std::to_string(settings->getHarmonic()));
+    outputFile->createDatasetF(srcDataset->getName() + "_k_" + std::to_string(settings->getHarmonic()), outputDims, chunkDims, true);
+    outputFile->createDatasetF(srcDataset->getName() + "_fi_" + std::to_string(settings->getHarmonic()), outputDims, chunkDims, true);
+    HDF5Helper::Dataset *dstDatasetK = outputFile->openDataset(srcDataset->getName() + "_k_" + std::to_string(settings->getHarmonic()));
+    HDF5Helper::Dataset *dstDatasetFi = outputFile->openDataset(srcDataset->getName() + "_fi_" + std::to_string(settings->getHarmonic()));
 
     double t0 = HDF5Helper::getTime();
 
     // Variables for block reading
     float *data = 0;
-    HDF5Helper::HDF5Vector offset;
-    HDF5Helper::HDF5Vector count;
+    HDF5Helper::Vector offset;
+    HDF5Helper::Vector count;
     float maxVK = 0, maxVFi = 0;
     float minVK = 0, minVFi = 0;
     hsize_t maxVKIndex = 0, maxVFiIndex = 0;
@@ -876,11 +876,11 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
                     if (frame > 1) {
                         std::cout << "Saving frame " << frame - 1 << " ... ";
                         if (dims.getLength() == 4) { // 4D dataset
-                            dstDatasetK->writeDataset(HDF5Helper::HDF5Vector4D(frame - 2, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), dataK);
-                            dstDatasetFi->writeDataset(HDF5Helper::HDF5Vector4D(frame - 2, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), dataFi);
+                            dstDatasetK->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, dims[1], dims[2], dims[3]), dataK);
+                            dstDatasetFi->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, dims[1], dims[2], dims[3]), dataFi);
                         } else if (dims.getLength() == 3) {
-                            dstDatasetK->writeDataset(HDF5Helper::HDF5Vector3D(0, frame - 2, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), dataK);
-                            dstDatasetFi->writeDataset(HDF5Helper::HDF5Vector3D(0, frame - 2, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), dataFi);
+                            dstDatasetK->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, dims[2]), dataK);
+                            dstDatasetFi->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, dims[2]), dataFi);
                         }
                         std::cout << "saved" << std::endl;
                     }
@@ -893,11 +893,11 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
             if (frame - 1 == outputSteps) {
                 std::cout << "Saving frame " << frame - 1 << " ... ";
                 if (dims.getLength() == 4) { // 4D dataset
-                    dstDatasetK->writeDataset(HDF5Helper::HDF5Vector4D(frame - 2, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), dataK);
-                    dstDatasetFi->writeDataset(HDF5Helper::HDF5Vector4D(frame - 2, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), dataFi);
+                    dstDatasetK->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, dims[1], dims[2], dims[3]), dataK);
+                    dstDatasetFi->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, dims[1], dims[2], dims[3]), dataFi);
                 } else if (dims.getLength() == 3) {
-                    dstDatasetK->writeDataset(HDF5Helper::HDF5Vector3D(0, frame - 2, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), dataK);
-                    dstDatasetFi->writeDataset(HDF5Helper::HDF5Vector3D(0, frame - 2, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), dataFi);
+                    dstDatasetK->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, dims[2]), dataK);
+                    dstDatasetFi->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, dims[2]), dataFi);
                 }
                 std::cout << "saved" << std::endl;
             }
@@ -918,8 +918,8 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
         delete[] e;
         delete[] bE;
         delete[] bE_1;
-        hDF5OutputFile->closeDataset(dstDatasetK);
-        hDF5OutputFile->closeDataset(dstDatasetFi);
+        outputFile->closeDataset(dstDatasetK);
+        outputFile->closeDataset(dstDatasetFi);
         return;
     }
 
@@ -956,11 +956,11 @@ void Processing::compressDataset(HDF5Helper::HDF5Dataset *srcDataset)
     double t1 = HDF5Helper::getTime();
     std::cout << "Time of the whole dataset compression: " << (t1 - t0) << " ms; \t" << std::endl;
 
-    hDF5OutputFile->closeDataset(dstDatasetK);
-    hDF5OutputFile->closeDataset(dstDatasetFi);
+    outputFile->closeDataset(dstDatasetK);
+    outputFile->closeDataset(dstDatasetFi);
 }
 
-void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsFi, std::vector<HDF5Helper::HDF5Dataset *> srcDatasetsK)
+void Processing::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatasetsFi, std::vector<HDF5Helper::Dataset *> srcDatasetsK)
 {
     // First decoding parameter - multiple of overlap size
     hsize_t s = 1;
@@ -980,8 +980,8 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     hsize_t bSize = oSize * 2 + 1;
 
     // Get dims
-    HDF5Helper::HDF5Vector dims = srcDatasetsFi.at(0)->getDims();
-    HDF5Helper::HDF5Vector outputDims = dims;
+    HDF5Helper::Vector dims = srcDatasetsFi.at(0)->getDims();
+    HDF5Helper::Vector outputDims = dims;
 
     // TODO - check same dims of srcDatasetFi and srcDatasetK
 
@@ -990,12 +990,12 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     hsize_t outputSteps = 0;
     hsize_t stepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
-        steps = HDF5Helper::HDF5Vector4D(dims).w();
+        steps = HDF5Helper::Vector4D(dims).w();
         outputSteps = (steps + 1) * oSize ;
         outputDims[0] = outputSteps;
         stepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        steps = HDF5Helper::HDF5Vector3D(dims).y();
+        steps = HDF5Helper::Vector3D(dims).y();
         outputSteps = (steps + 1) * oSize;
         outputDims[1] = outputSteps;
         stepSize = outputDims[2];
@@ -1012,7 +1012,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
 
     // Generate basis function (window)
     Helper::triangular(oSize, b);  // Triangular window
-    //Helper::hann(oSize, b);        // Hann window
+    //HDF5Helper::hann(oSize, b);        // Hann window
 
     // Generate complex exponential functions
     Helper::floatC i(0, -1);
@@ -1039,7 +1039,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     }
 
     // Compute new chunk dims (it is 1 for time dimension)
-    HDF5Helper::HDF5Vector chunkDims(outputDims.getLength(), 1);
+    HDF5Helper::Vector chunkDims(outputDims.getLength(), 1);
     #pragma omp parallel for
     for (hssize_t i = 1; i < hssize_t(outputDims.getLength()); i++) {
         chunkDims[i] = settings->getMaxChunkSize();
@@ -1058,8 +1058,8 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
 
     // Create dst dataset
     std::string srcName = srcDatasetsFi.at(0)->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
-    hDF5OutputFile->createDatasetF(srcName + "_d", outputDims, chunkDims, true);
-    HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcName + "_d");
+    outputFile->createDatasetF(srcName + "_d", outputDims, chunkDims, true);
+    HDF5Helper::Dataset *dstDataset = outputFile->openDataset(srcName + "_d");
 
     double t0 = HDF5Helper::getTime();
 
@@ -1068,8 +1068,8 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     float **dataK = new float*[harmonics];
     float *dataFiL = 0;
     float *dataKL = 0;
-    HDF5Helper::HDF5Vector offset;
-    HDF5Helper::HDF5Vector count;
+    HDF5Helper::Vector offset;
+    HDF5Helper::Vector count;
     float maxV = 0, minV = 0;
     hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
@@ -1171,9 +1171,9 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
 
                     std::cout << "Saving step " << frameDst * oSize + p << " ... ";
                     if (dims.getLength() == 4) { // 4D dataset
-                        dstDataset->writeDataset(HDF5Helper::HDF5Vector4D(frameDst * oSize + p, 0, 0, 0), HDF5Helper::HDF5Vector4D(1, dims[1], dims[2], dims[3]), data, true);
+                        dstDataset->writeDataset(HDF5Helper::Vector4D(frameDst * oSize + p, 0, 0, 0), HDF5Helper::Vector4D(1, dims[1], dims[2], dims[3]), data, true);
                     } else if (dims.getLength() == 3) {
-                        dstDataset->writeDataset(HDF5Helper::HDF5Vector3D(0, frameDst * oSize + p, 0), HDF5Helper::HDF5Vector3D(1, 1, dims[2]), data, true);
+                        dstDataset->writeDataset(HDF5Helper::Vector3D(0, frameDst * oSize + p, 0), HDF5Helper::Vector3D(1, 1, dims[2]), data, true);
                     }
                     std::cout << "saved" << std::endl;
                 }
@@ -1201,7 +1201,7 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
         delete[] e;
         delete[] bE;
         delete[] bE_1;
-        hDF5OutputFile->closeDataset(dstDataset);
+        outputFile->closeDataset(dstDataset);
         return;
     }
 
@@ -1227,23 +1227,23 @@ void Processing::decompressDatasets(std::vector<HDF5Helper::HDF5Dataset *> srcDa
     double t1 = HDF5Helper::getTime();
     std::cout << "Time of the datasets decompression: " << (t1 - t0) << " ms; \t" << std::endl;
 
-    hDF5OutputFile->closeDataset(dstDataset);
+    outputFile->closeDataset(dstDataset);
 }
 
-void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5Helper::HDF5Dataset *datasetDecoded)
+void Processing::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded)
 {
-    HDF5Helper::HDF5Vector outputDims = datasetOriginal->getDims();
-    HDF5Helper::HDF5Vector outputChunkDims = datasetOriginal->getChunkDims();
+    HDF5Helper::Vector outputDims = datasetOriginal->getDims();
+    HDF5Helper::Vector outputChunkDims = datasetOriginal->getChunkDims();
 
     std::string srcName = datasetDecoded->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
-    hDF5OutputFile->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true);
-    HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcName + "_s");
+    outputFile->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true);
+    HDF5Helper::Dataset *dstDataset = outputFile->openDataset(srcName + "_s");
 
     // Variables for block reading
     float *dataO = 0;
     float *dataD = 0;
-    HDF5Helper::HDF5Vector offset;
-    HDF5Helper::HDF5Vector count;
+    HDF5Helper::Vector offset;
+    HDF5Helper::Vector count;
     float maxV = 0, minV = 0;
     hsize_t minVIndex = 0, maxVIndex = 0;
     bool first = true;
@@ -1332,13 +1332,13 @@ void Processing::subtractDatasets(HDF5Helper::HDF5Dataset *datasetOriginal, HDF5
     std::cout << "PSNR:       " << 10 * log10((maxValue * maxValue) / float(mse)) << " dB" << std::endl;
     std::cout << std::endl;
 
-    hDF5OutputFile->closeDataset(dstDataset);
+    outputFile->closeDataset(dstDataset);
 }
 
-void Processing::copyAttributes(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Dataset *dstDataset)
+void Processing::copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dataset *dstDataset)
 {
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
-        HDF5Helper::HDF5Attribute *attr = srcDataset->getAttribute(i);
+        HDF5Helper::Attribute *attr = srcDataset->getAttribute(i);
         dstDataset->setAttribute(attr, false);
         delete attr;
     }
