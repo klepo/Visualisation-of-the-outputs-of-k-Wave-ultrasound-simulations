@@ -32,24 +32,23 @@ include($$PWD/../openmp.pri)
 include($$PWD/../hdf5.pri)
 
 SOURCES += \
-    HDF5File.cpp \
-    HDF5Vector.cpp \
-    HDF5Vector3D.cpp \
-    HDF5Vector4D.cpp \
-    HDF5Object.cpp \
-    HDF5Dataset.cpp \
-    HDF5Group.cpp \
-    HDF5Attribute.cpp \
-
+    file.cpp \
+    attribute.cpp \
+    dataset.cpp \
+    group.cpp \
+    object.cpp \
+    vector.cpp \
+    vector3d.cpp \
+    vector4d.cpp
 
 HEADERS += \
     hdf5helper.h \
-    HDF5File.h \
-    HDF5Vector.h \
-    HDF5Vector3D.h \
-    HDF5Vector4D.h \
-    HDF5Object.h \
-    HDF5Dataset.h \
-    HDF5Group.h \
-    HDF5Attribute.h \
+    file.h \
+    attribute.h \
+    dataset.h \
+    group.h \
+    object.h \
+    vector.h \
+    vector3d.h \
+    vector4d.h
 
