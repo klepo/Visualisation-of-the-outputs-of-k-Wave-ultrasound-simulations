@@ -5,7 +5,7 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The header file with Group class declaration.
+ * @brief       The header file with HDF5Helper::Group class declaration.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -64,7 +64,10 @@ private:
     hid_t group;
 };
 
+/// Map of groups datatype
 typedef std::map<const std::string, Group *> MapOfGroups;
+
+/// Pair of groups datatype
 typedef std::pair<const std::string, Group *> PairOfGroups;
 }
 

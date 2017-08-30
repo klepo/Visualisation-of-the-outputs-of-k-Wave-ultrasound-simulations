@@ -51,4 +51,3 @@ HEADERS += \
     vector.h \
     vector3d.h \
     vector4d.h
-

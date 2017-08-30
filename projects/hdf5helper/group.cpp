@@ -5,8 +5,8 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The implementation file containing Group class definition.
- *              This class is for better work with HDF5 group.
+ * @brief       The implementation file containing HDF5Helper::Group class definition.
+ *              This class is used for better work with k-Wave HDF5 groups.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -29,10 +29,9 @@ namespace HDF5Helper {
  * @param[in] name Name of group
  * @param[in] file HDF5 File
  */
-Group::Group(const hid_t group, const std::string name, File *file) : Object(group, name) {
-    this->file = file;
+Group::Group(const hid_t group, const std::string name, File *file) : Object(group, name, file) {
+    // Save group
     this->group = group;
-    object = this->group;
 }
 
 /**
@@ -43,7 +42,7 @@ Group::Group(const hid_t group, const std::string name, File *file) : Object(gro
 Group::~Group()
 {
     if (deleteLog)
-        std::cout << "Closing group \"" << name << "\"";
+        std::cout << "Closing group \"" << getName() << "\"";
     err = H5Gclose(group);
     if (err < 0) {
         //throw std::runtime_error("H5Gclose error");
@@ -61,10 +60,10 @@ Group::~Group()
  */
 Dataset *Group::openDataset(const std::string name, bool log)
 {
-    if (this->name == "/")
-        return file->openDataset(name, log);
+    if (getName() == "/")
+        return getFile()->openDataset(name, log);
     else
-        return file->openDataset(this->name + "/" + name, log);
+        return getFile()->openDataset(getName() + "/" + name, log);
 }
 
 /**
@@ -85,10 +84,10 @@ Dataset *Group::openDataset(hsize_t idx, bool log)
  */
 void Group::closeDataset(const std::string name, bool log)
 {
-    if (this->name == "/")
-        file->closeDataset(name, log);
+    if (getName() == "/")
+        getFile()->closeDataset(name, log);
     else
-        file->closeDataset(this->name + "/" + name, log);
+        getFile()->closeDataset(getName() + "/" + name, log);
 }
 
 /**
@@ -121,7 +120,7 @@ void Group::closeDataset(HDF5Helper::Dataset *dataset, bool log)
  */
 void Group::createDatasetI(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
-    file->createDatasetI(this->name + "/" + name, size, chunkSize, rewrite, log);
+    getFile()->createDatasetI(getName() + "/" + name, size, chunkSize, rewrite, log);
 }
 
 /**
@@ -134,7 +133,7 @@ void Group::createDatasetI(const std::string name, Vector size, Vector chunkSize
  */
 void Group::createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
-    file->createDatasetF(this->name + "/" + name, size, chunkSize, rewrite, log);
+    getFile()->createDatasetF(getName() + "/" + name, size, chunkSize, rewrite, log);
 }
 
 /**
@@ -145,10 +144,10 @@ void Group::createDatasetF(const std::string name, Vector size, Vector chunkSize
  */
 Group *Group::openGroup(const std::string name, bool log)
 {
-    if (this->name == "/")
-        return file->openGroup(name, log);
+    if (getName() == "/")
+        return getFile()->openGroup(name, log);
     else
-        return file->openGroup(this->name + "/" + name, log);
+        return getFile()->openGroup(getName() + "/" + name, log);
 }
 
 /**
@@ -169,10 +168,10 @@ Group *Group::openGroup(hsize_t idx, bool log)
  */
 void Group::closeGroup(const std::string name, bool log)
 {
-    if (this->name == "/")
-        file->closeGroup(name, log);
+    if (getName() == "/")
+        getFile()->closeGroup(name, log);
     else
-        file->closeGroup(this->name + "/" + name, log);
+        getFile()->closeGroup(getName() + "/" + name, log);
 }
 
 /**
@@ -203,7 +202,7 @@ void Group::closeGroup(Group *group, bool log)
  */
 void Group::createGroup(const std::string name, bool rewrite, bool log)
 {
-    file->createGroup(this->name + "/" + name, rewrite, log);
+    getFile()->createGroup(getName() + "/" + name, rewrite, log);
 }
 
 /**
@@ -221,28 +220,26 @@ hid_t Group::getId()
  */
 hsize_t Group::getNumObjs()
 {
-    return file->getNumObjs(group);
+    return getFile()->getNumObjs(group);
 }
 
 /**
  * @brief Returns object name by index
  * @param[in] idx Index of object in file
- * @param[in] groupId Group id (optional)
  * @return Object name
  */
 std::string Group::getObjNameByIdx(hsize_t idx)
 {
-    return file->getObjNameByIdx(idx, group);
+    return getFile()->getObjNameByIdx(idx, group);
 }
 
 /**
  * @brief Returns object type by index
  * @param[in] idx Index of object in file
- * @param[in] groupId Group id (optional)
  * @return Object type
  */
 H5G_obj_t Group::getObjTypeByIdx(hsize_t idx)
 {
-    return file->getObjTypeByIdx(idx, group);
+    return getFile()->getObjTypeByIdx(idx, group);
 }
 }

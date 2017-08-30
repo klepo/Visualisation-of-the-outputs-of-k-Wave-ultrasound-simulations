@@ -5,7 +5,7 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The header file including important HDF5Helper classes.
+ * @brief       The header file including all important HDF5Helper classes.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,

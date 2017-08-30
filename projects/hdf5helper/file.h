@@ -5,7 +5,7 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The header file with File class declaration.
+ * @brief       The header file with HDF5Helper::File class declaration.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -48,32 +48,54 @@
 
 namespace HDF5Helper
 {
-// Dataset names
-const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
+/// Dataset name sensor_mask_type
+static const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
+/// Dataset name sensor_mask_index
 const std::string SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
+/// Dataset name sensor_mask_corners
 const std::string SENSOR_MASK_CORNERS_DATASET("sensor_mask_corners");
+/// Dataset name Nt
 const std::string NT_DATASET("Nt");
+/// Dataset name Nx
 const std::string NX_DATASET("Nx");
+/// Dataset name Ny
 const std::string NY_DATASET("Ny");
+/// Dataset name Nz
 const std::string NZ_DATASET("Nz");
+/// Dataset name p_source_input
 const std::string P_SOURCE_INPUT_DATASET("p_source_input");
 
-// Attribute names
+/// Attribute name min
 const std::string MIN_ATTR("min");
+/// Attribute name max
 const std::string MAX_ATTR("max");
+/// Attribute name min_index
 const std::string MIN_INDEX_ATTR("min_index");
+/// Attribute name max_index
 const std::string MAX_INDEX_ATTR("max_index");
+/// Attribute name src_dataset_name
 const std::string SRC_DATASET_NAME_ATTR("src_dataset_name");
+/// Attribute name c_type
 const std::string C_TYPE_ATTR("c_type");
+/// Attribute name c_mos
 const std::string C_MOS_ATTR("c_mos");
+/// Attribute name c_period
 const std::string C_PERIOD_ATTR("c_period");
+/// Attribute name c_harmonic
 const std::string C_HARMONIC_ATTR("c_harmonic");
+/// Attribute name c_harmonics
 const std::string C_HARMONICS_ATTR("c_harmonics");
+/// Attribute name position_z
 const std::string POSITION_Z_ATTR("position_z");
+/// Attribute name position_y
 const std::string POSITION_Y_ATTR("position_y");
+/// Attribute name position_x
 const std::string POSITION_X_ATTR("position_x");
+/// Attribute name src_size_z
 const std::string SRC_SIZE_Z_ATTR("src_size_z");
+/// Attribute name src_size_y
 const std::string SRC_SIZE_Y_ATTR("src_size_y");
+/// Attribute name src_size_x
 const std::string SRC_SIZE_X_ATTR("src_size_x");
 
 /**
@@ -131,7 +153,9 @@ public:
 
     int getMPISize() const;
 
+    /// Open file flag
     static const unsigned int OPEN = 0;
+    /// Create file flag
     static const unsigned int CREATE = 1;
 
 private:

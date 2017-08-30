@@ -5,8 +5,9 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The implementation file containing HDF5Object class definition.
- *              This class is superclass of Group and Dataset and contains especially operations with attributes.
+ * @brief       The implementation file containing HDF5Helper::Object class definition.
+ *              This is superclass of HDF5Helper::Group and HDF5Helper::Dataset
+ *              and contains especially operations with attributes.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -26,11 +27,13 @@ namespace HDF5Helper {
  * @brief Creates Object with given object and name
  * @param[in] object Object id
  * @param[in] name Name of object
+ * @param[in] file HDF5 File
  */
-Object::Object(const hid_t object, std::string name)
+Object::Object(const hid_t object, std::string name, File *file)
 {
     this->object = object;
     this->name = name;
+    this->file = file;
 }
 
 /**
@@ -112,6 +115,7 @@ void Object::setAttribute(const std::string name, const std::string value, bool 
 /**
  * @brief Returns float attribute value
  * @param[in] name Name of attribute
+ * @param[in] log Logging flag (optional)
  * @return Float attribute value
  */
 float Object::readAttributeF(const std::string name, bool log) const
@@ -134,6 +138,7 @@ float Object::readAttributeF(const std::string name, bool log) const
 /**
  * @brief Returns integer attribute value
  * @param[in] name Name of attribute
+ * @param[in] log Logging flag (optional)
  * @return Integer attribute value
  */
 hsize_t Object::readAttributeI(const std::string name, bool log) const
@@ -156,6 +161,7 @@ hsize_t Object::readAttributeI(const std::string name, bool log) const
 /**
  * @brief Returns string attribute value
  * @param[in] name Name of attribute
+ * @param[in] log Logging flag (optional)
  * @return String attribute value
  */
 std::string Object::readAttributeS(const std::string name, bool log) const
@@ -289,7 +295,7 @@ std::string Object::getOnlyName() const
  * @brief Returns file where object is opened
  * @return File
  */
-File *Object::getFile()
+File *Object::getFile() const
 {
     return file;
 }

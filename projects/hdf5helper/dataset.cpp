@@ -5,8 +5,8 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The implementation file containing dataset class definition.
- *              This class is for better work with HDF5 dataset (read, write, find min/max values, ...).
+ * @brief       The implementation file containing HDF5Helper::Dataset class definition. This class
+ *              is used for better work with k-Wave HDF5 datasets (e.g read, write).
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -30,12 +30,10 @@ namespace HDF5Helper {
  * @param[in] file HDF5 File
  * @throw std::runtime_error
  */
-Dataset::Dataset(hid_t dataset, std::string name, File *file) : Object(dataset, name)
+Dataset::Dataset(hid_t dataset, std::string name, File *file) : Object(dataset, name, file)
 {
-    // Save params
-    this->file = file;
+    // Save dataset
     this->dataset = dataset;
-    this->object = this->dataset;
 
     // Init space
     dataspace = H5Dget_space(dataset);
@@ -114,7 +112,7 @@ Dataset::Dataset(hid_t dataset, std::string name, File *file) : Object(dataset, 
 Dataset::~Dataset()
 {
     if (deleteLog)
-        std::cout << "Closing dataset \"" << name << "\"";
+        std::cout << "Closing dataset \"" << getName() << "\"";
     err = H5Pclose(plist_DATASET_XFER);
     if (err < 0) {
         //throw std::runtime_error("H5Pclose error");
@@ -205,7 +203,7 @@ hid_t Dataset::getDataType() const
  */
 DatasetType Dataset::getType(hsize_t sensorMaskSize) const
 {
-    Vector4D nDims = file->getNdims();
+    Vector4D nDims = getFile()->getNdims();
     if (getDims().getLength() == 3) { // 3D type
         Vector3D dims = getDims();
         if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
@@ -523,6 +521,7 @@ std::string Dataset::getTypeString(DatasetType type) const
 /**
  * @brief Returns global maximal integer value
  * @param[out] value Global maximal integer value
+ * @param[out] maxVIndex Index of maximal value
  * @param[in] reset Reset flag for finding the value in dataset (optional)
  * @throw std::runtime_error
  */
@@ -538,6 +537,7 @@ void Dataset::getGlobalMaxValue(hsize_t &value, hsize_t &maxVIndex, bool reset)
 /**
  * @brief Returns global minimal integer value
  * @param[out] value Global minimal integer value
+ * @param[out] minVIndex Index of minimal value
  * @param[in] reset Reset flag for finding the value in dataset (optional)
  * @throw std::runtime_error
  */
@@ -553,6 +553,7 @@ void Dataset::getGlobalMinValue(hsize_t &value, hsize_t &minVIndex, bool reset)
 /**
  * @brief Returns global maximal float value
  * @param[out] value Global maximal float value
+ * @param[out] maxVIndex Index of maximal value
  * @param[in] reset Reset flag for finding the value in dataset (optional)
  * @throw std::runtime_error
  */
@@ -568,6 +569,7 @@ void Dataset::getGlobalMaxValue(float &value, hsize_t &maxVIndex, bool reset)
 /**
  * @brief Returns global minimal float value
  * @param[out] value Global minimal float value
+ * @param[out] minVIndex Index of minimal value
  * @param[in] reset Reset flag for finding the value in dataset (optional)
  * @throw std::runtime_error
  */
@@ -730,9 +732,9 @@ void Dataset::setMaxNumberOfElmsToLoad(hsize_t count)
 void Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
 {
     if (type == H5FD_MPIO_COLLECTIVE) {
-        std::cout << "Setting H5FD_MPIO_COLLECTIVE access (" << name << ")" << std::endl;
+        std::cout << "Setting H5FD_MPIO_COLLECTIVE access (" << getName() << ")" << std::endl;
     } else if (type == H5FD_MPIO_INDEPENDENT) {
-        std::cout << "Setting H5FD_MPIO_INDEPENDENT access (" << name << ")" << std::endl;
+        std::cout << "Setting H5FD_MPIO_INDEPENDENT access (" << getName() << ")" << std::endl;
     } else {
         throw std::runtime_error("H5Pset_dxpl_mpio error - Wrong MPIO type");
     }
@@ -1029,13 +1031,13 @@ void Dataset::readEmptyBlock()
     H5Sselect_none(memspace);
     double t0 = 0, t1 = 0;
     t0 = getTime();
-    std::cout << "Reading dataset " << name << " ..." << std::endl;
+    std::cout << "Reading dataset " << getName() << " ..." << std::endl;
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
     t1 = getTime();
     if (err < 0) {
         throw std::runtime_error("H5Dread error");
     }
-    std::cout << name << " \tread time:  \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
+    std::cout << getName() << " \tread time:  \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
 }
 
 /**
@@ -1090,15 +1092,15 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data, bool l
     }
 
     if (log)
-        std::cout << name << " \tread time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
+        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
 
     // Debug output
-    if ((*file->getLogFileStream()).is_open()) {
+    if ((*getFile()->getLogFileStream()).is_open()) {
         int r = 0;
         if (count[0] == 1) r = 0;
         if (count[1] == 1) r = 1;
         if (count[2] == 1) r = 2;
-        *file->getLogFileStream() << (t1 - t0) << ";" << offset << ";" << r << std::endl;
+        *getFile()->getLogFileStream() << (t1 - t0) << ";" << offset << ";" << r << std::endl;
     }
 }
 
@@ -1155,7 +1157,7 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
     }
 
     if (log)
-        std::cout << name << " \twrite time:  \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
+        std::cout << getName() << " \twrite time:  \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
 }
 
 /**
@@ -1544,7 +1546,7 @@ std::string Dataset::readErrorMessage(hsize_t size, int type) const
  */
 void Dataset::printsReadingMessage(hsize_t block) const
 {
-    std::cout << "Reading dataset " << name;
+    std::cout << "Reading dataset " << getName();
     if (block)
         std::cout << ", block " << block << "/" << numberOfBlocks;
     std::cout << " ..." << std::endl;

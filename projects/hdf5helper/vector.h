@@ -5,7 +5,7 @@
  * @date        16 June      2016 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The header file with Vector class declaration.
+ * @brief       The header file with HDF5Helper::Vector class declaration.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -34,7 +34,7 @@
 namespace HDF5Helper
 {
 /**
- * @brief The Vector class represents structure for integer vectors
+ * @brief The Vector class represents wrapper for integer vectors
  */
 class Vector
 {
@@ -56,6 +56,12 @@ public:
     hsize_t getLength() const;
     bool hasZeros() const;
 
+    /**
+     * @brief Operator <<
+     * @param os std::ostream
+     * @param vector Vector
+     * @return std::ostream
+     */
     friend std::ostream &operator<<(std::ostream &os, const Vector &vector) {
         os << std::string(vector);
         return os;
@@ -67,7 +73,9 @@ private:
     void assign(const Vector &vector, bool deleteFlag);
 
 protected:
+    /// Vector data
     hsize_t *vector = 0;
+    /// Vector length
     hsize_t length = 0;
 };
 }

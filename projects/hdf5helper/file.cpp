@@ -5,8 +5,8 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The implementation file containing File class definition.
- *              This class contains Dataset class and Group class.
+ * @brief       The implementation file containing HDF5Helper::File class definition. This class
+ *              is used for better work with k-Wave HDF5 input and output files.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -502,6 +502,7 @@ void File::closeGroup(Group *group, bool log)
 
 /**
  * @brief Returns number of objects in HDF5 file (root group)
+ * @param[in] groupId Group id (optional)
  * @return Number of objects in HDF5 file
  * @throw std::runtime_error
  */

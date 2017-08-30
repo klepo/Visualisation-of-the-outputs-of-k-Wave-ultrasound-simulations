@@ -5,7 +5,7 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The header file with Group class declaration.
+ * @brief       The header file with HDF5Helper::Object class declaration.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -36,7 +36,7 @@ class File;
 class Object
 {
 public:
-    Object(const hid_t object, std::string name);
+    Object(const hid_t object, std::string name, File *file);
     ~Object();
 
     void setAttribute(Attribute *attribute, bool log = true);
@@ -61,10 +61,16 @@ public:
     hsize_t getNumAttrs() const;
     std::string getName() const;
     std::string getOnlyName() const;
-    File *getFile();
+    File *getFile() const;
 
     void setDeleteLog(bool value);
 
+    /**
+     * @brief Operator <<
+     * @param os std::ostream
+     * @param object Abject
+     * @return std::ostream
+     */
     friend std::ostream &operator<<(std::ostream &os, const Object &object) {
         os << std::string(object);
         return os;
@@ -73,16 +79,19 @@ public:
     operator std::string() const;
 
 protected:
-    hid_t object;
-    std::string name;
-    File *file;
+    /// Error handle
     herr_t err;
+    /// Delete log flag
     bool deleteLog = true;
 
 private:
     void createAttribute(const std::string name, const hid_t datatype, const hid_t dataspace, const void *value, bool log = true);
     void setAttribute(const std::string name, const hid_t datatype, const void *value, bool log = true);
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
+
+    File *file;
+    hid_t object;
+    std::string name;
 };
 }
 
