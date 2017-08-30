@@ -49,7 +49,7 @@
 namespace HDF5Helper
 {
 /// Dataset name sensor_mask_type
-static const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
+const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
 /// Dataset name sensor_mask_index
 const std::string SENSOR_MASK_INDEX_DATASET("sensor_mask_index");
 /// Dataset name sensor_mask_corners

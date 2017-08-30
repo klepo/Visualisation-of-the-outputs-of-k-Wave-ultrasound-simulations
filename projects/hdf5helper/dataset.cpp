@@ -5,8 +5,9 @@
  * @date        30 July      2014 (created) \n
  *              28 August    2017 (updated)
  *
- * @brief       The implementation file containing HDF5Helper::Dataset class definition. This class
- *              is used for better work with k-Wave HDF5 datasets (e.g read, write).
+ * @brief       The implementation file containing HDF5Helper::Dataset class definition.
+ *
+ * This class is used for better work with k-Wave HDF5 datasets (e.g read, write).
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,

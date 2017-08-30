@@ -6,7 +6,8 @@
  *              28 August    2017 (updated)
  *
  * @brief       The implementation file containing HDF5Helper::Attribute class definition.
- *              This class is used for better work with k-Wave HDF5 attributes (e.g. copying).
+ *
+ * This class is used for better work with k-Wave HDF5 attributes (e.g. copying).
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,

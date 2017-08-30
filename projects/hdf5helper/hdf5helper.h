@@ -20,6 +20,12 @@
 #ifndef HDF5HELPER_H
 #define HDF5HELPER_H
 
+/**
+ * @namespace HDF5Helper
+ * @brief Namespace for the %HDF5Helper library
+ */
+namespace HDF5Helper {}
+
 #include <file.h>
 #include <dataset.h>
 #include <group.h>
