@@ -1,25 +1,32 @@
 /**
- * @file
+ * @file        k-wave-h5-visualizer/main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
  *              27 February  2017 (updated)
  *
- * @brief       The main file with creation of graphics application (MainWindow window)
+ * @brief       The main implementation file containing k-Wave HDF5 visualizer application.
  *
- *
- * @license     This file is part of k-Wave visualiser application
- * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
+ *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
+ *              distributed and modified under the terms of the LGPL version 3 open source
+ *              license. A copy of the LGPL license should have been recieved with this file.
+ *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
- * k-Wave visualiser is free software.
  */
 
 #include "mainwindow.h"
 
 #include <QApplication>
 
+/**
+ * @brief Main k-Wave visualizer function
+ * @param argc Number of arguments
+ * @param argv Array of argumnets
+ * @return EXIT_SUCCESS
+ */
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);

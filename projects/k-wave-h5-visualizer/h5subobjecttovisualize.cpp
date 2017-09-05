@@ -5,17 +5,20 @@
  * @date        30 July      2014 (created) \n
  *              27 February  2017 (updated)
  *
- * @brief       The implementation file containing the H5SubobjectToVisualize class.
- *              Object of class H5ObjectToVisualize is for one dataset or group of datasets
- *              with time series and has own threads and view settings.
+ * @brief       The implementation file containing OpenedH5File::H5SubobjectToVisualize
+ *              class definition.
  *
+ * Object of class H5ObjectToVisualize is for one dataset or group of datasets with
+ * time series and has own threads and view settings.
  *
- * @license     This file is part of k-Wave visualiser application
- * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
+ *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
+ *              distributed and modified under the terms of the LGPL version 3 open source
+ *              license. A copy of the LGPL license should have been recieved with this file.
+ *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
- * k-Wave visualiser is free software.
  */
 
 

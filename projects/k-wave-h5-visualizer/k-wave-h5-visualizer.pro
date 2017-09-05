@@ -64,8 +64,8 @@ RESOURCES += \
     resources.qrc \
 
 OTHER_FILES += \
-    shaders/fragmentShader.frag \
-    shaders/vertexShader.vert \
+    shaders/fragmentshader.frag \
+    shaders/vertexshader.vert \
 
 RC_FILE = appicon.rc
 

@@ -7,13 +7,14 @@
  *
  * @brief       The header file with OpenGLWindow class declaration.
  *
- *
- * @license     This file is part of k-Wave visualiser application
- * for visualizing HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
+ * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
+ *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
+ *              distributed and modified under the terms of the LGPL version 3 open source
+ *              license. A copy of the LGPL license should have been recieved with this file.
+ *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
- * k-Wave visualiser is free software.
  */
 
 #ifndef OPENGLWINDOW_H
@@ -33,6 +34,9 @@ namespace QTest
     void qSleep(int ms);
 }
 
+/**
+ * @brief The OpenGLWindow class represents wrapper for OpenGL window
+ */
 class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
