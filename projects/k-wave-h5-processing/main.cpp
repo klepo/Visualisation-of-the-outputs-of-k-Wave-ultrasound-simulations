@@ -1,26 +1,35 @@
 /**
- * @file
+ * @file        k-wave-h5-processing/main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              27 February  2017 (updated)
+ *              28 August    2017 (updated)
  *
- * @brief       The implementation file containing k-Wave HDF5 processing application.
+ * @brief       The main implementation file containing k-Wave HDF5 processing application.
  *
- * @license     This application is for preprocessing the HDF5 data created by the k-Wave toolbox - http://www.k-wave.org.
- *              k-Wave h5 processing is free software.
+ * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
+ *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
+ *              distributed and modified under the terms of the LGPL version 3 open source
+ *              license. A copy of the LGPL license should have been recieved with this file.
+ *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
 #include <hdf5helper.h>
-#include <processing.h>
+
+#include <reshape.h>
+#include <downsampling.h>
+#include <changechunks.h>
+#include <compress.h>
+#include <decompress.h>
+#include <difference.h>
 
 /**
- * @brief Main function
- * @param argc
- * @param argv
+ * @brief Main k-Wave processing function
+ * @param argc Number of arguments
+ * @param argv Array of argumnets
  * @return EXIT_SUCCESS
  */
 int main(int argc, char **argv)
@@ -37,7 +46,7 @@ int main(int argc, char **argv)
 
     // TODO:
     // - odzkoušet downsampling cuboidů atd.
-    // - udělat rozdíl datasetů - výpočet chyby
+    // OK - udělat rozdíl datasetů - výpočet chyby
     // - šlo by odhadnout mos?
     // - potřebuji znát periodu
     // - funkce pro přidávání lomítka
@@ -45,7 +54,7 @@ int main(int argc, char **argv)
     // - ošetřit maximální počet prvků podle RAM
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
-    // - harmonické frekvence
+    // OK - harmonické frekvence
     // - kolize souborů
 
     //std::exit(EXIT_SUCCESS);
@@ -57,46 +66,53 @@ int main(int argc, char **argv)
             || settings->getFlagDecompress()
             || settings->getFlagDifference()
             ) {
-
-        Processing *processing = new Processing(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
-
         // Processing of sensor mask
         if (settings->getFlagReshape()) {
             Helper::printDebugTitle("Reshaping");
-            processing->reshape();
+            Reshape *reshape = new Reshape(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            reshape->execute();
+            delete reshape;
         }
 
         // Downsampling
         if (settings->getFlagDwnsmpl()) {
             Helper::printDebugTitle("Downsampling");
-            processing->donwsampling();
+            Downsampling *downsampling = new Downsampling(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            downsampling->execute();
+            delete downsampling;
         }
 
         // Copy 3D datasets a set new chunking
         if (settings->getFlagChangeChunks()) {
             Helper::printDebugTitle("Change chunks");
-            processing->changeChunks();
+            ChangeChunks *changeChunks = new ChangeChunks(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            changeChunks->execute();
+            delete changeChunks;
         }
 
         // Compression of time series data
         if (settings->getFlagCompress()) {
             Helper::printDebugTitle("Compression");
-            processing->compress();
+            Compress *compress = new Compress(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            compress->execute();
+            delete compress;
         }
 
         // Decompression of time series data
         if (settings->getFlagDecompress()) {
             Helper::printDebugTitle("Decompression");
-            processing->decompress();
+            Decompress *decompress = new Decompress(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            decompress->execute();
+            delete decompress;
         }
 
         // Substraction of time series datasets
         if (settings->getFlagDifference()) {
             Helper::printDebugTitle("Difference");
-            processing->difference();
+            Difference *difference = new Difference(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            difference->execute();
+            delete difference;
         }
-
-        delete processing;
     }
 
     delete dtsForPcs;

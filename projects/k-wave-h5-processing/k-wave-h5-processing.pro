@@ -36,7 +36,13 @@ SOURCES += \
     dtsforpcs.cpp \
     paramsdefinition.cpp \
     processing.cpp \
-    main.cpp
+    main.cpp \
+    reshape.cpp \
+    changechunks.cpp \
+    downsampling.cpp \
+    compress.cpp \
+    decompress.cpp \
+    difference.cpp \
 
 HEADERS += \
     helper.h \
@@ -44,7 +50,13 @@ HEADERS += \
     filescontext.h \
     dtsforpcs.h \
     paramsdefinition.h \
-    processing.h
+    processing.h \
+    reshape.h \
+    changechunks.h \
+    downsampling.h \
+    compress.h \
+    decompress.h \
+    difference.h \
 
 # Copy built file to destination
 win32 {
