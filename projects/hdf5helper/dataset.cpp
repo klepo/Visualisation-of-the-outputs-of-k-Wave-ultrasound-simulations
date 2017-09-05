@@ -520,8 +520,8 @@ std::string Dataset::getTypeString(DatasetType type) const
 }
 
 /**
- * @brief Returns global maximal integer value
- * @param[out] value Global maximal integer value
+ * @brief Returns global maximal 64-bit unsigned integer value
+ * @param[out] value Global maximal 64-bit unsigned integer value
  * @param[out] maxVIndex Index of maximal value
  * @param[in] reset Reset flag for finding the value in dataset (optional)
  * @throw std::runtime_error
@@ -536,8 +536,8 @@ void Dataset::getGlobalMaxValue(hsize_t &value, hsize_t &maxVIndex, bool reset)
 }
 
 /**
- * @brief Returns global minimal integer value
- * @param[out] value Global minimal integer value
+ * @brief Returns global minimal 64-bit unsigned integer value
+ * @param[out] value Global minimal 64-bit unsigned integer value
  * @param[out] minVIndex Index of minimal value
  * @param[in] reset Reset flag for finding the value in dataset (optional)
  * @throw std::runtime_error
@@ -1206,7 +1206,7 @@ void Dataset::findMinAndMaxValue(const float *data, const hsize_t size, float &m
 }
 
 /**
- * @brief Finds minimal and maximal integer value
+ * @brief Finds minimal and maximal 64-bit unsigned integer value
  * @param[in] data Input data
  * @param[in] size Size of data
  * @param[out] minVI Minimal value
@@ -1297,7 +1297,7 @@ void Dataset::findGlobalMinAndMaxValueF()
 }
 
 /**
- * @brief Finds global minimal and maximal integer value
+ * @brief Finds global minimal and maximal 64-bit unsigned integer value
  */
 void Dataset::findGlobalMinAndMaxValueI()
 {
@@ -1479,7 +1479,7 @@ void Dataset::checkFloatType()
 }
 
 /**
- * @brief Checks integer type
+ * @brief Checks 64-bit unsigned integer type
  */
 void Dataset::checkIntegerType()
 {
@@ -1496,7 +1496,7 @@ bool Dataset::isFloatType() const
 }
 
 /**
- * @brief Is integer type?
+ * @brief Is 64-bit unsigned integer type?
  * @return True/False
  */
 bool Dataset::isIntegerType() const

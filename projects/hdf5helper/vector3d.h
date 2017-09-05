@@ -26,7 +26,7 @@ namespace HDF5Helper
 {
 class Vector4D;
 /**
- * @brief The Vector3D class represents wrapper for 3D integer vectors
+ * @brief The Vector3D class represents wrapper for 3D 64-bit unsigned integer vectors
  */
 class Vector3D : public Vector
 {

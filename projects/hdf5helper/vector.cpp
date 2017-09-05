@@ -7,7 +7,7 @@
  *
  * @brief       The implementation file containing HDF5Helper::Vector class definition.
  *
- * This class is used for multidimensional integer vector representation.
+ * This class is used for multidimensional 64-bit unsigned integer vector representation.
  *
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -47,7 +47,7 @@ Vector::Vector(hsize_t length, hsize_t value)
 }
 
 /**
- * @brief Creates Vector with given integer length and fill value
+ * @brief Creates Vector with given 64-bit unsigned integer length and fill value
  * @param[in] length Vector length
  * @param[in] value Fill value
  * @throw std::runtime_error

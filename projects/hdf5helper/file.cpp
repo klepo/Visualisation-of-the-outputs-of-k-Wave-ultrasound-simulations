@@ -161,7 +161,7 @@ File::~File()
 }
 
 /**
- * @brief Creates new integer dataset in file
+ * @brief Creates new 64-bit unsigned integer dataset in file
  * @param[in] name Name of dataset
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
@@ -855,7 +855,7 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float va
 }
 
 /**
- * @brief Checks or sets minimal and maximal integer value
+ * @brief Checks or sets minimal and maximal 64-bit unsigned integer value
  * @param[in,out] first First value flag
  * @param[out] minV Minimal value
  * @param[out] maxV Maximal value

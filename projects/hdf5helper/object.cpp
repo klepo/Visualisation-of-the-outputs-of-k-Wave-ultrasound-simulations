@@ -69,7 +69,7 @@ void Object::setAttribute(const std::string name, const int value, bool log)
 }
 
 /**
- * @brief Sets attribute by given name to integer value
+ * @brief Sets attribute by given name to 64-bit unsigned integer value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
  * @param[in] log Logging flag (optional)
@@ -137,7 +137,7 @@ float Object::readAttributeF(const std::string name, bool log) const
 }
 
 /**
- * @brief Returns integer attribute value
+ * @brief Returns 64-bit unsigned integer attribute value
  * @param[in] name Name of attribute
  * @param[in] log Logging flag (optional)
  * @return Integer attribute value

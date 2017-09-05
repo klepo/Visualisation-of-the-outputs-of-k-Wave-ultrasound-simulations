@@ -34,7 +34,7 @@
 namespace HDF5Helper
 {
 /**
- * @brief The Vector class represents wrapper for integer vectors
+ * @brief The Vector class represents wrapper for 64-bit unsigned integer vectors
  */
 class Vector
 {

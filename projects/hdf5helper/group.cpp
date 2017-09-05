@@ -112,7 +112,7 @@ void Group::closeDataset(HDF5Helper::Dataset *dataset, bool log)
 }
 
 /**
- * @brief Creates new integer dataset in file
+ * @brief Creates new 64-bit unsigned integer dataset in file
  * @param[in] name Name of dataset
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
