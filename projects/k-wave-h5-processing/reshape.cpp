@@ -19,46 +19,60 @@
 
 #include "reshape.h"
 
+/**
+ * @brief Creates Reshape object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 Reshape::Reshape(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
     : ChangeChunks(outputFile, dtsForPcs, settings)
 {
 
 }
 
+/**
+ * @brief Executes processing
+ */
 void Reshape::execute()
 {
+    std::vector<HDF5Helper::DatasetType> types = {
+        HDF5Helper::DatasetType::TIME_STEPS_MASK,
+        HDF5Helper::DatasetType::BASIC_MASK
+    };
+
     try {
         if ((!getDtsForPcs()->getDatasets(HDF5Helper::DatasetType::TIME_STEPS_MASK).empty() || !getDtsForPcs()->getDatasets(HDF5Helper::DatasetType::BASIC_MASK).empty()) && getDtsForPcs()->getSensorMaskIndexDataset()) {
             // For mask type datasets
             // Prepare something
             HDF5Helper::Dataset *sensorMaskIndexDataset = getDtsForPcs()->getSensorMaskIndexDataset();
-            HDF5Helper::Vector3D nDims = getDtsForPcs()->getNDims();
 
             // Find min and max position from sensor mask
-            HDF5Helper::Vector3D min = nDims;
-            HDF5Helper::Vector3D max = HDF5Helper::Vector3D(0, 0, 0);
+            HDF5Helper::Vector3D min;
+            HDF5Helper::Vector3D max;
             findMinAndMaxPositionFromSensorMask(sensorMaskIndexDataset, min, max);
+
+            HDF5Helper::Vector3D dims(max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
 
             // Compute chunk size according to min/max position
             HDF5Helper::Vector4D chunkDims;
             chunkDims.w(1);
-            chunkDims.z(std::min(getSettings()->getMaxChunkSize(), max.z() - min.z() + 1));
-            chunkDims.y(std::min(getSettings()->getMaxChunkSize(), max.y() - min.y() + 1));
-            chunkDims.x(std::min(getSettings()->getMaxChunkSize(), max.x() - min.x() + 1));
+            chunkDims.z(std::min(getSettings()->getMaxChunkSize(), dims.z()));
+            chunkDims.y(std::min(getSettings()->getMaxChunkSize(), dims.y()));
+            chunkDims.x(std::min(getSettings()->getMaxChunkSize(), dims.x()));
             std::cout << "   new chunk size:\t" << chunkDims << std::endl;
 
             HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
             for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
                 HDF5Helper::Dataset *dataset = it->second;
                 HDF5Helper::DatasetType datasetType = dataset->getType(getDtsForPcs()->getSensorMaskSize());
-                if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK
-                        || datasetType == HDF5Helper::DatasetType::BASIC_MASK
-                        ) {
+
+                if (checkDatasetType(datasetType, types)) {
                     hsize_t steps = dataset->getDims()[1];
 
                     // Compute dataset size
-                    HDF5Helper::Vector4D datasetDims(steps, max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
-                    HDF5Helper::Vector4D stepSize(1, max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
+                    HDF5Helper::Vector4D datasetDims(steps, dims);
+                    HDF5Helper::Vector4D stepSize(1, dims);
                     std::cout << "   new dataset size:\t" << datasetDims << std::endl;
 
                     // Helper variables
@@ -109,6 +123,8 @@ void Reshape::execute()
                     dstDataset->setAttribute(HDF5Helper::POSITION_Z_ATTR, min.z());
                     dstDataset->setAttribute(HDF5Helper::POSITION_Y_ATTR, min.y());
                     dstDataset->setAttribute(HDF5Helper::POSITION_X_ATTR, min.x());
+
+                    HDF5Helper::Vector3D nDims = getDtsForPcs()->getNDims();
 
                     // Block reading
                     for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
@@ -231,6 +247,12 @@ void Reshape::execute()
     }
 }
 
+/**
+ * @brief Finds min and max position from sensor mask
+ * @param[in] sensorMaskIndexDataset Sensor mask index dataset
+ * @param[out] min Min position
+ * @param[out] max Max position
+ */
 void Reshape::findMinAndMaxPositionFromSensorMask(HDF5Helper::Dataset *sensorMaskIndexDataset, HDF5Helper::Vector3D &min, HDF5Helper::Vector3D &max)
 {
     // Find min and max position from linear saved values
@@ -240,6 +262,9 @@ void Reshape::findMinAndMaxPositionFromSensorMask(HDF5Helper::Dataset *sensorMas
     HDF5Helper::Vector3D count;
     HDF5Helper::Vector3D dstPos;
     HDF5Helper::Vector4D nDims = sensorMaskIndexDataset->getFile()->getNdims();
+
+    min = nDims;
+    max = HDF5Helper::Vector3D(0, 0, 0);
 
     for (hsize_t i = 0; i < sensorMaskIndexDataset->getNumberOfBlocks(); i++) {
         sensorMaskIndexDataset->readBlock(i, offset, count, data);

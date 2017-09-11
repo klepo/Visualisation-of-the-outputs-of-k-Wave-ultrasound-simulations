@@ -33,10 +33,10 @@ public:
     FilesContext(Settings *settings);
     ~FilesContext();
 
-    HDF5Helper::File *getHDF5SimOutputFile() const;
-    HDF5Helper::File *getHDF5SimInputFile() const;
-    HDF5Helper::File *getHDF5PcsOutputFile();
-    HDF5Helper::File *getHDF5PcsInputFile() const;
+    HDF5Helper::File *getSimOutputFile() const;
+    HDF5Helper::File *getSimInputFile() const;
+    HDF5Helper::File *getPcsOutputFile();
+    HDF5Helper::File *getPcsInputFile() const;
 
 private:
     HDF5Helper::File *loadSimulationFile(std::string filename);

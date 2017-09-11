@@ -19,14 +19,30 @@
 
 #include "changechunks.h"
 
+/**
+ * @brief Creates ChangeChunks object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 ChangeChunks::ChangeChunks(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
 }
 
+/**
+ * @brief Executes processing
+ */
 void ChangeChunks::execute()
 {
+    std::vector<HDF5Helper::DatasetType> types = {
+        HDF5Helper::DatasetType::BASIC_3D,
+        HDF5Helper::DatasetType::DWNSMPL_3D,
+        HDF5Helper::DatasetType::CUBOID,
+        HDF5Helper::DatasetType::CUBOID_ATTR
+    };
+
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
 
@@ -35,11 +51,7 @@ void ChangeChunks::execute()
             HDF5Helper::Dataset *dataset = it->second;
             HDF5Helper::DatasetType datasetType = dataset->getType();
 
-            if (datasetType == HDF5Helper::DatasetType::BASIC_3D
-                    || datasetType == HDF5Helper::DatasetType::DWNSMPL_3D
-                    || datasetType == HDF5Helper::DatasetType::CUBOID
-                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
-                    ) {
+            if (checkDatasetType(datasetType, types)) {
                 std::cout << "Change chunks of dataset " << dataset->getName() << std::endl;
                 changeChunksOfDataset(dataset);
                 count++;
@@ -55,6 +67,10 @@ void ChangeChunks::execute()
     }
 }
 
+/**
+ * @brief Changes chunks of dataset
+ * @param[in] srcDataset Source dataset
+ */
 void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
 {
     // Dims

@@ -19,14 +19,32 @@
 
 #include "decompress.h"
 
+/**
+ * @brief Creates Decompress object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 Decompress::Decompress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
 }
 
+/**
+ * @brief Executes processing
+ */
 void Decompress::execute()
 {
+    std::vector<HDF5Helper::DatasetType> types = {
+        HDF5Helper::DatasetType::TIME_STEPS_FI_MASK,
+        HDF5Helper::DatasetType::CUBOID_FI,
+        HDF5Helper::DatasetType::CUBOID_ATTR_FI
+    };
+    // TODO downsampled datasets
+    //HDF5Helper::datasetType::CUBOID_DWNSMPL_FI
+    //HDF5Helper::datasetType::CUBOID_ATTR_DWNSMPL_FI
+
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
@@ -38,14 +56,7 @@ void Decompress::execute()
             HDF5Helper::Dataset *datasetFi = it->second;
             HDF5Helper::DatasetType datasetType = datasetFi->getType(sensorMaskSize);
 
-            // TODO downsampled datasets
-            if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_FI_MASK
-                    || datasetType == HDF5Helper::DatasetType::CUBOID_FI
-                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_FI
-                    //|| datasetType == HDF5Helper::datasetType::CUBOID_DWNSMPL_FI
-                    //|| datasetType == HDF5Helper::datasetType::CUBOID_ATTR_DWNSMPL_FI
-                    ) {
-
+            if (checkDatasetType(datasetType, types)) {
                 std::string nameFi = datasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
                 hsize_t periodFi = datasetFi->readAttributeI(HDF5Helper::C_PERIOD_ATTR, false);
                 hsize_t harmonicFi = 1;
@@ -100,6 +111,11 @@ void Decompress::execute()
     }
 }
 
+/**
+ * @brief Decompresses datasets
+ * @param[in] srcDatasetsFi Source dataset Fi
+ * @param[in] srcDatasetsK Source dataset K
+ */
 void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatasetsFi, std::vector<HDF5Helper::Dataset *> srcDatasetsK)
 {
     // First decoding parameter - multiple of overlap size

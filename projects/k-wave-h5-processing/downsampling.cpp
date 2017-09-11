@@ -19,14 +19,30 @@
 
 #include "downsampling.h"
 
+/**
+ * @brief Creates Downsampling object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 Downsampling::Downsampling(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
 }
 
+/**
+ * @brief Executes processing
+ */
 void Downsampling::execute()
 {
+    std::vector<HDF5Helper::DatasetType> types = {
+        HDF5Helper::DatasetType::BASIC_3D,
+        HDF5Helper::DatasetType::CUBOID,
+        HDF5Helper::DatasetType::CUBOID_ATTR
+    };
+    // TODO - downsampling of MASK_3D FI, K, D, S datasets
+
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
 
@@ -34,11 +50,8 @@ void Downsampling::execute()
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::Dataset *dataset = it->second;
             HDF5Helper::DatasetType datasetType = dataset->getType();
-            // TODO - downsampling of MASK_3D FI, K, D, S datasets
-            if (datasetType == HDF5Helper::DatasetType::BASIC_3D
-                    || datasetType == HDF5Helper::DatasetType::CUBOID
-                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
-                    ) {
+
+            if (checkDatasetType(datasetType, types)) {
                 std::cout << "Downsampling of dataset " << dataset->getName() << std::endl;
                 resampleDataset(dataset);
                 count++;
@@ -54,6 +67,10 @@ void Downsampling::execute()
     }
 }
 
+/**
+ * @brief Resamples dataset
+ * @param[in] srcDataset Source dataset
+ */
 void Downsampling::resampleDataset(HDF5Helper::Dataset *srcDataset)
 {
     // Dims
@@ -178,6 +195,14 @@ void Downsampling::resampleDataset(HDF5Helper::Dataset *srcDataset)
     std::cout << "Time of resampling of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
+/**
+ * @brief Computes destination size
+ * @param[in] dimsSrc Source dims
+ * @param[in] ratio Dims ratio
+ * @param[out] dimsDst Destination Dims
+ * @param[out] chunkDims Chunk dims
+ * @param[in] maxChunkSize Maximal chunk size
+ */
 void Downsampling::computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF5Helper::Vector3D &dimsDst, HDF5Helper::Vector3D &chunkDims, hsize_t maxChunkSize)
 {
     dimsDst.z(Helper::round(dimsSrc.z() * ratio));
@@ -197,11 +222,29 @@ void Downsampling::computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF
     std::cout << "   new size:\t" << dimsDst << std::endl;
 }
 
+/**
+ * @brief Resize 2D data
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination data
+ * @param[in] srcWidth Source width
+ * @param[in] srcHeight Source height
+ * @param[in] dstWidth Destination width
+ * @param[in] dstHeight Destination height
+ */
 void Downsampling::resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight)
 {
     resize2D(dataSrc, dataDst, static_cast<hsize_t>(srcWidth), static_cast<hsize_t>(srcHeight), static_cast<hsize_t>(dstWidth), static_cast<hsize_t>(dstHeight));
 }
 
+/**
+ * @brief Resize 2D data
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination data
+ * @param[in] srcWidth Source width
+ * @param[in] srcHeight Source height
+ * @param[in] dstWidth Destination width
+ * @param[in] dstHeight Destination height
+ */
 void Downsampling::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight)
 {
     float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
@@ -239,11 +282,33 @@ void Downsampling::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hs
     }
 }
 
+/**
+ * @brief Resize 3D data
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination data
+ * @param[in] srcWidth Source width
+ * @param[in] srcHeight Source height
+ * @param[in] srcDepth Source depth
+ * @param[in] dstWidth Destination width
+ * @param[in] dstHeight Destination height
+ * @param[in] dstDepth Destination depth
+ */
 void Downsampling::resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth)
 {
     resize3D(dataSrc, dataDst, static_cast<hsize_t>(srcWidth), static_cast<hsize_t>(srcHeight), static_cast<hsize_t>(srcDepth), static_cast<hsize_t>(dstWidth), static_cast<hsize_t>(dstHeight), static_cast<hsize_t>(dstDepth));
 }
 
+/**
+ * @brief Resize 3D data
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination data
+ * @param[in] srcWidth Source width
+ * @param[in] srcHeight Source height
+ * @param[in] srcDepth Source depth
+ * @param[in] dstWidth Destination width
+ * @param[in] dstHeight Destination height
+ * @param[in] dstDepth Destination depth
+ */
 void Downsampling::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth)
 {
     float scaleWidth = static_cast<float>(dstWidth) / srcWidth;

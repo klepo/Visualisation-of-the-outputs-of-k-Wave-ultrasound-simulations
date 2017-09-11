@@ -19,12 +19,21 @@
 
 #include "compress.h"
 
+/**
+ * @brief Creates Compress object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 Compress::Compress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
 }
 
+/**
+ * @brief Executes processing
+ */
 void Compress::execute()
 {
     std::vector<HDF5Helper::DatasetType> types = {
@@ -57,6 +66,10 @@ void Compress::execute()
     }
 }
 
+/**
+ * @brief Compresses dataset
+ * @param[in] srcDataset Source dataset
+ */
 void Compress::compressDataset(HDF5Helper::Dataset *srcDataset)
 {
     if (!getSettings()->getPeriod()) {

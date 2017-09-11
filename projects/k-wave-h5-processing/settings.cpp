@@ -19,11 +19,19 @@
 
 #include "settings.h"
 
+/**
+ * @brief Creates Settings object
+ */
 Settings::Settings()
 {
 
 }
 
+/**
+ * @brief Loads params
+ * @param[in] argc Number of arguments
+ * @param[in] argv Array of argumnets
+ */
 void Settings::loadParams(int argc, char **argv)
 {
     // Define expected params
@@ -259,123 +267,209 @@ void Settings::loadParams(int argc, char **argv)
     }
 }
 
+/**
+ * @brief Returns simulation output filename
+ * @return Simulation output filename
+ */
 std::string Settings::getSimulationOutputFilename() const
 {
     return simulationOutputFilename;
 }
 
+/**
+ * @brief Sets simulation output filename
+ * @param[in] value Filename
+ */
 void Settings::setSimulationOutputFilename(const std::string &value)
 {
     simulationOutputFilename = value;
     std::cout << "\n  Simulation output filename:\n    " << simulationOutputFilename << std::endl;
 }
 
+/**
+ * @brief Returns simulation input filename
+ * @return Simulation input filename
+ */
 std::string Settings::getSimulationInputFilename() const
 {
     return simulationInputFilename;
 }
 
+/**
+ * @brief Sets simulation input filename
+ * @param[in] value Filename
+ */
 void Settings::setSimulationInputFilename(const std::string &value)
 {
     simulationInputFilename = value;
     std::cout << "\n  Simulation input filename:\n    " << simulationInputFilename << std::endl;
 }
 
+/**
+ * @brief Returns processing output filename
+ * @return Processing output filename
+ */
 std::string Settings::getProcessingOutputFilename() const
 {
     return processingOutputFilename;
 }
 
+/**
+ * @brief Sets processing output filename
+ * @param[in] value Filename
+ */
 void Settings::setProcessingOutputFilename(const std::string &value)
 {
     processingOutputFilename = value;
     std::cout << "\n  Processing output filename:\n    " << processingOutputFilename << std::endl;
 }
 
+/**
+ * @brief Returns processing input filename
+ * @return Processing input filename
+ */
 std::string Settings::getProcessingInputFilename() const
 {
     return processingInputFilename;
 }
 
-
+/**
+ * @brief Sets processing input filename
+ * @param[in] value Filename
+ */
 void Settings::setProcessingInputFilename(const std::string &value)
 {
     processingInputFilename = value;
     std::cout << "\n  Processing input filename:\n    " << processingInputFilename << std::endl;
 }
 
+/**
+ * @brief Returns max size for downsampling
+ * @return Max size for downsampling
+ */
 unsigned long long Settings::getMaxSize() const
 {
     return maxSize;
 }
 
+/**
+ * @brief Sets max size
+ * @param[in] value Max size
+ */
 void Settings::setMaxSize(const unsigned long long &value)
 {
     maxSize = value;
     std::cout << "\n  Max size for downsampling:\n    " << maxSize << std::endl;
 }
 
+/**
+ * @brief Returns max chunk size
+ * @return Max chunk size
+ */
 unsigned long long Settings::getMaxChunkSize() const
 {
     return maxChunkSize;
 }
 
+/**
+ * @brief Sets max chunk size
+ * @param[in] value Max chunk size
+ */
 void Settings::setMaxChunkSize(const unsigned long long &value)
 {
     maxChunkSize = value;
     std::cout << "\n  Chunk size:\n    " << maxChunkSize << std::endl;
 }
 
+/**
+ * @brief Returns block size
+ * @return Block size
+ */
 unsigned long long Settings::getBlockSize() const
 {
     return blockSize;
 }
 
+/**
+ * @brief Sets max size for block reading
+ * @param[in] value Max size for block reading
+ */
 void Settings::setBlockSize(const unsigned long long &value)
 {
     blockSize = value;
     std::cout << "\n  Max size for block reading:\n    " << blockSize << std::endl;
 }
 
+/**
+ * @brief Retruns multiple of overlapping size
+ * @return Multiple of overlapping size
+ */
 unsigned long long Settings::getMOS() const
 {
     return mOS;
 }
 
+/**
+ * @brief Sets multiple of overlap size
+ * @param[in] value Multiple of overlap size
+ */
 void Settings::setMOS(const unsigned long long &value)
 {
     mOS = value;
     std::cout << "\n  Multiple of overlap size:\n    " << mOS << std::endl;
 }
 
+/**
+ * @brief Returns period
+ * @return Period
+ */
 unsigned long long Settings::getPeriod() const
 {
     return period;
 }
 
+/**
+ * @brief Sets period for compression
+ * @param[in] value Period for compression
+ */
 void Settings::setPeriod(const unsigned long long &value)
 {
     period = value;
     std::cout << "\n  Period for compression:\n    " << period << std::endl;
 }
 
+/**
+ * @brief Returns multiple of harmonic frequency for compression
+ * @return Harmonic
+ */
 unsigned long long Settings::getHarmonic() const
 {
     return harmonic;
 }
 
+/**
+ * @brief Sets multiple of harmonic frequency for compression
+ * @param[in] value Multiple of harmonic frequency for compression
+ */
 void Settings::setHarmonic(const unsigned long long &value)
 {
     harmonic = value;
     std::cout << "\n  Multiple of harmonic frequency for compression:\n    " << harmonic << std::endl;
 }
 
-
+/**
+ * @brief Returns selected datasets or groups names
+ * @return Selected datasets or groups names
+ */
 std::list<std::string> Settings::getNames() const
 {
     return names;
 }
 
+/**
+ * @brief Settings::setNames
+ * @param[in] value Selected datasets or groups names
+ */
 void Settings::setNames(const std::list<std::string> &value)
 {
     names = value;
@@ -386,21 +480,37 @@ void Settings::setNames(const std::list<std::string> &value)
     std::cout << std::endl;
 }
 
+/**
+ * @brief Returns names flag
+ * @return Names flag
+ */
 bool Settings::getFlagNames() const
 {
     return flagNames;
 }
 
+/**
+ * @brief Sets flag names
+ * @param[in] value Flag names
+ */
 void Settings::setFlagNames(bool value)
 {
     flagNames = value;
 }
 
+/**
+ * @brief Returns reshape flag
+ * @return Reshape flag
+ */
 bool Settings::getFlagReshape() const
 {
     return flagReshape;
 }
 
+/**
+ * @brief Sets reshape mode flag
+ * @param[in] value Reshape mode flag
+ */
 void Settings::setFlagReshape(bool value)
 {
     flagReshape = value;
@@ -410,11 +520,19 @@ void Settings::setFlagReshape(bool value)
         std::cout << "\n  Reshape mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns change chunks mode flag
+ * @return Change chunks mode flag
+ */
 bool Settings::getFlagChangeChunks() const
 {
     return flagRechunk;
 }
 
+/**
+ * @brief Sets change chunks mode flag
+ * @param[in] value Change chunks mode flag
+ */
 void Settings::setFlagChangeChunks(bool value)
 {
     flagRechunk = value;
@@ -424,11 +542,19 @@ void Settings::setFlagChangeChunks(bool value)
         std::cout << "\n  Change chunks mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns downsampling mode flag
+ * @return Downsampling mode flag
+ */
 bool Settings::getFlagDwnsmpl() const
 {
     return flagDwnsmpl;
 }
 
+/**
+ * @brief Sets downsampling mode flag
+ * @param[in] value Downsampling mode flag
+ */
 void Settings::setFlagDwnsmpl(bool value)
 {
     flagDwnsmpl = value;
@@ -438,11 +564,19 @@ void Settings::setFlagDwnsmpl(bool value)
         std::cout << "\n  Downsampling mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns compression mode flag
+ * @return Compression mode flag
+ */
 bool Settings::getFlagCompress() const
 {
     return flagCompress;
 }
 
+/**
+ * @brief Sets compression mode flag
+ * @param[in] value Compression mode flag
+ */
 void Settings::setFlagCompress(bool value)
 {
     flagCompress = value;
@@ -452,11 +586,19 @@ void Settings::setFlagCompress(bool value)
         std::cout << "\n  Compression mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns decompression flag
+ * @return Decompression mode flag
+ */
 bool Settings::getFlagDecompress() const
 {
     return flagDecompress;
 }
 
+/**
+ * @brief Sets decompression mode flag
+ * @param[in] value Decompression mode flag
+ */
 void Settings::setFlagDecompress(bool value)
 {
     flagDecompress = value;
@@ -466,11 +608,19 @@ void Settings::setFlagDecompress(bool value)
         std::cout << "\n  Decompression mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns difference mode flag
+ * @return Difference mode flag
+ */
 bool Settings::getFlagDifference() const
 {
     return flagDifference;
 }
 
+/**
+ * @brief Sets difference mode flag
+ * @param[in] value Difference mode flag
+ */
 void Settings::setFlagDifference(bool value)
 {
     flagDifference = value;
@@ -480,11 +630,19 @@ void Settings::setFlagDifference(bool value)
         std::cout << "\n  Difference mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns info mode flag
+ * @return Info mode flag
+ */
 bool Settings::getFlagInfo() const
 {
     return flagInfo;
 }
 
+/**
+ * @brief Sets info mode flag
+ * @param[in] value Info mode flag
+ */
 void Settings::setFlagInfo(bool value)
 {
     flagInfo = value;
@@ -494,25 +652,41 @@ void Settings::setFlagInfo(bool value)
         std::cout << "\n  Info mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns compute period mode flag
+ * @return Compute Period mode flag
+ */
 bool Settings::getFlagComputePeriod() const
 {
     return flagComputePeriod;
 }
 
+/**
+ * @brief Sets compute period mode flag
+ * @param[in] value Compute Period mode flag
+ */
 void Settings::setFlagComputePeriod(bool value)
 {
     flagComputePeriod = value;
     if (value)
-        std::cout << "\n  Compute Period mode: ON\n" << std::endl;
+        std::cout << "\n  Compute period mode: ON\n" << std::endl;
     else
         std::cout << "\n  Compute Period mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns find min/max mode flag
+ * @return Find min/max mode mode flag
+ */
 bool Settings::getFlagFindMinMax() const
 {
     return flagFindMinMax;
 }
 
+/**
+ * @brief Sets find min/max mode flag
+ * @param[in] value Find min/max mode flag
+ */
 void Settings::setFlagFindMinMax(bool value)
 {
     flagFindMinMax = value;
@@ -522,6 +696,10 @@ void Settings::setFlagFindMinMax(bool value)
         std::cout << "\n  Find min/max mode: OFF\n" << std::endl;
 }
 
+/**
+ * @brief Returns params definition
+ * @return Params definition
+ */
 ParamsDefinition Settings::getParamsDefinition() const
 {
     return paramsDefinition;

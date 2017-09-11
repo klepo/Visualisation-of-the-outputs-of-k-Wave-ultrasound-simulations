@@ -28,8 +28,8 @@
 
 /**
  * @brief Main k-Wave processing function
- * @param argc Number of arguments
- * @param argv Array of argumnets
+ * @param[in] argc Number of arguments
+ * @param[in] argv Array of argumnets
  * @return EXIT_SUCCESS
  */
 int main(int argc, char **argv)
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
         // Processing of sensor mask
         if (settings->getFlagReshape()) {
             Helper::printDebugTitle("Reshaping");
-            Reshape *reshape = new Reshape(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            Reshape *reshape = new Reshape(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             reshape->execute();
             delete reshape;
         }
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
         // Downsampling
         if (settings->getFlagDwnsmpl()) {
             Helper::printDebugTitle("Downsampling");
-            Downsampling *downsampling = new Downsampling(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            Downsampling *downsampling = new Downsampling(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             downsampling->execute();
             delete downsampling;
         }
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         // Copy 3D datasets a set new chunking
         if (settings->getFlagChangeChunks()) {
             Helper::printDebugTitle("Change chunks");
-            ChangeChunks *changeChunks = new ChangeChunks(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            ChangeChunks *changeChunks = new ChangeChunks(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             changeChunks->execute();
             delete changeChunks;
         }
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
         // Compression of time series data
         if (settings->getFlagCompress()) {
             Helper::printDebugTitle("Compression");
-            Compress *compress = new Compress(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            Compress *compress = new Compress(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             compress->execute();
             delete compress;
         }
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
         // Decompression of time series data
         if (settings->getFlagDecompress()) {
             Helper::printDebugTitle("Decompression");
-            Decompress *decompress = new Decompress(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            Decompress *decompress = new Decompress(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             decompress->execute();
             delete decompress;
         }
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
         // Substraction of time series datasets
         if (settings->getFlagDifference()) {
             Helper::printDebugTitle("Difference");
-            Difference *difference = new Difference(filesContext->getHDF5PcsOutputFile(), dtsForPcs, settings);
+            Difference *difference = new Difference(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             difference->execute();
             delete difference;
         }

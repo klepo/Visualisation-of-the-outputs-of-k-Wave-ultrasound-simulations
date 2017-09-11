@@ -19,6 +19,10 @@
 
 #include "filescontext.h"
 
+/**
+ * @brief Creates FilesContext object
+ * @param[in] settings Processing settings
+ */
 FilesContext::FilesContext(Settings *settings)
 {
     Helper::printDebugTitle("Loading of simulation output file");
@@ -55,63 +59,76 @@ FilesContext::FilesContext(Settings *settings)
     }
 }
 
+/**
+ * @brief Destructor of Processing object
+ *
+ * Deletes opened files.
+ */
 FilesContext::~FilesContext()
 {
-    if (simOutputFile == pcsOutputFile) {
-        if (simOutputFile) {
-            delete simOutputFile;
-            simOutputFile = 0;
-        }
-        if (simInputFile) {
-            delete simInputFile;
-            simInputFile = 0;
-        }
-        if (pcsInputFile) {
-            delete pcsInputFile;
-            pcsInputFile = 0;
-        }
-    } else {
-        if (simOutputFile) {
-            delete simOutputFile;
-            simOutputFile = 0;
-        }
-        if (simInputFile) {
-            delete simInputFile;
-            simInputFile = 0;
-        }
+    if (simOutputFile != pcsOutputFile) {
         if (pcsOutputFile) {
             delete pcsOutputFile;
             pcsOutputFile = 0;
         }
-        if (pcsInputFile) {
-            delete pcsInputFile;
-            pcsInputFile = 0;
-        }
+    }
+    if (simOutputFile) {
+        delete simOutputFile;
+        simOutputFile = 0;
+    }
+    if (simInputFile) {
+        delete simInputFile;
+        simInputFile = 0;
+    }
+    if (pcsInputFile) {
+        delete pcsInputFile;
+        pcsInputFile = 0;
     }
 }
 
-HDF5Helper::File *FilesContext::getHDF5SimOutputFile() const
+/**
+ * @brief Returns simulation output file
+ * @return Simulation output file
+ */
+HDF5Helper::File *FilesContext::getSimOutputFile() const
 {
     return simOutputFile;
 }
 
-HDF5Helper::File *FilesContext::getHDF5SimInputFile() const
+/**
+ * @brief Returns simulation input file
+ * @return Simulation input file
+ */
+HDF5Helper::File *FilesContext::getSimInputFile() const
 {
     return simInputFile;
 }
 
-HDF5Helper::File *FilesContext::getHDF5PcsOutputFile()
+/**
+ * @brief Returns processing output file
+ * @return Processing output file
+ */
+HDF5Helper::File *FilesContext::getPcsOutputFile()
 {
     if (newEmptyOutputFileFlag)
         pcsOutputFile = createOrOpenOutputFile(outputFilename);
     return pcsOutputFile;
 }
 
-HDF5Helper::File *FilesContext::getHDF5PcsInputFile() const
+/**
+ * @brief Returns processing input file
+ * @return Processing input file
+ */
+HDF5Helper::File *FilesContext::getPcsInputFile() const
 {
     return pcsInputFile;
 }
 
+/**
+ * @brief Loads simulation file
+ * @param[in] filename Filename
+ * @return File
+ */
 HDF5Helper::File *FilesContext::loadSimulationFile(std::string filename)
 {
     HDF5Helper::File *simulationFile = 0;
@@ -124,6 +141,10 @@ HDF5Helper::File *FilesContext::loadSimulationFile(std::string filename)
     return simulationFile;
 }
 
+/**
+ * @brief Resolves output filename
+ * @param[in] settings Settings
+ */
 void FilesContext::resolveOutputFilename(Settings *settings)
 {
     if (settings->getProcessingOutputFilename().empty()) {
@@ -142,7 +163,11 @@ void FilesContext::resolveOutputFilename(Settings *settings)
     }
 }
 
-
+/**
+ * @brief Creates or opens output file
+ * @param[in] filename Filename
+ * @return File
+ */
 HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
 {
     HDF5Helper::File *file = 0;

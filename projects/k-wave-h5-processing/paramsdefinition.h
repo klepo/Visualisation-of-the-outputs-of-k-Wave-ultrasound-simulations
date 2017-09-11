@@ -34,6 +34,7 @@
 class ParamsDefinition
 {
 public:
+    /// Parameters data types
     enum Type
     {
         INT,
@@ -46,8 +47,10 @@ public:
         STRING,
         STRINGS_SEPARATED,
     };
+    /// Data types strings
     static const char *typeStrings[];
 
+    /// List of strings data type
     typedef std::list<std::string> ListOfStrings;
 
     /**
@@ -69,6 +72,12 @@ public:
             Type getParamType(unsigned int index) const;
             size_t getCount() const;
 
+            /**
+             * @brief Operator <<
+             * @param[in] os std::ostream
+             * @param[in] paramsC Params
+             * @return std::ostream
+             */
             friend std::ostream &operator<<(std::ostream &os, Params const &paramsC) {
                 std::string str;
                 Params params = paramsC;
@@ -113,6 +122,12 @@ public:
 
         std::string getName() const;
 
+        /**
+         * @brief Operator <<
+         * @param[in] os std::ostream
+         * @param[in] flag Falg
+         * @return std::ostream
+         */
         friend std::ostream &operator<<(std::ostream &os, Flag const &flag) {
             return os << flag.getName();
         }
@@ -123,7 +138,9 @@ public:
         Params params;
     };
 
+    /// Flags data type
     typedef std::map<std::string, Flag> Flags;
+    /// Flags pair data type
     typedef std::pair<std::string, Flag> FlagsPair;
 
     void defineParamsFlag(std::string name, Flag::Params params);

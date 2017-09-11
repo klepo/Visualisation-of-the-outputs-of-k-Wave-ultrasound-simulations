@@ -23,6 +23,9 @@
 
 #include "processing.h"
 
+/**
+ * @brief The Decompress class represents wrapper for decompression
+ */
 class Decompress : public Processing
 {
 public:

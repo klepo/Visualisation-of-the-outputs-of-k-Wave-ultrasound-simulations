@@ -23,6 +23,9 @@
 
 #include "processing.h"
 
+/**
+ * @brief The Compress class represents wrapper for compression
+ */
 class Compress : public Processing
 {
 public:

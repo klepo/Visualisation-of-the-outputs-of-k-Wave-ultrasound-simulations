@@ -19,28 +19,53 @@
 
 #include "helper.h"
 
-namespace Helper
-{
+namespace Helper {
+
+/**
+ * @brief Prints debug title
+ * @param[in] msg Debugging message
+ */
 void printDebugTitle(std::string msg)
 {
     std::cout << std::endl << std::endl << "---- " << msg << "----" << std::endl << std::endl << std::endl;
 }
 
+/**
+ * @brief Prints debug message
+ * @param[in] msg Debugging message
+ */
 void printDebugMsg(std::string msg)
 {
     std::cout << msg << std::endl;
 }
 
+/**
+ * @brief Prints error message
+ * @param[in] msg Debugging message
+ */
 void printErrorMsg(std::string msg)
 {
     std::cerr << msg << std::endl;
 }
 
+/**
+ * @brief Round
+ * @param[in] number Float numebr
+ * @return Rounded number
+ */
 unsigned long long round(float number)
 {
     return static_cast<unsigned long long>(floor(double(number) + 0.5));
 }
 
+/**
+ * @brief Cross correlation
+ * @param[in] dataSrc1 Source data 1
+ * @param[in] dataSrc2 Source data 2
+ * @param[out] dataDst Destination
+ * @param[in] lengthSrc1 Source length 1
+ * @param[in] lengthSrc2 Source length 2
+ */
 void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long lengthSrc1, const unsigned long long lengthSrc2)
 {
     unsigned long long i, j;
@@ -61,6 +86,14 @@ void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long
     }
 }
 
+/**
+ * @brief Convolution
+ * @param[in] dataSrc1 Source data 1
+ * @param[in] dataSrc2 Source data 2
+ * @param[out] dataDst Destination
+ * @param[in] lengthSrc1 Source length 1
+ * @param[in] lengthSrc2 Source length 2
+ */
 void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long lengthSrc1, const unsigned long long lengthSrc2)
 {
     unsigned long long i, j;
@@ -81,6 +114,13 @@ void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long 
     }
 }
 
+/**
+ * @brief Finds peaks in source signal
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination
+ * @param[in] lengthSrc Source length
+ * @param[out] lengthDst Destination length
+ */
 void findPeaks(float *dataSrc, unsigned long long *dataDst, const unsigned long long lengthSrc, unsigned long long &lengthDst)
 {
     for (unsigned long long i = 0; i < lengthSrc; i++) {
@@ -122,6 +162,12 @@ void findPeaks(float *dataSrc, unsigned long long *dataDst, const unsigned long 
     }
 }
 
+/**
+ * @brief Differences
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination
+ * @param[in] length Source length
+ */
 void diff(float *dataSrc, float *dataDst, const unsigned long long length)
 {
     for (unsigned long long i = 0; i < length - 1; i++) {
@@ -129,6 +175,12 @@ void diff(float *dataSrc, float *dataDst, const unsigned long long length)
     }
 }
 
+/**
+ * @brief Differences
+ * @param[in] dataSrc Source data
+ * @param[out] dataDst Destination
+ * @param[in] length Source length
+ */
 void diff(unsigned long long *dataSrc, unsigned long long *dataDst, const unsigned long long length)
 {
     for (unsigned long long i = 0; i < length - 1; i++) {
@@ -136,6 +188,12 @@ void diff(unsigned long long *dataSrc, unsigned long long *dataDst, const unsign
     }
 }
 
+/**
+ * @brief Mean
+ * @param[in] dataSrc Source data
+ * @param[in] length Source length
+ * @return Mean
+ */
 float mean(float *dataSrc, const unsigned long long length)
 {
     float sum = 0;
@@ -145,6 +203,12 @@ float mean(float *dataSrc, const unsigned long long length)
     return sum / length;
 }
 
+/**
+ * @brief Mean
+ * @param[in] dataSrc Source data
+ * @param[in] length Source length
+ * @return Mean
+ */
 unsigned long long mean(unsigned long long *dataSrc, const unsigned long long length)
 {
     float sum = 0;
@@ -154,6 +218,12 @@ unsigned long long mean(unsigned long long *dataSrc, const unsigned long long le
     return round(sum / length);
 }
 
+/**
+ * @brief Median
+ * @param[in] dataSrc Source data
+ * @param[in] length Source length
+ * @return Median
+ */
 unsigned long long median(unsigned long long *dataSrc, const unsigned long long length)
 {
     std::vector<unsigned long long> dataSrcVector(dataSrc, dataSrc + length);
@@ -161,6 +231,12 @@ unsigned long long median(unsigned long long *dataSrc, const unsigned long long 
     return dataSrcVector[size_t(length / 2)];
 }
 
+/**
+ * @brief Computes period form data
+ * @param[in] dataSrc Source data
+ * @param[in] length Source length
+ * @return Period
+ */
 unsigned long long getPeriod(float *dataSrc, const unsigned long long length)
 {
     float *dataTmp = new float[length];
@@ -181,20 +257,30 @@ unsigned long long getPeriod(float *dataSrc, const unsigned long long length)
     return period;
 }
 
-void triangular(unsigned long long oSize, float *b)
+/**
+ * @brief Generates triangular window
+ * @param[in] oSize Overlap size
+ * @param[out] w Window
+ */
+void triangular(unsigned long long oSize, float *w)
 {
     for (unsigned long long x = 0; x < oSize; x++) {
-        b[x] = float(x) / oSize;
+        w[x] = float(x) / oSize;
     }
     for (unsigned long long x = oSize; x < 2 * oSize + 1; x++) {
-        b[x] = 2.0f - float(x) / oSize;
+        w[x] = 2.0f - float(x) / oSize;
     }
 }
 
-void hann(unsigned long long oSize, float *b)
+/**
+ * @brief Generates Hann window
+ * @param[in] oSize Overlap size
+ * @param[out] w Window
+ */
+void hann(unsigned long long oSize, float *w)
 {
     for (unsigned long long x = 0; x < 2 * oSize + 1; x++) {
-        b[x] = float(pow(sin(M_PI * x / (2 * oSize)), 2));
+        w[x] = float(pow(sin(M_PI * x / (2 * oSize)), 2));
     }
 }
 }

@@ -55,8 +55,8 @@ unsigned long long mean(unsigned long long *dataSrc, const unsigned long long le
 unsigned long long median(unsigned long long *dataSrc, const unsigned long long length);
 unsigned long long getPeriod(float *dataSrc, const unsigned long long length);
 
-void triangular(unsigned long long oSize, float *b);   // Triangular window
-void hann(unsigned long long oSize, float *b);         // Hann window
+void triangular(unsigned long long oSize, float *w);   // Triangular window
+void hann(unsigned long long oSize, float *w);         // Hann window
 
 /// Float complex datatype
 typedef std::complex<float> floatC;

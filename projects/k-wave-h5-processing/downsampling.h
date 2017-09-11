@@ -23,6 +23,9 @@
 
 #include <processing.h>
 
+/**
+ * @brief The Downsampling class represents wrapper for downsampling
+ */
 class Downsampling : public Processing
 {
 public:

@@ -23,6 +23,9 @@
 
 #include "processing.h"
 
+/**
+ * @brief The Difference class represents wrapper for datasets substraction
+ */
 class Difference : public Processing
 {
 public:

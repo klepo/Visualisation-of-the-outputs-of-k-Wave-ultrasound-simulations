@@ -23,6 +23,9 @@
 
 #include <processing.h>
 
+/**
+ * @brief The ChangeChunks class represents wrapper for changing chunks
+ */
 class ChangeChunks : public Processing
 {
 public:

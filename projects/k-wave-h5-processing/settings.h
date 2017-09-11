@@ -39,7 +39,6 @@ class Settings
 public:
     Settings();
     void loadParams(int argc, char **argv);
-    void init();
 
     // Simulation data files
     std::string getSimulationOutputFilename() const;

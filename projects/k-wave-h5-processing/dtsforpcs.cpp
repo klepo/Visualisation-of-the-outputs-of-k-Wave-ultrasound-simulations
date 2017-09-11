@@ -19,11 +19,16 @@
 
 #include "dtsforpcs.h"
 
+/**
+ * @brief Creates DtsForPcs with given files context and settings
+ * @param[in] filesContext Files context
+ * @param[in] settings Settings
+ */
 DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 {
     // Find and get sensor mask dataset
-    sensorMaskIndexDataset = findAndGetDataset(HDF5Helper::SENSOR_MASK_INDEX_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
-    sensorMaskCornersDataset = findAndGetDataset(HDF5Helper::SENSOR_MASK_CORNERS_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    sensorMaskIndexDataset = findAndGetDataset(HDF5Helper::SENSOR_MASK_INDEX_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
+    sensorMaskCornersDataset = findAndGetDataset(HDF5Helper::SENSOR_MASK_CORNERS_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
 
     if (sensorMaskIndexDataset) {
         // Get sensor mask size
@@ -50,7 +55,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     }
 
     // Try to open the p_source_input dataset for getting the simulation frequency
-    sourceInputDataset = findAndGetDataset(HDF5Helper::P_SOURCE_INPUT_DATASET, filesContext->getHDF5SimOutputFile(), filesContext->getHDF5SimInputFile());
+    sourceInputDataset = findAndGetDataset(HDF5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
 
     // Get period from input signal
     if (!settings->getPeriod() && sourceInputDataset) {
@@ -67,47 +72,72 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     }
 
     // Save original dims
-    nDims = filesContext->getHDF5SimOutputFile()->getNdims();
+    nDims = filesContext->getSimOutputFile()->getNdims();
 
     // Find datasets for processing
     Helper::printDebugTitle("Find datasets for processing");
-    HDF5Helper::Group *group = filesContext->getHDF5SimOutputFile()->openGroup("/");
+    HDF5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/");
     findDatasetsForProcessing(group, settings);
-    filesContext->getHDF5SimOutputFile()->closeGroup("/");
+    filesContext->getSimOutputFile()->closeGroup("/");
 
     // Find datasets for processing in HDF5PcsInputFile
-    if (filesContext->getHDF5PcsInputFile()) {
-        group = filesContext->getHDF5PcsInputFile()->openGroup("/");
+    if (filesContext->getPcsInputFile()) {
+        group = filesContext->getPcsInputFile()->openGroup("/");
         findDatasetsForProcessing(group, settings);
-        filesContext->getHDF5PcsInputFile()->closeGroup("/");
+        filesContext->getPcsInputFile()->closeGroup("/");
     }
 }
 
+/**
+ * @brief Returns nDims
+ * @return nDims
+ */
 HDF5Helper::Vector4D DtsForPcs::getNDims() const
 {
     return nDims;
 }
 
+/**
+ * @brief Returns sensor mask index dataset
+ * @return Sensor mask index dataset
+ */
 HDF5Helper::Dataset *DtsForPcs::getSensorMaskIndexDataset() const
 {
     return sensorMaskIndexDataset;
 }
 
+/**
+ * @brief Returns sensor mask corner dataset
+ * @return Sensor mask corner dataset
+ */
 HDF5Helper::Dataset *DtsForPcs::getSensorMaskCornersDataset() const
 {
     return sensorMaskCornersDataset;
 }
 
+/**
+ * @brief Returns source input dataset
+ * @return Source input dataset
+ */
 HDF5Helper::Dataset *DtsForPcs::getSourceInputDataset() const
 {
     return sourceInputDataset;
 }
 
+/**
+ * @brief Returns sensor mask type
+ * @return Sensor mask type
+ */
 hsize_t DtsForPcs::getSensorMaskType() const
 {
     return sensorMaskType;
 }
 
+/**
+ * @brief Returns datasets (by type)
+ * @param[in] datasetType Dataset type (optional)
+ * @return Datasets
+ */
 HDF5Helper::MapOfDatasets DtsForPcs::getDatasets(HDF5Helper::DatasetType datasetType) const
 {
     if (datasetType == HDF5Helper::DatasetType::ALL) {
@@ -124,11 +154,22 @@ HDF5Helper::MapOfDatasets DtsForPcs::getDatasets(HDF5Helper::DatasetType dataset
     }
 }
 
+/**
+ * @brief Returns sensor mask size
+ * @return Sensor mask size
+ */
 hsize_t DtsForPcs::getSensorMaskSize() const
 {
     return sensorMaskSize;
 }
 
+/**
+ * @brief Finds and get dataset with given name from given files
+ * @param[in] name Dataset name
+ * @param[in] simOutputFile Simulation output file
+ * @param[in] simInputFile Simulation input file
+ * @return Dataset
+ */
 HDF5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5Helper::File *simOutputFile, HDF5Helper::File *simInputFile = 0)
 {
     HDF5Helper::Dataset *dataset = 0;
@@ -156,6 +197,11 @@ HDF5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5He
     return dataset;
 }
 
+/**
+ * @brief Finds datasets for processing
+ * @param[in] group Group to searching
+ * @param[in] settings Settings
+ */
 void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *settings)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
@@ -209,6 +255,12 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
     }
 }
 
+/**
+ * @brief Checks name is not filetered
+ * @param[in] name Name to check
+ * @param[in] settings Settings
+ * @return True/False
+ */
 bool DtsForPcs::isFiltered(std::string name, Settings *settings)
 {
     if (settings->getFlagNames()) {

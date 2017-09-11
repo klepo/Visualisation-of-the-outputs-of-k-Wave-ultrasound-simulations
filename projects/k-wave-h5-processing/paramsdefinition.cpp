@@ -31,52 +31,155 @@ const char *ParamsDefinition::typeStrings[] = {
     "STRINGS_SEPARATED",
 };
 
+/**
+ * @brief Defines parameter with type
+ * @param[in] type Parameter type
+ */
+void ParamsDefinition::Flag::defineParam(ParamsDefinition::Type type)
+{
+    params.defineParam(type);
+}
+
+/**
+ * @brief Sets parameter value with given index
+ * @param[in] index Parameter index
+ * @param[in] value Parameter value
+ */
+void ParamsDefinition::Flag::setParam(unsigned int index, void *value)
+{
+    params.setParam(index, value);
+}
+
+/**
+ * @brief Reads parameter value
+ * @param[in] index Parameter index
+ * @param[out] value Parameter value
+ */
+void ParamsDefinition::Flag::Params::readParam(unsigned int index, void *value)
+{
+    Type type = types[index];
+    size_t localIndex = indices[index];
+
+    switch (type) {
+        case ParamsDefinition::INT:
+            static_cast<int *>(value)[0] = valuesInt[localIndex];
+            break;
+        case ParamsDefinition::LONGLONG:
+            static_cast<long long *>(value)[0] = valuesLongLong[localIndex];
+            break;
+        case ParamsDefinition::UINT:
+            static_cast<unsigned int *>(value)[0] = valuesUInt[localIndex];
+            break;
+        case ParamsDefinition::ULONGLONG:
+            static_cast<unsigned long long *>(value)[0] = valuesULongLong[localIndex];
+            break;
+        case ParamsDefinition::FLOAT:
+            static_cast<float *>(value)[0] = valuesFloat[localIndex];
+            break;
+        case ParamsDefinition::DOUBLE:
+            static_cast<double *>(value)[0] = valuesDouble[localIndex];
+            break;
+        case ParamsDefinition::LONGDOUBLE:
+            static_cast<long double *>(value)[0] = valuesLongDouble[localIndex];
+            break;
+        case ParamsDefinition::STRING:
+            static_cast<std::string *>(value)[0] = valuesString[localIndex];
+            break;
+        case ParamsDefinition::STRINGS_SEPARATED:
+            static_cast<ListOfStrings *>(value)[0] = valuesStringSeparated[localIndex];
+            break;
+    }
+}
+
+/**
+ * @brief Returns parameter string
+ * @param[in] index Parameter index
+ * @return Parameter as string
+ */
+std::string ParamsDefinition::Flag::Params::getParamString(unsigned int index)
+{
+    Type type = types[index];
+    size_t localIndex = indices[index];
+    std::string str;
+
+    switch (type) {
+        case ParamsDefinition::INT:
+            str = std::to_string(valuesInt[localIndex]);
+            break;
+        case ParamsDefinition::LONGLONG:
+            str = std::to_string(valuesLongLong[localIndex]);
+            break;
+        case ParamsDefinition::UINT:
+            str = std::to_string(valuesUInt[localIndex]);
+            break;
+        case ParamsDefinition::ULONGLONG:
+            str = std::to_string(valuesULongLong[localIndex]);
+            break;
+        case ParamsDefinition::FLOAT:
+            str = std::to_string(valuesFloat[localIndex]);
+            break;
+        case ParamsDefinition::DOUBLE:
+            str = std::to_string(valuesDouble[localIndex]);
+            break;
+        case ParamsDefinition::LONGDOUBLE:
+            str = std::to_string(valuesLongDouble[localIndex]);
+            break;
+        case ParamsDefinition::STRING:
+            str = valuesString[localIndex];
+            break;
+        case ParamsDefinition::STRINGS_SEPARATED: {
+            ParamsDefinition::ListOfStrings::const_iterator ci;
+            for (ci = valuesStringSeparated[localIndex].begin(); ci != valuesStringSeparated[localIndex].end(); ++ci)
+                 str.append(*ci + " ");
+            break;
+        }
+    }
+    return str;
+}
+
+/**
+ * @brief Returns parameter type
+ * @param[in] index Parameter index
+ * @return Parameter type
+ */
+ParamsDefinition::Type ParamsDefinition::Flag::Params::getParamType(unsigned int index) const
+{
+    return types[index];
+}
+
+/**
+ * @brief Returns number of parameters
+ * @return Number of parameters
+ */
+size_t ParamsDefinition::Flag::Params::getCount() const
+{
+    return types.size();
+}
+
+/**
+ * @brief Creates Flag object
+ * @param[in] name Flag name
+ */
 ParamsDefinition::Flag::Flag(std::string name)
 {
     this->name = name;
 }
 
+/**
+ * @brief Creates Flag object with params
+ * @param[in] name Flag name
+ * @param[in] params Flag params
+ */
 ParamsDefinition::Flag::Flag(std::string name, ParamsDefinition::Flag::Params params)
 {
     this->name = name;
     this->params = params;
 }
 
-void ParamsDefinition::Flag::defineParam(ParamsDefinition::Type type)
-{
-    params.defineParam(type);
-}
-
-void ParamsDefinition::Flag::setParam(unsigned int index, void *value)
-{
-    params.setParam(index, value);
-}
-
-ParamsDefinition::Flag::Params ParamsDefinition::Flag::getParams() const
-{
-    return params;
-}
-
-void ParamsDefinition::Flag::setParams(const ParamsDefinition::Flag::Params &params)
-{
-    this->params = params;
-}
-
-bool ParamsDefinition::Flag::getEnabled() const
-{
-    return enabled;
-}
-
-void ParamsDefinition::Flag::setEnabled(bool value)
-{
-    enabled = value;
-}
-
-std::string ParamsDefinition::Flag::getName() const
-{
-    return name;
-}
-
+/**
+ * @brief Defines parameter with given type
+ * @param[in] type Parameter type
+ */
 void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
 {
     switch (type) {
@@ -129,6 +232,11 @@ void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
     }
 }
 
+/**
+ * @brief Sets parameter value with given index
+ * @param[in] index Parameter index
+ * @param[in] value Parameter value
+ */
 void ParamsDefinition::Flag::Params::setParam(unsigned int index, void *value)
 {
     Type type = types[index];
@@ -165,110 +273,86 @@ void ParamsDefinition::Flag::Params::setParam(unsigned int index, void *value)
     }
 }
 
-void ParamsDefinition::Flag::Params::readParam(unsigned int index, void *value)
+/**
+ * @brief Returns parameters
+ * @return Parameters
+ */
+ParamsDefinition::Flag::Params ParamsDefinition::Flag::getParams() const
 {
-    Type type = types[index];
-    size_t localIndex = indices[index];
-
-    switch (type) {
-        case ParamsDefinition::INT:
-            static_cast<int *>(value)[0] = valuesInt[localIndex];
-            break;
-        case ParamsDefinition::LONGLONG:
-            static_cast<long long *>(value)[0] = valuesLongLong[localIndex];
-            break;
-        case ParamsDefinition::UINT:
-            static_cast<unsigned int *>(value)[0] = valuesUInt[localIndex];
-            break;
-        case ParamsDefinition::ULONGLONG:
-            static_cast<unsigned long long *>(value)[0] = valuesULongLong[localIndex];
-            break;
-        case ParamsDefinition::FLOAT:
-            static_cast<float *>(value)[0] = valuesFloat[localIndex];
-            break;
-        case ParamsDefinition::DOUBLE:
-            static_cast<double *>(value)[0] = valuesDouble[localIndex];
-            break;
-        case ParamsDefinition::LONGDOUBLE:
-            static_cast<long double *>(value)[0] = valuesLongDouble[localIndex];
-            break;
-        case ParamsDefinition::STRING:
-            static_cast<std::string *>(value)[0] = valuesString[localIndex];
-            break;
-        case ParamsDefinition::STRINGS_SEPARATED:
-            static_cast<ListOfStrings *>(value)[0] = valuesStringSeparated[localIndex];
-            break;
-    }
+    return params;
 }
 
-std::string ParamsDefinition::Flag::Params::getParamString(unsigned int index)
+/**
+ * @brief Sets parameters
+ * @param[in] params Parameters
+ */
+void ParamsDefinition::Flag::setParams(const ParamsDefinition::Flag::Params &params)
 {
-    Type type = types[index];
-    size_t localIndex = indices[index];
-    std::string str;
-
-    switch (type) {
-        case ParamsDefinition::INT:
-            str = std::to_string(valuesInt[localIndex]);
-            break;
-        case ParamsDefinition::LONGLONG:
-            str = std::to_string(valuesLongLong[localIndex]);
-            break;
-        case ParamsDefinition::UINT:
-            str = std::to_string(valuesUInt[localIndex]);
-            break;
-        case ParamsDefinition::ULONGLONG:
-            str = std::to_string(valuesULongLong[localIndex]);
-            break;
-        case ParamsDefinition::FLOAT:
-            str = std::to_string(valuesFloat[localIndex]);
-            break;
-        case ParamsDefinition::DOUBLE:
-            str = std::to_string(valuesDouble[localIndex]);
-            break;
-        case ParamsDefinition::LONGDOUBLE:
-            str = std::to_string(valuesLongDouble[localIndex]);
-            break;
-        case ParamsDefinition::STRING:
-            str = valuesString[localIndex];
-            break;
-        case ParamsDefinition::STRINGS_SEPARATED: {
-            ParamsDefinition::ListOfStrings::const_iterator ci;
-            for (ci = valuesStringSeparated[localIndex].begin(); ci != valuesStringSeparated[localIndex].end(); ++ci)
-                 str.append(*ci + " ");
-            break;
-        }
-    }
-    return str;
+    this->params = params;
 }
 
-ParamsDefinition::Type ParamsDefinition::Flag::Params::getParamType(unsigned int index) const
+/**
+ * @brief Is flag enabled?
+ * @return True/False
+ */
+bool ParamsDefinition::Flag::getEnabled() const
 {
-    return types[index];
+    return enabled;
 }
 
-size_t ParamsDefinition::Flag::Params::getCount() const
+/**
+ * @brief Sets enabled flag
+ * @param[in] value Flag
+ */
+void ParamsDefinition::Flag::setEnabled(bool value)
 {
-    return types.size();
+    enabled = value;
 }
 
+/**
+ * @brief Returns flag name
+ * @return Flag name
+ */
+std::string ParamsDefinition::Flag::getName() const
+{
+    return name;
+}
+
+/**
+ * @brief Defines parameters flag
+ * @param[in] name Flag name
+ * @param[in] params Parameters
+ */
 void ParamsDefinition::defineParamsFlag(std::string name, ParamsDefinition::Flag::Params params)
 {
     Flag flag(name, params);
     flags.insert(FlagsPair(name, flag));
 }
 
+/**
+ * @brief Defines parameters flag
+ * @param[in] name Flag name
+ */
 void ParamsDefinition::defineParamsFlag(std::string name)
 {
     Flag flag(name);
     flags.insert(FlagsPair(name, flag));
 }
 
+/**
+ * @brief Returns flags
+ * @return Flags
+ */
 ParamsDefinition::Flags ParamsDefinition::getFlags() const
 {
     return flags;
 }
 
+/**
+ * @brief Parses comand line arguments
+ * @param[in] argc Number of arguments
+ * @param[in] argv Array of argumnets
+ */
 void ParamsDefinition::commandLineParse(int argc, char **argv)
 {
     // Params parsing
@@ -380,11 +464,19 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
     }
 }
 
+/**
+ * @brief Returns help message
+ * @return Help message
+ */
 std::string ParamsDefinition::getHelp() const
 {
     return help;
 }
 
+/**
+ * @brief Sets help message
+ * @param[in] value Help message
+ */
 void ParamsDefinition::setHelp(const std::string &value)
 {
     help = value;

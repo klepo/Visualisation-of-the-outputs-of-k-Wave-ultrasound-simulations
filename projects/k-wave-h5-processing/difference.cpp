@@ -19,14 +19,30 @@
 
 #include "difference.h"
 
+/**
+ * @brief Creates Difference object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 Difference::Difference(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
 }
 
+/**
+ * @brief Executes processing
+ */
 void Difference::execute()
 {
+    std::vector<HDF5Helper::DatasetType> types = {
+        HDF5Helper::DatasetType::TIME_STEPS_MASK,
+        HDF5Helper::DatasetType::CUBOID,
+        HDF5Helper::DatasetType::CUBOID_ATTR
+    };
+    // TODO downsampled datasets
+
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
@@ -35,12 +51,7 @@ void Difference::execute()
             HDF5Helper::Dataset *datasetOriginal = it->second;
             HDF5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
 
-            // TODO downsampled datasets
-            if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK
-                    || datasetType == HDF5Helper::DatasetType::CUBOID
-                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
-                    ) {
-
+            if (checkDatasetType(datasetType, types)) {
                 HDF5Helper::Dataset *datasetDecoded = 0;
 
                 for (HDF5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
@@ -75,6 +86,11 @@ void Difference::execute()
     }
 }
 
+/**
+ * @brief Subtracts datasets
+ * @param[in] datasetOriginal Original dataset
+ * @param[in] datasetDecoded Decoded dataset
+ */
 void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded)
 {
     HDF5Helper::Vector outputDims = datasetOriginal->getDims();

@@ -19,6 +19,12 @@
 
 #include "processing.h"
 
+/**
+ * @brief Creates Processing object
+ * @param[in] outputFile Output file
+ * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] settings Processing settings
+ */
 Processing::Processing(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
 {
     this->outputFile = outputFile;
@@ -26,11 +32,21 @@ Processing::Processing(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Setti
     this->settings = settings;
 }
 
+/**
+ * @brief Destructor of Processing object
+ *
+ * Does nothing.
+ */
 Processing::~Processing()
 {
 
 }
 
+/**
+ * @brief Copies attributes
+ * @param[in] srcDataset Source dataset
+ * @param[in] dstDataset Destination dataset
+ */
 void Processing::copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dataset *dstDataset)
 {
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
@@ -40,6 +56,12 @@ void Processing::copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dat
     }
 }
 
+/**
+ * @brief Checks dataset type
+ * @param[in] datasetType Type to check
+ * @param[in] types Allowed types
+ * @return True/False
+ */
 bool Processing::checkDatasetType(HDF5Helper::DatasetType datasetType, std::vector<HDF5Helper::DatasetType> types)
 {
     for(std::vector<HDF5Helper::DatasetType>::iterator it = types.begin(); it != types.end(); ++it) {
@@ -49,17 +71,28 @@ bool Processing::checkDatasetType(HDF5Helper::DatasetType datasetType, std::vect
     return false;
 }
 
-
+/**
+ * @brief Returns settings
+ * @return Settings
+ */
 Settings *Processing::getSettings() const
 {
     return settings;
 }
 
+/**
+ * @brief Returns datasets for processing
+ * @return datasets for processing
+ */
 DtsForPcs *Processing::getDtsForPcs() const
 {
     return dtsForPcs;
 }
 
+/**
+ * @brief Returns output file
+ * @return output file
+ */
 HDF5Helper::File *Processing::getOutputFile() const
 {
     return outputFile;
