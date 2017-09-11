@@ -261,8 +261,8 @@ hsize_t Object::getNumAttrs() const
             count++;
             H5Aclose(attribute);
         } else {
-            break;
             H5Aclose(attribute);
+            break;
         }
     }
     return count;
@@ -334,7 +334,7 @@ void Object::createAttribute(const std::string name, const hid_t datatype, const
         Object::creatingAttributeMessage(name, datatype, value);
 
     // Create attribute
-    hid_t attr = H5Acreate(object, name.c_str(), datatype, dataspace, H5P_DEFAULT, H5P_DEFAULT);
+    hid_t attr = H5Acreate(object, name.c_str(), datatype, dataspace, 0, 0);
     if (attr < 0) {
         if (log)
             std::cout << " ... error" << std::endl;

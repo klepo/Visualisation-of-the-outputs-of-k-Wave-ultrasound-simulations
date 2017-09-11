@@ -29,6 +29,7 @@ void Downsampling::execute()
 {
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
+
         int count = 0;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::Dataset *dataset = it->second;

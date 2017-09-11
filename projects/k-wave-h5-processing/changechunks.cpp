@@ -29,10 +29,12 @@ void ChangeChunks::execute()
 {
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
+
         int count = 0;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::Dataset *dataset = it->second;
             HDF5Helper::DatasetType datasetType = dataset->getType();
+
             if (datasetType == HDF5Helper::DatasetType::BASIC_3D
                     || datasetType == HDF5Helper::DatasetType::DWNSMPL_3D
                     || datasetType == HDF5Helper::DatasetType::CUBOID

@@ -26,6 +26,11 @@ Processing::Processing(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Setti
     this->settings = settings;
 }
 
+Processing::~Processing()
+{
+
+}
+
 void Processing::copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dataset *dstDataset)
 {
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
@@ -34,6 +39,16 @@ void Processing::copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dat
         delete attr;
     }
 }
+
+bool Processing::checkDatasetType(HDF5Helper::DatasetType datasetType, std::vector<HDF5Helper::DatasetType> types)
+{
+    for(std::vector<HDF5Helper::DatasetType>::iterator it = types.begin(); it != types.end(); ++it) {
+        if (*it == datasetType)
+            return true;
+    }
+    return false;
+}
+
 
 Settings *Processing::getSettings() const
 {

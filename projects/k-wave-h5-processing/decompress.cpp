@@ -58,6 +58,7 @@ void Decompress::execute()
                 for (HDF5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
                     HDF5Helper::Dataset *dataset = it2->second;
                     HDF5Helper::DatasetType datasetKType = dataset->getType(sensorMaskSize);
+
                     if ((datasetKType == HDF5Helper::DatasetType::TIME_STEPS_K_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_FI_MASK)
                             || (datasetKType == HDF5Helper::DatasetType::CUBOID_K && datasetType == HDF5Helper::DatasetType::CUBOID_FI)
                             || (datasetKType == HDF5Helper::DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_FI)

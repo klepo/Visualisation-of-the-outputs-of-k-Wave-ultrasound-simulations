@@ -33,6 +33,7 @@ class Processing
 {
 public:
     Processing(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
+    virtual ~Processing();
     HDF5Helper::File *getOutputFile() const;
     DtsForPcs *getDtsForPcs() const;
     Settings *getSettings() const;
@@ -41,6 +42,7 @@ protected:
     /// Pure virtual execute function
     virtual void execute() = 0;
     virtual void copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dataset *dstDataset) final;
+    bool checkDatasetType(HDF5Helper::DatasetType datasetType, std::vector<HDF5Helper::DatasetType> types);
 
 private:
     HDF5Helper::File *outputFile;

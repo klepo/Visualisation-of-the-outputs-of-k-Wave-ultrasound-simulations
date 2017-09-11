@@ -27,23 +27,21 @@ Compress::Compress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings 
 
 void Compress::execute()
 {
+    std::vector<HDF5Helper::DatasetType> types = {
+        HDF5Helper::DatasetType::TIME_STEPS_MASK,
+        HDF5Helper::DatasetType::CUBOID,
+        HDF5Helper::DatasetType::CUBOID_ATTR
+    };
+
     try {
-        if (!getSettings()->getPeriod()) {
-            std::cout << "No known period for compression" << std::endl;
-            return;
-        }
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
         int count = 0;
-        std::cout << "Compression with period " << getSettings()->getPeriod() << " steps of " << getSettings()->getHarmonic() << ". harmonic frequency" << std::endl;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             HDF5Helper::Dataset *dataset = it->second;
             HDF5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
-            if (datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK
-                    || datasetType == HDF5Helper::DatasetType::CUBOID
-                    || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
-                    ) {
+            if (checkDatasetType(datasetType, types)) {
                 std::cout << "Compression of dataset " << dataset->getName() << std::endl;
                 compressDataset(dataset);
                 count++;
@@ -61,6 +59,12 @@ void Compress::execute()
 
 void Compress::compressDataset(HDF5Helper::Dataset *srcDataset)
 {
+    if (!getSettings()->getPeriod()) {
+        std::cout << "No known period for compression" << std::endl;
+        return;
+    }
+    std::cout << "Compression with period " << getSettings()->getPeriod() << " steps of " << getSettings()->getHarmonic() << ". harmonic frequency" << std::endl;
+
     // Only one coding parameter - multiple of overlap size
     // Overlap size
     hsize_t oSize = getSettings()->getPeriod() * getSettings()->getMOS();
