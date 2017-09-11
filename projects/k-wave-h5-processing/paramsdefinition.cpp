@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) \n
- *              28 August    2017 (updated)
+ *              11 September 2017 (updated)
  *
  * @brief       The implementation file containing ParamsDefinition class definition.
  *

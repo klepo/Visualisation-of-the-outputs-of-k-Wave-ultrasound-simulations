@@ -3,6 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        3  November  2016 (created) \n
+ *              11 September 2017 (updated)
  *
  * @brief       The implementation file containing QVector3DI class definition.
  *
