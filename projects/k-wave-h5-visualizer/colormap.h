@@ -28,6 +28,7 @@
 class ColorMap
 {
 public:
+    /// Colormap types
     enum Type
     {
         AUTUMN = 0,
@@ -44,6 +45,7 @@ public:
         HOT = 11
     };
 
+    /// Colormap data
     const static unsigned char data[][768];
 
     static void applyColorMap(int length, float minValue, float maxValue, float *srcData, unsigned char *dstData, ColorMap::Type type);

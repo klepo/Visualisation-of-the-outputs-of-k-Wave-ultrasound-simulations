@@ -22,6 +22,10 @@
 
 #include "openglwindow.h"
 
+/**
+ * @brief Helepr sleep function
+ * @param[in] ms Miliseconds
+ */
 void QTest::qSleep(int ms)
 {
     Q_ASSERT(ms > 0);
@@ -35,18 +39,18 @@ void QTest::qSleep(int ms)
 }
 
 /**
- * @brief OpenGLWindow::OpenGLWindow
- * @param parent
+ * @brief Creates OpenGLWindow object
+ * @param[in] parent Parent (optional)
  */
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
-    , mouseDown(false)
-    , leftButton(false)
-    , rightButton(false)
     , context(0)
     , device(0)
     , logger(0)
     , m_update_pending(false)
+    , mouseDown(false)
+    , leftButtonPressed(false)
+    , rightButtonPressed(false)
 {
     setSurfaceType(QWindow::OpenGLSurface);
 
@@ -67,7 +71,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
 }
 
 /**
- * @brief OpenGLWindow::~OpenGLWindow
+ * @brief Destructor of OpenGLWindow object
  */
 OpenGLWindow::~OpenGLWindow()
 {
@@ -79,8 +83,8 @@ OpenGLWindow::~OpenGLWindow()
 }
 
 /**
- * @brief OpenGLWindow::event
- * @param event
+ * @brief Event
+ * @param[in] event Event
  * @return QWindow::event(event)
  */
 bool OpenGLWindow::event(QEvent *event)
@@ -97,19 +101,61 @@ bool OpenGLWindow::event(QEvent *event)
 }
 
 /**
- * @brief OpenGLWindow::exposeEvent
- * @param event
+ * @brief Returns elapsed miliseconds
+ * @return Elapsed miliseconds
  */
-void OpenGLWindow::exposeEvent(QExposeEvent *event)
+double OpenGLWindow::getElapsedMs() const
 {
-    Q_UNUSED(event);
-
-    if (isExposed())
-        renderNow();
+    return elapsedMs;
 }
 
 /**
- * @brief OpenGLWindow::renderLater Create update request (event) for render
+ * @brief Is left button pressed?
+ * @return True/False
+ */
+bool OpenGLWindow::getLeftButtonPressed() const
+{
+    return leftButtonPressed;
+}
+
+/**
+ * @brief Is right button pressed?
+ * @return True/False
+ */
+bool OpenGLWindow::getRightButtonPressed() const
+{
+    return rightButtonPressed;
+}
+
+/**
+ * @brief Returns wheel delta
+ * @return Wheel delta
+ */
+int OpenGLWindow::getWheelDelta() const
+{
+    return wheelDelta;
+}
+
+/**
+ * @brief Returns last position pressed
+ * @return Last position pressed
+ */
+QPointF OpenGLWindow::getLastPositionPressed() const
+{
+    return lastPositionPressed;
+}
+
+/**
+ * @brief Returns current position pressed
+ * @return Current position pressed
+ */
+QPointF OpenGLWindow::getCurrentPositionPressed() const
+{
+    return currentPositionPressed;
+}
+
+/**
+ * @brief Creates update request (event) for render
  */
 void OpenGLWindow::renderLater()
 {
@@ -120,7 +166,7 @@ void OpenGLWindow::renderLater()
 }
 
 /**
- * @brief OpenGLWindow::renderNow Render immediately
+ * @brief Renders immediately
  */
 void OpenGLWindow::renderNow()
 {
@@ -160,16 +206,29 @@ void OpenGLWindow::renderNow()
     wheelDelta = 0;
 }
 
+
 /**
- * @brief OpenGLWindow::mousePressEvent
- * @param event
+ * @brief Expose event
+ * @param[in] event Event
+ */
+void OpenGLWindow::exposeEvent(QExposeEvent *event)
+{
+    Q_UNUSED(event);
+
+    if (isExposed())
+        renderNow();
+}
+
+/**
+ * @brief Mouse press event
+ * @param[in] event Event
  */
 void OpenGLWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->buttons() == Qt::RightButton)
-        rightButton = true;
+        rightButtonPressed = true;
     if (event->buttons() == Qt::LeftButton)
-        leftButton = true;
+        leftButtonPressed = true;
     mouseDown = true;
     // Save mouse position
     currentPositionPressed = event->pos();
@@ -178,8 +237,8 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
 }
 
 /**
- * @brief OpenGLWindow::mouseMoveEvent
- * @param event
+ * @brief Mouse move event
+ * @param[in] event Event
  */
 void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
 {
@@ -193,19 +252,19 @@ void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
 }
 
 /**
- * @brief OpenGLWindow::mouseReleaseEvent Mouse release event
+ * @brief Mouse release event
  */
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
 {
-    rightButton = false;
-    leftButton = false;
+    rightButtonPressed = false;
+    leftButtonPressed = false;
     mouseDown = false;
     renderLater();
 }
 
 /**
- * @brief OpenGLWindow::wheelEvent Mouse wheel event
- * @param event
+ * @brief Mouse wheel event
+ * @param[in] event Event
  */
 void OpenGLWindow::wheelEvent(QWheelEvent *event)
 {
@@ -215,8 +274,8 @@ void OpenGLWindow::wheelEvent(QWheelEvent *event)
 }
 
 /**
- * @brief OpenGLWindow::checkGlError
- * @return error code
+ * @brief Checka OpenGL errors
+ * @return Error code
  */
 GLenum OpenGLWindow::checkGlError()
 {
@@ -258,7 +317,7 @@ GLenum OpenGLWindow::checkGlError()
 }
 
 /**
- * @brief OpenGLWindow::checkInitAndMakeCurrentContext
+ * @brief Checks initialization and make current context
  */
 void OpenGLWindow::checkInitAndMakeCurrentContext()
 {
@@ -298,8 +357,8 @@ void OpenGLWindow::checkInitAndMakeCurrentContext()
 }
 
 /**
- * @brief OpenGLWindow::hasDebugExtension
- * @return true/false
+ * @brief Has debug extension?
+ * @return True/False
  */
 bool OpenGLWindow::hasDebugExtension()
 {
@@ -307,8 +366,8 @@ bool OpenGLWindow::hasDebugExtension()
 }
 
 /**
- * @brief OpenGLWindow::isOpenGLVersionSupported
- * @return true/false
+ * @brief Is OpenGL version supported?
+ * @return True/False
  */
 bool OpenGLWindow::isOpenGLVersionSupported()
 {
@@ -318,8 +377,8 @@ bool OpenGLWindow::isOpenGLVersionSupported()
 }
 
 /**
- * @brief OpenGLWindow::messageLogged
- * @param message
+ * @brief Message logged
+ * @param[in] message Message
  */
 void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
 {
@@ -327,9 +386,4 @@ void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &message)
         qCritical() << message;
     /*else
         qDebug() << message;*/
-}
-
-double OpenGLWindow::getElapsedMs() const
-{
-    return elapsedMs;
 }

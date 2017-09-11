@@ -23,6 +23,12 @@
 
 #include "hdf5readingthread.h"
 
+/**
+ * @brief Creates request for full 3D dataset with given offset and count
+ * @param[in] dataset Dataset
+ * @param[in] offset Offset
+ * @param[in] count Count
+ */
 Request::Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count)
 {
     this->dataset = dataset;
@@ -33,8 +39,9 @@ Request::Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5He
 }
 
 /**
- * @brief Request::Request Create request for full 3D dataset reading.
- * @param dataset
+ * @brief Creates request for full 3D dataset reading with given step
+ * @param[in] dataset Dataset
+ * @param[in] step Step
  */
 Request::Request(HDF5Helper::Dataset *dataset, hsize_t step)
 {
@@ -45,7 +52,9 @@ Request::Request(HDF5Helper::Dataset *dataset, hsize_t step)
 }
 
 /**
- * @brief Request::~Request
+ * @brief Destructor of Request object
+ *
+ * Deletes allocated data do request
  */
 Request::~Request()
 {
@@ -53,8 +62,8 @@ Request::~Request()
 }
 
 /**
- * @brief Request::toQString Helper function
- * @return dataset name with offset nad count
+ * @brief Creates string from request
+ * @return Dataset name with offset nad count
  */
 QString Request::toQString()
 {
@@ -63,7 +72,7 @@ QString Request::toQString()
 
 /**
  * @brief HDF5ReadingThread::HDF5ReadingThread
- * @param parent
+ * @param[in] parent
  */
 HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
 {
@@ -73,11 +82,11 @@ HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
 }
 
 /**
- * @brief HDF5ReadingThread::createRequest Create request in thread
- * @param dataset
- * @param offset
- * @param count
- * @param limit (volatile) length of waiting queue
+ * @brief Creates request in thread
+ * @param[in] dataset Dataset
+ * @param[in] offset Offset
+ * @param[in] count Count
+ * @param[in] limit Length of waiting queue (optional)
  */
 void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit)
 {
@@ -92,8 +101,9 @@ void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::
 }
 
 /**
- * @brief HDF5ReadingThread::createRequest Create request for full dataset read in thread
- * @param dataset
+ * @brief Creates request for full dataset read in thread with givne step
+ * @param[in] dataset Dataset
+ * @param[in] step Step
  */
 void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step)
 {
@@ -105,13 +115,16 @@ void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step
     queue.enqueue(new Request(dataset, step));
 }
 
+/**
+ * @brief Stops current block reading
+ */
 void HDF5ReadingThread::stopCurrentBlockReading()
 {
     stopFlag = true;
 }
 
 /**
- * @brief HDF5ReadingThread::~HDF5ReadingThread
+ * @brief Destructor of HDF5ReadingThread object
  */
 HDF5ReadingThread::~HDF5ReadingThread()
 {
@@ -120,7 +133,7 @@ HDF5ReadingThread::~HDF5ReadingThread()
 }
 
 /**
- * @brief HDF5ReadingThread::clearDoneRequests Clear all done requests
+ * @brief Clears all done requests
  */
 void HDF5ReadingThread::clearDoneRequests()
 {
@@ -130,7 +143,7 @@ void HDF5ReadingThread::clearDoneRequests()
 }
 
 /**
- * @brief HDF5ReadingThread::clearRequests Clear requests which are waiting in queue
+ * @brief Clears requests which are waiting in queue
  */
 void HDF5ReadingThread::clearRequests()
 {
@@ -142,13 +155,13 @@ void HDF5ReadingThread::clearRequests()
 }
 
 /**
- * @brief HDF5ReadingThread::mutex Mutex (static) for synchronization if reading
+ * @brief Mutex (static) for synchronization if reading
  */
 QMutex HDF5ReadingThread::mutex;
 
 /**
- * @brief HDF5ReadingThread::deleteDoneRequest Delete one done request
- * @param r request
+ * @brief Deletes one done request
+ * @param[in] r Request
  */
 void HDF5ReadingThread::deleteDoneRequest(Request *r)
 {
@@ -166,7 +179,7 @@ void HDF5ReadingThread::deleteDoneRequest(Request *r)
 }*/
 
 /**
- * @brief HDF5ReadingThread::run Thread work
+ * @brief Thread work
  */
 void HDF5ReadingThread::run()
 {

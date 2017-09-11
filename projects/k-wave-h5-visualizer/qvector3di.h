@@ -28,7 +28,8 @@ class QVector3DI : public QVector3D
 {
 public:
     QVector3DI();
-    QVector3DI(int xpos, int ypos, int zpos);
+    QVector3DI(int x, int y, int z);
+    QVector3DI(unsigned long long x, unsigned long long y, unsigned long long z);
     void setX(int x);
     void setY(int y);
     void setZ(int z);

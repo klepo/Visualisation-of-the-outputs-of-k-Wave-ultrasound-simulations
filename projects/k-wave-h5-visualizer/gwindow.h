@@ -45,19 +45,27 @@ public:
     void initialize();
     void render();
     bool event(QEvent *event);
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *);
 
     HDF5ReadingThread *getThread();
     bool isTexture3DInitialized();
 
     QImage getImage();
 
+    /// Slice vertices
     static const GLfloat sliceVertices[];
+    /// Slice indices
     static const GLint sliceElements[] ;
+    /// Cude vertices
     static const GLfloat cubeVertices[];
+    /// Cube elements
     static const GLint cubeElements[];
 
 signals:
+    /**
+     * @brief Data loaded signal
+     * @param[in] datasetName Dataset name
+     */
     void loaded(std::string datasetName);
 
 public slots:
@@ -75,7 +83,7 @@ public slots:
     void setSize(HDF5Helper::Vector3D size);
     void setPosition(HDF5Helper::Vector3D position);
 
-    void load3DTexture(HDF5Helper::Dataset *dataset, hsize_t index);
+    void load3DTexture(HDF5Helper::Dataset *dataset, hsize_t step);
     void changeColormap(ColorMap::Type colormap = ColorMap::JET);
     void changeOpacity(QVector<float> opacity = QVector<float>(5, 1));
     void changeMinValue(float value);

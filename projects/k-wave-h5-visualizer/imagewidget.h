@@ -39,15 +39,25 @@ public:
     QSize minimumSizeHint() const;
 
 signals:
+    /**
+     * @brief Image resized signal
+     * @param[in] width Image width
+     * @param[in] height Image height
+     */
     void imageResized(int width, int height);
+    /**
+     * @brief Hovered point in image
+     * @param[in] x X position
+     * @param[in] y Y position
+     */
     void hoveredPointInImage(int x, int y);
 
 public slots:
-    void showImage(const QImage &image, QPoint = QPoint(0,0), QString fileName = "");
-    void clearImage();
-    void saveImage();
     void setAdjust(bool adjust);
+    void clearImage();
     void refreshImage();
+    void showImage(const QImage &image, QPoint = QPoint(0,0), QString fileName = "");
+    void saveImage();
 
 private:
     void resizeEvent(QResizeEvent *);

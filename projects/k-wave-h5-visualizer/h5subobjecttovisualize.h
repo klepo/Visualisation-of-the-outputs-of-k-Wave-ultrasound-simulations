@@ -92,9 +92,24 @@ public:
     H5ObjectToVisualize *getH5ObjectToVisualize() const;
 
 signals:
-    void imageXYChanged(QImage, hsize_t index);
-    void imageXZChanged(QImage, hsize_t index);
-    void imageYZChanged(QImage, hsize_t index);
+    /**
+     * @brief Image XY changed signal
+     * @param[in] image Image
+     * @param[in] index Index
+     */
+    void imageXYChanged(QImage image, hsize_t index);
+    /**
+     * @brief image XZ changed signal
+     * @param[in] image Image
+     * @param[in] index Index
+     */
+    void imageXZChanged(QImage image, hsize_t index);
+    /**
+     * @brief image YZ changed signal
+     * @param[in] image Image
+     * @param[in] index Index
+     */
+    void imageYZChanged(QImage image, hsize_t index);
 
 private slots:
     void sliceXYLoaded(Request *r);
@@ -117,7 +132,7 @@ public slots:
     void setBlue(float value);
     void setCount(int value);
 
-    void setCurrentStep(hsize_t value);
+    void setCurrentStep(hsize_t step);
 
     void setGUIInitialized(bool value);
 
@@ -176,8 +191,8 @@ private:
     HDF5Helper::Vector3D frameSize;
     HDF5Helper::Vector3D originalSize;
     HDF5Helper::Vector3D size;
-    HDF5Helper::Vector3D originalPos;
-    HDF5Helper::Vector3D pos;
+    HDF5Helper::Vector3D originalPosition;
+    HDF5Helper::Vector3D position;
     HDF5Helper::Vector chunkSize;
 
     hsize_t steps = 1;

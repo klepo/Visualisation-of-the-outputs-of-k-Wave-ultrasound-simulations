@@ -25,10 +25,12 @@
 #include "h5subobjecttovisualize.h"
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize
- * @param dataset
- * @param openedH5File
- * @param parent
+ * @brief Creates H5SubobjectToVisualize object
+ * @param[in] dataset Dataset
+ * @param[in] type Object type
+ * @param[in] openedH5File Opened file
+ * @param[in] h5ObjectToVisualize Object to visualize
+ * @param[in] parent Parent (optional)
  */
 OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent) : QObject(parent)
 {
@@ -45,7 +47,7 @@ OpenedH5File::H5SubobjectToVisualize::H5SubobjectToVisualize(HDF5Helper::Dataset
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::initialize Inicialization of important variables
+ * @brief Inicialization of important variables
  */
 void OpenedH5File::H5SubobjectToVisualize::initialize()
 {
@@ -64,7 +66,9 @@ void OpenedH5File::H5SubobjectToVisualize::initialize()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::~H5SubobjectToVisualize
+ * @brief Destructor of H5SubobjectToVisualize
+ *
+ * Deletes threads and slice data.
  */
 OpenedH5File::H5SubobjectToVisualize::~H5SubobjectToVisualize()
 {
@@ -89,8 +93,8 @@ OpenedH5File::H5SubobjectToVisualize::~H5SubobjectToVisualize()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setGUIInitialized
- * @param value
+ * @brief Set GUI initialized or not
+ * @param[in] value True/False
  */
 void OpenedH5File::H5SubobjectToVisualize::setGUIInitialized(bool value)
 {
@@ -98,8 +102,8 @@ void OpenedH5File::H5SubobjectToVisualize::setGUIInitialized(bool value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::isGUIInitialized
- * @return true/false
+ * @brief Is GUI Initialized?
+ * @return True/False
  */
 bool OpenedH5File::H5SubobjectToVisualize::isGUIInitialized()
 {
@@ -107,8 +111,8 @@ bool OpenedH5File::H5SubobjectToVisualize::isGUIInitialized()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getName
- * @return subobject name
+ * @brief Returns subobject name
+ * @return Subobject name
  */
 QString OpenedH5File::H5SubobjectToVisualize::getName()
 {
@@ -116,8 +120,8 @@ QString OpenedH5File::H5SubobjectToVisualize::getName()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getObjectOnlyName
- * @return
+ * @brief Returns subobject only name
+ * @return Subobject only name
  */
 QString OpenedH5File::H5SubobjectToVisualize::getOnlyName() const
 {
@@ -125,8 +129,8 @@ QString OpenedH5File::H5SubobjectToVisualize::getOnlyName() const
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getType
- * @return subobject type
+ * @brief Returns subobject type
+ * @return Subobject type
  */
 OpenedH5File::ObjectType OpenedH5File::H5SubobjectToVisualize::getType()
 {
@@ -134,8 +138,8 @@ OpenedH5File::ObjectType OpenedH5File::H5SubobjectToVisualize::getType()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getDataset
- * @return dataset
+ * @brief Returns dataset
+ * @return Dataset
  */
 HDF5Helper::Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
 {
@@ -143,7 +147,7 @@ HDF5Helper::Dataset *OpenedH5File::H5SubobjectToVisualize::getDataset()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::loadObjectData Load data about dataset or group (size, position, ...)
+ * @brief Loads data about dataset or group (size, position, ...)
  */
 void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 {
@@ -187,10 +191,10 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
         // Default step
         steps = 1;
         if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
-            originalPos.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
-            originalPos.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
-            originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
-            pos = originalPos;
+            originalPosition.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
+            originalPosition.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
+            originalPosition.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
+            position = originalPosition;
 
             frameSize = HDF5Helper::Vector3D(openedH5File->getNDims());;
             originalFrameSize = frameSize;
@@ -203,18 +207,18 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 
         // Get position (was defined by sensor mask)
         if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
-            originalPos.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
-            originalPos.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
-            originalPos.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
-            pos = originalPos;
+            originalPosition.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
+            originalPosition.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
+            originalPosition.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
+            position = originalPosition;
         }
 
         // Downsampled position
         if (size != originalSize) {
             float ratio = float(qMax(size.x(), qMax(size.y(), size.z()))) / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));
-            pos.x(hsize_t(originalPos.x() * ratio));
-            pos.y(hsize_t(originalPos.y() * ratio));
-            pos.z(hsize_t(originalPos.z() * ratio));
+            position.x(hsize_t(originalPosition.x() * ratio));
+            position.y(hsize_t(originalPosition.y() * ratio));
+            position.z(hsize_t(originalPosition.z() * ratio));
 
             originalFrameSize.x(hsize_t(originalFrameSize.x() * ratio));
             originalFrameSize.y(hsize_t(originalFrameSize.y() * ratio));
@@ -227,7 +231,7 @@ void OpenedH5File::H5SubobjectToVisualize::loadObjectData()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::changeImages Image data was changed -> send signals
+ * @brief Send signals images were changed
  */
 void OpenedH5File::H5SubobjectToVisualize::changeImages()
 {
@@ -237,7 +241,7 @@ void OpenedH5File::H5SubobjectToVisualize::changeImages()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::reloadImages
+ * @brief Reloads images
  */
 void OpenedH5File::H5SubobjectToVisualize::reloadImages()
 {
@@ -247,8 +251,8 @@ void OpenedH5File::H5SubobjectToVisualize::reloadImages()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded
- * @param r request
+ * @brief Slice XY loaded slot
+ * @param[in] r Request
  */
 void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
 {
@@ -265,8 +269,8 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXYLoaded(Request *r)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded
- * @param r request
+ * @brief Slice XZ loaded slot
+ * @param[in] r request
  */
 void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
 {
@@ -283,8 +287,8 @@ void OpenedH5File::H5SubobjectToVisualize::sliceXZLoaded(Request *r)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded
- * @param r request
+ * @brief Slice YZ loaded slot
+ * @param[in] r request
  */
 void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
 {
@@ -301,8 +305,8 @@ void OpenedH5File::H5SubobjectToVisualize::sliceYZLoaded(Request *r)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::isCurrentXYLoaded
- * @return true/false
+ * @brief Is current XY Loaded?
+ * @return True/False
  */
 bool OpenedH5File::H5SubobjectToVisualize::isCurrentXYLoaded()
 {
@@ -310,8 +314,8 @@ bool OpenedH5File::H5SubobjectToVisualize::isCurrentXYLoaded()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::isCurrentXZLoaded
- * @return true/false
+ * @brief Is current XZ Loaded?
+ * @return True/False
  */
 bool OpenedH5File::H5SubobjectToVisualize::isCurrentXZLoaded()
 {
@@ -319,8 +323,8 @@ bool OpenedH5File::H5SubobjectToVisualize::isCurrentXZLoaded()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::isCurrentYZLoaded
- * @return true/false
+ * @brief Is current YZ Loaded?
+ * @return True/False
  */
 bool OpenedH5File::H5SubobjectToVisualize::isCurrentYZLoaded()
 {
@@ -328,8 +332,8 @@ bool OpenedH5File::H5SubobjectToVisualize::isCurrentYZLoaded()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::areCurrentSlicesLoaded
- * @return true/false
+ * @brief Are current slices Loaded?
+ * @return True/False
  */
 bool OpenedH5File::H5SubobjectToVisualize::areCurrentSlicesLoaded()
 {
@@ -340,7 +344,7 @@ bool OpenedH5File::H5SubobjectToVisualize::areCurrentSlicesLoaded()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::createImageXY Create cv::Mat XY image from loaded data
+ * @brief Creates XY image from loaded data
  * @return XY image
  */
 QImage OpenedH5File::H5SubobjectToVisualize::createImageXY()
@@ -354,7 +358,7 @@ QImage OpenedH5File::H5SubobjectToVisualize::createImageXY()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::createImageXZ Create cv::Mat XZ image from loaded data
+ * @brief Creates XZ image from loaded data
  * @return XZ image
  */
 QImage OpenedH5File::H5SubobjectToVisualize::createImageXZ()
@@ -368,7 +372,7 @@ QImage OpenedH5File::H5SubobjectToVisualize::createImageXZ()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::createImageYZ Create cv::Mat YZ image from loaded data
+ * @brief Creates YZ image from loaded data
  * @return YZ image
  */
 QImage OpenedH5File::H5SubobjectToVisualize::createImageYZ()
@@ -381,19 +385,27 @@ QImage OpenedH5File::H5SubobjectToVisualize::createImageYZ()
     return qimage;
 }
 
+/**
+ * @brief Returns H5ObjectToVisualize
+ * @return H5ObjectToVisualize
+ */
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::H5SubobjectToVisualize::getH5ObjectToVisualize() const
 {
     return h5ObjectToVisualize;
 }
 
+/**
+ * @brief Returns OpenedH5File
+ * @return OpenedH5File
+ */
 OpenedH5File *OpenedH5File::H5SubobjectToVisualize::getOpenedH5File() const
 {
     return openedH5File;
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getDataXY
- * @return float XY data
+ * @brief Returns data XY
+ * @return Float XY data
  */
 float *OpenedH5File::H5SubobjectToVisualize::getDataXY()
 {
@@ -401,8 +413,8 @@ float *OpenedH5File::H5SubobjectToVisualize::getDataXY()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getDataXZ
- * @return float XZ data
+ * @brief Returns data XZ
+ * @return Float XZ data
  */
 float *OpenedH5File::H5SubobjectToVisualize::getDataXZ()
 {
@@ -410,8 +422,8 @@ float *OpenedH5File::H5SubobjectToVisualize::getDataXZ()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getDataYZ
- * @return float YZ data
+ * @brief Returns data YZ
+ * @return Float YZ data
  */
 float *OpenedH5File::H5SubobjectToVisualize::getDataYZ()
 {
@@ -419,8 +431,8 @@ float *OpenedH5File::H5SubobjectToVisualize::getDataYZ()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getXIndex
- * @return current X index
+ * @brief Returns current X index
+ * @return Current X index
  */
 hsize_t OpenedH5File::H5SubobjectToVisualize::getXIndex()
 {
@@ -428,8 +440,8 @@ hsize_t OpenedH5File::H5SubobjectToVisualize::getXIndex()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getYIndex
- * @return current Y index
+ * @brief Returns current Y index
+ * @return Current Y index
  */
 hsize_t OpenedH5File::H5SubobjectToVisualize::getYIndex()
 {
@@ -437,8 +449,8 @@ hsize_t OpenedH5File::H5SubobjectToVisualize::getYIndex()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getZIndex
- * @return current Z index
+ * @brief Returns current Z index
+ * @return Current Z index
  */
 hsize_t OpenedH5File::H5SubobjectToVisualize::getZIndex()
 {
@@ -446,8 +458,8 @@ hsize_t OpenedH5File::H5SubobjectToVisualize::getZIndex()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setXIndex Start loading image data with new index
- * @param value index
+ * @brief Starts loading image data with new X index
+ * @param[in] value X index
  */
 void OpenedH5File::H5SubobjectToVisualize::setXIndex(hsize_t value)
 {
@@ -462,8 +474,8 @@ void OpenedH5File::H5SubobjectToVisualize::setXIndex(hsize_t value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setYIndex Start loading image data with new index
- * @param value index
+ * @brief Starts loading image data with new Y index
+ * @param[in] value Y index
  */
 void OpenedH5File::H5SubobjectToVisualize::setYIndex(hsize_t value)
 {
@@ -477,8 +489,8 @@ void OpenedH5File::H5SubobjectToVisualize::setYIndex(hsize_t value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setZIndex Start loading image data with new index
- * @param value index
+ * @brief Starts loading image data with new Z index
+ * @param[in] value Z index
  */
 void OpenedH5File::H5SubobjectToVisualize::setZIndex(hsize_t value)
 {
@@ -492,8 +504,8 @@ void OpenedH5File::H5SubobjectToVisualize::setZIndex(hsize_t value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getAlpha
- * @return float value
+ * @brief Returns alpha value (unused)
+ * @return Alpha value
  */
 float OpenedH5File::H5SubobjectToVisualize::getAlpha()
 {
@@ -501,8 +513,8 @@ float OpenedH5File::H5SubobjectToVisualize::getAlpha()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getRed
- * @return float value
+ * @brief Returns red value (unused)
+ * @return Red value
  */
 float OpenedH5File::H5SubobjectToVisualize::getRed()
 {
@@ -510,8 +522,8 @@ float OpenedH5File::H5SubobjectToVisualize::getRed()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getGreen
- * @return float value
+ * @brief Returns green value (unused)
+ * @return Green value
  */
 float OpenedH5File::H5SubobjectToVisualize::getGreen()
 {
@@ -519,8 +531,8 @@ float OpenedH5File::H5SubobjectToVisualize::getGreen()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getBlue
- * @return float value
+ * @brief Returns blue value (unused)
+ * @return Blue value
  */
 float OpenedH5File::H5SubobjectToVisualize::getBlue()
 {
@@ -528,8 +540,8 @@ float OpenedH5File::H5SubobjectToVisualize::getBlue()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getCount
- * @return count
+ * @brief Gets count (unused)
+ * @return Count
  */
 int OpenedH5File::H5SubobjectToVisualize::getCount()
 {
@@ -537,8 +549,8 @@ int OpenedH5File::H5SubobjectToVisualize::getCount()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setAlpha
- * @param value
+ * @brief Sets alpha (unused)
+ * @param[in] value Alpha value
  */
 void OpenedH5File::H5SubobjectToVisualize::setAlpha(float value)
 {
@@ -546,8 +558,8 @@ void OpenedH5File::H5SubobjectToVisualize::setAlpha(float value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setRed
- * @param value
+ * @brief Sets red (unused)
+ * @param[in] value Red value
  */
 void OpenedH5File::H5SubobjectToVisualize::setRed(float value)
 {
@@ -555,8 +567,8 @@ void OpenedH5File::H5SubobjectToVisualize::setRed(float value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setGreen
- * @param value
+ * @brief Sets green (unused)
+ * @param[in] value Green value
  */
 void OpenedH5File::H5SubobjectToVisualize::setGreen(float value)
 {
@@ -564,8 +576,8 @@ void OpenedH5File::H5SubobjectToVisualize::setGreen(float value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setBlue
- * @param value
+ * @brief Sets blue (unused)
+ * @param[in] value Blue value
  */
 void OpenedH5File::H5SubobjectToVisualize::setBlue(float value)
 {
@@ -573,8 +585,8 @@ void OpenedH5File::H5SubobjectToVisualize::setBlue(float value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setCount
- * @param value
+ * @brief Sets count (unused)
+ * @param[in] value Count
  */
 void OpenedH5File::H5SubobjectToVisualize::setCount(int value)
 {
@@ -582,8 +594,8 @@ void OpenedH5File::H5SubobjectToVisualize::setCount(int value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getSize
- * @return size
+ * @brief Returns size
+ * @return Size
  */
 HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getSize()
 {
@@ -591,8 +603,8 @@ HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getSize()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalSize
- * @return original size
+ * @brief Returns original size
+ * @return Original size
  */
 HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalSize()
 {
@@ -600,8 +612,8 @@ HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalSize()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getFrameSize
- * @return frame size
+ * @brief Returns frame size
+ * @return Frame size
  */
 HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getFrameSize()
 {
@@ -609,8 +621,8 @@ HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getFrameSize()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalFrameSize
- * @return original frame size
+ * @brief Returns original frame size
+ * @return Original frame size
  */
 HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalFrameSize()
 {
@@ -618,26 +630,26 @@ HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalFrameSize(
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getPos
- * @return position
+ * @brief Returns Position
+ * @return Position
  */
 HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getPos()
 {
-    return pos;
+    return position;
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalPos
- * @return original position
+ * @brief Returns original position
+ * @return Original position
  */
 HDF5Helper::Vector3D OpenedH5File::H5SubobjectToVisualize::getOriginalPos()
 {
-    return originalPos;
+    return originalPosition;
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getSteps
- * @return number of steps
+ * @brief Returns steps
+ * @return Steps
  */
 hsize_t OpenedH5File::H5SubobjectToVisualize::getSteps()
 {
@@ -645,8 +657,8 @@ hsize_t OpenedH5File::H5SubobjectToVisualize::getSteps()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getCurrentStep
- * @return current step
+ * @brief Returns current step
+ * @return Current step
  */
 hsize_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
 {
@@ -654,15 +666,14 @@ hsize_t OpenedH5File::H5SubobjectToVisualize::getCurrentStep()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setCurrentStep Synchronize loading time series
- * @param value step
- * @param thread3D 3D data loading thread for sycnhronization
+ * @brief Synchronizes loading time series
+ * @param[in] step Step
  */
-void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(hsize_t value)
+void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(hsize_t step)
 {
     if (type == dataset4D_t) {
         try {
-            currentStep = value;
+            currentStep = step;
             reloadImages();
         } catch(std::exception &) {
             std::cerr << "Wrong step" << std::endl;
@@ -671,8 +682,8 @@ void OpenedH5File::H5SubobjectToVisualize::setCurrentStep(hsize_t value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getColormap
- * @return colormap
+ * @brief Returns colormap
+ * @return Colormap
  */
 ColorMap::Type OpenedH5File::H5SubobjectToVisualize::getColormap()
 {
@@ -680,8 +691,8 @@ ColorMap::Type OpenedH5File::H5SubobjectToVisualize::getColormap()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setColormap
- * @param value
+ * @brief Sets colormap
+ * @param[in] colormap Colormap
  */
 void OpenedH5File::H5SubobjectToVisualize::setColormap(ColorMap::Type colormap)
 {
@@ -690,8 +701,8 @@ void OpenedH5File::H5SubobjectToVisualize::setColormap(ColorMap::Type colormap)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setMinValue
- * @param value
+ * @brief Sets minimal value
+ * @param[in] value Value
  */
 void OpenedH5File::H5SubobjectToVisualize::setMinValue(float value)
 {
@@ -700,8 +711,8 @@ void OpenedH5File::H5SubobjectToVisualize::setMinValue(float value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::setMaxValue
- * @param value
+ * @brief Sets maximal value
+ * @param[in] value Value
  */
 void OpenedH5File::H5SubobjectToVisualize::setMaxValue(float value)
 {
@@ -710,8 +721,8 @@ void OpenedH5File::H5SubobjectToVisualize::setMaxValue(float value)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getMinValue
- * @return min global current value
+ * @brief Returns minimal value
+ * @return Minimal global current value
  */
 float OpenedH5File::H5SubobjectToVisualize::getMinValue()
 {
@@ -719,8 +730,8 @@ float OpenedH5File::H5SubobjectToVisualize::getMinValue()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getMaxValue
- * @return max global current value
+ * @brief Returns maximal value
+ * @return Maximal global current value
  */
 float OpenedH5File::H5SubobjectToVisualize::getMaxValue()
 {
@@ -728,8 +739,8 @@ float OpenedH5File::H5SubobjectToVisualize::getMaxValue()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalMinValue
- * @return min global original value
+ * @brief Returns original minimal value
+ * @return Minimal global original value
  */
 float OpenedH5File::H5SubobjectToVisualize::getOriginalMinValue()
 {
@@ -737,8 +748,8 @@ float OpenedH5File::H5SubobjectToVisualize::getOriginalMinValue()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getOriginalMaxValue
- * @return max global original value
+ * @brief Returns original maximal value
+ * @return Maximal global original value
  */
 float OpenedH5File::H5SubobjectToVisualize::getOriginalMaxValue()
 {
@@ -746,10 +757,10 @@ float OpenedH5File::H5SubobjectToVisualize::getOriginalMaxValue()
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY Get value at 2D position on XY image
- * @param x x-coord
- * @param y y-coord
- * @return float value
+ * @brief Returns value at 2D position on XY image
+ * @param[in] x X-coord
+ * @param[in] y Y-coord
+ * @return Float value
  */
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY(int x, int y)
 {
@@ -760,10 +771,10 @@ float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXY(int x, int y)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXZ Get value at 2D position on XZ image
- * @param x x(x)-coord
- * @param z z(y)-coord
- * @return float value
+ * @brief Returns value at 2D position on XZ image
+ * @param[in] x X(X)-coord
+ * @param[in] z Z(Y)-coord
+ * @return Float value
  */
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXZ(int x, int z)
 {
@@ -774,10 +785,10 @@ float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromXZ(int x, int z)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromYZ Get value at 2D position on YZ image
- * @param y y(x)-coord
- * @param z z(y)-coord
- * @return float value
+ * @brief Returns value at 2D position on YZ image
+ * @param[in] y Y(X)-coord
+ * @param[in] z Z(Y)-coord
+ * @return Float value
  */
 float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromYZ(int y, int z)
 {
@@ -788,8 +799,8 @@ float OpenedH5File::H5SubobjectToVisualize::getValueAtPointFromYZ(int y, int z)
 }
 
 /**
- * @brief OpenedH5File::H5SubobjectToVisualize::getInfo Create simulation info data strusture
- * @return info structure
+ * @brief Creates simulation info data strusture
+ * @return Info structure
  */
 QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
 {
@@ -803,7 +814,7 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
             info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(size)));
         if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
-            info.append(QPair<QString, QString>("Position", QString::fromStdString(pos)));
+            info.append(QPair<QString, QString>("Position", QString::fromStdString(position)));
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
         info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
         info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
@@ -816,9 +827,9 @@ QList<QPair<QString, QString>> OpenedH5File::H5SubobjectToVisualize::getInfo()
         info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(originalSize)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
             info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(dataset->getDims())));
-        info.append(QPair<QString, QString>("Position", QString::fromStdString(originalPos)));
-        if (pos.x() != originalPos.x() || pos.y() != originalPos.y() || pos.z() != originalPos.z())
-            info.append(QPair<QString, QString>("Downsampling position", QString::fromStdString(pos)));
+        info.append(QPair<QString, QString>("Position", QString::fromStdString(originalPosition)));
+        if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z())
+            info.append(QPair<QString, QString>("Downsampling position", QString::fromStdString(position)));
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
         info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
         info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));

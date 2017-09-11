@@ -26,9 +26,9 @@
 #include "h5subobjecttovisualize.h"
 
 /**
- * @brief OpenedH5File::OpenedH5File
- * @param fileName path to HDF5 file
- * @param parent
+ * @brief Creates OpenedH5File obejct
+ * @param[in] fileName Path to HDF5 file
+ * @param[in] parent Parent (optional)
  */
 OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     QObject(parent)
@@ -58,21 +58,39 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
     file->closeGroup(group);
 }
 
-void OpenedH5File::setObject(QString nameTmp, HDF5Helper::Dataset *dataset, ObjectType type)
+/**
+ * @brief Destructor of OpenedH5File
+ *
+ * Deletes objects and file.
+ */
+OpenedH5File::~OpenedH5File()
 {
-    QString name = nameTmp;
-    if (name.at(0) == '/')
-        name.remove(0, 1);
-    if (!objects.contains(name)) {
-        objects.insert(name, new OpenedH5File::H5ObjectToVisualize(name, type, this));
-        objects[name]->addSubobject(dataset);
+    foreach (QString key, objects.keys())
+        delete objects[key];
+    delete file;
+}
+
+/**
+ * @brief Sets object
+ * @param[in] name Object name
+ * @param[in] dataset Dataset
+ * @param[in] type Obejct type
+ */
+void OpenedH5File::setObject(QString name, HDF5Helper::Dataset *dataset, ObjectType type)
+{
+    QString nameTmp = name;
+    if (nameTmp.at(0) == '/')
+        nameTmp.remove(0, 1);
+    if (!objects.contains(nameTmp)) {
+        objects.insert(nameTmp, new OpenedH5File::H5ObjectToVisualize(nameTmp, type, this));
+        objects[nameTmp]->addSubobject(dataset);
     } else {
-        objects[name]->addSubobject(dataset);
+        objects[nameTmp]->addSubobject(dataset);
     }
 }
 
 /**
- * @brief OpenedH5File::getObjects
+ * @brief Returns objects
  * @return objects
  */
 QMap<QString, OpenedH5File::H5ObjectToVisualize *> OpenedH5File::getObjects()
@@ -81,22 +99,22 @@ QMap<QString, OpenedH5File::H5ObjectToVisualize *> OpenedH5File::getObjects()
 }
 
 /**
- * @brief OpenedH5File::getObject
- * @param mainName name of object
+ * @brief Returns object by name
+ * @param[in] name Name of object
  * @return object or 0
  */
-OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString mainName)
+OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObject(QString name)
 {
-    if (objects.contains(mainName)) {
-        return objects[mainName];
+    if (objects.contains(name)) {
+        return objects[name];
         //if (objects[name]->getNames().contains(name))
     } else
         return 0;
 }
 
 /**
- * @brief OpenedH5File::getObjectBySubobjectName
- * @param name name of subobject (dataset or group)
+ * @brief Returns object by subobject name
+ * @param[in] name Name of subobject (dataset or group)
  * @return subobject or 0
  */
 OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QString name)
@@ -111,9 +129,10 @@ OpenedH5File::H5ObjectToVisualize *OpenedH5File::getObjectBySubobjectName(QStrin
 }
 
 /**
- * @brief OpenedH5File::setSelectedSubobject Set subobject selected. From group
- * of subobjects can be one selected.
- * @param name name of subobject
+ * @brief Sets subobject as selected
+ * @param[in] name Name of subobject
+ *
+ * From group of subobjects one can be selected.
  */
 void OpenedH5File::setSelectedSubobject(QString name)
 {
@@ -125,28 +144,32 @@ void OpenedH5File::setSelectedSubobject(QString name)
 }
 
 /**
- * @brief OpenedH5File::setObjectSelected Set object selected/unselected
- * @param mainName name of object
- * @param value true/false
+ * @brief Sets object selected/unselected
+ * @param[in] name Name of object
+ * @param[in] value True/False
  */
-void OpenedH5File::setObjectSelected(QString mainName, bool value)
+void OpenedH5File::setObjectSelected(QString name, bool value)
 {
-    if (objects.contains(mainName)) {
-        objects[mainName]->setSelected(value);
+    if (objects.contains(name)) {
+        objects[name]->setSelected(value);
     }
 }
 
 /**
- * @brief OpenedH5File::toogleObjectSelected
- * @param mainName name of object
+ * @brief Toogles object selected
+ * @param[in] name Name of object
  */
-void OpenedH5File::toogleObjectSelected(QString mainName)
+void OpenedH5File::toogleObjectSelected(QString name)
 {
-    if (objects.contains(mainName)) {
-        objects[mainName]->toogleSelected();
+    if (objects.contains(name)) {
+        objects[name]->toogleSelected();
     }
 }
 
+/**
+ * @brief Finds datasets for visualization
+ * @param[in] group Group to search
+ */
 void OpenedH5File::findDatasetsForVisualization(HDF5Helper::Group *group)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
@@ -206,23 +229,17 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::Group *group)
     }
 }
 
+/**
+ * @brief Returns nDims
+ * @return nDims
+ */
 HDF5Helper::Vector4D OpenedH5File::getNDims() const
 {
     return nDims;
 }
 
 /**
- * @brief OpenedH5File::~OpenedH5File
- */
-OpenedH5File::~OpenedH5File()
-{
-    foreach (QString key, objects.keys())
-        delete objects[key];
-    delete file;
-}
-
-/**
- * @brief OpenedH5File::getNT
+ * @brief Returns Nt
  * @return number of time steps (Nt)
  */
 hsize_t OpenedH5File::getNT() const
@@ -231,7 +248,7 @@ hsize_t OpenedH5File::getNT() const
 }
 
 /**
- * @brief OpenedH5File::getNX
+ * @brief Returns Nx
  * @return Nx dimension
  */
 hsize_t OpenedH5File::getNX() const
@@ -240,7 +257,7 @@ hsize_t OpenedH5File::getNX() const
 }
 
 /**
- * @brief OpenedH5File::getNY
+ * @brief Returns Ny
  * @return Ny dimension
  */
 hsize_t OpenedH5File::getNY() const
@@ -249,7 +266,7 @@ hsize_t OpenedH5File::getNY() const
 }
 
 /**
- * @brief OpenedH5File::getNZ
+ * @brief Returns Nz
  * @return Nz dimension
  */
 hsize_t OpenedH5File::getNZ() const
@@ -258,8 +275,8 @@ hsize_t OpenedH5File::getNZ() const
 }
 
 /**
- * @brief OpenedH5File::getInfo Get simulation info form HDF5 file
- * @return info data structure
+ * @brief Returns simulation info from HDF5 file
+ * @return Info data structure
  */
 QMap<QString, QString> OpenedH5File::getInfo()
 {
@@ -267,7 +284,7 @@ QMap<QString, QString> OpenedH5File::getInfo()
 }
 
 /**
- * @brief OpenedH5File::getFile Get HDF5 file
+ * @brief Returns HDF5 file
  * @return HDF5 file
  */
 HDF5Helper::File *OpenedH5File::getFile()
@@ -276,8 +293,8 @@ HDF5Helper::File *OpenedH5File::getFile()
 }
 
 /**
- * @brief OpenedH5File::getFilename Get filename
- * @return filename
+ * @brief Returns filename
+ * @return Filename
  */
 QString OpenedH5File::getFilename() const
 {
@@ -285,8 +302,8 @@ QString OpenedH5File::getFilename() const
 }
 
 /**
- * @brief OpenedH5File::getRawFilename Get filename without extension
- * @return filename without extension
+ * @brief Returns filename without extension
+ * @return Filename without extension
  */
 QString OpenedH5File::getRawFilename() const
 {

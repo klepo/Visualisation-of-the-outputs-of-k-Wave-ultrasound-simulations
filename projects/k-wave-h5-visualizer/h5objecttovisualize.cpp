@@ -25,11 +25,11 @@
 #include "h5objecttovisualize.h"
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize Creation of H5ObjectToVisualize
- * @param name name of object
- * @param type type of object (GROUP_TYPE or DATASET_TYPE)
- * @param openedH5File hdf5 file
- * @param parent
+ * @brief Creates H5ObjectToVisualize object
+ * @param[in] name Name of object
+ * @param[in] type Type of object (GROUP_TYPE or DATASET_TYPE)
+ * @param[in] openedH5File HDF5 File
+ * @param[in] parent Parent (optional)
  */
 OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, ObjectType type, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
 {
@@ -40,7 +40,9 @@ OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, ObjectType 
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize
+ * @brief Destructor of H5ObjectToVisualize object
+ *
+ * Deletes subobjects
  */
 OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
 {
@@ -49,8 +51,8 @@ OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::addSubobject Add dataset to Qmap of subobjects
- * @param dataset HDF5dataset * object
+ * @brief Adds dataset to Qmap of subobjects
+ * @param[in] dataset Dataset
  */
 void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::Dataset *dataset)
 {
@@ -64,8 +66,8 @@ void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::Dataset *datase
 
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::getName
- * @return name of object to visualize
+ * @brief Returns name of object
+ * @return Name of object
  */
 QString OpenedH5File::H5ObjectToVisualize::getName()
 {
@@ -73,7 +75,7 @@ QString OpenedH5File::H5ObjectToVisualize::getName()
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::getType
+ * @brief Returns type of object
  * @return GROUP_TYPE or DATASET_TYPE
  */
 OpenedH5File::ObjectType OpenedH5File::H5ObjectToVisualize::getType()
@@ -82,7 +84,7 @@ OpenedH5File::ObjectType OpenedH5File::H5ObjectToVisualize::getType()
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::getSubobjectNames
+ * @brief Returns subobject names
  * @return QList of subobjects names
  */
 QList<QString> OpenedH5File::H5ObjectToVisualize::getSubobjectNames()
@@ -91,8 +93,8 @@ QList<QString> OpenedH5File::H5ObjectToVisualize::getSubobjectNames()
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::getSubobjects
- * @return QMap<QString, OpenedH5File::H5SubobjectToVisualize *> subobjects;
+ * @brief Returns subobjects
+ * @return QMap<QString, OpenedH5File::H5SubobjectToVisualize *> of subobjects;
  */
 QMap<QString, OpenedH5File::H5SubobjectToVisualize *> OpenedH5File::H5ObjectToVisualize::getSubobjects()
 {
@@ -100,8 +102,8 @@ QMap<QString, OpenedH5File::H5SubobjectToVisualize *> OpenedH5File::H5ObjectToVi
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::getSelectedSubobject
- * @return selected subobject
+ * @brief Returns selected subobject
+ * @return Selected subobject
  */
 OpenedH5File::H5SubobjectToVisualize *OpenedH5File::H5ObjectToVisualize::getSelectedSubobject()
 {
@@ -109,8 +111,9 @@ OpenedH5File::H5SubobjectToVisualize *OpenedH5File::H5ObjectToVisualize::getSele
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::setSelectedSubobject
- * @param name name of subobject
+ * @brief Sets selected subobject
+ * @param[in] name Subobject name
+ * @return True if object exists
  */
 bool OpenedH5File::H5ObjectToVisualize::setSelectedSubobject(QString name)
 {
@@ -122,7 +125,7 @@ bool OpenedH5File::H5ObjectToVisualize::setSelectedSubobject(QString name)
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::toogleSelected
+ * @brief Toogles selected
  */
 void OpenedH5File::H5ObjectToVisualize::toogleSelected()
 {
@@ -130,8 +133,8 @@ void OpenedH5File::H5ObjectToVisualize::toogleSelected()
 }
 
 /**
- * @brief OpenedH5File::H5ObjectToVisualize::setSelected Set object as selected
- * @param value
+ * @brief Set object selected or notselected
+ * @param[in] value True/False
  */
 void OpenedH5File::H5ObjectToVisualize::setSelected(bool value)
 {

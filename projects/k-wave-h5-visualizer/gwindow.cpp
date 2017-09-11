@@ -23,7 +23,8 @@
 #include "vertices.h"
 
 /**
- * @brief GWindow::GWindow
+ * @brief Creates GWindow
+ * @param[in] qMainWindow QMainWindow (optional)
  */
 GWindow::GWindow(QMainWindow *qMainWindow)
     : m_program(0)
@@ -46,7 +47,9 @@ GWindow::GWindow(QMainWindow *qMainWindow)
 }
 
 /**
- * @brief GWindow::~GWindow
+ * @brief Destructor of GWindow object
+ *
+ * Deletes buffers, etc.
  */
 GWindow::~GWindow()
 {
@@ -74,7 +77,7 @@ GWindow::~GWindow()
 }
 
 /**
- * @brief GWindow::initialize Initialization of OpenGL
+ * @brief Initializes OpenGL window
  */
 void GWindow::initialize()
 {
@@ -279,7 +282,7 @@ void GWindow::initialize()
 
     m_program->setUniformValue(m_uFrame, false);
 
-    m_program->setUniformValue(m_uFrameColor, float(1.0f - colorW.redF()), float(1.0f - colorW.greenF()), float(1.0f - colorW.blueF()), 1.0f);
+    m_program->setUniformValue(m_uFrameColor, 1.0f - float(colorW.redF()), 1.0f - float(colorW.greenF()), 1.0f - float(colorW.blueF()), 1.0f);
 
     m_program->setUniformValue(m_uSlices, false);
 
@@ -302,7 +305,7 @@ void GWindow::initialize()
 }
 
 /**
- * @brief GWindow::getThread
+ * @brief Returns 3D data loading thread
  * @return 3D data loading thread
  */
 HDF5ReadingThread *GWindow::getThread()
@@ -311,8 +314,8 @@ HDF5ReadingThread *GWindow::getThread()
 }
 
 /**
- * @brief GWindow::isTexture3DInitialized
- * @return
+ * @brief Is texture 3D initialized?
+ * @return True/False
  */
 bool GWindow::isTexture3DInitialized()
 {
@@ -320,10 +323,8 @@ bool GWindow::isTexture3DInitialized()
 }
 
 /**
- * @brief GWindow::setMainSize Set size for main 3D frame - all 3D domain
- * @param depth
- * @param height
- * @param width
+ * @brief Sets size for main 3D frame - whole 3D domain
+ * @param[in] size Size
  */
 void GWindow::setMainSize(HDF5Helper::Vector3D size)
 {
@@ -331,10 +332,8 @@ void GWindow::setMainSize(HDF5Helper::Vector3D size)
 }
 
 /**
- * @brief GWindow::setSize Set size for original (sensor mask defined) frame
- * @param depth
- * @param height
- * @param width
+ * @brief Sets size for original (sensor mask defined) frame
+ * @param[in] size Size
  */
 void GWindow::setSize(HDF5Helper::Vector3D size)
 {
@@ -343,10 +342,8 @@ void GWindow::setSize(HDF5Helper::Vector3D size)
 }
 
 /**
- * @brief GWindow::setPosition Set position of sensor mask defined 3D dataset
- * @param posZ
- * @param posY
- * @param posX
+ * @brief Sets position of sensor mask defined 3D dataset
+ * @param[in] position
  */
 void GWindow::setPosition(HDF5Helper::Vector3D position)
 {
@@ -354,10 +351,11 @@ void GWindow::setPosition(HDF5Helper::Vector3D position)
 }
 
 /**
- * @brief GWindow::load3DTexture Performs loading of 3D data for VR
- * @param dataset
+ * @brief Performs loading of 3D data for volume rendering
+ * @param[in] dataset Dataset
+ * @param[in] step Step
  */
-void GWindow::load3DTexture(HDF5Helper::Dataset *dataset, hsize_t index)
+void GWindow::load3DTexture(HDF5Helper::Dataset *dataset, hsize_t step)
 {
     selectedDataset = dataset;
     texture3DInitialized = false;
@@ -374,14 +372,14 @@ void GWindow::load3DTexture(HDF5Helper::Dataset *dataset, hsize_t index)
         return;
     }
 
-    thread->createRequest(selectedDataset, index);
+    thread->createRequest(selectedDataset, step);
 
     // Start loading thread
     thread->start();
 }
 
 /**
- * @brief GWindow::unload3DTexture Free 3D texture data
+ * @brief Unloads 3D texture data
  */
 void GWindow::unload3DTexture()
 {
@@ -391,7 +389,7 @@ void GWindow::unload3DTexture()
 }
 
 /**
- * @brief GWindow::unloadDataset
+ * @brief Unloads dataset
  */
 void GWindow::unloadDataset()
 {
@@ -399,7 +397,7 @@ void GWindow::unloadDataset()
 }
 
 /**
- * @brief GWindow::clearData Clear 3D data, slices data and reset sizes
+ * @brief Clears 3D data, slices data and reset sizes
  */
 void GWindow::clearData()
 {
@@ -421,8 +419,8 @@ void GWindow::clearData()
 }
 
 /**
- * @brief GWindow::setLoaded Action on part of 3D dataset loaded
- * @param r loading request
+ * @brief Sets part of 3D data from loading request to 3D texture
+ * @param[in] r Loading request
  */
 void GWindow::setLoaded(Request *request)
 {
@@ -436,7 +434,7 @@ void GWindow::setLoaded(Request *request)
     // Set 3D data to 3D texture
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexSubImage3D(GL_TEXTURE_3D, 0, offset.x(), offset.y(), offset.z(), count.x(), count.y(), count.z(), GL_RED, GL_FLOAT, request->data);
+    glTexSubImage3D(GL_TEXTURE_3D, 0, int(offset.x()), int(offset.y()), int(offset.z()), int(count.x()), int(count.y()), int(count.z()), GL_RED, GL_FLOAT, request->data);
     glBindTexture(GL_TEXTURE_3D, 0);
 
     // Last block of 3D data
@@ -451,61 +449,61 @@ void GWindow::setLoaded(Request *request)
 }
 
 /**
- * @brief GWindow::setXYSlice Set 2D image data for XY 3D slice
- * @param data
- * @param width
- * @param height
- * @param index
+ * @brief Sets 2D image data for XY 3D slice
+ * @param[in] data Image data
+ * @param[in] width Image width
+ * @param[in] height Image height
+ * @param[in] index Slice index
  */
 void GWindow::setXYSlice(float *data, unsigned int width, unsigned int height, float index)
 {
     //qDebug() << "setXYSlice";
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, int(width), int(height), 0, GL_RED, GL_FLOAT, data);
     glBindTexture(GL_TEXTURE_2D, 0);
     this->index.setZ(index);
     renderLater();
 }
 
 /**
- * @brief GWindow::setXZSlice Set 2D image data for XZ 3D slice
- * @param data
- * @param width
- * @param height
- * @param index
+ * @brief Sets 2D image data for XZ 3D slice
+ * @param[in] data Image data
+ * @param[in] width Image width
+ * @param[in] height Image height
+ * @param[in] index Slice index
  */
 void GWindow::setXZSlice(float *data, unsigned int width, unsigned int height, float index)
 {
     //qDebug() << "setXZSlice";
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, int(width), int(height), 0, GL_RED, GL_FLOAT, data);
     glBindTexture(GL_TEXTURE_2D, 0);
     this->index.setY(index);
     renderLater();
 }
 
 /**
- * @brief GWindow::setYZSlice Set 2D image data for YZ 3D slice
- * @param data
- * @param width
- * @param height
- * @param index
+ * @brief Sets 2D image data for YZ 3D slice
+ * @param[in] data Image data
+ * @param[in] width Image width
+ * @param[in] height Image height
+ * @param[in] index Slice index
  */
 void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, float index)
 {
     //qDebug() << "setYZSlice";
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, int(width), int(height), 0, GL_RED, GL_FLOAT, data);
     glBindTexture(GL_TEXTURE_2D, 0);
     this->index.setX(index);
     renderLater();
 }
 
 /**
- * @brief GWindow::clearSlices "Free" or "reset" 2D textures for slices
+ * @brief Frees or resets 2D textures for slices
  */
 void GWindow::clearSlices()
 {
@@ -521,8 +519,8 @@ void GWindow::clearSlices()
 }
 
 /**
- * @brief GWindow::changeColormap Change colormap
- * @param colormap
+ * @brief Changes colormap
+ * @param[in] colormap Colormap
  */
 void GWindow::changeColormap(ColorMap::Type colormap)
 {
@@ -533,6 +531,10 @@ void GWindow::changeColormap(ColorMap::Type colormap)
     renderLater();
 }
 
+/**
+ * @brief Changes opacity
+ * @param[in] opacity Opacity
+ */
 void GWindow::changeOpacity(QVector<float> opacity)
 {
     //this->colormap = colormap;
@@ -543,8 +545,8 @@ void GWindow::changeOpacity(QVector<float> opacity)
 }
 
 /**
- * @brief GWindow::changeMinValue Set min value for colormaping
- * @param value
+ * @brief Sets min value for colormaping
+ * @param[in] value Min value
  */
 void GWindow::changeMinValue(float value)
 {
@@ -558,8 +560,8 @@ void GWindow::changeMinValue(float value)
 }
 
 /**
- * @brief GWindow::changeMaxValue Set max value for colormaping
- * @param value
+ * @brief Sets max value for colormaping
+ * @param[in] value Max value
  */
 void GWindow::changeMaxValue(float value)
 {
@@ -572,6 +574,10 @@ void GWindow::changeMaxValue(float value)
     renderLater();
 }
 
+/**
+ * @brief Changes volume rendering mode
+ * @param[in] mode Volume rendering mode
+ */
 void GWindow::changeMode(int mode)
 {
     if (initialized) {
@@ -582,6 +588,10 @@ void GWindow::changeMode(int mode)
     renderLater();
 }
 
+/**
+ * @brief Changes interpolation mode
+ * @param[in] mode Interpolation mode (GL_LINEAR == 0 | GL_NEAREST == 1)
+ */
 void GWindow::changeInterpolation(int mode)
 {
     int glMode = GL_LINEAR;
@@ -598,60 +608,63 @@ void GWindow::changeInterpolation(int mode)
 }
 
 /**
- * @brief GWindow::renderFrame Render 3D frame
+ * @brief Renders 3D frame
  */
 void GWindow::renderFrame()
 {
     glBindVertexArray(vao);
     vboCubeVertices.bind();
-    glEnableVertexAttribArray(m_aPosition);
-    glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GLuint(m_aPosition));
+    glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
     glDrawElements(GL_LINE_LOOP, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
-    glDisableVertexAttribArray(m_aPosition);
+    glDisableVertexAttribArray(GLuint(m_aPosition));
     vboCubeVertices.release();
     glBindVertexArray(0);
 }
 
+/**
+ * @brief Renders Box
+ */
 void GWindow::renderBox()
 {
     glBindVertexArray(vao);
     vboCubeVertices.bind();
-    glEnableVertexAttribArray(m_aPosition);
-    glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(GLuint(m_aPosition));
+    glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
     glDrawElements(GL_TRIANGLES, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
-    glDisableVertexAttribArray(m_aPosition);
+    glDisableVertexAttribArray(GLuint(m_aPosition));
     vboCubeVertices.release();
     glBindVertexArray(0);
 }
 
 /**
- * @brief GWindow::convertPointToOpenGLRelative
- * @param point
- * @return
+ * @brief Converts point to OpenGL relative
+ * @param[in] point Point to convert
+ * @return Converted point
  */
 QPointF GWindow::convertPointToOpenGLRelative(QPointF point)
 {
     QPointF pointOutput;
-    pointOutput.setX((point.x() / float(width()) - 0.5f) * 2.0f);
-    pointOutput.setY((point.y() / float(height()) - 0.5f) * 2.0f);
+    pointOutput.setX((point.x() / double(width()) - 0.5) * 2.0);
+    pointOutput.setY((point.y() / double(height()) - 0.5) * 2.0);
     return pointOutput;
 }
 
 /**
- * @brief GWindow::round
- * @param number
- * @param precision
- * @return
+ * @brief Round function
+ * @param[in] number Number
+ * @param[in] precision Presicion
+ * @return Rounded numebr
  */
 float GWindow::round(float number, float precision)
 {
-    return float((floor(number * (1.0f / precision) + 0.5) / (1.0f / precision)));
+    return float((floor(number * (1.0f / precision) + 0.5f) / (1.0f / precision)));
 }
 
 /**
- * @brief GWindow::render Main render function
+ * @brief Main render function
  */
 void GWindow::render()
 {
@@ -663,17 +676,17 @@ void GWindow::render()
     }
 
     // Rotation of scene by left mouse click
-    if (leftButton) {
+    if (this->getLeftButtonPressed()) {
         // TODO
-        rotateXMatrix.rotate(float(lastPositionPressed.y() - currentPositionPressed.y()) / 2.0f, -1, 0, 0);
-        rotateYMatrix.rotate(float(lastPositionPressed.x() - currentPositionPressed.x()) / 2.0f, 0, -1, 0);
+        rotateXMatrix.rotate(float(this->getLastPositionPressed().y() - this->getCurrentPositionPressed().y()) / 2.0f, -1, 0, 0);
+        rotateYMatrix.rotate(float(this->getLastPositionPressed().x() - this->getCurrentPositionPressed().x()) / 2.0f, 0, -1, 0);
         //actualCount = 30;
     }
 
     // Move of scene by right mouse click
-    if (rightButton) {
-        QPointF lastPosRl = convertPointToOpenGLRelative(lastPositionPressed);
-        QPointF currentPosRl = convertPointToOpenGLRelative(currentPositionPressed);
+    if (this->getRightButtonPressed()) {
+        QPointF lastPosRl = convertPointToOpenGLRelative(this->getLastPositionPressed());
+        QPointF currentPosRl = convertPointToOpenGLRelative(this->getCurrentPositionPressed());
         position.setX(position.x() - float(lastPosRl.x() - currentPosRl.x()));
         position.setY(position.y() + float(lastPosRl.y() - currentPosRl.y()));
         //actualCount = 30;
@@ -687,9 +700,9 @@ void GWindow::render()
     m_program->bind();
 
     // Zoom
-    if (wheelDelta > 0)
+    if (this->getWheelDelta() > 0)
         zoom *= 1.0f / 1.1f;
-    else if (wheelDelta < 0)
+    else if (this->getWheelDelta() < 0)
         zoom *= 1.1f;
 
     // Projection
@@ -811,7 +824,7 @@ void GWindow::render()
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboSliceElements);
 
-        glEnableVertexAttribArray(m_aPosition);
+        glEnableVertexAttribArray(GLuint(m_aPosition));
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_1D, colormapTexture);
@@ -821,7 +834,7 @@ void GWindow::render()
         vboSliceVertices.bind();
 
         if (sliceXY) {
-            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
             glBindTexture(GL_TEXTURE_2D, textureXY);
 
             // Draw slice
@@ -843,7 +856,7 @@ void GWindow::render()
         }
 
         if (sliceXZ) {
-            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
             glBindTexture(GL_TEXTURE_2D, textureXZ);
 
             // Draw slice
@@ -865,7 +878,7 @@ void GWindow::render()
         }
 
         if (sliceYZ) {
-            glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
             glBindTexture(GL_TEXTURE_2D, textureYZ);
 
             // Draw slice
@@ -891,7 +904,7 @@ void GWindow::render()
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindTexture(GL_TEXTURE_1D, 0);
 
-        glDisableVertexAttribArray(m_aPosition);
+        glDisableVertexAttribArray(GLuint(m_aPosition));
 
         glBindVertexArray(0);
 
@@ -954,6 +967,10 @@ void GWindow::render()
 
 // Some slots for user interaction
 
+/**
+ * @brief Saves image
+ * @param[in] fileName Filename
+ */
 void GWindow::saveImage(QString fileName)
 {
     // Save 3D scene to png image
@@ -967,6 +984,10 @@ void GWindow::saveImage(QString fileName)
     //myLabel.show();
 }
 
+/**
+ * @brief Returns image of OpenGL window
+ * @return Image
+ */
 QImage GWindow::getImage()
 {
     QImage image(width(), height(), QImage::Format_RGB888);
@@ -975,18 +996,30 @@ QImage GWindow::getImage()
     return image.mirrored();
 }
 
+/**
+ * @brief Set view frame?
+ * @param[in] value True/False
+ */
 void GWindow::setViewFrame(bool value)
 {
     frame = value;
     renderLater();
 }
 
+/**
+ * @brief Set view Volume rendering?
+ * @param[in] value True/False
+ */
 void GWindow::setViewVR(bool value)
 {
     volumeRendering = value;
     renderLater();
 }
 
+/**
+ * @brief Sets slices count
+ * @param[in] value Slice count
+ */
 void GWindow::setSlicesCount(int value)
 {
     steps = value;
@@ -998,36 +1031,59 @@ void GWindow::setSlicesCount(int value)
     renderLater();
 }
 
+/**
+ * @brief Set view XY slice?
+ * @param[in] value True/False
+ */
 void GWindow::setViewXYSlice(bool value)
 {
     sliceXY = value;
     renderLater();
 }
 
+/**
+ * @brief Set view XZ slice?
+ * @param[in] value True/False
+ */
 void GWindow::setViewXZSlice(bool value)
 {
     sliceXZ = value;
     renderLater();
 }
 
+/**
+ * @brief Set view YZ slice?
+ * @param[in] value True/False
+ */
 void GWindow::setViewYZSlice(bool value)
 {
     sliceYZ = value;
     renderLater();
 }
 
+/**
+ * @brief Set trim?
+ * @param[in] value True/False
+ */
 void GWindow::setTrim(bool value)
 {
     trim = value;
     renderLater();
 }
 
+/**
+ * @brief Set orthogonal projection?
+ * @param[in] value True/False
+ */
 void GWindow::setOrthogonal(bool value)
 {
     orthogonal = value;
     renderLater();
 }
 
+/**
+ * @brief Alignes to XY
+ */
 void GWindow::alignToXY()
 {
     rotateXMatrix.setToIdentity();
@@ -1035,6 +1091,9 @@ void GWindow::alignToXY()
     renderLater();
 }
 
+/**
+ * @brief Alignes to XZ
+ */
 void GWindow::alignToXZ()
 {
     rotateXMatrix.setToIdentity();
@@ -1043,6 +1102,9 @@ void GWindow::alignToXZ()
     renderLater();
 }
 
+/**
+ * @brief Alignes to YZ
+ */
 void GWindow::alignToYZ()
 {
     rotateXMatrix.setToIdentity();
@@ -1051,6 +1113,9 @@ void GWindow::alignToYZ()
     renderLater();
 }
 
+/**
+ * @brief Alignes to XY from back
+ */
 void GWindow::alignToXYFromBack()
 {
     rotateXMatrix.setToIdentity();
@@ -1059,6 +1124,9 @@ void GWindow::alignToXYFromBack()
     renderLater();
 }
 
+/**
+ * @brief Alignes to XZ from back
+ */
 void GWindow::alignToXZFromBack()
 {
     rotateXMatrix.setToIdentity();
@@ -1067,6 +1135,9 @@ void GWindow::alignToXZFromBack()
     renderLater();
 }
 
+/**
+ * @brief Alignes to YZ from back
+ */
 void GWindow::alignToYZFromBack()
 {
     rotateXMatrix.setToIdentity();
@@ -1076,8 +1147,8 @@ void GWindow::alignToYZFromBack()
 }
 
 /**
- * @brief GWindow::event Catch keyboard events on 3D scene
- * @param event
+ * @brief Catches keyboard events on 3D scene
+ * @param[in] event Event
  * @return QWindow::event(event);
  */
 bool GWindow::event(QEvent *event)
@@ -1148,7 +1219,7 @@ bool GWindow::event(QEvent *event)
         renderLater();
     }
     case QEvent::MouseButtonPress:
-        if (((QMouseEvent *) event)->buttons() == Qt::MiddleButton) {
+        if (dynamic_cast<QMouseEvent *>(event)->buttons() == Qt::MiddleButton) {
             position.setX(0);
             position.setY(0);
             renderLater();
@@ -1158,6 +1229,9 @@ bool GWindow::event(QEvent *event)
     }
 }
 
+/**
+ * @brief Resize event
+ */
 void GWindow::resizeEvent(QResizeEvent *)
 {
     if (initialized) {

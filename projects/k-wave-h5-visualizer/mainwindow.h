@@ -54,6 +54,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    /// Window user interface
+    Ui::MainWindow *ui;
+
 public slots:
     void repaintXYImage(QImage image, hsize_t index);
     void repaintXZImage(QImage image, hsize_t index);
@@ -123,9 +126,6 @@ private slots:
     void showFPS();
 
     void on_comboBox_currentIndexChanged(int index);
-
-public:
-    Ui::MainWindow *ui;
 
 private:
     void clearGUI();

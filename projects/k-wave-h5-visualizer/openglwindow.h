@@ -26,7 +26,7 @@
 #include <QMessageBox>
 
 #ifdef Q_OS_WIN
-#include <windows.h> // for Sleep
+#include <Windows.h> // for Sleep
 #endif
 
 namespace QTest
@@ -44,39 +44,41 @@ class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_3_Core
 public:
     explicit OpenGLWindow(QWindow *parent = 0);
     ~OpenGLWindow();
+    /// Pure virtual render fucntion
     virtual void render() = 0;
+    /// Pure virtual initialization function
     virtual void initialize() = 0;
     bool event(QEvent *event);
+
     double getElapsedMs() const;
+    bool getLeftButtonPressed() const;
+    bool getRightButtonPressed() const;
+    int getWheelDelta() const;
+    QPointF getLastPositionPressed() const;
+    QPointF getCurrentPositionPressed() const;
 
 public slots:
     void renderLater();
     void renderNow();
 
 signals:
-    void setStatusMessage(QString, int timeout = 3000);
+    /**
+     * @brief Sets status message signal
+     * @param[in] message Message
+     * @param[in] timeout Timeout in ms
+     */
+    void setStatusMessage(QString message, int timeout = 3000);
     /// Rendered signal
     void rendered();
 
 protected:
-    void exposeEvent(QExposeEvent *event);
+    virtual void exposeEvent(QExposeEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *);
     virtual void wheelEvent(QWheelEvent *event);
     GLenum checkGlError();
     void checkInitAndMakeCurrentContext();
-
-    bool mouseDown;
-    bool leftButton;
-    bool rightButton;
-    int wheelDelta = 0;
-    QElapsedTimer timer;
-    QTimer *moveTimer;
-    QPointF lastPositionPressed;
-    QPointF currentPositionPressed;
-    QPointF diffPos;
-    QPointF currentPosition;
 
 private:
     bool hasDebugExtension();
@@ -89,6 +91,13 @@ private:
     float r;
     double elapsedMs = 0;
 
+    bool mouseDown;
+    bool leftButtonPressed;
+    bool rightButtonPressed;
+    int wheelDelta = 0;
+    QPointF lastPositionPressed;
+    QPointF currentPositionPressed;
+    QPointF currentPosition;
 };
 
 #endif // OPENGLWINDOW_H

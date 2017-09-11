@@ -35,13 +35,25 @@ public:
     ~Request();
     QString toQString();
 
+    /// Offset
     HDF5Helper::Vector offset;
+    /// Count
     HDF5Helper::Vector count;
-    float min, max;
-    hsize_t minIndex, maxIndex;
+    /// Miminum
+    float min;
+    /// Maximum
+    float max;
+    /// Minimal index
+    hsize_t minIndex;
+    /// Maximal index
+    hsize_t maxIndex;
+    /// Read full 3D dataset flag
     bool full;
+    /// Step
     hsize_t step;
+    /// Dataset
     HDF5Helper::Dataset *dataset;
+    /// Data
     float *data;
 };
 
@@ -68,6 +80,7 @@ protected:
     virtual void run();
 
 signals:
+    /// Request done signal
     void requestDone(Request *);
 
 private:

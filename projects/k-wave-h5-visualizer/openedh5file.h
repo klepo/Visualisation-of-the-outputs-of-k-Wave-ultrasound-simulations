@@ -32,6 +32,7 @@ class OpenedH5File : public QObject
     Q_OBJECT
 public:
 
+    /// 3D 4D object type
     typedef enum ObjectType {
         dataset3D_t,
         dataset4D_t
@@ -45,7 +46,7 @@ public:
 
     QMap<QString, H5ObjectToVisualize *> getObjects();
 
-    H5ObjectToVisualize *getObject(QString mainName);
+    H5ObjectToVisualize *getObject(QString name);
     H5ObjectToVisualize *getObjectBySubobjectName(QString name);
 
     QMap<QString, QString> getInfo();
@@ -65,7 +66,7 @@ signals:
 
 public slots:
     void setSelectedSubobject(QString name);
-    void setObjectSelected(QString mainName, bool value);
+    void setObjectSelected(QString name, bool value);
     void toogleObjectSelected(QString mainName);
 
 private:

@@ -22,8 +22,8 @@
 #include "mainwindow.h"
 
 /**
- * @brief MainWindow::MainWindow
- * @param parent
+ * @brief Creates MainWindow
+ * @param[in] parent Parent (optional)
  */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -110,7 +110,9 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 /**
- * @brief MainWindow::~MainWindow
+ * @brief Destructor of MainWindow object
+ *
+ * Deletes ui, timer, qWinfow, etc.
  */
 MainWindow::~MainWindow()
 {
@@ -125,7 +127,7 @@ MainWindow::~MainWindow()
 }
 
 /**
- * @brief MainWindow::on_actionLoadHDF5File_triggered Action on load HDF5 file
+ * @brief Action on load HDF5 file
  */
 void MainWindow::on_actionLoadHDF5File_triggered()
 {
@@ -224,7 +226,7 @@ void MainWindow::on_actionLoadHDF5File_triggered()
 }
 
 /**
- * @brief MainWindow::on_actionCloseHDF5File_triggered Action on close file
+ * @brief Action on close file
  */
 void MainWindow::on_actionCloseHDF5File_triggered()
 {
@@ -254,7 +256,7 @@ void MainWindow::on_actionCloseHDF5File_triggered()
 // Show FPS
 
 /**
- * @brief MainWindow::showFPS
+ * @brief Shows FPS
  */
 void MainWindow::showFPS()
 {
@@ -265,7 +267,7 @@ void MainWindow::showFPS()
 }
 
 /**
- * @brief MainWindow::clearGUI Set GUI to default values
+ * @brief Sets GUI to default values
  */
 void MainWindow::clearGUI()
 {
@@ -341,8 +343,8 @@ void MainWindow::clearGUI()
 }
 
 /**
- * @brief MainWindow::clearLayout Delete all items from layout
- * @param layout
+ * @brief Deletes all items from layout
+ * @param[in] layout Layout
  */
 void MainWindow::clearLayout(QLayout *layout)
 {
@@ -357,7 +359,7 @@ void MainWindow::clearLayout(QLayout *layout)
 }
 
 /**
- * @brief MainWindow::clearRequestsAndWaitThreads Clear request in gWindow thread and wait for terminate
+ * @brief Clears request in gWindow thread and wait for terminate
  */
 void MainWindow::clearRequestsAndWaitThreads()
 {
@@ -369,7 +371,7 @@ void MainWindow::clearRequestsAndWaitThreads()
 }
 
 /**
- * @brief MainWindow::selectDataset Action on select dataset
+ * @brief Action on select dataset
  */
 void MainWindow::selectDataset()
 {
@@ -535,9 +537,9 @@ void MainWindow::selectDataset()
 }
 
 /**
- * @brief MainWindow::repaintXYImage Set new XY image if it is loaded
- * @param image Image data of XY slice
- * @param index Index of XY slice
+ * @brief Sets new XY image if it is loaded
+ * @param[in] image Image data of XY slice
+ * @param[in] index Index of XY slice
  */
 void MainWindow::repaintXYImage(QImage image, hsize_t index)
 {
@@ -567,9 +569,9 @@ void MainWindow::repaintXYImage(QImage image, hsize_t index)
 }
 
 /**
- * @brief MainWindow::repaintXZImage Set new XZ image if it is loaded
- * @param image Image data of XZ slice
- * @param index Index of XZ slice
+ * @brief Sets new XZ image if it is loaded
+ * @param[in] image Image data of XZ slice
+ * @param[in] index Index of XZ slice
  */
 void MainWindow::repaintXZImage(QImage image, hsize_t index)
 {
@@ -600,9 +602,9 @@ void MainWindow::repaintXZImage(QImage image, hsize_t index)
 }
 
 /**
- * @brief MainWindow::repaintYZImage Set new YZ image if it is loaded
- * @param image Image data of YZ slice
- * @param index Index of YZ slice
+ * @brief Sets new YZ image if it is loaded
+ * @param[in] image Image data of YZ slice
+ * @param[in] index Index of YZ slice
  */
 void MainWindow::repaintYZImage(QImage image, hsize_t index)
 {
@@ -632,7 +634,7 @@ void MainWindow::repaintYZImage(QImage image, hsize_t index)
 }
 
 /**
- * @brief MainWindow::initControls Initialization of selected dataset controls
+ * @brief Initialization of selected dataset controls
  */
 void MainWindow::initControls()
 {
@@ -683,8 +685,8 @@ void MainWindow::initControls()
 }
 
 /**
- * @brief MainWindow::loaded3D 3D data loaded event
- * @param datasetName Name of loaded dataset
+ * @brief 3D data loaded event
+ * @param[in] datasetName Name of loaded dataset
  */
 void MainWindow::loaded3D(std::string datasetName)
 {

@@ -22,8 +22,8 @@
 #include "imagewidget.h"
 
 /**
- * @brief ImageWidget::ImageWidget Constructor with initialization
- * @param parent
+ * @brief Constructor with initialization
+ * @param[in] parent Parent (optional)
  */
 ImageWidget::ImageWidget(QWidget *parent) : QWidget(parent)
 {
@@ -32,19 +32,27 @@ ImageWidget::ImageWidget(QWidget *parent) : QWidget(parent)
     isSetImage = false;
 }
 
+/**
+ * @brief Size hint
+ * @return Size
+ */
 QSize ImageWidget::sizeHint() const
 {
     return scaledImage.size();
 }
 
+/**
+ * @brief Minimum size hint
+ * @return SIze
+ */
 QSize ImageWidget::minimumSizeHint() const
 {
     return scaledImage.size();
 }
 
 /**
- * @brief ImageWidget::setAdjust Enable/disable image adjust
- * @param adjust true/false
+ * @brief Enable/disable image adjust
+ * @param[in] adjust True/False
  */
 void ImageWidget::setAdjust(bool adjust)
 {
@@ -54,7 +62,20 @@ void ImageWidget::setAdjust(bool adjust)
 }
 
 /**
- * @brief ImageWidget::refreshImage Recompute image with new params (width, height, adjustFlag)
+ * @brief Clears image
+ */
+void ImageWidget::clearImage()
+{
+    this->fileName.clear();
+    point = QPoint(0, 0);
+    isSetImage = false;
+    originalImage = QImage();
+    scaledImage = QImage();
+    repaint();
+}
+
+/**
+ * @brief Recomputes image with new params (width, height, adjustFlag)
  */
 void ImageWidget::refreshImage()
 {
@@ -84,10 +105,10 @@ void ImageWidget::refreshImage()
 }
 
 /**
- * @brief ImageWidget::showImage Set Opencv image to widget
- * @param image image (cv::Mat)
- * @param point position of sensor mask image (unused)
- * @param fileName Name for png image save
+ * @brief Sets image to widget
+ * @param[in] image Image
+ * @param[in] point Position of sensor mask image (unused)
+ * @param[in] fileName Name for png image saving
  */
 void ImageWidget::showImage(const QImage &image, QPoint point, QString fileName)
 {
@@ -100,7 +121,7 @@ void ImageWidget::showImage(const QImage &image, QPoint point, QString fileName)
 }
 
 /**
- * @brief ImageWidget::saveImage Save image as png file
+ * @brief Saves image as png file
  */
 void ImageWidget::saveImage()
 {
@@ -111,11 +132,32 @@ void ImageWidget::saveImage()
     }
 }
 
+/**
+ * @brief Resize event
+ */
 void ImageWidget::resizeEvent(QResizeEvent *)
 {
     refreshImage();
 }
 
+/**
+ * @brief Paint event
+ */
+void ImageWidget::paintEvent(QPaintEvent *)
+{
+    // Display the image
+    QPainter painter(this);
+    painter.eraseRect(0, 0, width(), height());
+    // Clear image
+    if (isSetImage)
+        painter.drawImage(point, scaledImage);
+    painter.end();
+}
+
+/**
+ * @brief ImageWidget::mouseMoveEvent
+ * @param[in] event Event
+ */
 void ImageWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (isSetImage) {
@@ -132,25 +174,4 @@ void ImageWidget::mouseMoveEvent(QMouseEvent *event)
         }
     }
     QWidget::mouseMoveEvent(event);
-}
-
-void ImageWidget::clearImage()
-{
-    this->fileName.clear();
-    point = QPoint(0, 0);
-    isSetImage = false;
-    originalImage = QImage();
-    scaledImage = QImage();
-    repaint();
-}
-
-void ImageWidget::paintEvent(QPaintEvent *)
-{
-    // Display the image
-    QPainter painter(this);
-    painter.eraseRect(0, 0, width(), height());
-    // Clear image
-    if (isSetImage)
-        painter.drawImage(point, scaledImage);
-    painter.end();
 }

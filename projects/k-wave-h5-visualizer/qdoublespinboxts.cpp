@@ -21,17 +21,30 @@
 
 #include "qdoublespinboxts.h"
 
+/**
+ * @brief QDoubleSpinBoxTS::QDoubleSpinBoxTS
+ * @param[in] parent Parent (optional)
+ */
 QDoubleSpinBoxTS::QDoubleSpinBoxTS(QWidget *parent) :
     QDoubleSpinBox(parent)
 {
 }
 
-
+/**
+ * @brief String from double value
+ * @param[in] value Value
+ * @return Value string
+ */
 QString QDoubleSpinBoxTS::textFromValue(double value) const
 {
     return QWidget::locale().toString(value, 'f', 3);
 }
 
+/**
+ * @brief Value from text
+ * @param[in] text Text
+ * @return Double value
+ */
 double QDoubleSpinBoxTS::valueFromText(const QString &text) const
 {
     QString str = text;

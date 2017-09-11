@@ -21,12 +21,15 @@ Prerequisites
 
 Examples
 --------
+Will be updated.
 
 Downloading
 -----------
+Will be updated.
 
 Acknowledgment
 ---------------
+Will be updated.
 
 Author
 -------
@@ -34,3 +37,4 @@ Author
 
 References
 ----------
+http://www.k-wave.org

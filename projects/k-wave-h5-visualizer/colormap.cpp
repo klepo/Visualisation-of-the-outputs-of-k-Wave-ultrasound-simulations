@@ -3111,6 +3111,15 @@ ColorMap::ColorMap()
 
 }
 
+/**
+ * @brief Applies colormap
+ * @param[in] length Length
+ * @param[in] minValue Minimal value
+ * @param[in] maxValue Maximal value
+ * @param[in] srcData Source data
+ * @param[out] dstData Destination data
+ * @param[in] type Colormap type
+ */
 void ColorMap::applyColorMap(int length, float minValue, float maxValue, float *srcData, unsigned char *dstData, ColorMap::Type type)
 {
     for (int i = 0; i < length; i++) {

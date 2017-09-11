@@ -23,8 +23,8 @@
 
 /**
  * @brief Main k-Wave visualizer function
- * @param argc Number of arguments
- * @param argv Array of argumnets
+ * @param[in] argc Number of arguments
+ * @param[in] argv Array of argumnets
  * @return EXIT_SUCCESS
  */
 int main(int argc, char *argv[])
