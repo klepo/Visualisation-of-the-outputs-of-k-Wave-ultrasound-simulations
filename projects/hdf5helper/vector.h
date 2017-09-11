@@ -58,8 +58,8 @@ public:
 
     /**
      * @brief Operator <<
-     * @param os std::ostream
-     * @param vector Vector
+     * @param[in] os std::ostream
+     * @param[in] vector Vector
      * @return std::ostream
      */
     friend std::ostream &operator<<(std::ostream &os, const Vector &vector) {

@@ -67,8 +67,8 @@ public:
 
     /**
      * @brief Operator <<
-     * @param os std::ostream
-     * @param object Abject
+     * @param[in] os std::ostream
+     * @param[in] object Abject
      * @return std::ostream
      */
     friend std::ostream &operator<<(std::ostream &os, const Object &object) {
@@ -80,7 +80,7 @@ public:
 
 protected:
     /// Error handle
-    herr_t err;
+    herr_t err = 0;
     /// Delete log flag
     bool deleteLog = true;
 

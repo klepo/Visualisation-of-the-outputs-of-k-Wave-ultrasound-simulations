@@ -127,7 +127,7 @@ bool Vector::operator !=(const Vector &vector) const
 
 /**
  * @brief Subscripting operator []
- * @param i Index
+ * @param[in] i Index
  * @return Vector value at index
  * @throw std::runtime_error
  */
@@ -141,7 +141,7 @@ hsize_t &Vector::operator [](hsize_t i)
 
 /**
  * @brief Subscripting operator []
- * @param i Index
+ * @param[in] i Index
  * @return Vector value at index
  * @throw std::runtime_error
  */
@@ -155,7 +155,7 @@ hsize_t &Vector::operator [](hssize_t i)
 
 /**
  * @brief Subscripting operator []
- * @param i Index
+ * @param[in] i Index
  * @return Vector value at index
  * @throw std::runtime_error
  */
@@ -169,7 +169,7 @@ hsize_t &Vector::operator [](int i)
 
 /**
  * @brief Subscripting operator []
- * @param i Index
+ * @param[in] i Index
  * @return Vector value at index
  * @throw std::runtime_error
  */
@@ -243,7 +243,7 @@ HDF5Helper::Vector::operator std::string() const
 /**
  * @brief Helper assignment function
  * @param[in] vector Reference to the existing Vector
- * @param deleteFlag Delete flag (optional)
+ * @param[in] deleteFlag Delete flag (optional)
  */
 void Vector::assign(const Vector &vector, bool deleteFlag)
 {
