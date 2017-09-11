@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@stud.fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) \n
- *              28 August    2017 (updated)
+ *              11 September 2017 (updated)
  *
  * @brief       The implementation file containing HDF5Helper::Vector class definition.
  *
