@@ -13,7 +13,7 @@
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -23,8 +23,8 @@
 #include "openglwindow.h"
 
 /**
- * @brief Helepr sleep function
- * @param[in] ms Miliseconds
+ * @brief Helper sleep function
+ * @param[in] ms Milliseconds
  */
 void QTest::qSleep(int ms)
 {
@@ -101,8 +101,8 @@ bool OpenGLWindow::event(QEvent *event)
 }
 
 /**
- * @brief Returns elapsed miliseconds
- * @return Elapsed miliseconds
+ * @brief Returns elapsed milliseconds
+ * @return Elapsed milliseconds
  */
 double OpenGLWindow::getElapsedMs() const
 {
@@ -189,7 +189,7 @@ void OpenGLWindow::renderNow()
 
     context->swapBuffers(this);
 
-    //QTest::qSleep(17); // max cca 60 fps
+    //QTest::qSleep(17); // max ca 60 fps
 
     qint64 elapsed = timer.nsecsElapsed();
     elapsedMs = double(elapsed / 1000000.0);
@@ -274,7 +274,7 @@ void OpenGLWindow::wheelEvent(QWheelEvent *event)
 }
 
 /**
- * @brief Checka OpenGL errors
+ * @brief Checks OpenGL errors
  * @return Error code
  */
 GLenum OpenGLWindow::checkGlError()

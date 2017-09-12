@@ -12,7 +12,7 @@
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -98,7 +98,6 @@ Dataset::Dataset(hid_t dataset, std::string name, File *file) : Object(dataset, 
     // Init some flags for block reading
     offsets = 0;
     counts = 0;
-    //numberOfElementsToLoad = ile->getNumberOfElmsToLoad();
     setNumberOfElmsToLoad(file->getNumberOfElmsToLoad());
 
     // Min/max flag
@@ -275,9 +274,9 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                     && hasAttribute(C_TYPE_ATTR)
-                    && readAttributeS(C_TYPE_ATTR, false) == "fi"
+                    && readAttributeS(C_TYPE_ATTR, false) == "phi"
                     ) {
-                return DatasetType::TIME_STEPS_FI_MASK;
+                return DatasetType::TIME_STEPS_PHI_MASK;
             }
             if (dims.z() == 1
                     //&& dims.y() <= nDims.w()
@@ -317,16 +316,16 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(SRC_SIZE_Z_ATTR)
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     ) {
-                // With position attributtes
+                // With position attributes
                 if (hasAttribute(POSITION_X_ATTR)
                         && hasAttribute(POSITION_Y_ATTR)
                         && hasAttribute(POSITION_Z_ATTR)
                         ) {
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
                             ) {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL_FI;
+                        return DatasetType::CUBOID_ATTR_DWNSMPL_PHI;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
@@ -346,9 +345,9 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 } else { // Without position attributes
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
                             ) {
-                        return DatasetType::CUBOID_DWNSMPL_FI;
+                        return DatasetType::CUBOID_DWNSMPL_PHI;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
@@ -367,17 +366,17 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                     }
                 }
             } else { // Original
-                // With position attributtes
+                // With position attributes
                 if (hasAttribute(POSITION_X_ATTR)
                         && hasAttribute(POSITION_Y_ATTR)
                         && hasAttribute(POSITION_Z_ATTR)
                         ) {
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
                             && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
-                        return DatasetType::CUBOID_ATTR_FI;
+                        return DatasetType::CUBOID_ATTR_PHI;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
@@ -400,10 +399,10 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 } else { // Without position attributes
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "fi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
                             && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
-                        return DatasetType::CUBOID_FI;
+                        return DatasetType::CUBOID_PHI;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
@@ -460,15 +459,15 @@ std::string Dataset::getTypeString(DatasetType type) const
         case DatasetType::BASIC_3D:
             return "3D type";
         case DatasetType::DWNSMPL_3D:
-            return "3D type (donwsampled)";
+            return "3D type (downsampled)";
         case DatasetType::MASK_3D:
             return "3D type (reshaped mask)";
         case DatasetType::BASIC_MASK:
             return "Sensor mask type";
         case DatasetType::TIME_STEPS_MASK:
             return "Sensor mask type (time steps)";
-        case DatasetType::TIME_STEPS_FI_MASK:
-            return "Sensor mask type (compressed fi)";
+        case DatasetType::TIME_STEPS_PHI_MASK:
+            return "Sensor mask type (compressed phi)";
         case DatasetType::TIME_STEPS_K_MASK:
             return "Sensor mask type (compressed k)";
         case DatasetType::TIME_STEPS_D_MASK:
@@ -477,8 +476,8 @@ std::string Dataset::getTypeString(DatasetType type) const
             return "Sensor mask type (difference)";
         case DatasetType::CUBOID:
             return "Cuboid type";
-        case DatasetType::CUBOID_FI:
-            return "Cuboid type (compressed fi)";
+        case DatasetType::CUBOID_PHI:
+            return "Cuboid type (compressed phi)";
         case DatasetType::CUBOID_K:
             return "Cuboid type (compressed k)";
         case DatasetType::CUBOID_D:
@@ -486,19 +485,19 @@ std::string Dataset::getTypeString(DatasetType type) const
         case DatasetType::CUBOID_S:
             return "Cuboid type (difference)";
         case DatasetType::CUBOID_DWNSMPL:
-            return "Cuboid type (donwsampled";
-        case DatasetType::CUBOID_DWNSMPL_FI:
-            return "Cuboid type (donwsampled compressed fi)";
+            return "Cuboid type (downsampled";
+        case DatasetType::CUBOID_DWNSMPL_PHI:
+            return "Cuboid type (downsampled compressed phi)";
         case DatasetType::CUBOID_DWNSMPL_K:
-            return "Cuboid type (donwsampled compressed k)";
+            return "Cuboid type (downsampled compressed k)";
         case DatasetType::CUBOID_DWNSMPL_D:
-            return "Cuboid type (donwsampled decompressed)";
+            return "Cuboid type (downsampled decompressed)";
         case DatasetType::CUBOID_DWNSMPL_S:
-            return "Cuboid type (donwsampled difference)";
+            return "Cuboid type (downsampled difference)";
         case DatasetType::CUBOID_ATTR:
             return "Cuboid type with attributes";
-        case DatasetType::CUBOID_ATTR_FI:
-            return "Cuboid type with attributes (compressed fi)";
+        case DatasetType::CUBOID_ATTR_PHI:
+            return "Cuboid type with attributes (compressed phi)";
         case DatasetType::CUBOID_ATTR_K:
             return "Cuboid type with attributes (compressed k)";
         case DatasetType::CUBOID_ATTR_D:
@@ -506,17 +505,17 @@ std::string Dataset::getTypeString(DatasetType type) const
         case DatasetType::CUBOID_ATTR_S:
             return "Cuboid type with attributes (difference)";
         case DatasetType::CUBOID_ATTR_DWNSMPL:
-            return "Cuboid type with attributes (donwsampled)";
-        case DatasetType::CUBOID_ATTR_DWNSMPL_FI:
-            return "Cuboid type with attributes (donwsampled compressed fi)";
+            return "Cuboid type with attributes (downsampled)";
+        case DatasetType::CUBOID_ATTR_DWNSMPL_PHI:
+            return "Cuboid type with attributes (downsampled compressed phi)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_K:
-            return "Cuboid type with attributes (donwsampled compressed k)";
+            return "Cuboid type with attributes (downsampled compressed k)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_D:
-            return "Cuboid type with attributes (donwsampled decompressed)";
+            return "Cuboid type with attributes (downsampled decompressed)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_S:
-            return "Cuboid type with attributes (donwsampled difference)";
+            return "Cuboid type with attributes (downsampled difference)";
     };
-    return "Unknow type";
+    return "Unknown type";
 }
 
 /**
@@ -1162,7 +1161,7 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
 }
 
 /**
- * @brief Checks offset and count params
+ * @brief Checks offset and count parameters
  * @param[in] offset Data offset
  * @param[in] count Data count
  * @throw std::runtime_error
@@ -1330,7 +1329,7 @@ void Dataset::findGlobalMinAndMaxValueI()
 }
 
 /**
- * @brief Inits block reading
+ * @brief Initializes block reading
  */
 void Dataset::initBlockReading()
 {
@@ -1421,7 +1420,7 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 
     try {
         data = new hsize_t[size](); // TODO check available memory?
-        assert(data != 0 && "Bad memory allocation");
+        //assert(data != 0 && "Bad memory allocation");
         if (data == 0)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {

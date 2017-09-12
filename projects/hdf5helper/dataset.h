@@ -10,7 +10,7 @@
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -46,27 +46,27 @@ enum class DatasetType
     MASK_3D,
     BASIC_MASK,
     TIME_STEPS_MASK,
-    TIME_STEPS_FI_MASK,
+    TIME_STEPS_PHI_MASK,
     TIME_STEPS_K_MASK,
     TIME_STEPS_D_MASK,
     TIME_STEPS_S_MASK,
     CUBOID,
-    CUBOID_FI,
+    CUBOID_PHI,
     CUBOID_K,
     CUBOID_D,
     CUBOID_S,
     CUBOID_DWNSMPL,
-    CUBOID_DWNSMPL_FI,
+    CUBOID_DWNSMPL_PHI,
     CUBOID_DWNSMPL_K,
     CUBOID_DWNSMPL_D,
     CUBOID_DWNSMPL_S,
     CUBOID_ATTR,
-    CUBOID_ATTR_FI,
+    CUBOID_ATTR_PHI,
     CUBOID_ATTR_K,
     CUBOID_ATTR_D,
     CUBOID_ATTR_S,
     CUBOID_ATTR_DWNSMPL,
-    CUBOID_ATTR_DWNSMPL_FI,
+    CUBOID_ATTR_DWNSMPL_PHI,
     CUBOID_ATTR_DWNSMPL_K,
     CUBOID_ATTR_DWNSMPL_D,
     CUBOID_ATTR_DWNSMPL_S,

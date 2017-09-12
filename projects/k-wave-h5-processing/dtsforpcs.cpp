@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -228,7 +228,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 if (settings->getFlagFindMinMax()) {
                     dataset->findAndSetGlobalMinAndMaxValue(false, true);
                 }
-                // Print attributtes
+                // Print attributes
                 if (settings->getFlagInfo()) {
                     if (dataset->getNumAttrs() > 0) {
                         std::cout << "  Attributes:" << std::endl;
@@ -256,7 +256,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
 }
 
 /**
- * @brief Checks name is not filetered
+ * @brief Checks name is not filtered
  * @param[in] name Name to check
  * @param[in] settings Settings
  * @return True/False

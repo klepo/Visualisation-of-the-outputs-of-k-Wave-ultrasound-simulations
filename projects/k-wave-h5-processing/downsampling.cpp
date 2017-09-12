@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -22,7 +22,7 @@
 /**
  * @brief Creates Downsampling object
  * @param[in] outputFile Output file
- * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
 Downsampling::Downsampling(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
@@ -41,7 +41,7 @@ void Downsampling::execute()
         HDF5Helper::DatasetType::CUBOID,
         HDF5Helper::DatasetType::CUBOID_ATTR
     };
-    // TODO - downsampling of MASK_3D FI, K, D, S datasets
+    // TODO - downsampling of MASK_3D PHI, K, D, S datasets
 
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
@@ -101,7 +101,7 @@ void Downsampling::resampleDataset(HDF5Helper::Dataset *srcDataset)
         dimsDst = dimsDst3D;
     }
 
-    // Create dst dataset
+    // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName() + "_" + std::to_string(getSettings()->getMaxSize()), dimsDst, chunkDimsDst, true);
     HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName() + "_" + std::to_string(getSettings()->getMaxSize()));
 
@@ -272,7 +272,7 @@ void Downsampling::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hs
             //dataDst[ceil(x / s), ceil(y / s)] = dataSrc[x, y];
             //dataDst[x + y * wDst] = topL * wY + bottomL  * (1 - wY);
 
-            // Nearest-neighbour interpolation
+            // Nearest-neighbor interpolation
             float newX = static_cast<float>(x) / scaleWidth;
             float newY = static_cast<float>(y) / scaleHeight;
             hsize_t xSrc = Helper::round(newX);
@@ -321,7 +321,7 @@ void Downsampling::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hs
         for (hssize_t y = 0; y < hssize_t(dstHeight); y++) {
             #pragma omp parallel for
             for (hssize_t x = 0; x < hssize_t(dstWidth); x++) {
-                // Nearest-neighbour interpolation
+                // Nearest-neighbor interpolation
                 float newX = static_cast<float>(x) / scaleWidth;
                 float newY = static_cast<float>(y) / scaleHeight;
                 float newZ = static_cast<float>(z) / scaleDepth;

@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -22,7 +22,7 @@
 /**
  * @brief Creates ChangeChunks object
  * @param[in] outputFile Output file
- * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
 ChangeChunks::ChangeChunks(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
@@ -86,7 +86,7 @@ void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
         if (chunkDims[i] > dims[i]) chunkDims[i] = dims[i];
     }
 
-    // Create dst dataset
+    // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true);
     HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName());
 

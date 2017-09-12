@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -22,7 +22,7 @@
 /**
  * @brief Creates Compress object
  * @param[in] outputFile Output file
- * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
 Compress::Compress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
@@ -147,11 +147,11 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset)
     std::cout << "outputDims:  " << outputDims << std::endl;
     std::cout << "stepSize:    " << stepSize << std::endl;
 
-    // Create dst datasets
+    // Create destination datasets
     getOutputFile()->createDatasetF(srcDataset->getName() + "_k_" + std::to_string(getSettings()->getHarmonic()), outputDims, chunkDims, true);
-    getOutputFile()->createDatasetF(srcDataset->getName() + "_fi_" + std::to_string(getSettings()->getHarmonic()), outputDims, chunkDims, true);
+    getOutputFile()->createDatasetF(srcDataset->getName() + "_phi_" + std::to_string(getSettings()->getHarmonic()), outputDims, chunkDims, true);
     HDF5Helper::Dataset *dstDatasetK = getOutputFile()->openDataset(srcDataset->getName() + "_k_" + std::to_string(getSettings()->getHarmonic()));
-    HDF5Helper::Dataset *dstDatasetFi = getOutputFile()->openDataset(srcDataset->getName() + "_fi_" + std::to_string(getSettings()->getHarmonic()));
+    HDF5Helper::Dataset *dstDatasetFi = getOutputFile()->openDataset(srcDataset->getName() + "_phi_" + std::to_string(getSettings()->getHarmonic()));
 
     double t0 = HDF5Helper::getTime();
 
@@ -232,17 +232,17 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset)
                         float k = abs(sC);
 
                         // Computing phase
-                        float fi = arg(sC);
+                        float phi = arg(sC);
 
                         // Save complex coefficients
                         // Drop first "half" frame
                         if (frame > 1) {
                             dataK[p] = k;
-                            dataFi[p] = fi;
+                            dataFi[p] = phi;
 
                             // Min/max values
                             HDF5Helper::checkOrSetMinMaxValue(first, minVK, maxVK, k);
-                            HDF5Helper::checkOrSetMinMaxValue(first, minVFi, maxVFi, fi);
+                            HDF5Helper::checkOrSetMinMaxValue(first, minVFi, maxVFi, phi);
 
                             #pragma omp critical
                             {
@@ -338,7 +338,7 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset)
     dstDatasetFi->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVFiIndex);
     dstDatasetFi->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVFiIndex);
     dstDatasetFi->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
-    dstDatasetFi->setAttribute(HDF5Helper::C_TYPE_ATTR, "fi");
+    dstDatasetFi->setAttribute(HDF5Helper::C_TYPE_ATTR, "phi");
     dstDatasetFi->setAttribute(HDF5Helper::C_PERIOD_ATTR, getSettings()->getPeriod());
     dstDatasetFi->setAttribute(HDF5Helper::C_HARMONIC_ATTR, getSettings()->getHarmonic());
     dstDatasetFi->setAttribute(HDF5Helper::C_MOS_ATTR, getSettings()->getMOS());

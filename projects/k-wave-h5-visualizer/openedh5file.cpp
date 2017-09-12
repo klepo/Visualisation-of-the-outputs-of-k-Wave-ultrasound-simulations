@@ -14,7 +14,7 @@
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -26,7 +26,7 @@
 #include "h5subobjecttovisualize.h"
 
 /**
- * @brief Creates OpenedH5File obejct
+ * @brief Creates OpenedH5File object
  * @param[in] fileName Path to HDF5 file
  * @param[in] parent Parent (optional)
  */
@@ -74,7 +74,7 @@ OpenedH5File::~OpenedH5File()
  * @brief Sets object
  * @param[in] name Object name
  * @param[in] dataset Dataset
- * @param[in] type Obejct type
+ * @param[in] type Object type
  */
 void OpenedH5File::setObject(QString name, HDF5Helper::Dataset *dataset, ObjectType type)
 {
@@ -159,10 +159,10 @@ void OpenedH5File::setObjectSelected(QString name, bool value)
  * @brief Toogles object selected
  * @param[in] name Name of object
  */
-void OpenedH5File::toogleObjectSelected(QString name)
+void OpenedH5File::toggleObjectSelected(QString name)
 {
     if (objects.contains(name)) {
-        objects[name]->toogleSelected();
+        objects[name]->toggleSelected();
     }
 }
 
@@ -195,21 +195,21 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::Group *group)
                        ) {
                 setObject(QString::fromStdString(group->getName()), dataset, dataset4D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
-            } else if (datasetType == HDF5Helper::DatasetType::CUBOID_FI
+            } else if (datasetType == HDF5Helper::DatasetType::CUBOID_PHI
                        || datasetType == HDF5Helper::DatasetType::CUBOID_K
                        || datasetType == HDF5Helper::DatasetType::CUBOID_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_S
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_FI
+                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_PHI
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_K
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_S
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_FI
+                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_PHI
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_K
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_S
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_FI
+                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_PHI
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_K
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_S

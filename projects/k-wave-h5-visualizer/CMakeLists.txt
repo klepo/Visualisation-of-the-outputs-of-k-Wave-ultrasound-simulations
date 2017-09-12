@@ -63,38 +63,53 @@ if (WIN32)
         file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Debug/platforms")
     endif()
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 
+  #  add_custom_target(Qt5CopyBinaries
+  # todo: check if debug and release folder exist
+  # debug version
+  #COMMAND ${CMAKE_COMMAND} -E copy ${Qt5Core_DIR}/../../../bin/libEGLd.dll          ${CMAKE_BINARY_DIR}/Debug
+  #COMMAND ${CMAKE_COMMAND} -E copy ${Qt5Core_DIR}/../../../bin/libGLESv2d.dll       ${CMAKE_BINARY_DIR}/Debug
+    
+    add_custom_target(Qt5CopyDLLs 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${QT_DLL_DIR}/Qt5Cored.dll"
         "${QT_DLL_DIR}/Qt5Guid.dll"
         "${QT_DLL_DIR}/Qt5Widgetsd.dll"
-        "${QT_DLL_DIR}/icudt54.dll"
-        "${QT_DLL_DIR}/icuin54.dll"
-        "${QT_DLL_DIR}/icuuc54.dll"
-        "${CMAKE_CURRENT_BINARY_DIR}/Debug")
+        "${CMAKE_CURRENT_BINARY_DIR}/Debug"
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${QT_DLL_DIR}/../plugins/platforms/qminimald.dll"
         "${QT_DLL_DIR}/../plugins/platforms/qoffscreend.dll"
         "${QT_DLL_DIR}/../plugins/platforms/qwindowsd.dll"
-        "${CMAKE_CURRENT_BINARY_DIR}/Debug/platforms")        
+        "${CMAKE_CURRENT_BINARY_DIR}/Debug/platforms"
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${QT_DLL_DIR}/Qt5Core.dll"
         "${QT_DLL_DIR}/Qt5Gui.dll"
         "${QT_DLL_DIR}/Qt5Widgets.dll"
-        "${QT_DLL_DIR}/icudt54.dll"
-        "${QT_DLL_DIR}/icuin54.dll"
-        "${QT_DLL_DIR}/icuuc54.dll"
-        "${CMAKE_CURRENT_BINARY_DIR}/Release")
+        "${CMAKE_CURRENT_BINARY_DIR}/Release"
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${QT_DLL_DIR}/../plugins/platforms/qminimal.dll"
         "${QT_DLL_DIR}/../plugins/platforms/qoffscreen.dll"
         "${QT_DLL_DIR}/../plugins/platforms/qwindows.dll"
         "${CMAKE_CURRENT_BINARY_DIR}/Release/platforms")
 
+    if((EXISTS "${QT_DLL_DIR}/icudt54.dll") AND (EXISTS "${QT_DLL_DIR}/icudt54.dll") AND (EXISTS "${QT_DLL_DIR}/icuuc54.dll"))
+        add_custom_target(Qt5CopyIcuDLLs 
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT_DLL_DIR}/icudt54.dll"
+            "${QT_DLL_DIR}/icuin54.dll"
+            "${QT_DLL_DIR}/icuuc54.dll"
+            "${CMAKE_CURRENT_BINARY_DIR}/Debug"
+
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT_DLL_DIR}/icudt54.dll"
+            "${QT_DLL_DIR}/icudt54.dll"
+            "${QT_DLL_DIR}/icuuc54.dll"
+            "${CMAKE_CURRENT_BINARY_DIR}/Release")
+        add_dependencies(${PROJECT_NAME} Qt5CopyIcuDLLs) 
+    endif()
+        
+    add_dependencies(${PROJECT_NAME} Qt5CopyDLLs) 
+    
 endif()

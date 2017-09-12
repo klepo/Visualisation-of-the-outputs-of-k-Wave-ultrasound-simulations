@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -30,7 +30,7 @@ Settings::Settings()
 /**
  * @brief Loads params
  * @param[in] argc Number of arguments
- * @param[in] argv Array of argumnets
+ * @param[in] argv Array of arguments
  */
 void Settings::loadParams(int argc, char **argv)
 {
@@ -132,15 +132,15 @@ void Settings::loadParams(int argc, char **argv)
                              "                                          and saves them to the output file.\n"
                              "\n"
                              "  -compress ............................. Optional parameter. Performs compression of time series\n"
-                             "                                          dataset data, creates 2 new datasets for fi and k. \n"
+                             "                                          dataset data, creates 2 new datasets for phi and k. \n"
                              "\n"
                              "  -decompress ........................... Optional parameter. Performs decompression of time series\n"
-                             "                                          dataset data, needs datasets fi and k.\n"
+                             "                                          dataset data, needs datasets phi and k.\n"
                              "\n"
-                             "  -difference ........................... Optional parameter. Performs substraction of time series\n"
+                             "  -difference ........................... Optional parameter. Performs subtraction of time series\n"
                              "                                          dataset data, needs original dataset and decoded (name_d).\n"
                              "\n"
-                             "  -s size ............................... Optional parameter. Max size for donwsampling.\n"
+                             "  -s size ............................... Optional parameter. Max size for downsampling.\n"
                              "                                          Default size is 512.\n"
                              "\n"
                              "  -ch chunkSize ......................... Optional parameter. The size for new chunks from 1 to\n"
@@ -401,7 +401,7 @@ void Settings::setBlockSize(const unsigned long long &value)
 }
 
 /**
- * @brief Retruns multiple of overlapping size
+ * @brief Returns multiple of overlapping size
  * @return Multiple of overlapping size
  */
 unsigned long long Settings::getMOS() const
@@ -676,7 +676,7 @@ void Settings::setFlagComputePeriod(bool value)
 
 /**
  * @brief Returns find min/max mode flag
- * @return Find min/max mode mode flag
+ * @return Find min/max mode flag
  */
 bool Settings::getFlagFindMinMax() const
 {

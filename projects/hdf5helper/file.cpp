@@ -12,7 +12,7 @@
  * @license     This file is part of the hdf5helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -52,14 +52,14 @@ File::File(std::string filename, unsigned int flag, bool log)
     std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
     // 1 x 32-bit float == 4 x bytes
 
-    // max cca 4 GB
+    // max ca 4 GB
     hsize_t maxCount = 1024 * 1024 * 1024;
     if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
         setNumberOfElmsToLoad(maxCount);
     } else {
         setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 8));
     }
-    // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // cca 10 GB
+    // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // ca 10 GB
     // setNumberOfElmsToLoad(1024 * 1024 * 1024);
 
     // Disable error HDF5 output
@@ -825,7 +825,7 @@ void convertMultiDimToLinear(Vector position, hsize_t &index, Vector dims)
  * @param[out] maxV Maximal value
  * @param[in] value Input value
  *
- * This function exists due to OpenMP pragrmas
+ * This function exists due to OpenMP pragmas
  */
 void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value)
 {
@@ -861,7 +861,7 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float va
  * @param[out] maxV Maximal value
  * @param[in] value Input value
  *
- * This function exists due to OpenMP pragrmas
+ * This function exists due to OpenMP pragmas
  */
 void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value)
 {

@@ -12,7 +12,7 @@
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -545,7 +545,7 @@ void GWindow::changeOpacity(QVector<float> opacity)
 }
 
 /**
- * @brief Sets min value for colormaping
+ * @brief Sets min value for colormapping
  * @param[in] value Min value
  */
 void GWindow::changeMinValue(float value)
@@ -560,7 +560,7 @@ void GWindow::changeMinValue(float value)
 }
 
 /**
- * @brief Sets max value for colormaping
+ * @brief Sets max value for colormapping
  * @param[in] value Max value
  */
 void GWindow::changeMaxValue(float value)
@@ -655,8 +655,8 @@ QPointF GWindow::convertPointToOpenGLRelative(QPointF point)
 /**
  * @brief Round function
  * @param[in] number Number
- * @param[in] precision Presicion
- * @return Rounded numebr
+ * @param[in] precision Precision
+ * @return Rounded number
  */
 float GWindow::round(float number, float precision)
 {
@@ -746,7 +746,7 @@ void GWindow::render()
     QVector3D imageSizeScaled = imageSize / fullMax;
     QVector3D imagePositionScaled = imagePosition / fullMax;
 
-    // Translate to the midlle of 3D frame
+    // Translate to the middle of 3D frame
     matrix.translate(-fullSizeScaled.x() / 2.0f, -fullSizeScaled.y() / 2.0f, -fullSizeScaled.z() / 2.0f);
 
     float offset = 0.01f;
@@ -1082,7 +1082,7 @@ void GWindow::setOrthogonal(bool value)
 }
 
 /**
- * @brief Alignes to XY
+ * @brief Aligns to XY
  */
 void GWindow::alignToXY()
 {
@@ -1092,7 +1092,7 @@ void GWindow::alignToXY()
 }
 
 /**
- * @brief Alignes to XZ
+ * @brief Aligns to XZ
  */
 void GWindow::alignToXZ()
 {
@@ -1103,7 +1103,7 @@ void GWindow::alignToXZ()
 }
 
 /**
- * @brief Alignes to YZ
+ * @brief Aligns to YZ
  */
 void GWindow::alignToYZ()
 {
@@ -1114,7 +1114,7 @@ void GWindow::alignToYZ()
 }
 
 /**
- * @brief Alignes to XY from back
+ * @brief Aligns to XY from back
  */
 void GWindow::alignToXYFromBack()
 {
@@ -1125,7 +1125,7 @@ void GWindow::alignToXYFromBack()
 }
 
 /**
- * @brief Alignes to XZ from back
+ * @brief Aligns to XZ from back
  */
 void GWindow::alignToXZFromBack()
 {
@@ -1136,7 +1136,7 @@ void GWindow::alignToXZFromBack()
 }
 
 /**
- * @brief Alignes to YZ from back
+ * @brief Aligns to YZ from back
  */
 void GWindow::alignToYZFromBack()
 {

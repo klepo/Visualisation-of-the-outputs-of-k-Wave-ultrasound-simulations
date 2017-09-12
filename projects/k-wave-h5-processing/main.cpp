@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -29,7 +29,7 @@
 /**
  * @brief Main k-Wave processing function
  * @param[in] argc Number of arguments
- * @param[in] argv Array of argumnets
+ * @param[in] argv Array of arguments
  * @return EXIT_SUCCESS
  */
 int main(int argc, char **argv)
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
             delete decompress;
         }
 
-        // Substraction of time series datasets
+        // Subtraction of time series datasets
         if (settings->getFlagDifference()) {
             Helper::printDebugTitle("Difference");
             Difference *difference = new Difference(filesContext->getPcsOutputFile(), dtsForPcs, settings);

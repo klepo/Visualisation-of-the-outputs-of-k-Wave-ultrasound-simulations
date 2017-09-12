@@ -10,7 +10,7 @@
  * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -22,7 +22,7 @@
 /**
  * @brief Creates Decompress object
  * @param[in] outputFile Output file
- * @param[in] dtsForPcs Datasets for porcessing
+ * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
 Decompress::Decompress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
@@ -37,13 +37,13 @@ Decompress::Decompress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Setti
 void Decompress::execute()
 {
     std::vector<HDF5Helper::DatasetType> types = {
-        HDF5Helper::DatasetType::TIME_STEPS_FI_MASK,
-        HDF5Helper::DatasetType::CUBOID_FI,
-        HDF5Helper::DatasetType::CUBOID_ATTR_FI
+        HDF5Helper::DatasetType::TIME_STEPS_PHI_MASK,
+        HDF5Helper::DatasetType::CUBOID_PHI,
+        HDF5Helper::DatasetType::CUBOID_ATTR_PHI
     };
     // TODO downsampled datasets
-    //HDF5Helper::datasetType::CUBOID_DWNSMPL_FI
-    //HDF5Helper::datasetType::CUBOID_ATTR_DWNSMPL_FI
+    //HDF5Helper::datasetType::CUBOID_DWNSMPL_PHI
+    //HDF5Helper::datasetType::CUBOID_ATTR_DWNSMPL_PHI
 
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
@@ -70,9 +70,9 @@ void Decompress::execute()
                     HDF5Helper::Dataset *dataset = it2->second;
                     HDF5Helper::DatasetType datasetKType = dataset->getType(sensorMaskSize);
 
-                    if ((datasetKType == HDF5Helper::DatasetType::TIME_STEPS_K_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_FI_MASK)
-                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_K && datasetType == HDF5Helper::DatasetType::CUBOID_FI)
-                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_FI)
+                    if ((datasetKType == HDF5Helper::DatasetType::TIME_STEPS_K_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_PHI_MASK)
+                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_K && datasetType == HDF5Helper::DatasetType::CUBOID_PHI)
+                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_PHI)
                             ) {
                         hsize_t harmonicK = 1;
                         if (dataset->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
@@ -113,7 +113,7 @@ void Decompress::execute()
 
 /**
  * @brief Decompresses datasets
- * @param[in] srcDatasetsFi Source dataset Fi
+ * @param[in] srcDatasetsFi Source dataset Phi
  * @param[in] srcDatasetsK Source dataset K
  */
 void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatasetsFi, std::vector<HDF5Helper::Dataset *> srcDatasetsK)
@@ -122,7 +122,7 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
     hsize_t s = 1;
     if (srcDatasetsFi.at(0)->hasAttribute(HDF5Helper::C_MOS_ATTR))
         s = srcDatasetsFi.at(0)->readAttributeI(HDF5Helper::C_MOS_ATTR);
-    // Second decoding parametr - period
+    // Second decoding parameter - period
     hsize_t period = srcDatasetsFi.at(0)->readAttributeI(HDF5Helper::C_PERIOD_ATTR);
     // Harmonic frequency
     hsize_t harmonics = srcDatasetsFi.size();
@@ -212,7 +212,7 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
     std::cout << "output dims:  " << outputDims << std::endl;
     std::cout << "step size:    " << stepSize << std::endl;
 
-    // Create dst dataset
+    // Create destination dataset
     std::string srcName = srcDatasetsFi.at(0)->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
     getOutputFile()->createDatasetF(srcName + "_d", outputDims, chunkDims, true);
     HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_d");
@@ -230,11 +230,11 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
     hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
 
-    // If we have enough memory - minimal for one full step * (1 (data) + 4 buffers (k, fi, lastK, lastFi) * number of harmonics) in 3D space
+    // If we have enough memory - minimal for one full step * (1 (data) + 4 buffers (k, phi, lastK, lastFi) * number of harmonics) in 3D space
     if (srcDatasetsFi.at(0)->getFile()->getNumberOfElmsToLoad() >= stepSize * (1 + 4 * harmonics)) {
-        // Buffers for last K and Fi
+        // Buffers for last K and Phi
         float *k = new float[stepSize * harmonics]();
-        float *fi = new float[stepSize * harmonics]();
+        float *phi = new float[stepSize * harmonics]();
         float *lastK = new float[stepSize * harmonics]();
         float *lastFi = new float[stepSize * harmonics]();
         float *data = new float[stepSize]();
@@ -284,7 +284,7 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
                             for (hsize_t h = 0; h < harmonics; h++) {
                                 hsize_t hcKFi = stepSize * h + hsize_t(cKFi);
                                 lastK[hcKFi] = k[hcKFi];
-                                lastFi[hcKFi] = fi[hcKFi];
+                                lastFi[hcKFi] = phi[hcKFi];
 
                                 // Copy first coefficients
                                 if (frame == 0) {
@@ -295,11 +295,11 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
                                 if (frame == framesCount - 1 && lastFlag) {
                                     // Duplicate last coefficient
                                     k[hcKFi] = dataK[h][(frame - 1) * stepSize + hsize_t(cKFi)];
-                                    fi[hcKFi] = dataFi[h][(frame - 1) * stepSize + hsize_t(cKFi)];
+                                    phi[hcKFi] = dataFi[h][(frame - 1) * stepSize + hsize_t(cKFi)];
                                 } else {
                                     // Read coefficient
                                     k[hcKFi] = dataK[h][frame * stepSize + hsize_t(cKFi)];
-                                    fi[hcKFi] = dataFi[h][frame * stepSize + hsize_t(cKFi)];
+                                    phi[hcKFi] = dataFi[h][frame * stepSize + hsize_t(cKFi)];
                                 }
                             }
                         }
@@ -309,7 +309,7 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
                         Helper::floatC i(0, -1);
                         for (hsize_t h = 0; h < harmonics; h++) {
                             hsize_t hcKFi = stepSize * h + hsize_t(cKFi);
-                            data[cKFi] += real(k[hcKFi] * std::exp(i * fi[hcKFi]) * bE[h * bSize + p]) + real(lastK[hcKFi] * std::exp(i * lastFi[hcKFi]) * bE_1[h * bSize + p]);
+                            data[cKFi] += real(k[hcKFi] * std::exp(i * phi[hcKFi]) * bE[h * bSize + p]) + real(lastK[hcKFi] * std::exp(i * lastFi[hcKFi]) * bE_1[h * bSize + p]);
                         }
                         // Min/max values
                         HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, data[cKFi]);
@@ -349,7 +349,7 @@ void Decompress::decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatase
         // Delete buffers
         delete[] data;
         delete[] k;
-        delete[] fi;
+        delete[] phi;
     } else {
         // Not implemented yet
         std::cout << "Not implemented yet" << std::endl;

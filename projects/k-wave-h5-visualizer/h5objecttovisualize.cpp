@@ -10,12 +10,12 @@
  *
  * Object of class H5ObjectToVisualize can contains many objects of class
  * H5SubobjectToVisualize. This hierarchy is for many resolutions of datasets
- * and for keeping current setting of seleceted dataset.
+ * and for keeping current setting of selected dataset.
  *
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
- *              license. A copy of the LGPL license should have been recieved with this file.
+ *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
@@ -125,15 +125,15 @@ bool OpenedH5File::H5ObjectToVisualize::setSelectedSubobject(QString name)
 }
 
 /**
- * @brief Toogles selected
+ * @brief Toggles selected
  */
-void OpenedH5File::H5ObjectToVisualize::toogleSelected()
+void OpenedH5File::H5ObjectToVisualize::toggleSelected()
 {
     selected = !selected;
 }
 
 /**
- * @brief Set object selected or notselected
+ * @brief Set object selected or not selected
  * @param[in] value True/False
  */
 void OpenedH5File::H5ObjectToVisualize::setSelected(bool value)
