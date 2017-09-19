@@ -25,7 +25,7 @@ add_executable(${PROJECT_NAME} ${SRCS})
 # Visual Studio startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-message(STATUS "PROJECT_NAME: " "${PROJECT_NAME}")
+message(STATUS "PROJECT_NAME=" "${PROJECT_NAME}")
 
 # hdf5helper library
 target_link_libraries(${PROJECT_NAME} hdf5helper)

@@ -39,13 +39,15 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT $
 # hdf5helper and Qt library
 target_link_libraries(${PROJECT_NAME} hdf5helper Qt5::Widgets)
 
+message(STATUS "PROJECT_NAME=" "${PROJECT_NAME}")
+
 if (WIN32)
-    message (STATUS "CMAKE_CURRENT_BINARY_DIR:" ${CMAKE_CURRENT_BINARY_DIR})
+    #message (STATUS "CMAKE_CURRENT_BINARY_DIR=" ${CMAKE_CURRENT_BINARY_DIR})
 
     get_target_property(QT_LOCATION Qt5::Widgets LOCATION)
     get_filename_component(QT_DLL_DIR ${QT_LOCATION} PATH)
 
-    message(STATUS ${QT_DLL_DIR})
+    #message(STATUS "QT_DLL_DIR=" ${QT_DLL_DIR})
 
     if(NOT (EXISTS "${CMAKE_CURRENT_BINARY_DIR}/Release"))
         file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Release")
