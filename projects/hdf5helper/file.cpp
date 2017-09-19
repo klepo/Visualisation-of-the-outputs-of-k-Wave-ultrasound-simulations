@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              30 August    2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The implementation file containing HDF5Helper::File class definition.
  *
@@ -49,7 +49,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     this->filename = filename;
 
     // Set size of memory
-    std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    //std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
     // 1 x 32-bit float == 4 x bytes
 
     // max ca 4 GB
@@ -501,6 +501,30 @@ void File::closeGroup(Group *group, bool log)
     closeGroup(group->getName(), log);
 }
 
+void File::closeObject(const std::string name, bool log)
+{
+    if (getObjTypeByName(name) == H5G_GROUP)
+        closeGroup(name, log);
+    else if (getObjTypeByName(name) == H5G_DATASET)
+        closeDataset(name, log);
+}
+
+void File::closeObject(hsize_t idx, bool log)
+{
+    if (getObjTypeByIdx(idx) == H5G_GROUP)
+        closeGroup(idx, log);
+    else if (getObjTypeByIdx(idx) == H5G_DATASET)
+        closeDataset(idx, log);
+}
+
+void File::closeObject(Object *object, bool log)
+{
+    if (getObjTypeByName(object->getName()) == H5G_GROUP)
+        closeGroup(object->getName(), log);
+    else if (getObjTypeByName(object->getName()) == H5G_DATASET)
+        closeDataset(object->getName(), log);
+}
+
 /**
  * @brief Returns number of objects in HDF5 file (root group)
  * @param[in] groupId Group id (optional)
@@ -569,6 +593,16 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId)
     return H5G_obj_t(type);
 }
 
+H5G_obj_t File::getObjTypeByName(const std::string name)
+{
+    H5O_info_t objectInfo;
+    err = H5Oget_info_by_name(file, name.c_str(), &objectInfo, 0);
+    if (err < 0) {
+        throw std::runtime_error("H5Oget_info_by_name error");
+    }
+    return H5G_obj_t(objectInfo.type);
+}
+
 /**
  * @brief Exists object with given name?
  * @param[in] name Object name
@@ -580,6 +614,41 @@ bool File::objExistsByName(const std::string name)
         return H5Oexists_by_name(file, name.c_str(), 0) != 0;
     else
         return false;
+}
+
+void File::objRename(const std::string srcName, const std::string dstName)
+{
+    err = H5Lmove(file, srcName.c_str(), file, dstName.c_str(), 0, 0);
+    if (err < 0) {
+        throw std::runtime_error("H5Lmove error");
+    }
+}
+
+void File::renameAttribute(const std::string srcName, const std::string dstName, hid_t groupId)
+{
+    int groupIdTmp = groupId;
+    if (groupId <= 0)
+        groupIdTmp = file;
+
+    err = H5Arename(groupIdTmp, srcName.c_str(), dstName.c_str());
+    if (err < 0) {
+        throw std::runtime_error("H5Arename error");
+    }
+}
+
+void File::renameAttribute(const std::string srcName, const std::string dstName, const std::string objName)
+{
+    hid_t objId = H5Oopen(file, objName.c_str(), 0);
+    if (objId < 0) {
+        throw std::runtime_error("H5Oopen error");
+    }
+
+    renameAttribute(srcName, dstName, objId);
+
+    err = H5Oclose(objId);
+    if (err < 0) {
+        throw std::runtime_error("H5Oopen error");
+    }
 }
 
 /**
@@ -602,7 +671,7 @@ void File::setNumberOfElmsToLoad(hsize_t size)
         if (mPISize > 1 && size > std::numeric_limits<int>::max())
             throw std::runtime_error("setNumberOfElmsToLoad error");
     #endif
-    std::cout << "Number of elements to load: " << size << " (floats: " << size * 4 << " bytes, unsigned 64-bit integers: " << size * 8 << " bytes)" << std::endl;
+    //std::cout << "Number of elements to load: " << size << " (floats: " << size * 4 << " bytes, unsigned 64-bit integers: " << size * 8 << " bytes)" << std::endl;
     numberOfElementsToLoad = size;
 }
 

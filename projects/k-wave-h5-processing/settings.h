@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The header file with Settings class declaration.
  *
@@ -27,8 +27,6 @@
 #include <list>
 #include <iomanip>
 
-#include <helper.h>
-
 #include <paramsdefinition.h>
 
 /**
@@ -38,6 +36,7 @@ class Settings
 {
 public:
     Settings();
+    Settings(int argc, char **argv);
     void loadParams(int argc, char **argv);
 
     // Simulation data files

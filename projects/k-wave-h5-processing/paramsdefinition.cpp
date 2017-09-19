@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The implementation file containing ParamsDefinition class definition.
  *
@@ -177,6 +177,23 @@ ParamsDefinition::Flag::Flag(std::string name, ParamsDefinition::Flag::Params pa
 }
 
 /**
+ * @brief Creates Params object
+ */
+ParamsDefinition::Flag::Params::Params()
+{
+
+}
+
+/**
+ * @brief Creates Params object with first param
+ * @param[in] type Firts param type
+ */
+ParamsDefinition::Flag::Params::Params(ParamsDefinition::Type type)
+{
+    defineParam(type);
+}
+
+/**
  * @brief Defines parameter with given type
  * @param[in] type Parameter type
  */
@@ -329,6 +346,12 @@ void ParamsDefinition::defineParamsFlag(std::string name, ParamsDefinition::Flag
     flags.insert(FlagsPair(name, flag));
 }
 
+void ParamsDefinition::defineParamsFlag(std::string name, ParamsDefinition::Type paramsDefinition)
+{
+    ParamsDefinition::Flag::Params params(paramsDefinition);
+    defineParamsFlag(name, params);
+}
+
 /**
  * @brief Defines parameters flag
  * @param[in] name Flag name
@@ -346,6 +369,81 @@ void ParamsDefinition::defineParamsFlag(std::string name)
 ParamsDefinition::Flags ParamsDefinition::getFlags() const
 {
     return flags;
+}
+
+int ParamsDefinition::toInt(const char *value)
+{
+    size_t size;
+    int number = static_cast<int>(std::stoi(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+long long ParamsDefinition::toLongLong(const char *value)
+{
+    size_t size;
+    long long number = static_cast<long long>(std::stoll(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+unsigned int ParamsDefinition::toUnsignedInt(const char *value)
+{
+    size_t size;
+    unsigned int number = static_cast<unsigned int>(std::stoul(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+unsigned long long ParamsDefinition::toUnsignedLongLong(const char *value)
+{
+    size_t size;
+    unsigned long long number = static_cast<unsigned long long>(std::stoull(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+float ParamsDefinition::toFloat(const char *value)
+{
+    size_t size;
+    float number = static_cast<float>(std::stof(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+double ParamsDefinition::toDouble(const char *value)
+{
+    size_t size;
+    double number = static_cast<double>(std::stod(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+long double ParamsDefinition::toLongDouble(const char *value)
+{
+    size_t size;
+    long double number = static_cast<long double>(std::stold(value, &size));
+    // Throw an exception
+    if (strlen(value) != size)
+        throw std::invalid_argument(value);
+    return number;
+}
+
+std::string ParamsDefinition::toString(const char *value)
+{
+    return std::string(value);
 }
 
 /**
@@ -382,61 +480,39 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
                     // Throw an exception
                     throw std::invalid_argument(flag->getName());
                 }
-                size_t size;
                 switch (type) {
                     case ParamsDefinition::INT: {
-                        int number = static_cast<int>(std::stoi(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        int number = ParamsDefinition::toInt(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
                     case ParamsDefinition::LONGLONG: {
-                        long long number = static_cast<long long>(std::stoll(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        long long number = ParamsDefinition::toLongLong(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
                     case ParamsDefinition::UINT: {
-                        unsigned int number = static_cast<unsigned int>(std::stoul(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        unsigned int number = ParamsDefinition::toUnsignedInt(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
                     case ParamsDefinition::ULONGLONG: {
-                        unsigned long long number = static_cast<unsigned long long>(std::stoull(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        unsigned long long number = ParamsDefinition::toUnsignedLongLong(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
                     case ParamsDefinition::FLOAT: {
-                        float number = static_cast<float>(std::stof(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        float number = ParamsDefinition::toFloat(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
                     case ParamsDefinition::DOUBLE: {
-                        double number = static_cast<double>(std::stod(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        double number = ParamsDefinition::toDouble(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
                     case ParamsDefinition::LONGDOUBLE: {
-                        long double number = static_cast<long double>(std::stold(argv[i], &size));
-                        // Throw an exception
-                        if (strlen(argv[i]) != size)
-                            throw std::invalid_argument(argv[i]);
+                        long double number = ParamsDefinition::toLongDouble(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }

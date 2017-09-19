@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The header file with HDF5Helper::Object class declaration.
  *
@@ -41,9 +41,12 @@ public:
 
     void setAttribute(Attribute *attribute, bool log = true);
     void setAttribute(const std::string name, const int value, bool log = true);
+    void setAttribute(const std::string name, const unsigned int value, bool log = true);
+    void setAttribute(const std::string name, const hssize_t value, bool log = true);
     void setAttribute(const std::string name, const hsize_t value, bool log = true);
-    void setAttribute(const std::string name, const double value, bool log = true);
     void setAttribute(const std::string name, const float value, bool log = true);
+    void setAttribute(const std::string name, const double value, bool log = true);
+    void setAttribute(const std::string name, const long double value, bool log = true);
     void setAttribute(const std::string name, const std::string value, bool log = true);
 
     float readAttributeF(const std::string name, bool log = true) const;
@@ -57,6 +60,8 @@ public:
     void removeAttribute(const unsigned int idx, bool log = true);
 
     bool hasAttribute(const std::string name) const;
+
+    void renameAttribute(const std::string srcName, const std::string dstName);
 
     hsize_t getNumAttrs() const;
     std::string getName() const;

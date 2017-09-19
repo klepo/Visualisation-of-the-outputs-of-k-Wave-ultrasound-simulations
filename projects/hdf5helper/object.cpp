@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The implementation file containing HDF5Helper::Object class definition.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <object.h>
+#include <file.h>
 
 namespace HDF5Helper {
 
@@ -69,6 +70,28 @@ void Object::setAttribute(const std::string name, const int value, bool log)
 }
 
 /**
+ * @brief Sets attribute by given name to unsigned integer value
+ * @param[in] name Name of attribute
+ * @param[in] value Attribute value
+ * @param[in] log Logging flag (optional)
+ */
+void Object::setAttribute(const std::string name, const unsigned int value, bool log)
+{
+    Object::setAttribute(name, H5T_NATIVE_UINT, &value, log);
+}
+
+/**
+ * @brief Sets attribute by given name to 64-bit integer value
+ * @param[in] name Name of attribute
+ * @param[in] value Attribute value
+ * @param[in] log Logging flag (optional)
+ */
+void Object::setAttribute(const std::string name, const hssize_t value, bool log)
+{
+    Object::setAttribute(name, H5T_NATIVE_INT64, &value, log);
+}
+
+/**
  * @brief Sets attribute by given name to 64-bit unsigned integer value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
@@ -77,17 +100,6 @@ void Object::setAttribute(const std::string name, const int value, bool log)
 void Object::setAttribute(const std::string name, const hsize_t value, bool log)
 {
     Object::setAttribute(name, H5T_NATIVE_UINT64, &value, log);
-}
-
-/**
- * @brief Sets attribute by given name to double value
- * @param[in] name Name of attribute
- * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
- */
-void Object::setAttribute(const std::string name, const double value, bool log)
-{
-    Object::setAttribute(name, H5T_NATIVE_DOUBLE, &value, log);
 }
 
 /**
@@ -100,6 +112,30 @@ void Object::setAttribute(const std::string name, const float value, bool log)
 {
     Object::setAttribute(name, H5T_NATIVE_FLOAT, &value, log);
 }
+
+
+/**
+ * @brief Sets attribute by given name to double value
+ * @param[in] name Name of attribute
+ * @param[in] value Attribute value
+ * @param[in] log Logging flag (optional)
+ */
+void Object::setAttribute(const std::string name, const double value, bool log)
+{
+    Object::setAttribute(name, H5T_NATIVE_LDOUBLE, &value, log);
+}
+
+/**
+ * @brief Sets attribute by given name to long double value
+ * @param[in] name Name of attribute
+ * @param[in] value Attribute value
+ * @param[in] log Logging flag (optional)
+ */
+void Object::setAttribute(const std::string name, const long double value, bool log)
+{
+    Object::setAttribute(name, H5T_NATIVE_LDOUBLE, &value, log);
+}
+
 
 /**
  * @brief Sets attribute by given name to string value
@@ -245,6 +281,11 @@ void Object::removeAttribute(const unsigned int idx, bool log)
 bool Object::hasAttribute(const std::string name) const
 {
     return H5Aexists(object, name.c_str()) != 0;
+}
+
+void Object::renameAttribute(const std::string srcName, const std::string dstName)
+{
+    file->renameAttribute(srcName, dstName, object);
 }
 
 /**

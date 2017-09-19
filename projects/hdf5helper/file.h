@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The header file with HDF5Helper::File class declaration.
  *
@@ -136,11 +136,21 @@ public:
     void closeGroup(hsize_t idx, bool log = true);
     void closeGroup(Group *group, bool log = true);
 
+    void closeObject(const std::string name, bool log = true);
+    void closeObject(hsize_t idx, bool log = true);
+    void closeObject(Object *object, bool log = true);
+
     hsize_t getNumObjs(hid_t groupId = -1);
     std::string getObjNameByIdx(hsize_t idx, hid_t groupId = -1);
     H5G_obj_t getObjTypeByIdx(hsize_t idx, hid_t groupId = -1);
+    H5G_obj_t getObjTypeByName(const std::string name);
 
     bool objExistsByName(const std::string name);
+
+    void objRename(const std::string srcName, const std::string dstName);
+
+    void renameAttribute(const std::string srcName, const std::string dstName, hid_t groupId = -1);
+    void renameAttribute(const std::string srcName, const std::string dstName, const std::string objName);
 
     std::string getFilename();
 

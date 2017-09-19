@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The header file with ParamsDefinition class declaration.
  *
@@ -65,6 +65,8 @@ public:
         class Params
         {
         public:
+            Params();
+            Params(Type type);
             void defineParam(Type type);
             void setParam(unsigned int index, void* value);
             void readParam(unsigned int index, void* value);
@@ -144,9 +146,19 @@ public:
     typedef std::pair<std::string, Flag> FlagsPair;
 
     void defineParamsFlag(std::string name, Flag::Params params);
+    void defineParamsFlag(std::string name, Type paramsDefinition);
     void defineParamsFlag(std::string name);
 
     Flags getFlags() const;
+
+    static int toInt(const char *value);
+    static long long toLongLong(const char *value);
+    static unsigned int toUnsignedInt(const char *value);
+    static unsigned long long toUnsignedLongLong(const char *value);
+    static float toFloat(const char *value);
+    static double toDouble(const char *value);
+    static long double toLongDouble(const char *value);
+    static std::string toString(const char *value);
 
     void commandLineParse(int argc, char **argv);
 

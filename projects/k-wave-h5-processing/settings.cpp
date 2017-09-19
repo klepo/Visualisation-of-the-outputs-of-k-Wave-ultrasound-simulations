@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -27,6 +27,11 @@ Settings::Settings()
 
 }
 
+Settings::Settings(int argc, char **argv)
+{
+    loadParams(argc, argv);
+}
+
 /**
  * @brief Loads params
  * @param[in] argc Number of arguments
@@ -48,9 +53,7 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("findMinMax");
 
     // Size
-    ParamsDefinition::Flag::Params paramsS;
-    paramsS.defineParam(ParamsDefinition::ULONGLONG);
-    paramsDefinition.defineParamsFlag("s", paramsS);
+    paramsDefinition.defineParamsFlag("s", ParamsDefinition::ULONGLONG);
 
     // Chunk size
     ParamsDefinition::Flag::Params paramsCh;
@@ -654,7 +657,7 @@ void Settings::setFlagInfo(bool value)
 
 /**
  * @brief Returns compute period mode flag
- * @return Compute Period mode flag
+ * @return Compute period mode flag
  */
 bool Settings::getFlagComputePeriod() const
 {
@@ -663,7 +666,7 @@ bool Settings::getFlagComputePeriod() const
 
 /**
  * @brief Sets compute period mode flag
- * @param[in] value Compute Period mode flag
+ * @param[in] value Compute period mode flag
  */
 void Settings::setFlagComputePeriod(bool value)
 {
@@ -671,7 +674,7 @@ void Settings::setFlagComputePeriod(bool value)
     if (value)
         std::cout << "\n  Compute period mode: ON\n" << std::endl;
     else
-        std::cout << "\n  Compute Period mode: OFF\n" << std::endl;
+        std::cout << "\n  Compute period mode: OFF\n" << std::endl;
 }
 
 /**

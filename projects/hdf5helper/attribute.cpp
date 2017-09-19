@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              30 August    2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The implementation file containing HDF5Helper::Attribute class definition.
  *
@@ -164,14 +164,18 @@ std::string Attribute::getStringValue(const hid_t datatype, const void *value, h
         }
     } else if (H5Tequal(datatype, H5T_NATIVE_INT)) {
         return std::to_string(*static_cast<const int *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
-        return std::to_string(*static_cast<const hsize_t *>(value));
+    } else if (H5Tequal(datatype, H5T_NATIVE_UINT)) {
+        return std::to_string(*static_cast<const unsigned int *>(value));
     } else if (H5Tequal(datatype, H5T_NATIVE_INT64)) {
         return std::to_string(*static_cast<const hssize_t *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE)) {
-        return std::to_string(*static_cast<const double *>(value));
+    } else if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
+        return std::to_string(*static_cast<const hsize_t *>(value));
     } else if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
         return std::to_string(*static_cast<const float *>(value));
+    } else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE)) {
+        return std::to_string(*static_cast<const double *>(value));
+    } else if (H5Tequal(datatype, H5T_NATIVE_LDOUBLE)) {
+        return std::to_string(*static_cast<const long double *>(value));
     } else {
         return static_cast<const char *>(value);
     }
@@ -192,14 +196,18 @@ std::string Attribute::getStringDatatype(const hid_t datatype)
         }
     } else if (H5Tequal(datatype, H5T_NATIVE_INT)) {
         return "H5T_NATIVE_INT";
-    } else if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
-        return "H5T_NATIVE_UINT64";
+    } else if (H5Tequal(datatype, H5T_NATIVE_UINT)) {
+        return "H5T_NATIVE_UINT";
     } else if (H5Tequal(datatype, H5T_NATIVE_INT64)) {
         return "H5T_NATIVE_INT64";
-    } else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE)) {
-        return "H5T_NATIVE_DOUBLE";
+    } else if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
+        return "H5T_NATIVE_UINT64";
     } else if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
         return "H5T_NATIVE_FLOAT";
+    } else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE)) {
+        return "H5T_NATIVE_DOUBLE";
+    } else if (H5Tequal(datatype, H5T_NATIVE_LDOUBLE)) {
+        return "H5T_NATIVE_LDOUBLE";
     } else {
         return std::to_string(datatype);
     }

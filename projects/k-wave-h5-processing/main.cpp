@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ *              19 September 2017 (updated)
  *
  * @brief       The main implementation file containing k-Wave HDF5 processing application.
  *
@@ -38,8 +38,7 @@ int main(int argc, char **argv)
 
     double t0 = HDF5Helper::getTime(); // Save the start time
 
-    Settings *settings = new Settings();
-    settings->loadParams(argc, argv);
+    Settings *settings = new Settings(argc, argv);
 
     FilesContext *filesContext = new FilesContext(settings);
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
