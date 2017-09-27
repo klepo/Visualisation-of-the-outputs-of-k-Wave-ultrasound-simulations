@@ -20,6 +20,7 @@
 #ifndef DATASET_H
 #define DATASET_H
 
+#include <vector>
 #include <map>
 #include <assert.h>
 
@@ -133,6 +134,8 @@ public:
     void readEmptyBlock();
 
 private:
+    Dataset(const Dataset &);
+    Dataset &operator=(const Dataset &);
     void readDatasetGeneral(Vector offset, Vector count, void *data, bool log = true);
     void writeDatasetGeneral(Vector offset, Vector count, void *data, bool log = false);
 
@@ -193,6 +196,8 @@ private:
     bool issetGlobalMinAndMaxValue = false;
 };
 
+/// Vector of datasets datatype
+typedef std::vector<Dataset *> VectorOfDatasets;
 /// Map of datasets datatype
 typedef std::map<const std::string, Dataset *> MapOfDatasets;
 /// Iterator for map of datasets datatype

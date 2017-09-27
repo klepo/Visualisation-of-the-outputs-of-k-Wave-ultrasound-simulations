@@ -51,8 +51,11 @@ public:
     static std::string getStringDatatype(const hid_t datatype);
 
 private:
+    Attribute(const Attribute &);
+    Attribute &operator=(const Attribute &);
     void loadAttribute(hid_t attribute);
 
+    hid_t object;
     hid_t attribute;
     std::string name;
     hid_t datatype;

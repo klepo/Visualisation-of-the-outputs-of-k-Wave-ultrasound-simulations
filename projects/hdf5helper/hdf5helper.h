@@ -36,9 +36,7 @@ namespace HDF5Helper {}
 /**
  * TODO:
  *  Q_DISABLE_COPY()
- *  Unify adding or removing slash in dataset and group names
  *  Test getOnlyName
- *  make vector4D .t as .w
  *
  *
  *

@@ -32,10 +32,10 @@ namespace HDF5Helper {
  * @param[in] file HDF5 File
  */
 Object::Object(const hid_t object, std::string name, File *file)
+    : file(file)
+    , object(object)
 {
-    this->object = object;
-    this->name = name;
-    this->file = file;
+    this->name = "/" + trimSlashes(name);
 }
 
 /**
@@ -160,11 +160,11 @@ float Object::readAttributeF(const std::string name, bool log) const
     float value;
     if (log)
         std::cout << "Reading attribute \"" << name << "\" ";
-    Attribute *attr = getAttribute(name);
+    Attribute *attribute = getAttribute(name);
     if (log)
-        std::cout << "(" << attr->getStringDatatype() << ")";
-    value = *static_cast<float *>(attr->getData());
-    delete attr;
+        std::cout << "(" << attribute->getStringDatatype() << ")";
+    value = *static_cast<float *>(attribute->getData());
+    delete attribute;
     if (log)
         std::cout << " = \"" << value << "\"";
     if (log)
@@ -183,11 +183,11 @@ hsize_t Object::readAttributeI(const std::string name, bool log) const
     hsize_t value;
     if (log)
         std::cout << "Reading attribute \"" << name << "\" ";
-    Attribute *attr = getAttribute(name);
+    Attribute *attribute = getAttribute(name);
     if (log)
-        std::cout << "(" << attr->getStringDatatype() << ")";
-    value = *static_cast<hsize_t *>(attr->getData());
-    delete attr;
+        std::cout << "(" << attribute->getStringDatatype() << ")";
+    value = *static_cast<hsize_t *>(attribute->getData());
+    delete attribute;
     if (log)
         std::cout << " = \"" << value << "\"";
     if (log)
@@ -206,11 +206,11 @@ std::string Object::readAttributeS(const std::string name, bool log) const
     std::string value;
     if (log)
         std::cout << "Reading attribute \"" << name << "\" ";
-    Attribute *attr = getAttribute(name);
+    Attribute *attribute = getAttribute(name);
     if (log)
-        std::cout << "(" << attr->getStringDatatype() << ")";
-    value = attr->getStringValue();
-    delete attr;
+        std::cout << "(" << attribute->getStringDatatype() << ")";
+    value = attribute->getStringValue();
+    delete attribute;
     if (log)
         std::cout << " = \"" << value << "\"";
     if (log)

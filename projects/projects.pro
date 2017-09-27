@@ -14,7 +14,7 @@ SUBDIRS +=  \
     \ #hdf5helper-parallel \
     k-wave-h5-processing \
     \ #k-wave-h5-processing-parallel \
-    \ #tests \
+    tests \
     h5-rename \
 
 greaterThan(QT_VERSION, 5.2) {

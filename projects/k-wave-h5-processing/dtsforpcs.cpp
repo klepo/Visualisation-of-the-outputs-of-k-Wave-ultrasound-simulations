@@ -65,7 +65,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             HDF5Helper::Vector3D dims = sourceInputDataset->getDims();
             float *data = 0;
             sourceInputDataset->readDataset(HDF5Helper::Vector3D(0, 0, 0), HDF5Helper::Vector3D(1, dims.y(), 1), data);
-            settings->setPeriod(Helper::getPeriod(data, dims.y()));
+            settings->setPeriod(CompressHelper::getPeriod(data, dims.y()));
             sourceInputDataset->setAttribute("period", settings->getPeriod());
             delete[] data;
         }
@@ -234,9 +234,9 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                         std::cout << "  Attributes:" << std::endl;
                     }
                     for (hsize_t i = 0; i < dataset->getNumAttrs(); i++) {
-                        HDF5Helper::Attribute *attr = dataset->getAttribute(i);
-                        std::cout << "\t" << std::setw(20) << std::left << attr->getName() << std::setw(20) << std::left << attr->getStringValue() << std::endl;
-                        delete attr;
+                        HDF5Helper::Attribute *attribute = dataset->getAttribute(i);
+                        std::cout << "\t" << std::setw(20) << std::left << attribute->getName() << std::setw(20) << std::left << attribute->getStringValue() << std::endl;
+                        delete attribute;
                     }
                 }
                 std::cout << std::endl;

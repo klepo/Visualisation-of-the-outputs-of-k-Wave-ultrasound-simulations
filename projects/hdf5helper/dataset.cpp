@@ -31,11 +31,10 @@ namespace HDF5Helper {
  * @param[in] file HDF5 File
  * @throw std::runtime_error
  */
-Dataset::Dataset(hid_t dataset, std::string name, File *file) : Object(dataset, name, file)
+Dataset::Dataset(hid_t dataset, std::string name, File *file)
+    : Object(dataset, name, file)
+    , dataset(dataset)
 {
-    // Save dataset
-    this->dataset = dataset;
-
     // Init space
     dataspace = H5Dget_space(dataset);
     if (dataspace < 0) {

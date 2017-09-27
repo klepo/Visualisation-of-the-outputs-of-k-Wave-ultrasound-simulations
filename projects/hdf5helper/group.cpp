@@ -30,9 +30,11 @@ namespace HDF5Helper {
  * @param[in] name Name of group
  * @param[in] file HDF5 File
  */
-Group::Group(const hid_t group, const std::string name, File *file) : Object(group, name, file) {
-    // Save group
-    this->group = group;
+Group::Group(const hid_t group, const std::string name, File *file)
+    : Object(group, name, file)
+    , group(group)
+{
+
 }
 
 /**
@@ -61,10 +63,7 @@ Group::~Group()
  */
 Dataset *Group::openDataset(const std::string name, bool log)
 {
-    if (getName() == "/")
-        return getFile()->openDataset(name, log);
-    else
-        return getFile()->openDataset(getName() + "/" + name, log);
+    return getFile()->openDataset(concatenatePath(getName(), name), log);
 }
 
 /**
@@ -85,10 +84,7 @@ Dataset *Group::openDataset(hsize_t idx, bool log)
  */
 void Group::closeDataset(const std::string name, bool log)
 {
-    if (getName() == "/")
-        getFile()->closeDataset(name, log);
-    else
-        getFile()->closeDataset(getName() + "/" + name, log);
+    getFile()->closeDataset(concatenatePath(getName(), name), log);
 }
 
 /**
@@ -121,7 +117,7 @@ void Group::closeDataset(HDF5Helper::Dataset *dataset, bool log)
  */
 void Group::createDatasetI(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
-    getFile()->createDatasetI(getName() + "/" + name, size, chunkSize, rewrite, log);
+    getFile()->createDatasetI(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
 }
 
 /**
@@ -134,7 +130,7 @@ void Group::createDatasetI(const std::string name, Vector size, Vector chunkSize
  */
 void Group::createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
-    getFile()->createDatasetF(getName() + "/" + name, size, chunkSize, rewrite, log);
+    getFile()->createDatasetF(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
 }
 
 /**
@@ -145,10 +141,7 @@ void Group::createDatasetF(const std::string name, Vector size, Vector chunkSize
  */
 Group *Group::openGroup(const std::string name, bool log)
 {
-    if (getName() == "/")
-        return getFile()->openGroup(name, log);
-    else
-        return getFile()->openGroup(getName() + "/" + name, log);
+    return getFile()->openGroup(concatenatePath(getName(), name), log);
 }
 
 /**
@@ -169,10 +162,7 @@ Group *Group::openGroup(hsize_t idx, bool log)
  */
 void Group::closeGroup(const std::string name, bool log)
 {
-    if (getName() == "/")
-        getFile()->closeGroup(name, log);
-    else
-        getFile()->closeGroup(getName() + "/" + name, log);
+    getFile()->closeGroup(concatenatePath(getName(), name), log);
 }
 
 /**
@@ -203,7 +193,7 @@ void Group::closeGroup(Group *group, bool log)
  */
 void Group::createGroup(const std::string name, bool rewrite, bool log)
 {
-    getFile()->createGroup(getName() + "/" + name, rewrite, log);
+    getFile()->createGroup(concatenatePath(getName(), name), rewrite, log);
 }
 
 /**

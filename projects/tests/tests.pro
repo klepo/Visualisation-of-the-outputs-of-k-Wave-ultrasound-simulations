@@ -10,4 +10,4 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS +=  HDF5Vector3DTest
+SUBDIRS += vector3d \

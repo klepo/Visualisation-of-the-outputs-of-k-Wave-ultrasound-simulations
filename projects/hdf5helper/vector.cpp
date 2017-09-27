@@ -38,9 +38,8 @@ Vector::Vector()
  * @param[in] length Vector length
  * @param[in] value Fill value
  */
-Vector::Vector(hsize_t length, hsize_t value)
+Vector::Vector(hsize_t length, hsize_t value) : length(length)
 {
-    this->length = length;
     vector = new hsize_t[length]();
     for (hsize_t i = 0; i < length; i++)
         vector[i] = value;
@@ -73,6 +72,11 @@ Vector::Vector(const Vector &vector)
     assign(vector, false);
 }
 
+Vector::Vector(Vector &&vector)
+{
+    move(vector, false);
+}
+
 /**
  * @brief Destructor of Vector object
  *
@@ -89,10 +93,18 @@ Vector::~Vector()
  * @param[in] vector Reference to the existing Vector
  * @return Reference to Vector instance
  */
-Vector &Vector::operator =(const Vector &vector)
+Vector &Vector::operator=(const Vector &vector)
 {
     if (this != &vector) {
         assign(vector, true);
+    }
+    return *this;
+}
+
+Vector &Vector::operator=(Vector &&vector)
+{
+    if (this != &vector) {
+        move(vector, true);
     }
     return *this;
 }
@@ -102,7 +114,7 @@ Vector &Vector::operator =(const Vector &vector)
  * @param[in] vector Reference to the existing Vector
  * @return True/False
  */
-bool Vector::operator ==(const Vector &vector) const
+bool Vector::operator==(const Vector &vector) const
 {
     if (length != vector.length)
         return false;
@@ -118,7 +130,7 @@ bool Vector::operator ==(const Vector &vector) const
  * @param[in] vector Reference to the existing Vector
  * @return True/False
  */
-bool Vector::operator !=(const Vector &vector) const
+bool Vector::operator!=(const Vector &vector) const
 {
     if (vector == *this)
         return false;
@@ -131,7 +143,7 @@ bool Vector::operator !=(const Vector &vector) const
  * @return Vector value at index
  * @throw std::runtime_error
  */
-hsize_t &Vector::operator [](hsize_t i)
+hsize_t &Vector::operator[](hsize_t i)
 {
     if (i >= length) {
         throw std::runtime_error("Index to Vector is too big");
@@ -145,7 +157,7 @@ hsize_t &Vector::operator [](hsize_t i)
  * @return Vector value at index
  * @throw std::runtime_error
  */
-hsize_t &Vector::operator [](hssize_t i)
+hsize_t &Vector::operator[](hssize_t i)
 {
     if (static_cast<hsize_t>(i) >= length) {
         throw std::runtime_error("Index to Vector is too big");
@@ -159,7 +171,7 @@ hsize_t &Vector::operator [](hssize_t i)
  * @return Vector value at index
  * @throw std::runtime_error
  */
-hsize_t &Vector::operator [](int i)
+hsize_t &Vector::operator[](int i)
 {
     if (static_cast<hsize_t>(i) >= length) {
         throw std::runtime_error("Index to Vector is too big");
@@ -173,7 +185,7 @@ hsize_t &Vector::operator [](int i)
  * @return Vector value at index
  * @throw std::runtime_error
  */
-hsize_t &Vector::operator [](unsigned int i)
+hsize_t &Vector::operator[](unsigned int i)
 {
     if (static_cast<hsize_t>(i) >= length) {
         throw std::runtime_error("Index to Vector is too big");
@@ -250,9 +262,21 @@ void Vector::assign(const Vector &vector, bool deleteFlag)
     if (deleteFlag) {
         delete[] this->vector;
     }
-    length = vector.length;
-
+    this->length = vector.length;
     this->vector = new hsize_t[length]();
-    std::memcpy(this->vector, vector.vector, static_cast<size_t>(length) * sizeof(hsize_t));
+    //std::memcpy(this->vector, vector.vector, static_cast<size_t>(length) * sizeof(hsize_t));
+    std::copy(vector.vector, vector.vector + static_cast<size_t>(length), this->vector);
+}
+
+void Vector::move(Vector &vector, bool deleteFlag)
+{
+    if (deleteFlag) {
+        delete[] this->vector;
+    }
+    this->length = vector.length;
+    //this->vector = vector.vector;
+    this->vector = std::move(vector.vector);
+    vector.vector = 0;
+    vector.length = 0;
 }
 }

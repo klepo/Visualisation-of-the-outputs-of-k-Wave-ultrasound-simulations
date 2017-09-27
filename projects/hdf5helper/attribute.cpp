@@ -29,7 +29,7 @@ namespace HDF5Helper {
  * @param[in] name The name of attribute
  * @throw std::runtime_error
  */
-Attribute::Attribute(hid_t object, std::string name)
+Attribute::Attribute(hid_t object, std::string name) : object(object)
 {
     attribute = H5Aopen_name(object, name.c_str());
     if (attribute < 0) {
@@ -48,7 +48,7 @@ Attribute::Attribute(hid_t object, std::string name)
  * @param[in] idx The index of attribute
  * @throw std::runtime_error
  */
-Attribute::Attribute(hid_t object, hsize_t idx)
+Attribute::Attribute(hid_t object, hsize_t idx) : object(object)
 {
     attribute = H5Aopen_by_idx(object, ".", H5_INDEX_NAME, H5_ITER_INC, unsigned(idx), 0, 0);
     if (attribute < 0) {

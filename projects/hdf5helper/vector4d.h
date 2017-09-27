@@ -42,14 +42,17 @@ public:
     void y(const hsize_t y);
     void z(const hsize_t z);
     void w(const hsize_t w);
+    void t(const hsize_t t);
     void x(const int x);
     void y(const int y);
     void z(const int z);
     void w(const int w);
+    void t(const int t);
     hsize_t x() const;
     hsize_t y() const;
     hsize_t z() const;
     hsize_t w() const;
+    hsize_t t() const;
 };
 }
 

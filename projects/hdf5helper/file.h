@@ -116,26 +116,27 @@ public:
     void createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
     void createDataset(const std::string name, hid_t type, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
     void createDataset(Dataset *dataset, bool rewrite = false, bool log = true);
-
     Dataset *openDataset(const std::string name, bool log = true);
     Dataset *openDataset(hsize_t idx, bool log = true);
-
     bool isDatasetOpened(const std::string name);
     bool isDatasetOpened(hsize_t idx);
-
     void closeDataset(const std::string name, bool log = true);
     void closeDataset(hsize_t idx, bool log = true);
     void closeDataset(Dataset *dataset, bool log = true);
 
     void createGroup(const std::string name, bool rewrite = false, bool log = true);
-
     Group *openGroup(const std::string name, bool log = true);
     Group *openGroup(hsize_t idx, bool log = true);
-
+    bool isGroupOpened(const std::string name);
+    bool isGroupOpened(hsize_t idx);
     void closeGroup(const std::string name, bool log = true);
     void closeGroup(hsize_t idx, bool log = true);
     void closeGroup(Group *group, bool log = true);
 
+    Object *openObject(const std::string name, bool log = true);
+    Object *openObject(hsize_t idx, bool log = true);
+    bool isObjectOpened(const std::string name);
+    bool isObjectOpened(hsize_t idx);
     void closeObject(const std::string name, bool log = true);
     void closeObject(hsize_t idx, bool log = true);
     void closeObject(Object *object, bool log = true);
@@ -169,10 +170,9 @@ public:
     static const unsigned int CREATE = 1;
 
 private:
-    class HDF5Object;
-    void insertDataset(const std::string name, bool log = true);
-    void insertGroup(const std::string name, bool log = true);
-
+    File(const File &);
+    File &operator=(const File &);
+    void insertObject(const std::string name, bool log = true);
     void closeFileAndObjects();
 
     Vector4D nDims;
@@ -181,18 +181,19 @@ private:
     hid_t plist_FILE_ACCESS;
     std::ofstream logFileStream;
 
-    /// HDF file handle
+    /// HDF5 file handle
     hid_t file;
-    /// Map of datasets
-    MapOfDatasets datasets;
-    /// Map of groups
-    MapOfGroups groups;
+    /// Map of objects
+    MapOfObjects objects;
 
     herr_t err;
     int mPISize;
 };
 
 // General functions
+std::string trimSlashes(const std::string path);
+std::string concatenatePath(const std::string path, const std::string name);
+std::string fixPath(const std::string path);
 double getTime();
 size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();

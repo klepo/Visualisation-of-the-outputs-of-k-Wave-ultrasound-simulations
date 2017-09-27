@@ -47,6 +47,7 @@ OpenedH5File::OpenedH5File(QString fileName, QObject *parent) :
         HDF5Helper::Attribute *attribute = group->getAttribute(i);
         QString value(static_cast<const char *>(attribute->getData()));
         info.insert(QString::fromStdString(attribute->getName()), value);
+        delete attribute;
     }
 
     qRegisterMetaType<OpenedH5File::H5ObjectToVisualize *>("OpenedH5File::H5ObjectToVisualize");

@@ -50,9 +50,9 @@ Processing::~Processing()
 void Processing::copyAttributes(HDF5Helper::Dataset *srcDataset, HDF5Helper::Dataset *dstDataset)
 {
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
-        HDF5Helper::Attribute *attr = srcDataset->getAttribute(i);
-        dstDataset->setAttribute(attr, false);
-        delete attr;
+        HDF5Helper::Attribute *attribute = srcDataset->getAttribute(i);
+        dstDataset->setAttribute(attribute, false);
+        delete attribute;
     }
 }
 

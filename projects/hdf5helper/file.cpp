@@ -33,9 +33,9 @@ namespace HDF5Helper {
  * For PARALLEL_HDF5 MPI_Comm and MPI_Info are passed into this constructor.
  */
 #ifdef PARALLEL_HDF5
-File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log)
+File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log) : filename(filename)
 #else
-File::File(std::string filename, unsigned int flag, bool log)
+File::File(std::string filename, unsigned int flag, bool log) : filename(filename)
 #endif
 {
 #ifdef PARALLEL_HDF5
@@ -45,9 +45,6 @@ File::File(std::string filename, unsigned int flag, bool log)
     if (error)
         throw std::runtime_error("MPI is not initialized");
 #endif
-    // Save filename
-    this->filename = filename;
-
     // Set size of memory
     //std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
     // 1 x 32-bit float == 4 x bytes
@@ -310,14 +307,7 @@ void File::createDataset(Dataset *dataset, bool rewrite, bool log)
  */
 Dataset *File::openDataset(const std::string name, bool log)
 {
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (datasets.find(nameTmp) == datasets.end()) {
-        insertDataset(nameTmp, log);
-        return openDataset(nameTmp, log);
-    } else
-        return datasets.find(nameTmp)->second;
+    return dynamic_cast<Dataset *>(openObject(name, log));
 }
 
 /**
@@ -338,13 +328,7 @@ Dataset *File::openDataset(hsize_t idx, bool log)
  */
 bool File::isDatasetOpened(const std::string name)
 {
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (datasets.find(nameTmp) == datasets.end())
-        return false;
-    else
-        return true;
+    return isObjectOpened(name);
 }
 
 /**
@@ -364,15 +348,7 @@ bool File::isDatasetOpened(hsize_t idx)
  */
 void File::closeDataset(const std::string name, bool log)
 {
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (datasets.find(nameTmp) != datasets.end()) {
-        Dataset *dataset = datasets.find(nameTmp)->second;
-        dataset->setDeleteLog(log);
-        delete dataset;
-        datasets.erase(datasets.find(nameTmp));
-    }
+    closeObject(name, log);
 }
 
 /**
@@ -382,8 +358,7 @@ void File::closeDataset(const std::string name, bool log)
  */
 void File::closeDataset(hsize_t idx, bool log)
 {
-    std::string name = getObjNameByIdx(idx);
-    closeDataset(name, log);
+    closeDataset(getObjNameByIdx(idx), log);
 }
 
 /**
@@ -440,14 +415,7 @@ void File::createGroup(const std::string name, bool rewrite, bool log)
  */
 Group *File::openGroup(const std::string name, bool log)
 {
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (groups.find(nameTmp) == groups.end()) {
-        insertGroup(nameTmp, log);
-        return openGroup(nameTmp, log);
-    } else
-        return groups.find(nameTmp)->second;
+    return dynamic_cast<Group *>(openObject(name, log));
 }
 
 /**
@@ -458,8 +426,17 @@ Group *File::openGroup(const std::string name, bool log)
  */
 Group *File::openGroup(hsize_t idx, bool log)
 {
-    std::string name = getObjNameByIdx(idx);
-    return openGroup(name, log);
+    return openGroup(getObjNameByIdx(idx), log);
+}
+
+bool File::isGroupOpened(const std::string name)
+{
+    return isObjectOpened(name);
+}
+
+bool File::isGroupOpened(hsize_t idx)
+{
+    return isDatasetOpened(getObjNameByIdx(idx));
 }
 
 /**
@@ -469,15 +446,7 @@ Group *File::openGroup(hsize_t idx, bool log)
  */
 void File::closeGroup(const std::string name, bool log)
 {
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (groups.find(nameTmp) != groups.end()) {
-        Group *group = groups.find(nameTmp)->second;
-        group->setDeleteLog(log);
-        delete group;
-        groups.erase(groups.find(nameTmp));
-    }
+    closeObject(name, log);
 }
 
 /**
@@ -487,8 +456,7 @@ void File::closeGroup(const std::string name, bool log)
  */
 void File::closeGroup(hsize_t idx, bool log)
 {
-    std::string name = getObjNameByIdx(idx);
-    closeGroup(name, log);
+    closeGroup(getObjNameByIdx(idx), log);
 }
 
 /**
@@ -501,28 +469,54 @@ void File::closeGroup(Group *group, bool log)
     closeGroup(group->getName(), log);
 }
 
+Object *File::openObject(const std::string name, bool log)
+{
+    std::string nameTmp = fixPath(name);
+    if (objects.find(nameTmp) == objects.end()) {
+        insertObject(nameTmp, log);
+        return openObject(nameTmp, log);
+    } else
+        return objects.find(nameTmp)->second;
+}
+
+Object *File::openObject(hsize_t idx, bool log)
+{
+    return openObject(getObjNameByIdx(idx), log);
+}
+
+bool File::isObjectOpened(const std::string name)
+{
+    std::string nameTmp = fixPath(name);
+    if (objects.find(nameTmp) == objects.end())
+        return false;
+    else
+        return true;
+}
+
+bool File::isObjectOpened(hsize_t idx)
+{
+    return isObjectOpened(getObjNameByIdx(idx));
+}
+
 void File::closeObject(const std::string name, bool log)
 {
-    if (getObjTypeByName(name) == H5G_GROUP)
-        closeGroup(name, log);
-    else if (getObjTypeByName(name) == H5G_DATASET)
-        closeDataset(name, log);
+    std::string nameTmp = fixPath(name);
+    if (objects.find(nameTmp) != objects.end()) {
+        Object *object = objects.find(nameTmp)->second;
+        object->setDeleteLog(log);
+        delete object;
+        objects.erase(objects.find(nameTmp));
+    }
 }
 
 void File::closeObject(hsize_t idx, bool log)
 {
-    if (getObjTypeByIdx(idx) == H5G_GROUP)
-        closeGroup(idx, log);
-    else if (getObjTypeByIdx(idx) == H5G_DATASET)
-        closeDataset(idx, log);
+    closeObject(getObjNameByIdx(idx), log);
 }
 
 void File::closeObject(Object *object, bool log)
 {
-    if (getObjTypeByName(object->getName()) == H5G_GROUP)
-        closeGroup(object->getName(), log);
-    else if (getObjTypeByName(object->getName()) == H5G_DATASET)
-        closeDataset(object->getName(), log);
+    closeObject(object->getName(), log);
 }
 
 /**
@@ -711,54 +705,38 @@ int File::getMPISize() const
     return mPISize;
 }
 
-/**
- * @brief Opens, creates and inserts Dataset to std::map datasets
- * @param[in] name Name of dataset
- * @param[in] log Logging flag (optional)
- * @throw std::runtime_error
- */
-void File::insertDataset(const std::string name, bool log)
+void File::insertObject(const std::string name, bool log)
 {
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (log)
-        std::cout << "Opening dataset \"" << nameTmp << "\" ";
-    hid_t d = H5Dopen(file, nameTmp.c_str(), 0);
-    if (d < 0) {
+    std::string nameTmp = fixPath(name);
+    if (getObjTypeByName(nameTmp) == H5G_DATASET) {
         if (log)
-            std::cout << "... error" << std::endl;
-        throw std::runtime_error("H5Dopen error");
-    }
-    Dataset *dataset = new Dataset(d, nameTmp, this);
-    if (log)
-        std::cout << "... OK" << std::endl;
-    datasets.insert(HDF5Helper::PairOfDatasets(nameTmp, dataset));
-}
-
-/**
- * @brief Opens, creates and inserts Group to std::map groups
- * @param[in] name Name of group
- * @param[in] log Logging flag (optional)
- * @throw std::runtime_error
- */
-void File::insertGroup(const std::string name, bool log)
-{
-    std::string nameTmp = name;
-    if (nameTmp.find("/") != 0)
-        nameTmp = "/" + nameTmp;
-    if (log)
-        std::cout << "Opening group \"" << nameTmp << "\" ";
-    hid_t g = H5Gopen(file, nameTmp.c_str(), 0);
-    if (g < 0) {
+            std::cout << "Opening dataset \"" << nameTmp << "\" ";
+        hid_t d = H5Dopen(file, nameTmp.c_str(), 0);
+        if (d < 0) {
+            if (log)
+                std::cout << "... error" << std::endl;
+            throw std::runtime_error("H5Dopen error");
+        }
+        Dataset *dataset = new Dataset(d, nameTmp, this);
+        objects.insert(HDF5Helper::PairOfObjects(nameTmp, dataset));
         if (log)
-            std::cout << "... error" << std::endl;
-        throw std::runtime_error("H5Gopen error");
+            std::cout << "... OK" << std::endl;
+    } else if (getObjTypeByName(nameTmp) == H5G_GROUP) {
+        if (log)
+            std::cout << "Opening group \"" << nameTmp << "\" ";
+        hid_t g = H5Gopen(file, nameTmp.c_str(), 0);
+        if (g < 0) {
+            if (log)
+                std::cout << "... error" << std::endl;
+            throw std::runtime_error("H5Gopen error");
+        }
+        Group *group = new Group(g, nameTmp, this);
+        objects.insert(HDF5Helper::PairOfObjects(nameTmp, group));
+        if (log)
+            std::cout << "... OK" << std::endl;
+    } else {
+        throw std::runtime_error("Object type is not supported");
     }
-    Group *group = new Group(g, nameTmp, this);
-    if (log)
-        std::cout << "... OK" << std::endl;
-    groups.insert(HDF5Helper::PairOfGroups(nameTmp, group));
 }
 
 /**
@@ -767,14 +745,11 @@ void File::insertGroup(const std::string name, bool log)
  */
 void File::closeFileAndObjects()
 {
-    // Delete all loaded datasets
-    for (MapOfDatasets::iterator it = datasets.begin(); it != datasets.end(); ++it) {
+    // Delete all loaded objects
+    for (MapOfObjects::iterator it = objects.begin(); it != objects.end(); ++it) {
         delete it->second;
     }
-    // Delete all loaded groups
-    for (MapOfGroups::iterator it = groups.begin(); it != groups.end(); ++it) {
-        delete it->second;
-    }
+
     logFileStream.close();
     std::cout << "Closing file \"" << filename << "\"";
     err = H5Pclose(plist_FILE_ACCESS);
@@ -786,6 +761,31 @@ void File::closeFileAndObjects()
         throw std::runtime_error("H5Fclose error");
     }
     std::cout << " ... OK" << std::endl;
+}
+
+std::string trimSlashes(const std::string path)
+{
+    size_t first = path.find_first_not_of('/');
+    if (std::string::npos == first) {
+        if (path == "/")
+            return "";
+        return path;
+    }
+    size_t last = path.find_last_not_of('/');
+    return path.substr(first, (last - first + 1));
+}
+
+std::string concatenatePath(const std::string path, const std::string name)
+{
+    if (path == "/")
+        return path + trimSlashes(name);
+    else
+        return path + fixPath(name);
+}
+
+std::string fixPath(const std::string path)
+{
+    return "/" + trimSlashes(path);
 }
 
 /**
@@ -1005,9 +1005,9 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
 
     // Copy attributes
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
-        Attribute *attr = srcDataset->getAttribute(i);
-        dstDataset->setAttribute(attr, log);
-        delete attr;
+        Attribute *attribute = srcDataset->getAttribute(i);
+        dstDataset->setAttribute(attribute, log);
+        delete attribute;
     }
     dstFile->closeDataset(dstDataset, log);
 }

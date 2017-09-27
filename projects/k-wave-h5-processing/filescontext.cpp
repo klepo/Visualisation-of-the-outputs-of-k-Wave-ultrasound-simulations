@@ -219,9 +219,9 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         HDF5Helper::Group *srcGroup = simOutputFile->openGroup("/", false);
         HDF5Helper::Group *dstGroup = file->openGroup("/", false);
         for (hsize_t i = 0; i < srcGroup->getNumAttrs(); i++) {
-            HDF5Helper::Attribute *attr = srcGroup->getAttribute(i);
-            dstGroup->setAttribute(attr, false);
-            delete attr;
+            HDF5Helper::Attribute *attribute = srcGroup->getAttribute(i);
+            dstGroup->setAttribute(attribute, false);
+            delete attribute;
         }
         simOutputFile->closeGroup(srcGroup, false);
         file->closeGroup(dstGroup, false);

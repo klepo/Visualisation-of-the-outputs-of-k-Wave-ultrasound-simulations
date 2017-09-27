@@ -20,7 +20,7 @@
 #ifndef RESHAPE_H
 #define RESHAPE_H
 
-#include "changechunks.h"
+#include <changechunks.h>
 
 /**
  * @brief The Reshape class represents wrapper for reshaping sensor mask type datasets

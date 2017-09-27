@@ -22,17 +22,6 @@
 
 #include <iostream>
 #include <string>
-#include <algorithm>    // std::sort
-#include <vector>       // std::vector
-
-//#define _USE_MATH_DEFINES // for C++
-#ifndef M_PI
-    /// M_PI definition
-    #define M_PI 3.14159265358979323846
-#endif
-
-#include <cmath>
-#include <complex>
 
 /**
  * @namespace Helper
@@ -45,21 +34,6 @@ void printDebugMsg(std::string msg);
 void printErrorMsg(std::string msg);
 
 unsigned long long round(float number);
-void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long lengthSrc1, const unsigned long long lengthSrc2);
-void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const unsigned long long lengthSrc1, const unsigned long long lengthSrc2);
-void findPeaks(float *dataSrc, unsigned long long *dataDst, const unsigned long long length, unsigned long long &lengthDst);
-void diff(float *dataSrc, float *dataDst, const unsigned long long length);
-void diff(unsigned long long *dataSrc, unsigned long long *dataDst, const unsigned long long length);
-float mean(float *dataSrc, const unsigned long long length);
-unsigned long long mean(unsigned long long *dataSrc, const unsigned long long length);
-unsigned long long median(unsigned long long *dataSrc, const unsigned long long length);
-unsigned long long getPeriod(float *dataSrc, const unsigned long long length);
-
-void triangular(unsigned long long oSize, float *w);   // Triangular window
-void hann(unsigned long long oSize, float *w);         // Hann window
-
-/// Float complex datatype
-typedef std::complex<float> floatC;
 }
 
 #endif // HELPER_H

@@ -194,6 +194,7 @@ int main(int argc, char **argv)
                 Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
                 exit(EXIT_FAILURE);
             }
+            delete attribute;
 
             file->closeObject(object);
 

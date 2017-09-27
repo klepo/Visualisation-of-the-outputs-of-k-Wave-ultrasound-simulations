@@ -39,6 +39,8 @@ public:
     HDF5Helper::File *getPcsInputFile() const;
 
 private:
+    FilesContext(const FilesContext &);
+    FilesContext &operator=(const FilesContext &);
     HDF5Helper::File *loadSimulationFile(std::string filename);
     void resolveOutputFilename(Settings *settings);
     HDF5Helper::File *createOrOpenOutputFile(std::string filename);
@@ -46,9 +48,6 @@ private:
     HDF5Helper::File *simInputFile = 0;
     HDF5Helper::File *pcsOutputFile = 0;
     HDF5Helper::File *pcsInputFile = 0;
-
-    // Disable copy
-    FilesContext(const FilesContext &);
 
     bool newEmptyOutputFileFlag = false;
     std::string outputFilename = "";

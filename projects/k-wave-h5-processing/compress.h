@@ -21,19 +21,20 @@
 #ifndef COMPRESS_H
 #define COMPRESS_H
 
-#include "processing.h"
+#include <processing.h>
+#include <compresshelper.h>
 
 /**
  * @brief The Compress class represents wrapper for compression
  */
-class Compress : public Processing
+class Compress : public Processing, CompressHelper
 {
 public:
     Compress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
     virtual void execute();
 
 private:
-    void compressDataset(HDF5Helper::Dataset *srcDataset);
+    void compressDataset(HDF5Helper::Dataset *srcDataset, bool log = true);
 };
 
 #endif // COMPRESS_H

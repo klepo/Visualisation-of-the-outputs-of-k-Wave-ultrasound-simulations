@@ -61,14 +61,16 @@ public:
     H5G_obj_t getObjTypeByIdx(hsize_t idx);
 
 private:
+    Group(const Group &);
+    Group &operator=(const Group &);
     hid_t group;
 };
 
 /// Map of groups datatype
-typedef std::map<const std::string, Group *> MapOfGroups;
+//typedef std::map<const std::string, Group *> MapOfGroups;
 
 /// Pair of groups datatype
-typedef std::pair<const std::string, Group *> PairOfGroups;
+//typedef std::pair<const std::string, Group *> PairOfGroups;
 }
 
 #endif // GROUP_H

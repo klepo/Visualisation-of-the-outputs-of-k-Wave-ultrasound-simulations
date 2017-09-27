@@ -149,6 +149,15 @@ void Vector4D::w(const hsize_t w)
 }
 
 /**
+ * @brief Sets vector t value (same as w)
+ * @param[in] t T value
+ */
+void Vector4D::t(const hsize_t t)
+{
+    vector[0] = t;
+}
+
+/**
  * @brief Sets vector x value
  * @param[in] x X value
  */
@@ -185,6 +194,16 @@ void Vector4D::w(const int w)
 }
 
 /**
+ * @brief Sets vector t value (same as w)
+ * @param[in] t T value
+ */
+void Vector4D::t(const int t)
+{
+    this->t(static_cast<hsize_t>(t));
+}
+
+
+/**
  * @brief Returns x value
  * @return X value
  */
@@ -216,6 +235,15 @@ hsize_t Vector4D::z() const
  * @return W value
  */
 hsize_t Vector4D::w() const
+{
+    return vector[0];
+}
+
+/**
+ * @brief Returns t value (same as w)
+ * @return T value
+ */
+hsize_t Vector4D::t() const
 {
     return vector[0];
 }

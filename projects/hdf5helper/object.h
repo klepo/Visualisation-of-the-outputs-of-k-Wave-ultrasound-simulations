@@ -22,6 +22,7 @@
 
 #include <string>
 #include <iostream>
+#include <map>
 
 #include <hdf5.h>  // HDF5
 
@@ -37,7 +38,7 @@ class Object
 {
 public:
     Object(const hid_t object, std::string name, File *file);
-    ~Object();
+    virtual ~Object();
 
     void setAttribute(Attribute *attribute, bool log = true);
     void setAttribute(const std::string name, const int value, bool log = true);
@@ -90,6 +91,8 @@ protected:
     bool deleteLog = true;
 
 private:
+    Object(const Object &);
+    Object &operator=(const Object &);
     void createAttribute(const std::string name, const hid_t datatype, const hid_t dataspace, const void *value, bool log = true);
     void setAttribute(const std::string name, const hid_t datatype, const void *value, bool log = true);
     void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
@@ -98,6 +101,12 @@ private:
     hid_t object;
     std::string name;
 };
+
+/// Map of objects datatype
+typedef std::map<const std::string, Object *> MapOfObjects;
+
+/// Pair of objects datatype
+typedef std::pair<const std::string, Object *> PairOfObjects;
 }
 
 #endif // OBJECT_H

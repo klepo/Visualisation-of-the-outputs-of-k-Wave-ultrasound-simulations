@@ -45,6 +45,8 @@ protected:
     bool checkDatasetType(HDF5Helper::DatasetType datasetType, std::vector<HDF5Helper::DatasetType> types);
 
 private:
+    Processing(const Processing &);
+    Processing &operator=(const Processing &);
     HDF5Helper::File *outputFile;
     DtsForPcs *dtsForPcs;
     Settings *settings;

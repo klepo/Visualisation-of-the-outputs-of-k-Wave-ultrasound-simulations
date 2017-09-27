@@ -23,9 +23,6 @@ DEPENDPATH += $$PWD
 # Check Qt version
 lessThan(QT_VERSION, 4.8): error(Qt version is too old)
 
-# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
-include($$PWD/../detect_arch_and_build_mode.pri)
-
 # hdf5helper library
 include($$PWD/../hdf5helper/hdf5helper.pri)
 
@@ -40,6 +37,7 @@ SOURCES += \
     reshape.cpp \
     changechunks.cpp \
     downsampling.cpp \
+    compresshelper.cpp \
     compress.cpp \
     decompress.cpp \
     difference.cpp \
@@ -54,9 +52,13 @@ HEADERS += \
     reshape.h \
     changechunks.h \
     downsampling.h \
+    compresshelper.h \
     compress.h \
     decompress.h \
     difference.h \
+
+# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
+include($$PWD/../detect_arch_and_build_mode.pri)
 
 # Copy built file to destination
 win32 {

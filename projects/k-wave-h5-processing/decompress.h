@@ -21,19 +21,20 @@
 #ifndef DECOMPRESS_H
 #define DECOMPRESS_H
 
-#include "processing.h"
+#include <processing.h>
+#include <compresshelper.h>
 
 /**
  * @brief The Decompress class represents wrapper for decompression
  */
-class Decompress : public Processing
+class Decompress : public Processing, CompressHelper
 {
 public:
     Decompress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
     virtual void execute();
 
 private:
-    void decompressDatasets(std::vector<HDF5Helper::Dataset *> srcDatasetsFi, std::vector<HDF5Helper::Dataset *> srcDatasetsK);
+    void decompressDatasets(HDF5Helper::VectorOfDatasets srcDatasetsPhi, HDF5Helper::VectorOfDatasets srcDatasetsK);
 
 };
 

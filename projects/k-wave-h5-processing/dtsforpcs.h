@@ -22,6 +22,7 @@
 
 #include <hdf5helper.h>
 #include <filescontext.h>
+#include <compresshelper.h>
 
 /**
  * @brief The DtsForPcs class represents wrapper for datasets for processing
@@ -39,6 +40,8 @@ public:
     HDF5Helper::MapOfDatasets getDatasets(HDF5Helper::DatasetType datasetType = HDF5Helper::DatasetType::ALL) const;
 
 private:
+    DtsForPcs(const DtsForPcs &);
+    DtsForPcs &operator=(const DtsForPcs &);
     HDF5Helper::Dataset *findAndGetDataset(const std::string name, HDF5Helper::File *simOutputFile, HDF5Helper::File *simInputFile);
     void findDatasetsForProcessing(HDF5Helper::Group *group, Settings *settings);
     bool isFiltered(std::string name, Settings *settings);
@@ -51,9 +54,6 @@ private:
     hsize_t sensorMaskSize = 0;
     hsize_t sensorMaskType = 0;
     HDF5Helper::MapOfDatasets datasets;
-
-    // Disable copy
-    DtsForPcs(const DtsForPcs &);
 };
 
 #endif // DTSFORPCS_H
