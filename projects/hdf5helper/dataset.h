@@ -79,7 +79,7 @@ enum class DatasetType
 class Dataset : public Object
 {
 public:
-    Dataset(const hid_t dataset, const std::string name, File *file);
+    Dataset(hid_t dataset, std::string name, File *file);
     ~Dataset();
 
     hid_t getId() const;
@@ -97,7 +97,7 @@ public:
     void getGlobalMaxValue(hsize_t &value, hsize_t &maxVIIndex, bool reset = false);
     void getGlobalMinValue(hsize_t &value, hsize_t &minVIIndex, bool reset = false);
 
-    void findAndSetGlobalMinAndMaxValue(bool reset = false, bool log = false);
+    void findAndSetGlobalMinAndMaxValue(bool reset = false, bool log = true);
 
     // Block reading
     hsize_t getRealNumberOfElmsToLoad() const;
@@ -108,7 +108,7 @@ public:
     void setNumberOfElmsToLoad(hsize_t count);
     void setMaxNumberOfElmsToLoad(hsize_t count);
 
-    void setMPIOAccess(H5FD_mpio_xfer_t type);
+    void setMPIOAccess(H5FD_mpio_xfer_t type, bool log = true);
 
     void readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true, hsize_t block = 0);
     void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true, hsize_t block = 0);
@@ -126,12 +126,12 @@ public:
     void writeDataset(float *data, bool log = false);
     void writeDataset(hsize_t *data, bool log = false);
 
-    void readBlock(const hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
-    void readBlock(const hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
-    void readBlock(const hsize_t index, Vector &offset, Vector &count, float *&data, bool log = true);
-    void readBlock(const hsize_t index, Vector &offset, Vector &count, hsize_t *&data, bool log = true);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, bool log = true);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, bool log = true);
 
-    void readEmptyBlock();
+    void readEmptyBlock(bool log = true);
 
 private:
     Dataset(const Dataset &);
@@ -139,10 +139,10 @@ private:
     void readDatasetGeneral(Vector offset, Vector count, void *data, bool log = true);
     void writeDatasetGeneral(Vector offset, Vector count, void *data, bool log = false);
 
-    void checkOffsetAndCountParams(Vector offset, Vector count);
+    void checkOffsetAndCountParams(Vector offset, Vector count) const;
 
-    void findMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex);
-    void findMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex);
+    void findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const;
+    void findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const;
 
     void findGlobalMinAndMaxValue(bool reset = false);
     void findGlobalMinAndMaxValueF();
@@ -150,12 +150,12 @@ private:
 
     void initBlockReading();
 
-    void checkDataTypeAndAllocation(float *&data, int type, hsize_t size);
-    void checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size);
+    void checkDataTypeAndAllocation(float *&data, int type, hsize_t size) const;
+    void checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size) const;
 
-    void checkType(int type);
-    void checkFloatType();
-    void checkIntegerType();
+    void checkType(int type) const;
+    void checkFloatType() const;
+    void checkIntegerType() const;
     bool isFloatType() const;
     bool isIntegerType() const;
 
@@ -199,11 +199,11 @@ private:
 /// Vector of datasets datatype
 typedef std::vector<Dataset *> VectorOfDatasets;
 /// Map of datasets datatype
-typedef std::map<const std::string, Dataset *> MapOfDatasets;
+typedef std::map<std::string, Dataset *> MapOfDatasets;
 /// Iterator for map of datasets datatype
 typedef HDF5Helper::MapOfDatasets::iterator MapOfDatasetsIt;
 /// Pair of datasets datatype
-typedef std::pair<const std::string, Dataset *> PairOfDatasets;
+typedef std::pair<std::string, Dataset *> PairOfDatasets;
 }
 
 #endif // DATASET_H

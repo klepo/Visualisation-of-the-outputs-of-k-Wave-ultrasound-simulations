@@ -11,7 +11,7 @@
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
  *              license. A copy of the LGPL license should have been received with this file.
- *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
+ *              Otherwise, it can be found at", "http://www.gnu.org/copyleft/lesser.html.
  *
  * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
@@ -51,59 +51,40 @@ void Settings::loadParams(int argc, char **argv)
     paramsDefinition.defineParamsFlag("info");
     paramsDefinition.defineParamsFlag("computePeriod");
     paramsDefinition.defineParamsFlag("findMinMax");
+    paramsDefinition.defineParamsFlag("log");
 
     // Size
     paramsDefinition.defineParamsFlag("s", ParamsDefinition::ULONGLONG);
 
     // Chunk size
-    ParamsDefinition::Flag::Params paramsCh;
-    paramsCh.defineParam(ParamsDefinition::ULONGLONG);
-    paramsDefinition.defineParamsFlag("ch", paramsCh);
+    paramsDefinition.defineParamsFlag("ch", ParamsDefinition::ULONGLONG);
 
     // Block size
-    ParamsDefinition::Flag::Params paramsC;
-    paramsC.defineParam(ParamsDefinition::ULONGLONG);
-    paramsDefinition.defineParamsFlag("c", paramsC);
+    paramsDefinition.defineParamsFlag("c", ParamsDefinition::ULONGLONG);
 
     // Period
-    ParamsDefinition::Flag::Params paramsP;
-    paramsP.defineParam(ParamsDefinition::ULONGLONG);
-    paramsDefinition.defineParamsFlag("p", paramsP);
+    paramsDefinition.defineParamsFlag("p", ParamsDefinition::ULONGLONG);
 
     // Harmonic
-    ParamsDefinition::Flag::Params paramsH;
-    paramsH.defineParam(ParamsDefinition::ULONGLONG);
-    paramsDefinition.defineParamsFlag("h", paramsH);
+    paramsDefinition.defineParamsFlag("h", ParamsDefinition::ULONGLONG);
 
     // Multiple of overlap size
-    ParamsDefinition::Flag::Params paramsMOS;
-    paramsMOS.defineParam(ParamsDefinition::ULONGLONG);
-    paramsDefinition.defineParamsFlag("mos", paramsMOS);
+    paramsDefinition.defineParamsFlag("mos", ParamsDefinition::ULONGLONG);
 
     // Names
-    ParamsDefinition::Flag::Params paramsNames;
-    paramsNames.defineParam(ParamsDefinition::STRINGS_SEPARATED);
-    paramsDefinition.defineParamsFlag("names", paramsNames);
+    paramsDefinition.defineParamsFlag("names", ParamsDefinition::STRINGS_SEPARATED);
 
     // HDF5 simulation output filename
-    ParamsDefinition::Flag::Params paramsF;
-    paramsF.defineParam(ParamsDefinition::STRING);
-    paramsDefinition.defineParamsFlag("f", paramsF);
+    paramsDefinition.defineParamsFlag("f", ParamsDefinition::STRING);
 
     // HDF5 simulation input filename
-    ParamsDefinition::Flag::Params paramsM;
-    paramsM.defineParam(ParamsDefinition::STRING);
-    paramsDefinition.defineParamsFlag("m", paramsM);
+    paramsDefinition.defineParamsFlag("m", ParamsDefinition::STRING);
 
     // HDF5 processing output filename
-    ParamsDefinition::Flag::Params paramsO;
-    paramsO.defineParam(ParamsDefinition::STRING);
-    paramsDefinition.defineParamsFlag("o", paramsO);
+    paramsDefinition.defineParamsFlag("o", ParamsDefinition::STRING);
 
     // HDF5 processing input filename with decompressed datasets
-    ParamsDefinition::Flag::Params paramsD;
-    paramsD.defineParam(ParamsDefinition::STRING);
-    paramsDefinition.defineParamsFlag("d", paramsD);
+    paramsDefinition.defineParamsFlag("d", ParamsDefinition::STRING);
 
     // Help message
     paramsDefinition.setHelp("\n"
@@ -176,10 +157,11 @@ void Settings::loadParams(int argc, char **argv)
                              "\n");
 
     // Parse params from command line
+    //Helper::printDebugMsg("");
     try {
         paramsDefinition.commandLineParse(argc, argv);
     } catch (std::exception &e) {
-        std::cerr << "\n  Wrong parameter " << e.what() << std::endl << std::endl;
+        Helper::printErrorMsg("  Wrong parameter " + std::string(e.what()));
         std::exit(EXIT_FAILURE);
     }
 
@@ -187,9 +169,12 @@ void Settings::loadParams(int argc, char **argv)
     ParamsDefinition::Flags flags = paramsDefinition.getFlags();
 
     if (flags.at("help").getEnabled()) {
-        std::cout << paramsDefinition.getHelp() << std::endl;
+        Helper::printDebugMsg(paramsDefinition.getHelp());
         exit(EXIT_SUCCESS);
     }
+
+    Helper::enableDebugMsgs = flags.at("log").getEnabled();
+    setFlagLog(flags.at("log").getEnabled());
 
     setFlagReshape(flags.at("reshape").getEnabled());
     setFlagChangeChunks(flags.at("changeChunks").getEnabled());
@@ -203,7 +188,7 @@ void Settings::loadParams(int argc, char **argv)
 
     setFlagNames(flags.at("names").getEnabled());
 
-    if (flagNames) {
+    if (flags.at("names").getEnabled()) {
         std::list<std::string> names;
         flags.at("names").getParams().readParam(0, &names);
         setNames(names);
@@ -286,7 +271,7 @@ std::string Settings::getSimulationOutputFilename() const
 void Settings::setSimulationOutputFilename(const std::string &value)
 {
     simulationOutputFilename = value;
-    std::cout << "\n  Simulation output filename:\n    " << simulationOutputFilename << std::endl;
+    Helper::printDebugTwoColumns2S("Simulation output filename", simulationOutputFilename, 30);
 }
 
 /**
@@ -305,7 +290,7 @@ std::string Settings::getSimulationInputFilename() const
 void Settings::setSimulationInputFilename(const std::string &value)
 {
     simulationInputFilename = value;
-    std::cout << "\n  Simulation input filename:\n    " << simulationInputFilename << std::endl;
+    Helper::printDebugTwoColumns2S("Simulation input filename", simulationInputFilename, 30);
 }
 
 /**
@@ -324,7 +309,7 @@ std::string Settings::getProcessingOutputFilename() const
 void Settings::setProcessingOutputFilename(const std::string &value)
 {
     processingOutputFilename = value;
-    std::cout << "\n  Processing output filename:\n    " << processingOutputFilename << std::endl;
+    Helper::printDebugTwoColumns2S("Processing output filename", processingOutputFilename, 30);
 }
 
 /**
@@ -343,7 +328,7 @@ std::string Settings::getProcessingInputFilename() const
 void Settings::setProcessingInputFilename(const std::string &value)
 {
     processingInputFilename = value;
-    std::cout << "\n  Processing input filename:\n    " << processingInputFilename << std::endl;
+    Helper::printDebugTwoColumns2S("Processing input filename", processingInputFilename, 30);
 }
 
 /**
@@ -362,7 +347,7 @@ unsigned long long Settings::getMaxSize() const
 void Settings::setMaxSize(const unsigned long long &value)
 {
     maxSize = value;
-    std::cout << "\n  Max size for downsampling:\n    " << maxSize << std::endl;
+    Helper::printDebugTwoColumns2S("Max size for downsampling", maxSize, 30);
 }
 
 /**
@@ -381,7 +366,7 @@ unsigned long long Settings::getMaxChunkSize() const
 void Settings::setMaxChunkSize(const unsigned long long &value)
 {
     maxChunkSize = value;
-    std::cout << "\n  Chunk size:\n    " << maxChunkSize << std::endl;
+    Helper::printDebugTwoColumns2S("Chunk size for change chunks", maxChunkSize, 30);
 }
 
 /**
@@ -400,7 +385,7 @@ unsigned long long Settings::getBlockSize() const
 void Settings::setBlockSize(const unsigned long long &value)
 {
     blockSize = value;
-    std::cout << "\n  Max size for block reading:\n    " << blockSize << std::endl;
+    Helper::printDebugTwoColumns2S("Max size for block reading", blockSize, 30);
 }
 
 /**
@@ -419,7 +404,7 @@ unsigned long long Settings::getMOS() const
 void Settings::setMOS(const unsigned long long &value)
 {
     mOS = value;
-    std::cout << "\n  Multiple of overlap size:\n    " << mOS << std::endl;
+    Helper::printDebugTwoColumns2S("Multiple of overlap size", mOS, 30);
 }
 
 /**
@@ -438,7 +423,7 @@ unsigned long long Settings::getPeriod() const
 void Settings::setPeriod(const unsigned long long &value)
 {
     period = value;
-    std::cout << "\n  Period for compression:\n    " << period << std::endl;
+    Helper::printDebugTwoColumns2S("Period for compression", period, 30);
 }
 
 /**
@@ -457,7 +442,7 @@ unsigned long long Settings::getHarmonic() const
 void Settings::setHarmonic(const unsigned long long &value)
 {
     harmonic = value;
-    std::cout << "\n  Multiple of harmonic frequency for compression:\n    " << harmonic << std::endl;
+    Helper::printDebugTwoColumns2S("Number of harmonics", harmonic, 30);
 }
 
 /**
@@ -476,11 +461,12 @@ std::list<std::string> Settings::getNames() const
 void Settings::setNames(const std::list<std::string> &value)
 {
     names = value;
-    std::cout << "\n  Selected datasets or groups names:\n    ";
+    std::string namesString;
     for (std::list<std::string>::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
-        std::cout << *ci << ", ";
+        namesString +=  *ci;
+        namesString += ", ";
     }
-    std::cout << std::endl;
+    Helper::printDebugTwoColumns2S("Selected datasets or groups", namesString, 30);
 }
 
 /**
@@ -518,9 +504,9 @@ void Settings::setFlagReshape(bool value)
 {
     flagReshape = value;
     if (value)
-        std::cout << "\n  Reshape mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Reshape mode", "ON");
     else
-        std::cout << "\n  Reshape mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Reshape mode", "OFF");
 }
 
 /**
@@ -540,9 +526,9 @@ void Settings::setFlagChangeChunks(bool value)
 {
     flagRechunk = value;
     if (value)
-        std::cout << "\n  Change chunks mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Change chunks mode", "ON");
     else
-        std::cout << "\n  Change chunks mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Change chunks mode", "OFF");
 }
 
 /**
@@ -562,9 +548,9 @@ void Settings::setFlagDwnsmpl(bool value)
 {
     flagDwnsmpl = value;
     if (value)
-        std::cout << "\n  Downsampling mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Downsampling mode", "ON");
     else
-        std::cout << "\n  Downsampling mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Downsampling mode", "OFF");
 }
 
 /**
@@ -584,9 +570,9 @@ void Settings::setFlagCompress(bool value)
 {
     flagCompress = value;
     if (value)
-        std::cout << "\n  Compression mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Compression mode", "ON");
     else
-        std::cout << "\n  Compression mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Compression mode", "OFF");
 }
 
 /**
@@ -606,9 +592,9 @@ void Settings::setFlagDecompress(bool value)
 {
     flagDecompress = value;
     if (value)
-        std::cout << "\n  Decompression mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Decompression mode", "ON");
     else
-        std::cout << "\n  Decompression mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Decompression mode", "OFF");
 }
 
 /**
@@ -628,9 +614,9 @@ void Settings::setFlagDifference(bool value)
 {
     flagDifference = value;
     if (value)
-        std::cout << "\n  Difference mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Difference mode", "ON");
     else
-        std::cout << "\n  Difference mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Difference mode", "OFF");
 }
 
 /**
@@ -650,9 +636,9 @@ void Settings::setFlagInfo(bool value)
 {
     flagInfo = value;
     if (value)
-        std::cout << "\n  Info mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Info mode", "ON");
     else
-        std::cout << "\n  Info mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Info mode", "OFF");
 }
 
 /**
@@ -672,9 +658,9 @@ void Settings::setFlagComputePeriod(bool value)
 {
     flagComputePeriod = value;
     if (value)
-        std::cout << "\n  Compute period mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Compute period mode", "ON");
     else
-        std::cout << "\n  Compute period mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Compute period mode", "OFF");
 }
 
 /**
@@ -694,9 +680,31 @@ void Settings::setFlagFindMinMax(bool value)
 {
     flagFindMinMax = value;
     if (value)
-        std::cout << "\n  Find min/max mode: ON\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Find min/max mode", "ON");
     else
-        std::cout << "\n  Find min/max mode: OFF\n" << std::endl;
+        Helper::printDebugTwoColumns2S("Find min/max mode", "OFF");
+}
+
+/**
+ * @brief Returns log mode flag
+ * @return Log mode flag
+ */
+bool Settings::getFlagLog() const
+{
+    return flagLog;
+}
+
+/**
+ * @brief Sets log mode flag
+ * @param[in] value Log mode flag
+ */
+void Settings::setFlagLog(bool value)
+{
+    flagLog = value;
+    if (value)
+        Helper::printDebugTwoColumns2S("Log mode", "ON");
+    else
+        Helper::printDebugTwoColumns2S("Log", "OFF");
 }
 
 /**

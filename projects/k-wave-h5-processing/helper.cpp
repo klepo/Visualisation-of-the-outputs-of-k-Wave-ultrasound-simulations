@@ -21,13 +21,22 @@
 
 namespace Helper {
 
+bool enableDebugMsgs = true;
+
 /**
  * @brief Prints debug title
  * @param[in] msg Debugging message
  */
 void printDebugTitle(std::string msg)
 {
-    std::cout << std::endl << std::endl << "---- " << msg << "----" << std::endl << std::endl << std::endl;
+    if (!enableDebugMsgs)
+        return;
+    std::cout << std::endl << "---- " << msg << " ----" << std::endl << std::endl;
+}
+
+void printDebugTime(std::string ofWhat, double t0, double t1)
+{
+    printDebugTwoColumns2S("Time of " + ofWhat, std::to_string(int(t1 - t0)) + " ms");
 }
 
 /**
@@ -36,7 +45,91 @@ void printDebugTitle(std::string msg)
  */
 void printDebugMsg(std::string msg)
 {
+    if (!enableDebugMsgs)
+        return;
     std::cout << msg << std::endl;
+}
+
+void printDebugMsgStart(std::string msg)
+{
+    if (!enableDebugMsgs)
+        return;
+    std::cout << msg << " ... ";
+}
+
+void printDebugMsg2S(std::string msg)
+{
+    if (!enableDebugMsgs)
+        return;
+    std::cout << "  " << msg << std::endl;
+}
+
+void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int width)
+{
+    if (!enableDebugMsgs)
+        return;
+    unsigned int widthTmp = width;
+    if (widthTmp <= first.length())
+        widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
+    std::cout << "\t" << std::setw(widthTmp) << std::left << first << std::setw(widthTmp) << std::left << second << std::endl;
+}
+
+void printDebugTwoColumnsTab(std::string first, unsigned long long second, unsigned int width)
+{
+    printDebugTwoColumnsTab(first, std::to_string(second), width);
+}
+
+void printDebugTwoColumnsTab(std::string first, int second, unsigned int width)
+{
+    printDebugTwoColumnsTab(first, std::to_string(second), width);
+}
+
+void printDebugTwoColumnsTab(std::string first, float second, unsigned int width)
+{
+    printDebugTwoColumnsTab(first, std::to_string(second), width);
+}
+
+void printDebugTwoColumnsTab(std::string first, double second, unsigned int width)
+{
+    printDebugTwoColumnsTab(first, std::to_string(second), width);
+}
+
+
+void printDebugTwoColumns2S(std::string first, std::string second, unsigned int width)
+{
+    if (!enableDebugMsgs)
+        return;
+    unsigned int widthTmp = width;
+    if (widthTmp <= first.length())
+        widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
+    std::cout << "  " << std::setw(widthTmp) << std::left << first << std::setw(widthTmp) << std::left << second << std::endl;
+}
+
+void printDebugTwoColumns2S(std::string first, int second, unsigned int width)
+{
+    printDebugTwoColumns2S(first, std::to_string(second), width);
+}
+
+void printDebugTwoColumns2S(std::string first, unsigned long long second, unsigned int width)
+{
+    printDebugTwoColumns2S(first, std::to_string(second), width);
+}
+
+void printDebugTwoColumns2S(std::string first, float second, unsigned int width)
+{
+    printDebugTwoColumns2S(first, std::to_string(second), width);
+}
+
+void printDebugTwoColumns2S(std::string first, double second, unsigned int width)
+{
+    printDebugTwoColumns2S(first, std::to_string(second), width);
+}
+
+void printDebugString(std::string msg)
+{
+    if (!enableDebugMsgs)
+        return;
+    std::cout << msg;
 }
 
 /**

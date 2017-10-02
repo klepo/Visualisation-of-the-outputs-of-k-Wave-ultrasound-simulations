@@ -55,7 +55,7 @@ Vector4D::Vector4D(const Vector &vector)
  * @brief Creates Vector4D with given fill value
  * @param[in] value Fill value
  */
-Vector4D::Vector4D(const hsize_t value)
+Vector4D::Vector4D(hsize_t value)
     : Vector(4, value)
 {
 
@@ -66,7 +66,7 @@ Vector4D::Vector4D(const hsize_t value)
  * @param[in] value W value
  * @param[in] vector Original Vector3D object to copy
  */
-Vector4D::Vector4D(const hsize_t value, const Vector3D &vector)
+Vector4D::Vector4D(hsize_t value, const Vector3D &vector)
     : Vector(4)
 {
     set(value, vector.z(), vector.y(), vector.x());
@@ -79,7 +79,7 @@ Vector4D::Vector4D(const hsize_t value, const Vector3D &vector)
  * @param[in] y Y value
  * @param[in] x X value
  */
-Vector4D::Vector4D(const hsize_t w, const hsize_t z, const hsize_t y, const hsize_t x)
+Vector4D::Vector4D(hsize_t w, hsize_t z, hsize_t y, hsize_t x)
     : Vector(4)
 {
     set(w, z, y, x);
@@ -92,7 +92,7 @@ Vector4D::Vector4D(const hsize_t w, const hsize_t z, const hsize_t y, const hsiz
  * @param[in] y Y value
  * @param[in] x X value
  */
-void Vector4D::set(const hsize_t w, const hsize_t z, const hsize_t y, const hsize_t x)
+void Vector4D::set(hsize_t w, hsize_t z, hsize_t y, hsize_t x)
 {
     vector[0] = w;
     vector[1] = z;
@@ -107,7 +107,7 @@ void Vector4D::set(const hsize_t w, const hsize_t z, const hsize_t y, const hsiz
  * @param[in] y Y value
  * @param[in] x X value
  */
-void Vector4D::set(const int w, const int z, const int y, const int x)
+void Vector4D::set(int w, int z, int y, int x)
 {
     set(static_cast<hsize_t>(w), static_cast<hsize_t>(z), static_cast<hsize_t>(y), static_cast<hsize_t>(x));
 }
@@ -116,7 +116,7 @@ void Vector4D::set(const int w, const int z, const int y, const int x)
  * @brief Sets vector x value
  * @param[in] x X value
  */
-void Vector4D::x(const hsize_t x)
+void Vector4D::x(hsize_t x) const
 {
     vector[3] = x;
 }
@@ -125,7 +125,7 @@ void Vector4D::x(const hsize_t x)
  * @brief Sets vector y value
  * @param[in] y Y value
  */
-void Vector4D::y(const hsize_t y)
+void Vector4D::y(hsize_t y) const
 {
     vector[2] = y;
 }
@@ -134,7 +134,7 @@ void Vector4D::y(const hsize_t y)
  * @brief Sets vector z value
  * @param[in] z Z value
  */
-void Vector4D::z(const hsize_t z)
+void Vector4D::z(hsize_t z) const
 {
     vector[1] = z;
 }
@@ -143,7 +143,7 @@ void Vector4D::z(const hsize_t z)
  * @brief Sets vector w value
  * @param[in] w W value
  */
-void Vector4D::w(const hsize_t w)
+void Vector4D::w(hsize_t w) const
 {
     vector[0] = w;
 }
@@ -152,7 +152,7 @@ void Vector4D::w(const hsize_t w)
  * @brief Sets vector t value (same as w)
  * @param[in] t T value
  */
-void Vector4D::t(const hsize_t t)
+void Vector4D::t(hsize_t t) const
 {
     vector[0] = t;
 }
@@ -161,7 +161,7 @@ void Vector4D::t(const hsize_t t)
  * @brief Sets vector x value
  * @param[in] x X value
  */
-void Vector4D::x(const int x)
+void Vector4D::x(int x) const
 {
     this->x(static_cast<hsize_t>(x));
 }
@@ -170,7 +170,7 @@ void Vector4D::x(const int x)
  * @brief Sets vector y value
  * @param[in] y Y value
  */
-void Vector4D::y(const int y)
+void Vector4D::y(int y) const
 {
     this->y(static_cast<hsize_t>(y));
 }
@@ -179,7 +179,7 @@ void Vector4D::y(const int y)
  * @brief Sets vector z value
  * @param[in] z Z value
  */
-void Vector4D::z(const int z)
+void Vector4D::z(int z) const
 {
     this->z(static_cast<hsize_t>(z));
 }
@@ -188,7 +188,7 @@ void Vector4D::z(const int z)
  * @brief Sets vector w value
  * @param[in] w W value
  */
-void Vector4D::w(const int w)
+void Vector4D::w(int w) const
 {
     this->w(static_cast<hsize_t>(w));
 }
@@ -197,7 +197,7 @@ void Vector4D::w(const int w)
  * @brief Sets vector t value (same as w)
  * @param[in] t T value
  */
-void Vector4D::t(const int t)
+void Vector4D::t(int t) const
 {
     this->t(static_cast<hsize_t>(t));
 }

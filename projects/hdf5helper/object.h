@@ -37,32 +37,32 @@ class File;
 class Object
 {
 public:
-    Object(const hid_t object, std::string name, File *file);
+    Object(hid_t object, std::string name, File *file);
     virtual ~Object();
 
     void setAttribute(Attribute *attribute, bool log = true);
-    void setAttribute(const std::string name, const int value, bool log = true);
-    void setAttribute(const std::string name, const unsigned int value, bool log = true);
-    void setAttribute(const std::string name, const hssize_t value, bool log = true);
-    void setAttribute(const std::string name, const hsize_t value, bool log = true);
-    void setAttribute(const std::string name, const float value, bool log = true);
-    void setAttribute(const std::string name, const double value, bool log = true);
-    void setAttribute(const std::string name, const long double value, bool log = true);
-    void setAttribute(const std::string name, const std::string value, bool log = true);
+    void setAttribute(std::string name, int value, bool log = true);
+    void setAttribute(std::string name, unsigned int value, bool log = true);
+    void setAttribute(std::string name, hssize_t value, bool log = true);
+    void setAttribute(std::string name, hsize_t value, bool log = true);
+    void setAttribute(std::string name, float value, bool log = true);
+    void setAttribute(std::string name, double value, bool log = true);
+    void setAttribute(std::string name, long double value, bool log = true);
+    void setAttribute(std::string name, std::string value, bool log = true);
 
-    float readAttributeF(const std::string name, bool log = true) const;
-    hsize_t readAttributeI(const std::string name, bool log = true) const;
-    std::string readAttributeS(const std::string name, bool log = true) const;
+    float readAttributeF(std::string name, bool log = true) const;
+    hsize_t readAttributeI(std::string name, bool log = true) const;
+    std::string readAttributeS(std::string name, bool log = true) const;
 
-    Attribute *getAttribute(const std::string name) const;
-    Attribute *getAttribute(const hsize_t idx) const;
+    Attribute *getAttribute(std::string name) const;
+    Attribute *getAttribute(hsize_t idx) const;
 
-    void removeAttribute(const std::string name, bool log = true);
-    void removeAttribute(const unsigned int idx, bool log = true);
+    void removeAttribute(std::string name, bool log = true) const;
+    void removeAttribute(unsigned int idx, bool log = true) const;
 
-    bool hasAttribute(const std::string name) const;
+    bool hasAttribute(std::string name) const;
 
-    void renameAttribute(const std::string srcName, const std::string dstName);
+    void renameAttribute(std::string srcName, std::string dstName) const;
 
     hsize_t getNumAttrs() const;
     std::string getName() const;
@@ -70,6 +70,7 @@ public:
     File *getFile() const;
 
     void setDeleteLog(bool value);
+    bool getDeleteLog() const;
 
     /**
      * @brief Operator <<
@@ -93,9 +94,9 @@ protected:
 private:
     Object(const Object &);
     Object &operator=(const Object &);
-    void createAttribute(const std::string name, const hid_t datatype, const hid_t dataspace, const void *value, bool log = true);
-    void setAttribute(const std::string name, const hid_t datatype, const void *value, bool log = true);
-    void creatingAttributeMessage(const std::string name, const hid_t type, const void *value);
+    void createAttribute(std::string name, hid_t datatype, hid_t dataspace, const void *value, bool log = true) const;
+    void setAttribute(std::string name, hid_t datatype, const void *value, bool log = true) const;
+    void creatingAttributeMessage(std::string name, hid_t datatype, const void *value) const;
 
     File *file;
     hid_t object;
@@ -103,10 +104,10 @@ private:
 };
 
 /// Map of objects datatype
-typedef std::map<const std::string, Object *> MapOfObjects;
+typedef std::map<std::string, Object *> MapOfObjects;
 
 /// Pair of objects datatype
-typedef std::pair<const std::string, Object *> PairOfObjects;
+typedef std::pair<std::string, Object *> PairOfObjects;
 }
 
 #endif // OBJECT_H

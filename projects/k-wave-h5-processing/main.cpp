@@ -34,8 +34,6 @@
  */
 int main(int argc, char **argv)
 {
-    std::cout << "omp_get_max_threads: " << omp_get_max_threads() << std::endl;
-
     double t0 = HDF5Helper::getTime(); // Save the start time
 
     Settings *settings = new Settings(argc, argv);
@@ -43,13 +41,15 @@ int main(int argc, char **argv)
     FilesContext *filesContext = new FilesContext(settings);
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
 
+    Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
+
     // TODO:
     // - odzkoušet downsampling cuboidů atd.
     // OK - udělat rozdíl datasetů - výpočet chyby
     // - šlo by odhadnout mos?
-    // - potřebuji znát periodu
-    // - funkce pro přidávání lomítka
-    // - sjednotit určité části komprese a dekomprese
+    // OK - potřebuji znát periodu
+    // OK - funkce pro přidávání lomítka
+    // OK - sjednotit určité části komprese a dekomprese
     // - ošetřit maximální počet prvků podle RAM
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
@@ -121,7 +121,8 @@ int main(int argc, char **argv)
 
     double t1 = HDF5Helper::getTime(); // Save the final time
 
-    std::cout << std::endl << std::endl << "Time of the entire process: " << (t1 - t0) << " ms; \t" << std::endl << std::endl << std::endl;
+    Helper::printDebugTime("the entire process", t0, t1);
+    Helper::printDebugMsg("----------------------------------------");
 
     std::exit(EXIT_SUCCESS);
 }

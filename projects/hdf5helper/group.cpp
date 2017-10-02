@@ -30,7 +30,7 @@ namespace HDF5Helper {
  * @param[in] name Name of group
  * @param[in] file HDF5 File
  */
-Group::Group(const hid_t group, const std::string name, File *file)
+Group::Group(hid_t group, std::string name, File *file)
     : Object(group, name, file)
     , group(group)
 {
@@ -61,7 +61,7 @@ Group::~Group()
  * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *Group::openDataset(const std::string name, bool log)
+Dataset *Group::openDataset(std::string name, bool log)
 {
     return getFile()->openDataset(concatenatePath(getName(), name), log);
 }
@@ -82,7 +82,7 @@ Dataset *Group::openDataset(hsize_t idx, bool log)
  * @param[in] name Name of dataset
  * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(const std::string name, bool log)
+void Group::closeDataset(std::string name, bool log)
 {
     getFile()->closeDataset(concatenatePath(getName(), name), log);
 }
@@ -115,7 +115,7 @@ void Group::closeDataset(HDF5Helper::Dataset *dataset, bool log)
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  */
-void Group::createDatasetI(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
     getFile()->createDatasetI(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
 }
@@ -128,7 +128,7 @@ void Group::createDatasetI(const std::string name, Vector size, Vector chunkSize
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  */
-void Group::createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void Group::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
     getFile()->createDatasetF(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
 }
@@ -139,7 +139,7 @@ void Group::createDatasetF(const std::string name, Vector size, Vector chunkSize
  * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *Group::openGroup(const std::string name, bool log)
+Group *Group::openGroup(std::string name, bool log)
 {
     return getFile()->openGroup(concatenatePath(getName(), name), log);
 }
@@ -160,7 +160,7 @@ Group *Group::openGroup(hsize_t idx, bool log)
  * @param[in] name Name of group
  * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(const std::string name, bool log)
+void Group::closeGroup(std::string name, bool log)
 {
     getFile()->closeGroup(concatenatePath(getName(), name), log);
 }
@@ -191,7 +191,7 @@ void Group::closeGroup(Group *group, bool log)
  * @param[in] rewrite Flag for rewriting existing group (optional)
  * @param[in] log Logging flag (optional)
  */
-void Group::createGroup(const std::string name, bool rewrite, bool log)
+void Group::createGroup(std::string name, bool rewrite, bool log) const
 {
     getFile()->createGroup(concatenatePath(getName(), name), rewrite, log);
 }
@@ -200,7 +200,7 @@ void Group::createGroup(const std::string name, bool rewrite, bool log)
  * @brief Returns id of group
  * @return Id of group
  */
-hid_t Group::getId()
+hid_t Group::getId() const
 {
     return group;
 }
@@ -209,7 +209,7 @@ hid_t Group::getId()
  * @brief Returns number of objects in group
  * @return Number of objects in group
  */
-hsize_t Group::getNumObjs()
+hsize_t Group::getNumObjs() const
 {
     return getFile()->getNumObjs(group);
 }
@@ -219,7 +219,7 @@ hsize_t Group::getNumObjs()
  * @param[in] idx Index of object in file
  * @return Object name
  */
-std::string Group::getObjNameByIdx(hsize_t idx)
+std::string Group::getObjNameByIdx(hsize_t idx) const
 {
     return getFile()->getObjNameByIdx(idx, group);
 }
@@ -229,7 +229,7 @@ std::string Group::getObjNameByIdx(hsize_t idx)
  * @param[in] idx Index of object in file
  * @return Object type
  */
-H5G_obj_t Group::getObjTypeByIdx(hsize_t idx)
+H5G_obj_t Group::getObjTypeByIdx(hsize_t idx) const
 {
     return getFile()->getObjTypeByIdx(idx, group);
 }

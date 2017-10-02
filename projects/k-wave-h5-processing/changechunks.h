@@ -33,7 +33,7 @@ public:
     virtual void execute();
 
 protected:
-    virtual void changeChunksOfDataset(HDF5Helper::Dataset *srcDataset) final;
+    virtual void changeChunksOfDataset(HDF5Helper::Dataset *srcDataset, bool log = true) final;
 };
 
 #endif // CHANGECHUNKS_H

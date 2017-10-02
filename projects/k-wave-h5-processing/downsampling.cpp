@@ -52,17 +52,17 @@ void Downsampling::execute()
             HDF5Helper::DatasetType datasetType = dataset->getType();
 
             if (checkDatasetType(datasetType, types)) {
-                std::cout << "Downsampling of dataset " << dataset->getName() << std::endl;
+                Helper::printDebugMsg("Downsampling of dataset " + dataset->getName());
                 resampleDataset(dataset);
                 count++;
-                std::cout << "Downsampling of dataset " << dataset->getName() << " done" << std::endl << std::endl;
+                Helper::printDebugMsg("Downsampling of dataset " + dataset->getName() + " done");
             }
         }
         if (count == 0) {
-            std::cout << "No datasets for downsampling in simulation output file" << std::endl;
+            Helper::printErrorMsg("No datasets for downsampling in simulation output file");
         }
     } catch(std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
 }
@@ -85,7 +85,7 @@ void Downsampling::resampleDataset(HDF5Helper::Dataset *srcDataset)
     float ratio = float(getSettings()->getMaxSize()) / std::max(std::max(dimsSrc3D.z(), dimsSrc3D.y()), dimsSrc3D.x());
     // Check downsampling size
     if (ratio >= 1) {
-        std::cout << "Bad destination size for downsampling" << std::endl;
+        Helper::printErrorMsg("Bad destination size for downsampling");
         return;
     }
 
@@ -192,7 +192,7 @@ void Downsampling::resampleDataset(HDF5Helper::Dataset *srcDataset)
         dstDataset->setAttribute(HDF5Helper::POSITION_X_ATTR, x);
     }
     double t1 = HDF5Helper::getTime();
-    std::cout << "Time of resampling of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
+    Helper::printDebugTime("dataset resampling", t0, t1);
 }
 
 /**
@@ -203,7 +203,7 @@ void Downsampling::resampleDataset(HDF5Helper::Dataset *srcDataset)
  * @param[out] chunkDims Chunk dims
  * @param[in] maxChunkSize Maximal chunk size
  */
-void Downsampling::computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF5Helper::Vector3D &dimsDst, HDF5Helper::Vector3D &chunkDims, hsize_t maxChunkSize)
+void Downsampling::computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF5Helper::Vector3D &dimsDst, HDF5Helper::Vector3D &chunkDims, hsize_t maxChunkSize, bool log)
 {
     dimsDst.z(Helper::round(dimsSrc.z() * ratio));
     dimsDst.y(Helper::round(dimsSrc.y() * ratio));
@@ -219,7 +219,9 @@ void Downsampling::computeDstDims(HDF5Helper::Vector3D dimsSrc, float ratio, HDF
     if (chunkDims.z() > dimsDst.z()) chunkDims.z(dimsDst.z());
     if (chunkDims.y() > dimsDst.y()) chunkDims.y(dimsDst.y());
     if (chunkDims.x() > dimsDst.x()) chunkDims.x(dimsDst.x());
-    std::cout << "   new size:\t" << dimsDst << std::endl;
+    if (log) {
+        Helper::printDebugTwoColumns2S("new size", dimsDst);
+    }
 }
 
 /**

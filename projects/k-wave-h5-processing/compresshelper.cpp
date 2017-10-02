@@ -281,9 +281,9 @@ void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t per
     if (srcDatasets.size() == harmonics) {
         for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
                 if (srcDatasets.at(hsize_t(h))->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
-                    generateE(period, hsize_t(h), srcDatasets.at(hsize_t(h))->readAttributeI(HDF5Helper::C_HARMONIC_ATTR), bSize, e);
+                    generateE(period, hsize_t(h), srcDatasets.at(hsize_t(h))->readAttributeI(HDF5Helper::C_HARMONIC_ATTR, false), bSize, e);
                 } else {
-                    generateE(period, h, 1, bSize, e);
+                    generateE(period, hsize_t(h), 1, bSize, e);
                 }
         }
     } else {

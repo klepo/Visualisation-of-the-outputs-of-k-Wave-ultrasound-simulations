@@ -51,7 +51,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             exit(EXIT_FAILURE);
         }
     } else {
-        Helper::printDebugMsg("\n----> Sensor mask is not in simulation output or input file");
+        Helper::printDebugMsg("Sensor mask is not in simulation output or input file");
     }
 
     // Try to open the p_source_input dataset for getting the simulation frequency
@@ -76,15 +76,15 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 
     // Find datasets for processing
     Helper::printDebugTitle("Find datasets for processing");
-    HDF5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/");
+    HDF5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/", Helper::enableDebugMsgs);
     findDatasetsForProcessing(group, settings);
-    filesContext->getSimOutputFile()->closeGroup("/");
+    filesContext->getSimOutputFile()->closeGroup("/", Helper::enableDebugMsgs);
 
     // Find datasets for processing in HDF5PcsInputFile
     if (filesContext->getPcsInputFile()) {
-        group = filesContext->getPcsInputFile()->openGroup("/");
+        group = filesContext->getPcsInputFile()->openGroup("/", Helper::enableDebugMsgs);
         findDatasetsForProcessing(group, settings);
-        filesContext->getPcsInputFile()->closeGroup("/");
+        filesContext->getPcsInputFile()->closeGroup("/", Helper::enableDebugMsgs);
     }
 }
 
@@ -178,7 +178,7 @@ HDF5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5He
     if (simOutputFile->objExistsByName(name)) {
         // Try to load dataset from simulation output file
         try {
-            dataset = simOutputFile->openDataset(name);
+            dataset = simOutputFile->openDataset(name, Helper::enableDebugMsgs);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
@@ -186,7 +186,7 @@ HDF5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, HDF5He
     } else if (simInputFile != 0 && simInputFile->objExistsByName(name)) {
         // Try to load dataset from simulation input file
         try {
-            dataset = simInputFile->openDataset(name);
+            dataset = simInputFile->openDataset(name, Helper::enableDebugMsgs);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
@@ -218,12 +218,16 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
             if (isFiltered(name, settings))
                 continue;
 
-            HDF5Helper::Dataset *dataset = group->openDataset(i);
+            HDF5Helper::Dataset *dataset = group->openDataset(i, Helper::enableDebugMsgs);
             HDF5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
             if (datasetType != HDF5Helper::DatasetType::UNKNOWN) {
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
-                std::cout << "----> " << dataset->getTypeString(datasetType) << " dataset: " << dataset->getName() << ", size: " << dataset->getDims() << ", chunk size: " << dataset->getChunkDims() << std::endl;
+                Helper::printDebugMsg("----> " + dataset->getTypeString(datasetType) + " dataset: " + dataset->getName());
+                if (settings->getFlagInfo()) {
+                    Helper::printDebugTwoColumnsTab("size", dataset->getDims());
+                    Helper::printDebugTwoColumnsTab("chunk size", dataset->getChunkDims());
+                }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
                     dataset->findAndSetGlobalMinAndMaxValue(false, true);
@@ -231,26 +235,25 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 // Print attributes
                 if (settings->getFlagInfo()) {
                     if (dataset->getNumAttrs() > 0) {
-                        std::cout << "  Attributes:" << std::endl;
+                        Helper::printDebugMsg2S("Attributes");
                     }
                     for (hsize_t i = 0; i < dataset->getNumAttrs(); i++) {
                         HDF5Helper::Attribute *attribute = dataset->getAttribute(i);
-                        std::cout << "\t" << std::setw(20) << std::left << attribute->getName() << std::setw(20) << std::left << attribute->getStringValue() << std::endl;
+                        Helper::printDebugTwoColumnsTab(attribute->getName(), attribute->getStringValue());
                         delete attribute;
                     }
                 }
-                std::cout << std::endl;
             }
             // Unknown type
             else {
-                group->closeDataset(dataset);
+                group->closeDataset(dataset, false);
             }
         }
         // Groups
         if (type == H5G_GROUP) {
-            HDF5Helper::Group *nextGroup = group->openGroup(i);
+            HDF5Helper::Group *nextGroup = group->openGroup(i, false);
             findDatasetsForProcessing(nextGroup, settings);
-            group->closeGroup(nextGroup);
+            group->closeGroup(nextGroup, false);
         }
     }
 }

@@ -145,9 +145,7 @@ bool Vector::operator!=(const Vector &vector) const
  */
 hsize_t &Vector::operator[](hsize_t i)
 {
-    if (i >= length) {
-        throw std::runtime_error("Index to Vector is too big");
-    }
+    checkIndex(i);
     return vector[i];
 }
 
@@ -159,10 +157,8 @@ hsize_t &Vector::operator[](hsize_t i)
  */
 hsize_t &Vector::operator[](hssize_t i)
 {
-    if (static_cast<hsize_t>(i) >= length) {
-        throw std::runtime_error("Index to Vector is too big");
-    }
-    return vector[static_cast<hsize_t>(i)];
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
 }
 
 /**
@@ -173,10 +169,8 @@ hsize_t &Vector::operator[](hssize_t i)
  */
 hsize_t &Vector::operator[](int i)
 {
-    if (static_cast<hsize_t>(i) >= length) {
-        throw std::runtime_error("Index to Vector is too big");
-    }
-    return vector[static_cast<hsize_t>(i)];
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
 }
 
 /**
@@ -187,10 +181,8 @@ hsize_t &Vector::operator[](int i)
  */
 hsize_t &Vector::operator[](unsigned int i)
 {
-    if (static_cast<hsize_t>(i) >= length) {
-        throw std::runtime_error("Index to Vector is too big");
-    }
-    return vector[static_cast<hsize_t>(i)];
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
 }
 
 /**
@@ -213,6 +205,30 @@ hsize_t Vector::getSize() const
 hsize_t *Vector::getVectorPtr()
 {
     return vector;
+}
+
+hsize_t Vector::at(hsize_t i) const
+{
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
+}
+
+hsize_t Vector::at(hssize_t i) const
+{
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
+}
+
+hsize_t Vector::at(int i) const
+{
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
+}
+
+hsize_t Vector::at(unsigned int i) const
+{
+    checkIndex(hsize_t(i));
+    return vector[hsize_t(i)];
 }
 
 /**
@@ -278,5 +294,12 @@ void Vector::move(Vector &vector, bool deleteFlag)
     this->vector = std::move(vector.vector);
     vector.vector = 0;
     vector.length = 0;
+}
+
+void Vector::checkIndex(hsize_t i) const
+{
+    if (i >= length) {
+        throw std::runtime_error("Index to Vector is too big");
+    }
 }
 }

@@ -52,17 +52,17 @@ void ChangeChunks::execute()
             HDF5Helper::DatasetType datasetType = dataset->getType();
 
             if (checkDatasetType(datasetType, types)) {
-                std::cout << "Change chunks of dataset " << dataset->getName() << std::endl;
+                Helper::printDebugMsg("Change chunks of dataset " + dataset->getName());
                 changeChunksOfDataset(dataset);
                 count++;
-                std::cout << "Change chunks of dataset " << dataset->getName() << " done" << std::endl << std::endl;
+                Helper::printDebugMsg("Change chunks of dataset " + dataset->getName() + " done");
             }
         }
         if (count == 0) {
-            std::cout << "No datasets for changing chunks in simulation output file" << std::endl;
+            Helper::printErrorMsg("No datasets for changing chunks in simulation output file");
         }
     } catch(std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
 }
@@ -71,7 +71,7 @@ void ChangeChunks::execute()
  * @brief Changes chunks of dataset
  * @param[in] srcDataset Source dataset
  */
-void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
+void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset, bool log)
 {
     // Dims
     HDF5Helper::Vector dims = srcDataset->getDims();
@@ -87,8 +87,8 @@ void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
     }
 
     // Create destination dataset
-    getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true);
-    HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName());
+    getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true, log);
+    HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName(), log);
 
     double t0 = HDF5Helper::getTime();
 
@@ -103,8 +103,8 @@ void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
 
     // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-        srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex);
-        dstDataset->writeDataset(offset, count, data, true);
+        srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex, log);
+        dstDataset->writeDataset(offset, count, data, log);
         delete[] data;
         if (first) {
             minVG = minV;
@@ -129,13 +129,13 @@ void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset)
     copyAttributes(srcDataset, dstDataset);
 
     // Set min/max values
-    dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minVG);
-    dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxVG);
-    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVGIndex);
-    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVGIndex);
+    dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minVG, log);
+    dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxVG, log);
+    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVGIndex, log);
+    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVGIndex, log);
 
     double t1 = HDF5Helper::getTime();
-    std::cout << "Time of changing chunks of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
+    Helper::printDebugTime("changing chunks of the whole dataset", t0, t1);
 
-    getOutputFile()->closeDataset(dstDataset);
+    getOutputFile()->closeDataset(dstDataset, log);
 }

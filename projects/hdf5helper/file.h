@@ -107,62 +107,62 @@ public:
     #ifdef PARALLEL_HDF5
         File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log = false);
     #else
-        File(std::string filename, unsigned int flag, bool log = false);
+        File(std::string filename, unsigned int flag, bool log = true);
     #endif
 
     ~File();
 
-    void createDatasetI(const std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
-    void createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
-    void createDataset(const std::string name, hid_t type, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDataset(std::string name, hid_t type, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
     void createDataset(Dataset *dataset, bool rewrite = false, bool log = true);
-    Dataset *openDataset(const std::string name, bool log = true);
+    Dataset *openDataset(std::string name, bool log = true);
     Dataset *openDataset(hsize_t idx, bool log = true);
-    bool isDatasetOpened(const std::string name);
-    bool isDatasetOpened(hsize_t idx);
-    void closeDataset(const std::string name, bool log = true);
+    bool isDatasetOpened(std::string name) const;
+    bool isDatasetOpened(hsize_t idx) const;
+    void closeDataset(std::string name, bool log = true);
     void closeDataset(hsize_t idx, bool log = true);
     void closeDataset(Dataset *dataset, bool log = true);
 
-    void createGroup(const std::string name, bool rewrite = false, bool log = true);
-    Group *openGroup(const std::string name, bool log = true);
+    void createGroup(std::string name, bool rewrite = false, bool log = true) const;
+    Group *openGroup(std::string name, bool log = true);
     Group *openGroup(hsize_t idx, bool log = true);
-    bool isGroupOpened(const std::string name);
-    bool isGroupOpened(hsize_t idx);
-    void closeGroup(const std::string name, bool log = true);
+    bool isGroupOpened(std::string name) const;
+    bool isGroupOpened(hsize_t idx) const;
+    void closeGroup(std::string name, bool log = true);
     void closeGroup(hsize_t idx, bool log = true);
     void closeGroup(Group *group, bool log = true);
 
-    Object *openObject(const std::string name, bool log = true);
+    Object *openObject(std::string name, bool log = true);
     Object *openObject(hsize_t idx, bool log = true);
-    bool isObjectOpened(const std::string name);
-    bool isObjectOpened(hsize_t idx);
-    void closeObject(const std::string name, bool log = true);
+    bool isObjectOpened(std::string name) const;
+    bool isObjectOpened(hsize_t idx) const;
+    void closeObject(std::string name, bool log = true);
     void closeObject(hsize_t idx, bool log = true);
     void closeObject(Object *object, bool log = true);
 
-    hsize_t getNumObjs(hid_t groupId = -1);
-    std::string getObjNameByIdx(hsize_t idx, hid_t groupId = -1);
-    H5G_obj_t getObjTypeByIdx(hsize_t idx, hid_t groupId = -1);
-    H5G_obj_t getObjTypeByName(const std::string name);
+    hsize_t getNumObjs(hid_t groupId = -1) const;
+    std::string getObjNameByIdx(hsize_t idx, hid_t groupId = -1) const;
+    H5G_obj_t getObjTypeByIdx(hsize_t idx, hid_t groupId = -1) const;
+    H5G_obj_t getObjTypeByName(std::string name) const;
 
-    bool objExistsByName(const std::string name);
+    bool objExistsByName(std::string name) const;
 
-    void objRename(const std::string srcName, const std::string dstName);
+    void objRename(std::string srcName, std::string dstName) const;
 
-    void renameAttribute(const std::string srcName, const std::string dstName, hid_t groupId = -1);
-    void renameAttribute(const std::string srcName, const std::string dstName, const std::string objName);
+    void renameAttribute(std::string srcName, std::string dstName, hid_t groupId = -1) const;
+    void renameAttribute(std::string srcName, std::string dstName, std::string objName) const;
 
-    std::string getFilename();
+    std::string getFilename() const;
 
     void setNumberOfElmsToLoad(hsize_t size);
-    hsize_t getNumberOfElmsToLoad();
+    hsize_t getNumberOfElmsToLoad() const;
 
-    Vector4D getNdims();
-
-    std::ofstream *getLogFileStream();
+    Vector4D getNdims() const;
 
     int getMPISize() const;
+
+    void setDeleteLog(bool value);
 
     /// Open file flag
     static const unsigned int OPEN = 0;
@@ -172,35 +172,37 @@ public:
 private:
     File(const File &);
     File &operator=(const File &);
-    void insertObject(const std::string name, bool log = true);
+    void insertObject(std::string name, bool log = true);
     void closeFileAndObjects();
 
     Vector4D nDims;
     std::string filename;
     hsize_t numberOfElementsToLoad = 512 * 512 * 512;
     hid_t plist_FILE_ACCESS;
-    std::ofstream logFileStream;
 
     /// HDF5 file handle
     hid_t file;
     /// Map of objects
     MapOfObjects objects;
 
+    /// Delete log flag
+    bool deleteLog = true;
+
     herr_t err;
     int mPISize;
 };
 
 // General functions
-std::string trimSlashes(const std::string path);
-std::string concatenatePath(const std::string path, const std::string name);
-std::string fixPath(const std::string path);
+std::string trimSlashes(std::string path);
+std::string concatenatePath(std::string path, std::string name);
+std::string fixPath(std::string path);
 double getTime();
 size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();
 void convertlinearToMultiDim(hsize_t index, Vector &position, Vector size);
 void convertMultiDimToLinear(Vector position, hsize_t &index, Vector size);
-void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value);
-void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value);
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value);
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t value);
 bool fileExists(const std::string& name);
 void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite = true, bool log = true);
 void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite = true, bool log = true);

@@ -33,7 +33,7 @@ public:
     virtual void execute();
 
 private:
-    void subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded);
+    void subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded, bool log = true);
 };
 
 #endif // DIFFERENCE_H

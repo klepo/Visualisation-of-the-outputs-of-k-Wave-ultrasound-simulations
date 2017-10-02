@@ -28,6 +28,7 @@
 #include <iomanip>
 
 #include <paramsdefinition.h>
+#include <helper.h>
 
 /**
  * @brief The Settings class represents wrapper for processing settings
@@ -92,6 +93,8 @@ public:
     void setFlagComputePeriod(bool value);
     bool getFlagFindMinMax() const;
     void setFlagFindMinMax(bool value);
+    bool getFlagLog() const;
+    void setFlagLog(bool value);
 
     ParamsDefinition getParamsDefinition() const;
 
@@ -124,6 +127,7 @@ private:
     bool flagInfo = false;
     bool flagComputePeriod = false;
     bool flagFindMinMax = false;
+    bool flagLog = false;
 
     // Params definition
     ParamsDefinition paramsDefinition;

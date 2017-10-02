@@ -133,7 +133,7 @@ HDF5Helper::File *FilesContext::loadSimulationFile(std::string filename)
 {
     HDF5Helper::File *simulationFile = 0;
     try {
-        simulationFile = new HDF5Helper::File(filename, HDF5Helper::File::OPEN);
+        simulationFile = new HDF5Helper::File(filename, HDF5Helper::File::OPEN, Helper::enableDebugMsgs);
     } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
@@ -175,25 +175,20 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         try {
             // Try create file
             if (newEmptyOutputFileFlag) {
-                file = new HDF5Helper::File(filename, HDF5Helper::File::CREATE);
+                file = new HDF5Helper::File(filename, HDF5Helper::File::CREATE, Helper::enableDebugMsgs);
                 newEmptyOutputFileFlag = false;
             } else {
-                std::cout << "File \"" << filename << "\" will be created for the processing output" << std::endl;
+                Helper::printDebugMsg("File \"" + filename + "\" will be created for the processing output");
                 newEmptyOutputFileFlag = true;
                 return 0;
             }
         } catch (std::exception &e) {
-            std::cerr << e.what() << std::endl;
+            Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
     } else {
-        try {
-            // Try open file
-            file = new HDF5Helper::File(filename, HDF5Helper::File::OPEN);
-        } catch (std::exception &e) {
-            std::cerr << e.what() << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
+        // Try open file
+        file = loadSimulationFile(filename);
     }
 
     file->setNumberOfElmsToLoad(simOutputFile->getNumberOfElmsToLoad());
@@ -201,20 +196,20 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     Helper::printDebugTitle("Copy dimensions and root attributes to output file");
 
     // Copy nT, nX, nY, nZ
-    std::cout << "Copy nT, nX, nY, nZ ... ";
+    Helper::printDebugMsgStart("Copy nT, nX, nY, nZ");
     try {
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NX_DATASET, true, true);
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NY_DATASET, true, true);
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NZ_DATASET, true, true);
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NT_DATASET, true, true);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NX_DATASET, true, false);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NY_DATASET, true, false);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NZ_DATASET, true, false);
+        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NT_DATASET, true, false);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
-    std::cout << "OK" << std::endl;
+    Helper::printDebugMsg("OK");
 
     // Copy root (info) attributes to destination h5 file
-    std::cout << "Copy root (info) attributes ... ";
+    Helper::printDebugMsgStart("Copy root (info) attributes");
     try {
         HDF5Helper::Group *srcGroup = simOutputFile->openGroup("/", false);
         HDF5Helper::Group *dstGroup = file->openGroup("/", false);
@@ -229,7 +224,7 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
-    std::cout << "OK" << std::endl;
+    Helper::printDebugMsg("OK");
 
     return file;
 }

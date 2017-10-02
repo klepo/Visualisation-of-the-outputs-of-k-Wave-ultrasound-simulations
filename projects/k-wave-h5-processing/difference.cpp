@@ -69,19 +69,19 @@ void Difference::execute()
                 }
 
                 if (datasetDecoded) {
-                    std::cout << "Subtraction of datasets " << datasetOriginal->getName() << " and " << datasetDecoded->getName() << std::endl;
-                    subtractDatasets(datasetOriginal, datasetDecoded);
-                    std::cout << "Subtraction of datasets done" << std::endl << std::endl;
+                    Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
+                    subtractDatasets(datasetOriginal, datasetDecoded, false);
+                    Helper::printDebugMsg("Subtraction of datasets done");
                     count++;
                 }
             }
         }
 
         if (count == 0) {
-            std::cout << "No datasets for making difference in simulation output file" << std::endl;
+            Helper::printErrorMsg("No datasets for making difference in simulation output file");
         }
     } catch(std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
 }
@@ -91,14 +91,14 @@ void Difference::execute()
  * @param[in] datasetOriginal Original dataset
  * @param[in] datasetDecoded Decoded dataset
  */
-void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded)
+void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Helper::Dataset *datasetDecoded, bool log)
 {
     HDF5Helper::Vector outputDims = datasetOriginal->getDims();
     HDF5Helper::Vector outputChunkDims = datasetOriginal->getChunkDims();
 
-    std::string srcName = datasetDecoded->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false);
-    getOutputFile()->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true);
-    HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_s");
+    std::string srcName = datasetDecoded->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, log);
+    getOutputFile()->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true, log);
+    HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_s", log);
 
     // Variables for block reading
     float *dataO = 0;
@@ -106,7 +106,9 @@ void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Help
     HDF5Helper::Vector offset;
     HDF5Helper::Vector count;
     float maxV = 0, minV = 0;
+    float maxVO = 0, minVO = 0;
     hsize_t minVIndex = 0, maxVIndex = 0;
+    hsize_t minVOIndex = 0, maxVOIndex = 0;
     bool first = true;
     double sum = 0.0;
     double sumO = 0.0;
@@ -116,18 +118,19 @@ void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Help
     // Reading and subtraction
     for (hsize_t i = 0; i < datasetOriginal->getNumberOfBlocks(); i++) {
         // First read decoded -> it is larger
-        datasetDecoded->readBlock(i, offset, count, dataD);
-        datasetOriginal->readBlock(i, offset, count, dataO);
+        datasetDecoded->readBlock(i, offset, count, dataD, log);
+        datasetOriginal->readBlock(i, offset, count, dataO, log);
         // The count is from original dataset and is smaller for last step than is in the decoded dataset
 
         #pragma omp parallel for reduction(+ : sum, sumO, sum2)
         for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
             dataD[i] = dataO[i] - dataD[i];
             sum += double(abs(dataD[i]));
-            sumO += double(abs(dataO[i]));
+            sumO += double(dataO[i]);
             sum2 += double((dataD[i] * dataD[i]));
             // Min/max values
             HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i]);
+            HDF5Helper::checkOrSetMinMaxValue(first, minVO, maxVO, dataO[i]);
 
             hsize_t linearOffset;
             convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
@@ -138,10 +141,13 @@ void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Help
                     minVIndex = linearOffset + i;
                 if (dataD[i] == maxV)
                     maxVIndex = linearOffset + i;
-            }
+                if (dataO[i] == minVO)
+                    minVOIndex = linearOffset + i;
+                if (dataO[i] == maxVO)
+                    maxVOIndex = linearOffset + i;            }
         }
 
-        dstDataset->writeDataset(offset, count, dataD, true);
+        dstDataset->writeDataset(offset, count, dataD);
         delete[] dataD;
         delete[] dataO;
     }
@@ -149,49 +155,38 @@ void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Help
     // Copy attributes
     copyAttributes(datasetDecoded, dstDataset);
 
-    float minVO;
-    float maxVO;
-    hsize_t minVOIndex;
-    hsize_t maxVOIndex;
-    datasetOriginal->getGlobalMinValue(minVO, minVOIndex);
-    datasetOriginal->getGlobalMaxValue(maxVO, maxVOIndex);
     float maxError = std::max(abs(minV), abs(maxV));
-    double meanError = sum / double(outputDims.getSize());
+    float meanError = float(sum / double(outputDims.getSize()));
     float maxValue = std::max(abs(minVO), abs(maxVO));
-    double mse = sum2 / double(outputDims.getSize());
+    float mse = float(sum2 / double(outputDims.getSize()));
 
-    dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR);
+    dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR, log);
 
     // Set min/max values
-    dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV);
-    dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV);
-    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex);
-    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex);
-    dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "s");
-    dstDataset->setAttribute("sum", float(sum));
-    dstDataset->setAttribute("sum_original", float(sumO));
-    dstDataset->setAttribute("sum_2", float(sum2));
-    dstDataset->setAttribute("max_original", maxValue);
-    dstDataset->setAttribute("mean_error", (meanError / maxValue) * 100);
-    dstDataset->setAttribute("mean_error_value", meanError);
-    dstDataset->setAttribute("max_error", (maxError / maxValue) * 100);
-    dstDataset->setAttribute("max_error_value", maxError);
-    dstDataset->setAttribute("mean_squared_error", float(mse));
-    dstDataset->setAttribute("snr", float(sumO / mse));
-    dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / float(mse)));
+    dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV, log);
+    dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV, log);
+    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex, log);
+    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex, log);
+    dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "s", log);
+    dstDataset->setAttribute("sum", float(sum), log);
+    dstDataset->setAttribute("sum_original", float(sumO), log);
+    dstDataset->setAttribute("sum_2", float(sum2), log);
+    dstDataset->setAttribute("max_original", maxValue, log);
+    dstDataset->setAttribute("mean_error", (meanError / maxValue) * 100, log);
+    dstDataset->setAttribute("mean_error_value", meanError, log);
+    dstDataset->setAttribute("max_error", (maxError / maxValue) * 100, log);
+    dstDataset->setAttribute("max_error_value", maxError, log);
+    dstDataset->setAttribute("mean_squared_error", float(mse), log);
+    dstDataset->setAttribute("snr", float(sumO / double(mse)), log);
+    dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / float(mse)), log);
 
-    std::cout << "sum:          " << sum << std::endl;
-    std::cout << "sum_original: " << sumO << std::endl;
-    std::cout << "sum_2:        " << sum2 << std::endl;
+    if (log) {
+        Helper::printDebugTwoColumns2S("Mean error", std::to_string((meanError / maxValue) * 100) + " %");
+        Helper::printDebugTwoColumns2S("Max error", std::to_string((maxError / maxValue) * 100) + " %");
+        Helper::printDebugTwoColumns2S("MSE", mse);
+        Helper::printDebugTwoColumns2S("SNR", sumO / double(mse));
+        Helper::printDebugTwoColumns2S("PSNR", std::to_string(10 * log10((maxValue * maxValue) / float(mse))) + " dB");
+    }
 
-
-    std::cout << std::endl;
-    std::cout << "Mean error: " << (meanError / maxValue) * 100 << " %" << std::endl;
-    std::cout << "Max error:  " << (maxError / maxValue) * 100  << " %" << std::endl;
-    std::cout << "MSE:        " << mse << std::endl;
-    std::cout << "SNR:        " << sumO / mse << std::endl;
-    std::cout << "PSNR:       " << 10 * log10((maxValue * maxValue) / float(mse)) << " dB" << std::endl;
-    std::cout << std::endl;
-
-    getOutputFile()->closeDataset(dstDataset);
+    getOutputFile()->closeDataset(dstDataset, log);
 }

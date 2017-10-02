@@ -65,7 +65,7 @@ Vector3D::Vector3D(const Vector4D &vector)
  * @brief Creates Vector3D with given fill value
  * @param[in] value Fill value
  */
-Vector3D::Vector3D(const hsize_t value)
+Vector3D::Vector3D(hsize_t value)
     : Vector(3 , value)
 {
 
@@ -77,7 +77,7 @@ Vector3D::Vector3D(const hsize_t value)
  * @param[in] y Y value
  * @param[in] x X value
  */
-Vector3D::Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
+Vector3D::Vector3D(hsize_t z, hsize_t y, hsize_t x)
     : Vector(3)
 {
     set(z, y, x);
@@ -89,7 +89,7 @@ Vector3D::Vector3D(const hsize_t z, const hsize_t y, const hsize_t x)
  * @param[in] y Y value
  * @param[in] x X value
  */
-void Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
+void Vector3D::set(hsize_t z, hsize_t y, hsize_t x)
 {
     vector[0] = z;
     vector[1] = y;
@@ -102,7 +102,7 @@ void Vector3D::set(const hsize_t z, const hsize_t y, const hsize_t x)
  * @param[in] y Y value
  * @param[in] x X value
  */
-void Vector3D::set(const int z, const int y, const int x)
+void Vector3D::set(int z, int y, int x)
 {
     set(static_cast<hsize_t>(z), static_cast<hsize_t>(y), static_cast<hsize_t>(x));
 }
@@ -111,7 +111,7 @@ void Vector3D::set(const int z, const int y, const int x)
  * @brief Sets vector x value
  * @param[in] x X value
  */
-void Vector3D::x(const hsize_t x)
+void Vector3D::x(hsize_t x) const
 {
     vector[2] = x;
 }
@@ -120,7 +120,7 @@ void Vector3D::x(const hsize_t x)
  * @brief Sets vector y value
  * @param[in] y Y value
  */
-void Vector3D::y(const hsize_t y)
+void Vector3D::y(hsize_t y) const
 {
     vector[1] = y;
 }
@@ -129,7 +129,7 @@ void Vector3D::y(const hsize_t y)
  * @brief Sets vector z value
  * @param[in] z Z value
  */
-void Vector3D::z(const hsize_t z)
+void Vector3D::z(hsize_t z) const
 {
     vector[0] = z;
 }
@@ -138,7 +138,7 @@ void Vector3D::z(const hsize_t z)
  * @brief Sets vector x value
  * @param[in] x X value
  */
-void Vector3D::x(const int x)
+void Vector3D::x(const int x) const
 {
     this->x(static_cast<hsize_t>(x));
 }
@@ -147,7 +147,7 @@ void Vector3D::x(const int x)
  * @brief Sets vector y value
  * @param[in] y Y value
  */
-void Vector3D::y(const int y)
+void Vector3D::y(int y) const
 {
     this->y(static_cast<hsize_t>(y));
 }
@@ -156,7 +156,7 @@ void Vector3D::y(const int y)
  * @brief Sets vector z value
  * @param[in] z Z value
  */
-void Vector3D::z(const int z)
+void Vector3D::z(int z) const
 {
     this->z(static_cast<hsize_t>(z));
 }

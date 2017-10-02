@@ -44,11 +44,11 @@ public:
     hsize_t getSize() const;
     std::string getName() const;
     hid_t getDataspace() const;
-    void *getData();
+    void *getData() const;
     std::string getStringValue() const;
     std::string getStringDatatype() const;
-    static std::string getStringValue(const hid_t datatype, const void *value, hsize_t size = 0);
-    static std::string getStringDatatype(const hid_t datatype);
+    static std::string getStringValue(hid_t datatype, const void *value, hsize_t size = 0);
+    static std::string getStringDatatype(hid_t datatype);
 
 private:
     Attribute(const Attribute &);

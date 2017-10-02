@@ -47,16 +47,20 @@ public:
     virtual ~Vector();
     virtual Vector &operator=(const Vector &vector);
     virtual Vector &operator=(Vector &&vector);
-    virtual bool operator==(const Vector &vector) const;
-    virtual bool operator!=(const Vector &vector) const;
+    virtual bool operator==(const Vector &vector) const final;
+    virtual bool operator!=(const Vector &vector) const final;
     virtual hsize_t &operator[](hsize_t i) final;
     virtual hsize_t &operator[](hssize_t i) final;
     virtual hsize_t &operator[](int i) final;
     virtual hsize_t &operator[](unsigned int i) final;
     virtual hsize_t getSize() const final;
     virtual hsize_t *getVectorPtr() final;
-    hsize_t getLength() const;
-    bool hasZeros() const;
+    virtual hsize_t at(hsize_t i) const final;
+    virtual hsize_t at(hssize_t i) const final;
+    virtual hsize_t at(int i) const final;
+    virtual hsize_t at(unsigned int i) const final;
+    virtual hsize_t getLength() const final;
+    virtual bool hasZeros() const final;
 
     /**
      * @brief Operator <<
@@ -74,6 +78,8 @@ public:
 private:
     void assign(const Vector &vector, bool deleteFlag);
     void move(Vector &vector, bool deleteFlag);
+
+    void checkIndex(hsize_t i) const;
 
 protected:
     /// Vector data

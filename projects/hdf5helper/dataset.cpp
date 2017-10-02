@@ -592,60 +592,56 @@ void Dataset::getGlobalMinValue(float &value, hsize_t &minVIndex, bool reset)
 void Dataset::findAndSetGlobalMinAndMaxValue(bool reset, bool log)
 {
     if (isFloatType()) {
-        if (reset) {
-            std::cout << "Finding min/max value ..." << std::endl;
+        if (reset || (!this->hasAttribute(MIN_ATTR)
+                      || !this->hasAttribute(MAX_ATTR)
+                      || !this->hasAttribute(MIN_INDEX_ATTR)
+                      || !this->hasAttribute(MAX_INDEX_ATTR))
+                ) {
+            if (log)
+                std::cout << "Finding min/max value ..." << std::endl;
             Dataset::findGlobalMinAndMaxValueF();
             Dataset::setAttribute(MIN_ATTR, minVF, log);
             Dataset::setAttribute(MAX_ATTR, maxVF, log);
             Dataset::setAttribute(MIN_INDEX_ATTR, minVIndex, log);
             Dataset::setAttribute(MAX_INDEX_ATTR, maxVIndex, log);
-            std::cout << "Finding min/max value ... OK" << std::endl;
-        } else {
-            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR) && this->hasAttribute(MAX_INDEX_ATTR)) {
-                std::cout << "Reading min/max value ..." << std::endl;
-                minVF = Dataset::readAttributeF(MIN_ATTR, log);
-                maxVF = Dataset::readAttributeF(MAX_ATTR, log);
-                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, log);
-                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, log);
-                issetGlobalMinAndMaxValue = true;
-                std::cout << "Reading min/max value ... OK" << std::endl;
-            } else {
-                std::cout << "Finding min/max value ..." << std::endl;
-                Dataset::findGlobalMinAndMaxValueF();
-                Dataset::setAttribute(MIN_ATTR, minVF, log);
-                Dataset::setAttribute(MAX_ATTR, maxVF, log);
-                Dataset::setAttribute(MIN_INDEX_ATTR, minVIndex, log);
-                Dataset::setAttribute(MAX_INDEX_ATTR, maxVIndex, log);
+            if (log)
                 std::cout << "Finding min/max value ... OK" << std::endl;
-            }
+        } else {
+            if (log)
+                std::cout << "Reading min/max value ..." << std::endl;
+            minVF = Dataset::readAttributeF(MIN_ATTR, log);
+            maxVF = Dataset::readAttributeF(MAX_ATTR, log);
+            minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, log);
+            maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, log);
+            issetGlobalMinAndMaxValue = true;
+            if (log)
+                std::cout << "Reading min/max value ... OK" << std::endl;
         }
     } else {
-        if (reset) {
-            std::cout << "Finding min/max value ..." << std::endl;
+        if (reset || (!this->hasAttribute(MIN_ATTR)
+                      || !this->hasAttribute(MAX_ATTR)
+                      || !this->hasAttribute(MIN_INDEX_ATTR)
+                      || !this->hasAttribute(MAX_INDEX_ATTR))
+                ) {
+            if (log)
+                std::cout << "Finding min/max value ..." << std::endl;
             Dataset::findGlobalMinAndMaxValueI();
             Dataset::setAttribute(MIN_ATTR, minVI, log);
             Dataset::setAttribute(MAX_ATTR, maxVI, log);
             Dataset::setAttribute(MIN_INDEX_ATTR, minVIndex, log);
             Dataset::setAttribute(MAX_INDEX_ATTR, maxVIndex, log);
-            std::cout << "Finding min/max value ... OK" << std::endl;
-        } else {
-            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR) && this->hasAttribute(MAX_INDEX_ATTR)) {
-                std::cout << "Reading min/max value ..." << std::endl;
-                minVI = Dataset::readAttributeI(MIN_ATTR, log);
-                maxVI = Dataset::readAttributeI(MAX_ATTR, log);
-                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, log);
-                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, log);
-                issetGlobalMinAndMaxValue = true;
-                std::cout << "Reading min/max value ... OK" << std::endl;
-            } else {
-                std::cout << "Finding min/max value ..." << std::endl;
-                Dataset::findGlobalMinAndMaxValueI();
-                Dataset::setAttribute(MIN_ATTR, minVI, log);
-                Dataset::setAttribute(MAX_ATTR, maxVI, log);
-                Dataset::setAttribute(MIN_INDEX_ATTR, minVIndex, log);
-                Dataset::setAttribute(MAX_INDEX_ATTR, maxVIndex, log);
+            if (log)
                 std::cout << "Finding min/max value ... OK" << std::endl;
-            }
+        } else {
+            if (log)
+                std::cout << "Reading min/max value ..." << std::endl;
+            minVI = Dataset::readAttributeI(MIN_ATTR, log);
+            maxVI = Dataset::readAttributeI(MAX_ATTR, log);
+            minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, log);
+            maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, log);
+            issetGlobalMinAndMaxValue = true;
+            if (log)
+                std::cout << "Reading min/max value ... OK" << std::endl;
         }
     }
 }
@@ -728,12 +724,14 @@ void Dataset::setMaxNumberOfElmsToLoad(hsize_t count)
  * @param[in] type MPIO access type
  * @throw std::runtime_error
  */
-void Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
+void Dataset::setMPIOAccess(H5FD_mpio_xfer_t type, bool log)
 {
     if (type == H5FD_MPIO_COLLECTIVE) {
-        std::cout << "Setting H5FD_MPIO_COLLECTIVE access (" << getName() << ")" << std::endl;
+        if (log)
+            std::cout << "Setting H5FD_MPIO_COLLECTIVE access (" << getName() << ")" << std::endl;
     } else if (type == H5FD_MPIO_INDEPENDENT) {
-        std::cout << "Setting H5FD_MPIO_INDEPENDENT access (" << getName() << ")" << std::endl;
+        if (log)
+            std::cout << "Setting H5FD_MPIO_INDEPENDENT access (" << getName() << ")" << std::endl;
     } else {
         throw std::runtime_error("H5Pset_dxpl_mpio error - Wrong MPIO type");
     }
@@ -961,7 +959,7 @@ void Dataset::writeDataset(hsize_t *data, bool log)
  * @param[out] maxIndex Index of maximal value
  * @param[in] log Logging flag (optional)
  */
-void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log)
+void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log)
 {
     readDataset(offsets[index], counts[index], data, min, max, minIndex, maxIndex, log, index + 1);
     offset = offsets[index];
@@ -980,7 +978,7 @@ void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, floa
  * @param[out] maxIndex Index of maximal value
  * @param[in] log Logging flag (optional)
  */
-void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log)
+void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log)
 {
     readDataset(offsets[index], counts[index], data, min, max, minIndex, maxIndex, log, index + 1);
     offset = offsets[index];
@@ -995,7 +993,7 @@ void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, hsiz
  * @param[out] data Output data
  * @param[in] log Logging flag (optional)
  */
-void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, float *&data, bool log)
+void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, bool log)
 {
     readDataset(offsets[index], counts[index], data, log, index + 1);
     offset = offsets[index];
@@ -1010,7 +1008,7 @@ void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, floa
  * @param[out] data Output data
  * @param[in] log Logging flag (optional)
  */
-void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, hsize_t *&data, bool log)
+void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, bool log)
 {
     readDataset(offsets[index], counts[index], data, log, index + 1);
     offset = offsets[index];
@@ -1021,7 +1019,7 @@ void Dataset::readBlock(const hsize_t index, Vector &offset, Vector &count, hsiz
  * @brief Reads empty block
  * @throw std::runtime_error
  */
-void Dataset::readEmptyBlock()
+void Dataset::readEmptyBlock(bool log)
 {
     hid_t dataspace = H5Dget_space(dataset);
     H5Sselect_none(dataspace);
@@ -1030,13 +1028,15 @@ void Dataset::readEmptyBlock()
     H5Sselect_none(memspace);
     double t0 = 0, t1 = 0;
     t0 = getTime();
-    std::cout << "Reading dataset " << getName() << " ..." << std::endl;
+    if (log)
+        std::cout << "Reading dataset " << getName() << " ..." << std::endl;
     err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
     t1 = getTime();
     if (err < 0) {
         throw std::runtime_error("H5Dread error");
     }
-    std::cout << getName() << " \tread time:  \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
+    if (log)
+        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
 }
 
 /**
@@ -1092,15 +1092,6 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data, bool l
 
     if (log)
         std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
-
-    // Debug output
-    if ((*getFile()->getLogFileStream()).is_open()) {
-        int r = 0;
-        if (count[0] == 1) r = 0;
-        if (count[1] == 1) r = 1;
-        if (count[2] == 1) r = 2;
-        *getFile()->getLogFileStream() << (t1 - t0) << ";" << offset << ";" << r << std::endl;
-    }
 }
 
 /**
@@ -1156,7 +1147,7 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
     }
 
     if (log)
-        std::cout << getName() << " \twrite time:  \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
+        std::cout << getName() << " \twrite time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
 }
 
 /**
@@ -1165,19 +1156,19 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
  * @param[in] count Data count
  * @throw std::runtime_error
  */
-void Dataset::checkOffsetAndCountParams(Vector offset, Vector count)
+void Dataset::checkOffsetAndCountParams(Vector offset, Vector count) const
 {
     if ((dims.getLength() != offset.getLength()) || (dims.getLength() != count.getLength()) || count.getLength() != getRank()) {
-        std::cout << dims << " " << offset << " " << count;
+        //std::cout << dims << " " << offset << " " << count;
         throw std::runtime_error("Wrong offset or count");
     }
 
     for (unsigned int i = 0; i < offset.getLength(); i++) {
-        if (offset[i] >= dims[i])
+        if (offset.at(i) >= dims.at(i))
             throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i));
-        if (count[i] <= 0)
+        if (count.at(i) <= 0)
             throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i));
-        if (offset[i] + count[i] > dims[i])
+        if (offset.at(i) + count.at(i) > dims.at(i))
             throw std::runtime_error("Wrong count - sum of offset and count of dimension " + std::to_string(i) + " is too big");
     }
 }
@@ -1191,7 +1182,7 @@ void Dataset::checkOffsetAndCountParams(Vector offset, Vector count)
  * @param[out] minVFIndex Index of minimal value
  * @param[out] maxVFIndex Index of maximal value
  */
-void Dataset::findMinAndMaxValue(const float *data, const hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex)
+void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const
 {
     bool first = true;
     for (hsize_t i = 0; i < size; i++) {
@@ -1212,7 +1203,7 @@ void Dataset::findMinAndMaxValue(const float *data, const hsize_t size, float &m
  * @param[out] minVIIndex Index of minimal value
  * @param[out] maxVIIndex Index of maximal value
  */
-void Dataset::findMinAndMaxValue(const hsize_t *data, const hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex)
+void Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const
 {
     bool first = true;
     for (hsize_t i = 0; i < size; i++) {
@@ -1380,8 +1371,6 @@ void Dataset::initBlockReading()
     offsets = new Vector[numberOfBlocks];
     counts = new Vector[numberOfBlocks];
 
-    //std::cout << std::endl;
-
     hsize_t sum = 0;
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
         counts[i] = blockDims;
@@ -1390,17 +1379,7 @@ void Dataset::initBlockReading()
         }
         HDF5Helper::convertlinearToMultiDim(sum, offsets[i], dims);
         sum += counts[i].getSize();
-
-        //std::cout << "count " << counts[i] << " \toffset " << offsets[i] << std::endl;
     }
-
-    //std::cout << std::endl << numberOfElementsToLoad << std::endl;
-    //std::cout << realNumberOfElementsToLoad << std::endl;
-    //std::cout << "sS " << dims << std::endl;
-    //std::cout << "cC " << numberOfBlocks << std::endl;
-    //std::cout << "mB " << blockDims << std::endl;
-    //std::cout << "mC " << numberOfBlocksInDims << std::endl;
-    //std::cout << "mL " << blockDimsLast << std::endl << std::endl;
 }
 
 /**
@@ -1410,7 +1389,7 @@ void Dataset::initBlockReading()
  * @param[in] size
  * @throw std::runtime_error
  */
-void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
+void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size) const
 {
     checkType(type);
 
@@ -1419,7 +1398,7 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 
     try {
         data = new hsize_t[size](); // TODO check available memory?
-        //assert(data != 0 && "Bad memory allocation");
+        assert(data != 0 && "Bad memory allocation");
         if (data == 0)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
@@ -1434,7 +1413,7 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
  * @param[in] size
  * @throw std::runtime_error
  */
-void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size)
+void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size) const
 {
     checkType(type);
 
@@ -1455,7 +1434,7 @@ void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size)
  * @brief Checks datatype (H5T_NATIVE_FLOAT or H5T_NATIVE_UINT64)
  * @param[in] type Datatype
  */
-void Dataset::checkType(int type)
+void Dataset::checkType(int type) const
 {
     if (type == H5T_NATIVE_FLOAT) {
         if (!isFloatType())
@@ -1471,7 +1450,7 @@ void Dataset::checkType(int type)
 /**
  * @brief Checks float type
  */
-void Dataset::checkFloatType()
+void Dataset::checkFloatType() const
 {
     checkType(H5T_NATIVE_FLOAT);
 }
@@ -1479,7 +1458,7 @@ void Dataset::checkFloatType()
 /**
  * @brief Checks 64-bit unsigned integer type
  */
-void Dataset::checkIntegerType()
+void Dataset::checkIntegerType() const
 {
     checkType(H5T_NATIVE_UINT64);
 }

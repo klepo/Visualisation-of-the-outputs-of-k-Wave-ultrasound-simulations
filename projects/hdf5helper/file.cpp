@@ -35,7 +35,9 @@ namespace HDF5Helper {
 #ifdef PARALLEL_HDF5
 File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log) : filename(filename)
 #else
-File::File(std::string filename, unsigned int flag, bool log) : filename(filename)
+File::File(std::string filename, unsigned int flag, bool log)
+    : filename(filename)
+    , deleteLog(log)
 #endif
 {
 #ifdef PARALLEL_HDF5
@@ -63,10 +65,10 @@ File::File(std::string filename, unsigned int flag, bool log) : filename(filenam
     H5Eset_auto(0, 0, 0);
 
     // Create log file
-    if (log) {
-        logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
-        logFileStream << filename << std::endl;
-    }
+    //if (log) {
+        //logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
+        //logFileStream << filename << std::endl;
+    //}
 
     // Create File Access Property List
     plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
@@ -102,13 +104,16 @@ File::File(std::string filename, unsigned int flag, bool log) : filename(filenam
 
     // Open or create file
     if (flag == File::OPEN) {
-        std::cout << "Opening file \"" << filename << "\" ";
+        if (log)
+            std::cout << "Opening file \"" << filename << "\" ";
         file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, plist_FILE_ACCESS);
         if (file < 0) {
-            std::cout << "... error" << std::endl;
+            if (log)
+                std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fopen error");
         }
-        std::cout << "... OK " << std::endl;
+        if (log)
+            std::cout << "... OK " << std::endl;
 
         try {
             // Load basic datasets values
@@ -135,13 +140,16 @@ File::File(std::string filename, unsigned int flag, bool log) : filename(filenam
             throw std::runtime_error("Wrong File");
         }
     } else if (flag == CREATE) {
-        std::cout << "Creating file \"" << filename << "\" ";
+        if (log)
+            std::cout << "Creating file \"" << filename << "\" ";
         file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, 0, plist_FILE_ACCESS);
         if (file < 0) {
-            std::cout << "... error" << std::endl;
+            if (log)
+                std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
         }
-        std::cout << "... OK " << std::endl;
+        if (log)
+            std::cout << "... OK " << std::endl;
     } else {
         throw std::runtime_error("Wrong File flag");
     }
@@ -165,7 +173,7 @@ File::~File()
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  */
-void File::createDatasetI(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
     File::createDataset(name, H5T_NATIVE_UINT64, size, chunkSize, rewrite, log);
 }
@@ -178,7 +186,7 @@ void File::createDatasetI(const std::string name, Vector size, Vector chunkSize,
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  */
-void File::createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
     File::createDataset(name, H5T_NATIVE_FLOAT, size, chunkSize, rewrite, log);
 }
@@ -193,7 +201,7 @@ void File::createDatasetF(const std::string name, Vector size, Vector chunkSize,
  * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void File::createDataset(const std::string name, hid_t datatype, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDataset(std::string name, hid_t datatype, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
     hid_t dataspace = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), 0);
     if (dataspace < 0) {
@@ -213,12 +221,12 @@ void File::createDataset(const std::string name, hid_t datatype, Vector size, Ve
     }
 
     if (!chunkSize.hasZeros()) {
-        err = H5Pset_chunk(plist, int(chunkSize.getLength()), chunkSize.getVectorPtr());
+        herr_t err = H5Pset_chunk(plist, int(chunkSize.getLength()), chunkSize.getVectorPtr());
         if (err < 0) {
             throw std::runtime_error("H5Pset_chunk error");
         }
     } else {
-        err = H5Pset_layout(plist, H5D_CONTIGUOUS);
+        herr_t err = H5Pset_layout(plist, H5D_CONTIGUOUS);
         if (err < 0) {
             throw std::runtime_error("H5Pset_layout error");
         }
@@ -305,7 +313,7 @@ void File::createDataset(Dataset *dataset, bool rewrite, bool log)
  * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *File::openDataset(const std::string name, bool log)
+Dataset *File::openDataset(std::string name, bool log)
 {
     return dynamic_cast<Dataset *>(openObject(name, log));
 }
@@ -326,7 +334,7 @@ Dataset *File::openDataset(hsize_t idx, bool log)
  * @param[in] name Name of dataset
  * @return True/False
  */
-bool File::isDatasetOpened(const std::string name)
+bool File::isDatasetOpened(std::string name) const
 {
     return isObjectOpened(name);
 }
@@ -336,7 +344,7 @@ bool File::isDatasetOpened(const std::string name)
  * @param[in] idx Index of dataset in file
  * @return True/False
  */
-bool File::isDatasetOpened(hsize_t idx)
+bool File::isDatasetOpened(hsize_t idx) const
 {
     return isDatasetOpened(getObjNameByIdx(idx));
 }
@@ -346,7 +354,7 @@ bool File::isDatasetOpened(hsize_t idx)
  * @param[in] name Name of dataset
  * @param[in] log Logging flag (optional)
  */
-void File::closeDataset(const std::string name, bool log)
+void File::closeDataset(std::string name, bool log)
 {
     closeObject(name, log);
 }
@@ -378,7 +386,7 @@ void File::closeDataset(Dataset *dataset, bool log)
  * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void File::createGroup(const std::string name, bool rewrite, bool log)
+void File::createGroup(std::string name, bool rewrite, bool log) const
 {
     if (log)
         std::cout << "Creating group \"" << name << "\" ";
@@ -413,7 +421,7 @@ void File::createGroup(const std::string name, bool rewrite, bool log)
  * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *File::openGroup(const std::string name, bool log)
+Group *File::openGroup(std::string name, bool log)
 {
     return dynamic_cast<Group *>(openObject(name, log));
 }
@@ -429,12 +437,12 @@ Group *File::openGroup(hsize_t idx, bool log)
     return openGroup(getObjNameByIdx(idx), log);
 }
 
-bool File::isGroupOpened(const std::string name)
+bool File::isGroupOpened(std::string name) const
 {
     return isObjectOpened(name);
 }
 
-bool File::isGroupOpened(hsize_t idx)
+bool File::isGroupOpened(hsize_t idx) const
 {
     return isDatasetOpened(getObjNameByIdx(idx));
 }
@@ -444,7 +452,7 @@ bool File::isGroupOpened(hsize_t idx)
  * @param[in] name Name of group
  * @param[in] log Logging flag (optional)
  */
-void File::closeGroup(const std::string name, bool log)
+void File::closeGroup(std::string name, bool log)
 {
     closeObject(name, log);
 }
@@ -469,14 +477,16 @@ void File::closeGroup(Group *group, bool log)
     closeGroup(group->getName(), log);
 }
 
-Object *File::openObject(const std::string name, bool log)
+Object *File::openObject(std::string name, bool log)
 {
     std::string nameTmp = fixPath(name);
     if (objects.find(nameTmp) == objects.end()) {
         insertObject(nameTmp, log);
         return openObject(nameTmp, log);
-    } else
+    } else {
+        objects.find(nameTmp)->second->setDeleteLog(log);
         return objects.find(nameTmp)->second;
+    }
 }
 
 Object *File::openObject(hsize_t idx, bool log)
@@ -484,7 +494,7 @@ Object *File::openObject(hsize_t idx, bool log)
     return openObject(getObjNameByIdx(idx), log);
 }
 
-bool File::isObjectOpened(const std::string name)
+bool File::isObjectOpened(std::string name) const
 {
     std::string nameTmp = fixPath(name);
     if (objects.find(nameTmp) == objects.end())
@@ -493,12 +503,12 @@ bool File::isObjectOpened(const std::string name)
         return true;
 }
 
-bool File::isObjectOpened(hsize_t idx)
+bool File::isObjectOpened(hsize_t idx) const
 {
     return isObjectOpened(getObjNameByIdx(idx));
 }
 
-void File::closeObject(const std::string name, bool log)
+void File::closeObject(std::string name, bool log)
 {
     std::string nameTmp = fixPath(name);
     if (objects.find(nameTmp) != objects.end()) {
@@ -525,14 +535,14 @@ void File::closeObject(Object *object, bool log)
  * @return Number of objects in HDF5 file
  * @throw std::runtime_error
  */
-hsize_t File::getNumObjs(hid_t groupId)
+hsize_t File::getNumObjs(hid_t groupId) const
 {
     int groupIdTmp = groupId;
     if (groupId <= 0)
         groupIdTmp = file;
 
     H5G_info_t group_info;
-    err = H5Gget_info(groupIdTmp, &group_info);
+    herr_t err = H5Gget_info(groupIdTmp, &group_info);
     if (err < 0) {
         throw std::runtime_error("H5Gget_info error");
     }
@@ -546,7 +556,7 @@ hsize_t File::getNumObjs(hid_t groupId)
  * @return Object name
  * @throw std::runtime_error
  */
-std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId)
+std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
 {
     int groupIdTmp = groupId;
     if (groupId <= 0)
@@ -573,7 +583,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId)
  * @return Object type
  * @throw std::runtime_error
  */
-H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId)
+H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId) const
 {
     int groupIdTmp = groupId;
     if (groupId <= 0)
@@ -587,10 +597,10 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId)
     return H5G_obj_t(type);
 }
 
-H5G_obj_t File::getObjTypeByName(const std::string name)
+H5G_obj_t File::getObjTypeByName(std::string name) const
 {
     H5O_info_t objectInfo;
-    err = H5Oget_info_by_name(file, name.c_str(), &objectInfo, 0);
+    herr_t err = H5Oget_info_by_name(file, name.c_str(), &objectInfo, 0);
     if (err < 0) {
         throw std::runtime_error("H5Oget_info_by_name error");
     }
@@ -602,7 +612,7 @@ H5G_obj_t File::getObjTypeByName(const std::string name)
  * @param[in] name Object name
  * @return True/False
  */
-bool File::objExistsByName(const std::string name)
+bool File::objExistsByName(std::string name) const
 {
     if (H5Lexists(file, name.c_str(), 0))
         return H5Oexists_by_name(file, name.c_str(), 0) != 0;
@@ -610,27 +620,28 @@ bool File::objExistsByName(const std::string name)
         return false;
 }
 
-void File::objRename(const std::string srcName, const std::string dstName)
+void File::objRename(std::string srcName, std::string dstName) const
 {
-    err = H5Lmove(file, srcName.c_str(), file, dstName.c_str(), 0, 0);
+    // TODO Check object is not opened
+    herr_t err = H5Lmove(file, srcName.c_str(), file, dstName.c_str(), 0, 0);
     if (err < 0) {
         throw std::runtime_error("H5Lmove error");
     }
 }
 
-void File::renameAttribute(const std::string srcName, const std::string dstName, hid_t groupId)
+void File::renameAttribute(std::string srcName, std::string dstName, hid_t groupId) const
 {
     int groupIdTmp = groupId;
     if (groupId <= 0)
         groupIdTmp = file;
 
-    err = H5Arename(groupIdTmp, srcName.c_str(), dstName.c_str());
+    herr_t err = H5Arename(groupIdTmp, srcName.c_str(), dstName.c_str());
     if (err < 0) {
         throw std::runtime_error("H5Arename error");
     }
 }
 
-void File::renameAttribute(const std::string srcName, const std::string dstName, const std::string objName)
+void File::renameAttribute(std::string srcName, std::string dstName, std::string objName) const
 {
     hid_t objId = H5Oopen(file, objName.c_str(), 0);
     if (objId < 0) {
@@ -639,7 +650,7 @@ void File::renameAttribute(const std::string srcName, const std::string dstName,
 
     renameAttribute(srcName, dstName, objId);
 
-    err = H5Oclose(objId);
+    herr_t err = H5Oclose(objId);
     if (err < 0) {
         throw std::runtime_error("H5Oopen error");
     }
@@ -649,7 +660,7 @@ void File::renameAttribute(const std::string srcName, const std::string dstName,
  * @brief Returns filename
  * @return Filename
  */
-std::string File::getFilename()
+std::string File::getFilename() const
 {
     return filename;
 }
@@ -673,7 +684,7 @@ void File::setNumberOfElmsToLoad(hsize_t size)
  * @brief Returns number of elements to load
  * @return Number of elements to load
  */
-hsize_t File::getNumberOfElmsToLoad()
+hsize_t File::getNumberOfElmsToLoad() const
 {
     return numberOfElementsToLoad;
 }
@@ -682,18 +693,9 @@ hsize_t File::getNumberOfElmsToLoad()
  * @brief Returns N dimensions (Nt, Nz, Ny, Nx)
  * @return N dimensions
  */
-Vector4D File::getNdims()
+Vector4D File::getNdims() const
 {
     return nDims;
-}
-
-/**
- * @brief Returns log file stream
- * @return Log file stream
- */
-std::ofstream *File::getLogFileStream()
-{
-    return &logFileStream;
 }
 
 /**
@@ -705,7 +707,12 @@ int File::getMPISize() const
     return mPISize;
 }
 
-void File::insertObject(const std::string name, bool log)
+void File::setDeleteLog(bool value)
+{
+    deleteLog = value;
+}
+
+void File::insertObject(std::string name, bool log)
 {
     std::string nameTmp = fixPath(name);
     if (getObjTypeByName(nameTmp) == H5G_DATASET) {
@@ -745,25 +752,27 @@ void File::insertObject(const std::string name, bool log)
  */
 void File::closeFileAndObjects()
 {
+    MapOfObjects objectsTmp = objects;
     // Delete all loaded objects
-    for (MapOfObjects::iterator it = objects.begin(); it != objects.end(); ++it) {
-        delete it->second;
+    for (MapOfObjects::iterator it = objectsTmp.begin(); it != objectsTmp.end(); ++it) {
+        closeObject(it->second, it->second->getDeleteLog());
     }
 
-    logFileStream.close();
-    std::cout << "Closing file \"" << filename << "\"";
+    if (deleteLog)
+        std::cout << "Closing file \"" << filename << "\"";
     err = H5Pclose(plist_FILE_ACCESS);
     if (err < 0) {
-        throw std::runtime_error("H5Pclose error");
+        //throw std::runtime_error("H5Pclose error");
     }
     err = H5Fclose(file);
     if (err < 0) {
-        throw std::runtime_error("H5Fclose error");
+        //throw std::runtime_error("H5Fclose error");
     }
-    std::cout << " ... OK" << std::endl;
+    if (deleteLog)
+        std::cout << " ... OK" << std::endl;
 }
 
-std::string trimSlashes(const std::string path)
+std::string trimSlashes(std::string path)
 {
     size_t first = path.find_first_not_of('/');
     if (std::string::npos == first) {
@@ -775,7 +784,7 @@ std::string trimSlashes(const std::string path)
     return path.substr(first, (last - first + 1));
 }
 
-std::string concatenatePath(const std::string path, const std::string name)
+std::string concatenatePath(std::string path, std::string name)
 {
     if (path == "/")
         return path + trimSlashes(name);
@@ -783,7 +792,7 @@ std::string concatenatePath(const std::string path, const std::string name)
         return path + fixPath(name);
 }
 
-std::string fixPath(const std::string path)
+std::string fixPath(std::string path)
 {
     return "/" + trimSlashes(path);
 }
@@ -896,7 +905,7 @@ void convertMultiDimToLinear(Vector position, hsize_t &index, Vector dims)
  *
  * This function exists due to OpenMP pragmas
  */
-void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float value)
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value)
 {
     if (first) {
         #pragma omp critical
@@ -932,7 +941,7 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, const float va
  *
  * This function exists due to OpenMP pragmas
  */
-void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsize_t value)
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t value)
 {
     if (first) {
         #pragma omp critical
@@ -964,7 +973,8 @@ void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, const hsiz
  * @param[in] name File name
  * @return True/False
  */
-bool fileExists(const std::string& name) {
+bool fileExists(const std::string& name)
+{
     std::ifstream infile(name);
     return infile.good();
 }

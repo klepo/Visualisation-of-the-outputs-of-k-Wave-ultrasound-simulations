@@ -33,32 +33,32 @@ namespace HDF5Helper
 class Group : public Object
 {
 public:
-    Group(const hid_t group, const std::string name, File *file);
+    Group(hid_t group, std::string name, File *file);
     ~Group();
 
-    Dataset *openDataset(const std::string name, bool log = true);
+    Dataset *openDataset(std::string name, bool log = true);
     Dataset *openDataset(hsize_t idx, bool log = true);
 
-    void closeDataset(const std::string name, bool log = true);
+    void closeDataset(std::string name, bool log = true);
     void closeDataset(hsize_t idx, bool log = true);
     void closeDataset(Dataset *dataset, bool log = true);
 
-    void createDatasetI(const std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
-    void createDatasetF(const std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
 
-    Group *openGroup(const std::string name, bool log = true);
+    Group *openGroup(std::string name, bool log = true);
     Group *openGroup(hsize_t idx, bool log = true);
 
-    void closeGroup(const std::string name, bool log = true);
+    void closeGroup(std::string name, bool log = true);
     void closeGroup(hsize_t idx, bool log = true);
     void closeGroup(Group *group, bool log = true);
 
-    void createGroup(const std::string name, bool rewrite = false, bool log = true);
+    void createGroup(std::string name, bool rewrite = false, bool log = true) const;
 
-    hid_t getId();
-    hsize_t getNumObjs();
-    std::string getObjNameByIdx(hsize_t idx);
-    H5G_obj_t getObjTypeByIdx(hsize_t idx);
+    hid_t getId() const;
+    hsize_t getNumObjs() const;
+    std::string getObjNameByIdx(hsize_t idx) const;
+    H5G_obj_t getObjTypeByIdx(hsize_t idx) const;
 
 private:
     Group(const Group &);
@@ -66,11 +66,6 @@ private:
     hid_t group;
 };
 
-/// Map of groups datatype
-//typedef std::map<const std::string, Group *> MapOfGroups;
-
-/// Pair of groups datatype
-//typedef std::pair<const std::string, Group *> PairOfGroups;
 }
 
 #endif // GROUP_H

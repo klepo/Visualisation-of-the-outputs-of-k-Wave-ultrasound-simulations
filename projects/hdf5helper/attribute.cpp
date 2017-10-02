@@ -119,7 +119,7 @@ hid_t Attribute::getDataspace() const
  * @brief Returns data of attribute
  * @return Data of attribute
  */
-void *Attribute::getData()
+void *Attribute::getData() const
 {
     return value;
 }
@@ -149,7 +149,7 @@ std::string Attribute::getStringDatatype() const
  * @param[in] size Attribute size (optional)
  * @return Attribute value as string
  */
-std::string Attribute::getStringValue(const hid_t datatype, const void *value, hsize_t size)
+std::string Attribute::getStringValue(hid_t datatype, const void *value, hsize_t size)
 {
     if (H5Tget_class(datatype) == H5Tget_class(H5T_C_S1)) {
         if (H5Tis_variable_str(datatype)) {
@@ -186,7 +186,7 @@ std::string Attribute::getStringValue(const hid_t datatype, const void *value, h
  * @param[in] datatype Attribute datatype
  * @return Attribute datatype as string
  */
-std::string Attribute::getStringDatatype(const hid_t datatype)
+std::string Attribute::getStringDatatype(hid_t datatype)
 {
     if (H5Tget_class(datatype) == H5Tget_class(H5T_C_S1)) {
         if (H5Tis_variable_str(datatype)) {
