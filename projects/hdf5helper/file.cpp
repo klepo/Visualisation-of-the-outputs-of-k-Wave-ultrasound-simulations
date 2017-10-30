@@ -253,7 +253,7 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
             Dataset *dataset = openDataset(name, false);
             if (H5Tequal(dataset->getDataType(), datatype) && dataset->getDims() == size && dataset->getChunkDims() == chunkSize) {
                 if (log)
-                    std::cout << " rewrite original space ... OK" << std::endl;
+                    std::cout << "... rewriting original space ... OK" << std::endl;
                 err = H5Sclose(dataspace);
                 if (err < 0) {
                     throw std::runtime_error("H5Sclose error");
@@ -267,7 +267,7 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
             }
             closeDataset(dataset, false);
             if (log)
-                std::cout << "... delete original link";
+                std::cout << "... deleting original link";
             H5Ldelete(file, name.c_str(), 0);
         }
     }

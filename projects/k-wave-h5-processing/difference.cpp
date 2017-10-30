@@ -57,6 +57,7 @@ void Difference::execute()
                 for (HDF5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
                     HDF5Helper::Dataset *dataset = it2->second;
                     HDF5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
+
                     if ((datasetDecodedType == HDF5Helper::DatasetType::TIME_STEPS_D_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_MASK)
                             || (datasetDecodedType == HDF5Helper::DatasetType::CUBOID_D && datasetType == HDF5Helper::DatasetType::CUBOID)
                             || (datasetDecodedType == HDF5Helper::DatasetType::CUBOID_ATTR_D && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR)

@@ -67,7 +67,7 @@ void Reshape::execute()
                 if (checkDatasetType(datasetType, types)) {
                     Helper::printDebugMsg("Reshaping of dataset " + dataset->getName());
                     reshapeMaskTypeDataset(dataset, min, dims, chunkDims, false);
-                    Helper::printDebugMsg("Reshaping of dataset " + dataset->getName() + "done");
+                    Helper::printDebugMsg("Reshaping of dataset " + dataset->getName() + " done");
                 }
             }
         } else if (!getDtsForPcs()->getDatasets(HDF5Helper::DatasetType::CUBOID).empty() && getDtsForPcs()->getSensorMaskCornersDataset()) {
@@ -81,7 +81,7 @@ void Reshape::execute()
                 HDF5Helper::Dataset *dataset = it->second;
                 Helper::printDebugMsg("Reshaping of dataset " + dataset->getName());
                 reshapeCuboid(dataset, sensorMaskCornersData, false);
-                Helper::printDebugMsg("Reshaping of dataset " + dataset->getName() + "done");
+                Helper::printDebugMsg("Reshaping of dataset " + dataset->getName() + " done");
             }
             delete[] sensorMaskCornersData;
         } else {

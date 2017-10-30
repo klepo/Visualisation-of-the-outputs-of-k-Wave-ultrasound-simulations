@@ -57,8 +57,8 @@ protected:
     void triangular(hsize_t oSize, float *w);   // Triangular window
     void hann(hsize_t oSize, float *w);         // Hann window
     void generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e);
-    void generateBE(hsize_t h, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false);
-    void generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, HDF5Helper::VectorOfDatasets srcDatasets = HDF5Helper::VectorOfDatasets());
+    void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false);
+    void generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false);
 };
 
 #endif // COMPRESSHELPER_H

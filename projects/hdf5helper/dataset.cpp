@@ -269,7 +269,7 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             }
             if (dims.z() == 1
                     //&& dims.y() <= nDims.w()
-                    && dims.x() == sensorMaskSize
+                    //&& dims.x() == sensorMaskSize
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                     && hasAttribute(C_TYPE_ATTR)
@@ -279,7 +279,7 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             }
             if (dims.z() == 1
                     //&& dims.y() <= nDims.w()
-                    && dims.x() == sensorMaskSize
+                    //&& dims.x() == sensorMaskSize
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                     && hasAttribute(C_TYPE_ATTR)
@@ -289,7 +289,7 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             }
             if (dims.z() == 1
                     //&& dims.y() <= nDims.w()
-                    && dims.x() == sensorMaskSize
+                    //&& dims.x() == sensorMaskSize
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(C_TYPE_ATTR)
                     && readAttributeS(C_TYPE_ATTR, false) == "d"

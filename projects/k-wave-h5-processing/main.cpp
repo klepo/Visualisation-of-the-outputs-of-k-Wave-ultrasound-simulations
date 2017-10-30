@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     FilesContext *filesContext = new FilesContext(settings);
     DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
 
-    Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
+    //Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
 
     // TODO:
     // - odzkoušet downsampling cuboidů atd.

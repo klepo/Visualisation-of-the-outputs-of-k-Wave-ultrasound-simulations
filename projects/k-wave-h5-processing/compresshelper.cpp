@@ -255,13 +255,13 @@ void CompressHelper::generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bS
     }
 }
 
-void CompressHelper::generateBE(hsize_t h, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
+void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
 {
     #pragma omp parallel for
     for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-        hssize_t hx = hssize_t(h) * hssize_t(bSize) + x;
+        hssize_t hx = hssize_t(ih) * hssize_t(bSize) + x;
         bE[hx] = b[x] * e[hx];
-        bE_1[hx] = b[(x + hssize_t(oSize)) % (hssize_t(bSize) - 1)] * e[hssize_t(h) * hssize_t(bSize) + ((x + hssize_t(oSize)) % (hssize_t(bSize) - 1))];
+        bE_1[hx] = b[(x + hssize_t(oSize)) % (hssize_t(bSize) - 1)] * e[hssize_t(ih) * hssize_t(bSize) + ((x + hssize_t(oSize)) % (hssize_t(bSize) - 1))];
         if (normalize) {
                 bE[hx] *= (2.0f / float(oSize));
                 bE_1[hx] *= (2.0f / float(oSize));
@@ -269,30 +269,15 @@ void CompressHelper::generateBE(hsize_t h, hsize_t bSize, hsize_t oSize, float *
     }
 }
 
-void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, HDF5Helper::VectorOfDatasets srcDatasets)
+void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
 {
     // Generate basis function (window)
     triangular(oSize, b);  // Triangular window
     //hann(oSize, b);        // Hann window
 
-    bool normalize = false;
-
     // Generate complex exponential functions
-    if (srcDatasets.size() == harmonics) {
-        for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
-                if (srcDatasets.at(hsize_t(h))->hasAttribute(HDF5Helper::C_HARMONIC_ATTR)) {
-                    generateE(period, hsize_t(h), srcDatasets.at(hsize_t(h))->readAttributeI(HDF5Helper::C_HARMONIC_ATTR, false), bSize, e);
-                } else {
-                    generateE(period, hsize_t(h), 1, bSize, e);
-                }
-        }
-    } else {
-        normalize = true;
-        for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
-            generateE(period, hsize_t(h), hsize_t(h + 1), bSize, e);
-        }
-    }
     for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
+        generateE(period, hsize_t(h), hsize_t(h + 1), bSize, e);
         generateBE(hsize_t(h), bSize, oSize, b, e, bE, bE_1, normalize);
     }
 }
