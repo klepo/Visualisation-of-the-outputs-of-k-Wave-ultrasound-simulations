@@ -1036,7 +1036,7 @@ void Dataset::readEmptyBlock(bool log)
         throw std::runtime_error("H5Dread error");
     }
     if (log)
-        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms;\tempty block" << std::endl;
+        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms\tempty block" << std::endl;
 }
 
 /**
@@ -1091,7 +1091,7 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data, bool l
     }
 
     if (log)
-        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
+        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms\toffset: " << offset << "\tcount: " << count << std::endl;
 }
 
 /**
@@ -1147,7 +1147,7 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
     }
 
     if (log)
-        std::cout << getName() << " \twrite time: \t" << (t1 - t0) << " ms;\toffset: " << offset << ";\tcount: " << count << std::endl;
+        std::cout << getName() << " \twrite time: \t" << (t1 - t0) << " ms\toffset: " << offset << "\tcount: " << count << std::endl;
 }
 
 /**

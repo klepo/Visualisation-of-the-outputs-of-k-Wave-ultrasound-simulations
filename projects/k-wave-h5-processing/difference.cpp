@@ -71,7 +71,7 @@ void Difference::execute()
 
                 if (datasetDecoded) {
                     Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
-                    subtractDatasets(datasetOriginal, datasetDecoded, false);
+                    subtractDatasets(datasetOriginal, datasetDecoded, getSettings()->getFlagLog());
                     Helper::printDebugMsg("Subtraction of datasets done");
                     count++;
                 }
@@ -145,10 +145,11 @@ void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Help
                 if (dataO[i] == minVO)
                     minVOIndex = linearOffset + i;
                 if (dataO[i] == maxVO)
-                    maxVOIndex = linearOffset + i;            }
+                    maxVOIndex = linearOffset + i;
+            }
         }
 
-        dstDataset->writeDataset(offset, count, dataD);
+        dstDataset->writeDataset(offset, count, dataD, log);
         delete[] dataD;
         delete[] dataO;
     }

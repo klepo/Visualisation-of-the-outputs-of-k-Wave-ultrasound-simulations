@@ -59,7 +59,7 @@ File::File(std::string filename, unsigned int flag, bool log)
         setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 8));
     }
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // ca 10 GB
-    // setNumberOfElmsToLoad(1024 * 1024 * 1024);
+    // setNumberOfElmsToLoad(25 * 55 * 82);
 
     // Disable error HDF5 output
     H5Eset_auto(0, 0, 0);
@@ -241,7 +241,7 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token = s.substr(0, pos);
         if (token.length() > 0)
-            createGroup(token, false);
+            createGroup(token, false, log);
         s.erase(0, pos + delimiter.length());
     }
 
