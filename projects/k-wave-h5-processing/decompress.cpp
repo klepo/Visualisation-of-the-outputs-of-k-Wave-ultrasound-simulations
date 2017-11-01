@@ -169,6 +169,11 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
     hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
 
+    hsize_t stepsToWrite = dstDataset->getRealNumberOfElmsToLoad() / outputStepSize;
+
+    Helper::printDebugTwoColumns2S("dstDataset->getRealNumberOfElmsToLoad()", dstDataset->getRealNumberOfElmsToLoad());
+    Helper::printDebugTwoColumns2S("stepsToWrite", stepsToWrite);
+
     // If we have enough memory - minimal for one full step in 3D space
     if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2) {
 
@@ -176,9 +181,10 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
         floatC *cC = new floatC[stepSize / 2]();
         floatC *lC = new floatC[stepSize / 2]();
         // Output buffer
-        float *data = new float[outputStepSize]();
+        float *data = new float[outputStepSize * stepsToWrite]();
 
         hsize_t step = 0;
+        hsize_t localStep = 0;
 
         // Reading and decompression
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
@@ -222,54 +228,61 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
 
                                 // Copy first coefficient
                                 if (frame == 0) {
-                                    lC[pH] = floatC(dataC[pHC], dataC[pHC + 1]);
+                                    lC[pH] = conj(floatC(dataC[pHC], dataC[pHC + 1]));
                                 }
 
                                 if (frame == framesCount - 1 && lastFlag) {
                                     hsize_t pF1 = (frame - 1) * stepSize + 2 * harmonics * hsize_t(p) + 2 * ih;
                                     // Duplicate last coefficient
-                                    cC[pH] = floatC(dataC[pF1], dataC[pF1 + 1]);
+                                    cC[pH] = conj(floatC(dataC[pF1], dataC[pF1 + 1]));
                                 } else {
                                     hsize_t pF = frame * stepSize + 2 * harmonics * hsize_t(p) + 2 * ih;
                                     // Read coefficient
-                                    cC[pH] = floatC(dataC[pF], dataC[pF + 1]);
+                                    cC[pH] = conj(floatC(dataC[pF], dataC[pF + 1]));
                                 }
                             }
                         }
 
                         // Compute new point value
-                        data[p] = 0;
+                        data[localStep * outputStepSize + p] = 0;
                         for (hsize_t ih = 0; ih < harmonics; ih++) {
                             hsize_t pH = harmonics * hsize_t(p) + ih;
                             hsize_t sH = ih * bSize + stepLocal;
-                            data[p] += real(conj(cC[pH]) * bE[sH]) + real(conj(lC[pH]) * bE_1[sH]);
+                            data[localStep * outputStepSize + p] += real(cC[pH] * bE[sH]) + real(lC[pH] * bE_1[sH]);
                         }
 
                         // Min/max values
-                        HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, data[p]);
+                        HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, data[localStep * outputStepSize + p]);
                         #pragma omp critical
                         {
-                            if (data[p] == minV)
-                                minVIndex = (step * oSize + stepLocal) * outputStepSize + hsize_t(p);
-                            if (data[p] == maxV)
-                                maxVIndex = (step * oSize + stepLocal) * outputStepSize + hsize_t(p);
+                            if (data[localStep * outputStepSize + p] == minV)
+                                minVIndex = step * outputStepSize + hsize_t(p);
+                            if (data[localStep * outputStepSize + p] == maxV)
+                                maxVIndex = step * outputStepSize + hsize_t(p);
                         }
                     }
                     //Helper::printDebugTime("one step decoding", t0, t1);
 
-                    if (log) {
-                        Helper::printDebugMsgStart("Saving step " + std::to_string(step * oSize + stepLocal + 1) + "/" + std::to_string(outputSteps));
-                    }
-                    if (dims.getLength() == 4) { // 4D dataset
-                        dstDataset->writeDataset(HDF5Helper::Vector4D(step * oSize + stepLocal, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), data);
-                    } else if (dims.getLength() == 3) {
-                        dstDataset->writeDataset(HDF5Helper::Vector3D(0, step * oSize + stepLocal, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), data);
-                    }
-                    if (log) {
-                        Helper::printDebugMsg("saved");
+                    step++;
+                    localStep++;
+                    Helper::printDebugMsg(std::to_string(step));
+
+                    if (step % stepsToWrite == 0 || step == outputSteps) {
+                        if (log) {
+                            Helper::printDebugMsgStart("Saving steps " + std::to_string(step - localStep) + "-" + std::to_string(step) + "/" + std::to_string(outputSteps));
+                        }
+                        if (dims.getLength() == 4) { // 4D dataset
+                            dstDataset->writeDataset(HDF5Helper::Vector4D(step - localStep, 0, 0, 0), HDF5Helper::Vector4D(localStep, outputDims[1], outputDims[2], outputDims[3]), data, log);
+                        } else if (dims.getLength() == 3) {
+                            dstDataset->writeDataset(HDF5Helper::Vector3D(0, step - localStep, 0), HDF5Helper::Vector3D(1, localStep, outputDims[2]), data, log);
+                        }
+                        if (log) {
+                            Helper::printDebugMsg("saved");
+                        }
+                        localStep = 0;
                     }
                 }
-                step++;
+
                 //Helper::printDebugMsg("encoded");
             }
             delete[] dataC;
