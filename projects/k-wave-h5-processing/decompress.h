@@ -34,7 +34,7 @@ public:
     virtual void execute();
 
 private:
-    void decompressDatasets(HDF5Helper::Dataset *srcDatasetsPhi, HDF5Helper::Dataset *srcDatasetsK, bool log = true);
+    void decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log = true);
 
 };
 

@@ -41,6 +41,7 @@ void Compress::execute()
         HDF5Helper::DatasetType::CUBOID,
         HDF5Helper::DatasetType::CUBOID_ATTR
     };
+    // TODO downsampled datasets
 
     try {
         HDF5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
@@ -107,14 +108,14 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
         steps = HDF5Helper::Vector4D(dims).w();
         outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[0] = outputSteps;
-        outputDims[3] *= harmonics;
+        outputDims[3] *= harmonics * 2;
         stepSize = dims[1] * dims[2] * dims[3];
         outputStepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::Vector3D(dims).y();
         outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[1] = outputSteps;
-        outputDims[2] *= harmonics;
+        outputDims[2] *= harmonics * 2;
         stepSize = dims[2];
         outputStepSize = outputDims[2];
     } else { // Something wrong.
@@ -153,24 +154,10 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
         Helper::printDebugTwoColumns2S("chunkDims", chunkDims);
     }
 
-    //HDF5Helper::VectorOfDatasets datasetsPhi;
-    //HDF5Helper::VectorOfDatasets datasetsK;
+    HDF5Helper::Dataset *dstDataset;
 
-    HDF5Helper::Dataset *datasetPhi;
-    HDF5Helper::Dataset *datasetK;
-
-    // Create destination datasets
-    /*for (hssize_t ih = 0; ih < hssize_t(harmonics); ih++) {
-        getOutputFile()->createDatasetF(srcDataset->getName() + "_k_" + std::to_string(ih + 1), outputDims, chunkDims, true, log);
-        getOutputFile()->createDatasetF(srcDataset->getName() + "_phi_" + std::to_string(ih + 1), outputDims, chunkDims, true, log);
-        datasetsK.push_back(getOutputFile()->openDataset(srcDataset->getName() + "_k_" + std::to_string(ih + 1), log));
-        datasetsPhi.push_back(getOutputFile()->openDataset(srcDataset->getName() + "_phi_" + std::to_string(ih + 1), log));
-    }*/
-
-    getOutputFile()->createDatasetF(srcDataset->getName() + "_k", outputDims, chunkDims, true, log);
-    getOutputFile()->createDatasetF(srcDataset->getName() + "_phi", outputDims, chunkDims, true, log);
-    datasetK = getOutputFile()->openDataset(srcDataset->getName() + "_k", log);
-    datasetPhi = getOutputFile()->openDataset(srcDataset->getName() + "_phi", log);
+    getOutputFile()->createDatasetF(srcDataset->getName() + "_c", outputDims, chunkDims, true, log);
+    dstDataset = getOutputFile()->openDataset(srcDataset->getName() + "_c", log);
 
     double t0 = HDF5Helper::getTime();
 
@@ -178,23 +165,20 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
     float *data = 0;
     HDF5Helper::Vector offset;
     HDF5Helper::Vector count;
-    float maxVK, maxVPhi;
-    float minVK, minVPhi;
-    hsize_t maxVKIndex = 0, maxVPhiIndex = 0;
-    hsize_t minVKIndex = 0, minVPhiIndex = 0;
+    float maxV, minV;
+    hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
 
     // If we have enough memory - minimal for one full step in 3D space
-    if (srcDataset->getNumberOfElmsToLoad() >= outputStepSize * 5) {
+    if (srcDataset->getNumberOfElmsToLoad() >= outputStepSize * 2) {
 
         // Complex buffers for accumulation
-        floatC *sCTmp1 = new floatC[outputStepSize]();
-        floatC *sCTmp2 = new floatC[outputStepSize]();
+        floatC *sCTmp1 = new floatC[outputStepSize / 2]();
+        floatC *sCTmp2 = new floatC[outputStepSize / 2]();
 
         hsize_t frame = 1;
 
-        float *dataK = new float[outputStepSize]();
-        float *dataPhi = new float[outputStepSize]();
+        float *dataC = new float[outputStepSize]();
 
         // Reading and compression
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
@@ -241,32 +225,26 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
                                 sCTmp2[pH] = 0;
                             }
 
-                            // Computing amplitude
-                            float k = abs(sC);
-
-                            // Computing phase
-                            float phi = arg(sC);
-
                             // Save complex coefficients
                             // Drop first "half" frame
                             if (frame > 1) {
-                                dataK[pH] = k;
-                                dataPhi[pH] = phi;
+                                dataC[harmonics * hsize_t(p) + 2 * ih] = real(sC);
+                                dataC[harmonics * hsize_t(p) + 2 * ih + 1] = imag(sC);
 
                                 // Min/max values
-                                HDF5Helper::checkOrSetMinMaxValue(first, minVK, maxVK, k);
-                                HDF5Helper::checkOrSetMinMaxValue(first, minVPhi, maxVPhi, phi);
+                                HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sC));
+                                HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sC));
 
                                 #pragma omp critical
                                 {
-                                    if (k == minVK)
-                                        minVKIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + ih;
-                                    if (k == maxVK)
-                                        maxVKIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + ih;
-                                    if (k == minVPhi)
-                                        minVPhiIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + ih;
-                                    if (k == maxVPhi)
-                                        maxVPhiIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + ih;
+                                    if (real(sC) == minV)
+                                        minVIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + 2 * ih;
+                                    if (real(sC) == maxV)
+                                        maxVIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + 2 * ih;
+                                    if (imag(sC) == minV)
+                                        minVIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + 2 * ih + 1;
+                                    if (imag(sC) == maxV)
+                                        maxVIndex = (frame - 2) * outputStepSize + harmonics * hsize_t(p) + 2 * ih + 1;
                                 }
                             }
                         }
@@ -279,15 +257,9 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
                             Helper::printDebugMsgStart("Saving frame " + std::to_string(frame - 1) + " / " + std::to_string(outputSteps));
                         }
                         if (dims.getLength() == 4) { // 4D dataset
-                            //for (hsize_t h = 0; h < harmonics; h++) {
-                                datasetK->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataK);
-                                datasetPhi->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataPhi);
-                            //}
+                            dstDataset->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataC);
                         } else if (dims.getLength() == 3) {
-                            //for (hsize_t h = 0; h < harmonics; h++) {
-                                datasetK->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), dataK);
-                                datasetPhi->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), dataPhi);
-                            //}
+                            dstDataset->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), dataC);
                         }
                         if (log) {
                             Helper::printDebugMsg("saved");
@@ -305,15 +277,9 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
                     Helper::printDebugMsgStart("Saving frame " + std::to_string(frame - 1) + " / " + std::to_string(outputSteps));
                 }
                 if (dims.getLength() == 4) { // 4D dataset
-                    //for (hsize_t h = 0; h < harmonics; h++) {
-                        datasetK->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataK);
-                        datasetPhi->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataPhi);
-                    //}
+                    dstDataset->writeDataset(HDF5Helper::Vector4D(frame - 2, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataC);
                 } else if (dims.getLength() == 3) {
-                    //for (hsize_t h = 0; h < harmonics; h++) {
-                        datasetK->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), dataK);
-                        datasetPhi->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), dataPhi);
-                    //}
+                    dstDataset->writeDataset(HDF5Helper::Vector3D(0, frame - 2, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), dataC);
                 }
                 if (log) {
                     Helper::printDebugMsg("saved");
@@ -323,8 +289,7 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
             delete[] data;
         }
 
-        delete[] dataK;
-        delete[] dataPhi;
+        delete[] dataC;
 
         // Delete complex buffers
         delete[] sCTmp1;
@@ -337,19 +302,7 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
         delete[] bE;
         delete[] bE_1;
 
-        //for (hsize_t h = 0; h < harmonics; h++) {
-            getOutputFile()->closeDataset(datasetK, log);
-            getOutputFile()->closeDataset(datasetPhi, log);
-        //}
-
-        /*delete[] minVK;
-        delete[] maxVK;
-        delete[] minVKIndex;
-        delete[] maxVKIndex;
-        delete[] minVPhi;
-        delete[] maxVPhi;
-        delete[] minVPhiIndex;
-        delete[] maxVPhiIndex;*/
+        getOutputFile()->closeDataset(dstDataset, log);
 
         return;
     }
@@ -360,47 +313,22 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
     delete[] bE;
     delete[] bE_1;
 
-    //for (hsize_t h = 0; h < harmonics; h++) {
-        // Copy attributes
-        copyAttributes(srcDataset, datasetK);
-        copyAttributes(srcDataset, datasetPhi);
+    // Copy attributes
+    copyAttributes(srcDataset, dstDataset);
 
-        // Set min/max values
-        datasetK->setAttribute(HDF5Helper::MIN_ATTR, minVK, log);
-        datasetK->setAttribute(HDF5Helper::MAX_ATTR, maxVK, log);
-        datasetK->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVKIndex, log);
-        datasetK->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVKIndex, log);
-        datasetK->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
-        datasetK->setAttribute(HDF5Helper::C_TYPE_ATTR, "k", log);
-        datasetK->setAttribute(HDF5Helper::C_PERIOD_ATTR, period, log);
-        datasetK->setAttribute(HDF5Helper::C_HARMONICS_ATTR, harmonics, log);
-        datasetK->setAttribute(HDF5Helper::C_MOS_ATTR, mos, log);
-
-        datasetPhi->setAttribute(HDF5Helper::MIN_ATTR, minVPhi, log);
-        datasetPhi->setAttribute(HDF5Helper::MAX_ATTR, maxVPhi, log);
-        datasetPhi->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVPhiIndex, log);
-        datasetPhi->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVPhiIndex, log);
-        datasetPhi->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
-        datasetPhi->setAttribute(HDF5Helper::C_TYPE_ATTR, "phi", log);
-        datasetPhi->setAttribute(HDF5Helper::C_PERIOD_ATTR, period, log);
-        datasetPhi->setAttribute(HDF5Helper::C_HARMONICS_ATTR, harmonics, log);
-        datasetPhi->setAttribute(HDF5Helper::C_MOS_ATTR, mos, log);
-    //}
-
-    /*delete minVK;
-    delete maxVK;
-    delete minVKIndex;
-    delete maxVKIndex;
-    delete minVPhi;
-    delete maxVPhi;
-    delete minVPhiIndex;
-    delete maxVPhiIndex;*/
+    // Set min/max values
+    dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV, log);
+    dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV, log);
+    dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex, log);
+    dstDataset->setAttribute(HDF5Helper::MAX_INDEX_ATTR, maxVIndex, log);
+    dstDataset->setAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
+    dstDataset->setAttribute(HDF5Helper::C_TYPE_ATTR, "c", log);
+    dstDataset->setAttribute(HDF5Helper::C_PERIOD_ATTR, period, log);
+    dstDataset->setAttribute(HDF5Helper::C_HARMONICS_ATTR, harmonics, log);
+    dstDataset->setAttribute(HDF5Helper::C_MOS_ATTR, mos, log);
 
     double t1 = HDF5Helper::getTime();
     Helper::printDebugTime("dataset compression", t0, t1);
 
-    //for (hsize_t h = 0; h < harmonics; h++) {
-        getOutputFile()->closeDataset(datasetK, log);
-        getOutputFile()->closeDataset(datasetPhi, log);
-    //}
+    getOutputFile()->closeDataset(dstDataset, log);
 }

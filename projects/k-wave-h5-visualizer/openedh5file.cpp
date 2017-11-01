@@ -196,22 +196,18 @@ void OpenedH5File::findDatasetsForVisualization(HDF5Helper::Group *group)
                        ) {
                 setObject(QString::fromStdString(group->getName()), dataset, dataset4D_t);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
-            } else if (datasetType == HDF5Helper::DatasetType::CUBOID_PHI
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_K
+            } else if (datasetType == HDF5Helper::DatasetType::CUBOID_C
                        || datasetType == HDF5Helper::DatasetType::CUBOID_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_S
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_PHI
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_K
+                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_C
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_S
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_PHI
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_K
+                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_C
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_S
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_PHI
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_K
+                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_C
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_D
                        || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_S
                        ) {

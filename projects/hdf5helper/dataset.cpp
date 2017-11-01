@@ -273,19 +273,9 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
                     && hasAttribute(C_TYPE_ATTR)
-                    && readAttributeS(C_TYPE_ATTR, false) == "phi"
+                    && readAttributeS(C_TYPE_ATTR, false) == "c"
                     ) {
-                return DatasetType::TIME_STEPS_PHI_MASK;
-            }
-            if (dims.z() == 1
-                    //&& dims.y() <= nDims.w()
-                    //&& dims.x() == sensorMaskSize
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                    && hasAttribute(C_TYPE_ATTR)
-                    && readAttributeS(C_TYPE_ATTR, false) == "k"
-                    ) {
-                return DatasetType::TIME_STEPS_K_MASK;
+                return DatasetType::TIME_STEPS_C_MASK;
             }
             if (dims.z() == 1
                     //&& dims.y() <= nDims.w()
@@ -322,14 +312,9 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                         ) {
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "c"
                             ) {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL_PHI;
-                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
-                            ) {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL_K;
+                        return DatasetType::CUBOID_ATTR_DWNSMPL_C;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
                             ) {
@@ -344,14 +329,9 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 } else { // Without position attributes
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "c"
                             ) {
-                        return DatasetType::CUBOID_DWNSMPL_PHI;
-                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
-                            ) {
-                        return DatasetType::CUBOID_DWNSMPL_K;
+                        return DatasetType::CUBOID_DWNSMPL_C;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
                             ) {
@@ -372,16 +352,10 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                         ) {
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "c"
                             && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
-                        return DatasetType::CUBOID_ATTR_PHI;
-                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
-                               && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
-                        return DatasetType::CUBOID_ATTR_K;
+                        return DatasetType::CUBOID_ATTR_C;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
                                && hasAttribute(SRC_DATASET_NAME_ATTR)
@@ -398,16 +372,10 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 } else { // Without position attributes
                     if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                             && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "phi"
+                            && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "c"
                             && hasAttribute(SRC_DATASET_NAME_ATTR)
                             ) {
-                        return DatasetType::CUBOID_PHI;
-                    } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
-                               && hasAttribute(HDF5Helper::C_PERIOD_ATTR)
-                               && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "k"
-                               && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
-                        return DatasetType::CUBOID_K;
+                        return DatasetType::CUBOID_C;
                     } else if (hasAttribute(HDF5Helper::C_TYPE_ATTR)
                                && readAttributeS(HDF5Helper::C_TYPE_ATTR, false) == "d"
                                && hasAttribute(SRC_DATASET_NAME_ATTR)
@@ -465,50 +433,40 @@ std::string Dataset::getTypeString(DatasetType type) const
             return "Sensor mask type";
         case DatasetType::TIME_STEPS_MASK:
             return "Sensor mask type (time steps)";
-        case DatasetType::TIME_STEPS_PHI_MASK:
-            return "Sensor mask type (compressed phi)";
-        case DatasetType::TIME_STEPS_K_MASK:
-            return "Sensor mask type (compressed k)";
+        case DatasetType::TIME_STEPS_C_MASK:
+            return "Sensor mask type (compressed)";
         case DatasetType::TIME_STEPS_D_MASK:
             return "Sensor mask type (decompressed)";
         case DatasetType::TIME_STEPS_S_MASK:
             return "Sensor mask type (difference)";
         case DatasetType::CUBOID:
             return "Cuboid type";
-        case DatasetType::CUBOID_PHI:
-            return "Cuboid type (compressed phi)";
-        case DatasetType::CUBOID_K:
-            return "Cuboid type (compressed k)";
+        case DatasetType::CUBOID_C:
+            return "Cuboid type (compressed)";
         case DatasetType::CUBOID_D:
             return "Cuboid type (decompressed)";
         case DatasetType::CUBOID_S:
             return "Cuboid type (difference)";
         case DatasetType::CUBOID_DWNSMPL:
             return "Cuboid type (downsampled";
-        case DatasetType::CUBOID_DWNSMPL_PHI:
-            return "Cuboid type (downsampled compressed phi)";
-        case DatasetType::CUBOID_DWNSMPL_K:
-            return "Cuboid type (downsampled compressed k)";
+        case DatasetType::CUBOID_DWNSMPL_C:
+            return "Cuboid type (downsampled compressed)";
         case DatasetType::CUBOID_DWNSMPL_D:
             return "Cuboid type (downsampled decompressed)";
         case DatasetType::CUBOID_DWNSMPL_S:
             return "Cuboid type (downsampled difference)";
         case DatasetType::CUBOID_ATTR:
             return "Cuboid type with attributes";
-        case DatasetType::CUBOID_ATTR_PHI:
-            return "Cuboid type with attributes (compressed phi)";
-        case DatasetType::CUBOID_ATTR_K:
-            return "Cuboid type with attributes (compressed k)";
+        case DatasetType::CUBOID_ATTR_C:
+            return "Cuboid type with attributes (compressed)";
         case DatasetType::CUBOID_ATTR_D:
             return "Cuboid type with attributes (decompressed)";
         case DatasetType::CUBOID_ATTR_S:
             return "Cuboid type with attributes (difference)";
         case DatasetType::CUBOID_ATTR_DWNSMPL:
             return "Cuboid type with attributes (downsampled)";
-        case DatasetType::CUBOID_ATTR_DWNSMPL_PHI:
-            return "Cuboid type with attributes (downsampled compressed phi)";
-        case DatasetType::CUBOID_ATTR_DWNSMPL_K:
-            return "Cuboid type with attributes (downsampled compressed k)";
+        case DatasetType::CUBOID_ATTR_DWNSMPL_C:
+            return "Cuboid type with attributes (downsampled compressed)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_D:
             return "Cuboid type with attributes (downsampled decompressed)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_S:

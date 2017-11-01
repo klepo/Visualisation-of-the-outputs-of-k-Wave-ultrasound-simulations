@@ -37,9 +37,9 @@ Decompress::Decompress(HDF5Helper::File *outputFile, DtsForPcs *dtsForPcs, Setti
 void Decompress::execute()
 {
     std::vector<HDF5Helper::DatasetType> types = {
-        HDF5Helper::DatasetType::TIME_STEPS_PHI_MASK,
-        HDF5Helper::DatasetType::CUBOID_PHI,
-        HDF5Helper::DatasetType::CUBOID_ATTR_PHI
+        HDF5Helper::DatasetType::TIME_STEPS_C_MASK,
+        HDF5Helper::DatasetType::CUBOID_C,
+        HDF5Helper::DatasetType::CUBOID_ATTR_C
     };
     // TODO downsampled datasets
 
@@ -48,32 +48,13 @@ void Decompress::execute()
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
         int count = 0;
         for (HDF5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            HDF5Helper::Dataset *datasetFi = it->second;
-            HDF5Helper::DatasetType datasetType = datasetFi->getType(sensorMaskSize);
+            HDF5Helper::Dataset *dataset = it->second;
+            HDF5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
             if (checkDatasetType(datasetType, types)) {
-                HDF5Helper::Dataset *datasetK = 0;
-                for (HDF5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
-                    HDF5Helper::Dataset *dataset = it2->second;
-                    HDF5Helper::DatasetType datasetKType = dataset->getType(sensorMaskSize);
-                    if ((datasetKType == HDF5Helper::DatasetType::TIME_STEPS_K_MASK && datasetType == HDF5Helper::DatasetType::TIME_STEPS_PHI_MASK)
-                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_K && datasetType == HDF5Helper::DatasetType::CUBOID_PHI)
-                            || (datasetKType == HDF5Helper::DatasetType::CUBOID_ATTR_K && datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_PHI)
-                            ) {
-                        // TODO Check C_MOS_ATTR, number of coefficients, same periods, harmonic indices
-                        if (datasetFi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false) == dataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, false)
-                                && datasetFi->getSize() == dataset->getSize()
-                                ) {
-                            datasetK = dataset;
-                            break;
-                        }
-                    }
-                }
-                if (datasetK) {
-                    Helper::printDebugMsg("Decompression of datasets " + datasetFi->getName() + " and " + datasetK->getName());
-                    decompressDatasets(datasetFi, datasetK, getSettings()->getFlagLog());
-                    count++;
-                    Helper::printDebugMsg("Decompression of datasets done");
-                }
+                Helper::printDebugMsg("Decompression of dataset " + dataset->getName());
+                decompressDatasets(dataset, getSettings()->getFlagLog());
+                count++;
+                Helper::printDebugMsg("Decompression of dataset done");
             }
         }
         if (count == 0) {
@@ -90,18 +71,18 @@ void Decompress::execute()
  * @param[in] srcDatasetsFi Source dataset Phi
  * @param[in] srcDatasetsK Source dataset K
  */
-void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Helper::Dataset *srcDatasetK, bool log)
+void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
 {
     // First decoding parameter - multiple of overlap size
     hsize_t mos = 1;
-    if (srcDatasetPhi->hasAttribute(HDF5Helper::C_MOS_ATTR))
-        mos = srcDatasetPhi->readAttributeI(HDF5Helper::C_MOS_ATTR, log);
+    if (srcDataset->hasAttribute(HDF5Helper::C_MOS_ATTR))
+        mos = srcDataset->readAttributeI(HDF5Helper::C_MOS_ATTR, log);
 
     // Second decoding parameter - period
-    hsize_t period = srcDatasetPhi->readAttributeI(HDF5Helper::C_PERIOD_ATTR, log);
+    hsize_t period = srcDataset->readAttributeI(HDF5Helper::C_PERIOD_ATTR, log);
 
     // Harmonic frequencies
-    hsize_t harmonics = srcDatasetPhi->readAttributeI(HDF5Helper::C_HARMONICS_ATTR, log);
+    hsize_t harmonics = srcDataset->readAttributeI(HDF5Helper::C_HARMONICS_ATTR, log);
 
     if (log) {
         Helper::printDebugMsg("Decompression with period " + std::to_string(period) + " steps "+ "and " + std::to_string(harmonics) + " harmonic frequencies");
@@ -113,7 +94,7 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
     hsize_t bSize = oSize * 2 + 1;
 
     // Get dims
-    HDF5Helper::Vector dims = srcDatasetPhi->getDims();
+    HDF5Helper::Vector dims = srcDataset->getDims();
     HDF5Helper::Vector outputDims = dims;
 
     // TODO - check same dims of srcDatasetPhi and srcDatasetK
@@ -127,14 +108,14 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
         steps = HDF5Helper::Vector4D(dims).w();
         outputSteps = (steps + 1) * oSize ;
         outputDims[0] = outputSteps;
-        outputDims[3] /= harmonics;
+        outputDims[3] /= harmonics * 2;
         stepSize = dims[1] * dims[2] * dims[3];
         outputStepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = HDF5Helper::Vector3D(dims).y();
         outputSteps = (steps + 1) * oSize;
         outputDims[1] = outputSteps;
-        outputDims[2] /= harmonics;
+        outputDims[2] /= harmonics * 2;
         stepSize = dims[2];
         outputStepSize = outputDims[2];
     } else { // Something wrong.
@@ -152,12 +133,12 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
     generateFunctions(bSize, oSize, period, harmonics, b, e, bE, bE_1);
 
     // Chunk dims
-    HDF5Helper::Vector chunkDims(srcDatasetPhi->getChunkDims());
+    HDF5Helper::Vector chunkDims(srcDataset->getChunkDims());
 
     if (dims.getLength() == 4) { // 4D dataset
-        chunkDims[3] /= harmonics;
+        chunkDims[3] /= harmonics * 2;
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        chunkDims[2] /= harmonics;
+        chunkDims[2] /= harmonics * 2;
     } else { // Something wrong.
         Helper::printErrorMsg("Something wrong with dataset dims");
         return;
@@ -174,43 +155,33 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
     }
 
     // Create destination dataset
-    std::string srcName = srcDatasetPhi->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, log);
+    std::string srcName = srcDataset->readAttributeS(HDF5Helper::SRC_DATASET_NAME_ATTR, log);
     getOutputFile()->createDatasetF(srcName + "_d", outputDims, chunkDims, true, log);
     HDF5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_d", log);
 
     double t0 = HDF5Helper::getTime();
 
     // Variables for block reading
-    //float **dataPhi = new float*[harmonics];
-    //float **dataK = new float*[harmonics];
-    float *dataPhi = 0;
-    float *dataK = 0;
+    float *dataC = 0;
     HDF5Helper::Vector offset;
     HDF5Helper::Vector count;
     float maxV = 0, minV = 0;
     hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
 
-    // If we have enough memory - minimal for one full step * (1 (data) + 4 buffers (k, phi, lastK, lastPhi) * number of harmonics) in 3D space
-    if (srcDatasetPhi->getFile()->getNumberOfElmsToLoad() >= stepSize * 5) {
+    // If we have enough memory - minimal for one full step in 3D space
+    if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2) {
 
-        // Buffers for last K and Phi
-        float *k = new float[stepSize]();
-        float *phi = new float[stepSize]();
-        float *lastK = new float[stepSize]();
-        float *lastPhi = new float[stepSize]();
+        // Buffers for last coefficients
+        floatC *c = new floatC[stepSize / 2]();
+        floatC *lastC = new floatC[stepSize / 2]();
         float *data = new float[outputStepSize]();
 
         hsize_t frameDst = 0;
 
         // Reading and decompression
-        for (hsize_t i = 0; i < srcDatasetPhi->getNumberOfBlocks(); i++) {
-            //for (hsize_t ih = 0; ih < harmonics; ih++) {
-                srcDatasetPhi->readBlock(i, offset, count, dataPhi, log);
-                srcDatasetK->readBlock(i, offset, count, dataK, log);
-                //dataPhi[ih] = dataPhiL;
-                //dataK[ih] = dataKL;
-            //}
+        for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
+            srcDataset->readBlock(i, offset, count, dataC, log);
 
             hsize_t framesCount;
             hsize_t framesOffset;
@@ -245,36 +216,33 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
                             // Save last coefficients
                             for (hsize_t ih = 0; ih < harmonics; ih++) {
                                 hsize_t pH = harmonics * hsize_t(p) + ih;
-                                lastK[pH] = k[pH];
-                                lastPhi[pH] = phi[pH];
+                                hsize_t pHC = harmonics * hsize_t(p) + 2 * ih;
+                                lastC[pH] = c[pH];
 
                                 // Copy first coefficients
                                 if (frame == 0) {
-                                    lastK[pH] = dataK[pH];
-                                    lastPhi[pH] = dataPhi[pH];
+                                    lastC[pH] = floatC(dataC[pHC], dataC[pHC + 1]);
                                 }
 
                                 if (frame == framesCount - 1 && lastFlag) {
-                                    hsize_t pF1 = (frame - 1) * stepSize + harmonics * hsize_t(p) + ih;
+                                    hsize_t pF1 = (frame - 1) * stepSize + harmonics * hsize_t(p) + 2 * ih;
                                     // Duplicate last coefficient
-                                    k[pH] = dataK[pF1];
-                                    phi[pH] = dataPhi[pF1];
+                                    c[pH] = floatC(dataC[pF1], dataC[pF1 + 1]);
                                 } else {
-                                    hsize_t pF = frame * stepSize + harmonics * hsize_t(p) + ih;
+                                    hsize_t pF = frame * stepSize + harmonics * hsize_t(p) + 2 * ih;
                                     // Read coefficient
-                                    k[pH] = dataK[pF];
-                                    phi[pH] = dataPhi[pF];
+                                    c[pH] = floatC(dataC[pF], dataC[pF + 1]);
                                 }
                             }
                         }
 
                         // Compute new point value
                         data[p] = 0;
-                        floatC i(0, -1);
                         for (hsize_t ih = 0; ih < harmonics; ih++) {
                             hsize_t pH = harmonics * hsize_t(p) + ih;
                             hsize_t sH = ih * bSize + stepLocal;
-                            data[p] += real(k[pH] * std::exp(i * phi[pH]) * bE[sH]) + real(lastK[pH] * std::exp(i * lastPhi[pH]) * bE_1[sH]);
+                            //data[p] += real(k[pH] * std::exp(i * phi[pH]) * bE[sH]) + real(lastK[pH] * std::exp(i * lastPhi[pH]) * bE_1[sH]);
+                            data[p] += real(conj(c[pH]) * bE[sH]) + real(conj(lastC[pH]) * bE_1[sH]);
                         }
 
                         // Min/max values
@@ -307,19 +275,13 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
                 //Helper::printDebugMsg("encoded");
             }
 
-            /*#pragma omp parallel for
-    dataKdataKr (hssize_t h = 0; h < hssize_t(harmonics); h++) {
-                delete[] dataK[h];
-                delete[] dataPhi[h];
-            }*/
-            delete[] dataK;
-            delete[] dataPhi;
+            delete[] dataC;
         }
 
         // Delete buffers
         delete[] data;
-        delete[] k;
-        delete[] phi;
+        delete[] c;
+        delete[] lastC;
     } else {
         // Not implemented yet
         Helper::printErrorMsg("Not implemented for such big datasets yet");
@@ -338,7 +300,7 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDatasetPhi, HDF5Help
     delete[] bE_1;
 
     // Copy attributes
-    copyAttributes(srcDatasetPhi, dstDataset);
+    copyAttributes(srcDataset, dstDataset);
 
     dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR, log);
     dstDataset->setAttribute(HDF5Helper::C_HARMONICS_ATTR, harmonics, log);
