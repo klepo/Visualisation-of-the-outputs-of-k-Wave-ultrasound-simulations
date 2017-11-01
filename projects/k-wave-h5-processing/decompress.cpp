@@ -165,7 +165,7 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
     float *dataC = 0;
     HDF5Helper::Vector offset;
     HDF5Helper::Vector count;
-    float maxV = 0, minV = 0;
+    float maxV, minV;
     hsize_t maxVIndex = 0, minVIndex = 0;
     bool first = true;
 
@@ -173,11 +173,12 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
     if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2) {
 
         // Buffers for last coefficients
-        floatC *c = new floatC[stepSize / 2]();
-        floatC *lastC = new floatC[stepSize / 2]();
+        floatC *cC = new floatC[stepSize / 2]();
+        floatC *lC = new floatC[stepSize / 2]();
+        // Output buffer
         float *data = new float[outputStepSize]();
 
-        hsize_t frameDst = 0;
+        hsize_t step = 0;
 
         // Reading and decompression
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
@@ -216,22 +217,22 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
                             // Save last coefficients
                             for (hsize_t ih = 0; ih < harmonics; ih++) {
                                 hsize_t pH = harmonics * hsize_t(p) + ih;
-                                hsize_t pHC = harmonics * hsize_t(p) + 2 * ih;
-                                lastC[pH] = c[pH];
+                                hsize_t pHC = 2 * harmonics * hsize_t(p) + 2 * ih;
+                                lC[pH] = cC[pH];
 
-                                // Copy first coefficients
+                                // Copy first coefficient
                                 if (frame == 0) {
-                                    lastC[pH] = floatC(dataC[pHC], dataC[pHC + 1]);
+                                    lC[pH] = floatC(dataC[pHC], dataC[pHC + 1]);
                                 }
 
                                 if (frame == framesCount - 1 && lastFlag) {
-                                    hsize_t pF1 = (frame - 1) * stepSize + harmonics * hsize_t(p) + 2 * ih;
+                                    hsize_t pF1 = (frame - 1) * stepSize + 2 * harmonics * hsize_t(p) + 2 * ih;
                                     // Duplicate last coefficient
-                                    c[pH] = floatC(dataC[pF1], dataC[pF1 + 1]);
+                                    cC[pH] = floatC(dataC[pF1], dataC[pF1 + 1]);
                                 } else {
-                                    hsize_t pF = frame * stepSize + harmonics * hsize_t(p) + 2 * ih;
+                                    hsize_t pF = frame * stepSize + 2 * harmonics * hsize_t(p) + 2 * ih;
                                     // Read coefficient
-                                    c[pH] = floatC(dataC[pF], dataC[pF + 1]);
+                                    cC[pH] = floatC(dataC[pF], dataC[pF + 1]);
                                 }
                             }
                         }
@@ -241,8 +242,7 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
                         for (hsize_t ih = 0; ih < harmonics; ih++) {
                             hsize_t pH = harmonics * hsize_t(p) + ih;
                             hsize_t sH = ih * bSize + stepLocal;
-                            //data[p] += real(k[pH] * std::exp(i * phi[pH]) * bE[sH]) + real(lastK[pH] * std::exp(i * lastPhi[pH]) * bE_1[sH]);
-                            data[p] += real(conj(c[pH]) * bE[sH]) + real(conj(lastC[pH]) * bE_1[sH]);
+                            data[p] += real(conj(cC[pH]) * bE[sH]) + real(conj(lC[pH]) * bE_1[sH]);
                         }
 
                         // Min/max values
@@ -250,38 +250,34 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
                         #pragma omp critical
                         {
                             if (data[p] == minV)
-                                minVIndex = (frameDst * oSize + stepLocal) * outputStepSize + hsize_t(p);
+                                minVIndex = (step * oSize + stepLocal) * outputStepSize + hsize_t(p);
                             if (data[p] == maxV)
-                                maxVIndex = (frameDst * oSize + stepLocal) * outputStepSize + hsize_t(p);
+                                maxVIndex = (step * oSize + stepLocal) * outputStepSize + hsize_t(p);
                         }
                     }
-
-                    //double t1 = HDF5Helper::getTime();
                     //Helper::printDebugTime("one step decoding", t0, t1);
 
                     if (log) {
-                        Helper::printDebugMsgStart("Saving frame " + std::to_string(frameDst * oSize + stepLocal));
+                        Helper::printDebugMsgStart("Saving step " + std::to_string(step * oSize + stepLocal + 1) + "/" + std::to_string(outputSteps));
                     }
                     if (dims.getLength() == 4) { // 4D dataset
-                        dstDataset->writeDataset(HDF5Helper::Vector4D(frameDst * oSize + stepLocal, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), data, log);
+                        dstDataset->writeDataset(HDF5Helper::Vector4D(step * oSize + stepLocal, 0, 0, 0), HDF5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), data);
                     } else if (dims.getLength() == 3) {
-                        dstDataset->writeDataset(HDF5Helper::Vector3D(0, frameDst * oSize + stepLocal, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), data, log);
+                        dstDataset->writeDataset(HDF5Helper::Vector3D(0, step * oSize + stepLocal, 0), HDF5Helper::Vector3D(1, 1, outputDims[2]), data);
                     }
                     if (log) {
                         Helper::printDebugMsg("saved");
                     }
                 }
-                frameDst++;
+                step++;
                 //Helper::printDebugMsg("encoded");
             }
-
             delete[] dataC;
         }
-
         // Delete buffers
         delete[] data;
-        delete[] c;
-        delete[] lastC;
+        delete[] cC;
+        delete[] lC;
     } else {
         // Not implemented yet
         Helper::printErrorMsg("Not implemented for such big datasets yet");
@@ -302,10 +298,7 @@ void Decompress::decompressDatasets(HDF5Helper::Dataset *srcDataset, bool log)
     // Copy attributes
     copyAttributes(srcDataset, dstDataset);
 
-    dstDataset->removeAttribute(HDF5Helper::C_HARMONIC_ATTR, log);
-    dstDataset->setAttribute(HDF5Helper::C_HARMONICS_ATTR, harmonics, log);
-
-    // Set min/max values
+    // Set attributes
     dstDataset->setAttribute(HDF5Helper::MIN_ATTR, minV, log);
     dstDataset->setAttribute(HDF5Helper::MAX_ATTR, maxV, log);
     dstDataset->setAttribute(HDF5Helper::MIN_INDEX_ATTR, minVIndex, log);
