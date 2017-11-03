@@ -130,23 +130,10 @@ void Difference::subtractDatasets(HDF5Helper::Dataset *datasetOriginal, HDF5Help
             sumO += double(dataO[i]);
             sum2 += double((dataD[i] * dataD[i]));
             // Min/max values
-            HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i]);
-            HDF5Helper::checkOrSetMinMaxValue(first, minVO, maxVO, dataO[i]);
-
             hsize_t linearOffset;
             convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
-
-            #pragma omp critical
-            {
-                if (dataD[i] == minV)
-                    minVIndex = linearOffset + i;
-                if (dataD[i] == maxV)
-                    maxVIndex = linearOffset + i;
-                if (dataO[i] == minVO)
-                    minVOIndex = linearOffset + i;
-                if (dataO[i] == maxVO)
-                    maxVOIndex = linearOffset + i;
-            }
+            HDF5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + i);
+            HDF5Helper::checkOrSetMinMaxValue(first, minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + i);
         }
 
         dstDataset->writeDataset(offset, count, dataD, log);

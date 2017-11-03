@@ -905,7 +905,7 @@ void convertMultiDimToLinear(Vector position, hsize_t &index, Vector dims)
  *
  * This function exists due to OpenMP pragmas
  */
-void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value)
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
 {
     if (first) {
         #pragma omp critical
@@ -913,6 +913,8 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value)
             if (first) {
                 minV = value;
                 maxV = value;
+                minVIndex = index;
+                maxVIndex = index;
                 first = false;
             }
         }
@@ -920,13 +922,19 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value)
         if (minV > value) {
             #pragma omp critical
             {
-                if (minV > value) minV = value;
+                if (minV > value) {
+                    minV = value;
+                    minVIndex = index;
+                }
             }
         }
         if (maxV < value) {
             #pragma omp critical
             {
-                if (maxV < value) maxV = value;
+                if (maxV < value) {
+                    maxV = value;
+                    maxVIndex = index;
+                }
             }
         }
     }
@@ -941,7 +949,7 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value)
  *
  * This function exists due to OpenMP pragmas
  */
-void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t value)
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
 {
     if (first) {
         #pragma omp critical
@@ -949,6 +957,8 @@ void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t va
             if (first) {
                 minV = value;
                 maxV = value;
+                minVIndex = index;
+                maxVIndex = index;
                 first = false;
             }
         }
@@ -956,13 +966,19 @@ void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t va
         if (minV > value) {
             #pragma omp critical
             {
-                if (minV > value) minV = value;
+                if (minV > value) {
+                    minV = value;
+                    minVIndex = index;
+                }
             }
         }
         if (maxV < value) {
             #pragma omp critical
             {
-                if (maxV < value) maxV = value;
+                if (maxV < value) {
+                    maxV = value;
+                    maxVIndex = index;
+                }
             }
         }
     }

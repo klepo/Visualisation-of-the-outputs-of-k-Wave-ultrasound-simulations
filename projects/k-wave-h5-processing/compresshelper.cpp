@@ -248,7 +248,7 @@ void CompressHelper::hann(hsize_t oSize, float *w)
 void CompressHelper::generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e)
 {
     floatC i(0, -1);
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (hssize_t x = 0; x < hssize_t(bSize); x++) {
         hssize_t hx = hssize_t(ih) * hssize_t(bSize) + x;
         e[hx] = std::exp(i * (2.0f * float(M_PI) / (float(period) / (h))) * float(x));
@@ -257,7 +257,7 @@ void CompressHelper::generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bS
 
 void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
 {
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (hssize_t x = 0; x < hssize_t(bSize); x++) {
         hssize_t hx = hssize_t(ih) * hssize_t(bSize) + x;
         bE[hx] = b[x] * e[hx];

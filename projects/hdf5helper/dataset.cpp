@@ -1144,11 +1144,7 @@ void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, 
 {
     bool first = true;
     for (hsize_t i = 0; i < size; i++) {
-        HDF5Helper::checkOrSetMinMaxValue(first, minVF, maxVF, data[i]);
-        if (data[i] == minVF)
-            minVFIndex = i;
-        if (data[i] == maxVF)
-            maxVFIndex = i;
+        HDF5Helper::checkOrSetMinMaxValue(first, minVF, maxVF, data[i], minVFIndex, maxVFIndex, i);
     }
 }
 
@@ -1165,11 +1161,7 @@ void Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &min
 {
     bool first = true;
     for (hsize_t i = 0; i < size; i++) {
-        HDF5Helper::checkOrSetMinMaxValue(first, minVI, maxVI, data[i]);
-        if (data[i] == minVI)
-            minVIIndex = i;
-        if (data[i] == maxVI)
-            maxVIIndex = i;
+        HDF5Helper::checkOrSetMinMaxValue(first, minVI, maxVI, data[i], minVIIndex, maxVIIndex, i);
     }
 }
 

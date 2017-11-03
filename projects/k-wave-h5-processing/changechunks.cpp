@@ -80,7 +80,6 @@ void ChangeChunks::changeChunksOfDataset(HDF5Helper::Dataset *srcDataset, bool l
     HDF5Helper::Vector chunkDims(dims.getLength(), 1);
 
     // Set new chunk dims
-    #pragma omp parallel for
     for (hssize_t i = 0; i < hssize_t(dims.getLength()); i++) {
         chunkDims[i] = getSettings()->getMaxChunkSize();
         if (chunkDims[i] > dims[i]) chunkDims[i] = dims[i];
