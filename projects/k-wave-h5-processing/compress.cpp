@@ -203,6 +203,7 @@ void Compress::compressDataset(HDF5Helper::Dataset *srcDataset, bool log)
                 for (hssize_t p = 0; p < hssize_t(stepSize); p++) {
                     hsize_t sP = step * stepSize + hsize_t(p);
                     hsize_t pOffset = harmonics * hsize_t(p);
+
                     //For every harmonics
                     for (hssize_t ih = 0; ih < hssize_t(harmonics); ih++) {
                         hsize_t pH = pOffset + ih;
