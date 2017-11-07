@@ -37,7 +37,8 @@ SOURCES += \
     h5subobjecttovisualize.cpp \
     qvector3di.cpp \
     colormap.cpp \
-    imagewidget.cpp
+    imagewidget.cpp \
+    imagedockwidget.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -51,11 +52,13 @@ HEADERS += \
     h5subobjecttovisualize.h \
     qvector3di.h \
     colormap.h \
-    imagewidget.h
+    imagewidget.h \
+    imagedockwidget.h
 
 FORMS += \
     mainwindow.ui \
     dialog.ui \
+    imagedockwidget.ui
 
 RESOURCES += \
     resources.qrc \

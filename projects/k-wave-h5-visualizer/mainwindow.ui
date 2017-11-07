@@ -36,74 +36,66 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_5">
-    <property name="leftMargin">
-     <number>0</number>
+   <widget class="QDockWidget" name="dockWidget3D">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>300</width>
+      <height>300</height>
+     </rect>
     </property>
-    <property name="topMargin">
-     <number>0</number>
+    <property name="minimumSize">
+     <size>
+      <width>300</width>
+      <height>300</height>
+     </size>
     </property>
-    <property name="rightMargin">
-     <number>0</number>
+    <property name="features">
+     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
     </property>
-    <property name="bottomMargin">
-     <number>0</number>
+    <property name="allowedAreas">
+     <set>Qt::NoDockWidgetArea</set>
     </property>
-    <item>
-     <widget class="QDockWidget" name="dockWidget3D">
-      <property name="minimumSize">
-       <size>
-        <width>300</width>
-        <height>300</height>
-       </size>
+    <property name="windowTitle">
+     <string>3D view</string>
+    </property>
+    <widget class="QWidget" name="dockWidgetContents3D">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>0</number>
       </property>
-      <property name="features">
-       <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+      <property name="leftMargin">
+       <number>0</number>
       </property>
-      <property name="allowedAreas">
-       <set>Qt::NoDockWidgetArea</set>
+      <property name="topMargin">
+       <number>0</number>
       </property>
-      <property name="windowTitle">
-       <string>3D view</string>
+      <property name="rightMargin">
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="dockWidgetContents3D">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="spacing">
-         <number>0</number>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label3DLoading">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
         </property>
-        <property name="leftMargin">
-         <number>0</number>
+        <property name="text">
+         <string/>
         </property>
-        <property name="topMargin">
-         <number>0</number>
+        <property name="scaledContents">
+         <bool>false</bool>
         </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label3DLoading">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="scaledContents">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="iconSize">
@@ -230,7 +222,7 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <layout class="QGridLayout" name="gridLayoutDatasets"/>
+    <layout class="QGrifdLayout" name="gridLayoutDatasets"/>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetSelectedDataset">
@@ -290,7 +282,7 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-107</y>
+          <y>0</y>
           <width>403</width>
           <height>565</height>
          </rect>
@@ -1162,147 +1154,10 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidgetXY">
-   <property name="minimumSize">
-    <size>
-     <width>200</width>
-     <height>150</height>
-    </size>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 0, 255);</string>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
-   </property>
-   <property name="windowTitle">
-    <string>XY slice</string>
-   </property>
+  <widget class="ImageDockWidget" name="dockWidgetXY">
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContentsXY">
-    <layout class="QGridLayout" name="gridLayoutXY">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <property name="horizontalSpacing">
-      <number>3</number>
-     </property>
-     <property name="verticalSpacing">
-      <number>0</number>
-     </property>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="toolButtonFillXY">
-       <property name="toolTip">
-        <string>Auto size of image</string>
-       </property>
-       <property name="text">
-        <string>Auto size of image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="5">
-      <widget class="QScrollArea" name="scrollArea">
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>175</width>
-          <height>180</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="ImageWidget" name="imageWidgetXY" native="true">
-           <property name="cursor">
-            <cursorShape>CrossCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QSlider" name="verticalSliderXY">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButtonXYSave">
-       <property name="toolTip">
-        <string>Export image</string>
-       </property>
-       <property name="text">
-        <string>Export image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="labelXYLoading"/>
-     </item>
-     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXY"/>
-     </item>
-    </layout>
-   </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetXZ">
    <property name="minimumSize">
@@ -1363,7 +1218,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>182</height>
+          <height>252</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1512,7 +1367,7 @@ p, li { white-space: pre-wrap; }
           <x>0</x>
           <y>0</y>
           <width>175</width>
-          <height>180</height>
+          <height>252</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1598,6 +1453,11 @@ p, li { white-space: pre-wrap; }
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="ImageDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
   </widget>
   <action name="actionLoadHDF5File">
    <property name="icon">
@@ -1941,13 +1801,16 @@ p, li { white-space: pre-wrap; }
    <extends>QDoubleSpinBox</extends>
    <header location="global">qdoublespinboxts.h</header>
   </customwidget>
+  <customwidget>
+   <class>ImageDockWidget</class>
+   <extends>QDockWidget</extends>
+   <header location="global">imagedockwidget.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>toolButtonXYSave</tabstop>
   <tabstop>toolButtonXZSave</tabstop>
   <tabstop>toolButtonYZSave</tabstop>
-  <tabstop>spinBoxXY</tabstop>
-  <tabstop>verticalSliderXY</tabstop>
   <tabstop>textBrowserInfo</tabstop>
   <tabstop>spinBoxSelectedDatasetStep</tabstop>
   <tabstop>horizontalSliderSelectedDatasetStep</tabstop>
@@ -1972,22 +1835,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>330</x>
      <y>342</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>verticalSliderXY</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBoxXY</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>232</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>105</y>
     </hint>
    </hints>
   </connection>
@@ -2020,22 +1867,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>199</x>
      <y>469</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxXY</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>verticalSliderXY</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>105</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>232</y>
     </hint>
    </hints>
   </connection>
@@ -2200,22 +2031,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>toolButtonFillXY</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>imageWidgetXY</receiver>
-   <slot>setAdjust(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>38</x>
-     <y>98</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>87</x>
-     <y>174</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>toolButtonFillXZ</sender>
    <signal>toggled(bool)</signal>
    <receiver>imageWidgetXZ</receiver>
@@ -2244,22 +2059,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>87</x>
      <y>538</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonXYSave</sender>
-   <signal>clicked()</signal>
-   <receiver>imageWidgetXY</receiver>
-   <slot>saveImage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>8</x>
-     <y>98</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>16</x>
-     <y>126</y>
     </hint>
    </hints>
   </connection>

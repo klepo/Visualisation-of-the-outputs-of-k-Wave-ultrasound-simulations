@@ -134,31 +134,16 @@ private:
     void clearLayout(QLayout *layout);
 
     GWindow *gWindow;
-
     OpenedH5File *openedH5File;
-
-    HDF5Helper::File *file;
-
     OpenedH5File::H5ObjectToVisualize *object;
     OpenedH5File::H5SubobjectToVisualize *subobject;
-
-    bool flagDatasetInitialized;
-
-    bool flagVRLoaded;
-
     QTimer *timer;
-
-    QVector<float> opacity;
-
-    bool playing = false;
-
-    bool recording = false;
-
     QMovie *movie;
-
     QDialog *dialog;
     Ui::Dialog *dialogUi;
-
+    QVector<float> opacity;
+    bool flagVRLoaded = false;
+    bool playing = false;
 };
 
 #endif // MAINWINDOW_H

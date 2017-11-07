@@ -30,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , gWindow(0)
     , openedH5File(0)
-    , file(0)
     , object(0)
     , subobject(0)
 {
@@ -91,10 +90,10 @@ MainWindow::MainWindow(QWidget *parent)
     movie->start();
 
     // Init visibility of loading
-    ui->labelXYLoading->setVisible(false);
+    //ui->dockWidgetXY->->labelXYLoading->setVisible(false);
     ui->labelXZLoading->setVisible(false);
     ui->labelYZLoading->setVisible(false);
-    ui->labelXYLoading->setMovie(movie);
+    //ui->labelXYLoading->setMovie(movie);
     ui->labelXZLoading->setMovie(movie);
     ui->labelYZLoading->setMovie(movie);
 
@@ -204,8 +203,6 @@ void MainWindow::on_actionLoadHDF5File_triggered()
                 return;
             }
 
-            file = openedH5File->getFile();
-
             // Enable buttons and dock panels
             ui->actionCloseHDF5File->setEnabled(true);
             ui->dockWidgetDatasets->setEnabled(true);
@@ -290,10 +287,11 @@ void MainWindow::clearGUI()
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
     // Reset sliders and spin boxes
-    ui->verticalSliderXY->setMaximum(0);
-    ui->verticalSliderXY->setValue(0);
-    ui->spinBoxXY->setMaximum(0);
-    ui->spinBoxXY->setValue(0);
+    //ui->verticalSliderXY->setMaximum(0);
+    //ui->verticalSliderXY->setValue(0);
+    //ui->spinBoxXY->setMaximum(0);
+    //ui->spinBoxXY->setValue(0);
+    ui->dockWidgetXY->clearGUI();
     ui->verticalSliderXZ->setMaximum(0);
     ui->verticalSliderXZ->setValue(0);
     ui->spinBoxXZ->setMaximum(0);
@@ -306,7 +304,7 @@ void MainWindow::clearGUI()
     ui->actionInfo->setChecked(false);
     ui->dockWidgetInfo->setVisible(false);
     // Clear data from image widgets
-    ui->imageWidgetXY->clearImage();
+    //ui->imageWidgetXY->clearImage();
     ui->imageWidgetXZ->clearImage();
     ui->imageWidgetYZ->clearImage();
     // Clear 3D scene
@@ -404,7 +402,7 @@ void MainWindow::selectDataset()
         gWindow->getThread()->clearRequests();
 
     // Clear images
-    ui->imageWidgetXY->clearImage();
+    ui->dockWidgetXY->clearImage();
     ui->imageWidgetXZ->clearImage();
     ui->imageWidgetYZ->clearImage();
 
@@ -414,7 +412,6 @@ void MainWindow::selectDataset()
     }
 
     // Reset flags
-    flagDatasetInitialized = false;
     flagVRLoaded = false;
 
     // Disable dock widgets for selected dataset control
@@ -549,13 +546,13 @@ void MainWindow::repaintXYImage(QImage image, hsize_t index)
             if (subobject->getSize().z() == 1) // Index -> 0
                 gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) 0);
             else
-                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) ui->verticalSliderXY->value() / (subobject->getSize().z() - 1));
+                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) ui->dockWidgetXY->getValue() / (subobject->getSize().z() - 1));
         }
         // Point for positioning of sensor mask image
         QPoint p = QPoint(subobject->getPos().x(), subobject->getPos().y());
         p = QPoint(0, 0); // TODO Disabled
         // Set image data to image widget
-        ui->imageWidgetXY->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        ui->dockWidgetXY->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->dockWidgetXY->getValue()));
         // Set title for dock panel
         ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(index) + ")");
 
@@ -564,7 +561,7 @@ void MainWindow::repaintXYImage(QImage image, hsize_t index)
             timer->start(ui->spinBoxTMInterval->value());
         // Hide loading animation
         if (subobject->isCurrentXYLoaded())
-            ui->labelXYLoading->setVisible(false);
+            ui->dockWidgetXY->setVisibleLoading(false);
     }
 }
 
@@ -587,7 +584,7 @@ void MainWindow::repaintXZImage(QImage image, hsize_t index)
         QPoint p = QPoint(subobject->getPos().x(), subobject->getPos().z());
         p = QPoint(0, 0); // TODO Disabled
         // Set image data to image widget
-        ui->imageWidgetXZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        ui->imageWidgetXZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XZ_" + QString::number(ui->verticalSliderXZ->value()));
         // Set title for dock panel
         ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(index) + ")");
 
@@ -619,7 +616,7 @@ void MainWindow::repaintYZImage(QImage image, hsize_t index)
         QPoint p = QPoint(subobject->getPos().y(), subobject->getPos().z());
         p = QPoint(0, 0); // TODO Disabled
         // Set image data to image widget
-        ui->imageWidgetYZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->verticalSliderXY->value()));
+        ui->imageWidgetYZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_YZ_" + QString::number(ui->verticalSliderYZ->value()));
         // Set title for dock panel
         ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(index) + ")");
 
@@ -660,10 +657,8 @@ void MainWindow::initControls()
         ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(subobject->getYIndex()) + ")");
         ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(subobject->getXIndex()) + ")");
 
-        ui->verticalSliderXY->setMaximum(subobject->getSize().z() - 1);
-        ui->verticalSliderXY->setValue(subobject->getZIndex());
-        ui->spinBoxXY->setMaximum(subobject->getSize().z() - 1);
-        ui->spinBoxXY->setValue(subobject->getZIndex());
+        ui->dockWidgetXY->setMaximum(subobject->getSize().z() - 1);
+        ui->dockWidgetXY->setValue(subobject->getZIndex());
 
         ui->verticalSliderXZ->setMaximum(subobject->getSize().y() - 1);
         ui->verticalSliderXZ->setValue(subobject->getYIndex());
@@ -678,7 +673,7 @@ void MainWindow::initControls()
         ui->comboBoxColormap->setCurrentIndex(subobject->getColormap());
 
         // Loading animation
-        ui->labelXYLoading->setVisible(true);
+        ui->dockWidgetXY->setVisibleLoading(true);
         ui->labelXZLoading->setVisible(true);
         ui->labelYZLoading->setVisible(true);
     }
@@ -947,7 +942,7 @@ void MainWindow::on_actionExportImageFrom3DScene_triggered()
 void MainWindow::on_verticalSliderXY_valueChanged(int value)
 {
     if (subobject != 0 && subobject->isGUIInitialized()) {
-        ui->labelXYLoading->setVisible(true);
+        ui->dockWidgetXY->setVisibleLoading(true);
         subobject->setZIndex(value);
     }
 }

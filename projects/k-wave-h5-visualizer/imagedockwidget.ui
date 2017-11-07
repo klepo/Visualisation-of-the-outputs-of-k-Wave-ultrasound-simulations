@@ -1,0 +1,144 @@
+<ui version="4.0">
+ <author/>
+ <comment/>
+ <exportmacro/>
+ <class>ImageDockWidget</class>
+ <widget class="QDockWidget" name="ImageDockWidget">
+ <property name="minimumSize">
+  <size>
+   <width>200</width>
+   <height>150</height>
+  </size>
+ </property>
+ <property name="font">
+  <font>
+   <weight>75</weight>
+   <bold>true</bold>
+  </font>
+ </property>
+ <property name="styleSheet">
+  <string notr="true">color: rgb(0, 170, 0);</string>
+ </property>
+ <property name="allowedAreas">
+  <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+ </property>
+  <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing">
+      <number>3</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="toolButtonFill">
+       <property name="toolTip">
+        <string>Auto size of image</string>
+       </property>
+       <property name="text">
+        <string>Auto size of image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="5">
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>175</width>
+          <height>180</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="ImageWidget" name="imageWidget" native="true">
+           <property name="cursor">
+            <cursorShape>CrossCursor</cursorShape>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QSlider" name="verticalSlider">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="toolButtonSave">
+       <property name="toolTip">
+        <string>Export image</string>
+       </property>
+       <property name="text">
+        <string>Export image</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="labelLoading"/>
+     </item>
+     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+      <widget class="QSpinBox" name="spinBox"/>
+     </item>
+    </layout>
+  </widget>
+ </widget>
+ <pixmapfunction/>
+ <connections/>
+</ui>
