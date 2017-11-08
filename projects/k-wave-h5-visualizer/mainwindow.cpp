@@ -35,11 +35,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    centralWidget()->setParent(0);
+    splitDockWidget(ui->dockWidgetXY, ui->dockWidget3D, Qt::Horizontal);
+    splitDockWidget(ui->dockWidgetXY, ui->dockWidgetXZ, Qt::Vertical);
+    splitDockWidget(ui->dockWidgetXZ, ui->dockWidgetYZ, Qt::Vertical);
+
+    ui->dockWidgetXY->setSliceType(ImageDockWidget::SliceType::XY);
+    ui->dockWidgetXZ->setSliceType(ImageDockWidget::SliceType::XZ);
+    ui->dockWidgetYZ->setSliceType(ImageDockWidget::SliceType::YZ);
+
     // Create timer for animation of data series and connect it
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
-
-    opacity = QVector<float>(5, 1);
 
     // Create OpenGL window
     gWindow = new GWindow(this);
@@ -49,6 +56,11 @@ MainWindow::MainWindow(QWidget *parent)
     widget3D->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QVBoxLayout *l = (QVBoxLayout *) ui->dockWidgetContents3D->layout();
     l->insertWidget(0, widget3D);
+
+    ui->groupBoxOpacity->setGWindow(gWindow);
+    ui->dockWidgetXY->setGWindow(gWindow);
+    ui->dockWidgetXZ->setGWindow(gWindow);
+    ui->dockWidgetYZ->setGWindow(gWindow);
 
     // Connect signals from gWindow
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
@@ -88,14 +100,6 @@ MainWindow::MainWindow(QWidget *parent)
     movie = new QMovie(":/icons/icons/loading.gif");
     movie->setCacheMode(QMovie::CacheAll);
     movie->start();
-
-    // Init visibility of loading
-    //ui->dockWidgetXY->->labelXYLoading->setVisible(false);
-    ui->labelXZLoading->setVisible(false);
-    ui->labelYZLoading->setVisible(false);
-    //ui->labelXYLoading->setMovie(movie);
-    ui->labelXZLoading->setMovie(movie);
-    ui->labelYZLoading->setMovie(movie);
 
     // Clear GUI
     clearGUI();
@@ -246,6 +250,9 @@ void MainWindow::on_actionCloseHDF5File_triggered()
 
     object = 0;
     subobject = 0;
+    ui->dockWidgetXY->setSubobject(0);
+    ui->dockWidgetXZ->setSubobject(0);
+    ui->dockWidgetYZ->setSubobject(0);
 
     clearGUI();
 }
@@ -286,27 +293,13 @@ void MainWindow::clearGUI()
     ui->dockWidgetXY->setEnabled(false);
     ui->dockWidgetXZ->setEnabled(false);
     ui->dockWidgetYZ->setEnabled(false);
-    // Reset sliders and spin boxes
-    //ui->verticalSliderXY->setMaximum(0);
-    //ui->verticalSliderXY->setValue(0);
-    //ui->spinBoxXY->setMaximum(0);
-    //ui->spinBoxXY->setValue(0);
+    // Reset image dock widgets
     ui->dockWidgetXY->clearGUI();
-    ui->verticalSliderXZ->setMaximum(0);
-    ui->verticalSliderXZ->setValue(0);
-    ui->spinBoxXZ->setMaximum(0);
-    ui->spinBoxXZ->setValue(0);
-    ui->verticalSliderYZ->setMaximum(0);
-    ui->verticalSliderYZ->setValue(0);
-    ui->spinBoxYZ->setMaximum(0);
-    ui->spinBoxYZ->setValue(0);
+    ui->dockWidgetXZ->clearGUI();
+    ui->dockWidgetYZ->clearGUI();
     // Disable other settings
     ui->actionInfo->setChecked(false);
     ui->dockWidgetInfo->setVisible(false);
-    // Clear data from image widgets
-    //ui->imageWidgetXY->clearImage();
-    ui->imageWidgetXZ->clearImage();
-    ui->imageWidgetYZ->clearImage();
     // Clear 3D scene
     if (gWindow != 0) {
         gWindow->clearData();
@@ -403,8 +396,8 @@ void MainWindow::selectDataset()
 
     // Clear images
     ui->dockWidgetXY->clearImage();
-    ui->imageWidgetXZ->clearImage();
-    ui->imageWidgetYZ->clearImage();
+    ui->dockWidgetXZ->clearImage();
+    ui->dockWidgetYZ->clearImage();
 
     // Clear data form 3D scene
     if (gWindow != 0) {
@@ -427,16 +420,19 @@ void MainWindow::selectDataset()
     clearLayout(ui->formLayoutSelectedDatasetInfo);
 
     // Disconnect all last subobjects from image loading
-    foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
+    /*foreach (OpenedH5File::H5ObjectToVisualize *object, openedH5File->getObjects()) {
         foreach (OpenedH5File::H5SubobjectToVisualize *subobject, object->getSubobjects()) {
             disconnect(subobject, SIGNAL(imageXYChanged(QImage, hsize_t)), 0, 0);
             disconnect(subobject, SIGNAL(imageXZChanged(QImage, hsize_t)), 0, 0);
             disconnect(subobject, SIGNAL(imageYZChanged(QImage, hsize_t)), 0, 0);
         }
-    }
+    }*/
 
     object = 0;
     subobject = 0;
+    ui->dockWidgetXY->setSubobject(0);
+    ui->dockWidgetXZ->setSubobject(0);
+    ui->dockWidgetYZ->setSubobject(0);
 
     // No selected name
     if (selectedObjectName == "")
@@ -447,6 +443,10 @@ void MainWindow::selectDataset()
 
     if (object != 0 && object->getSelectedSubobject()) {
         subobject = object->getSelectedSubobject();
+        ui->dockWidgetXY->setSubobject(subobject);
+        ui->dockWidgetXZ->setSubobject(subobject);
+        ui->dockWidgetYZ->setSubobject(subobject);
+
         // Set selected name
         selectedSubobjectName = subobject->getName();
         openedH5File->setSelectedSubobject(selectedSubobjectName);
@@ -469,10 +469,7 @@ void MainWindow::selectDataset()
         subobject->setXIndex(subobject->getXIndex());
         subobject->setYIndex(subobject->getYIndex());
         subobject->setZIndex(subobject->getZIndex());
-        // Connect repainting image
-        connect(subobject, SIGNAL(imageXYChanged(QImage, hsize_t)), this, SLOT(repaintXYImage(QImage, hsize_t)));
-        connect(subobject, SIGNAL(imageXZChanged(QImage, hsize_t)), this, SLOT(repaintXZImage(QImage, hsize_t)));
-        connect(subobject, SIGNAL(imageYZChanged(QImage, hsize_t)), this, SLOT(repaintYZImage(QImage, hsize_t)));
+
         // Enable controls
         ui->dockWidgetSelectedDataset->setEnabled(true);
         ui->dockWidgetXY->setEnabled(true);
@@ -534,103 +531,6 @@ void MainWindow::selectDataset()
 }
 
 /**
- * @brief Sets new XY image if it is loaded
- * @param[in] image Image data of XY slice
- * @param[in] index Index of XY slice
- */
-void MainWindow::repaintXYImage(QImage image, hsize_t index)
-{
-    if (subobject != 0) {
-        // Send data to 3D scene
-        if (gWindow != 0) {
-            if (subobject->getSize().z() == 1) // Index -> 0
-                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) 0);
-            else
-                gWindow->setXYSlice(subobject->getDataXY(), subobject->getSize().x(), subobject->getSize().y(), (float) ui->dockWidgetXY->getValue() / (subobject->getSize().z() - 1));
-        }
-        // Point for positioning of sensor mask image
-        QPoint p = QPoint(subobject->getPos().x(), subobject->getPos().y());
-        p = QPoint(0, 0); // TODO Disabled
-        // Set image data to image widget
-        ui->dockWidgetXY->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XY_" + QString::number(ui->dockWidgetXY->getValue()));
-        // Set title for dock panel
-        ui->dockWidgetXY->setWindowTitle("XY slice (Z = " + QString::number(index) + ")");
-
-        // Continue playing animation if it is possible
-        if (playing && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
-            timer->start(ui->spinBoxTMInterval->value());
-        // Hide loading animation
-        if (subobject->isCurrentXYLoaded())
-            ui->dockWidgetXY->setVisibleLoading(false);
-    }
-}
-
-/**
- * @brief Sets new XZ image if it is loaded
- * @param[in] image Image data of XZ slice
- * @param[in] index Index of XZ slice
- */
-void MainWindow::repaintXZImage(QImage image, hsize_t index)
-{
-    if (subobject != 0) {
-        // Send data to 3D scene
-        if (gWindow != 0) {
-            if (subobject->getSize().y() == 1) // Index -> 0
-                gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize().x(), subobject->getSize().z(), (float) 0);
-            else
-                gWindow->setXZSlice(subobject->getDataXZ(), subobject->getSize().x(), subobject->getSize().z(), (float) ui->verticalSliderXZ->value() / (subobject->getSize().y() - 1));
-        }
-        // Point for positioning of sensor mask image
-        QPoint p = QPoint(subobject->getPos().x(), subobject->getPos().z());
-        p = QPoint(0, 0); // TODO Disabled
-        // Set image data to image widget
-        ui->imageWidgetXZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_XZ_" + QString::number(ui->verticalSliderXZ->value()));
-        // Set title for dock panel
-        ui->dockWidgetXZ->setWindowTitle("XZ slice (Y = " + QString::number(index) + ")");
-
-        // Continue playing animation if it is possible
-        if (playing && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
-            timer->start(ui->spinBoxTMInterval->value());
-
-        // Hide loading animation
-        if (subobject->isCurrentXZLoaded())
-            ui->labelXZLoading->setVisible(false);
-    }
-}
-
-/**
- * @brief Sets new YZ image if it is loaded
- * @param[in] image Image data of YZ slice
- * @param[in] index Index of YZ slice
- */
-void MainWindow::repaintYZImage(QImage image, hsize_t index)
-{
-    if (subobject != 0) {
-        // Send data to 3D scene
-        if (gWindow != 0) {
-            if (subobject->getSize().x() == 1) // Index -> 0
-                gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize().y(), subobject->getSize().z(), (float) 0);
-            else
-                gWindow->setYZSlice(subobject->getDataYZ(), subobject->getSize().y(), subobject->getSize().z(), (float) ui->verticalSliderYZ->value() / (subobject->getSize().x() - 1));
-        }
-        QPoint p = QPoint(subobject->getPos().y(), subobject->getPos().z());
-        p = QPoint(0, 0); // TODO Disabled
-        // Set image data to image widget
-        ui->imageWidgetYZ->showImage(image, p, openedH5File->getRawFilename() + "_-_" + subobject->getName() + "_-_YZ_" + QString::number(ui->verticalSliderYZ->value()));
-        // Set title for dock panel
-        ui->dockWidgetYZ->setWindowTitle("YZ slice (X = " + QString::number(index) + ")");
-
-        // Continue playing animation if it is possible
-        if (playing && subobject->areCurrentSlicesLoaded() && (!ui->actionVolumeRendering->isChecked() || flagVRLoaded))
-            timer->start(ui->spinBoxTMInterval->value());
-
-        // Hide loading animation
-        if (subobject->isCurrentYZLoaded())
-            ui->labelYZLoading->setVisible(false);
-    }
-}
-
-/**
  * @brief Initialization of selected dataset controls
  */
 void MainWindow::initControls()
@@ -660,22 +560,18 @@ void MainWindow::initControls()
         ui->dockWidgetXY->setMaximum(subobject->getSize().z() - 1);
         ui->dockWidgetXY->setValue(subobject->getZIndex());
 
-        ui->verticalSliderXZ->setMaximum(subobject->getSize().y() - 1);
-        ui->verticalSliderXZ->setValue(subobject->getYIndex());
-        ui->spinBoxXZ->setMaximum(subobject->getSize().y() - 1);
-        ui->spinBoxXZ->setValue(subobject->getYIndex());
+        ui->dockWidgetXZ->setMaximum(subobject->getSize().y() - 1);
+        ui->dockWidgetXZ->setValue(subobject->getYIndex());
 
-        ui->verticalSliderYZ->setMaximum(subobject->getSize().x() - 1);
-        ui->verticalSliderYZ->setValue(subobject->getXIndex());
-        ui->spinBoxYZ->setMaximum(subobject->getSize().x() - 1);
-        ui->spinBoxYZ->setValue(subobject->getXIndex());
+        ui->dockWidgetYZ->setMaximum(subobject->getSize().x() - 1);
+        ui->dockWidgetYZ->setValue(subobject->getXIndex());
 
         ui->comboBoxColormap->setCurrentIndex(subobject->getColormap());
 
         // Loading animation
         ui->dockWidgetXY->setVisibleLoading(true);
-        ui->labelXZLoading->setVisible(true);
-        ui->labelYZLoading->setVisible(true);
+        ui->dockWidgetXZ->setVisibleLoading(true);
+        ui->dockWidgetYZ->setVisibleLoading(true);
     }
 }
 
@@ -887,21 +783,21 @@ void MainWindow::on_spinBoxTMInterval_valueChanged(int value)
 
 // Select point on slices, show value
 
-void MainWindow::on_imageWidgetXY_hoveredPointInImage(int x, int y)
+void MainWindow::on_dockWidgetXY_hoveredPointInImage(int x, int y)
 {
     if (subobject != 0 && subobject->isGUIInitialized()) {
         ui->statusBar->showMessage("Value: " + QWidget::locale().toString(subobject->getValueAtPointFromXY(x, y), 'f', 4), 3000);
     }
 }
 
-void MainWindow::on_imageWidgetXZ_hoveredPointInImage(int x, int z)
+void MainWindow::on_dockWidgetXZ_hoveredPointInImage(int x, int z)
 {
     if (subobject != 0 && subobject->isGUIInitialized()) {
         ui->statusBar->showMessage("Value: " + QWidget::locale().toString(subobject->getValueAtPointFromXZ(x, z), 'f', 4), 3000);
     }
 }
 
-void MainWindow::on_imageWidgetYZ_hoveredPointInImage(int y, int z)
+void MainWindow::on_dockWidgetYZ_hoveredPointInImage(int y, int z)
 {
     if (subobject != 0 && subobject->isGUIInitialized()) {
         ui->statusBar->showMessage("Value: " + QWidget::locale().toString(subobject->getValueAtPointFromYZ(y, z), 'f', 4), 3000);
@@ -934,32 +830,6 @@ void MainWindow::on_actionExportImageFrom3DScene_triggered()
         QString imagefileName = QFileDialog::getSaveFileName(this, "Save image", name, "Image (*.png)");
         if (imagefileName != 0)
             gWindow->saveImage(imagefileName);
-    }
-}
-
-// Index sliders
-
-void MainWindow::on_verticalSliderXY_valueChanged(int value)
-{
-    if (subobject != 0 && subobject->isGUIInitialized()) {
-        ui->dockWidgetXY->setVisibleLoading(true);
-        subobject->setZIndex(value);
-    }
-}
-
-void MainWindow::on_verticalSliderXZ_valueChanged(int value)
-{
-    if (subobject != 0 && subobject->isGUIInitialized()) {
-        ui->labelXZLoading->setVisible(true);
-        subobject->setYIndex(value);
-    }
-}
-
-void MainWindow::on_verticalSliderYZ_valueChanged(int value)
-{
-    if (subobject != 0 && subobject->isGUIInitialized()) {
-        ui->labelYZLoading->setVisible(true);
-        subobject->setXIndex(value);
     }
 }
 
@@ -1001,73 +871,6 @@ void MainWindow::on_comboBoxMode_currentIndexChanged(int index)
     //if (subobject != 0 && subobject->isGUIInitialized()) {
     //    subobject->setColormap(static_cast<ColorMap::Type>(index));
     //}
-}
-
-void MainWindow::on_doubleSpinBox_0_valueChanged(double value)
-{
-    ui->verticalSlider_0->setValue(int(value * 1000));
-    opacity[0] = float(value);
-    if (gWindow != 0)
-        gWindow->changeOpacity(opacity);
-}
-
-void MainWindow::on_verticalSlider_0_valueChanged(int value)
-{
-    ui->doubleSpinBox_0->setValue(double(value) / 1000);
-}
-
-void MainWindow::on_doubleSpinBox_1_valueChanged(double value)
-{
-    ui->verticalSlider_1->setValue(int(value * 1000));
-    opacity[1] = float(value);
-    if (gWindow != 0)
-        gWindow->changeOpacity(opacity);
-}
-
-void MainWindow::on_verticalSlider_1_valueChanged(int value)
-{
-    ui->doubleSpinBox_1->setValue(double(value) / 1000);
-}
-
-void MainWindow::on_doubleSpinBox_2_valueChanged(double value)
-{
-    ui->verticalSlider_2->setValue(int(value * 1000));
-    opacity[2] = float(value);
-    if (gWindow != 0)
-        gWindow->changeOpacity(opacity);
-}
-
-void MainWindow::on_verticalSlider_2_valueChanged(int value)
-{
-    ui->doubleSpinBox_2->setValue(double(value) / 1000);
-}
-
-void MainWindow::on_doubleSpinBox_3_valueChanged(double value)
-{
-    ui->verticalSlider_3->setValue(int(value * 1000));
-    opacity[3] = float(value);
-    if (gWindow != 0)
-        gWindow->changeOpacity(opacity);
-}
-
-void MainWindow::on_verticalSlider_3_valueChanged(int value)
-{
-    ui->doubleSpinBox_3->setValue(double(value) / 1000);
-}
-
-void MainWindow::on_doubleSpinBox_4_valueChanged(double value)
-{
-    int nv = int(value * 1000);
-    ui->verticalSlider_4->setValue(nv);
-    opacity[4] = float(value);
-    if (gWindow != 0)
-        gWindow->changeOpacity(opacity);
-}
-
-void MainWindow::on_verticalSlider_4_valueChanged(int value)
-{
-    double nv = double(value) / 1000;
-    ui->doubleSpinBox_4->setValue(nv);
 }
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)

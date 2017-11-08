@@ -39,7 +39,7 @@ public:
     bool setSelectedSubobject(QString name);
     OpenedH5File::H5SubobjectToVisualize *getSelectedSubobject();
     QString getName();
-    ObjectType getType();
+    OpenedH5File::ObjectType getType();
     QList<QString> getSubobjectNames();
     QMap<QString, OpenedH5File::H5SubobjectToVisualize *> getSubobjects();
 
@@ -53,7 +53,7 @@ private:
     // One subobject is selected
     OpenedH5File::H5SubobjectToVisualize *selectedSubobject = 0;
     QMap<QString, OpenedH5File::H5SubobjectToVisualize *> subobjects;
-    ObjectType type;
+    OpenedH5File::ObjectType type;
     OpenedH5File *openedH5File;
     QString name;
     // This is for future implementation of multiple selection of datasets

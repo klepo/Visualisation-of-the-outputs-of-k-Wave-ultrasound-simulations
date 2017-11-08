@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1189</width>
-    <height>759</height>
+    <width>1402</width>
+    <height>718</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,68 +34,14 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
-   <widget class="QDockWidget" name="dockWidget3D">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>300</width>
-      <height>300</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>300</width>
-      <height>300</height>
-     </size>
-    </property>
-    <property name="features">
-     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-    </property>
-    <property name="allowedAreas">
-     <set>Qt::NoDockWidgetArea</set>
-    </property>
-    <property name="windowTitle">
-     <string>3D view</string>
-    </property>
-    <widget class="QWidget" name="dockWidgetContents3D">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="label3DLoading">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="scaledContents">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </widget>
+   <property name="maximumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="iconSize">
@@ -146,7 +92,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1189</width>
+     <width>1402</width>
      <height>21</height>
     </rect>
    </property>
@@ -203,11 +149,14 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidgetDatasets">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="floating">
     <bool>false</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Datasets to view</string>
@@ -222,12 +171,15 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <layout class="QGrifdLayout" name="gridLayoutDatasets"/>
+    <layout class="QGridLayout" name="gridLayoutDatasets"/>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetSelectedDataset">
-   <property name="enabled">
-    <bool>true</bool>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
@@ -237,9 +189,6 @@
    </property>
    <property name="floating">
     <bool>false</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea|Qt::TopDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Selected dataset</string>
@@ -283,8 +232,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>403</width>
-          <height>565</height>
+          <width>683</width>
+          <height>435</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayoutSelectedDatasetScroll">
@@ -550,218 +499,7 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="1" column="0" colspan="4">
-             <widget class="QGroupBox" name="groupBox_2">
-              <property name="title">
-               <string>Opacity:</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <item row="1" column="4">
-                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_4">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.001000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="4" alignment="Qt::AlignHCenter">
-                <widget class="QSlider" name="verticalSlider_4">
-                 <property name="maximum">
-                  <number>1000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>1</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1000</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_0">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.001000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1" alignment="Qt::AlignHCenter">
-                <widget class="QSlider" name="verticalSlider_1">
-                 <property name="maximum">
-                  <number>1000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>1</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1000</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_1">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.001000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_2">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.001000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="3" alignment="Qt::AlignHCenter">
-                <widget class="QSlider" name="verticalSlider_3">
-                 <property name="maximum">
-                  <number>1000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>1</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1000</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2" alignment="Qt::AlignHCenter">
-                <widget class="QSlider" name="verticalSlider_2">
-                 <property name="maximum">
-                  <number>1000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>1</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1000</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="3">
-                <widget class="QDoubleSpinBoxTS" name="doubleSpinBox_3">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="decimals">
-                  <number>3</number>
-                 </property>
-                 <property name="maximum">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.001000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>1.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0" alignment="Qt::AlignHCenter">
-                <widget class="QSlider" name="verticalSlider_0">
-                 <property name="maximum">
-                  <number>1000</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>1</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1000</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
+             <widget class="GroupBoxOpacity" name="groupBoxOpacity"/>
             </item>
             <item row="0" column="1" colspan="3">
              <widget class="QComboBox" name="comboBoxMode">
@@ -1107,15 +845,18 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidgetInfo">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowIcon">
     <iconset>
      <normaloff>icons/images/icons_03.png</normaloff>icons/images/icons_03.png</iconset>
    </property>
    <property name="floating">
     <bool>false</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>HDF5 Info</string>
@@ -1142,6 +883,12 @@
      </property>
      <item>
       <widget class="QTextBrowser" name="textBrowserInfo">
+       <property name="minimumSize">
+        <size>
+         <width>700</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="html">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1155,186 +902,65 @@ p, li { white-space: pre-wrap; }
    </widget>
   </widget>
   <widget class="ImageDockWidget" name="dockWidgetXY">
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-  </widget>
-  <widget class="QDockWidget" name="dockWidgetXZ">
-   <property name="minimumSize">
-    <size>
-     <width>200</width>
-     <height>150</height>
-    </size>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(0, 170, 0);</string>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
-   </property>
-   <property name="windowTitle">
-    <string>XZ slice</string>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContentsXZ">
-    <layout class="QGridLayout" name="gridLayoutXZ">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <property name="horizontalSpacing">
-      <number>3</number>
-     </property>
-     <property name="verticalSpacing">
-      <number>0</number>
-     </property>
-     <item row="2" column="0" colspan="5">
-      <widget class="QScrollArea" name="scrollArea_2">
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>175</width>
-          <height>252</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="ImageWidget" name="imageWidgetXZ" native="true">
-           <property name="cursor">
-            <cursorShape>CrossCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="toolButtonFillXZ">
-       <property name="toolTip">
-        <string>Auto size of image</string>
-       </property>
-       <property name="text">
-        <string>Auto size of image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="5">
-      <widget class="QSlider" name="verticalSliderXZ">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButtonXZSave">
-       <property name="toolTip">
-        <string>Export image</string>
-       </property>
-       <property name="text">
-        <string>Export image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxXZ"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="labelXZLoading">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidgetYZ">
+  <widget class="ImageDockWidget" name="dockWidgetXZ">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+  </widget>
+  <widget class="ImageDockWidget" name="dockWidgetYZ">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget3D">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="minimumSize">
     <size>
-     <width>200</width>
-     <height>150</height>
+     <width>700</width>
+     <height>42</height>
     </size>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(255, 0, 0);</string>
    </property>
    <property name="features">
     <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
-   </property>
    <property name="windowTitle">
-    <string>YZ slice</string>
+    <string>3D view</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContentsYZ">
-    <layout class="QGridLayout" name="gridLayoutYZ">
+   <widget class="QWidget" name="dockWidgetContents3D">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <property name="leftMargin">
       <number>0</number>
      </property>
@@ -1347,117 +973,24 @@ p, li { white-space: pre-wrap; }
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <property name="horizontalSpacing">
-      <number>3</number>
-     </property>
-     <property name="verticalSpacing">
-      <number>0</number>
-     </property>
-     <item row="3" column="0" colspan="5">
-      <widget class="QScrollArea" name="scrollArea_3">
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+     <item>
+      <widget class="QLabel" name="label3DLoading">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
        </property>
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents_3">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>175</width>
-          <height>252</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="ImageWidget" name="imageWidgetYZ" native="true">
-           <property name="cursor">
-            <cursorShape>CrossCursor</cursorShape>
-           </property>
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
-      <widget class="QSpinBox" name="spinBoxYZ"/>
-     </item>
-     <item row="0" column="0">
-      <widget class="QToolButton" name="toolButtonYZSave">
-       <property name="toolTip">
-        <string>Export image</string>
-       </property>
-       <property name="text">
-        <string>Export image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QToolButton" name="toolButtonFillYZ">
-       <property name="toolTip">
-        <string>Auto size of image</string>
-       </property>
-       <property name="text">
-        <string>Auto size of image</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/images/icons_24.png</normaloff>:/icons/icons/images/icons_24.png</iconset>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="labelYZLoading">
        <property name="text">
         <string/>
        </property>
-      </widget>
-     </item>
-     <item row="3" column="5">
-      <widget class="QSlider" name="verticalSliderYZ">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+       <property name="scaledContents">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="ImageDockWidget" name="dockWidget">
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
   </widget>
   <action name="actionLoadHDF5File">
    <property name="icon">
@@ -1785,18 +1318,6 @@ p, li { white-space: pre-wrap; }
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>ImageWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">imagewidget.h</header>
-   <container>1</container>
-   <slots>
-    <signal>imageResized(int,int)</signal>
-    <signal>clickedPointInImage(int,int)</signal>
-    <slot>saveImage()</slot>
-    <slot>setAdjust(bool)</slot>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>QDoubleSpinBoxTS</class>
    <extends>QDoubleSpinBox</extends>
    <header location="global">qdoublespinboxts.h</header>
@@ -1807,10 +1328,14 @@ p, li { white-space: pre-wrap; }
    <header location="global">imagedockwidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>GroupBoxOpacity</class>
+   <extends>QGroupBox</extends>
+   <header location="global">groupboxopacity.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>toolButtonXZSave</tabstop>
-  <tabstop>toolButtonYZSave</tabstop>
   <tabstop>textBrowserInfo</tabstop>
   <tabstop>spinBoxSelectedDatasetStep</tabstop>
   <tabstop>horizontalSliderSelectedDatasetStep</tabstop>
@@ -1835,70 +1360,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>330</x>
      <y>342</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>verticalSliderXZ</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBoxXZ</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>425</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>276</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>verticalSliderYZ</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBoxYZ</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>606</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>469</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxXZ</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>verticalSliderXZ</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>276</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>425</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxYZ</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>verticalSliderYZ</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>469</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>606</y>
     </hint>
    </hints>
   </connection>
@@ -2027,70 +1488,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>96</x>
      <y>425</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonFillXZ</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>imageWidgetXZ</receiver>
-   <slot>setAdjust(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>277</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>87</x>
-     <y>356</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonFillYZ</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>imageWidgetYZ</receiver>
-   <slot>setAdjust(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>44</x>
-     <y>470</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>87</x>
-     <y>538</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonXZSave</sender>
-   <signal>clicked()</signal>
-   <receiver>imageWidgetXZ</receiver>
-   <slot>saveImage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>13</x>
-     <y>267</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>13</x>
-     <y>310</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>toolButtonYZSave</sender>
-   <signal>clicked()</signal>
-   <receiver>imageWidgetYZ</receiver>
-   <slot>saveImage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>8</x>
-     <y>466</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>16</x>
-     <y>514</y>
     </hint>
    </hints>
   </connection>

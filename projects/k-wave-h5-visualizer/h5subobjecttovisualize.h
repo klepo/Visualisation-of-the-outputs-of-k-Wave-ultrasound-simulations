@@ -34,7 +34,7 @@ class OpenedH5File::H5SubobjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5SubobjectToVisualize(HDF5Helper::Dataset *dataset, ObjectType type, OpenedH5File *openedH5File, H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent = 0);
+    explicit H5SubobjectToVisualize(HDF5Helper::Dataset *dataset, OpenedH5File::ObjectType type, OpenedH5File *openedH5File, OpenedH5File::H5ObjectToVisualize *h5ObjectToVisualize, QObject *parent = 0);
     ~H5SubobjectToVisualize();
 
     // Getters for current settings and min/max values
@@ -74,10 +74,6 @@ public:
     hsize_t getSteps();
     hsize_t getCurrentStep();
 
-    float getAlpha();
-    float getRed();
-    float getGreen();
-    float getBlue();
     int getCount();
 
     bool isGUIInitialized();
@@ -89,7 +85,7 @@ public:
     bool areCurrentSlicesLoaded();
 
     OpenedH5File *getOpenedH5File() const;
-    H5ObjectToVisualize *getH5ObjectToVisualize() const;
+    OpenedH5File::H5ObjectToVisualize *getH5ObjectToVisualize() const;
 
 signals:
     /**
@@ -126,10 +122,6 @@ public slots:
     void setMinValue(float value);
     void setMaxValue(float value);
 
-    void setAlpha(float value);
-    void setRed(float value);
-    void setGreen(float value);
-    void setBlue(float value);
     void setCount(int value);
 
     void setCurrentStep(hsize_t step);
@@ -149,10 +141,10 @@ private:
     QImage createImageYZ();
 
     OpenedH5File *openedH5File = 0;
-    H5ObjectToVisualize *h5ObjectToVisualize = 0;
+    OpenedH5File::H5ObjectToVisualize *h5ObjectToVisualize = 0;
     QString objectName;
     QString objectOnlyName;
-    ObjectType type;
+    OpenedH5File::ObjectType type;
     HDF5Helper::Dataset *dataset = 0;
 
     bool XYloadedFlag = false;
@@ -180,10 +172,6 @@ private:
     float *dataXZ = 0;
     float *dataYZ = 0;
 
-    float alpha = 1;
-    float red = 1;
-    float green = 1;
-    float blue = 1;
     int count = 100;
 
     // Datasets characteristics variables

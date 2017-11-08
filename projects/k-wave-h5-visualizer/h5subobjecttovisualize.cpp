@@ -90,6 +90,10 @@ OpenedH5File::H5SubobjectToVisualize::~H5SubobjectToVisualize()
     delete[] dataXY;
     delete[] dataXZ;
     delete[] dataYZ;
+
+    disconnect(this, SIGNAL(imageXYChanged(QImage, hsize_t)), 0, 0);
+    disconnect(this, SIGNAL(imageXZChanged(QImage, hsize_t)), 0, 0);
+    disconnect(this, SIGNAL(imageYZChanged(QImage, hsize_t)), 0, 0);
 }
 
 /**
@@ -504,84 +508,12 @@ void OpenedH5File::H5SubobjectToVisualize::setZIndex(hsize_t value)
 }
 
 /**
- * @brief Returns alpha value (unused)
- * @return Alpha value
- */
-float OpenedH5File::H5SubobjectToVisualize::getAlpha()
-{
-    return alpha;
-}
-
-/**
- * @brief Returns red value (unused)
- * @return Red value
- */
-float OpenedH5File::H5SubobjectToVisualize::getRed()
-{
-    return red;
-}
-
-/**
- * @brief Returns green value (unused)
- * @return Green value
- */
-float OpenedH5File::H5SubobjectToVisualize::getGreen()
-{
-    return green;
-}
-
-/**
- * @brief Returns blue value (unused)
- * @return Blue value
- */
-float OpenedH5File::H5SubobjectToVisualize::getBlue()
-{
-    return blue;
-}
-
-/**
  * @brief Gets count (unused)
  * @return Count
  */
 int OpenedH5File::H5SubobjectToVisualize::getCount()
 {
     return count;
-}
-
-/**
- * @brief Sets alpha (unused)
- * @param[in] value Alpha value
- */
-void OpenedH5File::H5SubobjectToVisualize::setAlpha(float value)
-{
-    alpha = value;
-}
-
-/**
- * @brief Sets red (unused)
- * @param[in] value Red value
- */
-void OpenedH5File::H5SubobjectToVisualize::setRed(float value)
-{
-    red = value;
-}
-
-/**
- * @brief Sets green (unused)
- * @param[in] value Green value
- */
-void OpenedH5File::H5SubobjectToVisualize::setGreen(float value)
-{
-    green = value;
-}
-
-/**
- * @brief Sets blue (unused)
- * @param[in] value Blue value
- */
-void OpenedH5File::H5SubobjectToVisualize::setBlue(float value)
-{
-    blue = value;
 }
 
 /**

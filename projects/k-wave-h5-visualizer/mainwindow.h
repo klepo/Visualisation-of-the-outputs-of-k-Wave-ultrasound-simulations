@@ -58,10 +58,6 @@ public:
     Ui::MainWindow *ui;
 
 public slots:
-    void repaintXYImage(QImage image, hsize_t index);
-    void repaintXZImage(QImage image, hsize_t index);
-    void repaintYZImage(QImage image, hsize_t index);
-
     void loaded3D(std::string datasetName);
 
 private slots:
@@ -94,34 +90,19 @@ private slots:
 
     void on_spinBoxTMInterval_valueChanged(int value);
 
-    void on_imageWidgetXY_hoveredPointInImage(int x, int y);
-    void on_imageWidgetXZ_hoveredPointInImage(int x, int y);
-    void on_imageWidgetYZ_hoveredPointInImage(int x, int y);
+    void on_dockWidgetXY_hoveredPointInImage(int x, int y);
+    void on_dockWidgetXZ_hoveredPointInImage(int x, int y);
+    void on_dockWidgetYZ_hoveredPointInImage(int x, int y);
 
     void on_actionVolumeRendering_toggled(bool arg1);
 
     void on_actionExportImageFrom3DScene_triggered();
-
-    void on_verticalSliderXY_valueChanged(int value);
-    void on_verticalSliderXZ_valueChanged(int value);
-    void on_verticalSliderYZ_valueChanged(int value);
 
     void on_actionFillSpace_toggled(bool arg1);
 
     void on_actionAbout_triggered();
 
     void on_comboBoxMode_currentIndexChanged(int index);
-
-    void on_doubleSpinBox_0_valueChanged(double value);
-    void on_verticalSlider_0_valueChanged(int value);
-    void on_doubleSpinBox_1_valueChanged(double value);
-    void on_verticalSlider_1_valueChanged(int value);
-    void on_doubleSpinBox_2_valueChanged(double value);
-    void on_verticalSlider_2_valueChanged(int value);
-    void on_doubleSpinBox_3_valueChanged(double value);
-    void on_verticalSlider_3_valueChanged(int value);
-    void on_doubleSpinBox_4_valueChanged(double value);
-    void on_verticalSlider_4_valueChanged(int value);
 
     void showFPS();
 
@@ -141,7 +122,6 @@ private:
     QMovie *movie;
     QDialog *dialog;
     Ui::Dialog *dialogUi;
-    QVector<float> opacity;
     bool flagVRLoaded = false;
     bool playing = false;
 };

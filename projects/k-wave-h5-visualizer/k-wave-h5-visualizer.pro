@@ -38,7 +38,8 @@ SOURCES += \
     qvector3di.cpp \
     colormap.cpp \
     imagewidget.cpp \
-    imagedockwidget.cpp
+    imagedockwidget.cpp \
+    groupboxopacity.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -53,12 +54,14 @@ HEADERS += \
     qvector3di.h \
     colormap.h \
     imagewidget.h \
-    imagedockwidget.h
+    imagedockwidget.h \
+    groupboxopacity.h
 
 FORMS += \
     mainwindow.ui \
     dialog.ui \
-    imagedockwidget.ui
+    imagedockwidget.ui \
+    groupboxopacity.ui
 
 RESOURCES += \
     resources.qrc \
