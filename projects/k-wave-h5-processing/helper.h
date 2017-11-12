@@ -23,6 +23,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <cmath>
 
 /**
  * @namespace Helper
