@@ -225,8 +225,10 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
                 Helper::printDebugMsg("----> " + dataset->getTypeString(datasetType) + " dataset: " + dataset->getName());
                 if (settings->getFlagInfo()) {
+                    Helper::enableDebugMsgs = true;
                     Helper::printDebugTwoColumnsTab("size", dataset->getDims());
                     Helper::printDebugTwoColumnsTab("chunk size", dataset->getChunkDims());
+                    Helper::enableDebugMsgs = false;
                 }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
@@ -234,6 +236,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 }
                 // Print attributes
                 if (settings->getFlagInfo()) {
+                    Helper::enableDebugMsgs = true;
                     if (dataset->getNumAttrs() > 0) {
                         Helper::printDebugMsg2S("Attributes");
                     }
@@ -242,6 +245,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                         Helper::printDebugTwoColumnsTab(attribute->getName(), attribute->getStringValue());
                         delete attribute;
                     }
+                    Helper::enableDebugMsgs = false;
                 }
             }
             // Unknown type
