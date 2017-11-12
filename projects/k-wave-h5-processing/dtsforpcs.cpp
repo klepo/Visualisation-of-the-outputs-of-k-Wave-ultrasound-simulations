@@ -222,12 +222,13 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
             HDF5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
             if (datasetType != HDF5Helper::DatasetType::UNKNOWN) {
+                bool tmpFlag = Helper::enableDebugMsgs;
+                if (settings->getFlagInfo()) {
+                    Helper::enableDebugMsgs = true;
+                }
                 datasets.insert(HDF5Helper::PairOfDatasets(dataset->getName(), dataset));
                 Helper::printDebugMsg("----> " + dataset->getTypeString(datasetType) + " dataset: " + dataset->getName());
                 if (settings->getFlagInfo()) {
-                    bool tmpFlag = Helper::enableDebugMsgs;
-                    Helper::enableDebugMsgs = true;
-                    Helper::printDebugTwoColumnsTab("name", dataset->getName());
                     Helper::printDebugTwoColumnsTab("size", dataset->getDims());
                     Helper::printDebugTwoColumnsTab("chunk size", dataset->getChunkDims());
                     Helper::enableDebugMsgs = tmpFlag;
@@ -238,8 +239,6 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 }
                 // Print attributes
                 if (settings->getFlagInfo()) {
-                    bool tmpFlag = Helper::enableDebugMsgs;
-                    Helper::enableDebugMsgs = true;
                     if (dataset->getNumAttrs() > 0) {
                         Helper::printDebugMsg2S("Attributes");
                     }
@@ -248,6 +247,8 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                         Helper::printDebugTwoColumnsTab(attribute->getName(), attribute->getStringValue());
                         delete attribute;
                     }
+                }
+                if (settings->getFlagInfo()) {
                     Helper::enableDebugMsgs = tmpFlag;
                 }
             }
