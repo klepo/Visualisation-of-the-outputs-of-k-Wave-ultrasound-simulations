@@ -231,7 +231,6 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 if (settings->getFlagInfo()) {
                     Helper::printDebugTwoColumnsTab("size", dataset->getDims());
                     Helper::printDebugTwoColumnsTab("chunk size", dataset->getChunkDims());
-                    Helper::enableDebugMsgs = tmpFlag;
                 }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
