@@ -24,17 +24,16 @@
 #include <QMessageBox>
 #include <QLabel>
 
-#include "qvector3di.h"
-#include "colormap.h"
-#include "openglwindow.h"
-#include "hdf5readingthread.h"
-
-#include <hdf5helper.h>
+#include <qvector3di.h>
+#include <colormap.h>
+#include <openglwindow.h>
+#include <h5readingthread.h>
+#include <abstractobjectwidget.h>
 
 /**
  * @brief The GWindow class represents wrapper for the 3D rendering window
  */
-class GWindow : public OpenGLWindow
+class GWindow : public OpenGLWindow, AbstractObjectWidget
 {
     Q_OBJECT
 
@@ -47,8 +46,7 @@ public:
     bool event(QEvent *event);
     void resizeEvent(QResizeEvent *);
 
-    HDF5ReadingThread *getThread();
-    bool isTexture3DInitialized();
+    H5ReadingThread *getThread();
 
     QImage getImage();
 
@@ -61,42 +59,31 @@ public:
     /// Cube elements
     static const GLint cubeElements[];
 
+    bool isVolumeRenderingEnabled() const;
+
+    bool aredata3Dloaded() const;
+
 signals:
-    /**
-     * @brief Data loaded signal
-     * @param[in] datasetName Dataset name
-     */
-    void loaded(std::string datasetName);
+    void data3Dloaded();
+    void data3Dloading();
 
 public slots:
-    void setViewFrame(bool);
-    void setSlicesCount(int);
-    void setViewVR(bool);
-    void setViewXYSlice(bool);
-    void setViewXZSlice(bool);
-    void setViewYZSlice(bool);
+    void setViewFrame(bool value);
+    void setSlicesCount(int value);
+    void setViewVolumeRendering(bool value);
+    void setViewXYSlice(bool value);
+    void setViewXZSlice(bool value);
+    void setViewYZSlice(bool value);
 
-    void setTrim(bool);
-    void setOrthogonal(bool);
+    void setTrim(bool value);
+    void setOrthogonal(bool value);
+    void setFillSpace(bool value);
 
-    void setMainSize(HDF5Helper::Vector3D size);
-    void setSize(HDF5Helper::Vector3D size);
-    void setPosition(HDF5Helper::Vector3D position);
+    void load3DData();
+    void setVolumeRenderingMode(int mode = 0);
+    void setInterpolationMode(int mode = 0);
 
-    void load3DTexture(HDF5Helper::Dataset *dataset, hsize_t step);
-    void changeColormap(ColorMap::Type colormap = ColorMap::JET);
-    void changeOpacity(QVector<float> opacity = QVector<float>(5, 1));
-    void changeMinValue(float value);
-    void changeMaxValue(float value);
-    void changeMode(int mode = 0);
-    void changeInterpolation(int mode = 0);
-
-    void clearData();
-    void unloadDataset();
-
-    void setXYSlice(float *data, unsigned int width, unsigned int height, float index);
-    void setXZSlice(float *data, unsigned int width, unsigned int height, float index);
-    void setYZSlice(float *data, unsigned int width, unsigned int height, float index);
+    void clear();
 
     void alignToXY();
     void alignToXZ();
@@ -105,10 +92,27 @@ public slots:
     void alignToXZFromBack();
     void alignToYZFromBack();
 
-    void saveImage(QString fileName);
+    void saveImage();
+
+    void setObject(H5ObjectToVisualize *value);
 
 private slots:
-    void setLoaded(Request *request);
+    void set3DData(Request *request);
+
+    void setOpacity(QVector<float> value = QVector<float>(5, 1));
+    void setMinValue(float value);
+    void setMaxValue(float value);
+    void setColormap(ColorMap::Type colormap = ColorMap::JET);
+    void setFrameSize(HDF5Helper::Vector3D size);
+    void setFrameSize(QVector3DI size);
+    void setDatasetSize(HDF5Helper::Vector3D size);
+    void setDatasetSize(QVector3DI size);
+    void setDatasetPosition(HDF5Helper::Vector3D position);
+    void setDatasetPosition(QVector3DI position);
+
+    void setXYSlice(float *data, hsize_t index);
+    void setXZSlice(float *data, hsize_t index);
+    void setYZSlice(float *data, hsize_t index);
 
 private:
     void renderFrame();
@@ -120,8 +124,7 @@ private:
     float round(float number, float precision);
 
     QMainWindow *qMainWindow = 0;
-    HDF5Helper::Dataset *selectedDataset = 0;
-    HDF5ReadingThread *thread = 0;
+    H5ReadingThread *thread = 0;
 
     GLint uVolumeTexture;
     GLint uColormapTexture;
@@ -184,18 +187,14 @@ private:
     float zoom = 1.0f;
     QVector3D position;
 
-    QVector3DI imageSize;
-    QVector3DI imageSizeOrig;
-    QVector3DI fullSize;
-    QVector3DI imagePosition;
-
-    float minG = 0.0f;
-    float maxG = 1.0f;
+    QVector3DI frameSize = QVector3DI(1, 1, 1);
+    QVector3DI datasetSize = QVector3DI(1, 1, 1);
+    QVector3DI datasetPosition = QVector3DI(0, 0, 0);
 
     //ColorMap::Type colormap = ColorMap::JET;
-    int steps = 500;
+    int slicesCount = 500;
 
-    QVector3D index;
+    QVector3D index = QVector3D(0.5, 0.5, 0.5);
 
     bool frame = true;
     bool trim = false;
@@ -204,8 +203,9 @@ private:
     bool sliceXY = false;
     bool sliceXZ = false;
     bool sliceYZ = false;
+    bool fillSpace = false;
 
-    bool texture3DInitialized = false;
+    bool data3DloadedFlag = true;
 
     int initialized;
 };

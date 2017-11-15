@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ImageDockWidget</class>
- <widget class="QDockWidget" name="ImageDockWidget">
+ <class>SliceDockWidget</class>
+ <widget class="QDockWidget" name="SliceDockWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,7 +20,7 @@
    <set>Qt::AllDockWidgetAreas</set>
   </property>
   <property name="windowTitle">
-   <string>slice</string>
+   <string>Slice</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
@@ -59,6 +59,13 @@
       </property>
       <property name="checked">
        <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QSlider" name="verticalSlider">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
      </widget>
     </item>
@@ -109,12 +116,11 @@
       </widget>
      </widget>
     </item>
-    <item row="1" column="5">
-     <widget class="QSlider" name="verticalSlider">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
+    <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
+     <widget class="QSpinBox" name="spinBox"/>
+    </item>
+    <item row="0" column="2">
+     <widget class="QLabel" name="labelLoading"/>
     </item>
     <item row="0" column="0">
      <widget class="QToolButton" name="toolButtonSave">
@@ -129,12 +135,6 @@
         <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
       </property>
      </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="labelLoading"/>
-    </item>
-    <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
-     <widget class="QSpinBox" name="spinBox"/>
     </item>
    </layout>
   </widget>
@@ -186,6 +186,38 @@
     <hint type="destinationlabel">
      <x>191</x>
      <y>55</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonFill</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>imageWidget</receiver>
+   <slot>setAdjust(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>39</x>
+     <y>33</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>52</x>
+     <y>65</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButtonSave</sender>
+   <signal>clicked()</signal>
+   <receiver>imageWidget</receiver>
+   <slot>saveImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>8</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>25</x>
+     <y>66</y>
     </hint>
    </hints>
   </connection>

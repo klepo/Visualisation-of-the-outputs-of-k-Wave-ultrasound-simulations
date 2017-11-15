@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef HDF5READINGTHREAD_H
-#define HDF5READINGTHREAD_H
+#ifndef H5READINGTHREAD_H
+#define H5READINGTHREAD_H
 
 #include <QtCore>
 
@@ -60,12 +60,12 @@ public:
 /**
  * @brief The HDF5ReadingThread class represents wrapper for HDF5 reading threads
  */
-class HDF5ReadingThread : public QThread
+class H5ReadingThread : public QThread
 {
     Q_OBJECT
 public:
-    HDF5ReadingThread(QObject *parent = 0);
-    ~HDF5ReadingThread();
+    H5ReadingThread(QObject *parent = 0);
+    ~H5ReadingThread();
 
 public slots:
     void createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit = 0);
@@ -93,4 +93,4 @@ private:
 
 };
 
-#endif // HDF5READINGTHREAD_H
+#endif // H5READINGTHREAD_H

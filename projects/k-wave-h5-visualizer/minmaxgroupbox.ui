@@ -1,0 +1,93 @@
+<?xml version='1.0'?>
+<ui version="4.0">
+ <class>MinMaxGroupBox</class>
+ <widget class="QGroupBox" name="MinMaxGroupBox">
+ <property name="enabled">
+  <bool>true</bool>
+ </property>
+ <property name="title">
+  <string>Global minimal and maximal value</string>
+ </property>
+ <property name="checkable">
+  <bool>false</bool>
+ </property>
+ <layout class="QGridLayout" name="gridLayout">
+  <item row="2" column="0">
+   <widget class="QLabel" name="labelGlobalMax">
+    <property name="text">
+     <string>max:</string>
+    </property>
+   </widget>
+  </item>
+  <item row="2" column="2">
+   <widget class="QSlider" name="horizontalSliderGlobalMax">
+    <property name="maximum">
+     <number>1000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="1">
+   <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMinGlobal">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="decimals">
+     <number>4</number>
+    </property>
+    <property name="maximum">
+     <double>1000.000000000000000</double>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="0">
+   <widget class="QLabel" name="labelGlobalMin">
+    <property name="text">
+     <string>min:</string>
+    </property>
+    <property name="buddy">
+     <cstring>doubleSpinBoxMinGlobal</cstring>
+    </property>
+   </widget>
+  </item>
+  <item row="2" column="1">
+   <widget class="QDoubleSpinBoxTS" name="doubleSpinBoxMaxGlobal">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="decimals">
+     <number>4</number>
+    </property>
+    <property name="maximum">
+     <double>1000.000000000000000</double>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="2">
+   <widget class="QSlider" name="horizontalSliderGlobalMin">
+    <property name="maximum">
+     <number>1000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+  </item>
+  <item row="0" column="0" colspan="3">
+   <widget class="QCheckBox" name="checkBoxTrim">
+    <property name="text">
+     <string>Trim values in 3D view</string>
+    </property>
+   </widget>
+  </item>
+ </layout>
+ </widget>
+</ui>

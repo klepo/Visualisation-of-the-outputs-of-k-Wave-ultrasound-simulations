@@ -1,5 +1,5 @@
 /**
- * @file        openedh5file.h
+ * @file        h5openedfile.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
@@ -17,69 +17,53 @@
  *
  */
 
-#ifndef H5FILE_H
-#define H5FILE_H
+#ifndef H5OPENEDFILE_H
+#define H5OPENEDFILE_H
 
 #include <QtCore>
 
 #include <hdf5helper.h>
 
+class H5ObjectToVisualize;
+
 /**
  * @brief The OpenedH5File class represents wrapper for opened HDF5 file
  */
-class OpenedH5File : public QObject
+class H5OpenedFile : public QObject
 {
     Q_OBJECT
 public:
 
     /// 3D 4D object type
     typedef enum ObjectType {
-        dataset3D_t,
-        dataset4D_t
+        DATASET_3D,
+        DATASET_4D
     } ObjectType;
 
-    explicit OpenedH5File(QString fileName, QObject *parent = 0);
-    ~OpenedH5File();
+    explicit H5OpenedFile(QString fileName, QObject *parent = 0);
+    ~H5OpenedFile();
 
-    class H5ObjectToVisualize;
-    class H5SubobjectToVisualize;
-
-    QMap<QString, H5ObjectToVisualize *> getObjects();
-
+    QVector<H5ObjectToVisualize *> getObjects();
+    QVector<H5ObjectToVisualize *> getObjectsSelected();
     H5ObjectToVisualize *getObject(QString name);
-    H5ObjectToVisualize *getObjectBySubobjectName(QString name);
-
     QMap<QString, QString> getInfo();
-
     HDF5Helper::File *getFile();
-
     QString getFilename() const;
     QString getRawFilename() const;
-
     HDF5Helper::Vector4D getNDims() const;
-    hsize_t getNT() const;
-    hsize_t getNX() const;
-    hsize_t getNY() const;
-    hsize_t getNZ() const;
 
 signals:
 
 public slots:
-    void setSelectedSubobject(QString name);
-    void setObjectSelected(QString name, bool value);
-    void toggleObjectSelected(QString mainName);
 
 private:
     HDF5Helper::File *file = 0;
     HDF5Helper::Vector4D nDims;
-    void findDatasetsForVisualization(HDF5Helper::Group *group);
-
     QMap<QString, QString> info;
-    QMap<QString, H5ObjectToVisualize *> objects;
+    QVector<H5ObjectToVisualize *> objects;
 
-    H5ObjectToVisualize *selectedObject = 0;
-
-    void setObject(QString name, HDF5Helper::Dataset *dataset, ObjectType type);
+    void findDatasetsForVisualization(HDF5Helper::Group *group);
+    void setObject(HDF5Helper::Dataset *dataset, ObjectType type);
 };
 
-#endif // H5FILE_H
+#endif // H5OPENEDFILE_H

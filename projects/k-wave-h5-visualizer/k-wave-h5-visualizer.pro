@@ -29,39 +29,55 @@ SOURCES += \
     main.cpp\
     mainwindow.cpp \
     qdoublespinboxts.cpp \
-    hdf5readingthread.cpp \
     openglwindow.cpp \
     gwindow.cpp \
-    openedh5file.cpp \
-    h5objecttovisualize.cpp \
-    h5subobjecttovisualize.cpp \
     qvector3di.cpp \
     colormap.cpp \
     imagewidget.cpp \
-    imagedockwidget.cpp \
-    groupboxopacity.cpp
+    h5objecttovisualize.cpp \
+    h5openedfile.cpp \
+    h5readingthread.cpp \
+    datasetinfogroupbox.cpp \
+    fileinfodockwidget.cpp \
+    opacitygroupbox.cpp \
+    datasetsdockwidget.cpp \
+    abstractfilewidget.cpp \
+    abstractobjectwidget.cpp \
+    abstractwidget.cpp \
+    slicedockwidget.cpp \
+    minmaxgroupbox.cpp
 
 HEADERS += \
     mainwindow.h \
     qdoublespinboxts.h \
-    hdf5readingthread.h \
     openglwindow.h \
     vertices.h \
     gwindow.h \
-    openedh5file.h \
-    h5objecttovisualize.h \
-    h5subobjecttovisualize.h \
     qvector3di.h \
     colormap.h \
     imagewidget.h \
-    imagedockwidget.h \
-    groupboxopacity.h
+    h5objecttovisualize.h \
+    h5openedfile.h \
+    h5readingthread.h \
+    datasetinfogroupbox.h \
+    fileinfodockwidget.h \
+    opacitygroupbox.h \
+    datasetsdockwidget.h \
+    abstractfilewidget.h \
+    abstractobjectwidget.h \
+    abstractwidget.h \
+    slicedockwidget.h \
+    minmaxgroupbox.h
 
 FORMS += \
     mainwindow.ui \
     dialog.ui \
-    imagedockwidget.ui \
-    groupboxopacity.ui
+    datasetinfogroupbox.ui \
+    fileinfodockwidget.ui \
+    opacitygroupbox.ui \
+    datasetsdockwidget.ui \
+    slicedockwidget.ui \
+    minmaxgroupbox.ui
 
 RESOURCES += \
     resources.qrc \

@@ -1,16 +1,15 @@
 /**
- * @file        h5objecttovisualize.cpp
+ * @file        h5subobjecttovisualize.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) \n
  *              11 September 2017 (updated)
  *
- * @brief       The implementation file containing OpenedH5File::H5ObjectToVisualize
+ * @brief       The implementation file containing H5ObjectToVisualize
  *              class definition.
  *
- * Object of class H5ObjectToVisualize can contains many objects of class
- * H5SubobjectToVisualize. This hierarchy is for many resolutions of datasets
- * and for keeping current setting of selected dataset.
+ * Object of class H5ObjectToVisualize is for one dataset or group of datasets with
+ * time series and has own threads and view settings.
  *
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -26,118 +25,787 @@
 
 /**
  * @brief Creates H5ObjectToVisualize object
- * @param[in] name Name of object
- * @param[in] type Type of object (GROUP_TYPE or DATASET_TYPE)
- * @param[in] openedH5File HDF5 File
+ * @param[in] dataset Dataset
+ * @param[in] type Object type
+ * @param[in] openedH5File Opened file
+ * @param[in] h5ObjectToVisualize Object to visualize
  * @param[in] parent Parent (optional)
  */
-OpenedH5File::H5ObjectToVisualize::H5ObjectToVisualize(QString name, ObjectType type, OpenedH5File *openedH5File, QObject *parent) : QObject(parent)
+H5ObjectToVisualize::H5ObjectToVisualize(HDF5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, H5OpenedFile *openedH5File, QObject *parent)
+    : QObject(parent)
+    , dataset(dataset)
+    , type(type)
+    , openedH5File(openedH5File)
 {
-    // Params
-    this->openedH5File = openedH5File;
-    this->name = name;
-    this->type = type;
+    loadObjectData();
+    initialize();
 }
 
 /**
- * @brief Destructor of H5ObjectToVisualize object
+ * @brief Inicialization of important variables
+ */
+void H5ObjectToVisualize::initialize()
+{
+    // Allocation memory for slices
+    dataXY = new float[size.y() * size.x()];
+    dataXZ = new float[size.z() * size.x()];
+    dataYZ = new float[size.z() * size.y()];
+
+    // Create threads for slices
+    threadXY = new H5ReadingThread();
+    connect(threadXY, SIGNAL(requestDone(Request *)), this, SLOT(sliceXYLoaded(Request *)));
+    threadXZ = new H5ReadingThread();
+    connect(threadXZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceXZLoaded(Request *)));
+    threadYZ = new H5ReadingThread();
+    connect(threadYZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceYZLoaded(Request *)));
+
+    index.x(HDF5Helper::Vector3D(maxValuePosition).x());
+    index.y(HDF5Helper::Vector3D(maxValuePosition).y());
+    index.z(HDF5Helper::Vector3D(maxValuePosition).z());
+    if (type == H5OpenedFile::DATASET_4D)
+        currentStep = HDF5Helper::Vector4D(maxValuePosition).t();
+}
+
+/**
+ * @brief Destructor of H5ObjectToVisualize
  *
- * Deletes subobjects
+ * Deletes threads and slice data.
  */
-OpenedH5File::H5ObjectToVisualize::~H5ObjectToVisualize()
+H5ObjectToVisualize::~H5ObjectToVisualize()
 {
-    foreach (QString key, subobjects.keys())
-        delete subobjects.value(key);
+    threadXY->clearRequests();
+    threadXY->wait();
+    //threadXY->terminate();
+    threadXY->deleteLater();
+
+    threadXZ->clearRequests();
+    threadXZ->wait();
+    //threadXZ->terminate();
+    threadXZ->deleteLater();
+
+    threadYZ->clearRequests();
+    threadYZ->wait();
+    //threadYZ->terminate();
+    threadYZ->deleteLater();
+
+    disconnect(this, SIGNAL(imageXYChanged(QImage)), 0, 0);
+    disconnect(this, SIGNAL(imageXZChanged(QImage)), 0, 0);
+    disconnect(this, SIGNAL(imageYZChanged(QImage)), 0, 0);
+    disconnect(this, SIGNAL(dataXYChanged(float *, hsize_t)), 0, 0);
+    disconnect(this, SIGNAL(dataXZChanged(float *, hsize_t)), 0, 0);
+    disconnect(this, SIGNAL(dataYZChanged(float *, hsize_t)), 0, 0);
+    disconnect(this, SIGNAL(opacityChanged(QVector<float>)), 0, 0);
+    disconnect(this, SIGNAL(minValueChanged(float)), 0, 0);
+    disconnect(this, SIGNAL(maxValueChanged(float)), 0, 0);
+    disconnect(this, SIGNAL(colormapChanged(ColorMap::Type)), 0, 0);
+
+    delete[] dataXY;
+    delete[] dataXZ;
+    delete[] dataYZ;
 }
 
 /**
- * @brief Adds dataset to Qmap of subobjects
- * @param[in] dataset Dataset
+ * @brief Returns subobject name
+ * @return Subobject name
  */
-void OpenedH5File::H5ObjectToVisualize::addSubobject(HDF5Helper::Dataset *dataset)
+QString H5ObjectToVisualize::getName()
 {
-    QString name = QString::fromStdString(dataset->getOnlyName());
-    if (!subobjects.contains(name)) {
-        H5SubobjectToVisualize *subobject = new H5SubobjectToVisualize(dataset, type, openedH5File, this);
-        subobjects.insert(name, subobject);
-        selectedSubobject = subobject;
-    }
-}
-
-
-/**
- * @brief Returns name of object
- * @return Name of object
- */
-QString OpenedH5File::H5ObjectToVisualize::getName()
-{
-    return name;
+    return QString::fromStdString(dataset->getName());;
 }
 
 /**
- * @brief Returns type of object
- * @return GROUP_TYPE or DATASET_TYPE
+ * @brief Returns subobject only name
+ * @return Subobject only name
  */
-OpenedH5File::ObjectType OpenedH5File::H5ObjectToVisualize::getType()
+QString H5ObjectToVisualize::getOnlyName() const
+{
+    return QString::fromStdString(dataset->getOnlyName());;
+}
+
+/**
+ * @brief Returns subobject type
+ * @return Subobject type
+ */
+H5OpenedFile::ObjectType H5ObjectToVisualize::getType()
 {
     return type;
 }
 
 /**
- * @brief Returns subobject names
- * @return QList of subobjects names
+ * @brief Returns dataset
+ * @return Dataset
  */
-QList<QString> OpenedH5File::H5ObjectToVisualize::getSubobjectNames()
+HDF5Helper::Dataset *H5ObjectToVisualize::getDataset()
 {
-    return subobjects.keys();
+    return dataset;
 }
 
 /**
- * @brief Returns subobjects
- * @return QMap<QString, OpenedH5File::H5SubobjectToVisualize *> of subobjects;
+ * @brief Loads data about dataset or group (size, position, ...)
  */
-QMap<QString, OpenedH5File::H5SubobjectToVisualize *> OpenedH5File::H5ObjectToVisualize::getSubobjects()
+void H5ObjectToVisualize::loadObjectData()
 {
-    return subobjects;
-}
+    // Size of dataset (can be downsampled)
+    size = HDF5Helper::Vector3D(dataset->getDims());
+    originalSize = size;
 
-/**
- * @brief Returns selected subobject
- * @return Selected subobject
- */
-OpenedH5File::H5SubobjectToVisualize *OpenedH5File::H5ObjectToVisualize::getSelectedSubobject()
-{
-    return selectedSubobject;
-}
+    // Set 3D frame size
+    frameSize = size;
+    originalFrameSize = frameSize;
 
-/**
- * @brief Sets selected subobject
- * @param[in] name Subobject name
- * @return True if object exists
- */
-bool OpenedH5File::H5ObjectToVisualize::setSelectedSubobject(QString name)
-{
-    if (subobjects.contains(name)) {
-        selectedSubobject = subobjects[name];
-        return true;
+    // If downsampled
+    if (dataset->hasAttribute(HDF5Helper::SRC_SIZE_X_ATTR)
+            && dataset->hasAttribute(HDF5Helper::SRC_SIZE_Y_ATTR)
+            && dataset->hasAttribute(HDF5Helper::SRC_SIZE_Z_ATTR)
+            && dataset->hasAttribute(HDF5Helper::SRC_DATASET_NAME_ATTR)
+            ) {
+        originalSize.x(dataset->readAttributeI(HDF5Helper::SRC_SIZE_X_ATTR, false));
+        originalSize.y(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Y_ATTR, false));
+        originalSize.z(dataset->readAttributeI(HDF5Helper::SRC_SIZE_Z_ATTR, false));
+        originalFrameSize = originalSize;
     }
-    return false;
+
+    // Get chunk dimensions
+    chunkSize = dataset->getChunkDims();
+
+    // Get global min/max values
+    dataset->findAndSetGlobalMinAndMaxValue();
+    hsize_t minValueIndex;
+    hsize_t maxValueIndex;
+    dataset->getGlobalMinValue(minValue, minValueIndex);
+    dataset->getGlobalMaxValue(maxValue, maxValueIndex);
+    dataset->getGlobalMinValue(originalMinValue, minValueIndex);
+    dataset->getGlobalMaxValue(originalMaxValue, maxValueIndex);
+
+    HDF5Helper::convertlinearToMultiDim(minValueIndex, minValuePosition, dataset->getDims());
+    HDF5Helper::convertlinearToMultiDim(maxValueIndex, maxValuePosition, dataset->getDims());
+
+
+    if (type == H5OpenedFile::DATASET_3D) {
+        // Default step
+        steps = 1;
+        if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
+            originalPosition.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
+            originalPosition.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
+            originalPosition.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
+            position = originalPosition;
+
+            frameSize = HDF5Helper::Vector3D(openedH5File->getNDims());;
+            originalFrameSize = frameSize;
+        }
+
+    } else if (type == H5OpenedFile::DATASET_4D) {
+
+        frameSize = HDF5Helper::Vector3D(openedH5File->getNDims());;
+        originalFrameSize = frameSize;
+
+        // Get position (was defined by sensor mask)
+        if (dataset->hasAttribute(HDF5Helper::POSITION_X_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(HDF5Helper::POSITION_Z_ATTR)) {
+            originalPosition.z(dataset->readAttributeI(HDF5Helper::POSITION_Z_ATTR, false));
+            originalPosition.y(dataset->readAttributeI(HDF5Helper::POSITION_Y_ATTR, false));
+            originalPosition.x(dataset->readAttributeI(HDF5Helper::POSITION_X_ATTR, false));
+            position = originalPosition;
+        }
+
+        // Downsampled position
+        if (size != originalSize) {
+            float ratio = float(qMax(size.x(), qMax(size.y(), size.z()))) / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));
+            position.x(hsize_t(originalPosition.x() * ratio));
+            position.y(hsize_t(originalPosition.y() * ratio));
+            position.z(hsize_t(originalPosition.z() * ratio));
+
+            originalFrameSize.x(hsize_t(originalFrameSize.x() * ratio));
+            originalFrameSize.y(hsize_t(originalFrameSize.y() * ratio));
+            originalFrameSize.z(hsize_t(originalFrameSize.z() * ratio));
+        }
+
+        // Get number of steps
+        steps = HDF5Helper::Vector4D(dataset->getDims()).w();
+    }
 }
 
 /**
- * @brief Toggles selected
+ * @brief Send signals images were changed
  */
-void OpenedH5File::H5ObjectToVisualize::toggleSelected()
+void H5ObjectToVisualize::changeImages()
+{
+    emit imageXYChanged(createImageXY());
+    emit imageXZChanged(createImageXZ());
+    emit imageYZChanged(createImageYZ());
+}
+
+/**
+ * @brief Reloads images
+ */
+void H5ObjectToVisualize::reloadImages()
+{
+    setZIndex(index.z());
+    setYIndex(index.y());
+    setXIndex(index.x());
+}
+
+/**
+ * @brief Slice XY loaded slot
+ * @param[in] r Request
+ */
+void H5ObjectToVisualize::sliceXYLoaded(Request *r)
+{
+    XYloadedFlag = false;
+    // Copy image data from request
+    memcpy(dataXY, r->data, static_cast<size_t>(size.y() * size.x()) * sizeof(float));
+    XYloadedFlag = true;
+    if (index.z() == HDF5Helper::Vector3D(r->offset).z())
+        currentXYLoaded = true;
+    else
+        currentXYLoaded = false;
+    if (areCurrentSlicesLoaded())
+        emit slicesLoaded();
+    emit imageXYChanged(createImageXY());
+    emit dataXYChanged(dataXY, HDF5Helper::Vector3D(r->offset).z());
+    threadXY->deleteDoneRequest(r);
+}
+
+/**
+ * @brief Slice XZ loaded slot
+ * @param[in] r request
+ */
+void H5ObjectToVisualize::sliceXZLoaded(Request *r)
+{
+    XZloadedFlag = false;
+    // Copy image data from request
+    memcpy(dataXZ, r->data, static_cast<size_t>(size.z() * size.x()) * sizeof(float));
+    XZloadedFlag = true;
+    if (index.y() == HDF5Helper::Vector3D(r->offset).y())
+        currentXZLoaded = true;
+    else
+        currentXZLoaded = false;
+    if (areCurrentSlicesLoaded())
+        emit slicesLoaded();
+    emit imageXZChanged(createImageXZ());
+    emit dataXZChanged(dataXZ, HDF5Helper::Vector3D(r->offset).y());
+    threadXZ->deleteDoneRequest(r);
+}
+
+/**
+ * @brief Slice YZ loaded slot
+ * @param[in] r request
+ */
+void H5ObjectToVisualize::sliceYZLoaded(Request *r)
+{
+    YZloadedFlag = false;
+    // Copy image data from request
+    memcpy(dataYZ, r->data, static_cast<size_t>(size.z() * size.y()) * sizeof(float));
+    YZloadedFlag = true;
+    if (index.x() == HDF5Helper::Vector3D(r->offset).x())
+        currentYZLoaded = true;
+    else
+        currentYZLoaded = false;
+    if (areCurrentSlicesLoaded())
+        emit slicesLoaded();
+    emit imageYZChanged(createImageYZ());
+    emit dataYZChanged(dataYZ, HDF5Helper::Vector3D(r->offset).x());
+    threadYZ->deleteDoneRequest(r);
+}
+
+/**
+ * @brief Is current XY Loaded?
+ * @return True/False
+ */
+bool H5ObjectToVisualize::isCurrentXYLoaded()
+{
+    return currentXYLoaded;
+}
+
+/**
+ * @brief Is current XZ Loaded?
+ * @return True/False
+ */
+bool H5ObjectToVisualize::isCurrentXZLoaded()
+{
+    return currentXZLoaded;
+}
+
+/**
+ * @brief Is current YZ Loaded?
+ * @return True/False
+ */
+bool H5ObjectToVisualize::isCurrentYZLoaded()
+{
+    return currentYZLoaded;
+}
+
+/**
+ * @brief Are current slices Loaded?
+ * @return True/False
+ */
+bool H5ObjectToVisualize::areCurrentSlicesLoaded()
+{
+    if (currentXYLoaded && currentXZLoaded && currentYZLoaded)
+        return true;
+    else
+        return false;
+}
+
+/**
+ * @brief Creates XY image from loaded data
+ * @return XY image
+ */
+QImage H5ObjectToVisualize::createImageXY()
+{
+    QImage qimage;
+    if (XYloadedFlag) {
+        qimage = QImage(int(size.x()), int(size.y()), QImage::Format_RGB32);
+        ColorMap::applyColorMap(int(size.x() * size.y()), minValue, maxValue, dataXY, qimage.bits(), colormap);
+    }
+    return qimage;
+}
+
+/**
+ * @brief Creates XZ image from loaded data
+ * @return XZ image
+ */
+QImage H5ObjectToVisualize::createImageXZ()
+{
+    QImage qimage;
+    if (XZloadedFlag) {
+        qimage = QImage(int(size.x()), int(size.z()), QImage::Format_RGB32);
+        ColorMap::applyColorMap(int(size.x() * size.z()), minValue, maxValue, dataXZ, qimage.bits(), colormap);
+    }
+    return qimage;
+}
+
+/**
+ * @brief Creates YZ image from loaded data
+ * @return YZ image
+ */
+QImage H5ObjectToVisualize::createImageYZ()
+{
+    QImage qimage;
+    if (YZloadedFlag) {
+        qimage = QImage(int(size.y()), int(size.z()), QImage::Format_RGB32);
+        ColorMap::applyColorMap(int(size.y() * size.z()), minValue, maxValue, dataYZ, qimage.bits(), colormap);
+    }
+    return qimage;
+}
+
+QVector<float> H5ObjectToVisualize::getOpacity() const
+{
+    return opacity;
+}
+
+void H5ObjectToVisualize::setOpacity(const QVector<float> &value)
+{
+    opacity = value;
+    emit(opacityChanged(opacity));
+}
+
+bool H5ObjectToVisualize::isSelected() const
+{
+    return selected;
+}
+
+void H5ObjectToVisualize::setSelected(bool value)
+{
+    selected = value;
+}
+
+void H5ObjectToVisualize::toggleSelected()
 {
     selected = !selected;
 }
 
 /**
- * @brief Set object selected or not selected
- * @param[in] value True/False
+ * @brief Returns OpenedH5File
+ * @return OpenedH5File
  */
-void OpenedH5File::H5ObjectToVisualize::setSelected(bool value)
+H5OpenedFile *H5ObjectToVisualize::getOpenedH5File() const
 {
-    selected = value;
+    return openedH5File;
 }
 
+/**
+ * @brief Returns data XY
+ * @return Float XY data
+ */
+float *H5ObjectToVisualize::getDataXY()
+{
+    return dataXY;
+}
+
+/**
+ * @brief Returns data XZ
+ * @return Float XZ data
+ */
+float *H5ObjectToVisualize::getDataXZ()
+{
+    return dataXZ;
+}
+
+/**
+ * @brief Returns data YZ
+ * @return Float YZ data
+ */
+float *H5ObjectToVisualize::getDataYZ()
+{
+    return dataYZ;
+}
+
+QImage H5ObjectToVisualize::getImageXY()
+{
+    return createImageXY();
+}
+
+QImage H5ObjectToVisualize::getImageXZ()
+{
+    return createImageXZ();
+}
+
+QImage H5ObjectToVisualize::getImageYZ()
+{
+    return createImageYZ();
+}
+
+/**
+ * @brief Returns current X index
+ * @return Current X index
+ */
+hsize_t H5ObjectToVisualize::getXIndex()
+{
+    return index.x();
+}
+
+/**
+ * @brief Returns current Y index
+ * @return Current Y index
+ */
+hsize_t H5ObjectToVisualize::getYIndex()
+{
+    return index.y();
+}
+
+/**
+ * @brief Returns current Z index
+ * @return Current Z index
+ */
+hsize_t H5ObjectToVisualize::getZIndex()
+{
+    return index.z();
+}
+
+/**
+ * @brief Starts loading image data with new X index
+ * @param[in] value X index
+ */
+void H5ObjectToVisualize::setXIndex(hsize_t value)
+{
+    index.x(value);
+    currentYZLoaded = false;
+    if (type == H5OpenedFile::DATASET_3D)
+        threadYZ->createRequest(dataset, HDF5Helper::Vector3D(0, 0, value), HDF5Helper::Vector3D(size.z(), size.y(), 1));
+    else
+        threadYZ->createRequest(dataset, HDF5Helper::Vector4D(currentStep, 0, 0, value), HDF5Helper::Vector4D(1, size.z(), size.y(), 1));
+
+    threadYZ->start();
+}
+
+/**
+ * @brief Starts loading image data with new Y index
+ * @param[in] value Y index
+ */
+void H5ObjectToVisualize::setYIndex(hsize_t value)
+{
+    index.y(value);
+    currentXZLoaded = false;
+    if (type == H5OpenedFile::DATASET_3D)
+        threadXZ->createRequest(dataset, HDF5Helper::Vector3D(0, value, 0), HDF5Helper::Vector3D(size.z(), 1, size.x()));
+    else
+        threadXZ->createRequest(dataset, HDF5Helper::Vector4D(currentStep, 0, value, 0), HDF5Helper::Vector4D(1, size.z(), 1, size.x()));
+    threadXZ->start();
+}
+
+/**
+ * @brief Starts loading image data with new Z index
+ * @param[in] value Z index
+ */
+void H5ObjectToVisualize::setZIndex(hsize_t value)
+{
+    index.z(value);
+    currentXYLoaded = false;
+    if (type == H5OpenedFile::DATASET_3D)
+        threadXY->createRequest(dataset, HDF5Helper::Vector3D(value, 0, 0), HDF5Helper::Vector3D(1, size.y(), size.x()));
+    else
+        threadXY->createRequest(dataset, HDF5Helper::Vector4D(currentStep, value, 0, 0), HDF5Helper::Vector4D(1, 1, size.y(), size.x()));
+    threadXY->start();
+}
+
+/**
+ * @brief Gets count (unused)
+ * @return Count
+ */
+int H5ObjectToVisualize::getSlicesCount()
+{
+    return slicesCount;
+}
+
+/**
+ * @brief Sets count (unused)
+ * @param[in] value Count
+ */
+void H5ObjectToVisualize::setSlicesCount(int value)
+{
+    slicesCount = value;
+}
+
+/**
+ * @brief Returns size
+ * @return Size
+ */
+HDF5Helper::Vector3D H5ObjectToVisualize::getSize()
+{
+    return size;
+}
+
+/**
+ * @brief Returns original size
+ * @return Original size
+ */
+HDF5Helper::Vector3D H5ObjectToVisualize::getOriginalSize()
+{
+    return originalSize;
+}
+
+/**
+ * @brief Returns frame size
+ * @return Frame size
+ */
+HDF5Helper::Vector3D H5ObjectToVisualize::getFrameSize()
+{
+    return frameSize;
+}
+
+/**
+ * @brief Returns original frame size
+ * @return Original frame size
+ */
+HDF5Helper::Vector3D H5ObjectToVisualize::getOriginalFrameSize()
+{
+    return originalFrameSize;
+}
+
+/**
+ * @brief Returns Position
+ * @return Position
+ */
+HDF5Helper::Vector3D H5ObjectToVisualize::getPos()
+{
+    return position;
+}
+
+/**
+ * @brief Returns original position
+ * @return Original position
+ */
+HDF5Helper::Vector3D H5ObjectToVisualize::getOriginalPos()
+{
+    return originalPosition;
+}
+
+/**
+ * @brief Returns steps
+ * @return Steps
+ */
+hsize_t H5ObjectToVisualize::getSteps()
+{
+    return steps;
+}
+
+/**
+ * @brief Returns current step
+ * @return Current step
+ */
+hsize_t H5ObjectToVisualize::getCurrentStep()
+{
+    return currentStep;
+}
+
+/**
+ * @brief Synchronizes loading time series
+ * @param[in] step Step
+ */
+void H5ObjectToVisualize::setCurrentStep(hsize_t step)
+{
+    if (type == H5OpenedFile::DATASET_4D) {
+        try {
+            currentStep = step;
+            reloadImages();
+            emit stepChanged();
+        } catch(std::exception &) {
+            std::cerr << "Wrong step" << std::endl;
+        }
+    }
+}
+
+/**
+ * @brief Returns colormap
+ * @return Colormap
+ */
+ColorMap::Type H5ObjectToVisualize::getColormap()
+{
+    return colormap;
+}
+
+/**
+ * @brief Sets colormap
+ * @param[in] colormap Colormap
+ */
+void H5ObjectToVisualize::setColormap(ColorMap::Type colormap)
+{
+    this->colormap = colormap;
+    emit colormapChanged(colormap);
+    changeImages();
+}
+
+void H5ObjectToVisualize::setColormap(int colormap)
+{
+    setColormap(static_cast<ColorMap::Type>(colormap));
+}
+
+/**
+ * @brief Sets minimal value
+ * @param[in] value Value
+ */
+void H5ObjectToVisualize::setMinValue(float value)
+{
+    minValue = value;
+    emit minValueChanged(value);
+    changeImages();
+}
+
+/**
+ * @brief Sets maximal value
+ * @param[in] value Value
+ */
+void H5ObjectToVisualize::setMaxValue(float value)
+{
+    maxValue = value;
+    emit maxValueChanged(value);
+    changeImages();
+}
+
+/**
+ * @brief Returns minimal value
+ * @return Minimal global current value
+ */
+float H5ObjectToVisualize::getMinValue()
+{
+    return minValue;
+}
+
+/**
+ * @brief Returns maximal value
+ * @return Maximal global current value
+ */
+float H5ObjectToVisualize::getMaxValue()
+{
+    return maxValue;
+}
+
+/**
+ * @brief Returns original minimal value
+ * @return Minimal global original value
+ */
+float H5ObjectToVisualize::getOriginalMinValue()
+{
+    return originalMinValue;
+}
+
+/**
+ * @brief Returns original maximal value
+ * @return Maximal global original value
+ */
+float H5ObjectToVisualize::getOriginalMaxValue()
+{
+    return originalMaxValue;
+}
+
+/**
+ * @brief Returns value at 2D position on XY image
+ * @param[in] x X-coord
+ * @param[in] y Y-coord
+ * @return Float value
+ */
+float H5ObjectToVisualize::getValueAtPointFromXY(int x, int y)
+{
+    if (XYloadedFlag)
+        return dataXY[static_cast<hsize_t>(x) + size.x() * static_cast<hsize_t>(y)];
+    else
+        return 0.0;
+}
+
+/**
+ * @brief Returns value at 2D position on XZ image
+ * @param[in] x X(X)-coord
+ * @param[in] z Z(Y)-coord
+ * @return Float value
+ */
+float H5ObjectToVisualize::getValueAtPointFromXZ(int x, int z)
+{
+    if (XZloadedFlag)
+        return dataXZ[static_cast<hsize_t>(x) + size.x() * static_cast<hsize_t>(z)];
+    else
+        return 0.0;
+}
+
+/**
+ * @brief Returns value at 2D position on YZ image
+ * @param[in] y Y(X)-coord
+ * @param[in] z Z(Y)-coord
+ * @return Float value
+ */
+float H5ObjectToVisualize::getValueAtPointFromYZ(int y, int z)
+{
+    if (YZloadedFlag)
+        return dataYZ[static_cast<hsize_t>(y) + size.y() * static_cast<hsize_t>(z)];
+    else
+        return 0.0;
+}
+
+/**
+ * @brief Creates simulation info data structure
+ * @return Info structure
+ */
+QList<QPair<QString, QString>> H5ObjectToVisualize::getInfo()
+{
+    QList<QPair<QString, QString>> info;
+    if (type == H5OpenedFile::DATASET_3D) {
+        info.append(QPair<QString, QString>("Name", getName()));
+        info.append(QPair<QString, QString>("Type", "3D dataset"));
+        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
+            info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
+        info.append(QPair<QString, QString>("Size", QString::fromStdString(originalSize)));
+        if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
+            info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(size)));
+        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
+            info.append(QPair<QString, QString>("Position", QString::fromStdString(position)));
+        info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
+        info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
+        info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
+    } else if (type == H5OpenedFile::DATASET_4D) {
+        info.append(QPair<QString, QString>("Name", getName()));
+        info.append(QPair<QString, QString>("Type", "4D dataset"));
+        info.append(QPair<QString, QString>("Base size", QString::fromStdString(originalFrameSize)));
+        if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z())
+            info.append(QPair<QString, QString>("Downsampling base size", QString::fromStdString(frameSize)));
+        info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(originalSize)));
+        if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
+            info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(dataset->getDims())));
+        info.append(QPair<QString, QString>("Position", QString::fromStdString(originalPosition)));
+        if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z())
+            info.append(QPair<QString, QString>("Downsampling position", QString::fromStdString(position)));
+        info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
+        info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
+        info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
+        info.append(QPair<QString, QString>("Steps", QString::number(steps)));
+    }
+    return info;
+}
