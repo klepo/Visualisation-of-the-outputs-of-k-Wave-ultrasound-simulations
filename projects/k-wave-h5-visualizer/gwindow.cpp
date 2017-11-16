@@ -33,17 +33,9 @@ GWindow::GWindow(QMainWindow *qMainWindow)
 {
     this->qMainWindow = qMainWindow;
 
-    // Default sizes for 3D frames
-    imageSize = QVector3DI(1, 1, 1);
-    imageSizeOrig = QVector3DI(1, 1, 1);
-    fullSize = QVector3DI(1, 1, 1);
-
-    // Position of sensor mask
-    imagePosition = QVector3DI(0, 0, 0);
-
     // Create thread for loading whole dataset
-    thread = new HDF5ReadingThread();
-    connect(thread, SIGNAL(requestDone(Request *)), this, SLOT(setLoaded(Request *)));
+    thread = new H5ReadingThread();
+    connect(thread, SIGNAL(requestDone(Request *)), this, SLOT(set3DData(Request *)));
 }
 
 /**
@@ -258,9 +250,9 @@ void GWindow::initialize()
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendEquation(GL_FUNC_ADD);
 
-    changeColormap();
+    setColormap();
 
-    changeOpacity();
+    setOpacity();
 
     // Default scene rotation
     //rotateXMatrix.rotate(-20, -1, 0, 0);
@@ -293,7 +285,7 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uXZBorder, false);
     m_program->setUniformValue(m_uYZBorder, false);
 
-    m_program->setUniformValue(m_uSteps, steps);
+    m_program->setUniformValue(m_uSteps, slicesCount);
 
     m_program->setUniformValue(m_uWidth, float(width()));
     m_program->setUniformValue(m_uHeight, float(height()));
@@ -308,46 +300,51 @@ void GWindow::initialize()
  * @brief Returns 3D data loading thread
  * @return 3D data loading thread
  */
-HDF5ReadingThread *GWindow::getThread()
+H5ReadingThread *GWindow::getThread()
 {
     return thread;
-}
-
-/**
- * @brief Is texture 3D initialized?
- * @return True/False
- */
-bool GWindow::isTexture3DInitialized()
-{
-    return texture3DInitialized;
 }
 
 /**
  * @brief Sets size for main 3D frame - whole 3D domain
  * @param[in] size Size
  */
-void GWindow::setMainSize(HDF5Helper::Vector3D size)
+void GWindow::setFrameSize(HDF5Helper::Vector3D size)
 {
-    fullSize = QVector3DI(size.x(), size.y(), size.z());
+    setFrameSize(QVector3DI(size.x(), size.y(), size.z()));
+}
+
+void GWindow::setFrameSize(QVector3DI size)
+{
+    frameSize = size;
 }
 
 /**
  * @brief Sets size for original (sensor mask defined) frame
  * @param[in] size Size
  */
-void GWindow::setSize(HDF5Helper::Vector3D size)
+void GWindow::setDatasetSize(HDF5Helper::Vector3D size)
 {
-    imageSize = QVector3DI(size.x(), size.y(), size.z());
-    imageSizeOrig = imageSize;
+    setDatasetSize(QVector3DI(size.x(), size.y(), size.z()));
+}
+
+void GWindow::setDatasetSize(QVector3DI size)
+{
+    datasetSize = size;
 }
 
 /**
  * @brief Sets position of sensor mask defined 3D dataset
  * @param[in] position
  */
-void GWindow::setPosition(HDF5Helper::Vector3D position)
+void GWindow::setDatasetPosition(HDF5Helper::Vector3D position)
 {
-    imagePosition = QVector3DI(position.x(), position.y(), position.z());
+    setDatasetPosition(QVector3DI(position.x(), position.y(), position.z()));
+}
+
+void GWindow::setDatasetPosition(QVector3DI position)
+{
+    datasetPosition = position;
 }
 
 /**
@@ -355,27 +352,16 @@ void GWindow::setPosition(HDF5Helper::Vector3D position)
  * @param[in] dataset Dataset
  * @param[in] step Step
  */
-void GWindow::load3DTexture(HDF5Helper::Dataset *dataset, hsize_t step)
+void GWindow::load3DData()
 {
-    selectedDataset = dataset;
-    texture3DInitialized = false;
-
-    // Init 3D texture
-    glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, imageSize.x(), imageSize.y(), imageSize.z(), 0, GL_RED, GL_FLOAT, 0);
-    glBindTexture(GL_TEXTURE_3D, 0);
-
-    // Check OUT_OF_MEMORY, dataset is too big
-    if (checkGlError() != GL_NO_ERROR) {
-        emit loaded(selectedDataset->getName());
-        unload3DTexture();
-        return;
+    if (volumeRendering) {
+        if (object != 0) {
+            thread->createRequest(object->getDataset(), object->getCurrentStep());
+            thread->start();
+            data3DloadedFlag = false;
+            emit data3Dloading();
+        }
     }
-
-    thread->createRequest(selectedDataset, step);
-
-    // Start loading thread
-    thread->start();
 }
 
 /**
@@ -389,30 +375,24 @@ void GWindow::unload3DTexture()
 }
 
 /**
- * @brief Unloads dataset
- */
-void GWindow::unloadDataset()
-{
-    selectedDataset = 0;
-}
-
-/**
  * @brief Clears 3D data, slices data and reset sizes
  */
-void GWindow::clearData()
+void GWindow::clear()
 {
-    if (initialized) {
-        imageSize = QVector3DI(1, 1, 1);
-        fullSize = QVector3DI(1, 1, 1);
-        imageSizeOrig = QVector3DI(1, 1, 1);
-        imagePosition = QVector3DI(0, 0, 0);
+    object = 0;
 
-        changeMinValue(0.0f);
-        changeMaxValue(0.0f);
+    if (initialized) {
+        setMinValue(0.0f);
+        setMaxValue(0.0f);
+        setColormap();
+        setOpacity();
+
+        setFrameSize(QVector3DI(1, 1, 1));
+        setDatasetSize(QVector3DI(1, 1, 1));
+        setDatasetPosition(QVector3DI(0, 0, 0));
+
         clearSlices();
         unload3DTexture();
-
-        unloadDataset();
 
         renderLater();
     }
@@ -422,84 +402,45 @@ void GWindow::clearData()
  * @brief Sets part of 3D data from loading request to 3D texture
  * @param[in] r Loading request
  */
-void GWindow::setLoaded(Request *request)
+void GWindow::set3DData(Request *request)
 {
-    if (selectedDataset != request->dataset)
-        return;
+    if (object != 0 && request->dataset == object->getDataset()) {
+        HDF5Helper::Vector3D offset = request->offset;
+        HDF5Helper::Vector3D count = request->count;
 
-    texture3DInitialized = false;
-    HDF5Helper::Vector3D offset = request->offset;
-    HDF5Helper::Vector3D count = request->count;
+        if (offset.hasZeros()) {
+            // Init 3D texture
+            glBindTexture(GL_TEXTURE_3D, texture);
+            glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, 0);
+            glBindTexture(GL_TEXTURE_3D, 0);
+            // Check OUT_OF_MEMORY, dataset is too big
+            if (checkGlError() != GL_NO_ERROR) {
+                thread->stopCurrentBlockReading();
+                thread->deleteDoneRequest(request);
+                data3DloadedFlag = true;
+                emit data3Dloaded();
+                unload3DTexture();
+                return;
+            }
+        }
 
-    // Set 3D data to 3D texture
-    glBindTexture(GL_TEXTURE_3D, texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexSubImage3D(GL_TEXTURE_3D, 0, int(offset.x()), int(offset.y()), int(offset.z()), int(count.x()), int(count.y()), int(count.z()), GL_RED, GL_FLOAT, request->data);
-    glBindTexture(GL_TEXTURE_3D, 0);
+        // Set 3D data to 3D texture
+        glBindTexture(GL_TEXTURE_3D, texture);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexSubImage3D(GL_TEXTURE_3D, 0, int(offset.x()), int(offset.y()), int(offset.z()), int(count.x()), int(count.y()), int(count.z()), GL_RED, GL_FLOAT, request->data);
+        glBindTexture(GL_TEXTURE_3D, 0);
 
-    // Last block of 3D data
-    if (offset.z() + count.z() == hsize_t(imageSize.z())) {
-        texture3DInitialized = true;
-        //changeColormap(colormap);
-        renderLater();
-        emit loaded(selectedDataset->getName());
+        // Last block of 3D data
+        if (offset.z() + count.z() == hsize_t(datasetSize.z())) {
+            renderLater();
+            data3DloadedFlag = true;
+            emit data3Dloaded();
+        }
+        thread->deleteDoneRequest(request);
+    } else {
+        //thread->stopCurrentBlockReading();
+        thread->deleteDoneRequest(request);
     }
-
-    thread->deleteDoneRequest(request);
-}
-
-/**
- * @brief Sets 2D image data for XY 3D slice
- * @param[in] data Image data
- * @param[in] width Image width
- * @param[in] height Image height
- * @param[in] index Slice index
- */
-void GWindow::setXYSlice(float *data, unsigned int width, unsigned int height, float index)
-{
-    //qDebug() << "setXYSlice";
-    glBindTexture(GL_TEXTURE_2D, textureXY);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, int(width), int(height), 0, GL_RED, GL_FLOAT, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    this->index.setZ(index);
-    renderLater();
-}
-
-/**
- * @brief Sets 2D image data for XZ 3D slice
- * @param[in] data Image data
- * @param[in] width Image width
- * @param[in] height Image height
- * @param[in] index Slice index
- */
-void GWindow::setXZSlice(float *data, unsigned int width, unsigned int height, float index)
-{
-    //qDebug() << "setXZSlice";
-    glBindTexture(GL_TEXTURE_2D, textureXZ);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, int(width), int(height), 0, GL_RED, GL_FLOAT, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    this->index.setY(index);
-    renderLater();
-}
-
-/**
- * @brief Sets 2D image data for YZ 3D slice
- * @param[in] data Image data
- * @param[in] width Image width
- * @param[in] height Image height
- * @param[in] index Slice index
- */
-void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, float index)
-{
-    //qDebug() << "setYZSlice";
-    glBindTexture(GL_TEXTURE_2D, textureYZ);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, int(width), int(height), 0, GL_RED, GL_FLOAT, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    this->index.setX(index);
-    renderLater();
 }
 
 /**
@@ -507,6 +448,9 @@ void GWindow::setYZSlice(float *data, unsigned int width, unsigned int height, f
  */
 void GWindow::clearSlices()
 {
+    index.setX(0.5);
+    index.setY(0.5);
+    index.setZ(0.5);
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
@@ -522,9 +466,8 @@ void GWindow::clearSlices()
  * @brief Changes colormap
  * @param[in] colormap Colormap
  */
-void GWindow::changeColormap(ColorMap::Type colormap)
+void GWindow::setColormap(ColorMap::Type colormap)
 {
-    //this->colormap = colormap;
     glBindTexture(GL_TEXTURE_1D, colormapTexture);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, ColorMap::data[colormap]);
     glBindTexture(GL_TEXTURE_1D, 0);
@@ -535,12 +478,62 @@ void GWindow::changeColormap(ColorMap::Type colormap)
  * @brief Changes opacity
  * @param[in] opacity Opacity
  */
-void GWindow::changeOpacity(QVector<float> opacity)
+void GWindow::setOpacity(QVector<float> value)
 {
-    //this->colormap = colormap;
     glBindTexture(GL_TEXTURE_1D, opacityTexture);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, opacity.length(), 0, GL_RED, GL_FLOAT, opacity.data());
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, value.length(), 0, GL_RED, GL_FLOAT, value.data());
     glBindTexture(GL_TEXTURE_1D, 0);
+    renderLater();
+}
+
+void GWindow::setXYSlice(float *data, hsize_t index)
+{
+    float indexTmp = index;
+    if (datasetSize.z() == 1) // Index -> 0
+        indexTmp = 0;
+    else
+        indexTmp = float(index) / (datasetSize.z() - 1);
+
+    //qDebug() << "setXYSlice";
+    glBindTexture(GL_TEXTURE_2D, textureXY);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    this->index.setZ(indexTmp);
+    renderLater();
+}
+
+void GWindow::setXZSlice(float *data, hsize_t index)
+{
+    float indexTmp = index;
+    if (datasetSize.y() == 1) // Index -> 0
+        indexTmp = float(0);
+    else
+        indexTmp = float(index) / (datasetSize.y() - 1);
+
+    //qDebug() << "setXZSlice";
+    glBindTexture(GL_TEXTURE_2D, textureXZ);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    this->index.setY(indexTmp);
+    renderLater();
+}
+
+void GWindow::setYZSlice(float *data, hsize_t index)
+{
+    float indexTmp = index;
+    if (datasetSize.x() == 1) // Index -> 0
+        indexTmp = float(0);
+    else
+        indexTmp = float(index) / (datasetSize.x() - 1);
+
+    //qDebug() << "setYZSlice";
+    glBindTexture(GL_TEXTURE_2D, textureYZ);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    this->index.setX(indexTmp);
     renderLater();
 }
 
@@ -548,7 +541,7 @@ void GWindow::changeOpacity(QVector<float> opacity)
  * @brief Sets min value for colormapping
  * @param[in] value Min value
  */
-void GWindow::changeMinValue(float value)
+void GWindow::setMinValue(float value)
 {
     //minG = value;
     if (initialized) {
@@ -563,7 +556,7 @@ void GWindow::changeMinValue(float value)
  * @brief Sets max value for colormapping
  * @param[in] value Max value
  */
-void GWindow::changeMaxValue(float value)
+void GWindow::setMaxValue(float value)
 {
     //maxG = value;
     if (initialized) {
@@ -578,7 +571,7 @@ void GWindow::changeMaxValue(float value)
  * @brief Changes volume rendering mode
  * @param[in] mode Volume rendering mode
  */
-void GWindow::changeMode(int mode)
+void GWindow::setVolumeRenderingMode(int mode)
 {
     if (initialized) {
         m_program->bind();
@@ -592,7 +585,7 @@ void GWindow::changeMode(int mode)
  * @brief Changes interpolation mode
  * @param[in] mode Interpolation mode (GL_LINEAR == 0 | GL_NEAREST == 1)
  */
-void GWindow::changeInterpolation(int mode)
+void GWindow::setInterpolationMode(int mode)
 {
     int glMode = GL_LINEAR;
     if (mode == 1)
@@ -663,6 +656,40 @@ float GWindow::round(float number, float precision)
     return float((floor(number * (1.0f / precision) + 0.5f) / (1.0f / precision)));
 }
 
+bool GWindow::isVolumeRenderingEnabled() const
+{
+    return volumeRendering;
+}
+
+bool GWindow::aredata3Dloaded() const
+{
+    return data3DloadedFlag;
+}
+
+void GWindow::setObject(H5ObjectToVisualize *value)
+{
+    object = value;
+    connect(object, SIGNAL(opacityChanged(QVector<float>)), this, SLOT(setOpacity(QVector<float>)));
+    connect(object, SIGNAL(dataXYChanged(float *, hsize_t)), this, SLOT(setXYSlice(float *, hsize_t)));
+    connect(object, SIGNAL(dataXZChanged(float *, hsize_t)), this, SLOT(setXZSlice(float *, hsize_t)));
+    connect(object, SIGNAL(dataYZChanged(float *, hsize_t)), this, SLOT(setYZSlice(float *, hsize_t)));
+    connect(object, SIGNAL(minValueChanged(float)), this, SLOT(setMinValue(float)));
+    connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));
+    connect(object, SIGNAL(colormapChanged(ColorMap::Type)), this, SLOT(setColormap(ColorMap::Type)));
+    connect(object, SIGNAL(stepChanged()), this, SLOT(load3DData()));
+
+    setMinValue(object->getMinValue());
+    setMaxValue(object->getMaxValue());
+    setColormap(object->getColormap());
+    setOpacity(object->getOpacity());
+
+    setFrameSize(object->getFrameSize());
+    setDatasetSize(object->getSize());
+    setDatasetPosition(object->getPos());
+
+    load3DData();
+}
+
 /**
  * @brief Main render function
  */
@@ -670,9 +697,9 @@ void GWindow::render()
 {
     if (checkGlError() == GL_OUT_OF_MEMORY) {
         thread->stopCurrentBlockReading();
-        emit loaded(selectedDataset->getName());
+        data3DloadedFlag = true;
+        emit data3Dloaded();
         unload3DTexture();
-        volumeRendering = false;
     }
 
     // Rotation of scene by left mouse click
@@ -738,13 +765,15 @@ void GWindow::render()
     QMatrix4x4 matrix;
     matrix = projectionMatrix * rotateXMatrix * rotateYMatrix;
 
+    QVector3DI size = fillSpace ? datasetSize : frameSize;
+    QVector3DI pos = fillSpace ? QVector3DI(0, 0, 0) : datasetPosition;
 
     // Create vectors for scale 3D frame to the longest size = 1.0f
-    float fullMax = qMax(fullSize.x(), qMax(fullSize.y(), fullSize.z()));
+    float fullMax = qMax(size.x(), qMax(size.y(), size.z()));
 
-    QVector3D fullSizeScaled = fullSize / fullMax; // the longest size is 1.0f
-    QVector3D imageSizeScaled = imageSize / fullMax;
-    QVector3D imagePositionScaled = imagePosition / fullMax;
+    QVector3D fullSizeScaled = size / fullMax; // the longest size is 1.0f
+    QVector3D imageSizeScaled = datasetSize / fullMax;
+    QVector3D imagePositionScaled = pos / fullMax;
 
     // Translate to the middle of 3D frame
     matrix.translate(-fullSizeScaled.x() / 2.0f, -fullSizeScaled.y() / 2.0f, -fullSizeScaled.z() / 2.0f);
@@ -786,7 +815,7 @@ void GWindow::render()
         renderFrame();
 
         // Big frame
-        if (imageSize != fullSize) {
+        if (datasetSize != size) {
             QMatrix4x4 sMatrix;
             sMatrix.scale(fullSizeScaled);
             m_program->setUniformValue(m_uMatrix, matrix * sMatrix * rMatrix);
@@ -842,11 +871,13 @@ void GWindow::render()
             m_program->setUniformValue(m_uSliceMatrix, translateXYMatrix);
             glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
 
-            m_program->setUniformValue(m_uVolumeRenderingBox, true);
-            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            m_program->setUniformValue(m_uVolumeRenderingBox, false);
+            if (!trim) {
+                m_program->setUniformValue(m_uVolumeRenderingBox, true);
+                glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+                glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                m_program->setUniformValue(m_uVolumeRenderingBox, false);
+            }
 
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix * offsetMatrix);
@@ -971,17 +1002,21 @@ void GWindow::render()
  * @brief Saves image
  * @param[in] fileName Filename
  */
-void GWindow::saveImage(QString fileName)
+void GWindow::saveImage()
 {
-    // Save 3D scene to png image
-    QImage image(width(), height(), QImage::Format_RGBA8888);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
-    image = image.mirrored();
-    image.save(fileName);
-    //QLabel myLabel;
-    //myLabel.setPixmap(QPixmap::fromImage(image));
-    //myLabel.show();
+    QString name = "no_name";
+    if (object != 0) {
+        QString fileName = object->getOpenedH5File()->getFilename();
+        QString objectName = object->getOnlyName();
+        name = fileName + "_" + objectName + "_" + objectName + "_3Dscene.png";
+    }
+    QString imagefileName = QFileDialog::getSaveFileName(0, "Save image", name, "Image (*.png)");
+
+    if (imagefileName != 0) {
+        // Save 3D scene to png image
+        QImage image = getImage();
+        image.save(imagefileName);
+    }
 }
 
 /**
@@ -990,9 +1025,9 @@ void GWindow::saveImage(QString fileName)
  */
 QImage GWindow::getImage()
 {
-    QImage image(width(), height(), QImage::Format_RGB888);
+    QImage image(width(), height(), QImage::Format_RGBA8888);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, image.bits());
+    glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
     return image.mirrored();
 }
 
@@ -1010,9 +1045,10 @@ void GWindow::setViewFrame(bool value)
  * @brief Set view Volume rendering?
  * @param[in] value True/False
  */
-void GWindow::setViewVR(bool value)
+void GWindow::setViewVolumeRendering(bool value)
 {
     volumeRendering = value;
+    load3DData();
     renderLater();
 }
 
@@ -1022,10 +1058,10 @@ void GWindow::setViewVR(bool value)
  */
 void GWindow::setSlicesCount(int value)
 {
-    steps = value;
+    slicesCount = value;
     if (initialized) {
         m_program->bind();
-        m_program->setUniformValue(m_uSteps, steps);
+        m_program->setUniformValue(m_uSteps, slicesCount);
         m_program->release();
     }
     renderLater();
@@ -1078,6 +1114,12 @@ void GWindow::setTrim(bool value)
 void GWindow::setOrthogonal(bool value)
 {
     orthogonal = value;
+    renderLater();
+}
+
+void GWindow::setFillSpace(bool value)
+{
+    fillSpace = value;
     renderLater();
 }
 
@@ -1156,16 +1198,6 @@ bool GWindow::event(QEvent *event)
     switch (event->type()) {
     case QEvent::KeyPress: {
         QKeyEvent *key = static_cast<QKeyEvent *>(event);
-        if (key->key() == Qt::Key_Plus) {
-            steps = steps + 2;
-            if (steps < 3) steps = 3;
-            emit setStatusMessage(QString("Slices: %1").arg(steps));
-        }
-        if (key->key() == Qt::Key_Minus) {
-            steps = steps - 2;
-            if (steps < 3) steps = 3;
-            emit setStatusMessage(QString("Slices: %1").arg(steps));
-        }
         if (key->key() == Qt::Key_F) {
             if (frame)
                 frame = false;

@@ -25,16 +25,17 @@
 #include <QWidget>
 #include <QScrollBar>
 #include <QRadioButton>
+#include <QTextEdit>
 
-#include "ui_dialog.h"
-#include "ui_mainwindow.h"
+#include <ui_dialog.h>
+#include <ui_mainwindow.h>
 
-#include "imagewidget.h"
-#include "gwindow.h"
-#include "h5objecttovisualize.h"
-#include "h5subobjecttovisualize.h"
-#include "hdf5readingthread.h"
-#include "openedh5file.h"
+//#include <imagewidget.h>
+//#include <opacitygroupbox.h>
+#include <gwindow.h>
+#include <h5objecttovisualize.h>
+#include <h5readingthread.h>
+#include <h5openedfile.h>
 
 #include <hdf5helper.h>
 
@@ -58,29 +59,17 @@ public:
     Ui::MainWindow *ui;
 
 public slots:
-    void loaded3D(std::string datasetName);
+
 
 private slots:
-    void on_dockWidgetXY_visibilityChanged(bool);
-    void on_dockWidgetXZ_visibilityChanged(bool);
-    void on_dockWidgetYZ_visibilityChanged(bool);
-
-    void on_dockWidgetInfo_visibilityChanged(bool);
-    //void on_dockWidgetCT_visibilityChanged(bool);
-    void on_dockWidgetDatasets_visibilityChanged(bool);
-    void on_dockWidgetSelectedDataset_visibilityChanged(bool);
+    void data3Dloaded();
+    void slicesLoaded();
+    void data3Dloading();
 
     void on_actionLoadHDF5File_triggered();
 
     void on_actionCloseHDF5File_triggered();
-    void selectDataset();
-
-    void on_horizontalSliderGlobalMin_valueChanged(int value);
-    void on_horizontalSliderGlobalMax_valueChanged(int value);
-    void on_doubleSpinBoxMinGlobal_valueChanged(double value);
-    void on_doubleSpinBoxMaxGlobal_valueChanged(double value);
-
-    void on_comboBoxColormap_currentIndexChanged(int index);
+    void selectDataset(H5ObjectToVisualize *object);
 
     void on_spinBoxSelectedDatasetStep_valueChanged(int step);
     void on_toolButtonPlay_clicked(bool checked);
@@ -90,39 +79,32 @@ private slots:
 
     void on_spinBoxTMInterval_valueChanged(int value);
 
-    void on_dockWidgetXY_hoveredPointInImage(int x, int y);
-    void on_dockWidgetXZ_hoveredPointInImage(int x, int y);
-    void on_dockWidgetYZ_hoveredPointInImage(int x, int y);
-
-    void on_actionVolumeRendering_toggled(bool arg1);
-
-    void on_actionExportImageFrom3DScene_triggered();
-
-    void on_actionFillSpace_toggled(bool arg1);
+    void on_dockWidgetSliceXY_hoveredPointInImage(int x, int y);
+    void on_dockWidgetSliceXZ_hoveredPointInImage(int x, int y);
+    void on_dockWidgetSliceYZ_hoveredPointInImage(int x, int y);
 
     void on_actionAbout_triggered();
 
-    void on_comboBoxMode_currentIndexChanged(int index);
-
     void showFPS();
 
-    void on_comboBox_currentIndexChanged(int index);
-
 private:
+    void clearGUIForDataset();
     void clearGUI();
     void clearRequestsAndWaitThreads();
-    void initControls();
-    void clearLayout(QLayout *layout);
 
+    SliceDockWidget *sliceXYDockWidget;
+    SliceDockWidget *sliceXZDockWidget;
+    SliceDockWidget *sliceYZDockWidget;
+    OpacityGroupBox *opacityGroupBox;
+    DatasetInfoGroupBox *datasetInfoGroupBox;
     GWindow *gWindow;
-    OpenedH5File *openedH5File;
-    OpenedH5File::H5ObjectToVisualize *object;
-    OpenedH5File::H5SubobjectToVisualize *subobject;
+
+    H5OpenedFile *openedH5File;
+    H5ObjectToVisualize *object;
     QTimer *timer;
     QMovie *movie;
     QDialog *dialog;
     Ui::Dialog *dialogUi;
-    bool flagVRLoaded = false;
     bool playing = false;
 };
 

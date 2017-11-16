@@ -5,7 +5,7 @@
  * @date        30 July      2014 (created) \n
  *              11 September 2017 (updated)
  *
- * @brief       The implementation file containing HDF5ReadingThread and Request
+ * @brief       The implementation file containing H5ReadingThread and Request
  *              class definition.
  *
  * This class is used for loading HDF5 data from other threads than GUI of application
@@ -21,7 +21,7 @@
  *
  */
 
-#include "hdf5readingthread.h"
+#include "h5readingthread.h"
 
 /**
  * @brief Creates request for full 3D dataset with given offset and count
@@ -71,10 +71,10 @@ QString Request::toQString()
 }
 
 /**
- * @brief HDF5ReadingThread::HDF5ReadingThread
+ * @brief H5ReadingThread::H5ReadingThread
  * @param[in] parent
  */
-HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
+H5ReadingThread::H5ReadingThread(QObject *parent) : QThread(parent)
 {
     // Unused
     setTerminationEnabled(true);
@@ -88,7 +88,7 @@ HDF5ReadingThread::HDF5ReadingThread(QObject *parent) : QThread(parent)
  * @param[in] count Count
  * @param[in] limit Length of waiting queue (optional)
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit)
+void H5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit)
 {
     QMutexLocker locker(&queueMutex);
     if (queue.size() > limit) {
@@ -105,7 +105,7 @@ void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::
  * @param[in] dataset Dataset
  * @param[in] step Step
  */
-void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step)
+void H5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -118,15 +118,15 @@ void HDF5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step
 /**
  * @brief Stops current block reading
  */
-void HDF5ReadingThread::stopCurrentBlockReading()
+void H5ReadingThread::stopCurrentBlockReading()
 {
     stopFlag = true;
 }
 
 /**
- * @brief Destructor of HDF5ReadingThread object
+ * @brief Destructor of H5ReadingThread object
  */
-HDF5ReadingThread::~HDF5ReadingThread()
+H5ReadingThread::~H5ReadingThread()
 {
     clearRequests();
     clearDoneRequests();
@@ -135,7 +135,7 @@ HDF5ReadingThread::~HDF5ReadingThread()
 /**
  * @brief Clears all done requests
  */
-void HDF5ReadingThread::clearDoneRequests()
+void H5ReadingThread::clearDoneRequests()
 {
     QMutexLocker locker(&requestMutex);
     qDeleteAll(doneRequests);
@@ -145,7 +145,7 @@ void HDF5ReadingThread::clearDoneRequests()
 /**
  * @brief Clears requests which are waiting in queue
  */
-void HDF5ReadingThread::clearRequests()
+void H5ReadingThread::clearRequests()
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -157,13 +157,13 @@ void HDF5ReadingThread::clearRequests()
 /**
  * @brief Mutex (static) for synchronization if reading
  */
-QMutex HDF5ReadingThread::mutex;
+QMutex H5ReadingThread::mutex;
 
 /**
  * @brief Deletes one done request
  * @param[in] r Request
  */
-void HDF5ReadingThread::deleteDoneRequest(Request *r)
+void H5ReadingThread::deleteDoneRequest(Request *r)
 {
     QMutexLocker locker(&requestMutex);
     if (doneRequests.contains(r)) {
@@ -172,7 +172,7 @@ void HDF5ReadingThread::deleteDoneRequest(Request *r)
     }
 }
 
-/*void HDF5ReadingThread::stop()
+/*void H5ReadingThread::stop()
 {
     QMutexLocker locker(&stopMutex);
     stopFlag = true;
@@ -181,7 +181,7 @@ void HDF5ReadingThread::deleteDoneRequest(Request *r)
 /**
  * @brief Thread work
  */
-void HDF5ReadingThread::run()
+void H5ReadingThread::run()
 {
     //stopFlag = false;
     while (1) {
