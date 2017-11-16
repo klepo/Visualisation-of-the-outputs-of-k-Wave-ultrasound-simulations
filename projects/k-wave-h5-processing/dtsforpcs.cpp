@@ -234,7 +234,7 @@ void DtsForPcs::findDatasetsForProcessing(HDF5Helper::Group *group, Settings *se
                 }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
-                    dataset->findAndSetGlobalMinAndMaxValue(false, true);
+                    dataset->findAndSetGlobalMinAndMaxValue(false, settings->getFlagLog());
                 }
                 // Print attributes
                 if (settings->getFlagInfo()) {
