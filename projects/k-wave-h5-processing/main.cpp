@@ -17,7 +17,7 @@
  *
  */
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 
 #include <reshape.h>
 #include <downsampling.h>
@@ -34,7 +34,7 @@
  */
 int main(int argc, char **argv)
 {
-    double t0 = HDF5Helper::getTime(); // Save the start time
+    double t0 = H5Helper::getTime(); // Save the start time
 
     Settings *settings = new Settings(argc, argv);
 
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
     // Close files
     delete filesContext;
 
-    double t1 = HDF5Helper::getTime(); // Save the final time
+    double t1 = H5Helper::getTime(); // Save the final time
 
     Helper::printDebugTime("the entire process", t0, t1);
     Helper::printDebugMsg("----------------------------------------");

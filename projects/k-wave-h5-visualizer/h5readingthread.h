@@ -22,7 +22,7 @@
 
 #include <QtCore>
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 
 /**
  * @brief The Request class represents wrapper for the HDF5 files reading requests
@@ -30,15 +30,15 @@
 class Request
 {
 public:
-    Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count);
-    Request(HDF5Helper::Dataset *dataset, hsize_t step);
+    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count);
+    Request(H5Helper::Dataset *dataset, hsize_t step);
     ~Request();
     QString toQString();
 
     /// Offset
-    HDF5Helper::Vector offset;
+    H5Helper::Vector offset;
     /// Count
-    HDF5Helper::Vector count;
+    H5Helper::Vector count;
     /// Minimum
     float min;
     /// Maximum
@@ -52,7 +52,7 @@ public:
     /// Step
     hsize_t step;
     /// Dataset
-    HDF5Helper::Dataset *dataset;
+    H5Helper::Dataset *dataset;
     /// Data
     float *data;
 };
@@ -68,8 +68,8 @@ public:
     ~H5ReadingThread();
 
 public slots:
-    void createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit = 0);
-    void createRequest(HDF5Helper::Dataset *dataset, hsize_t step);
+    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, int limit = 0);
+    void createRequest(H5Helper::Dataset *dataset, hsize_t step);
     void stopCurrentBlockReading();
     void clearRequests();
     void clearDoneRequests();

@@ -17,7 +17,7 @@
  *
  */
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 
 #include <settings.h>
 
@@ -32,14 +32,14 @@
 int main(int argc, char **argv)
 {
     Settings *settings = new Settings(argc, argv);
-    HDF5Helper::File *file = 0;
+    H5Helper::File *file = 0;
 
     Helper::printDebugTitle("Loading file");
 
     // Load simulation output file
     if (!settings->getFilename().empty()) {
         try {
-            file = new HDF5Helper::File(settings->getFilename(), HDF5Helper::File::OPEN);
+            file = new H5Helper::File(settings->getFilename(), H5Helper::File::OPEN);
         } catch (std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
         }
 
         try {
-            HDF5Helper::Object *object = 0;
+            H5Helper::Object *object = 0;
             if (file->getObjTypeByName(srcObjectName) == H5G_GROUP) {
                 object = file->openGroup(srcObjectName);
             } else if (file->getObjTypeByName(srcObjectName) == H5G_DATASET) {
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
                 exit(EXIT_FAILURE);
             }
 
-            HDF5Helper::Attribute *attribute = object->getAttribute(srcAttributeName);
+            H5Helper::Attribute *attribute = object->getAttribute(srcAttributeName);
             if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT)) {
                 object->setAttribute(srcAttributeName, ParamsDefinition::toInt(settings->getValue().c_str()));
             } else if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT)) {

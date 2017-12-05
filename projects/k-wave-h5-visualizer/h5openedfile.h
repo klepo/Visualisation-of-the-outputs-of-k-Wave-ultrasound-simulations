@@ -22,7 +22,7 @@
 
 #include <QtCore>
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 
 class H5ObjectToVisualize;
 
@@ -47,23 +47,23 @@ public:
     QVector<H5ObjectToVisualize *> getObjectsSelected();
     H5ObjectToVisualize *getObject(QString name);
     QMap<QString, QString> getInfo();
-    HDF5Helper::File *getFile();
+    H5Helper::File *getFile();
     QString getFilename() const;
     QString getRawFilename() const;
-    HDF5Helper::Vector4D getNDims() const;
+    H5Helper::Vector4D getNDims() const;
 
 signals:
 
 public slots:
 
 private:
-    HDF5Helper::File *file = 0;
-    HDF5Helper::Vector4D nDims;
+    H5Helper::File *file = 0;
+    H5Helper::Vector4D nDims;
     QMap<QString, QString> info;
     QVector<H5ObjectToVisualize *> objects;
 
-    void findDatasetsForVisualization(HDF5Helper::Group *group);
-    void setObject(HDF5Helper::Dataset *dataset, ObjectType type);
+    void findDatasetsForVisualization(H5Helper::Group *group);
+    void setObject(H5Helper::Dataset *dataset, ObjectType type);
 };
 
 #endif // H5OPENEDFILE_H

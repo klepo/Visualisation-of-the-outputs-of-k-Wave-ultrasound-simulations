@@ -37,7 +37,7 @@
 #include <h5readingthread.h>
 #include <h5openedfile.h>
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 
 namespace Ui
 {

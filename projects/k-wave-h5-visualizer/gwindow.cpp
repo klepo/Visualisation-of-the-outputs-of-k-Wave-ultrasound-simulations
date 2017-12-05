@@ -309,7 +309,7 @@ H5ReadingThread *GWindow::getThread()
  * @brief Sets size for main 3D frame - whole 3D domain
  * @param[in] size Size
  */
-void GWindow::setFrameSize(HDF5Helper::Vector3D size)
+void GWindow::setFrameSize(H5Helper::Vector3D size)
 {
     setFrameSize(QVector3DI(size.x(), size.y(), size.z()));
 }
@@ -323,7 +323,7 @@ void GWindow::setFrameSize(QVector3DI size)
  * @brief Sets size for original (sensor mask defined) frame
  * @param[in] size Size
  */
-void GWindow::setDatasetSize(HDF5Helper::Vector3D size)
+void GWindow::setDatasetSize(H5Helper::Vector3D size)
 {
     setDatasetSize(QVector3DI(size.x(), size.y(), size.z()));
 }
@@ -337,7 +337,7 @@ void GWindow::setDatasetSize(QVector3DI size)
  * @brief Sets position of sensor mask defined 3D dataset
  * @param[in] position
  */
-void GWindow::setDatasetPosition(HDF5Helper::Vector3D position)
+void GWindow::setDatasetPosition(H5Helper::Vector3D position)
 {
     setDatasetPosition(QVector3DI(position.x(), position.y(), position.z()));
 }
@@ -405,8 +405,8 @@ void GWindow::clear()
 void GWindow::set3DData(Request *request)
 {
     if (object != 0 && request->dataset == object->getDataset()) {
-        HDF5Helper::Vector3D offset = request->offset;
-        HDF5Helper::Vector3D count = request->count;
+        H5Helper::Vector3D offset = request->offset;
+        H5Helper::Vector3D count = request->count;
 
         if (offset.hasZeros()) {
             // Init 3D texture

@@ -34,7 +34,7 @@ H5OpenedFile::H5OpenedFile(QString fileName, QObject *parent) :
     QObject(parent)
 {
     // Open HDF5 file, operations with file can throw exceptions
-    file = new HDF5Helper::File(fileName.toStdString(), HDF5Helper::File::OPEN);
+    file = new H5Helper::File(fileName.toStdString(), H5Helper::File::OPEN);
 
     // Load dimensions
     nDims = file->getNdims();
@@ -42,9 +42,9 @@ H5OpenedFile::H5OpenedFile(QString fileName, QObject *parent) :
     qDebug() << "Load info (root attributes)...";
 
     // Load info
-    HDF5Helper::Group *group = file->openGroup("/", false);
+    H5Helper::Group *group = file->openGroup("/", false);
     for (hsize_t i = 0; i < group->getNumAttrs(); i++) {
-        HDF5Helper::Attribute *attribute = group->getAttribute(i);
+        H5Helper::Attribute *attribute = group->getAttribute(i);
         QString value(static_cast<const char *>(attribute->getData()));
         info.insert(QString::fromStdString(attribute->getName()), value);
         delete attribute;
@@ -77,7 +77,7 @@ H5OpenedFile::~H5OpenedFile()
  * @param[in] dataset Dataset
  * @param[in] type Object type
  */
-void H5OpenedFile::setObject(HDF5Helper::Dataset *dataset, ObjectType type)
+void H5OpenedFile::setObject(H5Helper::Dataset *dataset, ObjectType type)
 {
     bool objectExists = false;
     foreach (H5ObjectToVisualize *object, objects) {
@@ -125,7 +125,7 @@ H5ObjectToVisualize *H5OpenedFile::getObject(QString name)
  * @brief Finds datasets for visualization
  * @param[in] group Group to search
  */
-void H5OpenedFile::findDatasetsForVisualization(HDF5Helper::Group *group)
+void H5OpenedFile::findDatasetsForVisualization(H5Helper::Group *group)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
         H5G_obj_t type = group->getObjTypeByIdx(i);
@@ -133,31 +133,31 @@ void H5OpenedFile::findDatasetsForVisualization(HDF5Helper::Group *group)
 
         // Datasets
         if (type == H5G_DATASET) {
-            HDF5Helper::Dataset *dataset = group->openDataset(i);
-            HDF5Helper::DatasetType datasetType = dataset->getType();
+            H5Helper::Dataset *dataset = group->openDataset(i);
+            H5Helper::DatasetType datasetType = dataset->getType();
 
-            if (datasetType == HDF5Helper::DatasetType::BASIC_3D
-                    || datasetType == HDF5Helper::DatasetType::DWNSMPL_3D
-                    || datasetType == HDF5Helper::DatasetType::MASK_3D
+            if (datasetType == H5Helper::DatasetType::BASIC_3D
+                    || datasetType == H5Helper::DatasetType::DWNSMPL_3D
+                    || datasetType == H5Helper::DatasetType::RESHAPED_3D
                     ) {
                 setObject(dataset, DATASET_3D);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
-            } else if (datasetType == HDF5Helper::DatasetType::CUBOID
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_C
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_D
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_S
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_C
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_D
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_DWNSMPL_S
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_C
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_D
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_S
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_C
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_D
-                       || datasetType == HDF5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_S
+            } else if (datasetType == H5Helper::DatasetType::CUBOID
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR
+                       || datasetType == H5Helper::DatasetType::CUBOID_C
+                       || datasetType == H5Helper::DatasetType::CUBOID_D
+                       || datasetType == H5Helper::DatasetType::CUBOID_S
+                       || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL
+                       || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL_C
+                       || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL_D
+                       || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL_S
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_C
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_D
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_S
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_C
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_D
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_S
                        ) {
                 setObject(dataset, DATASET_4D);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
@@ -167,7 +167,7 @@ void H5OpenedFile::findDatasetsForVisualization(HDF5Helper::Group *group)
         }
         // Groups
         if (type == H5G_GROUP) {
-            HDF5Helper::Group *nextGroup = group->openGroup(i);
+            H5Helper::Group *nextGroup = group->openGroup(i);
             findDatasetsForVisualization(nextGroup);
             group->closeGroup(nextGroup);
         }
@@ -178,7 +178,7 @@ void H5OpenedFile::findDatasetsForVisualization(HDF5Helper::Group *group)
  * @brief Returns nDims
  * @return nDims
  */
-HDF5Helper::Vector4D H5OpenedFile::getNDims() const
+H5Helper::Vector4D H5OpenedFile::getNDims() const
 {
     return nDims;
 }
@@ -196,7 +196,7 @@ QMap<QString, QString> H5OpenedFile::getInfo()
  * @brief Returns HDF5 file
  * @return HDF5 file
  */
-HDF5Helper::File *H5OpenedFile::getFile()
+H5Helper::File *H5OpenedFile::getFile()
 {
     return file;
 }

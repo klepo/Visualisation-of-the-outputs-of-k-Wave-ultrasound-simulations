@@ -90,7 +90,7 @@ FilesContext::~FilesContext()
  * @brief Returns simulation output file
  * @return Simulation output file
  */
-HDF5Helper::File *FilesContext::getSimOutputFile() const
+H5Helper::File *FilesContext::getSimOutputFile() const
 {
     return simOutputFile;
 }
@@ -99,7 +99,7 @@ HDF5Helper::File *FilesContext::getSimOutputFile() const
  * @brief Returns simulation input file
  * @return Simulation input file
  */
-HDF5Helper::File *FilesContext::getSimInputFile() const
+H5Helper::File *FilesContext::getSimInputFile() const
 {
     return simInputFile;
 }
@@ -108,7 +108,7 @@ HDF5Helper::File *FilesContext::getSimInputFile() const
  * @brief Returns processing output file
  * @return Processing output file
  */
-HDF5Helper::File *FilesContext::getPcsOutputFile()
+H5Helper::File *FilesContext::getPcsOutputFile()
 {
     if (newEmptyOutputFileFlag)
         pcsOutputFile = createOrOpenOutputFile(outputFilename);
@@ -119,7 +119,7 @@ HDF5Helper::File *FilesContext::getPcsOutputFile()
  * @brief Returns processing input file
  * @return Processing input file
  */
-HDF5Helper::File *FilesContext::getPcsInputFile() const
+H5Helper::File *FilesContext::getPcsInputFile() const
 {
     return pcsInputFile;
 }
@@ -129,11 +129,11 @@ HDF5Helper::File *FilesContext::getPcsInputFile() const
  * @param[in] filename Filename
  * @return File
  */
-HDF5Helper::File *FilesContext::loadSimulationFile(std::string filename)
+H5Helper::File *FilesContext::loadSimulationFile(std::string filename)
 {
-    HDF5Helper::File *simulationFile = 0;
+    H5Helper::File *simulationFile = 0;
     try {
-        simulationFile = new HDF5Helper::File(filename, HDF5Helper::File::OPEN, Helper::enableDebugMsgs);
+        simulationFile = new H5Helper::File(filename, H5Helper::File::OPEN, Helper::enableDebugMsgs);
     } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
@@ -168,14 +168,14 @@ void FilesContext::resolveOutputFilename(Settings *settings)
  * @param[in] filename Filename
  * @return File
  */
-HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
+H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
 {
-    HDF5Helper::File *file = 0;
-    if (!HDF5Helper::fileExists(filename)) {
+    H5Helper::File *file = 0;
+    if (!H5Helper::fileExists(filename)) {
         try {
             // Try create file
             if (newEmptyOutputFileFlag) {
-                file = new HDF5Helper::File(filename, HDF5Helper::File::CREATE, Helper::enableDebugMsgs);
+                file = new H5Helper::File(filename, H5Helper::File::CREATE, Helper::enableDebugMsgs);
                 newEmptyOutputFileFlag = false;
             } else {
                 Helper::printDebugMsg("File \"" + filename + "\" will be created for the processing output");
@@ -198,10 +198,10 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy nT, nX, nY, nZ
     Helper::printDebugMsgStart("Copy nT, nX, nY, nZ");
     try {
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NX_DATASET, true, false);
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NY_DATASET, true, false);
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NZ_DATASET, true, false);
-        HDF5Helper::copyDataset(simOutputFile, file, HDF5Helper::NT_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::NX_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::NY_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::NZ_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::NT_DATASET, true, false);
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
@@ -211,10 +211,10 @@ HDF5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy root (info) attributes to destination h5 file
     Helper::printDebugMsgStart("Copy root (info) attributes");
     try {
-        HDF5Helper::Group *srcGroup = simOutputFile->openGroup("/", false);
-        HDF5Helper::Group *dstGroup = file->openGroup("/", false);
+        H5Helper::Group *srcGroup = simOutputFile->openGroup("/", false);
+        H5Helper::Group *dstGroup = file->openGroup("/", false);
         for (hsize_t i = 0; i < srcGroup->getNumAttrs(); i++) {
-            HDF5Helper::Attribute *attribute = srcGroup->getAttribute(i);
+            H5Helper::Attribute *attribute = srcGroup->getAttribute(i);
             dstGroup->setAttribute(attribute, false);
             delete attribute;
         }

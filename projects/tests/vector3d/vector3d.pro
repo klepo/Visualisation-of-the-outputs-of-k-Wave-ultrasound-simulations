@@ -24,11 +24,11 @@ include($$PWD/../../hdf5.pri)
 # OpenMP library
 include($$PWD/../../openmp.pri)
 
-# hdf5helper library
-unix|win32: LIBS += -L$$OUT_PWD/../../hdf5helper/ -lhdf5helper
+# k-wave-h5-helper library
+unix|win32: LIBS += -L$$OUT_PWD/../../k-wave-h5-helper/ -lk-wave-h5-helper
 
-INCLUDEPATH += $$PWD/../../hdf5helper
-DEPENDPATH += $$PWD/../../hdf5helper
+INCLUDEPATH += $$PWD/../../k-wave-h5-helper
+DEPENDPATH += $$PWD/../../k-wave-h5-helper
 
-win32:!win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../../hdf5helper/hdf5helper.lib
-else:unix|win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../../hdf5helper/libhdf5helper.a
+win32:!win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../../k-wave-h5-helper/k-wave-h5-helper.lib
+else:unix|win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../../k-wave-h5-helper/libk-wave-h5-helper.a

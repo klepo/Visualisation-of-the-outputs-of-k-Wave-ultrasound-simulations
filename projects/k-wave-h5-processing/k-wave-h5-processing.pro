@@ -18,29 +18,30 @@ TARGET = k-wave-h5-processing
 win32:QMAKE_LFLAGS += /ignore:4099
 
 INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/processing
 DEPENDPATH += $$PWD
 
 # Check Qt version
 lessThan(QT_VERSION, 4.8): error(Qt version is too old)
 
-# hdf5helper library
-include($$PWD/../hdf5helper/hdf5helper.pri)
+# k-wave-h5-helper library
+include($$PWD/../k-wave-h5-helper/k-wave-h5-helper.pri)
 
 SOURCES += \
+    main.cpp \
     helper.cpp \
     settings.cpp \
     filescontext.cpp \
     dtsforpcs.cpp \
     paramsdefinition.cpp \
-    processing.cpp \
-    main.cpp \
-    reshape.cpp \
-    changechunks.cpp \
-    downsampling.cpp \
-    compresshelper.cpp \
-    compress.cpp \
-    decompress.cpp \
-    difference.cpp \
+    processing/processing.cpp \
+    processing/reshape.cpp \
+    processing/changechunks.cpp \
+    processing/downsampling.cpp \
+    processing/compresshelper.cpp \
+    processing/compress.cpp \
+    processing/decompress.cpp \
+    processing/difference.cpp \
 
 HEADERS += \
     helper.h \
@@ -48,14 +49,14 @@ HEADERS += \
     filescontext.h \
     dtsforpcs.h \
     paramsdefinition.h \
-    processing.h \
-    reshape.h \
-    changechunks.h \
-    downsampling.h \
-    compresshelper.h \
-    compress.h \
-    decompress.h \
-    difference.h \
+    processing/processing.h \
+    processing/reshape.h \
+    processing/changechunks.h \
+    processing/downsampling.h \
+    processing/compresshelper.h \
+    processing/compress.h \
+    processing/decompress.h \
+    processing/difference.h \
 
 # Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
 include($$PWD/../detect_arch_and_build_mode.pri)

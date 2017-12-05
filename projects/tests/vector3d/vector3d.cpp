@@ -1,6 +1,6 @@
 #include <QtTest>
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 
 class Vector3D : public QObject
 {
@@ -24,7 +24,7 @@ Vector3D::Vector3D()
 
 void Vector3D::testCase1()
 {
-    HDF5Helper::Vector3D vector0;
+    H5Helper::Vector3D vector0;
 
     QVERIFY(vector0.getSize() == 0);
     QVERIFY(vector0.getLength() == 3);
@@ -42,7 +42,7 @@ void Vector3D::testCase1()
 
 void Vector3D::testCase2()
 {
-    HDF5Helper::Vector3D vector0;
+    H5Helper::Vector3D vector0;
 
     vector0[0] = 1;
     vector0[1] = 2;
@@ -68,7 +68,7 @@ void Vector3D::testCase2()
 
 void Vector3D::testCase3()
 {
-    HDF5Helper::Vector3D vector0(1, 2, 3);
+    H5Helper::Vector3D vector0(1, 2, 3);
 
     QVERIFY(vector0[0] == 1);
     QVERIFY(vector0[1] == 2);
@@ -83,7 +83,7 @@ void Vector3D::testCase3()
 
 void Vector3D::testCase4()
 {
-    HDF5Helper::Vector3D vector0(3);
+    H5Helper::Vector3D vector0(3);
 
     QVERIFY(vector0[0] == 3);
     QVERIFY(vector0[1] == 3);
@@ -92,7 +92,7 @@ void Vector3D::testCase4()
 
 void Vector3D::testCase5()
 {
-    HDF5Helper::Vector3D vector0(4);
+    H5Helper::Vector3D vector0(4);
     vector0.x(3);
     vector0.y(2);
     vector0.z(1);
@@ -104,8 +104,8 @@ void Vector3D::testCase5()
 
 void Vector3D::testCase6()
 {
-    HDF5Helper::Vector3D vector0(4);
-    HDF5Helper::Vector3D vector1(2);
+    H5Helper::Vector3D vector0(4);
+    H5Helper::Vector3D vector1(2);
     vector0.x(3);
     vector0.y(2);
     vector0.z(1);
@@ -116,13 +116,13 @@ void Vector3D::testCase6()
     QVERIFY(vector1.y() == 2);
     QVERIFY(vector1.z() == 1);
 
-    HDF5Helper::Vector3D vector2(vector1);
+    H5Helper::Vector3D vector2(vector1);
 
     QVERIFY(vector2.x() == 3);
     QVERIFY(vector2.y() == 2);
     QVERIFY(vector2.z() == 1);
 
-    HDF5Helper::Vector3D vector3 = std::move(vector2);
+    H5Helper::Vector3D vector3 = std::move(vector2);
 
     QVERIFY(vector3.x() == 3);
     QVERIFY(vector3.y() == 2);

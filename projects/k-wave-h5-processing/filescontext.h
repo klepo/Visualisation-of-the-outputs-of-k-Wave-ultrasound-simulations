@@ -20,7 +20,7 @@
 #ifndef FILESCONTEXT_H
 #define FILESCONTEXT_H
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 #include <helper.h>
 #include <settings.h>
 
@@ -33,21 +33,21 @@ public:
     FilesContext(Settings *settings);
     ~FilesContext();
 
-    HDF5Helper::File *getSimOutputFile() const;
-    HDF5Helper::File *getSimInputFile() const;
-    HDF5Helper::File *getPcsOutputFile();
-    HDF5Helper::File *getPcsInputFile() const;
+    H5Helper::File *getSimOutputFile() const;
+    H5Helper::File *getSimInputFile() const;
+    H5Helper::File *getPcsOutputFile();
+    H5Helper::File *getPcsInputFile() const;
 
 private:
     FilesContext(const FilesContext &);
     FilesContext &operator=(const FilesContext &);
-    HDF5Helper::File *loadSimulationFile(std::string filename);
+    H5Helper::File *loadSimulationFile(std::string filename);
     void resolveOutputFilename(Settings *settings);
-    HDF5Helper::File *createOrOpenOutputFile(std::string filename);
-    HDF5Helper::File *simOutputFile = 0;
-    HDF5Helper::File *simInputFile = 0;
-    HDF5Helper::File *pcsOutputFile = 0;
-    HDF5Helper::File *pcsInputFile = 0;
+    H5Helper::File *createOrOpenOutputFile(std::string filename);
+    H5Helper::File *simOutputFile = 0;
+    H5Helper::File *simInputFile = 0;
+    H5Helper::File *pcsOutputFile = 0;
+    H5Helper::File *pcsInputFile = 0;
 
     bool newEmptyOutputFileFlag = false;
     std::string outputFilename = "";

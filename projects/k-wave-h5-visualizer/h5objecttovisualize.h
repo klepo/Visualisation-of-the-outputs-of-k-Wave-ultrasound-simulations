@@ -33,7 +33,7 @@ class H5ObjectToVisualize : public QObject
 {
     Q_OBJECT
 public:
-    explicit H5ObjectToVisualize(HDF5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, H5OpenedFile *openedH5File, QObject *parent = 0);
+    explicit H5ObjectToVisualize(H5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, H5OpenedFile *openedH5File, QObject *parent = 0);
     ~H5ObjectToVisualize();
 
     // Getters for current settings and min/max values
@@ -46,7 +46,7 @@ public:
     float getOriginalMinValue();
     float getOriginalMaxValue();
 
-    HDF5Helper::Dataset *getDataset();
+    H5Helper::Dataset *getDataset();
 
     // Simulation info from file
     QList<QPair<QString, QString>> getInfo();
@@ -68,12 +68,12 @@ public:
     H5OpenedFile::ObjectType getType();
     ColorMap::Type getColormap();
 
-    HDF5Helper::Vector3D getFrameSize();
-    HDF5Helper::Vector3D getOriginalFrameSize();
-    HDF5Helper::Vector3D getSize();
-    HDF5Helper::Vector3D getOriginalSize();
-    HDF5Helper::Vector3D getPos();
-    HDF5Helper::Vector3D getOriginalPos();
+    H5Helper::Vector3D getFrameSize();
+    H5Helper::Vector3D getOriginalFrameSize();
+    H5Helper::Vector3D getSize();
+    H5Helper::Vector3D getOriginalSize();
+    H5Helper::Vector3D getPos();
+    H5Helper::Vector3D getOriginalPos();
     hsize_t getSteps();
     hsize_t getCurrentStep();
 
@@ -150,7 +150,7 @@ private:
 
     bool selected = false;
 
-    HDF5Helper::Dataset *dataset = 0;
+    H5Helper::Dataset *dataset = 0;
     H5OpenedFile *openedH5File = 0;
     H5OpenedFile::ObjectType type;
 
@@ -162,7 +162,7 @@ private:
     bool currentXZLoaded = false;
     bool currentYZLoaded = false;
 
-    HDF5Helper::Vector3D index;
+    H5Helper::Vector3D index;
 
     H5ReadingThread *threadXY = 0;
     H5ReadingThread *threadXZ = 0;
@@ -186,15 +186,15 @@ private:
     hsize_t currentStep = 0;
 
     // Datasets characteristics variables
-    HDF5Helper::Vector3D originalFrameSize;
-    HDF5Helper::Vector3D frameSize;
-    HDF5Helper::Vector3D originalSize;
-    HDF5Helper::Vector3D size;
-    HDF5Helper::Vector3D originalPosition;
-    HDF5Helper::Vector3D position;
-    HDF5Helper::Vector chunkSize;
-    HDF5Helper::Vector minValuePosition;
-    HDF5Helper::Vector maxValuePosition;
+    H5Helper::Vector3D originalFrameSize;
+    H5Helper::Vector3D frameSize;
+    H5Helper::Vector3D originalSize;
+    H5Helper::Vector3D size;
+    H5Helper::Vector3D originalPosition;
+    H5Helper::Vector3D position;
+    H5Helper::Vector chunkSize;
+    H5Helper::Vector minValuePosition;
+    H5Helper::Vector maxValuePosition;
     hsize_t steps = 1;
 };
 

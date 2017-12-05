@@ -29,7 +29,7 @@
  * @param[in] offset Offset
  * @param[in] count Count
  */
-Request::Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count)
+Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count)
 {
     this->dataset = dataset;
     this->offset = offset;
@@ -43,7 +43,7 @@ Request::Request(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5He
  * @param[in] dataset Dataset
  * @param[in] step Step
  */
-Request::Request(HDF5Helper::Dataset *dataset, hsize_t step)
+Request::Request(H5Helper::Dataset *dataset, hsize_t step)
 {
     this->dataset = dataset;
     this->full = true;
@@ -88,7 +88,7 @@ H5ReadingThread::H5ReadingThread(QObject *parent) : QThread(parent)
  * @param[in] count Count
  * @param[in] limit Length of waiting queue (optional)
  */
-void H5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Vector offset, HDF5Helper::Vector count, int limit)
+void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, int limit)
 {
     QMutexLocker locker(&queueMutex);
     if (queue.size() > limit) {
@@ -105,7 +105,7 @@ void H5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, HDF5Helper::Ve
  * @param[in] dataset Dataset
  * @param[in] step Step
  */
-void H5ReadingThread::createRequest(HDF5Helper::Dataset *dataset, hsize_t step)
+void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -204,8 +204,8 @@ void H5ReadingThread::run()
                 //usleep(1000000);
                 if (r->full) {
                     // Reading of full dataset with block reading
-                    r->dataset->setMaxNumberOfElmsToLoad(HDF5Helper::Vector3D(r->dataset->getDims()).getSize());
-                    hsize_t c = HDF5Helper::Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
+                    r->dataset->setMaxNumberOfElmsToLoad(H5Helper::Vector3D(r->dataset->getDims()).getSize());
+                    hsize_t c = H5Helper::Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
                     for (hsize_t i = 0; i < c; i++) {
                         if (stopFlag) {
                             stopFlag = false;

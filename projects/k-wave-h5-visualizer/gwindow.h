@@ -103,11 +103,11 @@ private slots:
     void setMinValue(float value);
     void setMaxValue(float value);
     void setColormap(ColorMap::Type colormap = ColorMap::JET);
-    void setFrameSize(HDF5Helper::Vector3D size);
+    void setFrameSize(H5Helper::Vector3D size);
     void setFrameSize(QVector3DI size);
-    void setDatasetSize(HDF5Helper::Vector3D size);
+    void setDatasetSize(H5Helper::Vector3D size);
     void setDatasetSize(QVector3DI size);
-    void setDatasetPosition(HDF5Helper::Vector3D position);
+    void setDatasetPosition(H5Helper::Vector3D position);
     void setDatasetPosition(QVector3DI position);
 
     void setXYSlice(float *data, hsize_t index);

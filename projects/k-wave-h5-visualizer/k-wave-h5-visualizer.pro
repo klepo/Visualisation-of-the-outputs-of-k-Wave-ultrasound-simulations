@@ -22,8 +22,8 @@ DEPENDPATH += $$PWD
 # Check Qt version
 lessThan(QT_VERSION, 5.2): error(Qt version is too old)
 
-# hdf5helper library
-include($$PWD/../hdf5helper/hdf5helper.pri)
+# k-wave-h5-helper library
+include($$PWD/../k-wave-h5-helper/k-wave-h5-helper.pri)
 
 SOURCES += \
     main.cpp\

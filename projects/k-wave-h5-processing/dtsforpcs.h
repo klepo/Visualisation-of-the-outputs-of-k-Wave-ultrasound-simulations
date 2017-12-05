@@ -20,7 +20,7 @@
 #ifndef DTSFORPCS_H
 #define DTSFORPCS_H
 
-#include <hdf5helper.h>
+#include <k-wave-h5-helper.h>
 #include <filescontext.h>
 #include <compresshelper.h>
 
@@ -31,29 +31,29 @@ class DtsForPcs
 {
 public:
     DtsForPcs(FilesContext *filesContext, Settings *settings);
-    HDF5Helper::Vector4D getNDims() const;
-    HDF5Helper::Dataset *getSensorMaskIndexDataset() const;
-    HDF5Helper::Dataset *getSensorMaskCornersDataset() const;
-    HDF5Helper::Dataset *getSourceInputDataset() const;
+    H5Helper::Vector4D getNDims() const;
+    H5Helper::Dataset *getSensorMaskIndexDataset() const;
+    H5Helper::Dataset *getSensorMaskCornersDataset() const;
+    H5Helper::Dataset *getSourceInputDataset() const;
     hsize_t getSensorMaskSize() const;
     hsize_t getSensorMaskType() const;
-    HDF5Helper::MapOfDatasets getDatasets(HDF5Helper::DatasetType datasetType = HDF5Helper::DatasetType::ALL) const;
+    H5Helper::MapOfDatasets getDatasets(H5Helper::DatasetType datasetType = H5Helper::DatasetType::ALL) const;
 
 private:
     DtsForPcs(const DtsForPcs &);
     DtsForPcs &operator=(const DtsForPcs &);
-    HDF5Helper::Dataset *findAndGetDataset(const std::string name, HDF5Helper::File *simOutputFile, HDF5Helper::File *simInputFile);
-    void findDatasetsForProcessing(HDF5Helper::Group *group, Settings *settings);
+    H5Helper::Dataset *findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile);
+    void findDatasetsForProcessing(H5Helper::Group *group, Settings *settings);
     bool isFiltered(std::string name, Settings *settings);
 
-    HDF5Helper::Vector4D nDims;
+    H5Helper::Vector4D nDims;
 
-    HDF5Helper::Dataset *sensorMaskIndexDataset = 0;
-    HDF5Helper::Dataset *sensorMaskCornersDataset = 0;
-    HDF5Helper::Dataset *sourceInputDataset = 0;
+    H5Helper::Dataset *sensorMaskIndexDataset = 0;
+    H5Helper::Dataset *sensorMaskCornersDataset = 0;
+    H5Helper::Dataset *sourceInputDataset = 0;
     hsize_t sensorMaskSize = 0;
     hsize_t sensorMaskType = 0;
-    HDF5Helper::MapOfDatasets datasets;
+    H5Helper::MapOfDatasets datasets;
 };
 
 #endif // DTSFORPCS_H
