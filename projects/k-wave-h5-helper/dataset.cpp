@@ -95,8 +95,8 @@ Dataset::Dataset(hid_t dataset, std::string name, File *file)
     minVI = 0;
 
     // Init some flags for block reading
-    offsets = 0;
-    counts = 0;
+    //offsets = 0;
+    //counts = 0;
     setNumberOfElmsToLoad(file->getNumberOfElmsToLoad());
 
     // Min/max flag
@@ -231,27 +231,40 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             if (getOnlyName() == P_SOURCE_INPUT_DATASET) {
                 return DatasetType::P_SOURCE_INPUT;
             }
-            if (dims.z() == nDims.z()
-                    && dims.y() == nDims.y()
-                    && dims.x() == nDims.x()
-                    ) {
-                return DatasetType::BASIC_3D;
-            }
-            if (dims.z() < nDims.z()
-                    && dims.y() < nDims.y()
-                    && dims.x() < nDims.x()
-                    && this->hasAttribute(SRC_SIZE_X_ATTR)
+            if (hasAttribute(POSITION_X_ATTR)
+                    && hasAttribute(POSITION_Y_ATTR)
+                    && hasAttribute(POSITION_Z_ATTR)
+                    && hasAttribute(SRC_POSITION_X_ATTR)
+                    && hasAttribute(SRC_POSITION_Y_ATTR)
+                    && hasAttribute(SRC_POSITION_Z_ATTR)
+                    && hasAttribute(SRC_SIZE_X_ATTR)
                     && hasAttribute(SRC_SIZE_Y_ATTR)
                     && hasAttribute(SRC_SIZE_Z_ATTR)
                     && hasAttribute(SRC_DATASET_NAME_ATTR)
                     ) {
-                return DatasetType::DWNSMPL_3D;
+                return DatasetType::RESHAPED_3D_DWNSMPL;
             }
             if (hasAttribute(POSITION_X_ATTR)
                     && hasAttribute(POSITION_Y_ATTR)
                     && hasAttribute(POSITION_Z_ATTR)
                     ) {
                 return DatasetType::RESHAPED_3D;
+            }
+            if (dims.z() < nDims.z()
+                    && dims.y() < nDims.y()
+                    && dims.x() < nDims.x()
+                    && hasAttribute(SRC_SIZE_X_ATTR)
+                    && hasAttribute(SRC_SIZE_Y_ATTR)
+                    && hasAttribute(SRC_SIZE_Z_ATTR)
+                    && hasAttribute(SRC_DATASET_NAME_ATTR)
+                    ) {
+                return DatasetType::BASIC_3D_DWNSMPL;
+            }
+            if (dims.z() == nDims.z()
+                    && dims.y() == nDims.y()
+                    && dims.x() == nDims.x()
+                    ) {
+                return DatasetType::BASIC_3D;
             }
             if (dims.z() == 1
                     && dims.y() == 1
@@ -309,6 +322,9 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 if (hasAttribute(POSITION_X_ATTR)
                         && hasAttribute(POSITION_Y_ATTR)
                         && hasAttribute(POSITION_Z_ATTR)
+                        && hasAttribute(SRC_POSITION_X_ATTR)
+                        && hasAttribute(SRC_POSITION_Y_ATTR)
+                        && hasAttribute(SRC_POSITION_Z_ATTR)
                         ) {
                     if (hasAttribute(C_TYPE_ATTR)
                             && hasAttribute(C_PERIOD_ATTR)
@@ -397,6 +413,11 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
     return DatasetType::UNKNOWN;
 }
 
+std::string Dataset::getTypeString() const
+{
+    return getTypeString(this->getType());
+}
+
 /**
  * @brief Returns dataset type as string
  * @param[in] type Dataset type
@@ -425,10 +446,12 @@ std::string Dataset::getTypeString(DatasetType type) const
             return "P source input type";
         case DatasetType::BASIC_3D:
             return "3D type";
-        case DatasetType::DWNSMPL_3D:
-            return "3D type (downsampled)";
         case DatasetType::RESHAPED_3D:
             return "3D type (reshaped index)";
+        case DatasetType::BASIC_3D_DWNSMPL:
+            return "3D type (downsampled)";
+        case DatasetType::RESHAPED_3D_DWNSMPL:
+            return "3D type (downsampled reshaped index)";
         case DatasetType::BASIC_INDEX:
             return "Basic index type";
         case DatasetType::TIME_STEPS_INDEX:
@@ -557,7 +580,7 @@ void Dataset::findAndSetGlobalMinAndMaxValue(bool reset, bool log)
                 ) {
             if (log)
                 std::cout << "Finding min/max value ..." << std::endl;
-            Dataset::findGlobalMinAndMaxValueF();
+            Dataset::findGlobalMinAndMaxValueF(log);
             Dataset::setAttribute(MIN_ATTR, minVF, log);
             Dataset::setAttribute(MAX_ATTR, maxVF, log);
             Dataset::setAttribute(MIN_INDEX_ATTR, minVIndex, log);
@@ -583,7 +606,7 @@ void Dataset::findAndSetGlobalMinAndMaxValue(bool reset, bool log)
                 ) {
             if (log)
                 std::cout << "Finding min/max value ..." << std::endl;
-            Dataset::findGlobalMinAndMaxValueI();
+            Dataset::findGlobalMinAndMaxValueI(log);
             Dataset::setAttribute(MIN_ATTR, minVI, log);
             Dataset::setAttribute(MAX_ATTR, maxVI, log);
             Dataset::setAttribute(MIN_INDEX_ATTR, minVIndex, log);
@@ -637,7 +660,7 @@ Vector Dataset::getNumberOfBlocksInDims() const
  */
 Vector Dataset::getGeneralBlockDims() const
 {
-    return counts[0];
+    return getBlockCount(0);
 }
 
 /**
@@ -919,9 +942,9 @@ void Dataset::writeDataset(hsize_t *data, bool log)
  */
 void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log)
 {
-    readDataset(offsets[index], counts[index], data, min, max, minIndex, maxIndex, log, index + 1);
-    offset = offsets[index];
-    count = counts[index];
+    readDataset(getBlockOffset(index), getBlockCount(index), data, min, max, minIndex, maxIndex, log, index + 1);
+    offset = getBlockOffset(index);
+    count = getBlockCount(index);
 }
 
 /**
@@ -938,9 +961,9 @@ void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&da
  */
 void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log)
 {
-    readDataset(offsets[index], counts[index], data, min, max, minIndex, maxIndex, log, index + 1);
-    offset = offsets[index];
-    count = counts[index];
+    readDataset(getBlockOffset(index), getBlockCount(index), data, min, max, minIndex, maxIndex, log, index + 1);
+    offset = getBlockOffset(index);
+    count = getBlockCount(index);
 }
 
 /**
@@ -953,9 +976,9 @@ void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&
  */
 void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, bool log)
 {
-    readDataset(offsets[index], counts[index], data, log, index + 1);
-    offset = offsets[index];
-    count = counts[index];
+    readDataset(getBlockOffset(index), getBlockCount(index), data, log, index + 1);
+    offset = getBlockOffset(index);
+    count = getBlockCount(index);
 }
 
 /**
@@ -968,9 +991,9 @@ void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&da
  */
 void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, bool log)
 {
-    readDataset(offsets[index], counts[index], data, log, index + 1);
-    offset = offsets[index];
-    count = counts[index];
+    readDataset(getBlockOffset(index), getBlockCount(index), data, log, index + 1);
+    offset = getBlockOffset(index);
+    count = getBlockCount(index);
 }
 
 /**
@@ -994,7 +1017,7 @@ void Dataset::readEmptyBlock(bool log)
         throw std::runtime_error("H5Dread error");
     }
     if (log)
-        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms\tempty block" << std::endl;
+        printsReadingTimeMessage(t0, t1);
 }
 
 /**
@@ -1049,7 +1072,7 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data, bool l
     }
 
     if (log)
-        std::cout << getName() << " \tread time: \t" << (t1 - t0) << " ms\toffset: " << offset << "\tcount: " << count << std::endl;
+        printsReadingTimeMessage(t0, t1, offset, count);
 }
 
 /**
@@ -1105,7 +1128,7 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
     }
 
     if (log)
-        std::cout << getName() << " \twrite time: \t" << (t1 - t0) << " ms\toffset: " << offset << "\tcount: " << count << std::endl;
+        printsWritingTimeMessage(t0, t1, offset, count);
 }
 
 /**
@@ -1169,34 +1192,34 @@ void Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &min
  * @brief Finds global minimal and maximal value
  * @param[in] reset Reset flag for searching the values in dataset (optional)
  */
-void Dataset::findGlobalMinAndMaxValue(bool reset)
+void Dataset::findGlobalMinAndMaxValue(bool reset, bool log)
 {
     if (isFloatType()) {
         if (reset) {
-            Dataset::findGlobalMinAndMaxValueF();
+            Dataset::findGlobalMinAndMaxValueF(log);
         } else {
             if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR) && this->hasAttribute(MAX_INDEX_ATTR)) {
-                minVF = Dataset::readAttributeF(MIN_ATTR, false);
-                maxVF = Dataset::readAttributeF(MAX_ATTR, false);
-                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, false);
-                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, false);
+                minVF = Dataset::readAttributeF(MIN_ATTR, log);
+                maxVF = Dataset::readAttributeF(MAX_ATTR, log);
+                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, log);
+                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, log);
                 issetGlobalMinAndMaxValue = true;
             } else {
-                Dataset::findGlobalMinAndMaxValueF();
+                Dataset::findGlobalMinAndMaxValueF(log);
             }
         }
     } else {
         if (reset) {
-            Dataset::findGlobalMinAndMaxValueI();
+            Dataset::findGlobalMinAndMaxValueI(log);
         } else {
             if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR) && this->hasAttribute(MAX_INDEX_ATTR)) {
-                minVI = Dataset::readAttributeI(MIN_ATTR, false);
-                maxVI = Dataset::readAttributeI(MAX_ATTR, false);
-                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, false);
-                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, false);
+                minVI = Dataset::readAttributeI(MIN_ATTR, log);
+                maxVI = Dataset::readAttributeI(MAX_ATTR, log);
+                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR, log);
+                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR, log);
                 issetGlobalMinAndMaxValue = true;
             } else {
-                Dataset::findGlobalMinAndMaxValueI();
+                Dataset::findGlobalMinAndMaxValueI(log);
             }
         }
     }
@@ -1205,7 +1228,7 @@ void Dataset::findGlobalMinAndMaxValue(bool reset)
 /**
  * @brief Finds global minimal and maximal float value
  */
-void Dataset::findGlobalMinAndMaxValueF()
+void Dataset::findGlobalMinAndMaxValueF(bool log)
 {
     Vector offset;
     Vector count;
@@ -1217,19 +1240,9 @@ void Dataset::findGlobalMinAndMaxValueF()
     bool first = true;
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
         float *data;
-        readBlock(i, offset, count, data, minVFTmp, maxVFTmp, minVIndexTmp, maxVIndexTmp);
-        if (first)
-            minVF = maxVF = data[0];
-        first = false;
+        readBlock(i, offset, count, data, minVFTmp, maxVFTmp, minVIndexTmp, maxVIndexTmp, log);
         convertMultiDimToLinear(offset, linearOffset, dims);
-        if (minVFTmp < minVF) {
-            minVF = minVFTmp;
-            minVIndex = linearOffset + minVIndexTmp;
-        }
-        if (maxVFTmp > maxVF) {
-            maxVF = maxVFTmp;
-            maxVIndex = linearOffset + maxVIndexTmp;
-        }
+        H5Helper::checkOrSetMinMaxValue(first, minVF, maxVF, minVFTmp, maxVFTmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
         delete [] data; // !!!
     }
     issetGlobalMinAndMaxValue = true;
@@ -1238,7 +1251,7 @@ void Dataset::findGlobalMinAndMaxValueF()
 /**
  * @brief Finds global minimal and maximal 64-bit unsigned integer value
  */
-void Dataset::findGlobalMinAndMaxValueI()
+void Dataset::findGlobalMinAndMaxValueI(bool log)
 {
     Vector offset;
     Vector count;
@@ -1250,19 +1263,9 @@ void Dataset::findGlobalMinAndMaxValueI()
     bool first = true;
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
         hsize_t *data;
-        readBlock(i, offset, count, data, minVITmp, maxVITmp, minVIndexTmp, maxVIndexTmp);
-        if (first)
-            minVI = maxVI = data[0];
-        first = false;
+        readBlock(i, offset, count, data, minVITmp, maxVITmp, minVIndexTmp, maxVIndexTmp, log);
         convertMultiDimToLinear(offset, linearOffset, dims);
-        if (minVITmp < minVI) {
-            minVI = minVITmp;
-            minVIndex = linearOffset + minVIndexTmp;
-        }
-        if (maxVITmp > maxVI) {
-            maxVI = maxVITmp;
-            maxVIndex = linearOffset + maxVIndexTmp;
-        }
+        H5Helper::checkOrSetMinMaxValue(first, minVI, maxVI, minVITmp, maxVITmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
         delete [] data; // !!!
     }
     issetGlobalMinAndMaxValue = true;
@@ -1274,11 +1277,11 @@ void Dataset::findGlobalMinAndMaxValueI()
 void Dataset::initBlockReading()
 {
     hsize_t prod = 1;
-    Vector blockDims(dims.getLength(), 1);
-    Vector blockDimsLast(dims.getLength(), 1);
+    blockDims = Vector(dims.getLength(), 1);
+    lastBlockDims = Vector(dims.getLength(), 1);
     numberOfBlocksInDims = dims;
 
-    hsize_t c = 0;
+    lastBlockCount = 1;
     bool diffSizeFlag = false;
     realNumberOfElementsToLoad = getNumberOfElmsToLoad();
 
@@ -1287,23 +1290,23 @@ void Dataset::initBlockReading()
         hsize_t newProd = prod * dims[j];
         if (newProd > getNumberOfElmsToLoad()) {
             blockDims[j] = getNumberOfElmsToLoad() / prod;
-            blockDimsLast[j] = blockDims[j];
+            lastBlockDims[j] = blockDims[j];
             numberOfBlocksInDims[j] = dims[j] / blockDims[j];
-            c = numberOfBlocksInDims[j];
+            lastBlockCount = numberOfBlocksInDims[j];
 
             if (dims[j] % blockDims[j]) {
-                blockDimsLast[j] = dims[j] % blockDims[j];
+                lastBlockDims[j] = dims[j] % blockDims[j];
                 diffSizeFlag = true;
-                c++;
+                lastBlockCount++;
             }
             realNumberOfElementsToLoad = prod * blockDims[j];
-            numberOfBlocksInDims[j] = c;
+            numberOfBlocksInDims[j] = lastBlockCount;
 
             break;
         }
         prod = newProd;
         blockDims[j] = dims[j];
-        blockDimsLast[j] = dims[j];
+        lastBlockDims[j] = dims[j];
         numberOfBlocksInDims[j] = 1;
     }
 
@@ -1315,7 +1318,7 @@ void Dataset::initBlockReading()
         numberOfBlocks *= p;
     }
 
-    delete[] offsets;
+    /*delete[] offsets;
     delete[] counts;
 
     offsets = new Vector[numberOfBlocks];
@@ -1324,12 +1327,48 @@ void Dataset::initBlockReading()
     hsize_t sum = 0;
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
         counts[i] = blockDims;
-        if (diffSizeFlag && (i + 1) % c == 0) {
-            counts[i] = blockDimsLast;
+        if (diffSizeFlag && (i + 1) % lastBlockCount == 0) {
+            counts[i] = lastBlockDims;
         }
         convertlinearToMultiDim(sum, offsets[i], dims);
         sum += counts[i].getSize();
+
+        Vector offset2;
+        Vector counts2;
+        hsize_t lastBlockDimsCount = (i) / lastBlockCount;
+        hsize_t lastBlockDimsSize = lastBlockDimsCount * lastBlockDims.getSize();
+        hsize_t sum2 = lastBlockDimsSize + (i - lastBlockDimsCount) * blockDims.getSize();
+        convertlinearToMultiDim(sum2, offset2, dims);
+        if ((i + 1) % lastBlockCount == 0) {
+            counts2 = lastBlockDims;
+        } else {
+            counts2 = blockDims;
+        }
+        if (offset2 != offsets[i])
+            std::cout << std::endl << offset2 << " offset2 " << offsets[i] << std::endl;
+
+        if (counts2 != counts[i])
+            std::cout << counts2 << " counts2 " << counts[i] << std::endl << std::endl;
+    }*/
+}
+
+Vector Dataset::getBlockCount(hsize_t index) const
+{
+    if ((index + 1) % lastBlockCount == 0) {
+        return lastBlockDims;
+    } else {
+        return blockDims;
     }
+}
+
+Vector Dataset::getBlockOffset(hsize_t index) const
+{
+    Vector offset2;
+    hsize_t lastBlockDimsCount = (index) / lastBlockCount;
+    hsize_t lastBlockDimsSize = lastBlockDimsCount * lastBlockDims.getSize();
+    hsize_t sum2 = lastBlockDimsSize + (index - lastBlockDimsCount) * blockDims.getSize();
+    convertlinearToMultiDim(sum2, offset2, dims);
+    return offset2;
 }
 
 /**
@@ -1478,5 +1517,47 @@ void Dataset::printsReadingMessage(hsize_t block) const
     if (block)
         std::cout << ", block " << block << "/" << numberOfBlocks;
     std::cout << " ..." << std::endl;
+}
+
+void Dataset::printsReadingTimeMessage(double t0, double t1) const
+{
+    unsigned int widthTmp = 5;
+    if (widthTmp <= getName().length())
+        widthTmp = (static_cast<unsigned int>(getName().length()) / 10) * 10 + 10;
+    std::cout << "  " << std::setw(widthTmp) << std::left << getName();
+    std::cout << std::setw(12) << std::right << "read time: ";
+    std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
+    std::cout << std::setw(11) << std::right << "empty block";
+    std::cout << std::endl;
+}
+
+void Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const
+{
+    unsigned int widthTmp = 10;
+    if (widthTmp <= getName().length())
+        widthTmp = (static_cast<unsigned int>(getName().length()) / 10) * 10 + 10;
+    std::cout << "  " << std::setw(widthTmp) << std::left << getName();
+    std::cout << std::setw(12) << std::right << "read time: ";
+    std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
+    std::cout << std::setw(8) << std::right << "offset: ";
+    std::cout << std::setw(20) << std::left << offset;
+    std::cout << std::setw(7) << std::right << "count: ";
+    std::cout << std::setw(20) << std::left << count;
+    std::cout << std::endl;
+}
+
+void Dataset::printsWritingTimeMessage(double t0, double t1, Vector offset, Vector count) const
+{
+    unsigned int widthTmp = 10;
+    if (widthTmp <= getName().length())
+        widthTmp = (static_cast<unsigned int>(getName().length()) / 10) * 10 + 10;
+    std::cout << "  " << std::setw(widthTmp) << std::left << getName();
+    std::cout << std::setw(12) << std::right << "write time: ";
+    std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
+    std::cout << std::setw(8) << std::right << "offset: ";
+    std::cout << std::setw(20) << std::left << offset;
+    std::cout << std::setw(7) << std::right << "count: ";
+    std::cout << std::setw(20) << std::left << count;
+    std::cout << std::endl;
 }
 }

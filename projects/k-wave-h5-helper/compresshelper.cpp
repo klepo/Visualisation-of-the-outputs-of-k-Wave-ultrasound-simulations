@@ -19,6 +19,8 @@
 
 #include "compresshelper.h"
 
+namespace H5Helper {
+
 CompressHelper::CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, bool normalize)
 {
     oSize = period * mos;
@@ -26,6 +28,7 @@ CompressHelper::CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, b
     this->period = period;
     this->mos = mos;
     this->harmonics = harmonics;
+    stride = harmonics * 2;
     b = new float[bSize]();
     e = new floatC[harmonics * bSize]();
     bE = new floatC[harmonics * bSize]();
@@ -241,6 +244,19 @@ hsize_t CompressHelper::findPeriod(float *dataSrc, const hsize_t length)
     return period;
 }
 
+float CompressHelper::computeTimeStep(float *cC, float *lC, hsize_t stepLocal)
+{
+    float stepValue = 0;
+    for (hsize_t h = 0; h < harmonics; h++) {
+        hsize_t sH = h * bSize + stepLocal;
+        hsize_t h2 = h * 2;
+        floatC lCC = conj(floatC(cC[h2], cC[h2 + 1]));
+        floatC cCC = conj(floatC(lC[h2], lC[h2 + 1]));
+        stepValue += real(cCC * getBE()[sH]) + real(lCC * getBE_1()[sH]);
+    }
+    return stepValue;
+}
+
 /**
  * @brief Generates triangular window
  * @param[in] oSize Overlap size
@@ -292,6 +308,11 @@ void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, float 
     }
 }
 
+hsize_t CompressHelper::getStride() const
+{
+    return stride;
+}
+
 hsize_t CompressHelper::getMos() const
 {
     return mos;
@@ -340,4 +361,5 @@ void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t per
         generateE(period, hsize_t(h), hsize_t(h + 1), bSize, e);
         generateBE(hsize_t(h), bSize, oSize, b, e, bE, bE_1, normalize);
     }
+}
 }

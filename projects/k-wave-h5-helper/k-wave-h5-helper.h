@@ -26,10 +26,11 @@
  */
 namespace H5Helper {}
 
-#include <file.h>
-#include <dataset.h>
-#include <group.h>
 #include <attribute.h>
+#include <compresshelper.h>
+#include <dataset.h>
+#include <file.h>
+#include <group.h>
 #include <vector3d.h>
 #include <vector4d.h>
 

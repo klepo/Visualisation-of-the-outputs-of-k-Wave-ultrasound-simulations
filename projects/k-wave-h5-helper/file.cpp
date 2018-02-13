@@ -857,6 +857,68 @@ size_t getAvailableSystemPhysicalMemory()
     #endif
 }
 
+size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
+{
+    #ifdef __unix
+        // linux file contains this-process info
+        FILE* file = fopen("/proc/self/status", "r");
+
+        int currRealMem;
+
+        // read the entire file
+        while (fscanf(file, " %1023s", buffer) == 1) {
+            if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
+                fscanf(file, " %d", &currRealMem);
+            }
+        }
+        fclose(file);
+        return size_t(currRealMem);
+    #endif
+
+    #ifdef _WIN32
+        PROCESS_MEMORY_COUNTERS pmc;
+        GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+        return size_t(pmc.WorkingSetSize); // bytes
+    #endif
+}
+
+size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc()
+{
+    #ifdef __unix
+        // linux file contains this-process info
+        FILE* file = fopen("/proc/self/status", "r");
+
+        //int currRealMem;
+        //int peakRealMem;
+        //int currVirtMem;
+        int peakVirtMem;
+
+        // read the entire file
+        while (fscanf(file, " %1023s", buffer) == 1) {
+            /*if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
+                fscanf(file, " %d", &currRealMem);
+            }
+            if (strcmp(buffer, "VmHWM:") == 0) {
+                fscanf(file, " %d", &peakRealMem);
+            }
+            if (strcmp(buffer, "VmSize:") == 0) {
+                fscanf(file, " %d", &currVirtMem);
+            }*/
+            if (strcmp(buffer, "VmPeak:") == 0) {
+                fscanf(file, " %d", &peakVirtMem);
+            }
+        }
+        fclose(file);
+        return size_t(peakVirtMem);
+    #endif
+
+    #ifdef _WIN32
+        PROCESS_MEMORY_COUNTERS pmc;
+        GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+        return size_t(pmc.PeakWorkingSetSize); // bytes
+    #endif
+}
+
 /**
  * @brief Converts linear index to space (Cartesian) position
  * @param[in] index Linear index
@@ -978,6 +1040,76 @@ void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t va
                 if (maxV < value) {
                     maxV = value;
                     maxVIndex = index;
+                }
+            }
+        }
+    }
+}
+
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
+{
+    if (first) {
+        #pragma omp critical
+        {
+            if (first) {
+                minV = minVI;
+                maxV = maxVI;
+                minVIndex = minVIIndex;
+                maxVIndex = maxVIIndex;
+                first = false;
+            }
+        }
+    } else {
+        if (minV > minVI) {
+            #pragma omp critical
+            {
+                if (minV > minVI) {
+                    minV = minVI;
+                    minVIndex = minVIIndex;
+                }
+            }
+        }
+        if (maxV < maxVI) {
+            #pragma omp critical
+            {
+                if (maxV < maxVI) {
+                    maxV = maxVI;
+                    maxVIndex = maxVIIndex;
+                }
+            }
+        }
+    }
+}
+
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
+{
+    if (first) {
+        #pragma omp critical
+        {
+            if (first) {
+                minV = minVI;
+                maxV = maxVI;
+                minVIndex = minVIIndex;
+                maxVIndex = maxVIIndex;
+                first = false;
+            }
+        }
+    } else {
+        if (minV > minVI) {
+            #pragma omp critical
+            {
+                if (minV > minVI) {
+                    minV = minVI;
+                    minVIndex = minVIIndex;
+                }
+            }
+        }
+        if (maxV < maxVI) {
+            #pragma omp critical
+            {
+                if (maxV < maxVI) {
+                    maxV = maxVI;
+                    maxVIndex = maxVIIndex;
                 }
             }
         }

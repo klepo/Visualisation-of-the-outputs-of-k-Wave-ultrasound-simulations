@@ -29,22 +29,24 @@ include($$PWD/../openmp.pri)
 include($$PWD/../hdf5.pri)
 
 SOURCES += \
-    file.cpp \
     attribute.cpp \
+    compresshelper.cpp \
     dataset.cpp \
+    file.cpp \
     group.cpp \
     object.cpp \
     vector.cpp \
     vector3d.cpp \
-    vector4d.cpp
+    vector4d.cpp \
 
 HEADERS += \
-    file.h \
     attribute.h \
+    compresshelper.h \
     dataset.h \
+    file.h \
     group.h \
+    k-wave-h5-helper.h \
     object.h \
     vector.h \
     vector3d.h \
     vector4d.h \
-    k-wave-h5-helper.h

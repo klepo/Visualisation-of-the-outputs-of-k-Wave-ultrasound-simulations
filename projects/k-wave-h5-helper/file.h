@@ -30,6 +30,7 @@
 #ifdef _WIN32
     #define NOMINMAX
     #include <Windows.h> // GetTickCount etc.
+    #include "psapi.h"
 #endif
 
 #include <iostream>
@@ -91,6 +92,12 @@ const std::string POSITION_Z_ATTR = "position_z";
 const std::string POSITION_Y_ATTR = "position_y";
 /// Attribute name position_x
 const std::string POSITION_X_ATTR = "position_x";
+/// Attribute name src_position_z
+const std::string SRC_POSITION_Z_ATTR = "src_position_z";
+/// Attribute name src_position_y
+const std::string SRC_POSITION_Y_ATTR = "src_position_y";
+/// Attribute name src_position_x
+const std::string SRC_POSITION_X_ATTR = "src_position_x";
 /// Attribute name src_size_z
 const std::string SRC_SIZE_Z_ATTR = "src_size_z";
 /// Attribute name src_size_y
@@ -199,10 +206,14 @@ std::string fixPath(std::string path);
 double getTime();
 size_t getTotalSystemPhysicalMemory();
 size_t getAvailableSystemPhysicalMemory();
+size_t getSystemPhysicalMemoryCurrentlyUsedByProc();
+size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc();
 void convertlinearToMultiDim(hsize_t index, Vector &position, Vector size);
 void convertMultiDimToLinear(Vector position, hsize_t &index, Vector size);
 void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index);
 void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index);
+void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex);
+void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex);
 bool fileExists(const std::string& name);
 void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite = true, bool log = true);
 void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite = true, bool log = true);

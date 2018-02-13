@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <assert.h>
+#include <iomanip>
 
 #include <object.h>
 #include <vector3d.h>
@@ -43,8 +44,9 @@ enum class DatasetType
     MASK_CORNERS,
     P_SOURCE_INPUT,
     BASIC_3D,
-    DWNSMPL_3D,
     RESHAPED_3D,
+    BASIC_3D_DWNSMPL,
+    RESHAPED_3D_DWNSMPL,
     BASIC_INDEX,
     TIME_STEPS_INDEX,
     TIME_STEPS_C_INDEX,
@@ -85,6 +87,7 @@ public:
     H5T_class_t getDataTypeClass() const;
     hid_t getDataType() const;
     DatasetType getType(hsize_t sensorMaskSize = 0) const;
+    std::string getTypeString() const;
     std::string getTypeString(DatasetType type) const;
 
     void getGlobalMaxValue(float &value, hsize_t &maxVFIndex, bool reset = false);
@@ -139,11 +142,13 @@ private:
     void findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const;
     void findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const;
 
-    void findGlobalMinAndMaxValue(bool reset = false);
-    void findGlobalMinAndMaxValueF();
-    void findGlobalMinAndMaxValueI();
+    void findGlobalMinAndMaxValue(bool reset = false, bool log = true);
+    void findGlobalMinAndMaxValueF(bool log = true);
+    void findGlobalMinAndMaxValueI(bool log = true);
 
     void initBlockReading();
+    Vector getBlockCount(hsize_t index) const;
+    Vector getBlockOffset(hsize_t index) const;
 
     void checkDataTypeAndAllocation(float *&data, int type, hsize_t size) const;
     void checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size) const;
@@ -159,6 +164,9 @@ private:
     std::string readErrorMessage(hsize_t size, int type) const;
 
     void printsReadingMessage(hsize_t block = 0) const;
+    void printsReadingTimeMessage(double t0, double t1) const;
+    void printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const;
+    void printsWritingTimeMessage(double t0, double t1, Vector offset, Vector count) const;
 
     hid_t plist = 0;
     hid_t plist_DATASET_XFER = 0;
@@ -166,8 +174,12 @@ private:
     // Block reading
     hsize_t numberOfBlocks = 0;
     Vector numberOfBlocksInDims;
-    Vector *offsets;
-    Vector *counts;
+    hsize_t lastBlockCount = 0;
+    Vector blockDims;
+    Vector lastBlockDims;
+
+    //Vector *offsets;
+    //Vector *counts;
     hsize_t numberOfElementsToLoad = 0;
     hsize_t realNumberOfElementsToLoad = 0;
 

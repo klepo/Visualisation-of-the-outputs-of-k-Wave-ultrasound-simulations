@@ -7,7 +7,7 @@
  *
  * @brief       The header file with CompressHelper class declaration.
  *
- * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
+ * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
  *              license. A copy of the LGPL license should have been received with this file.
@@ -31,11 +31,14 @@
 #endif
 
 #include <cmath>
+#include <vector>
 #include <complex>
 #include <omp.h>
 
-#include <k-wave-h5-helper.h>
+#include <hdf5.h>  // HDF5
 
+namespace H5Helper
+{
 /// Float complex datatype
 typedef std::complex<float> floatC;
 
@@ -47,6 +50,8 @@ public:
 
     static hsize_t findPeriod(float *dataSrc, const hsize_t length);
 
+    float computeTimeStep(float *cC, float *lC, hsize_t stepLocal);
+
     floatC *getBE() const;
     floatC *getBE_1() const;
     hsize_t getOSize() const;
@@ -54,6 +59,7 @@ public:
     hsize_t getPeriod() const;
     hsize_t getMos() const;
     hsize_t getHarmonics() const;
+    hsize_t getStride() const;
 
 private:
     CompressHelper(const CompressHelper &);
@@ -81,6 +87,7 @@ private:
     hsize_t period = 0;
     hsize_t mos = 1;
     hsize_t harmonics = 1;
+    hsize_t stride = 2;
 
     // Memory for helper functions data, 2D arrays for harmonics
     float *b = 0;
@@ -88,5 +95,6 @@ private:
     floatC *bE = 0;
     floatC *bE_1 = 0;
 };
+}
 
 #endif // COMPRESSHELPER_H
