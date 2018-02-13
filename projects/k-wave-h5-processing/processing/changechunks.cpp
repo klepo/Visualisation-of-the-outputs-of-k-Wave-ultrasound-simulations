@@ -38,7 +38,7 @@ void ChangeChunks::execute()
 {
     std::vector<H5Helper::DatasetType> types = {
         H5Helper::DatasetType::BASIC_3D,
-        H5Helper::DatasetType::DWNSMPL_3D,
+        H5Helper::DatasetType::BASIC_3D_DWNSMPL,
         H5Helper::DatasetType::CUBOID,
         H5Helper::DatasetType::CUBOID_ATTR
     };
@@ -78,10 +78,15 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     H5Helper::Vector chunkDims(dims.getLength(), 1);
 
     // Set new chunk dims
-    for (hssize_t i = 0; i < hssize_t(dims.getLength()); i++) {
+    for (hsize_t i = 0; i < dims.getLength(); i++) {
         chunkDims[i] = getSettings()->getMaxChunkSize();
         if (chunkDims[i] > dims[i]) chunkDims[i] = dims[i];
+        if (dims.getLength() > 3 && i < dims.getLength() - 3)
+            chunkDims[i] = 1;
     }
+
+    Helper::printDebugTwoColumns2S("Chunk dims", srcDataset->getChunkDims());
+    Helper::printDebugTwoColumns2S("New chunk dims", chunkDims);
 
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true, log);
@@ -106,23 +111,7 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
 
         hsize_t linearOffset;
         convertMultiDimToLinear(offset, linearOffset, srcDataset->getDims());
-
-        if (first) {
-            minVG = minV;
-            maxVG = maxV;
-            minVGIndex = linearOffset + minVIndex;
-            maxVGIndex = linearOffset + maxVIndex;
-            first = false;
-        }
-
-        if (minVG > minV) {
-            minVG = minV;
-            minVGIndex = linearOffset + minVIndex;
-        }
-        if (maxVG < maxV) {
-            maxVG = maxV;
-            maxVGIndex = linearOffset + maxVIndex;
-        }
+        H5Helper::checkOrSetMinMaxValue(first, minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex, linearOffset + maxVIndex);
     }
 
     // Copy attributes

@@ -34,7 +34,7 @@ public:
 
 private:
     void resampleDataset(H5Helper::Dataset *srcDataset, bool log = true);
-    void computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkSize, hsize_t maxChunkSize, bool log = true);
+    void computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkSize, hsize_t maxChunkSize);
     void resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight);
     void resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);
     void resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth);

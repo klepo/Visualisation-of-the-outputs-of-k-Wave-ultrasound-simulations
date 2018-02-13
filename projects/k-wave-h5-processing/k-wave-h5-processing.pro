@@ -38,7 +38,6 @@ SOURCES += \
     processing/reshape.cpp \
     processing/changechunks.cpp \
     processing/downsampling.cpp \
-    processing/compresshelper.cpp \
     processing/compress.cpp \
     processing/decompress.cpp \
     processing/difference.cpp \
@@ -53,7 +52,6 @@ HEADERS += \
     processing/reshape.h \
     processing/changechunks.h \
     processing/downsampling.h \
-    processing/compresshelper.h \
     processing/compress.h \
     processing/decompress.h \
     processing/difference.h \

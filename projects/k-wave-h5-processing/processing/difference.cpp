@@ -41,7 +41,7 @@ void Difference::execute()
         H5Helper::DatasetType::CUBOID,
         H5Helper::DatasetType::CUBOID_ATTR
     };
-    // TODO downsampled datasets
+    // TODO downsampled datasets?
 
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
@@ -107,7 +107,8 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     float maxVO = 0, minVO = 0;
     hsize_t minVIndex = 0, maxVIndex = 0;
     hsize_t minVOIndex = 0, maxVOIndex = 0;
-    bool first = true;
+    bool first0 = true;
+    bool first1 = true;
     double sum = 0.0;
     double sumO2 = 0.0;
     double sum2 = 0.0;
@@ -129,8 +130,8 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
             // Min/max values
             hsize_t linearOffset;
             convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
-            H5Helper::checkOrSetMinMaxValue(first, minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + i);
-            H5Helper::checkOrSetMinMaxValue(first, minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + i);
+            H5Helper::checkOrSetMinMaxValue(first0, minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + i);
+            H5Helper::checkOrSetMinMaxValue(first1, minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + i);
         }
 
         dstDataset->writeDataset(offset, count, dataD, log);
@@ -155,7 +156,7 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
     dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
     dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "s", log);
-    dstDataset->setAttribute("sum", float(sum), log);
+    dstDataset->setAttribute("sum_abs", float(sum), log);
     dstDataset->setAttribute("sum_original_2", float(sumO2), log);
     dstDataset->setAttribute("sum_2", float(sum2), log);
     dstDataset->setAttribute("max_original", maxValue, log);

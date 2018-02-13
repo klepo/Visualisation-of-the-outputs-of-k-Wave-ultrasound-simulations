@@ -38,10 +38,16 @@ void Downsampling::execute()
 {
     std::vector<H5Helper::DatasetType> types = {
         H5Helper::DatasetType::BASIC_3D,
+        H5Helper::DatasetType::RESHAPED_3D,
         H5Helper::DatasetType::CUBOID,
-        H5Helper::DatasetType::CUBOID_ATTR
+        H5Helper::DatasetType::CUBOID_C,
+        H5Helper::DatasetType::CUBOID_D,
+        H5Helper::DatasetType::CUBOID_S,
+        H5Helper::DatasetType::CUBOID_ATTR,
+        H5Helper::DatasetType::CUBOID_ATTR_C,
+        H5Helper::DatasetType::CUBOID_ATTR_D,
+        H5Helper::DatasetType::CUBOID_ATTR_S,
     };
-    // TODO - downsampling of MASK_3D PHI, K, D, S datasets
 
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
@@ -81,25 +87,30 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     H5Helper::Vector chunkDimsDst;
     H5Helper::Vector3D chunkDimsDst3D;
 
+    Helper::printDebugTwoColumns2S("Size", dimsSrc);
+
     // Compute ratio
-    float ratio = float(getSettings()->getMaxSize()) / std::max(std::max(dimsSrc3D.z(), dimsSrc3D.y()), dimsSrc3D.x());
+    hsize_t maxDim = std::max(std::max(dimsSrc3D.z(), dimsSrc3D.y()), dimsSrc3D.x());
+    float ratio = float(getSettings()->getMaxSize()) / maxDim;
     // Check downsampling size
     if (ratio >= 1) {
-        Helper::printErrorMsg("Bad destination size for downsampling");
+        Helper::printErrorMsg("Bad destination size for downsampling (" + std::to_string(getSettings()->getMaxSize()) + " >= " + std::to_string(maxDim) + ")");
         return;
     }
 
     // Compute destination dims
-    computeDstDims(dimsSrc3D, ratio, dimsDst3D, chunkDimsDst3D, getSettings()->getMaxChunkSize(), log);
+    computeDstDims(dimsSrc3D, ratio, dimsDst3D, chunkDimsDst3D, getSettings()->getMaxChunkSize());
 
     // For 4D datasets
     if (dimsSrc.getLength() == 4) {
-        chunkDimsDst = H5Helper::Vector4D(getSettings()->getMaxChunkSize(), chunkDimsDst3D); // Maybe better is (1, chunkSizeDst3D)
+        chunkDimsDst = H5Helper::Vector4D(1, chunkDimsDst3D); // or (getSettings()->getMaxChunkSize(), chunkSizeDst3D)?
         dimsDst = H5Helper::Vector4D(H5Helper::Vector4D(dimsSrc).w(), dimsDst3D);
     } else { // 3D datasets
         chunkDimsDst = chunkDimsDst3D;
         dimsDst = dimsDst3D;
     }
+
+    Helper::printDebugTwoColumns2S("New size", dimsDst);
 
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName() + "_" + std::to_string(getSettings()->getMaxSize()), dimsDst, chunkDimsDst, true, log);
@@ -133,7 +144,7 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
             dstData = new float[dimsDst3D.x() * dimsDst3D.y() * dimsDst3D.z()]();
             resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(), dimsDst3D.z());
             if (dimsSrc.getLength() == 4)
-                dstDataset->writeDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsDst3D.z(), dimsSrc3D.y(), dimsDst3D.x()), dstData, log);
+                dstDataset->writeDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsDst3D.z(), dimsDst3D.y(), dimsDst3D.x()), dstData, log);
             else
                 dstDataset->writeDataset(dstData, log);
             delete[] srcData;
@@ -179,17 +190,17 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
 
     if (srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR)
-            && srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR)
-            && srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR)
-            && srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR)
-            ) {
-        hsize_t z = Helper::round(srcDataset->readAttributeI(H5Helper::POSITION_Z_ATTR, log) * ratio);
-        hsize_t y = Helper::round(srcDataset->readAttributeI(H5Helper::POSITION_Y_ATTR, log) * ratio);
-        hsize_t x = Helper::round(srcDataset->readAttributeI(H5Helper::POSITION_X_ATTR, log) * ratio);
-
-        dstDataset->setAttribute(H5Helper::POSITION_Z_ATTR, z, log);
-        dstDataset->setAttribute(H5Helper::POSITION_Y_ATTR, y, log);
-        dstDataset->setAttribute(H5Helper::POSITION_X_ATTR, x, log);
+            && srcDataset->hasAttribute(H5Helper::POSITION_Y_ATTR)
+            && srcDataset->hasAttribute(H5Helper::POSITION_X_ATTR)) {
+        hsize_t z = srcDataset->readAttributeI(H5Helper::POSITION_Z_ATTR, log);
+        hsize_t y = srcDataset->readAttributeI(H5Helper::POSITION_Y_ATTR, log);
+        hsize_t x = srcDataset->readAttributeI(H5Helper::POSITION_X_ATTR, log);
+        dstDataset->setAttribute(H5Helper::POSITION_Z_ATTR, Helper::round(z * ratio), log);
+        dstDataset->setAttribute(H5Helper::POSITION_Y_ATTR, Helper::round(y * ratio), log);
+        dstDataset->setAttribute(H5Helper::POSITION_X_ATTR, Helper::round(x * ratio), log);
+        dstDataset->setAttribute(H5Helper::SRC_POSITION_Z_ATTR, z, log);
+        dstDataset->setAttribute(H5Helper::SRC_POSITION_Y_ATTR, y, log);
+        dstDataset->setAttribute(H5Helper::SRC_POSITION_X_ATTR, x, log);
     }
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("dataset resampling", t0, t1);
@@ -203,7 +214,7 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
  * @param[out] chunkDims Chunk dims
  * @param[in] maxChunkSize Maximal chunk size
  */
-void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims, hsize_t maxChunkSize, bool log)
+void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims, hsize_t maxChunkSize)
 {
     dimsDst.z(Helper::round(dimsSrc.z() * ratio));
     dimsDst.y(Helper::round(dimsSrc.y() * ratio));
@@ -219,7 +230,6 @@ void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Hel
     if (chunkDims.z() > dimsDst.z()) chunkDims.z(dimsDst.z());
     if (chunkDims.y() > dimsDst.y()) chunkDims.y(dimsDst.y());
     if (chunkDims.x() > dimsDst.x()) chunkDims.x(dimsDst.x());
-    Helper::printDebugTwoColumns2S("new size", dimsDst);
 }
 
 /**

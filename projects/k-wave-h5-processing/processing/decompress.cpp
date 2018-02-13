@@ -79,7 +79,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     // Second decoding parameter - period
     // Third encoding parameter - number of harmonic frequencies
-    CompressHelper *compressHelper = new CompressHelper(srcDataset->readAttributeI(H5Helper::C_PERIOD_ATTR, log), mos, srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log));
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeI(H5Helper::C_PERIOD_ATTR, log), mos, srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log));
 
     if (log)
         Helper::printDebugMsg("Decompression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
@@ -153,8 +153,8 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     // If we have enough memory - minimal for one full step in 3D space
     if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2 + outputStepSize) {
         // Complex buffers for last coefficients
-        floatC *cC = new floatC[stepSize / 2]();
-        floatC *lC = new floatC[stepSize / 2]();
+        H5Helper::floatC *cC = new H5Helper::floatC[stepSize / 2]();
+        H5Helper::floatC *lC = new H5Helper::floatC[stepSize / 2]();
 
         // Variable for writing multiple steps at once
         hsize_t stepsToWrite = (dstDataset->getRealNumberOfElmsToLoad() - stepSize + outputStepSize) / outputStepSize;
@@ -212,13 +212,13 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
                                 // Copy first coefficients
                                 if (frameGlobal == 0)
-                                    lC[pH] = conj(floatC(dataC[pHC], dataC[pHC + 1]));
+                                    lC[pH] = conj(H5Helper::floatC(dataC[pHC], dataC[pHC + 1]));
 
                                 // Don't load last two coefficients (duplicate)
                                 if (frameGlobal < steps - 1) {
                                     hsize_t fPHC = frameOffset + pHC;
                                     // Read coefficient
-                                    cC[pH] = conj(floatC(dataC[fPHC], dataC[fPHC + 1]));
+                                    cC[pH] = conj(H5Helper::floatC(dataC[fPHC], dataC[fPHC + 1]));
                                 }
                             }
 

@@ -63,7 +63,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             H5Helper::Vector3D dims = sourceInputDataset->getDims();
             float *data = 0;
             sourceInputDataset->readDataset(H5Helper::Vector3D(0, 0, 0), H5Helper::Vector3D(1, dims.y(), 1), data);
-            settings->setPeriod(CompressHelper::findPeriod(data, dims.y()));
+            settings->setPeriod(H5Helper::CompressHelper::findPeriod(data, dims.y()));
             sourceInputDataset->setAttribute("period", settings->getPeriod());
             delete[] data;
         } else if (sourceInputDataset->hasAttribute("period")) {

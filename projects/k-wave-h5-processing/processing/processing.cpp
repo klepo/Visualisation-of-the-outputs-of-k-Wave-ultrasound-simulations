@@ -71,6 +71,16 @@ bool Processing::checkDatasetType(H5Helper::DatasetType datasetType, std::vector
     return false;
 }
 
+void Processing::addTime(double t)
+{
+    time += t;
+}
+
+void Processing::addSize(hsize_t s)
+{
+    size += s;
+}
+
 /**
  * @brief Returns settings
  * @return Settings
@@ -78,6 +88,16 @@ bool Processing::checkDatasetType(H5Helper::DatasetType datasetType, std::vector
 Settings *Processing::getSettings() const
 {
     return settings;
+}
+
+double Processing::getTotalProcessingTime()
+{
+    return time;
+}
+
+hsize_t Processing::getTotalProcessingSize()
+{
+    return size;
 }
 
 /**

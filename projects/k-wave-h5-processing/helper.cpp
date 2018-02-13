@@ -71,7 +71,7 @@ void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int
     unsigned int widthTmp = width;
     if (widthTmp <= first.length())
         widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
-    std::cout << "\t" << std::setw(widthTmp) << std::left << first << std::setw(widthTmp) << std::left << second << std::endl;
+    std::cout << "\t" << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second << std::endl;
 }
 
 void printDebugTwoColumnsTab(std::string first, unsigned long long second, unsigned int width)
@@ -102,7 +102,7 @@ void printDebugTwoColumns2S(std::string first, std::string second, unsigned int 
     unsigned int widthTmp = width;
     if (widthTmp <= first.length())
         widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
-    std::cout << "  " << std::setw(widthTmp) << std::left << first << std::setw(widthTmp) << std::left << second << std::endl;
+    std::cout << "  " << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second << std::endl;
 }
 
 void printDebugTwoColumns2S(std::string first, int second, unsigned int width)

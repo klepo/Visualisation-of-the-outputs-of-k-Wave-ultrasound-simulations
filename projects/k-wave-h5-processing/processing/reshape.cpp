@@ -52,13 +52,13 @@ void Reshape::execute()
 
             H5Helper::Vector3D dims(max.z() - min.z() + 1, max.y() - min.y() + 1, max.x() - min.x() + 1);
 
-            // Compute chunk size according to min/max position
+            // Compute chunk dims according to min/max position
             H5Helper::Vector4D chunkDims;
             chunkDims.w(1);
             chunkDims.z(std::min(getSettings()->getMaxChunkSize(), dims.z()));
             chunkDims.y(std::min(getSettings()->getMaxChunkSize(), dims.y()));
             chunkDims.x(std::min(getSettings()->getMaxChunkSize(), dims.x()));
-            //Helper::printDebugTwoColumns2S("new chunk size", chunkDims);
+            Helper::printDebugTwoColumns2S("New chunk dims", chunkDims);
 
             H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
             for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
@@ -159,8 +159,8 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         getOutputFile()->createGroup(dataset->getName(), false, log);
         H5Helper::Group *group = getOutputFile()->openGroup(dataset->getName(), log);
         // Create dataset in group
-        group->createDatasetF("0", datasetDims, chunkDims, true, log);
-        dstDataset = group->openDataset("0", log);
+        group->createDatasetF("1", datasetDims, chunkDims, true, log);
+        dstDataset = group->openDataset("1", log);
     } else if (datasetType == H5Helper::DatasetType::BASIC_INDEX) {
         // 3D dataset
         getOutputFile()->createDatasetF(dataset->getName(), H5Helper::Vector3D(datasetDims), H5Helper::Vector3D(chunkDims), true, log);

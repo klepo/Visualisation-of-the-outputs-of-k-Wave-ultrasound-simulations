@@ -37,12 +37,16 @@ public:
     H5Helper::File *getOutputFile() const;
     DtsForPcs *getDtsForPcs() const;
     Settings *getSettings() const;
+    double getTotalProcessingTime();
+    hsize_t getTotalProcessingSize();
 
 protected:
     /// Pure virtual execute function
     virtual void execute() = 0;
     virtual void copyAttributes(H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset) final;
     bool checkDatasetType(H5Helper::DatasetType datasetType, std::vector<H5Helper::DatasetType> types);
+    void addTime(double t);
+    void addSize(hsize_t s);
 
 private:
     Processing(const Processing &);
@@ -50,6 +54,8 @@ private:
     H5Helper::File *outputFile;
     DtsForPcs *dtsForPcs;
     Settings *settings;
+    double time = 0;
+    hsize_t size = 0;
 };
 
 #endif // PROCESSING_H

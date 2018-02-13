@@ -52,7 +52,11 @@ void Compress::execute()
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
             if (checkDatasetType(datasetType, types)) {
                 Helper::printDebugMsg("Compression of dataset " + dataset->getName());
+                double t00 = H5Helper::getTime();
                 compressDataset(dataset, getSettings()->getFlagLog());
+                double t11 = H5Helper::getTime();
+                addTime(t11 - t00);
+                addSize(dataset->getSize() * 4);
                 count++;
                 Helper::printDebugMsg("Compression of dataset " + dataset->getName() + " done");
             }
@@ -80,7 +84,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     // First encoding parameter - multiple of overlap size
     // Second encoding parameter - period
     // Third encoding parameter - number of harmonic frequencies
-    CompressHelper *compressHelper = new CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonic(), true);
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonic(), true);
 
     if (log)
          Helper::printDebugMsg("Compression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
@@ -153,10 +157,10 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     // If we have enough memory - minimal for one full step in 3D space
     if (srcDataset->getNumberOfElmsToLoad() >= outputStepSize * 3) {
         // Complex buffers for accumulation
-        floatC *sCTmp1 = new floatC[outputStepSize / 2]();
-        floatC *sCTmp2 = new floatC[outputStepSize / 2]();
+        H5Helper::floatC *sCTmp1 = new H5Helper::floatC[outputStepSize / 2]();
+        H5Helper::floatC *sCTmp2 = new H5Helper::floatC[outputStepSize / 2]();
         // Output buffer
-        floatC *dataC = new floatC[outputStepSize / 2]();
+        H5Helper::floatC *dataC = new H5Helper::floatC[outputStepSize / 2]();
 
         hsize_t frame = 0;
 
@@ -198,7 +202,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 
                         // Check if we are at saving point
                         if (savingFlag) {
-                            floatC sC;
+                            H5Helper::floatC sC;
 
                             // Select accumulated value
                             if (oddFrameFlag) {
