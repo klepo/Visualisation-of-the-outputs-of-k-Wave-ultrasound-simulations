@@ -84,7 +84,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     // First encoding parameter - multiple of overlap size
     // Second encoding parameter - period
     // Third encoding parameter - number of harmonic frequencies
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonic(), true);
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonics(), true);
 
     if (log)
          Helper::printDebugMsg("Compression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
@@ -159,8 +159,6 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
         // Complex buffers for accumulation
         H5Helper::floatC *sCTmp1 = new H5Helper::floatC[outputStepSize / 2]();
         H5Helper::floatC *sCTmp2 = new H5Helper::floatC[outputStepSize / 2]();
-        // Output buffer
-        H5Helper::floatC *dataC = new H5Helper::floatC[outputStepSize / 2]();
 
         hsize_t frame = 0;
 
@@ -193,7 +191,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     hsize_t pOffset = compressHelper->getHarmonics() * hsize_t(p);
 
                     //For every harmonics
-                    for (hssize_t ih = 0; ih < hssize_t(compressHelper->getHarmonics()); ih++) {
+                    for (hsize_t ih = 0; ih < hsize_t(compressHelper->getHarmonics()); ih++) {
                         hsize_t pH = pOffset + ih;
 
                         // Correlation step
@@ -201,34 +199,33 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                         sCTmp2[pH] += compressHelper->getBE_1()[ih * bSize + stepLocal] * data[sP];
 
                         // Check if we are at saving point
-                        if (savingFlag) {
-                            H5Helper::floatC sC;
+                        if (savingFlag && frame > 0) {
+                            hsize_t pHC = 2 * pOffset + 2 * ih;
 
                             // Select accumulated value
                             if (oddFrameFlag) {
-                                sC = sCTmp1[pH];
-                                sCTmp1[pH] = 0;
+                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sCTmp1[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC);
+                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp1[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
                             } else {
-                                sC = sCTmp2[pH];
-                                sCTmp2[pH] = 0;
-                            }
-
-                            // Drop first "half" frame
-                            if (frame > 0) {
-                                hsize_t pHC = 2 * pOffset + 2 * ih;
-
-                                // Save complex coefficients
-                                dataC[pH] = sC;
-
-                                // Min/max values
-                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sC), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC);
-                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sC), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
+                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC);
+                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
                             }
                         }
                     }
                 }
 
                 if (savingFlag) {
+
+                    H5Helper::floatC *dataC;
+
+                    // Select accumulated value
+                    if (oddFrameFlag) {
+                        dataC = sCTmp1;
+                    } else {
+                        dataC = sCTmp2;
+                    }
+
+                    // Drop first "half" frame
                     if (frame > 0) {
                         if (log)
                             Helper::printDebugMsgStart("Saving frame " + std::to_string(frame) + "/" + std::to_string(outputSteps));
@@ -241,6 +238,10 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                         if (log)
                             Helper::printDebugMsg("saved");
                     }
+
+                    // Set zeros
+                    memset(dataC, 0, (outputStepSize / 2) * sizeof(dataC));
+
                     // Increment frame
                     frame++;
                 }
@@ -248,7 +249,6 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
             delete[] data;
         }
         // Delete buffers
-        delete[] dataC;
         delete[] sCTmp1;
         delete[] sCTmp2;
     } else {
@@ -270,7 +270,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV, log);
     dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
     dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
-    dstDataset->setAttribute(H5Helper::C_HARMONICS_ATTR, getSettings()->getHarmonic(), log);
+    dstDataset->setAttribute(H5Helper::C_HARMONICS_ATTR, getSettings()->getHarmonics(), log);
     dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "c", log);
     dstDataset->setAttribute(H5Helper::C_PERIOD_ATTR, getSettings()->getPeriod(), log);
     dstDataset->setAttribute(H5Helper::C_MOS_ATTR, getSettings()->getMOS(), log);

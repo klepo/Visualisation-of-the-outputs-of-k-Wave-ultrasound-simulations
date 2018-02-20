@@ -44,16 +44,10 @@ int main(int argc, char **argv)
     //Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
 
     // TODO:
-    // - odzkoušet downsampling cuboidů atd.
-    // OK - udělat rozdíl datasetů - výpočet chyby
     // - šlo by odhadnout mos?
-    // OK - potřebuji znát periodu
-    // OK - funkce pro přidávání lomítka
-    // OK - sjednotit určité části komprese a dekomprese
     // - ošetřit maximální počet prvků podle RAM
     // - funkce pro error hlášky
     // - vyřešit případy, kdy je vstup i výstup stejný
-    // OK - harmonické frekvence
     // - kolize souborů
 
     //std::exit(EXIT_SUCCESS);
@@ -94,6 +88,10 @@ int main(int argc, char **argv)
             Helper::printDebugTitle("Compression");
             Compress *compress = new Compress(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             compress->execute();
+            //std::cout << "utime=" << compress->getTotalProcessingTime() / 1000 << "s" << std::endl;
+            //std::cout << double(compress->getTotalProcessingSize() * 8 / 1000) / (compress->getTotalProcessingTime() / 1000) << " ";
+            //std::cout << filesContext->getSimOutputFile()->getNumberOfElmsToLoad() << " ";
+            //std::cout << compress->getTotalProcessingTime() / 1000 << " ";
             delete compress;
         }
 
@@ -123,6 +121,11 @@ int main(int argc, char **argv)
 
     Helper::printDebugTime("the entire process", t0, t1);
     Helper::printDebugMsg("----------------------------------------");
+
+    //std::cout << H5Helper::getSystemPhysicalMemoryCurrentlyUsedByProc() << std::endl;
+    //std::cout << "utime=" << (t1 - t0) / 1000 << "s" << std::endl;
+    //std::cout << "maxrss="<< H5Helper::getPeakSystemPhysicalMemoryCurrentlyUsedByProc() / 1000 << "kB" << std::endl;
+    //std::cout << H5Helper::getPeakSystemPhysicalMemoryCurrentlyUsedByProc() / 1000 << std::endl;
 
     std::exit(EXIT_SUCCESS);
 }

@@ -9,11 +9,11 @@ cmake_minimum_required(VERSION 2.8.12)
 project(k-wave-h5-projects)
 
 set(DIRS
-    hdf5helper
+    k-wave-h5-helper
     k-wave-h5-processing
     h5-rename
     )
-    
+
 option(BUILD_K-WAVE-H5-VISUALIZER "Build the k-wave-h5-visualizer" OFF)
 
 if (BUILD_K-WAVE-H5-VISUALIZER)

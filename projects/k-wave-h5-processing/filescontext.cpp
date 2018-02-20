@@ -33,7 +33,7 @@ FilesContext::FilesContext(Settings *settings)
             simOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
     } else {
         Helper::printErrorMsg("Missing parameter -f (simulation output filename)");
-        Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+        Helper::printMsg(settings->getParamsDefinition().getHelp());
         exit(EXIT_FAILURE);
     }
 

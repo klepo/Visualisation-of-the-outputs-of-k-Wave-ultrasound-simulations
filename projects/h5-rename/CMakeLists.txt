@@ -28,5 +28,5 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT $
 
 message(STATUS "PROJECT_NAME=" "${PROJECT_NAME}")
 
-# hdf5helper library
-target_link_libraries(${PROJECT_NAME} hdf5helper)
+# k-wave-h5-helper library
+target_link_libraries(${PROJECT_NAME} k-wave-h5-helper)

@@ -7,7 +7,7 @@
  *
  * @brief       The implementation file containing CompressHelper class definition.
  *
- * @license     This file is part of the k-Wave-h5-processing tool for processing the HDF5 data
+ * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
  *              distributed and modified under the terms of the LGPL version 3 open source
  *              license. A copy of the LGPL license should have been received with this file.
@@ -347,8 +347,6 @@ floatC *CompressHelper::getBE() const
 {
     return bE;
 }
-
-
 
 void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
 {

@@ -34,6 +34,7 @@ namespace Helper
 void printDebugTitle(std::string msg);
 void printDebugTime(std::string ofWhat, double t0, double t1);
 void printDebugMsg(std::string msg);
+void printMsg(std::string msg);
 void printDebugMsgStart(std::string msg);
 void printDebugMsg2S(std::string msg);
 void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int width = 20);

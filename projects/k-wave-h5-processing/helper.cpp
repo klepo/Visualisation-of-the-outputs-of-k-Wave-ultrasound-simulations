@@ -50,6 +50,11 @@ void printDebugMsg(std::string msg)
     std::cout << msg << std::endl;
 }
 
+void printMsg(std::string msg)
+{
+    std::cout << msg << std::endl;
+}
+
 void printDebugMsgStart(std::string msg)
 {
     if (!enableDebugMsgs)

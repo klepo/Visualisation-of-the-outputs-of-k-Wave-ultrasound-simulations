@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         }
     } else {
         Helper::printErrorMsg("Missing parameter -f (simulation output filename)");
-        Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+        Helper::printMsg(settings->getParamsDefinition().getHelp());
         exit(EXIT_FAILURE);
     }
 
@@ -54,13 +54,13 @@ int main(int argc, char **argv)
     if (settings->getFlagRenameObject()) {
         if (settings->getName().empty()) {
             Helper::printErrorMsg("Missing parameter -n (object name)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
         if (settings->getValue().empty()) {
             Helper::printErrorMsg("Missing parameter -v (new object name)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
             }
         } else {
             Helper::printErrorMsg("Wrong parameter -n (object with given name does not exist)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
     }
@@ -83,13 +83,13 @@ int main(int argc, char **argv)
     else if (settings->getFlagRenameAttribute()) {
         if (settings->getName().empty()) {
             Helper::printErrorMsg("Missing parameter -n (attribute name)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
         if (settings->getValue().empty()) {
             Helper::printErrorMsg("Missing parameter -v (new attribute name)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
             srcObjectName = "/";
         if (srcAttributeName.empty()) {
             Helper::printErrorMsg("Wrong parameter -n (given attribute does not exist)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
@@ -113,13 +113,13 @@ int main(int argc, char **argv)
             dstObjectName = "/";
         if (dstAttributeName.empty()) {
             Helper::printErrorMsg("Wrong parameter -v (missing destination attribute)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
         if (srcObjectName != dstObjectName) {
             Helper::printErrorMsg("Wrong parameter -n or -v (src object path != dst object path)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
@@ -136,13 +136,13 @@ int main(int argc, char **argv)
     else if (settings->getFlagChangeAttributeValue()) {
         if (settings->getName().empty()) {
             Helper::printErrorMsg("Missing parameter -n (attribute name)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
         if (settings->getValue().empty()) {
             Helper::printErrorMsg("Missing parameter -v (new attribute value)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
             srcObjectName = "/";
         if (srcAttributeName.empty()) {
             Helper::printErrorMsg("Wrong parameter -n (given attribute does not exist)");
-            Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+            Helper::printMsg(settings->getParamsDefinition().getHelp());
             exit(EXIT_FAILURE);
         }
 
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
                 object = file->openDataset(srcObjectName);
             } else {
                 Helper::printErrorMsg("Wrong parameter -n (given dataset or group does not exist)");
-                Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+                Helper::printMsg(settings->getParamsDefinition().getHelp());
                 exit(EXIT_FAILURE);
             }
 
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
                 object->setAttribute(srcAttributeName, settings->getValue());
             } else {
                 Helper::printErrorMsg("Unsupported attribute datatype");
-                Helper::printDebugMsg(settings->getParamsDefinition().getHelp());
+                Helper::printMsg(settings->getParamsDefinition().getHelp());
                 exit(EXIT_FAILURE);
             }
             delete attribute;

@@ -17,15 +17,17 @@ if (WIN32)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/processing)
 
 file(GLOB SRCS "*.h" "*.cpp")
+file(GLOB SRCS2 "processing/*.h" "processing/*.cpp")
 
-add_executable(${PROJECT_NAME} ${SRCS})
+add_executable(${PROJECT_NAME} ${SRCS} ${SRCS2})
 
 # Visual Studio startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 message(STATUS "PROJECT_NAME=" "${PROJECT_NAME}")
 
-# hdf5helper library
-target_link_libraries(${PROJECT_NAME} hdf5helper)
+# k-wave-h5-helper library
+target_link_libraries(${PROJECT_NAME} k-wave-h5-helper)

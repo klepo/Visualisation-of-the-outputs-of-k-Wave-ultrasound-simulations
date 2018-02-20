@@ -65,7 +65,7 @@ void Settings::loadParams(int argc, char **argv)
     // Period
     paramsDefinition.defineParamsFlag("p", ParamsDefinition::ULONGLONG);
 
-    // Harmonic
+    // Harmonics
     paramsDefinition.defineParamsFlag("h", ParamsDefinition::ULONGLONG);
 
     // Multiple of overlap size
@@ -137,7 +137,7 @@ void Settings::loadParams(int argc, char **argv)
                              "  -p period ............................. Optional parameter. Sets period of input signal for\n"
                              "                                          compression of time series HIFU data.\n"
                              "\n"
-                             "  -h harmonic ........................... Optional parameter. Sets multiple of harmonic frequency for\n"
+                             "  -h harmonics........................... Optional parameter. Sets multiple of harmonic frequency for\n"
                              "                                          compression of time series HIFU data.\n"
                              "\n"
                              "  -mos size ............................. Optional parameter. Sets multiple of overlap size for\n"
@@ -430,7 +430,7 @@ void Settings::setPeriod(const unsigned long long &value)
  * @brief Returns multiple of harmonic frequency for compression
  * @return Harmonic
  */
-unsigned long long Settings::getHarmonic() const
+unsigned long long Settings::getHarmonics() const
 {
     return harmonic;
 }

@@ -2,7 +2,7 @@
  * @file        compresshelper.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        26  September 2016 (created) \n
+ * @date        26 September 2016 (created) \n
  *              26 September 2017 (updated)
  *
  * @brief       The header file with CompressHelper class declaration.

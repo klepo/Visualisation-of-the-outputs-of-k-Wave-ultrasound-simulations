@@ -65,7 +65,7 @@ public:
     void setPeriod(const unsigned long long &value);
 
     // Harmonic
-    unsigned long long getHarmonic() const;
+    unsigned long long getHarmonics() const;
     void setHarmonic(const unsigned long long &value);
 
     // Selected names

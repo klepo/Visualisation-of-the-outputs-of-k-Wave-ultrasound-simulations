@@ -36,8 +36,8 @@ add_executable(${PROJECT_NAME} ${SRCS} ${UIS_WRAPPED})
 # Visual Studio startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-# hdf5helper and Qt library
-target_link_libraries(${PROJECT_NAME} hdf5helper Qt5::Widgets)
+# k-wave-h5-helper and Qt library
+target_link_libraries(${PROJECT_NAME} k-wave-h5-helper Qt5::Widgets)
 
 message(STATUS "PROJECT_NAME=" "${PROJECT_NAME}")
 
@@ -70,8 +70,8 @@ if (WIN32)
   # debug version
   #COMMAND ${CMAKE_COMMAND} -E copy ${Qt5Core_DIR}/../../../bin/libEGLd.dll          ${CMAKE_BINARY_DIR}/Debug
   #COMMAND ${CMAKE_COMMAND} -E copy ${Qt5Core_DIR}/../../../bin/libGLESv2d.dll       ${CMAKE_BINARY_DIR}/Debug
-    
-    add_custom_target(Qt5CopyDLLs 
+
+    add_custom_target(Qt5CopyDLLs
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${QT_DLL_DIR}/Qt5Cored.dll"
         "${QT_DLL_DIR}/Qt5Guid.dll"
@@ -97,7 +97,7 @@ if (WIN32)
         "${CMAKE_CURRENT_BINARY_DIR}/Release/platforms")
 
     if((EXISTS "${QT_DLL_DIR}/icudt54.dll") AND (EXISTS "${QT_DLL_DIR}/icudt54.dll") AND (EXISTS "${QT_DLL_DIR}/icuuc54.dll"))
-        add_custom_target(Qt5CopyIcuDLLs 
+        add_custom_target(Qt5CopyIcuDLLs
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${QT_DLL_DIR}/icudt54.dll"
             "${QT_DLL_DIR}/icuin54.dll"
@@ -109,9 +109,9 @@ if (WIN32)
             "${QT_DLL_DIR}/icudt54.dll"
             "${QT_DLL_DIR}/icuuc54.dll"
             "${CMAKE_CURRENT_BINARY_DIR}/Release")
-        add_dependencies(${PROJECT_NAME} Qt5CopyIcuDLLs) 
+        add_dependencies(${PROJECT_NAME} Qt5CopyIcuDLLs)
     endif()
-        
-    add_dependencies(${PROJECT_NAME} Qt5CopyDLLs) 
-    
+
+    add_dependencies(${PROJECT_NAME} Qt5CopyDLLs)
+
 endif()
