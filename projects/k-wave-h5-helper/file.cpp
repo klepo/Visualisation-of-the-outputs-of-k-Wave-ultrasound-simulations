@@ -863,6 +863,8 @@ size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
         // linux file contains this-process info
         FILE* file = fopen("/proc/self/status", "r");
 
+        char buffer[1024] = "";
+
         int currRealMem;
 
         // read the entire file
@@ -888,28 +890,30 @@ size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc()
         // linux file contains this-process info
         FILE* file = fopen("/proc/self/status", "r");
 
+        char buffer[1024] = "";
+
         //int currRealMem;
-        //int peakRealMem;
+        int peakRealMem;
         //int currVirtMem;
-        int peakVirtMem;
+        //int peakVirtMem;
 
         // read the entire file
         while (fscanf(file, " %1023s", buffer) == 1) {
             /*if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
                 fscanf(file, " %d", &currRealMem);
-            }
+            }*/
             if (strcmp(buffer, "VmHWM:") == 0) {
                 fscanf(file, " %d", &peakRealMem);
             }
-            if (strcmp(buffer, "VmSize:") == 0) {
+            /*if (strcmp(buffer, "VmSize:") == 0) {
                 fscanf(file, " %d", &currVirtMem);
-            }*/
+            }
             if (strcmp(buffer, "VmPeak:") == 0) {
                 fscanf(file, " %d", &peakVirtMem);
-            }
+            }*/
         }
         fclose(file);
-        return size_t(peakVirtMem);
+        return size_t(peakRealMem);
     #endif
 
     #ifdef _WIN32
