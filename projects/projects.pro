@@ -17,8 +17,10 @@ SUBDIRS +=  \
     tests \
     h5-rename \
 
-greaterThan(QT_VERSION, 5.2) {
-    SUBDIRS += \
-        k-wave-h5-visualizer \
-        \ #k-wave-h5-processing-gui
+greaterThan(QT_VERSION, 5) {
+    greaterThan(QT_MINOR_VERSION, 2) {
+        SUBDIRS += \
+            k-wave-h5-visualizer \
+            \ #k-wave-h5-processing-gui
+    }
 }
