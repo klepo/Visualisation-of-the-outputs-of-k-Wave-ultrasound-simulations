@@ -20,7 +20,11 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 # Check Qt version
-lessThan(QT_VERSION, 5.2): error(Qt version is too old)
+greaterThan(QT_MAJOR_VERSION, 5) {
+    greaterThan(QT_MINOR_VERSION, 2) {
+        error(Qt version is too old)
+    }
+}
 
 # k-wave-h5-helper library
 include($$PWD/../k-wave-h5-helper/k-wave-h5-helper.pri)
