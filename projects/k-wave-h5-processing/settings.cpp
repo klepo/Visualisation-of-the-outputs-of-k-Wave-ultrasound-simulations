@@ -56,8 +56,8 @@ void Settings::loadParams(int argc, char **argv)
     // Size
     paramsDefinition.defineParamsFlag("s", ParamsDefinition::ULONGLONG);
 
-    // Chunk size
-    paramsDefinition.defineParamsFlag("ch", ParamsDefinition::ULONGLONG);
+    // Chunk sizes
+    paramsDefinition.defineParamsFlag("ch", ParamsDefinition::ULONGLONG_SEPARATED);
 
     // Block size
     paramsDefinition.defineParamsFlag("c", ParamsDefinition::ULONGLONG);
@@ -127,8 +127,8 @@ void Settings::loadParams(int argc, char **argv)
                              "  -s size ............................... Optional parameter. Max size for downsampling.\n"
                              "                                          Default size is 512.\n"
                              "\n"
-                             "  -ch chunkSize ......................... Optional parameter. The size for new chunks from 1 to\n"
-                             "                                          maximal appropriately value. Default size is 64 (64^3).\n"
+                             "  -ch chunkSize;chunkSize;... ........... Optional parameter. The sizes for new chunks (x;y;z;t;) from\n"
+                             "                                          1 to maximal appropriately value. Default sizes are 64;64;64;1.\n"
                              "\n"
                              "  -c blockSize .......................... Optional parameter. Sets number of data elements\n"
                              "                                          for block reading. Default value is based on available\n"
@@ -189,7 +189,7 @@ void Settings::loadParams(int argc, char **argv)
     setFlagNames(flags.at("names").getEnabled());
 
     if (flags.at("names").getEnabled()) {
-        std::list<std::string> names;
+        ParamsDefinition::ListOfStrings names;
         flags.at("names").getParams().readParam(0, &names);
         setNames(names);
     }
@@ -225,9 +225,9 @@ void Settings::loadParams(int argc, char **argv)
     }
 
     if (flags.at("ch").getEnabled()) {
-        unsigned long long maxChunkSize;
-        flags.at("ch").getParams().readParam(0, &maxChunkSize);
-        setMaxChunkSize(maxChunkSize);
+        ParamsDefinition::VectorOfULongLongs sizes;
+        flags.at("ch").getParams().readParam(0, &sizes);
+        setMaxChunkSizes(sizes);
     }
 
     if (flags.at("c").getEnabled()) {
@@ -354,19 +354,28 @@ void Settings::setMaxSize(const unsigned long long &value)
  * @brief Returns max chunk size
  * @return Max chunk size
  */
-unsigned long long Settings::getMaxChunkSize() const
+ParamsDefinition::VectorOfULongLongs Settings::getMaxChunkSizes() const
 {
-    return maxChunkSize;
+    return maxChunkSizes;
 }
 
 /**
  * @brief Sets max chunk size
  * @param[in] value Max chunk size
  */
-void Settings::setMaxChunkSize(const unsigned long long &value)
+void Settings::setMaxChunkSizes(const ParamsDefinition::VectorOfULongLongs &value)
 {
-    maxChunkSize = value;
-    Helper::printDebugTwoColumns2S("Chunk size for change chunks", maxChunkSize, 30);
+    maxChunkSizes = value;
+    for (size_t i = 0; i < value.size(); i++) {
+        maxChunkSizes[i] = value[i];
+    }
+    std::string sizesString;
+    for (ParamsDefinition::VectorOfULongLongs::const_iterator ci = maxChunkSizes.begin(); ci != maxChunkSizes.end(); ++ci) {
+        sizesString +=  std::to_string(*ci);
+        if (std::next(ci) != maxChunkSizes.end())
+            sizesString += " x ";
+    }
+    Helper::printDebugTwoColumns2S("New chunk sizes", sizesString, 30);
 }
 
 /**
@@ -405,6 +414,31 @@ void Settings::setMOS(const unsigned long long &value)
 {
     mOS = value;
     Helper::printDebugTwoColumns2S("Multiple of overlap size", mOS, 30);
+}
+
+unsigned long long Settings::getMaxChunkSizeX() const
+{
+    return maxChunkSizes.at(0);
+}
+
+unsigned long long Settings::getMaxChunkSizeY() const
+{
+    return maxChunkSizes.at(1);
+}
+
+unsigned long long Settings::getMaxChunkSizeZ() const
+{
+    return maxChunkSizes.at(2);
+}
+
+unsigned long long Settings::getMaxChunkSizeW() const
+{
+    return maxChunkSizes.at(3);
+}
+
+unsigned long long Settings::getMaxChunkSizeT() const
+{
+    return maxChunkSizes.at(3);
 }
 
 /**
@@ -449,7 +483,7 @@ void Settings::setHarmonic(const unsigned long long &value)
  * @brief Returns selected datasets or groups names
  * @return Selected datasets or groups names
  */
-std::list<std::string> Settings::getNames() const
+ParamsDefinition::ListOfStrings Settings::getNames() const
 {
     return names;
 }
@@ -458,11 +492,11 @@ std::list<std::string> Settings::getNames() const
  * @brief Settings::setNames
  * @param[in] value Selected datasets or groups names
  */
-void Settings::setNames(const std::list<std::string> &value)
+void Settings::setNames(const ParamsDefinition::ListOfStrings &value)
 {
     names = value;
     std::string namesString;
-    for (std::list<std::string>::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
+    for (ParamsDefinition::ListOfStrings::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
         namesString +=  *ci;
         namesString += ", ";
     }

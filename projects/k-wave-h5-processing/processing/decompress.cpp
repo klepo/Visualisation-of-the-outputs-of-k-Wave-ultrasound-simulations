@@ -186,7 +186,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
             // For every frame
             for (hsize_t frame = 0; frame < framesCount; frame++) {
-                hsize_t frameGlobal = framesOffset + frame;
+                hsize_t framesOffsetGlobal = framesOffset + frame;
                 hsize_t frameOffset = frame * stepSize;
                 // Decode steps
                 for (hsize_t stepLocal = 0; stepLocal < oSize; stepLocal++) {
@@ -211,11 +211,11 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                                 lC[pH] = cC[pH];
 
                                 // Copy first coefficients
-                                if (frameGlobal == 0)
+                                if (framesOffsetGlobal == 0)
                                     lC[pH] = conj(H5Helper::floatC(dataC[pHC], dataC[pHC + 1]));
 
                                 // Don't load last two coefficients (duplicate)
-                                if (frameGlobal < steps - 1) {
+                                if (framesOffsetGlobal < steps - 1) {
                                     hsize_t fPHC = frameOffset + pHC;
                                     // Read coefficient
                                     cC[pH] = conj(H5Helper::floatC(dataC[fPHC], dataC[fPHC + 1]));

@@ -36,20 +36,23 @@ ChangeChunks::ChangeChunks(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Set
  */
 void ChangeChunks::execute()
 {
-    std::vector<H5Helper::DatasetType> types = {
+    /*std::vector<H5Helper::DatasetType> types = {
         H5Helper::DatasetType::BASIC_3D,
         H5Helper::DatasetType::BASIC_3D_DWNSMPL,
         H5Helper::DatasetType::CUBOID,
-        H5Helper::DatasetType::CUBOID_ATTR
-    };
+        H5Helper::DatasetType::CUBOID_ATTR,
+        H5Helper::DatasetType::TIME_STEPS_INDEX,
+        H5Helper::DatasetType::BASIC_INDEX
+    };*/
 
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
+        hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
         int count = 0;
         for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             H5Helper::Dataset *dataset = it->second;
-            H5Helper::DatasetType datasetType = dataset->getType();
-            if (checkDatasetType(datasetType, types)) {
+            H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
+            if (datasetType != H5Helper::DatasetType::UNKNOWN) {
                 Helper::printDebugMsg("Change chunks of dataset " + dataset->getName());
                 changeChunksOfDataset(dataset, getSettings()->getFlagLog());
                 count++;
@@ -78,11 +81,12 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     H5Helper::Vector chunkDims(dims.getLength(), 1);
 
     // Set new chunk dims
-    for (hsize_t i = 0; i < dims.getLength(); i++) {
-        chunkDims[i] = getSettings()->getMaxChunkSize();
-        if (chunkDims[i] > dims[i]) chunkDims[i] = dims[i];
-        if (dims.getLength() > 3 && i < dims.getLength() - 3)
-            chunkDims[i] = 1;
+    ParamsDefinition::VectorOfULongLongs maxChunkSizes = getSettings()->getMaxChunkSizes();
+    //std::reverse(maxChunkSizes.begin(), maxChunkSizes.end());
+    for (hsize_t i = 0; i < maxChunkSizes.size() && i < chunkDims.getLength(); i++) {
+        chunkDims[dims.getLength() - i - 1] = maxChunkSizes.at(i);
+        if (chunkDims[dims.getLength() - i - 1] > dims[dims.getLength() - i - 1])
+            chunkDims[dims.getLength() - i - 1] = dims[dims.getLength() - i - 1];
     }
 
     Helper::printDebugTwoColumns2S("Chunk dims", srcDataset->getChunkDims());

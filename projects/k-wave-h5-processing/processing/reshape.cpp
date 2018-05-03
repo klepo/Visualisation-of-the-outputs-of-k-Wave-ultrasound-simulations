@@ -55,9 +55,9 @@ void Reshape::execute()
             // Compute chunk dims according to min/max position
             H5Helper::Vector4D chunkDims;
             chunkDims.w(1);
-            chunkDims.z(std::min(getSettings()->getMaxChunkSize(), dims.z()));
-            chunkDims.y(std::min(getSettings()->getMaxChunkSize(), dims.y()));
-            chunkDims.x(std::min(getSettings()->getMaxChunkSize(), dims.x()));
+            chunkDims.z(std::min(getSettings()->getMaxChunkSizeZ(), dims.z()));
+            chunkDims.y(std::min(getSettings()->getMaxChunkSizeY(), dims.y()));
+            chunkDims.x(std::min(getSettings()->getMaxChunkSizeX(), dims.x()));
             Helper::printDebugTwoColumns2S("New chunk dims", chunkDims);
 
             H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
@@ -117,6 +117,8 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
     H5Helper::DatasetType datasetType = dataset->getType(getDtsForPcs()->getSensorMaskSize());
 
     hsize_t steps = dataset->getDims()[1];
+
+    chunkDims.w(std::min(getSettings()->getMaxChunkSizeW(), steps));
 
     // Compute dataset size
     H5Helper::Vector4D datasetDims(steps, dims);

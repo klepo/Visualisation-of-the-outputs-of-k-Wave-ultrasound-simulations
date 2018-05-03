@@ -99,11 +99,15 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     }
 
     // Compute destination dims
-    computeDstDims(dimsSrc3D, ratio, dimsDst3D, chunkDimsDst3D, getSettings()->getMaxChunkSize());
+    H5Helper::Vector3D maxChunkDims(1);
+    maxChunkDims.x(getSettings()->getMaxChunkSizeX());
+    maxChunkDims.y(getSettings()->getMaxChunkSizeY());
+    maxChunkDims.z(getSettings()->getMaxChunkSizeZ());
+    computeDstDims(dimsSrc3D, maxChunkDims, ratio, dimsDst3D, chunkDimsDst3D);
 
     // For 4D datasets
     if (dimsSrc.getLength() == 4) {
-        chunkDimsDst = H5Helper::Vector4D(1, chunkDimsDst3D); // or (getSettings()->getMaxChunkSize(), chunkSizeDst3D)?
+        chunkDimsDst = H5Helper::Vector4D(std::min(getSettings()->getMaxChunkSizeW(), H5Helper::Vector4D(dimsSrc).w()), chunkDimsDst3D); // or (getSettings()->getMaxChunkSize(), chunkSizeDst3D)?
         dimsDst = H5Helper::Vector4D(H5Helper::Vector4D(dimsSrc).w(), dimsDst3D);
     } else { // 3D datasets
         chunkDimsDst = chunkDimsDst3D;
@@ -214,7 +218,7 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
  * @param[out] chunkDims Chunk dims
  * @param[in] maxChunkSize Maximal chunk size
  */
-void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims, hsize_t maxChunkSize)
+void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D maxChunkDims, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims)
 {
     dimsDst.z(Helper::round(dimsSrc.z() * ratio));
     dimsDst.y(Helper::round(dimsSrc.y() * ratio));
@@ -224,9 +228,9 @@ void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, float ratio, H5Hel
     if (dimsDst.y() < 1) dimsDst.y(1);
     if (dimsDst.x() < 1) dimsDst.x(1);
     // Chunk size
-    chunkDims.z(maxChunkSize);
-    chunkDims.y(maxChunkSize);
-    chunkDims.x(maxChunkSize);
+    chunkDims.z(maxChunkDims.x());
+    chunkDims.y(maxChunkDims.y());
+    chunkDims.x(maxChunkDims.z());
     if (chunkDims.z() > dimsDst.z()) chunkDims.z(dimsDst.z());
     if (chunkDims.y() > dimsDst.y()) chunkDims.y(dimsDst.y());
     if (chunkDims.x() > dimsDst.x()) chunkDims.x(dimsDst.x());

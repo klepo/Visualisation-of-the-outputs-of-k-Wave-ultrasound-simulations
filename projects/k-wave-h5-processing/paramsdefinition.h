@@ -41,6 +41,7 @@ public:
         LONGLONG,
         UINT,
         ULONGLONG,
+        ULONGLONG_SEPARATED,
         FLOAT,
         DOUBLE,
         LONGDOUBLE,
@@ -52,6 +53,7 @@ public:
 
     /// List of strings data type
     typedef std::list<std::string> ListOfStrings;
+    typedef std::vector<unsigned long long> VectorOfULongLongs;
 
     /**
      * @brief The Flag class represents wrapper for processing flag
@@ -103,6 +105,7 @@ public:
             std::vector<unsigned int> valuesUInt;
             std::vector<unsigned long> valuesUlong;
             std::vector<unsigned long long> valuesULongLong;
+            std::vector<VectorOfULongLongs> valuesULongLongSeparated;
             std::vector<float> valuesFloat;
             std::vector<double> valuesDouble;
             std::vector<long double> valuesLongDouble;

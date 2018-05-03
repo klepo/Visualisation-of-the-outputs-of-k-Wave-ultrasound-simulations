@@ -24,7 +24,6 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-#include <list>
 #include <iomanip>
 
 #include <paramsdefinition.h>
@@ -53,12 +52,18 @@ public:
     // Sizes
     unsigned long long getMaxSize() const;
     void setMaxSize(const unsigned long long &value);
-    unsigned long long getMaxChunkSize() const;
-    void setMaxChunkSize(const unsigned long long &value);
+    ParamsDefinition::VectorOfULongLongs getMaxChunkSizes() const;
+    void setMaxChunkSizes(const ParamsDefinition::VectorOfULongLongs &value);
     unsigned long long getBlockSize() const;
     void setBlockSize(const unsigned long long &value);
     unsigned long long getMOS() const;
     void setMOS(const unsigned long long &value);
+
+    unsigned long long getMaxChunkSizeX() const;
+    unsigned long long getMaxChunkSizeY() const;
+    unsigned long long getMaxChunkSizeZ() const;
+    unsigned long long getMaxChunkSizeW() const;
+    unsigned long long getMaxChunkSizeT() const;
 
     // Period
     unsigned long long getPeriod() const;
@@ -69,8 +74,8 @@ public:
     void setHarmonic(const unsigned long long &value);
 
     // Selected names
-    std::list<std::string> getNames() const;
-    void setNames(const std::list<std::string> &value);
+    ParamsDefinition::ListOfStrings getNames() const;
+    void setNames(const ParamsDefinition::ListOfStrings &value);
     bool getFlagNames() const;
     void setFlagNames(bool value);
 
@@ -107,14 +112,16 @@ private:
 
     // Size vars
     unsigned long long maxSize = 512;
-    unsigned long long maxChunkSize = 64;
     unsigned long long blockSize = 0;
     unsigned long long period = 0;
     unsigned long long harmonic = 1;
     unsigned long long mOS = 1;
 
+    ParamsDefinition::VectorOfULongLongs maxChunkSizes = {64, 64, 64, 1};
+    bool flagMaxChunkSizes = false;
+
     // Filter/selection by names
-    std::list<std::string> names;
+    ParamsDefinition::ListOfStrings names;
     bool flagNames = false;
 
     // Application modes

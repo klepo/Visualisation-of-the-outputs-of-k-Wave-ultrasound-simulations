@@ -73,6 +73,9 @@ void ParamsDefinition::Flag::Params::readParam(unsigned int index, void *value)
         case ParamsDefinition::ULONGLONG:
             static_cast<unsigned long long *>(value)[0] = valuesULongLong[localIndex];
             break;
+        case ParamsDefinition::ULONGLONG_SEPARATED:
+            static_cast<VectorOfULongLongs *>(value)[0] = valuesULongLongSeparated[localIndex];
+            break;
         case ParamsDefinition::FLOAT:
             static_cast<float *>(value)[0] = valuesFloat[localIndex];
             break;
@@ -115,6 +118,12 @@ std::string ParamsDefinition::Flag::Params::getParamString(unsigned int index)
         case ParamsDefinition::ULONGLONG:
             str = std::to_string(valuesULongLong[localIndex]);
             break;
+        case ParamsDefinition::ULONGLONG_SEPARATED: {
+            ParamsDefinition::VectorOfULongLongs::const_iterator ci;
+            for (ci = valuesULongLongSeparated[localIndex].begin(); ci != valuesULongLongSeparated[localIndex].end(); ++ci)
+                 str.append(std::to_string(*ci) + " ");
+            break;
+        }
         case ParamsDefinition::FLOAT:
             str = std::to_string(valuesFloat[localIndex]);
             break;
@@ -220,6 +229,13 @@ void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
             types.push_back(ParamsDefinition::ULONGLONG);
             indices.push_back(valuesULongLong.size() - 1);
             break;
+        case ParamsDefinition::ULONGLONG_SEPARATED: {
+            VectorOfULongLongs emptyVector;
+            valuesULongLongSeparated.push_back(emptyVector);
+            types.push_back(ParamsDefinition::ULONGLONG_SEPARATED);
+            indices.push_back(valuesULongLongSeparated.size() - 1);
+            break;
+        }
         case ParamsDefinition::FLOAT:
             valuesFloat.push_back(0);
             types.push_back(ParamsDefinition::FLOAT);
@@ -240,12 +256,13 @@ void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
             types.push_back(ParamsDefinition::STRING);
             indices.push_back(valuesString.size() - 1);
             break;
-        case ParamsDefinition::STRINGS_SEPARATED:
+        case ParamsDefinition::STRINGS_SEPARATED: {
             ListOfStrings emptyVector;
             valuesStringSeparated.push_back(emptyVector);
             types.push_back(ParamsDefinition::STRINGS_SEPARATED);
             indices.push_back(valuesStringSeparated.size() - 1);
             break;
+        }
     }
 }
 
@@ -271,6 +288,9 @@ void ParamsDefinition::Flag::Params::setParam(unsigned int index, void *value)
             break;
         case ParamsDefinition::ULONGLONG:
             valuesULongLong[localIndex] = *static_cast<unsigned long long *>(value);
+            break;
+        case ParamsDefinition::ULONGLONG_SEPARATED:
+            valuesULongLongSeparated[localIndex] = *static_cast<VectorOfULongLongs *>(value);
             break;
         case ParamsDefinition::FLOAT:
             valuesFloat[localIndex] = *static_cast<float *>(value);
@@ -501,6 +521,20 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
                         flag->setParam(j, static_cast<void *>(&number));
                         break;
                     }
+                    case ParamsDefinition::ULONGLONG_SEPARATED: {
+                        std::string myText(argv[i]);
+                        std::istringstream iss(myText);
+                        std::string token;
+                        ParamsDefinition::VectorOfULongLongs vector;
+                        while (getline(iss, token, ';')) {
+                            unsigned long long number = ParamsDefinition::toUnsignedLongLong(token.c_str());
+                            vector.push_back(number);
+                        }
+                        if (vector.size() > 0) {
+                            flag->setParam(j, static_cast<void *>(&vector));
+                        }
+                        break;
+                    }
                     case ParamsDefinition::FLOAT: {
                         float number = ParamsDefinition::toFloat(argv[i]);
                         flag->setParam(j, static_cast<void *>(&number));
@@ -525,12 +559,12 @@ void ParamsDefinition::commandLineParse(int argc, char **argv)
                         std::string myText(argv[i]);
                         std::istringstream iss(myText);
                         std::string token;
-                        ParamsDefinition::ListOfStrings nMS;
+                        ParamsDefinition::ListOfStrings list;
                         while (getline(iss, token, ';')) {
-                            nMS.insert(nMS.begin(), token);
+                            list.insert(list.begin(), token);
                         }
-                        if (nMS.size() > 0) {
-                            flag->setParam(j, static_cast<void *>(&nMS));
+                        if (list.size() > 0) {
+                            flag->setParam(j, static_cast<void *>(&list));
                         }
                         break;
                     }
