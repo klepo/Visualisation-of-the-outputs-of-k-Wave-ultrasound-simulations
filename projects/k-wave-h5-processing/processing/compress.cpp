@@ -147,12 +147,13 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     double t0 = H5Helper::getTime();
 
     // Variables for block reading
-    float *data = 0;
+    float *data = new float[srcDataset->getGeneralBlockDims().getSize()];
     H5Helper::Vector offset;
     H5Helper::Vector count;
-    float maxV, minV;
-    hsize_t maxVIndex = 0, minVIndex = 0;
-    bool first = true;
+    float maxV = std::numeric_limits<float>::min();
+    float minV = std::numeric_limits<float>::max();
+    hsize_t maxVIndex = 0;
+    hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
     if (srcDataset->getNumberOfElmsToLoad() >= outputStepSize * 3) {
@@ -190,6 +191,8 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     hsize_t sP = step * stepSize + hsize_t(p);
                     hsize_t pOffset = compressHelper->getHarmonics() * hsize_t(p);
 
+                    H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepsOffset * stepSize + step * stepSize + hsize_t(p));
+
                     //For every harmonics
                     for (hsize_t ih = 0; ih < hsize_t(compressHelper->getHarmonics()); ih++) {
                         hsize_t pH = pOffset + ih;
@@ -199,7 +202,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                         sCTmp2[pH] += compressHelper->getBE_1()[ih * bSize + stepLocal] * data[sP];
 
                         // Check if we are at saving point
-                        if (savingFlag && frame > 0) {
+                        /*if (savingFlag && frame > 0) {
                             hsize_t pHC = 2 * pOffset + 2 * ih;
 
                             // Select accumulated value
@@ -210,7 +213,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                                 H5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC);
                                 H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
                             }
-                        }
+                        }*/
                     }
                 }
 
@@ -246,7 +249,6 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     frame++;
                 }
             }
-            delete[] data;
         }
         // Delete buffers
         delete[] sCTmp1;
@@ -254,12 +256,14 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     } else {
         // Not implemented yet
         Helper::printErrorMsg("Not implemented for such big datasets yet");
+        delete[] data;
         delete compressHelper;
         getOutputFile()->closeDataset(dstDataset, log);
         return;
     }
 
     // Delete some memory
+    delete[] data;
     delete compressHelper;
 
     // Copy attributes

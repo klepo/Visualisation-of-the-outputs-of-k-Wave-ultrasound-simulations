@@ -98,22 +98,23 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     getOutputFile()->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true, log);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_s", log);
 
+    datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
+
     // Variables for block reading
-    float *dataO = 0;
-    float *dataD = 0;
+    float *dataO = new float[datasetOriginal->getGeneralBlockDims().getSize()];
+    float *dataD = new float[datasetOriginal->getGeneralBlockDims().getSize()];
     H5Helper::Vector offset;
     H5Helper::Vector count;
-    float maxV = 0, minV = 0;
-    float maxVO = 0, minVO = 0;
+    float maxV = std::numeric_limits<float>::min();
+    float minV = std::numeric_limits<float>::max();
+    float maxVO = std::numeric_limits<float>::min();
+    float minVO = std::numeric_limits<float>::max();
     hsize_t minVIndex = 0, maxVIndex = 0;
     hsize_t minVOIndex = 0, maxVOIndex = 0;
-    bool first0 = true;
-    bool first1 = true;
     double sum = 0.0;
     double sumO2 = 0.0;
     double sum2 = 0.0;
 
-    datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
     // Reading and subtraction
     for (hsize_t i = 0; i < datasetOriginal->getNumberOfBlocks(); i++) {
         // First read decoded -> it is larger
@@ -130,14 +131,14 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
             // Min/max values
             hsize_t linearOffset;
             convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
-            H5Helper::checkOrSetMinMaxValue(first0, minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + i);
-            H5Helper::checkOrSetMinMaxValue(first1, minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + i);
+            H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + hsize_t(i));
+            H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
         }
 
         dstDataset->writeDataset(offset, count, dataD, log);
-        delete[] dataD;
-        delete[] dataO;
     }
+    delete[] dataD;
+    delete[] dataO;
 
     // Copy attributes
     copyAttributes(datasetDecoded, dstDataset);

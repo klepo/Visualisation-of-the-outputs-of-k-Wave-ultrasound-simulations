@@ -98,12 +98,15 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
 
     double t0 = H5Helper::getTime();
 
-    float *data = 0;
-    float minV, maxV;
-    hsize_t minVIndex, maxVIndex;
-    float minVG, maxVG;
-    hsize_t minVGIndex = 0, maxVGIndex = 0;
-    bool first = true;
+    float *data = new float[srcDataset->getGeneralBlockDims().getSize()];
+    float minV = std::numeric_limits<float>::max();
+    float maxV = std::numeric_limits<float>::min();
+    hsize_t minVIndex = 0;
+    hsize_t maxVIndex = 0;
+    float minVG = std::numeric_limits<float>::max();
+    float maxVG = std::numeric_limits<float>::min();
+    hsize_t minVGIndex = 0;
+    hsize_t maxVGIndex = 0;
     H5Helper::Vector offset;
     H5Helper::Vector count;
 
@@ -111,12 +114,12 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
         srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex, log);
         dstDataset->writeDataset(offset, count, data, log);
-        delete[] data;
 
         hsize_t linearOffset;
         convertMultiDimToLinear(offset, linearOffset, srcDataset->getDims());
-        H5Helper::checkOrSetMinMaxValue(first, minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex, linearOffset + maxVIndex);
+        H5Helper::checkOrSetMinMaxValue(minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex, linearOffset + maxVIndex);
     }
+    delete[] data;
 
     // Copy attributes
     copyAttributes(srcDataset, dstDataset);

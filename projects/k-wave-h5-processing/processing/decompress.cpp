@@ -73,13 +73,12 @@ void Decompress::execute()
 void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 {
     // First decoding parameter - multiple of overlap size
-    hsize_t mos = 1;
-    if (srcDataset->hasAttribute(H5Helper::C_MOS_ATTR))
-        mos = srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log);
+    hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
 
     // Second decoding parameter - period
     // Third encoding parameter - number of harmonic frequencies
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeI(H5Helper::C_PERIOD_ATTR, log), mos, srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log));
+    hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log) : 1;
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeI(H5Helper::C_PERIOD_ATTR, log), mos, harmonics);
 
     if (log)
         Helper::printDebugMsg("Decompression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
@@ -143,12 +142,13 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     double t0 = H5Helper::getTime();
 
     // Variables for block reading
-    float *dataC = 0;
+    float *dataC = new float[srcDataset->getGeneralBlockDims().getSize()];
     H5Helper::Vector offset;
     H5Helper::Vector count;
-    float maxV, minV;
-    hsize_t maxVIndex = 0, minVIndex = 0;
-    bool first = true;
+    float maxV = std::numeric_limits<float>::min();
+    float minV = std::numeric_limits<float>::max();
+    hsize_t maxVIndex = 0;
+    hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
     if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2 + outputStepSize) {
@@ -228,7 +228,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                         }
 
                         // Min/max values
-                        H5Helper::checkOrSetMinMaxValue(first, minV, maxV, data[sP], minVIndex, maxVIndex, stepOffset + hsize_t(p));
+                        H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepOffset + hsize_t(p));
                     }
 
                     step++;
@@ -250,7 +250,6 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                     }
                 }
             }
-            delete[] dataC;
         }
         // Delete buffers
         delete[] data;
@@ -265,6 +264,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     }
 
     // Delete some memory
+    delete[] dataC;
     delete compressHelper;
 
     // Copy attributes
