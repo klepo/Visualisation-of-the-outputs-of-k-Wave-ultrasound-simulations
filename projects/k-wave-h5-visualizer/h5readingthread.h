@@ -40,21 +40,21 @@ public:
     /// Count
     H5Helper::Vector count;
     /// Minimum
-    float min;
+    //float min;
     /// Maximum
-    float max;
+    //float max;
     /// Minimal index
-    hsize_t minIndex;
+    //hsize_t minIndex;
     /// Maximal index
-    hsize_t maxIndex;
+    //hsize_t maxIndex;
     /// Read full 3D dataset flag
-    bool full;
+    bool full = false;
     /// Step
-    hsize_t step;
+    hsize_t step = 0;
     /// Dataset
-    H5Helper::Dataset *dataset;
+    H5Helper::Dataset *dataset = nullptr;
     /// Data
-    float *data;
+    float *data = nullptr;
 };
 
 /**
@@ -66,9 +66,10 @@ class H5ReadingThread : public QThread
 public:
     H5ReadingThread(QObject *parent = 0);
     ~H5ReadingThread();
+    void setCompressHelper(H5Helper::CompressHelper *compressHelper);
 
 public slots:
-    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, int limit = 0);
+    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count);
     void createRequest(H5Helper::Dataset *dataset, hsize_t step);
     void stopCurrentBlockReading();
     void clearRequests();
@@ -88,6 +89,12 @@ private:
     QMutex queueMutex, requestMutex;
     QQueue<Request *> queue;
     QList<Request *> doneRequests;
+    Request *doneRequestCC = 0;
+    Request *doneRequestLC = 0;
+    H5Helper::CompressHelper *compressHelper = 0;
+    double meanTime = 0;
+    hsize_t readCount = 0;
+    double timeSum = 0;
     //bool stopFlag;
     bool stopFlag = false;
 

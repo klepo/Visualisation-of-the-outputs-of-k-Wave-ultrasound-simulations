@@ -61,23 +61,39 @@ void SliceDockWidget::clear()
 void SliceDockWidget::setObject(H5ObjectToVisualize *value)
 {
     clear();
-    object = value;
-    ui->labelLoading->setVisible(true);
     if (sliceType == XY) {
-        connect(object, SIGNAL(imageXYChanged(QImage)), this, SLOT(repaintImage(QImage)));
-        setMaximum(object->getSize().z() - 1);
-        setValue(object->getZIndex());
-        object->setZIndex(object->getZIndex());
+        connect(value, SIGNAL(imageXYChanged(QImage)), this, SLOT(repaintImage(QImage)));
+        setMaximum(value->getSize().z() - 1);
+        setValue(value->getZIndex());
+        object = value;
+        if (!value->isCurrentXYLoaded()) {
+            ui->labelLoading->setVisible(true);
+            value->reloadXY();
+        } else {
+            repaintImage(value->getImageXY());
+        }
     } else if (sliceType == XZ) {
-        connect(object, SIGNAL(imageXZChanged(QImage)), this, SLOT(repaintImage(QImage)));
-        setMaximum(object->getSize().y() - 1);
-        setValue(object->getYIndex());
-        object->setYIndex(object->getYIndex());
+        connect(value, SIGNAL(imageXZChanged(QImage)), this, SLOT(repaintImage(QImage)));
+        setMaximum(value->getSize().y() - 1);
+        setValue(value->getYIndex());
+        object = value;
+        if (!value->isCurrentXZLoaded()) {
+            ui->labelLoading->setVisible(true);
+            value->reloadXZ();
+        } else {
+            repaintImage(value->getImageXZ());
+        }
     } else if (sliceType == YZ) {
-        connect(object, SIGNAL(imageYZChanged(QImage)), this, SLOT(repaintImage(QImage)));
-        setMaximum(object->getSize().x() - 1);
-        setValue(object->getXIndex());
-        object->setXIndex(object->getXIndex());
+        connect(value, SIGNAL(imageYZChanged(QImage)), this, SLOT(repaintImage(QImage)));
+        setMaximum(value->getSize().x() - 1);
+        setValue(value->getXIndex());
+        object = value;
+        if (!value->isCurrentYZLoaded()) {
+            ui->labelLoading->setVisible(true);
+            value->reloadYZ();
+        } else {
+            repaintImage(value->getImageYZ());
+        }
     }
 }
 

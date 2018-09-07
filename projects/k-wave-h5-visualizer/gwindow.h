@@ -27,7 +27,6 @@
 #include <qvector3di.h>
 #include <colormap.h>
 #include <openglwindow.h>
-#include <h5readingthread.h>
 #include <abstractobjectwidget.h>
 
 /**
@@ -46,8 +45,6 @@ public:
     bool event(QEvent *event);
     void resizeEvent(QResizeEvent *);
 
-    H5ReadingThread *getThread();
-
     QImage getImage();
 
     /// Slice vertices
@@ -61,11 +58,7 @@ public:
 
     bool isVolumeRenderingEnabled() const;
 
-    bool aredata3Dloaded() const;
-
-signals:
-    void data3Dloaded();
-    void data3Dloading();
+    bool areData3DLoaded() const;
 
 public slots:
     void setViewFrame(bool value);
@@ -79,7 +72,6 @@ public slots:
     void setOrthogonal(bool value);
     void setFillSpace(bool value);
 
-    void load3DData();
     void setVolumeRenderingMode(int mode = 0);
     void setInterpolationMode(int mode = 0);
 
@@ -96,9 +88,9 @@ public slots:
 
     void setObject(H5ObjectToVisualize *value);
 
-private slots:
-    void set3DData(Request *request);
+    void set3DData(float *data3d);
 
+private slots:
     void setOpacity(QVector<float> value = QVector<float>(5, 1));
     void setMinValue(float value);
     void setMaxValue(float value);
@@ -121,10 +113,9 @@ private:
     void unload3DTexture();
     void clearSlices();
     QPointF convertPointToOpenGLRelative(QPointF point);
-    float round(float number, float precision);
+    //float round(float number, float precision);
 
     QMainWindow *qMainWindow = 0;
-    H5ReadingThread *thread = 0;
 
     GLint uVolumeTexture;
     GLint uColormapTexture;
@@ -191,7 +182,6 @@ private:
     QVector3DI datasetSize = QVector3DI(1, 1, 1);
     QVector3DI datasetPosition = QVector3DI(0, 0, 0);
 
-    //ColorMap::Type colormap = ColorMap::JET;
     int slicesCount = 500;
 
     QVector3D index = QVector3D(0.5, 0.5, 0.5);
@@ -204,8 +194,6 @@ private:
     bool sliceXZ = false;
     bool sliceYZ = false;
     bool fillSpace = false;
-
-    bool data3DloadedFlag = true;
 
     int initialized;
 };

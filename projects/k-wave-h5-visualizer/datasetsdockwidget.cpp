@@ -6,6 +6,7 @@ DatasetsDockWidget::DatasetsDockWidget(QWidget *parent) :
     ui(new Ui::DatasetsDockWidget)
 {
     ui->setupUi(this);
+    //setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 }
 
 DatasetsDockWidget::~DatasetsDockWidget()

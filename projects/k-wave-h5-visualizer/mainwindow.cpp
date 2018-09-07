@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
 
+    elapsedTimer = new QElapsedTimer();
+
     // Create OpenGL window
     gWindow = new GWindow(this);
     // Widget from QWindow
@@ -67,8 +69,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect signals from gWindow
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
-    connect(gWindow, SIGNAL(data3Dloaded()), this, SLOT(data3Dloaded()));
-    connect(gWindow, SIGNAL(data3Dloading()), this, SLOT(data3Dloading()));
 
     connect(gWindow, SIGNAL(rendered()), this, SLOT(showFPS()));
 
@@ -201,9 +201,6 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     //dialog->show();
     //QApplication::processEvents();
 
-    // Clear request
-    clearRequestsAndWaitThreads();
-
     // Clear pointers
     delete openedH5File;
     openedH5File = 0;
@@ -282,28 +279,25 @@ void MainWindow::clearGUI()
 }
 
 /**
- * @brief Clears request in gWindow thread and wait for terminate
- */
-void MainWindow::clearRequestsAndWaitThreads()
-{
-    if (gWindow != 0) {
-        gWindow->getThread()->clearRequests();
-        gWindow->getThread()->wait();
-        //gWindow->getThread()->clearDoneRequests();
-    }
-}
-
-/**
  * @brief Action on select dataset
  */
 void MainWindow::selectDataset(H5ObjectToVisualize *object)
 {
     clearGUIForDataset();
 
-    this->object = object;
-
     if (object != 0) {
         qDebug() << "--> Selected dataset" << object->getName();
+
+        // Init GUI controls
+        // TM series control
+        ui->spinBoxSelectedDatasetStep->setMaximum(object->getSteps() - 1);
+        ui->spinBoxSelectedDatasetStep->setValue(object->getCurrentStep());
+        ui->horizontalSliderSelectedDatasetStep->setMaximum(object->getSteps() - 1);
+        ui->horizontalSliderSelectedDatasetStep->setValue(object->getCurrentStep());
+        ui->spinBoxTMIncrement->setMaximum(object->getSteps() - 1);
+        ui->spinBoxTMIncrement->setValue(1);
+
+        this->object = object;
 
         // Set object to slice widgets
         sliceXYDockWidget->setObject(object);
@@ -326,19 +320,12 @@ void MainWindow::selectDataset(H5ObjectToVisualize *object)
         connect(ui->comboBoxColormap, SIGNAL(currentIndexChanged(int)), object, SLOT(setColormap(int)));
 
         connect(object, SIGNAL(slicesLoaded()), this, SLOT(slicesLoaded()));
-
-        // Init GUI controls
-        // TM series control
-        ui->spinBoxSelectedDatasetStep->setMaximum(object->getSteps() - 1);
-        ui->spinBoxSelectedDatasetStep->setValue(object->getCurrentStep());
-        ui->horizontalSliderSelectedDatasetStep->setMaximum(object->getSteps() - 1);
-        ui->horizontalSliderSelectedDatasetStep->setValue(object->getCurrentStep());
-        ui->spinBoxTMIncrement->setMaximum(object->getSteps() - 1);
-        ui->spinBoxTMIncrement->setValue(1);
+        connect(object, SIGNAL(data3DLoaded(float *)), this, SLOT(data3DLoaded()));
+        connect(object, SIGNAL(data3DLoading()), this, SLOT(data3DLoading()));
     }
 }
 
-void MainWindow::data3Dloaded()
+void MainWindow::data3DLoaded()
 {
     // Stop loading icon
     ui->label3DLoading->clear();
@@ -354,12 +341,12 @@ void MainWindow::slicesLoaded()
 {
     if (object && object->getType() == H5OpenedFile::DATASET_4D) {
         // If animation is running...
-        if (playing && gWindow->aredata3Dloaded())
+        if (playing && object->areCurrentData3DLoaded())
             timer->start(ui->spinBoxTMInterval->value());
     }
 }
 
-void MainWindow::data3Dloading()
+void MainWindow::data3DLoading()
 {
     // Start loading icon
     ui->label3DLoading->setMovie(movie);
@@ -371,13 +358,15 @@ void MainWindow::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
     if (object && object->getType() == H5OpenedFile::DATASET_4D) {
         // Set step in object structure
-        object->setCurrentStep(step);
+        //elapsedTimer->restart();
+        object->setCurrentStep(hsize_t(step));
     }
 }
 
 void MainWindow::updateStep()
 {
     if (object && object->getType() == H5OpenedFile::DATASET_4D) {
+        //qDebug() << double(elapsedTimer->nsecsElapsed()) / 1000000 << "ms";
         // Get current step
         hsize_t step = object->getCurrentStep();
         // Increment of step

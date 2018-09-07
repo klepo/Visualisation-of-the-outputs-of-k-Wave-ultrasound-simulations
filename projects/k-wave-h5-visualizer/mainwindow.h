@@ -62,9 +62,9 @@ public slots:
 
 
 private slots:
-    void data3Dloaded();
+    void data3DLoaded();
     void slicesLoaded();
-    void data3Dloading();
+    void data3DLoading();
 
     void on_actionLoadHDF5File_triggered();
 
@@ -90,7 +90,6 @@ private slots:
 private:
     void clearGUIForDataset();
     void clearGUI();
-    void clearRequestsAndWaitThreads();
 
     SliceDockWidget *sliceXYDockWidget;
     SliceDockWidget *sliceXZDockWidget;
@@ -102,6 +101,7 @@ private:
     H5OpenedFile *openedH5File;
     H5ObjectToVisualize *object;
     QTimer *timer;
+    QElapsedTimer *elapsedTimer;
     QMovie *movie;
     QDialog *dialog;
     Ui::Dialog *dialogUi;

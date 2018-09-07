@@ -34,9 +34,20 @@
 H5ObjectToVisualize::H5ObjectToVisualize(H5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, H5OpenedFile *openedH5File, QObject *parent)
     : QObject(parent)
     , dataset(dataset)
-    , type(type)
     , openedH5File(openedH5File)
+    , type(type)
 {
+    // Create threads for slices
+    threadXY = new H5ReadingThread();
+    connect(threadXY, SIGNAL(requestDone(Request *)), this, SLOT(sliceXYLoaded(Request *)));
+    threadXZ = new H5ReadingThread();
+    connect(threadXZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceXZLoaded(Request *)));
+    threadYZ = new H5ReadingThread();
+    connect(threadYZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceYZLoaded(Request *)));
+
+    thread3D = new H5ReadingThread();
+    connect(thread3D, SIGNAL(requestDone(Request *)), this, SLOT(data3DLoaded(Request *)));
+
     loadObjectData();
     initialize();
 }
@@ -51,13 +62,7 @@ void H5ObjectToVisualize::initialize()
     dataXZ = new float[size.z() * size.x()];
     dataYZ = new float[size.z() * size.y()];
 
-    // Create threads for slices
-    threadXY = new H5ReadingThread();
-    connect(threadXY, SIGNAL(requestDone(Request *)), this, SLOT(sliceXYLoaded(Request *)));
-    threadXZ = new H5ReadingThread();
-    connect(threadXZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceXZLoaded(Request *)));
-    threadYZ = new H5ReadingThread();
-    connect(threadYZ, SIGNAL(requestDone(Request *)), this, SLOT(sliceYZLoaded(Request *)));
+    data3D = new float[size.getSize()];
 
     index.x(H5Helper::Vector3D(maxValuePosition).x());
     index.y(H5Helper::Vector3D(maxValuePosition).y());
@@ -88,6 +93,11 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
     //threadYZ->terminate();
     threadYZ->deleteLater();
 
+    thread3D->clearRequests();
+    //thread3D->terminate();
+    thread3D->wait();
+    thread3D->deleteLater();
+
     disconnect(this, SIGNAL(imageXYChanged(QImage)), 0, 0);
     disconnect(this, SIGNAL(imageXZChanged(QImage)), 0, 0);
     disconnect(this, SIGNAL(imageYZChanged(QImage)), 0, 0);
@@ -102,6 +112,9 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
     delete[] dataXY;
     delete[] dataXZ;
     delete[] dataYZ;
+    delete[] data3D;
+
+    delete compressHelper;
 }
 
 /**
@@ -145,13 +158,56 @@ H5Helper::Dataset *H5ObjectToVisualize::getDataset()
  */
 void H5ObjectToVisualize::loadObjectData()
 {
+    // Get chunk dimensions
+    chunkSize = dataset->getChunkDims();
+
+    // Get global min/max values
+    dataset->findAndSetGlobalMinAndMaxValue();
+    hsize_t minValueIndex;
+    hsize_t maxValueIndex;
+    dataset->getGlobalMinValue(minValue, minValueIndex);
+    dataset->getGlobalMaxValue(maxValue, maxValueIndex);
+    originalMinValue = minValue;
+    originalMaxValue = maxValue;
+
+    H5Helper::convertlinearToMultiDim(minValueIndex, minValuePosition, dataset->getDims());
+    H5Helper::convertlinearToMultiDim(maxValueIndex, maxValuePosition, dataset->getDims());
+
     // Size of dataset (can be downsampled)
     size = H5Helper::Vector3D(dataset->getDims());
     originalSize = size;
 
     // Set 3D frame size
-    frameSize = size;
+    frameSize = H5Helper::Vector3D(openedH5File->getNDims());;
     originalFrameSize = frameSize;
+
+    // If masked
+    if (dataset->hasAttribute(H5Helper::POSITION_X_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Z_ATTR)) {
+        position.z(dataset->readAttributeI(H5Helper::POSITION_Z_ATTR, false));
+        position.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR, false));
+        position.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR, false));
+        originalPosition = position;
+    } else if (type == H5OpenedFile::DATASET_4D) {
+        // Try to get position from sensor_mask_corners dataset
+        if (openedH5File->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {
+            H5Helper::Dataset *sensorMaskCornersDataset = openedH5File->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
+            hsize_t *sensorMaskCornersData = 0;
+            sensorMaskCornersDataset->readDataset(sensorMaskCornersData);
+            // Name of the dataset to index
+            hsize_t i = hsize_t(std::stoi(dataset->getOnlyName()));
+            dataset->findAndSetGlobalMinAndMaxValue();
+            dataset->setAttribute(H5Helper::POSITION_Z_ATTR, sensorMaskCornersData[(i - 1) * 6 + 2] - 1);
+            dataset->setAttribute(H5Helper::POSITION_Y_ATTR, sensorMaskCornersData[(i - 1) * 6 + 1] - 1);
+            dataset->setAttribute(H5Helper::POSITION_X_ATTR, sensorMaskCornersData[(i - 1) * 6 + 0] - 1);
+
+            position.z(sensorMaskCornersData[(i - 1) * 6 + 2] - 1);
+            position.y(sensorMaskCornersData[(i - 1) * 6 + 1] - 1);
+            position.x(sensorMaskCornersData[(i - 1) * 6 + 0] - 1);
+            originalPosition = position;
+            delete[] sensorMaskCornersData;
+            openedH5File->getFile()->closeDataset(sensorMaskCornersDataset);
+        }
+    }
 
     // If downsampled
     if (dataset->hasAttribute(H5Helper::SRC_SIZE_X_ATTR)
@@ -162,84 +218,43 @@ void H5ObjectToVisualize::loadObjectData()
         originalSize.x(dataset->readAttributeI(H5Helper::SRC_SIZE_X_ATTR, false));
         originalSize.y(dataset->readAttributeI(H5Helper::SRC_SIZE_Y_ATTR, false));
         originalSize.z(dataset->readAttributeI(H5Helper::SRC_SIZE_Z_ATTR, false));
-        originalFrameSize = originalSize;
+
+        if (dataset->hasAttribute(H5Helper::SRC_POSITION_Z_ATTR)
+                    && dataset->hasAttribute(H5Helper::SRC_POSITION_Y_ATTR)
+                    && dataset->hasAttribute(H5Helper::SRC_POSITION_X_ATTR)
+                ) {
+            originalPosition.x(dataset->readAttributeI(H5Helper::SRC_POSITION_X_ATTR, false));
+            originalPosition.y(dataset->readAttributeI(H5Helper::SRC_POSITION_Y_ATTR, false));
+            originalPosition.z(dataset->readAttributeI(H5Helper::SRC_POSITION_Z_ATTR, false));
+        }
+
+        float ratio = float(qMax(size.x(), qMax(size.y(), size.z()))) / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));
+        frameSize.x(qRound(frameSize.x() * ratio));
+        frameSize.y(qRound(frameSize.y() * ratio));
+        frameSize.z(qRound(frameSize.z() * ratio));
     }
 
-    // Get chunk dimensions
-    chunkSize = dataset->getChunkDims();
-
-    // Get global min/max values
-    dataset->findAndSetGlobalMinAndMaxValue();
-    hsize_t minValueIndex;
-    hsize_t maxValueIndex;
-    dataset->getGlobalMinValue(minValue, minValueIndex);
-    dataset->getGlobalMaxValue(maxValue, maxValueIndex);
-    dataset->getGlobalMinValue(originalMinValue, minValueIndex);
-    dataset->getGlobalMaxValue(originalMaxValue, maxValueIndex);
-
-    H5Helper::convertlinearToMultiDim(minValueIndex, minValuePosition, dataset->getDims());
-    H5Helper::convertlinearToMultiDim(maxValueIndex, maxValuePosition, dataset->getDims());
-
-
-    if (type == H5OpenedFile::DATASET_3D) {
-        // Default step
-        steps = 1;
-        if (dataset->hasAttribute(H5Helper::POSITION_X_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Z_ATTR)) {
-            originalPosition.z(dataset->readAttributeI(H5Helper::POSITION_Z_ATTR, false));
-            originalPosition.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR, false));
-            originalPosition.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR, false));
-            position = originalPosition;
-
-            frameSize = H5Helper::Vector3D(openedH5File->getNDims());;
-            originalFrameSize = frameSize;
-        }
-
-    } else if (type == H5OpenedFile::DATASET_4D) {
-
-        frameSize = H5Helper::Vector3D(openedH5File->getNDims());;
-        originalFrameSize = frameSize;
-
-        // Get position (was defined by sensor mask)
-        if (dataset->hasAttribute(H5Helper::POSITION_X_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Z_ATTR)) {
-            originalPosition.z(dataset->readAttributeI(H5Helper::POSITION_Z_ATTR, false));
-            originalPosition.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR, false));
-            originalPosition.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR, false));
-            position = originalPosition;
-        } else {
-            // Try to get position from sensor_mask_corners dataset
-            if (openedH5File->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {
-                H5Helper::Dataset *sensorMaskCornersDataset = openedH5File->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
-                hsize_t *sensorMaskCornersData;
-                sensorMaskCornersDataset->readDataset(sensorMaskCornersData);
-                // Name of the dataset to index
-                hsize_t i = hsize_t(std::stoi(dataset->getOnlyName()));
-                dataset->findAndSetGlobalMinAndMaxValue();
-                dataset->setAttribute(H5Helper::POSITION_Z_ATTR, sensorMaskCornersData[(i - 1) * 6 + 2] - 1);
-                dataset->setAttribute(H5Helper::POSITION_Y_ATTR, sensorMaskCornersData[(i - 1) * 6 + 1] - 1);
-                dataset->setAttribute(H5Helper::POSITION_X_ATTR, sensorMaskCornersData[(i - 1) * 6 + 0] - 1);
-                originalPosition.z(sensorMaskCornersData[(i - 1) * 6 + 2] - 1);
-                originalPosition.y(sensorMaskCornersData[(i - 1) * 6 + 1] - 1);
-                originalPosition.x(sensorMaskCornersData[(i - 1) * 6 + 0] - 1);
-                position = originalPosition;
-                delete[] sensorMaskCornersData;
-                openedH5File->getFile()->closeDataset(sensorMaskCornersDataset);
-            }
-        }
-
-        // Downsampled position
-        if (size != originalSize) {
-            float ratio = float(qMax(size.x(), qMax(size.y(), size.z()))) / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));
-            position.x(hsize_t(originalPosition.x() * ratio));
-            position.y(hsize_t(originalPosition.y() * ratio));
-            position.z(hsize_t(originalPosition.z() * ratio));
-
-            originalFrameSize.x(hsize_t(originalFrameSize.x() * ratio));
-            originalFrameSize.y(hsize_t(originalFrameSize.y() * ratio));
-            originalFrameSize.z(hsize_t(originalFrameSize.z() * ratio));
-        }
-
+    if (type == H5OpenedFile::DATASET_4D) {
         // Get number of steps
         steps = H5Helper::Vector4D(dataset->getDims()).w();
+    }
+
+    if (dataset->getType() == H5Helper::DatasetType::CUBOID_ATTR_C || dataset->getType() == H5Helper::DatasetType::CUBOID_C) {
+        hsize_t mos = dataset->hasAttribute(H5Helper::C_MOS_ATTR) ? dataset->readAttributeI(H5Helper::C_MOS_ATTR) : 1;
+        hsize_t harmonics = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
+        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeI(H5Helper::C_PERIOD_ATTR), mos, harmonics);
+
+        size.x(size.x() / compressHelper->getStride());
+        originalSize.x(originalSize.x() / compressHelper->getStride());
+
+        steps = (steps + 2) * compressHelper->getOSize();
+        H5Helper::convertlinearToMultiDim(minValueIndex, minValuePosition, H5Helper::Vector4D(steps, size));
+        H5Helper::convertlinearToMultiDim(maxValueIndex, maxValuePosition, H5Helper::Vector4D(steps, size));
+
+        threadXY->setCompressHelper(compressHelper);
+        threadXZ->setCompressHelper(compressHelper);
+        threadYZ->setCompressHelper(compressHelper);
+        thread3D->setCompressHelper(compressHelper);
     }
 }
 
@@ -256,10 +271,25 @@ void H5ObjectToVisualize::changeImages()
 /**
  * @brief Reloads images
  */
-void H5ObjectToVisualize::reloadImages()
+void H5ObjectToVisualize::reloadSlices()
 {
     setZIndex(index.z());
     setYIndex(index.y());
+    setXIndex(index.x());
+}
+
+void H5ObjectToVisualize::reloadXY()
+{
+    setZIndex(index.z());
+}
+
+void H5ObjectToVisualize::reloadXZ()
+{
+    setYIndex(index.y());
+}
+
+void H5ObjectToVisualize::reloadYZ()
+{
     setXIndex(index.x());
 }
 
@@ -313,7 +343,7 @@ void H5ObjectToVisualize::sliceYZLoaded(Request *r)
 {
     YZloadedFlag = false;
     // Copy image data from request
-    memcpy(dataYZ, r->data, static_cast<size_t>(size.z() * size.y()) * sizeof(float));
+    memcpy(dataYZ, r->data, size.z() * size.y() * sizeof(float));
     YZloadedFlag = true;
     if (index.x() == H5Helper::Vector3D(r->offset).x())
         currentYZLoaded = true;
@@ -324,6 +354,20 @@ void H5ObjectToVisualize::sliceYZLoaded(Request *r)
     emit imageYZChanged(createImageYZ());
     emit dataYZChanged(dataYZ, H5Helper::Vector3D(r->offset).x());
     threadYZ->deleteDoneRequest(r);
+}
+
+void H5ObjectToVisualize::data3DLoaded(Request *request)
+{
+    data3DLoadedFlag = false;
+    // Copy data from request
+    memcpy(data3D, request->data, size.getSize() * sizeof(float));
+    data3DLoadedFlag = true;
+    if (currentStep == H5Helper::Vector4D(request->offset).t())
+        currentData3DLoaded = true;
+    else
+        currentData3DLoaded = false;
+    emit data3DLoaded(data3D);
+    thread3D->deleteDoneRequest(request);
 }
 
 /**
@@ -407,9 +451,44 @@ QImage H5ObjectToVisualize::createImageYZ()
     return qimage;
 }
 
+void H5ObjectToVisualize::load3Ddata()
+{
+    data3DLoadedFlag = false;
+    thread3D->createRequest(dataset, currentStep);
+    thread3D->start();
+    emit data3DLoading();
+}
+
+bool H5ObjectToVisualize::areCurrentData3DLoaded() const
+{
+    return currentData3DLoaded;
+}
+
+float *H5ObjectToVisualize::getData3D() const
+{
+    return data3D;
+}
+
+bool H5ObjectToVisualize::getData3DloadingFlag() const
+{
+    return data3DloadingFlag;
+}
+
+void H5ObjectToVisualize::setData3DloadingFlag(bool value)
+{
+  data3DloadingFlag = value;
+  if (!currentData3DLoaded)
+      load3Ddata();
+}
+
+H5Helper::CompressHelper *H5ObjectToVisualize::getCompressHelper() const
+{
+  return compressHelper;
+}
+
 QVector<float> H5ObjectToVisualize::getOpacity() const
 {
-    return opacity;
+  return opacity;
 }
 
 void H5ObjectToVisualize::setOpacity(const QVector<float> &value)
@@ -519,11 +598,11 @@ void H5ObjectToVisualize::setXIndex(hsize_t value)
 {
     index.x(value);
     currentYZLoaded = false;
-    if (type == H5OpenedFile::DATASET_3D)
+    if (type == H5OpenedFile::DATASET_3D) {
         threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, value), H5Helper::Vector3D(size.z(), size.y(), 1));
-    else
+    } else {
         threadYZ->createRequest(dataset, H5Helper::Vector4D(currentStep, 0, 0, value), H5Helper::Vector4D(1, size.z(), size.y(), 1));
-
+    }
     threadYZ->start();
 }
 
@@ -656,7 +735,10 @@ void H5ObjectToVisualize::setCurrentStep(hsize_t step)
     if (type == H5OpenedFile::DATASET_4D) {
         try {
             currentStep = step;
-            reloadImages();
+            reloadSlices();
+            if (data3DloadingFlag) {
+                load3Ddata();
+            }
             emit stepChanged();
         } catch(std::exception &) {
             std::cerr << "Wrong step" << std::endl;
@@ -798,29 +880,43 @@ QList<QPair<QString, QString>> H5ObjectToVisualize::getInfo()
     QList<QPair<QString, QString>> info;
     if (type == H5OpenedFile::DATASET_3D) {
         info.append(QPair<QString, QString>("Name", getName()));
-        info.append(QPair<QString, QString>("Type", "3D dataset"));
-        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
-            info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
-        info.append(QPair<QString, QString>("Size", QString::fromStdString(originalSize)));
+        info.append(QPair<QString, QString>("Type", "3D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
+
+        info.append(QPair<QString, QString>("Size", QString::fromStdString(size)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
-            info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(size)));
-        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z())
+            info.append(QPair<QString, QString>("Original size", QString::fromStdString(originalSize)));
+
+        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z()) {
+            info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
+            if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z())
+                info.append(QPair<QString, QString>("Original base size", QString::fromStdString(originalFrameSize)));
+
             info.append(QPair<QString, QString>("Position", QString::fromStdString(position)));
+            if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z())
+                info.append(QPair<QString, QString>("Original position", QString::fromStdString(originalPosition)));
+        }
+
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
         info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
         info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
     } else if (type == H5OpenedFile::DATASET_4D) {
         info.append(QPair<QString, QString>("Name", getName()));
-        info.append(QPair<QString, QString>("Type", "4D dataset"));
-        info.append(QPair<QString, QString>("Base size", QString::fromStdString(originalFrameSize)));
-        if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z())
-            info.append(QPair<QString, QString>("Downsampling base size", QString::fromStdString(frameSize)));
-        info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(originalSize)));
+        info.append(QPair<QString, QString>("Type", "4D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
+
+        info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(size)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
-            info.append(QPair<QString, QString>("Downsampling size", QString::fromStdString(dataset->getDims())));
-        info.append(QPair<QString, QString>("Position", QString::fromStdString(originalPosition)));
-        if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z())
-            info.append(QPair<QString, QString>("Downsampling position", QString::fromStdString(position)));
+            info.append(QPair<QString, QString>("Original size", QString::number(steps) + " x " + QString::fromStdString(originalSize)));
+
+        if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z()) {
+            info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
+            if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z())
+                info.append(QPair<QString, QString>("Original base size", QString::fromStdString(originalFrameSize)));
+
+            info.append(QPair<QString, QString>("Position", QString::fromStdString(position)));
+            if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z())
+                info.append(QPair<QString, QString>("Original position", QString::fromStdString(originalPosition)));
+        }
+
         info.append(QPair<QString, QString>("Chunk size", QString::fromStdString(chunkSize)));
         info.append(QPair<QString, QString>("Min value position", QString::fromStdString(minValuePosition)));
         info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));

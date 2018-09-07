@@ -137,13 +137,13 @@ void H5OpenedFile::findDatasetsForVisualization(H5Helper::Group *group)
             H5Helper::DatasetType datasetType = dataset->getType();
 
             if (datasetType == H5Helper::DatasetType::BASIC_3D
-                    || datasetType == H5Helper::DatasetType::DWNSMPL_3D
                     || datasetType == H5Helper::DatasetType::RESHAPED_3D
+                    || datasetType == H5Helper::DatasetType::BASIC_3D_DWNSMPL
+                    || datasetType == H5Helper::DatasetType::RESHAPED_3D_DWNSMPL
                     ) {
                 setObject(dataset, DATASET_3D);
                 std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
             } else if (datasetType == H5Helper::DatasetType::CUBOID
-                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR
                        || datasetType == H5Helper::DatasetType::CUBOID_C
                        || datasetType == H5Helper::DatasetType::CUBOID_D
                        || datasetType == H5Helper::DatasetType::CUBOID_S
@@ -151,6 +151,7 @@ void H5OpenedFile::findDatasetsForVisualization(H5Helper::Group *group)
                        || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL_C
                        || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL_D
                        || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL_S
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR
                        || datasetType == H5Helper::DatasetType::CUBOID_ATTR_C
                        || datasetType == H5Helper::DatasetType::CUBOID_ATTR_D
                        || datasetType == H5Helper::DatasetType::CUBOID_ATTR_S

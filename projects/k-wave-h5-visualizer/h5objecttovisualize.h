@@ -91,6 +91,14 @@ public:
 
     QVector<float> getOpacity() const;
 
+    H5Helper::CompressHelper *getCompressHelper() const;
+
+    bool getData3DloadingFlag() const;
+
+    float *getData3D() const;
+
+    bool areCurrentData3DLoaded() const;
+
 signals:
     void imageXYChanged(QImage image);
     void imageXZChanged(QImage image);
@@ -111,6 +119,10 @@ signals:
 
     void slicesLoaded();
 
+    void data3DLoading();
+
+    void data3DLoaded(float *data3D);
+
 public slots:
     void setXIndex(hsize_t index);
     void setYIndex(hsize_t index);
@@ -126,17 +138,24 @@ public slots:
 
     void setCurrentStep(hsize_t step);
 
-    void reloadImages();
+    void reloadSlices();
+    void reloadXY();
+    void reloadXZ();
+    void reloadYZ();
 
     void setSelected(bool value);
     void toggleSelected();
 
     void setOpacity(const QVector<float> &value);
 
+    void setData3DloadingFlag(bool value);
+
 private slots:
     void sliceXYLoaded(Request *r);
     void sliceXZLoaded(Request *r);
     void sliceYZLoaded(Request *r);
+
+    void data3DLoaded(Request *request);
 
 private:
     void loadObjectData();
@@ -148,6 +167,8 @@ private:
     QImage createImageXZ();
     QImage createImageYZ();
 
+    void load3Ddata();
+
     bool selected = false;
 
     H5Helper::Dataset *dataset = 0;
@@ -158,19 +179,28 @@ private:
     bool XZloadedFlag = false;
     bool YZloadedFlag = false;
 
+    bool data3DLoadedFlag = false;
+
     bool currentXYLoaded = false;
     bool currentXZLoaded = false;
     bool currentYZLoaded = false;
+
+    bool currentData3DLoaded = false;
+
+    bool data3DloadingFlag = false;
 
     H5Helper::Vector3D index;
 
     H5ReadingThread *threadXY = 0;
     H5ReadingThread *threadXZ = 0;
     H5ReadingThread *threadYZ = 0;
+    H5ReadingThread *thread3D = 0;
 
     float *dataXY = 0;
     float *dataXZ = 0;
     float *dataYZ = 0;
+
+    float *data3D = 0;
 
     float minValue = 0;
     float maxValue = 0;
@@ -196,6 +226,8 @@ private:
     H5Helper::Vector minValuePosition;
     H5Helper::Vector maxValuePosition;
     hsize_t steps = 1;
+
+    H5Helper::CompressHelper *compressHelper = 0;
 };
 
 #endif // H5OBJECTTOVISUALIZE_H

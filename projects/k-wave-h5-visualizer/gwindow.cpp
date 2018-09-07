@@ -32,10 +32,6 @@ GWindow::GWindow(QMainWindow *qMainWindow)
 
 {
     this->qMainWindow = qMainWindow;
-
-    // Create thread for loading whole dataset
-    thread = new H5ReadingThread();
-    connect(thread, SIGNAL(requestDone(Request *)), this, SLOT(set3DData(Request *)));
 }
 
 /**
@@ -62,10 +58,6 @@ GWindow::~GWindow()
 
     m_program->release();
     delete m_program;
-    thread->clearRequests();
-    //thread->clearDoneRequests();
-    thread->wait();
-    //thread->deleteLater();
 }
 
 /**
@@ -297,15 +289,6 @@ void GWindow::initialize()
 }
 
 /**
- * @brief Returns 3D data loading thread
- * @return 3D data loading thread
- */
-H5ReadingThread *GWindow::getThread()
-{
-    return thread;
-}
-
-/**
  * @brief Sets size for main 3D frame - whole 3D domain
  * @param[in] size Size
  */
@@ -348,23 +331,6 @@ void GWindow::setDatasetPosition(QVector3DI position)
 }
 
 /**
- * @brief Performs loading of 3D data for volume rendering
- * @param[in] dataset Dataset
- * @param[in] step Step
- */
-void GWindow::load3DData()
-{
-    if (volumeRendering) {
-        if (object != 0) {
-            thread->createRequest(object->getDataset(), object->getCurrentStep());
-            thread->start();
-            data3DloadedFlag = false;
-            emit data3Dloading();
-        }
-    }
-}
-
-/**
  * @brief Unloads 3D texture data
  */
 void GWindow::unload3DTexture()
@@ -402,45 +368,20 @@ void GWindow::clear()
  * @brief Sets part of 3D data from loading request to 3D texture
  * @param[in] r Loading request
  */
-void GWindow::set3DData(Request *request)
+void GWindow::set3DData(float *data)
 {
-    if (object != 0 && request->dataset == object->getDataset()) {
-        H5Helper::Vector3D offset = request->offset;
-        H5Helper::Vector3D count = request->count;
+    glBindTexture(GL_TEXTURE_3D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_3D, 0);
 
-        if (offset.hasZeros()) {
-            // Init 3D texture
-            glBindTexture(GL_TEXTURE_3D, texture);
-            glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, 0);
-            glBindTexture(GL_TEXTURE_3D, 0);
-            // Check OUT_OF_MEMORY, dataset is too big
-            if (checkGlError() != GL_NO_ERROR) {
-                thread->stopCurrentBlockReading();
-                thread->deleteDoneRequest(request);
-                data3DloadedFlag = true;
-                emit data3Dloaded();
-                unload3DTexture();
-                return;
-            }
-        }
-
-        // Set 3D data to 3D texture
-        glBindTexture(GL_TEXTURE_3D, texture);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexSubImage3D(GL_TEXTURE_3D, 0, int(offset.x()), int(offset.y()), int(offset.z()), int(count.x()), int(count.y()), int(count.z()), GL_RED, GL_FLOAT, request->data);
-        glBindTexture(GL_TEXTURE_3D, 0);
-
-        // Last block of 3D data
-        if (offset.z() + count.z() == hsize_t(datasetSize.z())) {
-            renderLater();
-            data3DloadedFlag = true;
-            emit data3Dloaded();
-        }
-        thread->deleteDoneRequest(request);
-    } else {
-        //thread->stopCurrentBlockReading();
-        thread->deleteDoneRequest(request);
+    // Check OUT_OF_MEMORY, dataset is too big
+    if (checkGlError() != GL_NO_ERROR) {
+        unload3DTexture();
+        return;
     }
+
+    renderLater();
 }
 
 /**
@@ -651,19 +592,14 @@ QPointF GWindow::convertPointToOpenGLRelative(QPointF point)
  * @param[in] precision Precision
  * @return Rounded number
  */
-float GWindow::round(float number, float precision)
+/*float GWindow::round(float number, float precision)
 {
     return float((floor(number * (1.0f / precision) + 0.5f) / (1.0f / precision)));
-}
+}*/
 
 bool GWindow::isVolumeRenderingEnabled() const
 {
     return volumeRendering;
-}
-
-bool GWindow::aredata3Dloaded() const
-{
-    return data3DloadedFlag;
 }
 
 void GWindow::setObject(H5ObjectToVisualize *value)
@@ -676,7 +612,7 @@ void GWindow::setObject(H5ObjectToVisualize *value)
     connect(object, SIGNAL(minValueChanged(float)), this, SLOT(setMinValue(float)));
     connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));
     connect(object, SIGNAL(colormapChanged(ColorMap::Type)), this, SLOT(setColormap(ColorMap::Type)));
-    connect(object, SIGNAL(stepChanged()), this, SLOT(load3DData()));
+    connect(object, SIGNAL(data3DLoaded(float *)), this, SLOT(set3DData(float *)));
 
     setMinValue(object->getMinValue());
     setMaxValue(object->getMaxValue());
@@ -687,7 +623,12 @@ void GWindow::setObject(H5ObjectToVisualize *value)
     setDatasetSize(object->getSize());
     setDatasetPosition(object->getPos());
 
-    load3DData();
+    setXYSlice(object->getDataXY(), object->getZIndex());
+    setXZSlice(object->getDataXZ(), object->getYIndex());
+    setYZSlice(object->getDataYZ(), object->getXIndex());
+
+    object->setData3DloadingFlag(volumeRendering);
+    set3DData(object->getData3D());
 }
 
 /**
@@ -696,9 +637,6 @@ void GWindow::setObject(H5ObjectToVisualize *value)
 void GWindow::render()
 {
     if (checkGlError() == GL_OUT_OF_MEMORY) {
-        thread->stopCurrentBlockReading();
-        data3DloadedFlag = true;
-        emit data3Dloaded();
         unload3DTexture();
     }
 
@@ -1048,7 +986,8 @@ void GWindow::setViewFrame(bool value)
 void GWindow::setViewVolumeRendering(bool value)
 {
     volumeRendering = value;
-    load3DData();
+    if (object)
+        object->setData3DloadingFlag(volumeRendering);
     renderLater();
 }
 
