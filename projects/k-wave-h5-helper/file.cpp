@@ -971,36 +971,23 @@ void convertMultiDimToLinear(Vector position, hsize_t &index, Vector dims)
  *
  * This function exists due to OpenMP pragmas
  */
-void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
+void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
 {
-    if (first) {
+    if (minV > value) {
         #pragma omp critical
         {
-            if (first) {
+            if (minV > value) {
                 minV = value;
-                maxV = value;
                 minVIndex = index;
+            }
+        }
+    }
+    if (maxV < value) {
+        #pragma omp critical
+        {
+            if (maxV < value) {
+                maxV = value;
                 maxVIndex = index;
-                first = false;
-            }
-        }
-    } else {
-        if (minV > value) {
-            #pragma omp critical
-            {
-                if (minV > value) {
-                    minV = value;
-                    minVIndex = index;
-                }
-            }
-        }
-        if (maxV < value) {
-            #pragma omp critical
-            {
-                if (maxV < value) {
-                    maxV = value;
-                    maxVIndex = index;
-                }
             }
         }
     }
@@ -1015,106 +1002,67 @@ void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float value, h
  *
  * This function exists due to OpenMP pragmas
  */
-void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
+void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
 {
-    if (first) {
+    if (minV > value) {
         #pragma omp critical
         {
-            if (first) {
+            if (minV > value) {
                 minV = value;
-                maxV = value;
                 minVIndex = index;
+            }
+        }
+    }
+    if (maxV < value) {
+        #pragma omp critical
+        {
+            if (maxV < value) {
+                maxV = value;
                 maxVIndex = index;
-                first = false;
-            }
-        }
-    } else {
-        if (minV > value) {
-            #pragma omp critical
-            {
-                if (minV > value) {
-                    minV = value;
-                    minVIndex = index;
-                }
-            }
-        }
-        if (maxV < value) {
-            #pragma omp critical
-            {
-                if (maxV < value) {
-                    maxV = value;
-                    maxVIndex = index;
-                }
             }
         }
     }
 }
 
-void checkOrSetMinMaxValue(bool &first, float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
+void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
 {
-    if (first) {
+    if (minV > minVI) {
         #pragma omp critical
         {
-            if (first) {
+            if (minV > minVI) {
                 minV = minVI;
-                maxV = maxVI;
                 minVIndex = minVIIndex;
+            }
+        }
+    }
+    if (maxV < maxVI) {
+        #pragma omp critical
+        {
+            if (maxV < maxVI) {
+                maxV = maxVI;
                 maxVIndex = maxVIIndex;
-                first = false;
-            }
-        }
-    } else {
-        if (minV > minVI) {
-            #pragma omp critical
-            {
-                if (minV > minVI) {
-                    minV = minVI;
-                    minVIndex = minVIIndex;
-                }
-            }
-        }
-        if (maxV < maxVI) {
-            #pragma omp critical
-            {
-                if (maxV < maxVI) {
-                    maxV = maxVI;
-                    maxVIndex = maxVIIndex;
-                }
             }
         }
     }
 }
 
-void checkOrSetMinMaxValue(bool &first, hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
+void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
 {
-    if (first) {
+    if (minV > minVI) {
         #pragma omp critical
         {
-            if (first) {
+            if (minV > minVI) {
                 minV = minVI;
-                maxV = maxVI;
                 minVIndex = minVIIndex;
+            }
+        }
+    }
+    if (maxV < maxVI) {
+        #pragma omp critical
+        {
+            if (maxV < maxVI) {
+                maxV = maxVI;
                 maxVIndex = maxVIIndex;
-                first = false;
-            }
-        }
-    } else {
-        if (minV > minVI) {
-            #pragma omp critical
-            {
-                if (minV > minVI) {
-                    minV = minVI;
-                    minVIndex = minVIIndex;
-                }
-            }
-        }
-        if (maxV < maxVI) {
-            #pragma omp critical
-            {
-                if (maxV < maxVI) {
-                    maxV = maxVI;
-                    maxVIndex = maxVIIndex;
-                }
             }
         }
     }
@@ -1148,19 +1096,19 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
     Vector count;
 
     if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_FLOAT)) {
-        float *data = 0;
+        float *data = new float[srcDataset->getGeneralBlockDims().getSize()];
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
             srcDataset->readBlock(i, offset, count, data, log);
             dstDataset->writeDataset(offset, count, data, log);
-            delete[] data;
         }
+        delete[] data;
     } else if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_UINT64)) {
-        hsize_t *data = 0;
+        hsize_t *data = new hsize_t[srcDataset->getGeneralBlockDims().getSize()];
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
             srcDataset->readBlock(i, offset, count, data, log);
             dstDataset->writeDataset(offset, count, data, log);
-            delete[] data;
         }
+        delete[] data;
     } else {
         throw std::runtime_error("Wrong data type of dataset (not float or 64-bit unsigned integer)");
     }

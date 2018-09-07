@@ -24,6 +24,7 @@
 #include <map>
 #include <assert.h>
 #include <iomanip>
+#include <complex>
 
 #include <object.h>
 #include <vector3d.h>

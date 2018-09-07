@@ -89,10 +89,10 @@ Dataset::Dataset(hid_t dataset, std::string name, File *file)
     }
 
     // Init min/max
-    maxVF = 0;
-    minVF = 0;
-    maxVI = 0;
-    minVI = 0;
+    maxVF = std::numeric_limits<float>::min();
+    minVF = std::numeric_limits<float>::max();
+    maxVI = std::numeric_limits<hsize_t>::min();
+    minVI = std::numeric_limits<hsize_t>::max();
 
     // Init some flags for block reading
     //offsets = 0;
@@ -1146,11 +1146,11 @@ void Dataset::checkOffsetAndCountParams(Vector offset, Vector count) const
 
     for (unsigned int i = 0; i < offset.getLength(); i++) {
         if (offset.at(i) >= dims.at(i))
-            throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i));
+            throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i) + "(" + std::to_string(offset.at(i)) + " >= " + std::to_string(dims.at(i)) + ")");
         if (count.at(i) <= 0)
-            throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i));
+            throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i) + "(" + std::to_string(count.at(i)) + " <= 0)");
         if (offset.at(i) + count.at(i) > dims.at(i))
-            throw std::runtime_error("Wrong count - sum of offset and count of dimension " + std::to_string(i) + " is too big");
+            throw std::runtime_error("Wrong count - sum of offset and count of dimension " + std::to_string(i) + " is too big (" + std::to_string(offset.at(i)) + " + " + std::to_string(count.at(i)) + " > " + std::to_string(dims.at(i)) + ")");
     }
 }
 
@@ -1165,9 +1165,10 @@ void Dataset::checkOffsetAndCountParams(Vector offset, Vector count) const
  */
 void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const
 {
-    bool first = true;
+    minVF = std::numeric_limits<float>::max();
+    maxVF = std::numeric_limits<float>::min();
     for (hsize_t i = 0; i < size; i++) {
-        checkOrSetMinMaxValue(first, minVF, maxVF, data[i], minVFIndex, maxVFIndex, i);
+        checkOrSetMinMaxValue(minVF, maxVF, data[i], minVFIndex, maxVFIndex, i);
     }
 }
 
@@ -1182,9 +1183,10 @@ void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, 
  */
 void Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const
 {
-    bool first = true;
+    minVI = std::numeric_limits<hsize_t>::max();
+    maxVI = std::numeric_limits<hsize_t>::min();
     for (hsize_t i = 0; i < size; i++) {
-        checkOrSetMinMaxValue(first, minVI, maxVI, data[i], minVIIndex, maxVIIndex, i);
+        checkOrSetMinMaxValue(minVI, maxVI, data[i], minVIIndex, maxVIIndex, i);
     }
 }
 
@@ -1232,20 +1234,21 @@ void Dataset::findGlobalMinAndMaxValueF(bool log)
 {
     Vector offset;
     Vector count;
-    float minVFTmp;
-    float maxVFTmp;
-    hsize_t minVIndexTmp;
-    hsize_t maxVIndexTmp;
+    float minVFTmp = std::numeric_limits<float>::max();
+    float maxVFTmp = std::numeric_limits<float>::min();
+    hsize_t minVIndexTmp = 0;
+    hsize_t maxVIndexTmp = 0;
     hsize_t linearOffset = 0;
-    bool first = true;
+    float *data = new float[blockDims.getSize()]();
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        float *data;
+        //float *data = 0;
         readBlock(i, offset, count, data, minVFTmp, maxVFTmp, minVIndexTmp, maxVIndexTmp, log);
         convertMultiDimToLinear(offset, linearOffset, dims);
-        H5Helper::checkOrSetMinMaxValue(first, minVF, maxVF, minVFTmp, maxVFTmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
-        delete [] data; // !!!
+        H5Helper::checkOrSetMinMaxValue(minVF, maxVF, minVFTmp, maxVFTmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
+        //delete [] data; // !!!
     }
     issetGlobalMinAndMaxValue = true;
+    delete [] data; // !!!
 }
 
 /**
@@ -1255,20 +1258,21 @@ void Dataset::findGlobalMinAndMaxValueI(bool log)
 {
     Vector offset;
     Vector count;
-    hsize_t minVITmp;
-    hsize_t maxVITmp;
-    hsize_t minVIndexTmp;
-    hsize_t maxVIndexTmp;
+    hsize_t minVITmp = std::numeric_limits<hsize_t>::min();
+    hsize_t maxVITmp = std::numeric_limits<hsize_t>::max();
+    hsize_t minVIndexTmp = 0;
+    hsize_t maxVIndexTmp = 0;
     hsize_t linearOffset = 0;
-    bool first = true;
+    hsize_t *data = new hsize_t[blockDims.getSize()]();
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        hsize_t *data;
+        //hsize_t *data;
         readBlock(i, offset, count, data, minVITmp, maxVITmp, minVIndexTmp, maxVIndexTmp, log);
         convertMultiDimToLinear(offset, linearOffset, dims);
-        H5Helper::checkOrSetMinMaxValue(first, minVI, maxVI, minVITmp, maxVITmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
-        delete [] data; // !!!
+        H5Helper::checkOrSetMinMaxValue(minVI, maxVI, minVITmp, maxVITmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
+        //delete [] data; // !!!
     }
     issetGlobalMinAndMaxValue = true;
+    delete [] data; // !!!
 }
 
 /**
@@ -1410,7 +1414,8 @@ void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size) c
         throw std::runtime_error(readErrorMessage(size, H5T_NATIVE_FLOAT));
 
     try {
-        data = new float[size](); // TODO check available memory?
+        if (data == nullptr)
+            data = new float[size](); // TODO check available memory?
         assert(data != 0 && "Bad memory allocation");
         if (data == 0)
             throw std::runtime_error("Bad memory allocation");

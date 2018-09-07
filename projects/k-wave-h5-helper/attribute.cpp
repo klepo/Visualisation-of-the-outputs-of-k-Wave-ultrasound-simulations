@@ -157,7 +157,7 @@ std::string Attribute::getStringValue(hid_t datatype, const void *value, hsize_t
             return std::string(*static_cast<char **>(voidValue));
         } else {
             if (size) {
-                return std::string(static_cast<const char *>(value), size);
+                return std::string(static_cast<const char *>(value), size - 1);
             } else {
                 return static_cast<const char *>(value);
             }
