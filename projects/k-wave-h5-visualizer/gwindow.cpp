@@ -27,7 +27,7 @@
  * @param[in] qMainWindow QMainWindow (optional)
  */
 GWindow::GWindow(QMainWindow *qMainWindow)
-    : m_program(0)
+    : m_program(nullptr)
     , initialized(false)
 
 {
@@ -139,7 +139,7 @@ void GWindow::initialize()
 
     glGenTextures(1, &textureFboBack);
     glBindTexture(GL_TEXTURE_2D, textureFboBack);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -148,7 +148,7 @@ void GWindow::initialize()
 
     glGenTextures(1, &textureFboFront);
     glBindTexture(GL_TEXTURE_2D, textureFboFront);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -211,10 +211,10 @@ void GWindow::initialize()
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glBindTexture(GL_TEXTURE_2D, textureFboBack);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindTexture(GL_TEXTURE_2D, textureFboFront);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureFboBack, 0);
 
@@ -336,7 +336,7 @@ void GWindow::setDatasetPosition(QVector3DI position)
 void GWindow::unload3DTexture()
 {
     glBindTexture(GL_TEXTURE_3D, texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 1, 1, 1, 0, GL_RED, GL_FLOAT, 0);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 1, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
@@ -345,7 +345,7 @@ void GWindow::unload3DTexture()
  */
 void GWindow::clear()
 {
-    object = 0;
+    object = nullptr;
 
     if (initialized) {
         setMinValue(0.0f);
@@ -394,13 +394,13 @@ void GWindow::clearSlices()
     index.setZ(0.5);
     glBindTexture(GL_TEXTURE_2D, textureXY);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
     glBindTexture(GL_TEXTURE_2D, textureXZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
     glBindTexture(GL_TEXTURE_2D, textureYZ);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
 }
 
 /**
@@ -549,9 +549,9 @@ void GWindow::renderFrame()
     glBindVertexArray(vao);
     vboCubeVertices.bind();
     glEnableVertexAttribArray(GLuint(m_aPosition));
-    glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
-    glDrawElements(GL_LINE_LOOP, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
+    glDrawElements(GL_LINE_LOOP, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr); // 3*12
     glDisableVertexAttribArray(GLuint(m_aPosition));
     vboCubeVertices.release();
     glBindVertexArray(0);
@@ -565,9 +565,9 @@ void GWindow::renderBox()
     glBindVertexArray(vao);
     vboCubeVertices.bind();
     glEnableVertexAttribArray(GLuint(m_aPosition));
-    glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
-    glDrawElements(GL_TRIANGLES, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, 0); // 3*12
+    glDrawElements(GL_TRIANGLES, sizeof(cubeElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr); // 3*12
     glDisableVertexAttribArray(GLuint(m_aPosition));
     vboCubeVertices.release();
     glBindVertexArray(0);
@@ -801,18 +801,18 @@ void GWindow::render()
         vboSliceVertices.bind();
 
         if (sliceXY) {
-            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
             glBindTexture(GL_TEXTURE_2D, textureXY);
 
             // Draw slice
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix);
             m_program->setUniformValue(m_uSliceMatrix, translateXYMatrix);
-            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
 
             if (!trim) {
                 m_program->setUniformValue(m_uVolumeRenderingBox, true);
                 glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-                glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+                glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 m_program->setUniformValue(m_uVolumeRenderingBox, false);
             }
@@ -820,51 +820,51 @@ void GWindow::render()
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXYMatrix * offsetMatrix);
             m_program->setUniformValue(m_uXYBorder, true);
-            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
             m_program->setUniformValue(m_uXYBorder, false);
         }
 
         if (sliceXZ) {
-            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
             glBindTexture(GL_TEXTURE_2D, textureXZ);
 
             // Draw slice
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix);
             m_program->setUniformValue(m_uSliceMatrix, translateXZMatrix);
-            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
 
             m_program->setUniformValue(m_uVolumeRenderingBox, true);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateXZMatrix * offsetMatrix);
             m_program->setUniformValue(m_uXZBorder, true);
-            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
             m_program->setUniformValue(m_uXZBorder, false);
         }
 
         if (sliceYZ) {
-            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glVertexAttribPointer(GLuint(m_aPosition), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
             glBindTexture(GL_TEXTURE_2D, textureYZ);
 
             // Draw slice
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix);
             m_program->setUniformValue(m_uSliceMatrix, translateYZMatrix);
-            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
 
             m_program->setUniformValue(m_uVolumeRenderingBox, true);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
             // Draw 2D frame
             m_program->setUniformValue(m_uMatrix, matrix * imageMatrix * translateYZMatrix * offsetMatrix);
             m_program->setUniformValue(m_uYZBorder, true);
-            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_LINE_LOOP,  sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
             m_program->setUniformValue(m_uYZBorder, false);
         }
 
@@ -943,14 +943,14 @@ void GWindow::render()
 void GWindow::saveImage()
 {
     QString name = "no_name";
-    if (object != 0) {
+    if (object != nullptr) {
         QString fileName = object->getOpenedH5File()->getFilename();
         QString objectName = object->getOnlyName();
         name = fileName + "_" + objectName + "_" + objectName + "_3Dscene.png";
     }
-    QString imagefileName = QFileDialog::getSaveFileName(0, "Save image", name, "Image (*.png)");
+    QString imagefileName = QFileDialog::getSaveFileName(nullptr, "Save image", name, "Image (*.png)");
 
-    if (imagefileName != 0) {
+    if (imagefileName != nullptr) {
         // Save 3D scene to png image
         QImage image = getImage();
         image.save(imagefileName);
@@ -1208,10 +1208,10 @@ void GWindow::resizeEvent(QResizeEvent *)
     if (initialized) {
         // Resize framebuffer texture
         glBindTexture(GL_TEXTURE_2D, textureFboBack);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindTexture(GL_TEXTURE_2D, textureFboFront);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
@@ -1220,9 +1220,8 @@ void GWindow::resizeEvent(QResizeEvent *)
         m_program->setUniformValue(m_uWidth, float(width()));
         m_program->setUniformValue(m_uHeight, float(height()));
         m_program->release();
-
     }
-
-    if (isExposed())
+    if (isExposed()) {
         renderNow();
+    }
 }

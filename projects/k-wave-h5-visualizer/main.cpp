@@ -29,6 +29,8 @@
  */
 int main(int argc, char *argv[])
 {
+
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL); // Forces the usage of desktop OpenGL
     QApplication app(argc, argv);
 
     app.setApplicationName("k-Wave H5 Visualizer");

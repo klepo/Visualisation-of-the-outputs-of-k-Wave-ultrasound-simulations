@@ -29,12 +29,16 @@
  * @param[in] offset Offset
  * @param[in] count Count
  */
-Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count)
+Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data)
 {
     this->dataset = dataset;
     this->offset = offset;
     this->count = count;
     this->full = false;
+    if (data != nullptr) {
+        this->data = data;
+        this->extData = true;
+    }
 }
 
 /**
@@ -42,7 +46,7 @@ Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::
  * @param[in] dataset Dataset
  * @param[in] step Step
  */
-Request::Request(H5Helper::Dataset *dataset, hsize_t step)
+Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
 {
     this->dataset = dataset;
     if (dataset->getRank() == 3) {
@@ -54,6 +58,10 @@ Request::Request(H5Helper::Dataset *dataset, hsize_t step)
     }
     this->full = true;
     this->step = step;
+    if (data != nullptr) {
+        this->data = data;
+        this->extData = true;
+    }
 }
 
 /**
@@ -63,7 +71,8 @@ Request::Request(H5Helper::Dataset *dataset, hsize_t step)
  */
 Request::~Request()
 {
-    delete[] data;
+    if (!this->extData)
+        delete[] data;
 }
 
 /**
@@ -93,14 +102,14 @@ H5ReadingThread::H5ReadingThread(QObject *parent) : QThread(parent)
  * @param[in] count Count
  * @param[in] limit Length of waiting queue (optional)
  */
-void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count)
+void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
     }
-    queue.enqueue(new Request(dataset, offset, count));
+    queue.enqueue(new Request(dataset, offset, count, data));
 }
 
 /**
@@ -108,14 +117,14 @@ void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector
  * @param[in] dataset Dataset
  * @param[in] step Step
  */
-void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step)
+void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
     }
-    Request *r = new Request(dataset, step);
+    Request *r = new Request(dataset, step, data);
     if (compressHelper)
         r->count[r->count.getLength() - 1] = r->count[r->count.getLength() - 1] / compressHelper->getStride();
     queue.enqueue(r);
@@ -137,9 +146,9 @@ H5ReadingThread::~H5ReadingThread()
     clearRequests();
     clearDoneRequests();
     delete doneRequestCC;
-    doneRequestCC = 0;
+    doneRequestCC = nullptr;
     delete doneRequestLC;
-    doneRequestLC = 0;
+    doneRequestLC = nullptr;
 }
 
 void H5ReadingThread::setCompressHelper(H5Helper::CompressHelper *compressHelper)
@@ -202,7 +211,7 @@ void H5ReadingThread::run()
     while (1) {
         // Reading mutex
         QMutexLocker lock(&mutex);
-        Request *r = 0;
+        Request *r = nullptr;
         // Queue mutex
         queueMutex.lock();
         if (!queue.isEmpty())
@@ -215,9 +224,8 @@ void H5ReadingThread::run()
         queueMutex.unlock();
 
         bool log =  false;
-        QElapsedTimer elapsedTimer;
 
-        if (r != 0) {
+        if (r != nullptr) {
             try {
                 //usleep(1000000);
                 /*if (r->full) {
@@ -246,7 +254,10 @@ void H5ReadingThread::run()
                     // One block data reading (slice)
                     //qDebug() << "start reading a slice... ";
 
+                    #ifdef QT_DEBUG
+                    QElapsedTimer elapsedTimer;
                     elapsedTimer.restart();
+                    #endif
 
                     if (compressHelper) {
                         hsize_t xStride = compressHelper->getStride();
@@ -256,7 +267,7 @@ void H5ReadingThread::run()
                         H5Helper::Vector4D offsetLC = r->offset;
                         H5Helper::Vector4D offsetCC = r->offset;
                         H5Helper::Vector4D count = r->count;
-                        hsize_t size = r->count.getSize();
+                        //hsize_t size = r->count.getSize();
                         count.x(count.x() * xStride);
 
                         offsetCC.t((step / oSize) - 1);
@@ -284,24 +295,28 @@ void H5ReadingThread::run()
                             r->dataset->readDataset(doneRequestCC->offset, doneRequestCC->count, doneRequestCC->data, log);
                         }
 
-                        r->data = new float[size]();
+                        if (!r->extData)
+                            r->data = new float[r->count.getSize()]();
                         #pragma omp parallel for
-                        for (hssize_t p = 0; p < hssize_t(size); p++) {
+                        for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
                             r->data[p] = compressHelper->computeTimeStep(&doneRequestCC->data[p * xStride], &doneRequestLC->data[p * xStride], localStep);
                         }
 
                     } else {
-                        r->data = new float[r->count.getSize()]();
+                        if (!r->extData)
+                            r->data = new float[r->count.getSize()]();
                         r->dataset->readDataset(r->offset, r->count, r->data, log);
                     }
 
                     QMutexLocker locker(&requestMutex);
 
-                    // Time measuring
-                    timeSum += elapsedTimer.nsecsElapsed();
-                    readCount++;
-                    meanTime = timeSum / readCount;
-                    qDebug() << double(meanTime) / 1000000 << "ms";
+                    #ifdef QT_DEBUG
+                        // Time measuring
+                        timeSum += elapsedTimer.nsecsElapsed();
+                        readCount++;
+                        meanTime = timeSum / readCount;
+                        qDebug() << double(meanTime) / 1000000 << "ms";
+                    #endif
 
                     doneRequests.append(r);
                     emit requestDone(r);

@@ -30,8 +30,8 @@
 class Request
 {
 public:
-    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count);
-    Request(H5Helper::Dataset *dataset, hsize_t step);
+    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data = nullptr);
+    Request(H5Helper::Dataset *dataset, hsize_t step, float *data = nullptr);
     ~Request();
     QString toQString();
 
@@ -55,6 +55,8 @@ public:
     H5Helper::Dataset *dataset = nullptr;
     /// Data
     float *data = nullptr;
+    /// External memory?
+    bool extData = false;
 };
 
 /**
@@ -69,8 +71,8 @@ public:
     void setCompressHelper(H5Helper::CompressHelper *compressHelper);
 
 public slots:
-    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count);
-    void createRequest(H5Helper::Dataset *dataset, hsize_t step);
+    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data = nullptr);
+    void createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data = nullptr);
     void stopCurrentBlockReading();
     void clearRequests();
     void clearDoneRequests();

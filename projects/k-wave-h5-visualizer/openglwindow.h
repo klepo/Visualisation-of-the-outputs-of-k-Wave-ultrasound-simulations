@@ -22,12 +22,29 @@
 
 #include <QtCore>
 #include <QtGui>
-#include <QOpenGLFunctions_3_3_Core>
+//#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QMessageBox>
 
 #ifdef Q_OS_WIN
 #include <Windows.h> // for Sleep
 #endif
+
+// Set OpenGL version and profile
+/// OpenGL major version
+//static const unsigned int OPENGL_MAJOR = 3;
+static const unsigned int OPENGL_MAJOR = 4;
+
+/// OpenGL minor version
+//static const unsigned int OPENGL_MINOR = 3;
+static const unsigned int OPENGL_MINOR = 3;
+
+/// Qt OpenGL functions selection
+//typedef QOpenGLFunctions_3_3_Core OPENGL_FUNCTIONS;
+typedef QOpenGLFunctions_4_3_Core OPENGL_FUNCTIONS;
+
+/// Selection of OpenGL profile (QSurfaceFormat::CoreProfile)
+static const QSurfaceFormat::OpenGLContextProfile OPENGL_PROFILE = QSurfaceFormat::CoreProfile;
 
 namespace QTest
 {
@@ -37,12 +54,12 @@ namespace QTest
 /**
  * @brief The OpenGLWindow class represents wrapper for OpenGL window
  */
-class OpenGLWindow : public QWindow, public QOpenGLFunctions_3_3_Core
+class OpenGLWindow : public QWindow, public OPENGL_FUNCTIONS
 {
     Q_OBJECT
 
 public:
-    explicit OpenGLWindow(QWindow *parent = 0);
+    explicit OpenGLWindow(QWindow *parent = nullptr);
     ~OpenGLWindow();
     /// Pure virtual render function
     virtual void render() = 0;
@@ -88,7 +105,6 @@ private:
     QOpenGLPaintDevice *device;
     QOpenGLDebugLogger *logger;
     bool m_update_pending;
-    float r;
     double elapsedMs = 0;
 
     bool mouseDown;

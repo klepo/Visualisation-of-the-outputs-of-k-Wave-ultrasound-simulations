@@ -117,7 +117,7 @@ private:
     unsigned long long harmonic = 1;
     unsigned long long mOS = 1;
 
-    ParamsDefinition::VectorOfULongLongs maxChunkSizes = {64, 64, 64, 1};
+    ParamsDefinition::VectorOfULongLongs maxChunkSizes = ParamsDefinition::VectorOfULongLongs{64, 64, 64, 1};
     bool flagMaxChunkSizes = false;
 
     // Filter/selection by names
