@@ -249,10 +249,13 @@ float CompressHelper::computeTimeStep(float *cC, float *lC, hsize_t stepLocal)
     float stepValue = 0;
     for (hsize_t h = 0; h < harmonics; h++) {
         hsize_t sH = h * bSize + stepLocal;
-        hsize_t h2 = h * 2;
-        floatC lCC = conj(floatC(cC[h2], cC[h2 + 1]));
-        floatC cCC = conj(floatC(lC[h2], lC[h2 + 1]));
+        //hsize_t h2 = h * 2;
+        //floatC lCC = conj(floatC(cC[h2], cC[h2 + 1]));
+        //floatC cCC = conj(floatC(lC[h2], lC[h2 + 1]));
+        floatC lCC = conj(reinterpret_cast<floatC *>(cC)[h]);
+        floatC cCC = conj(reinterpret_cast<floatC *>(lC)[h]);
         stepValue += real(cCC * getBE()[sH]) + real(lCC * getBE_1()[sH]);
+        //stepValue += real(floatC(300000, 300000) * getBE()[sH]) + real(floatC(300000, 300000) * getBE_1()[sH]);
     }
     return stepValue;
 }

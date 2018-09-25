@@ -44,7 +44,13 @@ GWindow::~GWindow()
     glDeleteVertexArrays(1, &vao);
 
     glDeleteTextures(1, &texture);
-    glDeleteTextures(1, &colormapTexture);
+    glDeleteTextures(1, &textureLC);
+    glDeleteTextures(1, &textureCC);
+    glDeleteTextures(1, &textureCC);
+    glDeleteTextures(1, &textureBE);
+    glDeleteTextures(1, &textureBE_1);
+    glDeleteTextures(1, &textureBufferBE);
+    glDeleteTextures(1, &textureBufferBE_1);
     glDeleteTextures(1, &opacityTexture);
     glDeleteTextures(1, &textureXY);
     glDeleteTextures(1, &textureXZ);
@@ -79,6 +85,16 @@ void GWindow::initialize()
     m_uSliceMatrix = m_program->uniformLocation("uSliceMatrix");
 
     uVolumeTexture = m_program->uniformLocation("uVolume");
+    uVolumeTextureLC = m_program->uniformLocation("uVolumeLC");
+    uVolumeTextureCC = m_program->uniformLocation("uVolumeCC");
+
+    uTextureBE = m_program->uniformLocation("uTextureBE");
+    uTextureBE_1 = m_program->uniformLocation("uTextureBE_1");
+
+    uStepLocal = m_program->uniformLocation("uStepLocal");
+    uHarmonics = m_program->uniformLocation("uHarmonics");
+    uBSize = m_program->uniformLocation("uBSize");
+
     uColormapTexture = m_program->uniformLocation("uColormap");
     uOpacityTexture = m_program->uniformLocation("uOpacity");
     uSliceTexture = m_program->uniformLocation("uSlice");
@@ -92,6 +108,7 @@ void GWindow::initialize()
     m_uYZBorder = m_program->uniformLocation("uYZBorder");
     m_uVolumeRenderingBox = m_program->uniformLocation("uVolumeRenderingBox");
     m_uVolumeRendering = m_program->uniformLocation("uVolumeRendering");
+    m_uVolumeCompressRendering = m_program->uniformLocation("uVolumeCompressRendering");
 
     m_uTrim = m_program->uniformLocation("uTrim");
 
@@ -164,6 +181,50 @@ void GWindow::initialize()
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_3D, 0);
+
+    // 3D compression coefficients texture
+    glGenTextures(1, &textureLC);
+    glBindTexture(GL_TEXTURE_3D, textureLC);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_3D, 0);
+
+    // 3D compression coefficients texture
+    glGenTextures(1, &textureCC);
+    glBindTexture(GL_TEXTURE_3D, textureCC);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_3D, 0);
+
+    // Texture for compression basis
+    glGenBuffers(1, &textureBufferBE);
+    glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE);
+    glBufferData(GL_TEXTURE_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+
+    // Texture buffer for compression basis
+    glGenTextures(1, &textureBE);
+    glBindTexture(GL_TEXTURE_BUFFER, textureBE);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, textureBufferBE);
+    glBindTexture(GL_TEXTURE_BUFFER, 0);
+
+    // Texture for compression basis
+    glGenBuffers(1, &textureBufferBE_1);
+    glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE_1);
+    glBufferData(GL_TEXTURE_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+
+    // Texture buffer for compression basis
+    glGenTextures(1, &textureBE_1);
+    glBindTexture(GL_TEXTURE_BUFFER, textureBE_1);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, textureBufferBE_1);
+    glBindTexture(GL_TEXTURE_BUFFER, 0);
 
     // 1D colormap texture
     glGenTextures(1, &colormapTexture);
@@ -257,12 +318,21 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uMin, 0.0f);
     m_program->setUniformValue(m_uMax, 0.0f);
 
-    m_program->setUniformValue(uOpacityTexture, 4);
-    m_program->setUniformValue(uBoxBackSampler, 3);
-    m_program->setUniformValue(uBoxFrontSampler, 5);
-    m_program->setUniformValue(uSliceTexture, 2);
-    m_program->setUniformValue(uColormapTexture, 1);
     m_program->setUniformValue(uVolumeTexture, 0);
+    m_program->setUniformValue(uColormapTexture, 1);
+    m_program->setUniformValue(uSliceTexture, 2);
+    m_program->setUniformValue(uBoxBackSampler, 3);
+    m_program->setUniformValue(uOpacityTexture, 4);
+    m_program->setUniformValue(uBoxFrontSampler, 5);
+    m_program->setUniformValue(uVolumeTextureLC, 6);
+    m_program->setUniformValue(uVolumeTextureCC, 7);
+    m_program->setUniformValue(uTextureBE, 8);
+    m_program->setUniformValue(uTextureBE_1, 9);
+
+    m_program->setUniformValue(uStepLocal, 0);
+    m_program->setUniformValue(uHarmonics, 1);
+    m_program->setUniformValue(uBSize, 1);
+
 
     m_program->setUniformValue(m_uFrame, false);
 
@@ -271,6 +341,7 @@ void GWindow::initialize()
     m_program->setUniformValue(m_uSlices, false);
 
     m_program->setUniformValue(m_uVolumeRendering, false);
+    m_program->setUniformValue(m_uVolumeCompressRendering, false);
     m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
     m_program->setUniformValue(m_uXYBorder, false);
@@ -330,12 +401,35 @@ void GWindow::setDatasetPosition(QVector3DI position)
     datasetPosition = position;
 }
 
+void GWindow::setCompressRendering(bool value)
+{
+    if (initialized) {
+        m_program->bind();
+        m_program->setUniformValue(m_uVolumeCompressRendering, value);
+        m_program->release();
+    }
+}
+
 /**
  * @brief Unloads 3D texture data
  */
 void GWindow::unload3DTexture()
 {
     glBindTexture(GL_TEXTURE_3D, texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 1, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
+    glBindTexture(GL_TEXTURE_3D, 0);
+}
+
+/**
+ * @brief Unloads 3D compression coefficients texture data
+ */
+void GWindow::unload3DCompressTexture()
+{
+    glBindTexture(GL_TEXTURE_3D, textureLC);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 1, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
+    glBindTexture(GL_TEXTURE_3D, 0);
+
+    glBindTexture(GL_TEXTURE_3D, textureCC);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 1, 1, 1, 0, GL_RED, GL_FLOAT, nullptr);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
@@ -353,19 +447,22 @@ void GWindow::clear()
         setColormap();
         setOpacity();
 
+        setCompressRendering(false);
+
         setFrameSize(QVector3DI(1, 1, 1));
         setDatasetSize(QVector3DI(1, 1, 1));
         setDatasetPosition(QVector3DI(0, 0, 0));
 
         clearSlices();
         unload3DTexture();
+        unload3DCompressTexture();
 
         renderLater();
     }
 }
 
 /**
- * @brief Sets part of 3D data from loading request to 3D texture
+ * @brief Sets 3D data from loading request to 3D texture
  * @param[in] r Loading request
  */
 void GWindow::set3DData(float *data)
@@ -381,6 +478,44 @@ void GWindow::set3DData(float *data)
         return;
     }
 
+    renderLater();
+}
+
+/**
+ * @brief Sets 3D compression coefficients data from loading request to 3D texture
+ * @param dataLC
+ * @param dataCC
+ * @param localStep
+ */
+void GWindow::set3DCompressData(float *dataLC, float *dataCC, hsize_t localStep)
+{
+    if (object && object->getCompressHelper()) {
+        glBindTexture(GL_TEXTURE_3D, textureLC);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(object->getCompressHelper()->getStride()), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, dataLC);
+        glBindTexture(GL_TEXTURE_3D, 0);
+
+        // Check OUT_OF_MEMORY, dataset is too big
+        if (checkGlError() != GL_NO_ERROR) {
+            unload3DCompressTexture();
+            return;
+        }
+
+        glBindTexture(GL_TEXTURE_3D, textureCC);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(object->getCompressHelper()->getStride()), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, dataCC);
+        glBindTexture(GL_TEXTURE_3D, 0);
+
+        // Check OUT_OF_MEMORY, dataset is too big
+        if (checkGlError() != GL_NO_ERROR) {
+            unload3DCompressTexture();
+            return;
+        }
+
+        m_program->bind();
+        m_program->setUniformValue(uStepLocal, int(localStep));
+        m_program->release();
+    }
     renderLater();
 }
 
@@ -537,6 +672,16 @@ void GWindow::setInterpolationMode(int mode)
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, glMode);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, glMode);
         glBindTexture(GL_TEXTURE_3D, 0);
+
+        glBindTexture(GL_TEXTURE_3D, textureLC);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, glMode);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, glMode);
+        glBindTexture(GL_TEXTURE_3D, 0);
+
+        glBindTexture(GL_TEXTURE_3D, textureCC);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, glMode);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, glMode);
+        glBindTexture(GL_TEXTURE_3D, 0);
     }
     renderLater();
 }
@@ -613,6 +758,7 @@ void GWindow::setObject(H5ObjectToVisualize *value)
     connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));
     connect(object, SIGNAL(colormapChanged(ColorMap::Type)), this, SLOT(setColormap(ColorMap::Type)));
     connect(object, SIGNAL(data3DLoaded(float *)), this, SLOT(set3DData(float *)));
+    connect(object, SIGNAL(data3DCompressLoaded(float *, float *, hsize_t)), this, SLOT(set3DCompressData(float *, float *, hsize_t)));
 
     setMinValue(object->getMinValue());
     setMaxValue(object->getMaxValue());
@@ -628,7 +774,40 @@ void GWindow::setObject(H5ObjectToVisualize *value)
     setYZSlice(object->getDataYZ(), object->getXIndex());
 
     object->setData3DloadingFlag(volumeRendering);
-    set3DData(object->getData3D());
+
+    if (object->getCompressHelper()) {
+        set3DData(nullptr);
+
+        glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE);
+        glBufferData(GL_TEXTURE_BUFFER,
+                     sizeof(GLfloat) * GLuint(object->getCompressHelper()->getStride() * object->getCompressHelper()->getBSize()),
+                     reinterpret_cast<float *>(object->getCompressHelper()->getBE()),
+                     GL_STATIC_DRAW);
+        glBindBuffer(GL_TEXTURE_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_BUFFER, textureBE);
+        glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, textureBufferBE);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+
+        glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE_1);
+        glBufferData(GL_TEXTURE_BUFFER,
+                     sizeof(GLfloat) * GLuint(object->getCompressHelper()->getStride() * object->getCompressHelper()->getBSize()),
+                     reinterpret_cast<float *>(object->getCompressHelper()->getBE_1()),
+                     GL_STATIC_DRAW);
+        glBindBuffer(GL_TEXTURE_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_BUFFER, textureBE_1);
+        glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, textureBufferBE_1);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+
+        m_program->bind();
+        m_program->setUniformValue(uHarmonics, int(object->getCompressHelper()->getHarmonics()));
+        m_program->setUniformValue(uBSize, int(object->getCompressHelper()->getBSize()));
+        m_program->release();
+
+        set3DCompressData(object->getData3DLC(), object->getData3DCC(), object->getLocalStep());
+        setCompressRendering(true);
+    } else {
+        set3DData(object->getData3D());
+    }
 }
 
 /**
@@ -638,6 +817,7 @@ void GWindow::render()
 {
     if (checkGlError() == GL_OUT_OF_MEMORY) {
         unload3DTexture();
+        unload3DCompressTexture();
     }
 
     // Rotation of scene by left mouse click
@@ -902,29 +1082,41 @@ void GWindow::render()
 
         m_program->setUniformValue(m_uVolumeRenderingBox, false);
 
-
         m_program->setUniformValue(m_uVolumeRendering, true);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_3D, texture);
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_1D, colormapTexture);
 
-        glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_1D, opacityTexture);
-
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, textureFboBack);
+
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_1D, opacityTexture);
 
         glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_2D, textureFboFront);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_3D, texture);
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_3D, textureLC);
+
+        glActiveTexture(GL_TEXTURE7);
+        glBindTexture(GL_TEXTURE_3D, textureCC);
+
+        glActiveTexture(GL_TEXTURE8);
+        glBindTexture(GL_TEXTURE_BUFFER, textureBE);
+
+        glActiveTexture(GL_TEXTURE9);
+        glBindTexture(GL_TEXTURE_BUFFER, textureBE_1);
 
         renderBox();
 
         glBindTexture(GL_TEXTURE_3D, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindTexture(GL_TEXTURE_1D, 0);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
 
         m_program->setUniformValue(m_uVolumeRendering, false);
 
@@ -943,7 +1135,7 @@ void GWindow::render()
 void GWindow::saveImage()
 {
     QString name = "no_name";
-    if (object != nullptr) {
+    if (object) {
         QString fileName = object->getOpenedH5File()->getFilename();
         QString objectName = object->getOnlyName();
         name = fileName + "_" + objectName + "_" + objectName + "_3Dscene.png";
@@ -1135,69 +1327,73 @@ void GWindow::alignToYZFromBack()
 bool GWindow::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::KeyPress: {
-        QKeyEvent *key = static_cast<QKeyEvent *>(event);
-        if (key->key() == Qt::Key_F) {
-            if (frame)
-                frame = false;
-            else
-                frame = true;
-            emit setStatusMessage(QString("Frame: %1").arg(frame));
-        }
-        if (key->key() == Qt::Key_T) {
-            if (trim)
-                trim = false;
-            else
-                trim = true;
-            emit setStatusMessage(QString("Trim: %1").arg(trim));
-        }
-        if (key->key() == Qt::Key_Z) {
-            rotateXMatrix.setToIdentity();
-            rotateYMatrix.setToIdentity();
-        }
-        if (key->key() == Qt::Key_Y) {
-            rotateXMatrix.setToIdentity();
-            rotateXMatrix.rotate(90, 1, 0, 0);
-            rotateYMatrix.setToIdentity();
-        }
-        if (key->key() == Qt::Key_X) {
-            rotateXMatrix.setToIdentity();
-            rotateYMatrix.setToIdentity();
-            rotateYMatrix.rotate(90, 0, -1, 0);
-        }
-        if (key->key() == Qt::Key_B) {
-            rotateXMatrix.setToIdentity();
-            rotateXMatrix.rotate(180, 0, -1, 0);
-            rotateYMatrix.setToIdentity();
-        }
-        if (key->key() == Qt::Key_G) {
-            rotateXMatrix.setToIdentity();
-            rotateXMatrix.rotate(90 + 180, 1, 0, 0);
-            rotateYMatrix.setToIdentity();
-        }
-        if (key->key() == Qt::Key_R) {
-            rotateXMatrix.setToIdentity();
-            rotateYMatrix.setToIdentity();
-            rotateYMatrix.rotate(90 + 180, 0, -1, 0);
-        }
-        if (key->key() == Qt::Key_C) {
-            position.setX(0);
-            position.setY(0);
-        }
-        if (key->key() == Qt::Key_O) {
-            setOrthogonal(!orthogonal);
-        }
-        renderLater();
-    }
-    case QEvent::MouseButtonPress:
-        if (dynamic_cast<QMouseEvent *>(event)->buttons() == Qt::MiddleButton) {
-            position.setX(0);
-            position.setY(0);
+        case QEvent::KeyPress: {
+            QKeyEvent *key = static_cast<QKeyEvent *>(event);
+            if (key->key() == Qt::Key_F) {
+                if (frame)
+                    frame = false;
+                else
+                    frame = true;
+                emit setStatusMessage(QString("Frame: %1").arg(frame));
+            }
+            if (key->key() == Qt::Key_T) {
+                if (trim)
+                    trim = false;
+                else
+                    trim = true;
+                emit setStatusMessage(QString("Trim: %1").arg(trim));
+            }
+            if (key->key() == Qt::Key_Z) {
+                rotateXMatrix.setToIdentity();
+                rotateYMatrix.setToIdentity();
+            }
+            if (key->key() == Qt::Key_Y) {
+                rotateXMatrix.setToIdentity();
+                rotateXMatrix.rotate(90, 1, 0, 0);
+                rotateYMatrix.setToIdentity();
+            }
+            if (key->key() == Qt::Key_X) {
+                rotateXMatrix.setToIdentity();
+                rotateYMatrix.setToIdentity();
+                rotateYMatrix.rotate(90, 0, -1, 0);
+            }
+            if (key->key() == Qt::Key_B) {
+                rotateXMatrix.setToIdentity();
+                rotateXMatrix.rotate(180, 0, -1, 0);
+                rotateYMatrix.setToIdentity();
+            }
+            if (key->key() == Qt::Key_G) {
+                rotateXMatrix.setToIdentity();
+                rotateXMatrix.rotate(90 + 180, 1, 0, 0);
+                rotateYMatrix.setToIdentity();
+            }
+            if (key->key() == Qt::Key_R) {
+                rotateXMatrix.setToIdentity();
+                rotateYMatrix.setToIdentity();
+                rotateYMatrix.rotate(90 + 180, 0, -1, 0);
+            }
+            if (key->key() == Qt::Key_C) {
+                position.setX(0);
+                position.setY(0);
+            }
+            if (key->key() == Qt::Key_O) {
+                setOrthogonal(!orthogonal);
+            }
             renderLater();
+            break;
         }
-    default:
-        return OpenGLWindow::event(event);
+        case QEvent::MouseButtonPress: {
+            if (dynamic_cast<QMouseEvent *>(event)->buttons() == Qt::MiddleButton) {
+                position.setX(0);
+                position.setY(0);
+                renderLater();
+            }
+            break;
+        }
+        default:
+            return OpenGLWindow::event(event);
     }
+    return OpenGLWindow::event(event);
 }
 
 /**

@@ -37,7 +37,7 @@ class GWindow : public OpenGLWindow, AbstractObjectWidget
     Q_OBJECT
 
 public:
-    GWindow(QMainWindow *qMainWindow = 0);
+    GWindow(QMainWindow *qMainWindow = nullptr);
     ~GWindow();
 
     void initialize();
@@ -88,7 +88,8 @@ public slots:
 
     void setObject(H5ObjectToVisualize *value);
 
-    void set3DData(float *data3d);
+    void set3DData(float *data);
+    void set3DCompressData(float *dataLC, float *dataCC, hsize_t localStep);
 
 private slots:
     void setOpacity(QVector<float> value = QVector<float>(5, 1));
@@ -102,6 +103,8 @@ private slots:
     void setDatasetPosition(H5Helper::Vector3D position);
     void setDatasetPosition(QVector3DI position);
 
+    void setCompressRendering(bool value);
+
     void setXYSlice(float *data, hsize_t index);
     void setXZSlice(float *data, hsize_t index);
     void setYZSlice(float *data, hsize_t index);
@@ -111,13 +114,25 @@ private:
     void renderBox();
 
     void unload3DTexture();
+    void unload3DCompressTexture();
     void clearSlices();
     QPointF convertPointToOpenGLRelative(QPointF point);
     //float round(float number, float precision);
 
-    QMainWindow *qMainWindow = 0;
+    QMainWindow *qMainWindow = nullptr;
 
     GLint uVolumeTexture;
+
+    GLint uVolumeTextureLC;
+    GLint uVolumeTextureCC;
+
+    GLint uTextureBE;
+    GLint uTextureBE_1;
+
+    GLint uStepLocal;
+    GLint uHarmonics;
+    GLint uBSize;
+
     GLint uColormapTexture;
     GLint uOpacityTexture;
     GLint uSliceTexture;
@@ -130,6 +145,7 @@ private:
     GLint m_uXZBorder;
     GLint m_uYZBorder;
     GLint m_uVolumeRendering;
+    GLint m_uVolumeCompressRendering;
     GLint m_uVolumeRenderingBox;
 
     GLint m_uTrim;
@@ -162,6 +178,12 @@ private:
 
     GLuint vao;
     GLuint texture;
+    GLuint textureLC;
+    GLuint textureCC;
+    GLuint textureBE;
+    GLuint textureBE_1;
+    GLuint textureBufferBE;
+    GLuint textureBufferBE_1;
     GLuint textureFboBack;
     GLuint textureFboFront;
     GLuint fbo;

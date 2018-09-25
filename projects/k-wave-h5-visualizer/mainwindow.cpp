@@ -321,6 +321,7 @@ void MainWindow::selectDataset(H5ObjectToVisualize *object)
 
         connect(object, SIGNAL(slicesLoaded()), this, SLOT(slicesLoaded()));
         connect(object, SIGNAL(data3DLoaded(float *)), this, SLOT(data3DLoaded()));
+        connect(object, SIGNAL(data3DCompressLoaded(float *, float *, hsize_t)), this, SLOT(data3DLoaded()));
         connect(object, SIGNAL(data3DLoading()), this, SLOT(data3DLoading()));
     }
 }

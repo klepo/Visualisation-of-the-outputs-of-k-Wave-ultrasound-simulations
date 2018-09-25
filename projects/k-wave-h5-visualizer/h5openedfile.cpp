@@ -45,7 +45,7 @@ H5OpenedFile::H5OpenedFile(QString fileName, QObject *parent) :
     H5Helper::Group *group = file->openGroup("/", false);
     for (hsize_t i = 0; i < group->getNumAttrs(); i++) {
         H5Helper::Attribute *attribute = group->getAttribute(i);
-        QString value(static_cast<const char *>(attribute->getData()));
+        QString value = QString::fromStdString(attribute->getStringValue());
         info.insert(QString::fromStdString(attribute->getName()), value);
         delete attribute;
     }

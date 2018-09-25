@@ -75,17 +75,20 @@ public:
 
     operator std::string() const;
 
+protected:
+    /// Copy data or part of data
+    void copy(const Vector &vectorSrc);
+    /// Vector data
+    hsize_t *vector = nullptr;
+    /// Vector length
+    hsize_t length = 0;
+
+
 private:
     void assign(const Vector &vector, bool deleteFlag);
     void move(Vector &vector, bool deleteFlag);
 
     void checkIndex(hsize_t i) const;
-
-protected:
-    /// Vector data
-    hsize_t *vector = 0;
-    /// Vector length
-    hsize_t length = 0;
 };
 }
 

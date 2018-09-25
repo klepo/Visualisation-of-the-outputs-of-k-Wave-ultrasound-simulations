@@ -39,15 +39,17 @@ void DatasetsDockWidget::setFile(H5OpenedFile *value)
     }
     //QList<QRadioButton *> radioButtons = findChildren<QRadioButton *>();
     //radioButtons.at(0)->setChecked(true);
-    adjustSize();
+    //adjustSize();
+    this->setMaximumHeight(16777215);
     selectDataset();
 }
 
 void DatasetsDockWidget::clear()
 {
-    file = 0;
+    file = nullptr;
     clearLayout(ui->formLayout);
-    adjustSize();
+    this->setMaximumHeight(20);
+    //adjustSize();
 }
 
 void DatasetsDockWidget::selectDataset()

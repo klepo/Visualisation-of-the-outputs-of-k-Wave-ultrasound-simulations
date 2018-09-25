@@ -157,7 +157,12 @@ std::string Attribute::getStringValue(hid_t datatype, const void *value, hsize_t
             return std::string(*static_cast<char **>(voidValue));
         } else {
             if (size) {
-                return std::string(static_cast<const char *>(value), size - 1);
+                const char *str = static_cast<const char *>(value);
+                if (str[size - 1] != '\0') {
+                    return std::string(static_cast<const char *>(value), size);
+                } else {
+                    return std::string(static_cast<const char *>(value), size - 1);
+                }
             } else {
                 return static_cast<const char *>(value);
             }
@@ -225,7 +230,7 @@ void Attribute::loadAttribute(hid_t attribute)
         throw std::runtime_error("H5Aget_type error");
     }
     size = H5Aget_storage_size(attribute);
-    ssize_t nameSize = H5Aget_name(attribute, 0, 0);
+    ssize_t nameSize = H5Aget_name(attribute, 0, nullptr);
     if (nameSize < 0) {
         throw std::runtime_error("H5Aget_name error");
     }

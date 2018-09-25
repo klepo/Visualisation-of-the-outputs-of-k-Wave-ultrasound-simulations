@@ -41,14 +41,7 @@ Vector4D::Vector4D()
 Vector4D::Vector4D(const Vector &vector)
     : Vector(4)
 {
-    Vector tmp = vector;
-    hsize_t length = vector.getLength();
-
-    if (4 > length) {
-        throw std::runtime_error("Convert error - The length of Vector is not 4");
-    }
-
-    set(tmp[length - 4], tmp[length - 3], tmp[length - 2], tmp[length - 1]);
+    copy(vector);
 }
 
 /**

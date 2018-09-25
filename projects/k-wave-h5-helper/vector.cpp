@@ -254,6 +254,24 @@ bool Vector::hasZeros() const
 }
 
 /**
+ * @brief Copy vector or part of vector
+ * @param[in] vectorSrc Source vector
+ */
+void Vector::copy(const Vector &vectorSrc)
+{
+    Vector tmp = vectorSrc;
+    hsize_t length = vectorSrc.getLength();
+
+    if (this->length < length) {
+        length = this->length;
+    }
+
+    for (hsize_t i = 0; i < length; i++) {
+        this->vector[this->length - i - 1] = tmp[vectorSrc.getLength() - i - 1];
+    }
+}
+
+/**
  * @brief Operator std::string
  * @return String
  */

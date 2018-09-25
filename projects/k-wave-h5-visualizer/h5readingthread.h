@@ -66,9 +66,13 @@ class H5ReadingThread : public QThread
 {
     Q_OBJECT
 public:
-    H5ReadingThread(QObject *parent = 0);
+    H5ReadingThread(QObject *parent = nullptr);
     ~H5ReadingThread();
     void setCompressHelper(H5Helper::CompressHelper *compressHelper);
+
+    hsize_t getLocalStep() const;
+    float *getDataLC() const;
+    float *getDataCC() const;
 
 public slots:
     void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data = nullptr);
@@ -91,9 +95,12 @@ private:
     QMutex queueMutex, requestMutex;
     QQueue<Request *> queue;
     QList<Request *> doneRequests;
-    Request *doneRequestCC = 0;
-    Request *doneRequestLC = 0;
-    H5Helper::CompressHelper *compressHelper = 0;
+    float *dataLC = nullptr;
+    float *dataCC = nullptr;
+    H5Helper::Vector4D offsetLC;
+    H5Helper::Vector4D offsetCC;
+    hsize_t localStep = 0;
+    H5Helper::CompressHelper *compressHelper = nullptr;
     double meanTime = 0;
     hsize_t readCount = 0;
     double timeSum = 0;

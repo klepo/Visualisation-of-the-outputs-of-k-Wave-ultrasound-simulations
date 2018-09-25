@@ -33,7 +33,6 @@ class Vector3D : public Vector
 public:
     Vector3D();
     Vector3D(const Vector &vector);
-    Vector3D(const Vector4D &vector);
     Vector3D(hsize_t value);
     Vector3D(hsize_t z, hsize_t y, hsize_t x);
     void set(hsize_t z, hsize_t y, hsize_t x);

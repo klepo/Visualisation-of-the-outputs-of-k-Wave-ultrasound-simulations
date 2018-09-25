@@ -96,6 +96,9 @@ public:
     bool getData3DloadingFlag() const;
 
     float *getData3D() const;
+    float *getData3DLC() const;
+    float *getData3DCC() const;
+    hsize_t getLocalStep() const;
 
     bool areCurrentData3DLoaded() const;
 
@@ -122,6 +125,8 @@ signals:
     void data3DLoading();
 
     void data3DLoaded(float *data3D);
+
+    void data3DCompressLoaded(float *data3DLC, float *data3DCC, hsize_t localStep);
 
 public slots:
     void setXIndex(hsize_t index);
@@ -191,16 +196,18 @@ private:
 
     H5Helper::Vector3D index;
 
-    H5ReadingThread *threadXY = 0;
-    H5ReadingThread *threadXZ = 0;
-    H5ReadingThread *threadYZ = 0;
-    H5ReadingThread *thread3D = 0;
+    H5ReadingThread *threadXY = nullptr;
+    H5ReadingThread *threadXZ = nullptr;
+    H5ReadingThread *threadYZ = nullptr;
+    H5ReadingThread *thread3D = nullptr;
 
-    float *dataXY = 0;
-    float *dataXZ = 0;
-    float *dataYZ = 0;
+    float *dataXY = nullptr;
+    float *dataXZ = nullptr;
+    float *dataYZ = nullptr;
 
-    float *data3D = 0;
+    float *data3D = nullptr;
+    float *data3DLC = nullptr;
+    float *data3DCC = nullptr;
 
     float minValue = 0;
     float maxValue = 0;

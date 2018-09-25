@@ -41,24 +41,7 @@ Vector3D::Vector3D()
 Vector3D::Vector3D(const Vector &vector)
     : Vector(3)
 {
-    Vector tmp = vector;
-    hsize_t length = vector.getLength();
-
-    if (3 > length) {
-        throw std::runtime_error("Convert error - The length of Vector is greater than 3");
-    }
-
-    set(tmp[length - 3], tmp[length - 2], tmp[length - 1]);
-}
-
-/**
- * @brief Copy constructor for Vector4D
- * @param[in] vector Original Vector4D object to copy
- */
-Vector3D::Vector3D(const Vector4D &vector)
-    : Vector(3)
-{
-    set(vector.z(), vector.y(), vector.x());
+    copy(vector);
 }
 
 /**

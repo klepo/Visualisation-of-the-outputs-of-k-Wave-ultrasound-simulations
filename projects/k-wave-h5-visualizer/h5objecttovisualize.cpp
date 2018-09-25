@@ -366,7 +366,11 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
         currentData3DLoaded = true;
     else
         currentData3DLoaded = false;
-    emit data3DLoaded(data3D);
+    if (compressHelper) {
+        emit data3DCompressLoaded(thread3D->getDataLC(), thread3D->getDataCC(), thread3D->getLocalStep());
+    } else {
+        emit data3DLoaded(data3D);
+    }
     thread3D->deleteDoneRequest(request);
 }
 
@@ -467,6 +471,21 @@ bool H5ObjectToVisualize::areCurrentData3DLoaded() const
 float *H5ObjectToVisualize::getData3D() const
 {
     return data3D;
+}
+
+float *H5ObjectToVisualize::getData3DLC() const
+{
+    return thread3D->getDataLC();
+}
+
+float *H5ObjectToVisualize::getData3DCC() const
+{
+    return thread3D->getDataCC();
+}
+
+hsize_t H5ObjectToVisualize::getLocalStep() const
+{
+    return thread3D->getLocalStep();
 }
 
 bool H5ObjectToVisualize::getData3DloadingFlag() const
@@ -837,10 +856,10 @@ float H5ObjectToVisualize::getOriginalMaxValue()
  */
 float H5ObjectToVisualize::getValueAtPointFromXY(int x, int y)
 {
-    if (XYloadedFlag)
+    //if (XYloadedFlag)
         return dataXY[static_cast<hsize_t>(x) + size.x() * static_cast<hsize_t>(y)];
-    else
-        return 0.0;
+    //else
+    //    return 0.0;
 }
 
 /**
@@ -851,10 +870,10 @@ float H5ObjectToVisualize::getValueAtPointFromXY(int x, int y)
  */
 float H5ObjectToVisualize::getValueAtPointFromXZ(int x, int z)
 {
-    if (XZloadedFlag)
+    //if (XZloadedFlag)
         return dataXZ[static_cast<hsize_t>(x) + size.x() * static_cast<hsize_t>(z)];
-    else
-        return 0.0;
+    //else
+    //    return 0.0;
 }
 
 /**
@@ -865,10 +884,10 @@ float H5ObjectToVisualize::getValueAtPointFromXZ(int x, int z)
  */
 float H5ObjectToVisualize::getValueAtPointFromYZ(int y, int z)
 {
-    if (YZloadedFlag)
+    //if (YZloadedFlag)
         return dataYZ[static_cast<hsize_t>(y) + size.y() * static_cast<hsize_t>(z)];
-    else
-        return 0.0;
+    //else
+    //    return 0.0;
 }
 
 /**

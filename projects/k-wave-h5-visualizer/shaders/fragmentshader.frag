@@ -19,6 +19,10 @@
 #version 330
 
 uniform sampler3D uVolume;
+uniform sampler3D uVolumeCC;
+uniform sampler3D uVolumeLC;
+uniform samplerBuffer uTextureBE;
+uniform samplerBuffer uTextureBE_1;
 uniform sampler1D uColormap;
 uniform sampler1D uOpacity;
 uniform sampler2D uSlice;
@@ -32,6 +36,7 @@ uniform bool uXZBorder;
 uniform bool uYZBorder;
 uniform bool uVolumeRenderingBox;
 uniform bool uVolumeRendering;
+uniform bool uVolumeCompressRendering;
 
 uniform int uMode;
 
@@ -52,7 +57,14 @@ in vec3 vTextureCoordBox;
 
 out vec4 outColor;
 
-bool isTrimmed(float value) {
+uniform int uStepLocal;
+uniform int uHarmonics;
+uniform int uBSize;
+
+ivec3 volumeSize;
+
+bool isTrimmed(float value)
+{
     if (uTrim) {
         if (uMin <= uMax) {
             if (value > uMax) {
@@ -84,6 +96,61 @@ vec4 computeColor(float texel)
     return vec4(color.rgb, opacity);
 }
 
+vec2 conjC(vec2 c)
+{
+    return vec2(c.x, -c.y);
+}
+
+float realC(vec2 c)
+{
+    return c.x;
+}
+
+vec2 mulC(vec2 a, vec2 b)
+{
+    return vec2(a.x * b.x - a.y * b.y, a.y * b.x + a.x * b.y);
+}
+
+vec2 getBE(int i)
+{
+    return vec2(texelFetch(uTextureBE, i).r, texelFetch(uTextureBE, i + 1).r);
+}
+
+vec2 getBE_1(int i)
+{
+    return vec2(texelFetch(uTextureBE_1, i).r, texelFetch(uTextureBE_1, i + 1).r);
+}
+
+float computeTimeStep(ivec3 pointI)
+{
+    ivec3 pointIReal = pointI;
+    ivec3 pointIImag = pointI;
+    pointIImag.x += 1;
+    float stepValue = 0;
+    for (int h = 0; h < uHarmonics; h++) {
+        int sH = 2 * (h * uBSize + uStepLocal);
+        vec2 lCC = conjC(vec2(texelFetch(uVolumeCC, pointIReal, 0).r, texelFetch(uVolumeCC, pointIImag, 0).r));
+        vec2 cCC = conjC(vec2(texelFetch(uVolumeLC, pointIReal, 0).r, texelFetch(uVolumeLC, pointIImag, 0).r));
+        stepValue += realC(mulC(cCC, getBE(sH))) + realC(mulC(lCC, getBE_1(sH)));
+        //stepValue += realC(mulC(vec2(300000, 300000), getBE(sH))) + realC(mulC(vec2(300000, 300000), getBE_1(sH)));
+        pointIReal.x += 2;
+        pointIImag.x += 2;
+    }
+    return stepValue;
+}
+
+float getTexelValue(vec3 point)
+{
+    if (uVolumeCompressRendering) {
+        ivec3 pointI = ivec3(vec3(volumeSize) * point);
+        pointI.x = pointI.x * 2 * uHarmonics;
+        return computeTimeStep(pointI);
+        //return texelFetch(uVolumeLC, pointI, 0).r;
+    } else {
+        return texture(uVolume, point).r;
+    }
+}
+
 void main() {
     if (uFrame) {
         outColor = uFrameColor;
@@ -107,6 +174,9 @@ void main() {
             //outColor = vec4(vTextureCoordBox.stp, 1.0f);
         }
     } else if (uVolumeRendering) {
+        if (uVolumeCompressRendering) {
+            volumeSize = textureSize(uVolume, 0);
+        }
         vec2 coords = vec2((gl_FragCoord.x / uWidth), (gl_FragCoord.y / uHeight));
         vec3 backPoint = vec3(texture(uBoxBackSampler, coords));
         vec3 frontPoint = vec3(texture(uBoxFrontSampler, coords));
@@ -133,11 +203,11 @@ void main() {
 
         for (i = 0; i < it; i++) {
             if (uMode == 1) { // Maximum intensity projection
-                texel = max(texture(uVolume, point).r, texel);
+                texel = max(getTexelValue(point), texel);
             } else if (uMode == 2) { // Minimum intensity projection
-                texel = min(texture(uVolume, point).r, texel);
+                texel = min(getTexelValue(point), texel);
             } else if (uMode == 0) { // Accumulation
-                vec4 cIn = computeColor(texture(uVolume, point).r);
+                vec4 cIn = computeColor(getTexelValue(point));
                 //if (cIn.a == 0.0f)
                 //    continue;
                 cIn.a = 50 * cIn.a / uSteps;
@@ -146,7 +216,7 @@ void main() {
                 if (cOut.a >= 1.0f)
                     break;
             } else if (uMode == 3) { // Average intensity projection
-                texel += texture(uVolume, point).r;
+                texel += getTexelValue(point);
             } else { // Unknown mode
                 break;
             }

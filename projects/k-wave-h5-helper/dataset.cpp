@@ -1391,8 +1391,8 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 
     try {
         data = new hsize_t[size](); // TODO check available memory?
-        assert(data != 0 && "Bad memory allocation");
-        if (data == 0)
+        assert(data != nullptr && "Bad memory allocation");
+        if (data == nullptr)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
         throw std::runtime_error(memoryErrorMessage(size, H5T_NATIVE_UINT64));
@@ -1416,8 +1416,8 @@ void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size) c
     try {
         if (data == nullptr)
             data = new float[size](); // TODO check available memory?
-        assert(data != 0 && "Bad memory allocation");
-        if (data == 0)
+        assert(data != nullptr && "Bad memory allocation");
+        if (data == nullptr)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
         throw std::runtime_error(memoryErrorMessage(size, H5T_NATIVE_FLOAT));

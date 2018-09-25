@@ -71,8 +71,10 @@ Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
  */
 Request::~Request()
 {
-    if (!this->extData)
+    if (!this->extData) {
         delete[] data;
+        data = nullptr;
+    }
 }
 
 /**
@@ -145,10 +147,14 @@ H5ReadingThread::~H5ReadingThread()
 {
     clearRequests();
     clearDoneRequests();
-    delete doneRequestCC;
-    doneRequestCC = nullptr;
-    delete doneRequestLC;
-    doneRequestLC = nullptr;
+    if (dataLC) {
+        delete[] dataLC;
+        dataLC = nullptr;
+    }
+    if (dataCC) {
+        delete[] dataCC;
+        dataCC = nullptr;
+    }
 }
 
 void H5ReadingThread::setCompressHelper(H5Helper::CompressHelper *compressHelper)
@@ -263,48 +269,50 @@ void H5ReadingThread::run()
                         hsize_t xStride = compressHelper->getStride();
                         hsize_t oSize = compressHelper->getOSize();
                         hsize_t step = H5Helper::Vector4D(r->offset).t();
+                        hsize_t stepC = step / oSize;
+                        localStep = step - stepC * oSize;
                         hsize_t steps = H5Helper::Vector4D(r->dataset->getDims()).t();
                         H5Helper::Vector4D offsetLC = r->offset;
                         H5Helper::Vector4D offsetCC = r->offset;
                         H5Helper::Vector4D count = r->count;
-                        //hsize_t size = r->count.getSize();
                         count.x(count.x() * xStride);
 
-                        offsetCC.t((step / oSize) - 1);
-                        if (hssize_t(step / oSize) - 1 < 0)
+                        offsetCC.t((stepC) - 1);
+                        if (hssize_t(stepC) - 1 < 0)
                             offsetCC.t(0);
                         if (offsetCC.t() >= steps)
                             offsetCC.t(steps - 1);
                         offsetCC.x(offsetCC.x() * xStride);
 
-                        offsetLC.t(step / oSize);
-                        hsize_t localStep = step - offsetLC.t() * oSize;
+                        offsetLC.t(stepC);
                         if (offsetLC.t() >= steps)
                             offsetLC.t(steps - 1);
                         offsetLC.x(offsetLC.x() * xStride);
 
-                        if (!doneRequestLC || (doneRequestLC->offset != offsetLC)) {
-                            delete doneRequestLC;
-                            doneRequestLC = new Request(r->dataset, offsetLC, count);
-                            r->dataset->readDataset(doneRequestLC->offset, doneRequestLC->count, doneRequestLC->data, log);
+                        if (!this->dataLC || this->offsetLC != offsetLC) {
+                            r->dataset->readDataset(offsetLC, count, this->dataLC, log);
+                            this->offsetLC = offsetLC;
                         }
 
-                        if (!doneRequestCC || (doneRequestCC->offset != offsetCC)) {
-                            delete doneRequestCC;
-                            doneRequestCC = new Request(r->dataset, offsetCC, count);
-                            r->dataset->readDataset(doneRequestCC->offset, doneRequestCC->count, doneRequestCC->data, log);
+                        if (!this->dataCC || this->offsetCC != offsetCC) {
+                            r->dataset->readDataset(offsetCC, count, this->dataCC, log);
+                            this->offsetCC = offsetCC;
                         }
 
-                        if (!r->extData)
-                            r->data = new float[r->count.getSize()]();
-                        #pragma omp parallel for
-                        for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
-                            r->data[p] = compressHelper->computeTimeStep(&doneRequestCC->data[p * xStride], &doneRequestLC->data[p * xStride], localStep);
-                        }
+                        if (!r->full) {
+                            if (!r->extData) {
+                                r->data = new float[r->count.getSize()]();
+                            }
 
+                            #pragma omp parallel for
+                            for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
+                                r->data[p] = compressHelper->computeTimeStep(&this->dataCC[p * xStride], &this->dataLC[p * xStride], localStep);
+                            }
+                        }
                     } else {
-                        if (!r->extData)
+                        if (!r->extData) {
                             r->data = new float[r->count.getSize()]();
+                        }
                         r->dataset->readDataset(r->offset, r->count, r->data, log);
                     }
 
@@ -315,7 +323,11 @@ void H5ReadingThread::run()
                         timeSum += elapsedTimer.nsecsElapsed();
                         readCount++;
                         meanTime = timeSum / readCount;
-                        qDebug() << double(meanTime) / 1000000 << "ms";
+                        if (r->full) {
+                            qDebug() << QString::fromStdString(r->count) << "(3D): " << double(meanTime) / 1000000 << "ms";
+                        } else {
+                            qDebug() << QString::fromStdString(r->count) << "(slice): "<< double(meanTime) / 1000000 << "ms";
+                        }
                     #endif
 
                     doneRequests.append(r);
@@ -333,4 +345,19 @@ void H5ReadingThread::run()
 
         usleep(1000);*/
     }
+}
+
+float *H5ReadingThread::getDataCC() const
+{
+    return dataCC;
+}
+
+float *H5ReadingThread::getDataLC() const
+{
+    return dataLC;
+}
+
+hsize_t H5ReadingThread::getLocalStep() const
+{
+    return localStep;
 }
