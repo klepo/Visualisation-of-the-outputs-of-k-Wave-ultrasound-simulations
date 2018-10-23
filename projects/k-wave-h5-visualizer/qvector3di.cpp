@@ -2,8 +2,8 @@
  * @file        qvector3di.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        3  November  2016 (created) \n
- *              11 September 2017 (updated)
+ * @date        3  November  2016 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing QVector3DI class definition.
  *
@@ -13,11 +13,11 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
-#include "qvector3di.h"
+#include <qvector3di.h>
 
 /**
  * @brief Creates QVector3DI object

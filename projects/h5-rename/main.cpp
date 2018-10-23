@@ -2,8 +2,8 @@
  * @file        main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        19 July      2017 (created) \n
- *              19 September 2017 (updated)
+ * @date        19 July      2017 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The main implementation file containing h5-rename application.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -32,7 +32,7 @@
 int main(int argc, char **argv)
 {
     Settings *settings = new Settings(argc, argv);
-    H5Helper::File *file = 0;
+    H5Helper::File *file = nullptr;
 
     Helper::printDebugTitle("Loading file");
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
         }
 
         try {
-            H5Helper::Object *object = 0;
+            H5Helper::Object *object = nullptr;
             if (file->getObjTypeByName(srcObjectName) == H5G_GROUP) {
                 object = file->openGroup(srcObjectName);
             } else if (file->getObjTypeByName(srcObjectName) == H5G_DATASET) {
@@ -195,6 +195,7 @@ int main(int argc, char **argv)
                 exit(EXIT_FAILURE);
             }
             delete attribute;
+            attribute = nullptr;
 
             file->closeObject(object);
 
@@ -207,7 +208,9 @@ int main(int argc, char **argv)
     }
 
     delete file;
+    file = nullptr;
     delete settings;
+    settings = nullptr;
 
     std::exit(EXIT_SUCCESS);
 }

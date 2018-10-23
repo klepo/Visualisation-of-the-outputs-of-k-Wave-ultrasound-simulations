@@ -2,8 +2,8 @@
  * @file        openglwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The header file with OpenGLWindow class declaration.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -48,7 +48,7 @@ static const QSurfaceFormat::OpenGLContextProfile OPENGL_PROFILE = QSurfaceForma
 
 namespace QTest
 {
-    void qSleep(int ms);
+void qSleep(int ms);
 }
 
 /**
@@ -67,7 +67,6 @@ public:
     virtual void initialize() = 0;
     bool event(QEvent *event);
 
-    double getElapsedMs() const;
     bool getLeftButtonPressed() const;
     bool getRightButtonPressed() const;
     int getWheelDelta() const;
@@ -86,7 +85,7 @@ signals:
      */
     void setStatusMessage(QString message, int timeout = 3000);
     /// Rendered signal
-    void rendered();
+    void rendered(double time);
 
 protected:
     virtual void exposeEvent(QExposeEvent *event);
@@ -95,9 +94,14 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *);
     virtual void wheelEvent(QWheelEvent *event);
     GLenum checkGlError();
+    GLenum checkFramebufferStatus();
+    QString getGLErrorString(GLenum errorCode) const;
+    QString getGLFramebufferStatusString(GLenum errorCode) const;
     void checkInitAndMakeCurrentContext();
 
 private:
+    Q_DISABLE_COPY(OpenGLWindow)
+
     bool hasDebugExtension();
     bool isOpenGLVersionSupported();
     static void messageLogged(const QOpenGLDebugMessage &message);

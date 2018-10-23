@@ -2,8 +2,8 @@
  * @file        vertices.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       Some helper arrays for slices and 3D frame.
  *
@@ -13,11 +13,14 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
-#include "gwindow.h"
+#ifndef GVERTICES_H
+#define GVERTICES_H
+
+#include <gwindow.h>
 
 const GLfloat GWindow::sliceVertices[] = {
     0.0, 0.0, 0.0,
@@ -64,3 +67,5 @@ const GLint GWindow::cubeElements[] = {
     1, 0, 4,
     4, 5, 1,
 };
+
+#endif // GVERTICES_H

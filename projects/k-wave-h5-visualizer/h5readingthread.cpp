@@ -2,8 +2,8 @@
  * @file        hdf5readingthread.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing H5ReadingThread and Request
  *              class definition.
@@ -17,11 +17,11 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
-#include "h5readingthread.h"
+#include <h5readingthread.h>
 
 /**
  * @brief Creates request for 3D dataset with given offset and count
@@ -35,7 +35,7 @@ Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::
     this->offset = offset;
     this->count = count;
     this->full = false;
-    if (data != nullptr) {
+    if (data) {
         this->data = data;
         this->extData = true;
     }
@@ -58,7 +58,7 @@ Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
     }
     this->full = true;
     this->step = step;
-    if (data != nullptr) {
+    if (data) {
         this->data = data;
         this->extData = true;
     }
@@ -110,6 +110,7 @@ void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
+        r = nullptr;
     }
     queue.enqueue(new Request(dataset, offset, count, data));
 }
@@ -125,6 +126,7 @@ void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step, fl
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
+        r = nullptr;
     }
     Request *r = new Request(dataset, step, data);
     if (compressHelper)
@@ -181,6 +183,7 @@ void H5ReadingThread::clearRequests()
     while (!queue.isEmpty()) {
         Request *r = queue.dequeue();
         delete r;
+        r = nullptr;
     }
 }
 
@@ -199,6 +202,7 @@ void H5ReadingThread::deleteDoneRequest(Request *r)
     if (doneRequests.contains(r)) {
         doneRequests.removeOne(r);
         delete r;
+        r = nullptr;
     }
 }
 
@@ -231,109 +235,80 @@ void H5ReadingThread::run()
 
         bool log =  false;
 
-        if (r != nullptr) {
+        if (r) {
             try {
-                //usleep(1000000);
-                /*if (r->full) {
-                    // Reading of full dataset with block reading
-                    r->dataset->setMaxNumberOfElmsToLoad(H5Helper::Vector3D(r->dataset->getDims()).getSize());
-                    hsize_t c = H5Helper::Vector3D(r->dataset->getNumberOfBlocksInDims()).z();
-                    for (hsize_t i = 0; i < c; i++) {
-                        if (stopFlag) {
-                            stopFlag = false;
-                            break;
-                        }
-                        // Request for returning part of 3D data (block)
-                        Request *newR = new Request(r->dataset, r->step);
-                        //qDebug() << "start reading block... ";
-                        r->dataset->readBlock(c * newR->step + i, newR->offset, newR->count, newR->data, log);
+#ifdef QT_DEBUG
+                QElapsedTimer elapsedTimer;
+                elapsedTimer.restart();
+#endif
 
+                if (compressHelper) {
+                    hsize_t xStride = compressHelper->getStride();
+                    hsize_t oSize = compressHelper->getOSize();
+                    hsize_t step = H5Helper::Vector4D(r->offset).t();
+                    hsize_t stepC = step / oSize;
+                    localStep = step - stepC * oSize;
+                    hsize_t steps = H5Helper::Vector4D(r->dataset->getDims()).t();
+                    H5Helper::Vector4D offsetLC = r->offset;
+                    H5Helper::Vector4D offsetCC = r->offset;
+                    H5Helper::Vector4D count = r->count;
+                    count.x(count.x() * xStride);
 
+                    offsetLC.t((stepC) - 1);
+                    if (hssize_t(stepC) - 1 < 0)
+                        offsetLC.t(0);
+                    if (offsetLC.t() >= steps)
+                        offsetLC.t(steps - 1);
+                    offsetLC.x(offsetLC.x() * xStride);
 
-                        QMutexLocker locker(&requestMutex);
-                        doneRequests.append(newR);
-                        emit requestDone(newR);
+                    offsetCC.t(stepC);
+                    if (offsetCC.t() >= steps)
+                        offsetCC.t(steps - 1);
+                    offsetCC.x(offsetCC.x() * xStride);
+
+                    if (!this->dataLC || this->offsetLC != offsetLC) {
+                        r->dataset->readDataset(offsetLC, count, this->dataLC, log);
+                        this->offsetLC = offsetLC;
                     }
-                    // Delete original request
-                    delete r;
-                } else {*/
-                    // One block data reading (slice)
-                    //qDebug() << "start reading a slice... ";
 
-                    #ifdef QT_DEBUG
-                    QElapsedTimer elapsedTimer;
-                    elapsedTimer.restart();
-                    #endif
+                    if (!this->dataCC || this->offsetCC != offsetCC) {
+                        r->dataset->readDataset(offsetCC, count, this->dataCC, log);
+                        this->offsetCC = offsetCC;
+                    }
 
-                    if (compressHelper) {
-                        hsize_t xStride = compressHelper->getStride();
-                        hsize_t oSize = compressHelper->getOSize();
-                        hsize_t step = H5Helper::Vector4D(r->offset).t();
-                        hsize_t stepC = step / oSize;
-                        localStep = step - stepC * oSize;
-                        hsize_t steps = H5Helper::Vector4D(r->dataset->getDims()).t();
-                        H5Helper::Vector4D offsetLC = r->offset;
-                        H5Helper::Vector4D offsetCC = r->offset;
-                        H5Helper::Vector4D count = r->count;
-                        count.x(count.x() * xStride);
-
-                        offsetCC.t((stepC) - 1);
-                        if (hssize_t(stepC) - 1 < 0)
-                            offsetCC.t(0);
-                        if (offsetCC.t() >= steps)
-                            offsetCC.t(steps - 1);
-                        offsetCC.x(offsetCC.x() * xStride);
-
-                        offsetLC.t(stepC);
-                        if (offsetLC.t() >= steps)
-                            offsetLC.t(steps - 1);
-                        offsetLC.x(offsetLC.x() * xStride);
-
-                        if (!this->dataLC || this->offsetLC != offsetLC) {
-                            r->dataset->readDataset(offsetLC, count, this->dataLC, log);
-                            this->offsetLC = offsetLC;
-                        }
-
-                        if (!this->dataCC || this->offsetCC != offsetCC) {
-                            r->dataset->readDataset(offsetCC, count, this->dataCC, log);
-                            this->offsetCC = offsetCC;
-                        }
-
-                        if (!r->full) {
-                            if (!r->extData) {
-                                r->data = new float[r->count.getSize()]();
-                            }
-
-                            #pragma omp parallel for
-                            for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
-                                r->data[p] = compressHelper->computeTimeStep(&this->dataCC[p * xStride], &this->dataLC[p * xStride], localStep);
-                            }
-                        }
-                    } else {
+                    if (!r->full) {
                         if (!r->extData) {
                             r->data = new float[r->count.getSize()]();
                         }
-                        r->dataset->readDataset(r->offset, r->count, r->data, log);
-                    }
 
-                    QMutexLocker locker(&requestMutex);
-
-                    #ifdef QT_DEBUG
-                        // Time measuring
-                        timeSum += elapsedTimer.nsecsElapsed();
-                        readCount++;
-                        meanTime = timeSum / readCount;
-                        if (r->full) {
-                            qDebug() << QString::fromStdString(r->count) << "(3D): " << double(meanTime) / 1000000 << "ms";
-                        } else {
-                            qDebug() << QString::fromStdString(r->count) << "(slice): "<< double(meanTime) / 1000000 << "ms";
+#pragma omp parallel for
+                        for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
+                            r->data[p] = compressHelper->computeTimeStep(&this->dataCC[p * xStride], &this->dataLC[p * xStride], localStep);
                         }
-                    #endif
+                    }
+                } else {
+                    if (!r->extData) {
+                        r->data = new float[r->count.getSize()]();
+                    }
+                    r->dataset->readDataset(r->offset, r->count, r->data, log);
+                }
 
-                    doneRequests.append(r);
-                    emit requestDone(r);
-                //}
-                //delete r;
+                QMutexLocker locker(&requestMutex);
+
+#ifdef QT_DEBUG
+                // Time measuring
+                timeSum += elapsedTimer.nsecsElapsed();
+                readCount++;
+                meanTime = timeSum / readCount;
+                if (r->full) {
+                    qDebug() << QString::fromStdString(r->count) << "(3D): " << double(meanTime) / 1000000 << "ms";
+                } else {
+                    qDebug() << QString::fromStdString(r->count) << "(slice): "<< double(meanTime) / 1000000 << "ms";
+                }
+#endif
+
+                doneRequests.append(r);
+                emit requestDone(r);
             } catch(std::exception &e) {
                 std::cerr << e.what() << std::endl;
             }

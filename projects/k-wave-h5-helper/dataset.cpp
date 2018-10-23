@@ -2,8 +2,8 @@
  * @file        dataset.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              30 August    2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing Dataset class definition.
  *
@@ -15,7 +15,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -61,7 +61,7 @@ Dataset::Dataset(hid_t dataset, std::string name, File *file)
     dims = Vector(rank);
     chunkDims = Vector(rank);
 
-    int dimsCount = H5Sget_simple_extent_dims(dataspace, dims.getVectorPtr(), 0);
+    int dimsCount = H5Sget_simple_extent_dims(dataspace, dims.getVectorPtr(), nullptr);
     if (dimsCount < 0) {
         throw std::runtime_error("H5Sget_simple_extent_dims error");
     }
@@ -202,7 +202,7 @@ hid_t Dataset::getDataType() const
  */
 DatasetType Dataset::getType(hsize_t sensorMaskSize) const
 {
-    Vector4D nDims = getFile()->getNdims();
+    Vector4D nDims = getFile()->getNDims();
     if (getDims().getLength() == 3) { // 3D type
         Vector3D dims = getDims();
         if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
@@ -858,7 +858,10 @@ void Dataset::readDataset(float &data, bool log)
         float *dataTmp;
         readDataset(Vector(dims.getLength(), 0), dims, dataTmp, log);
         data = dataTmp[0];
-        delete[] dataTmp;
+        if (dataTmp) {
+            delete[] dataTmp;
+            dataTmp = nullptr;
+        }
     } else {
         throw std::runtime_error("Dataset has not size 1");
     }
@@ -876,7 +879,10 @@ void Dataset::readDataset(hsize_t &data, bool log)
         hsize_t *dataTmp;
         readDataset(Vector(dims.getLength(), 0), dims, dataTmp, log);
         data = dataTmp[0];
-        delete[] dataTmp;
+        if (dataTmp) {
+            delete[] dataTmp;
+            dataTmp = nullptr;
+        }
     } else {
         throw std::runtime_error("Dataset has not size 1");
     }
@@ -1005,13 +1011,13 @@ void Dataset::readEmptyBlock(bool log)
     hid_t dataspace = H5Dget_space(dataset);
     H5Sselect_none(dataspace);
     Vector3D count;
-    hid_t memspace = H5Screate_simple(3, count.getVectorPtr(), 0);
+    hid_t memspace = H5Screate_simple(3, count.getVectorPtr(), nullptr);
     H5Sselect_none(memspace);
     double t0 = 0, t1 = 0;
     t0 = getTime();
     if (log)
         std::cout << "Reading dataset " << getName() << " ..." << std::endl;
-    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, 0);
+    err = H5Dread(dataset, datatype, memspace, dataspace, plist_DATASET_XFER, nullptr);
     t1 = getTime();
     if (err < 0) {
         throw std::runtime_error("H5Dread error");
@@ -1034,16 +1040,16 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data, bool l
     Vector mem_offset(offset.getLength());
 
     hid_t dataspace = H5Dget_space(dataset);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
+    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
-    hid_t memspace = H5Screate_simple(int(count.getLength()), count.getVectorPtr(), 0);
+    hid_t memspace = H5Screate_simple(int(count.getLength()), count.getVectorPtr(), nullptr);
     if (memspace < 0) {
         throw std::runtime_error("H5Screate_simple error");
     }
 
-    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -1089,17 +1095,17 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, void *data, bool 
     Vector mem_offset(offset.getLength());
 
     hid_t dataspace = H5Dget_space(dataset);
-    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
+    err = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
 
-    hid_t memspace = H5Screate_simple(int(count.getLength()), count.getVectorPtr(), 0);
+    hid_t memspace = H5Screate_simple(int(count.getLength()), count.getVectorPtr(), nullptr);
     if (memspace < 0) {
         throw std::runtime_error("H5Screate_simple error");
     }
 
-    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), 0, count.getVectorPtr(), 0);
+    err = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, mem_offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -1241,14 +1247,15 @@ void Dataset::findGlobalMinAndMaxValueF(bool log)
     hsize_t linearOffset = 0;
     float *data = new float[blockDims.getSize()]();
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        //float *data = 0;
         readBlock(i, offset, count, data, minVFTmp, maxVFTmp, minVIndexTmp, maxVIndexTmp, log);
         convertMultiDimToLinear(offset, linearOffset, dims);
         H5Helper::checkOrSetMinMaxValue(minVF, maxVF, minVFTmp, maxVFTmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
-        //delete [] data; // !!!
     }
     issetGlobalMinAndMaxValue = true;
-    delete [] data; // !!!
+    if (data) {
+        delete[] data; // !!!
+        data = nullptr;
+    }
 }
 
 /**
@@ -1265,14 +1272,15 @@ void Dataset::findGlobalMinAndMaxValueI(bool log)
     hsize_t linearOffset = 0;
     hsize_t *data = new hsize_t[blockDims.getSize()]();
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        //hsize_t *data;
         readBlock(i, offset, count, data, minVITmp, maxVITmp, minVIndexTmp, maxVIndexTmp, log);
         convertMultiDimToLinear(offset, linearOffset, dims);
         H5Helper::checkOrSetMinMaxValue(minVI, maxVI, minVITmp, maxVITmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
-        //delete [] data; // !!!
     }
     issetGlobalMinAndMaxValue = true;
-    delete [] data; // !!!
+    if (data) {
+        delete[] data; // !!!
+        data = nullptr;
+    }
 }
 
 /**
@@ -1321,39 +1329,6 @@ void Dataset::initBlockReading()
             p++;
         numberOfBlocks *= p;
     }
-
-    /*delete[] offsets;
-    delete[] counts;
-
-    offsets = new Vector[numberOfBlocks];
-    counts = new Vector[numberOfBlocks];
-
-    hsize_t sum = 0;
-    for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        counts[i] = blockDims;
-        if (diffSizeFlag && (i + 1) % lastBlockCount == 0) {
-            counts[i] = lastBlockDims;
-        }
-        convertlinearToMultiDim(sum, offsets[i], dims);
-        sum += counts[i].getSize();
-
-        Vector offset2;
-        Vector counts2;
-        hsize_t lastBlockDimsCount = (i) / lastBlockCount;
-        hsize_t lastBlockDimsSize = lastBlockDimsCount * lastBlockDims.getSize();
-        hsize_t sum2 = lastBlockDimsSize + (i - lastBlockDimsCount) * blockDims.getSize();
-        convertlinearToMultiDim(sum2, offset2, dims);
-        if ((i + 1) % lastBlockCount == 0) {
-            counts2 = lastBlockDims;
-        } else {
-            counts2 = blockDims;
-        }
-        if (offset2 != offsets[i])
-            std::cout << std::endl << offset2 << " offset2 " << offsets[i] << std::endl;
-
-        if (counts2 != counts[i])
-            std::cout << counts2 << " counts2 " << counts[i] << std::endl << std::endl;
-    }*/
 }
 
 Vector Dataset::getBlockCount(hsize_t index) const
@@ -1391,7 +1366,6 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 
     try {
         data = new hsize_t[size](); // TODO check available memory?
-        assert(data != nullptr && "Bad memory allocation");
         if (data == nullptr)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {
@@ -1416,7 +1390,6 @@ void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size) c
     try {
         if (data == nullptr)
             data = new float[size](); // TODO check available memory?
-        assert(data != nullptr && "Bad memory allocation");
         if (data == nullptr)
             throw std::runtime_error("Bad memory allocation");
     } catch (std::bad_alloc) {

@@ -2,8 +2,8 @@
  * @file        reshape.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        8  September 2016 (created) \n
- *              11 September 2017 (updated)
+ * @date        8  September 2016 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing Reshape class definition.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -80,7 +80,7 @@ void Reshape::execute()
         } else if (!getDtsForPcs()->getDatasets(H5Helper::DatasetType::CUBOID).empty() && getDtsForPcs()->getSensorMaskCornersDataset()) {
             // For cuboid type datasets
             // Prepare something
-            hsize_t *sensorMaskCornersData = 0;
+            hsize_t *sensorMaskCornersData = nullptr;
             getDtsForPcs()->getSensorMaskCornersDataset()->readDataset(sensorMaskCornersData);
 
             H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets(H5Helper::DatasetType::CUBOID);
@@ -91,6 +91,7 @@ void Reshape::execute()
                 Helper::printDebugMsg("Reshaping of dataset " + dataset->getName() + " done");
             }
             delete[] sensorMaskCornersData;
+            sensorMaskCornersData = nullptr;
         } else {
             Helper::printErrorMsg("No datasets for reshaping in simulation output file");
         }
@@ -144,9 +145,9 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
     Helper::printDebugTwoColumns2S("New dataset size", datasetDims);
 
     // Helper variables
-    H5Helper::Dataset *dstDataset = 0;
-    hsize_t *sensorMaskData = 0;
-    float *datasetData = 0;
+    H5Helper::Dataset *dstDataset = nullptr;
+    hsize_t *sensorMaskData = nullptr;
+    float *datasetData = nullptr;
     hsize_t step = 0;
     H5Helper::Vector3D offset; // Offset
     H5Helper::Vector3D count;  // Count
@@ -162,7 +163,7 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
 
     // Flag and temp data for faster reading
     bool useTmpFlag = false;
-    float *tmpData = 0;
+    float *tmpData = nullptr;
 
     // TODO rozpoznat, zda je maska cuboid (maska má stejný počet bodů jako obálka, stoupající posloupnost všech indexů), pak se může pouze překopírovat.
     bool cuboidFlag = false;
@@ -309,9 +310,11 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         if (!useTmpFlag) {
             Helper::printDebugTime("point by point data writing", t0, t1);
             delete[] sensorMaskData;
+            sensorMaskData = nullptr;
         }
         if (!cuboidFlag) {
             delete[] datasetData;
+            datasetData = nullptr;
         }
     }
 
@@ -332,7 +335,9 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
 
     if (useTmpFlag) {
         delete[] tmpData;
+        tmpData = nullptr;
         delete[] sensorMaskData;
+        sensorMaskData = nullptr;
     }
 }
 
@@ -348,7 +353,7 @@ void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskI
     hsize_t *data = new hsize_t[sensorMaskIndexDataset->getGeneralBlockDims().getSize()];
     H5Helper::Vector3D offset;
     H5Helper::Vector3D count;
-    H5Helper::Vector4D nDims = sensorMaskIndexDataset->getFile()->getNdims();
+    H5Helper::Vector4D nDims = sensorMaskIndexDataset->getFile()->getNDims();
 
     min = nDims;
     max = H5Helper::Vector3D(0, 0, 0);
@@ -368,6 +373,7 @@ void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskI
         }
     }
     delete[] data; // !!
+    data = nullptr;
 
     Helper::printDebugTwoColumns2S("Min sensor mask point", min);
     Helper::printDebugTwoColumns2S("Max sensor mask point", max);

@@ -2,8 +2,8 @@
  * @file        file.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              19 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The header file with H5Helper::File class declaration.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -151,9 +151,8 @@ public:
     hsize_t getNumObjs(hid_t groupId = -1) const;
     std::string getObjNameByIdx(hsize_t idx, hid_t groupId = -1) const;
     H5G_obj_t getObjTypeByIdx(hsize_t idx, hid_t groupId = -1) const;
-    H5G_obj_t getObjTypeByName(std::string name) const;
-
-    bool objExistsByName(std::string name) const;
+    H5G_obj_t getObjTypeByName(std::string name, hid_t groupId = -1) const;
+    bool objExistsByName(std::string name, hid_t groupId = -1) const;
 
     void objRename(std::string srcName, std::string dstName) const;
 
@@ -161,11 +160,12 @@ public:
     void renameAttribute(std::string srcName, std::string dstName, std::string objName) const;
 
     std::string getFilename() const;
+    std::string getRawFilename() const;
 
     void setNumberOfElmsToLoad(hsize_t size);
     hsize_t getNumberOfElmsToLoad() const;
 
-    Vector4D getNdims() const;
+    Vector4D getNDims() const;
 
     int getMPISize() const;
 

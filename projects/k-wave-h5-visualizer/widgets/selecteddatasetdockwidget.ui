@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SelectedDatasetDockWidget</class>
+ <widget class="QDockWidget" name="SelectedDatasetDockWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>430</width>
+    <height>204</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>430</width>
+    <height>204</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Selected Dataset</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContentsSelectedDataset">
+   <layout class="QVBoxLayout" name="verticalLayoutSelectedDataset">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QScrollArea" name="scrollAreaSelectedDataset">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContentsSelectedDataset">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>430</width>
+         <height>176</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayoutSelectedDatasetScroll">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>9</number>
+        </property>
+        <property name="topMargin">
+         <number>9</number>
+        </property>
+        <property name="rightMargin">
+         <number>9</number>
+        </property>
+        <property name="bottomMargin">
+         <number>9</number>
+        </property>
+        <item alignment="Qt::AlignBottom">
+         <widget class="QLabel" name="labelColor">
+          <property name="text">
+           <string>Color spectrum:</string>
+          </property>
+          <property name="buddy">
+           <cstring>comboBoxColormap</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBoxColormap">
+          <property name="currentText">
+           <string>JET</string>
+          </property>
+          <property name="currentIndex">
+           <number>2</number>
+          </property>
+          <property name="maxVisibleItems">
+           <number>15</number>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>128</width>
+            <height>16</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>AUTUMN</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_autumn.jpg</normaloff>:/colorscale/icons/colorscale_autumn.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>BONE</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_bone.jpg</normaloff>:/colorscale/icons/colorscale_bone.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>JET</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_jet.jpg</normaloff>:/colorscale/icons/colorscale_jet.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>WINTER</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_winter.jpg</normaloff>:/colorscale/icons/colorscale_winter.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>RAINBOW</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_rainbow.jpg</normaloff>:/colorscale/icons/colorscale_rainbow.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>OCEAN</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_ocean.jpg</normaloff>:/colorscale/icons/colorscale_ocean.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SUMMER</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_summer.jpg</normaloff>:/colorscale/icons/colorscale_summer.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SPRING</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_spring.jpg</normaloff>:/colorscale/icons/colorscale_spring.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>COOL</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_cool.jpg</normaloff>:/colorscale/icons/colorscale_cool.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>HSV</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_hsv.jpg</normaloff>:/colorscale/icons/colorscale_hsv.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PINK</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_pink.jpg</normaloff>:/colorscale/icons/colorscale_pink.jpg</iconset>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>HOT</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/colorscale/icons/colorscale_hot.jpg</normaloff>:/colorscale/icons/colorscale_hot.jpg</iconset>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="OpacityGroupBox" name="groupBoxOpacity" native="true"/>
+        </item>
+        <item>
+         <widget class="MinMaxGroupBox" name="groupBoxMinMax" native="true"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="pushButtonMax">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Set to maximal value position</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonMin">
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Set to minimal value position</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="TimeSeriesControlGroupBox" name="groupBoxTimeSeriesControl" native="true"/>
+        </item>
+        <item>
+         <widget class="DatasetInfoGroupBox" name="groupBoxSelectedDatasetInfo" native="true"/>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>OpacityGroupBox</class>
+   <extends>QWidget</extends>
+   <header>opacitygroupbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MinMaxGroupBox</class>
+   <extends>QWidget</extends>
+   <header>minmaxgroupbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TimeSeriesControlGroupBox</class>
+   <extends>QWidget</extends>
+   <header>timeseriescontrolgroupbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DatasetInfoGroupBox</class>
+   <extends>QWidget</extends>
+   <header>datasetinfogroupbox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

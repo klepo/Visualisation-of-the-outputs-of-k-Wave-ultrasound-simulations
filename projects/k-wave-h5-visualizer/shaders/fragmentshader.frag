@@ -2,7 +2,8 @@
  * @file        fragmentshader.frag
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        3  November  2016 (created) \n
+ * @date        3  November  2016 (created) <br>
+ *              26 September 2018 (updated)
  *
  * @brief       Fragment shader for slice and volume rendering.
  *
@@ -12,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -57,10 +58,12 @@ in vec3 vTextureCoordBox;
 
 out vec4 outColor;
 
-uniform int uStepLocal;
+uniform int uStepLocal2;
 uniform int uHarmonics;
-uniform int uBSize;
+uniform int uBSize2;
 
+//int bSize2;
+//int stepLocal2;
 ivec3 volumeSize;
 
 bool isTrimmed(float value)
@@ -92,18 +95,13 @@ vec4 computeColor(float texel)
     }
     texel = ((texel - uMin) * 1.0f) / (uMax - uMin);
     vec4 color = texture(uColormap, texel);
-    vec4 opacity = texture(uOpacity, texel);
+    float opacity = texture(uOpacity, texel).r;
     return vec4(color.rgb, opacity);
 }
 
 vec2 conjC(vec2 c)
 {
     return vec2(c.x, -c.y);
-}
-
-float realC(vec2 c)
-{
-    return c.x;
 }
 
 vec2 mulC(vec2 a, vec2 b)
@@ -127,12 +125,12 @@ float computeTimeStep(ivec3 pointI)
     ivec3 pointIImag = pointI;
     pointIImag.x += 1;
     float stepValue = 0;
+    int sH = uStepLocal2;
     for (int h = 0; h < uHarmonics; h++) {
-        int sH = 2 * (h * uBSize + uStepLocal);
         vec2 lCC = conjC(vec2(texelFetch(uVolumeCC, pointIReal, 0).r, texelFetch(uVolumeCC, pointIImag, 0).r));
         vec2 cCC = conjC(vec2(texelFetch(uVolumeLC, pointIReal, 0).r, texelFetch(uVolumeLC, pointIImag, 0).r));
-        stepValue += realC(mulC(cCC, getBE(sH))) + realC(mulC(lCC, getBE_1(sH)));
-        //stepValue += realC(mulC(vec2(300000, 300000), getBE(sH))) + realC(mulC(vec2(300000, 300000), getBE_1(sH)));
+        stepValue += mulC(cCC, getBE(sH)).x + mulC(lCC, getBE_1(sH)).x;
+        sH += uBSize2;
         pointIReal.x += 2;
         pointIImag.x += 2;
     }
@@ -155,6 +153,20 @@ void main() {
     if (uFrame) {
         outColor = uFrameColor;
     } else if (uVolumeRenderingBox) {
+        if (uSlices) {
+            float value = texture(uSlice, vTextureCoord).r;
+            if (isTrimmed(value)) {
+                discard;
+                return;
+            }
+            /*if (vTextureCoord.s > 0.999
+            || vTextureCoord.t > 0.999
+            || vTextureCoord.s < 0.001
+            || vTextureCoord.t < 0.001) {
+                discard;
+                return;
+            }*/
+        }
         outColor = vec4(vTextureCoordBox.stp, 1.0f);
     } else if (uSlices) {
         if (uXYBorder) {
@@ -171,7 +183,13 @@ void main() {
             }
             value = ((value - uMin) * 1.0f) / (uMax - uMin);
             outColor = vec4(texture(uColormap, value).rgb, 1.0f);
-            //outColor = vec4(vTextureCoordBox.stp, 1.0f);
+            /*if (vTextureCoord.s > 0.9
+            || vTextureCoord.t > 0.9
+            || vTextureCoord.s < 0.1
+            || vTextureCoord.t < 0.1) {
+                discard;
+                return;
+            }*/
         }
     } else if (uVolumeRendering) {
         if (uVolumeCompressRendering) {
@@ -180,41 +198,60 @@ void main() {
         vec2 coords = vec2((gl_FragCoord.x / uWidth), (gl_FragCoord.y / uHeight));
         vec3 backPoint = vec3(texture(uBoxBackSampler, coords));
         vec3 frontPoint = vec3(texture(uBoxFrontSampler, coords));
-        //vec3 frontPoint = vTextureCoordBox.stp;
-
-        float depth = distance(frontPoint, backPoint);
 
         vec3 path = normalize(backPoint - frontPoint) / uSteps;
-        vec3 point = frontPoint;
+        vec3 point = frontPoint - path;
+        float depth = distance(point, backPoint);
         float texel = 0.0f;
+        //gl_FragDepth =
+
+        //outColor = vec4(frontPoint, 1, 1, 1);
 
         int i = 0;
         int it = int(depth / length(path));
 
-        //outColor = vec4(vec3(length(path)), 1.0f);
-        //outColor = vec4(vec3(depth), 1.0f);
-        //outColor = vec4(backPoint, 1.0f);
-        //outColor = vec4(frontPoint, 1.0f);
-        //return;
+        /*if (it <= 1) {
+            discard;
+            //outColor = vec4(0, 0, 0, 1);
+            return;
+        }*/
 
-        vec4 cOut = vec4(0, 0, 0, 0);
+        /*if (depth > 0.1)
+            outColor = vec4(1, 0, 0, 1);
+        else
+            outColor = vec4(1, 1, 1, 1);
+        return;*/
+
+        vec4 cOut = computeColor(texel);
+        cOut.rgb *= cOut.a;
 
         outColor = cOut;
 
+        float uSteps50 = 50.0f / uSteps;
+
         for (i = 0; i < it; i++) {
-            if (uMode == 1) { // Maximum intensity projection
-                texel = max(getTexelValue(point), texel);
-            } else if (uMode == 2) { // Minimum intensity projection
-                texel = min(getTexelValue(point), texel);
-            } else if (uMode == 0) { // Accumulation
+            if (uMode == 0) { // Accumulation (Alpha blending)
                 vec4 cIn = computeColor(getTexelValue(point));
                 //if (cIn.a == 0.0f)
                 //    continue;
-                cIn.a = 50 * cIn.a / uSteps;
+                //if (i > 0)
+                cIn.a = uSteps50 * cIn.a;
                 cOut.rgb = cOut.rgb + (1 - cOut.a) * cIn.rgb * cIn.a;
-                cOut.a   = cOut.a   + (1 - cOut.a) * cIn.a;
+                cOut.a = cOut.a + (1 - cOut.a) * cIn.a;
                 if (cOut.a >= 1.0f)
                     break;
+            } else if (uMode == 1) { // Maximum intensity projection
+                if (i == 0) {
+                    texel = getTexelValue(point);
+                } else {
+                    texel = max(getTexelValue(point), texel);
+                }
+            } else if (uMode == 2) { // Minimum intensity projection
+                if (i == 0) {
+                    texel = getTexelValue(point);
+                } else {
+                    texel = min(getTexelValue(point), texel);
+                }
             } else if (uMode == 3) { // Average intensity projection
                 texel += getTexelValue(point);
             } else { // Unknown mode
@@ -224,13 +261,14 @@ void main() {
         }
 
         if (uMode == 3) { // Average intensity projection
-            texel = texel / i;
+            texel = texel / float(it);
         }
 
-        if (uMode == 0) { // Accumulation
+        if (uMode == 0) { // Accumulation (Alpha blending)
             outColor = cOut;
         } else {
             outColor = computeColor(texel);
+            outColor.rgb *= outColor.a;
         }
 
     } else {

@@ -2,8 +2,8 @@
  * @file        compresshelper.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        26 September 2016 (created) \n
- *              26 September 2017 (updated)
+ * @date        26 September 2016 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The header file with CompressHelper class declaration.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -90,10 +90,10 @@ private:
     hsize_t stride = 2;
 
     // Memory for helper functions data, 2D arrays for harmonics
-    float *b = 0;
-    floatC *e = 0;
-    floatC *bE = 0;
-    floatC *bE_1 = 0;
+    float *b = nullptr;
+    floatC *e = nullptr;
+    floatC *bE = nullptr;
+    floatC *bE_1 = nullptr;
 };
 }
 

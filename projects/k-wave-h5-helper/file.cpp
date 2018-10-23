@@ -2,8 +2,8 @@
  * @file        file.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              19 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -15,7 +15,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -62,7 +62,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     // setNumberOfElmsToLoad(25 * 55 * 82);
 
     // Disable error HDF5 output
-    H5Eset_auto(0, 0, 0);
+    H5Eset_auto(0, nullptr, nullptr);
 
     // Create log file
     //if (log) {
@@ -203,7 +203,7 @@ void File::createDatasetF(std::string name, Vector size, Vector chunkSize, bool 
  */
 void File::createDataset(std::string name, hid_t datatype, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
-    hid_t dataspace = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), 0);
+    hid_t dataspace = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), nullptr);
     if (dataspace < 0) {
         throw std::runtime_error("H5Screate_simple error");
     }
@@ -514,7 +514,10 @@ void File::closeObject(std::string name, bool log)
     if (objects.find(nameTmp) != objects.end()) {
         Object *object = objects.find(nameTmp)->second;
         object->setDeleteLog(log);
-        delete object;
+        if (object) {
+            delete object;
+            object = nullptr;
+        }
         objects.erase(objects.find(nameTmp));
     }
 }
@@ -562,7 +565,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
     if (groupId <= 0)
         groupIdTmp = file;
 
-    char *nameC = 0;
+    char *nameC = nullptr;
     size_t size = 0;
     ssize_t sizeR = 0;
     sizeR = H5Gget_objname_by_idx(groupIdTmp, idx, nameC, size);
@@ -572,7 +575,10 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
     nameC = new char[size_t(sizeR) + 1]();
     H5Gget_objname_by_idx(groupIdTmp, idx, nameC, size_t(sizeR) + 1);
     std::string name(nameC);
-    delete [] nameC;
+    if (nameC) {
+        delete [] nameC;
+        nameC = nullptr;
+    }
     return name;
 }
 
@@ -585,7 +591,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
  */
 H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId) const
 {
-    int groupIdTmp = groupId;
+    hid_t groupIdTmp = groupId;
     if (groupId <= 0)
         groupIdTmp = file;
 
@@ -597,14 +603,18 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId) const
     return H5G_obj_t(type);
 }
 
-H5G_obj_t File::getObjTypeByName(std::string name) const
+H5G_obj_t File::getObjTypeByName(std::string name, hid_t groupId) const
 {
-    H5O_info_t objectInfo;
-    herr_t err = H5Oget_info_by_name(file, name.c_str(), &objectInfo, 0);
+    hid_t groupIdTmp = groupId;
+    if (groupId <= 0)
+        groupIdTmp = file;
+    H5G_stat_t statbuf;
+    // H5Gget_objinfo is deprecated, but H5Gget_info_by_name is slow
+    herr_t err = H5Gget_objinfo(groupIdTmp, name.c_str(), 1, &statbuf);
     if (err < 0) {
-        throw std::runtime_error("H5Oget_info_by_name error");
+        throw std::runtime_error("H5Oget_info error");
     }
-    return H5G_obj_t(objectInfo.type);
+    return H5G_obj_t(statbuf.type);
 }
 
 /**
@@ -612,10 +622,14 @@ H5G_obj_t File::getObjTypeByName(std::string name) const
  * @param[in] name Object name
  * @return True/False
  */
-bool File::objExistsByName(std::string name) const
+bool File::objExistsByName(std::string name, hid_t groupId) const
 {
-    if (H5Lexists(file, name.c_str(), 0))
-        return H5Oexists_by_name(file, name.c_str(), 0) != 0;
+    hid_t groupIdTmp = groupId;
+    if (groupId <= 0)
+        groupIdTmp = file;
+
+    if (H5Lexists(groupIdTmp, name.c_str(), 0))
+        return H5Oexists_by_name(groupIdTmp, name.c_str(), 0) != 0;
     else
         return false;
 }
@@ -666,6 +680,17 @@ std::string File::getFilename() const
 }
 
 /**
+ * @brief Returns raw filename
+ * @return Raw filename
+ */
+std::string File::getRawFilename() const
+{
+    std::string filename = getFilename();
+    size_t lastindex = filename.find_last_of(".");
+    return filename.substr(0, lastindex);
+}
+
+/**
  * @brief Sets number of elements to load
  * @param[in] size
  * @throw std::runtime_error
@@ -693,7 +718,7 @@ hsize_t File::getNumberOfElmsToLoad() const
  * @brief Returns N dimensions (Nt, Nz, Ny, Nx)
  * @return N dimensions
  */
-Vector4D File::getNdims() const
+Vector4D File::getNDims() const
 {
     return nDims;
 }
@@ -1102,6 +1127,7 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
             dstDataset->writeDataset(offset, count, data, log);
         }
         delete[] data;
+        data = nullptr;
     } else if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_UINT64)) {
         hsize_t *data = new hsize_t[srcDataset->getGeneralBlockDims().getSize()];
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
@@ -1109,6 +1135,7 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
             dstDataset->writeDataset(offset, count, data, log);
         }
         delete[] data;
+        data = nullptr;
     } else {
         throw std::runtime_error("Wrong data type of dataset (not float or 64-bit unsigned integer)");
     }
@@ -1118,6 +1145,7 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
         Attribute *attribute = srcDataset->getAttribute(i);
         dstDataset->setAttribute(attribute, log);
         delete attribute;
+        attribute = nullptr;
     }
     dstFile->closeDataset(dstDataset, log);
 }

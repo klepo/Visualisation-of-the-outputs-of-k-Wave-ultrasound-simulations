@@ -2,7 +2,7 @@
  * @file        attribute.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
+ * @date        30 July      2014 (created) <br>
  *              19 September 2017 (updated)
  *
  * @brief       The implementation file containing H5Helper::Attribute class definition.
@@ -15,7 +15,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -69,6 +69,7 @@ Attribute::Attribute(hid_t object, hsize_t idx) : object(object)
 Attribute::~Attribute()
 {
     free(value);
+    value = nullptr;
     err = H5Tclose(datatype);
     if (err < 0) {
         //throw std::runtime_error("H5Tclose error");
@@ -237,7 +238,8 @@ void Attribute::loadAttribute(hid_t attribute)
     char *nameC = new char[size_t(nameSize) + 1];
     H5Aget_name(attribute, size_t(nameSize + 1), nameC);
     name = std::string(nameC);
-    delete [] nameC;
+    delete[] nameC;
+    nameC = nullptr;
     dataspace = H5Aget_space(attribute);
     if (dataspace < 0) {
         throw std::runtime_error("H5Aget_space error");

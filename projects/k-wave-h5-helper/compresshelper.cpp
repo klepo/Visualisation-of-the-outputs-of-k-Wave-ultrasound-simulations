@@ -2,8 +2,8 @@
  * @file        compresshelper.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        8  September 2016 (created) \n
- *              11 September 2017 (updated)
+ * @date        8  September 2016 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing CompressHelper class definition.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -21,6 +21,13 @@
 
 namespace H5Helper {
 
+/**
+ * @brief Creates CompressHelper object with period, mos, harmonics and normalize flag
+ * @param[in] period Period
+ * @param[in] mos Multiple of overlap size
+ * @param[in] harmonics Number of harmonics
+ * @param[in] normalize Normalizes basis functions for compression (optional)
+ */
 CompressHelper::CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, bool normalize)
 {
     oSize = period * mos;
@@ -37,12 +44,29 @@ CompressHelper::CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, b
     generateFunctions(bSize, oSize, period, harmonics, b, e, bE, bE_1, normalize);
 }
 
+/**
+ * @brief Destructor of CompressHelper object
+ *
+ * Deletes some memory for basis functions.
+ */
 CompressHelper::~CompressHelper()
 {
-    delete[] b;
-    delete[] e;
-    delete[] bE;
-    delete[] bE_1;
+    if (b) {
+        delete[] b;
+        b = nullptr;
+    }
+    if (e) {
+        delete[] e;
+        e = nullptr;
+    }
+    if (bE) {
+        delete[] bE;
+        bE = nullptr;
+    }
+    if (bE_1) {
+        delete[] bE_1;
+        bE_1 = nullptr;
+    }
 }
 
 /**
@@ -237,25 +261,36 @@ hsize_t CompressHelper::findPeriod(float *dataSrc, const hsize_t length)
     diff(peaksTmp, peaks, peaksCount);
     period = median(peaks, peaksCount - 1);
 
-    delete[] dataTmp;
-    delete[] peaksTmp;
-    delete[] peaks;
-
+    if (dataTmp) {
+        delete[] dataTmp;
+        dataTmp = nullptr;
+    }
+    if (peaksTmp) {
+        delete[] peaksTmp;
+        peaksTmp = nullptr;
+    }
+    if (peaks) {
+        delete[] peaks;
+        peaks = nullptr;
+    }
     return period;
 }
 
+/**
+ * @brief Computes sample value for given step using coefficients (decompression)
+ * @param[in] cC Current coefficients
+ * @param[in] lC Last coefficients
+ * @param[in] stepLocal Local step between coefficients
+ * @return Step value
+ */
 float CompressHelper::computeTimeStep(float *cC, float *lC, hsize_t stepLocal)
 {
     float stepValue = 0;
+    hsize_t sH = stepLocal;
     for (hsize_t h = 0; h < harmonics; h++) {
-        hsize_t sH = h * bSize + stepLocal;
-        //hsize_t h2 = h * 2;
-        //floatC lCC = conj(floatC(cC[h2], cC[h2 + 1]));
-        //floatC cCC = conj(floatC(lC[h2], lC[h2 + 1]));
-        floatC lCC = conj(reinterpret_cast<floatC *>(cC)[h]);
-        floatC cCC = conj(reinterpret_cast<floatC *>(lC)[h]);
-        stepValue += real(cCC * getBE()[sH]) + real(lCC * getBE_1()[sH]);
-        //stepValue += real(floatC(300000, 300000) * getBE()[sH]) + real(floatC(300000, 300000) * getBE_1()[sH]);
+        stepValue += real(conj(reinterpret_cast<floatC *>(cC)[h]) * getBE()[sH]) +
+                     real(conj(reinterpret_cast<floatC *>(lC)[h]) * getBE_1()[sH]);
+        sH += bSize;
     }
     return stepValue;
 }

@@ -2,8 +2,8 @@
  * @file        vector.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@stud.fit.vutbr.cz
  * @version     1.1
- * @date        16 June      2016 (created) \n
- *              11 September 2017 (updated)
+ * @date        16 June      2016 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector class definition.
  *
@@ -15,7 +15,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -27,7 +27,7 @@ namespace H5Helper {
  * @brief Creates Vector with zero length
  */
 Vector::Vector()
-    : vector(0)
+    : vector(nullptr)
     , length(0)
 {
 
@@ -84,8 +84,10 @@ Vector::Vector(Vector &&vector)
  */
 Vector::~Vector()
 {
-    delete[] vector;
-    vector = 0;
+    if (vector) {
+        delete[] vector;
+        vector = nullptr;
+    }
 }
 
 /**
@@ -295,6 +297,7 @@ void Vector::assign(const Vector &vector, bool deleteFlag)
 {
     if (deleteFlag) {
         delete[] this->vector;
+        this->vector = nullptr;
     }
     this->length = vector.length;
     this->vector = new hsize_t[length]();
@@ -306,11 +309,12 @@ void Vector::move(Vector &vector, bool deleteFlag)
 {
     if (deleteFlag) {
         delete[] this->vector;
+        this->vector = nullptr;
     }
     this->length = vector.length;
     //this->vector = vector.vector;
     this->vector = std::move(vector.vector);
-    vector.vector = 0;
+    vector.vector = nullptr;
     vector.length = 0;
 }
 

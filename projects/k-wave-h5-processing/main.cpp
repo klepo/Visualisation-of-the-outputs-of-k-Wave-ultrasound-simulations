@@ -2,8 +2,8 @@
  * @file        k-wave-h5-processing/main.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              19 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The main implementation file containing k-Wave HDF5 processing application.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -65,6 +65,7 @@ int main(int argc, char **argv)
             Reshape *reshape = new Reshape(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             reshape->execute();
             delete reshape;
+            reshape = nullptr;
         }
 
         // Downsampling
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
             Downsampling *downsampling = new Downsampling(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             downsampling->execute();
             delete downsampling;
+            downsampling = nullptr;
         }
 
         // Copy 3D datasets a set new chunking
@@ -81,6 +83,7 @@ int main(int argc, char **argv)
             ChangeChunks *changeChunks = new ChangeChunks(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             changeChunks->execute();
             delete changeChunks;
+            changeChunks = nullptr;
         }
 
         // Compression of time series data
@@ -93,6 +96,7 @@ int main(int argc, char **argv)
             //std::cout << filesContext->getSimOutputFile()->getNumberOfElmsToLoad() << " ";
             //std::cout << compress->getTotalProcessingTime() / 1000 << " ";
             delete compress;
+            compress = nullptr;
         }
 
         // Decompression of time series data
@@ -101,6 +105,7 @@ int main(int argc, char **argv)
             Decompress *decompress = new Decompress(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             decompress->execute();
             delete decompress;
+            decompress = nullptr;
         }
 
         // Subtraction of time series datasets
@@ -109,13 +114,16 @@ int main(int argc, char **argv)
             Difference *difference = new Difference(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             difference->execute();
             delete difference;
+            difference = nullptr;
         }
     }
 
     delete dtsForPcs;
+    dtsForPcs = nullptr;
     Helper::printDebugTitle("Closing files");
     // Close files
     delete filesContext;
+    filesContext = nullptr;
 
     double t1 = H5Helper::getTime(); // Save the final time
 

@@ -2,8 +2,8 @@
  * @file        h5subobjecttovisualize.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing H5ObjectToVisualize
  *              class definition.
@@ -17,11 +17,11 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
-#include "h5objecttovisualize.h"
+#include <h5objecttovisualize.h>
 
 /**
  * @brief Creates H5ObjectToVisualize object
@@ -31,10 +31,9 @@
  * @param[in] h5ObjectToVisualize Object to visualize
  * @param[in] parent Parent (optional)
  */
-H5ObjectToVisualize::H5ObjectToVisualize(H5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, H5OpenedFile *openedH5File, QObject *parent)
+H5ObjectToVisualize::H5ObjectToVisualize(H5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, QObject *parent)
     : QObject(parent)
     , dataset(dataset)
-    , openedH5File(openedH5File)
     , type(type)
 {
     // Create threads for slices
@@ -67,8 +66,7 @@ void H5ObjectToVisualize::initialize()
     index.x(H5Helper::Vector3D(maxValuePosition).x());
     index.y(H5Helper::Vector3D(maxValuePosition).y());
     index.z(H5Helper::Vector3D(maxValuePosition).z());
-    if (type == H5OpenedFile::DATASET_4D)
-        currentStep = H5Helper::Vector4D(maxValuePosition).t();
+    index.t(H5Helper::Vector4D(maxValuePosition).t());
 }
 
 /**
@@ -98,23 +96,29 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
     thread3D->wait();
     thread3D->deleteLater();
 
-    disconnect(this, SIGNAL(imageXYChanged(QImage)), nullptr, nullptr);
-    disconnect(this, SIGNAL(imageXZChanged(QImage)), nullptr, nullptr);
-    disconnect(this, SIGNAL(imageYZChanged(QImage)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataXYChanged(float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataXZChanged(float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataYZChanged(float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(opacityChanged(QVector<float>)), nullptr, nullptr);
-    disconnect(this, SIGNAL(minValueChanged(float)), nullptr, nullptr);
-    disconnect(this, SIGNAL(maxValueChanged(float)), nullptr, nullptr);
-    disconnect(this, SIGNAL(colormapChanged(ColorMap::Type)), nullptr, nullptr);
+    disconnectSignals();
 
-    delete[] dataXY;
-    delete[] dataXZ;
-    delete[] dataYZ;
-    delete[] data3D;
+    if (dataXY) {
+        delete[] dataXY;
+        dataXY = nullptr;
+    }
+    if (dataXZ) {
+        delete[] dataXZ;
+        dataXZ = nullptr;
+    }
+    if (dataYZ) {
+        delete[] dataYZ;
+        dataYZ = nullptr;
+    }
+    if (data3D) {
+        delete[] data3D;
+        data3D = nullptr;
+    }
 
-    delete compressHelper;
+    if (compressHelper) {
+        delete compressHelper;
+        compressHelper = nullptr;
+    }
 }
 
 /**
@@ -178,7 +182,7 @@ void H5ObjectToVisualize::loadObjectData()
     originalSize = size;
 
     // Set 3D frame size
-    frameSize = H5Helper::Vector3D(openedH5File->getNDims());;
+    frameSize = H5Helper::Vector3D(dataset->getFile()->getNDims());;
     originalFrameSize = frameSize;
 
     // If masked
@@ -189,8 +193,8 @@ void H5ObjectToVisualize::loadObjectData()
         originalPosition = position;
     } else if (type == H5OpenedFile::DATASET_4D) {
         // Try to get position from sensor_mask_corners dataset
-        if (openedH5File->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {
-            H5Helper::Dataset *sensorMaskCornersDataset = openedH5File->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
+        if (dataset->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {
+            H5Helper::Dataset *sensorMaskCornersDataset = dataset->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
             hsize_t *sensorMaskCornersData = nullptr;
             sensorMaskCornersDataset->readDataset(sensorMaskCornersData);
             // Name of the dataset to index
@@ -205,7 +209,8 @@ void H5ObjectToVisualize::loadObjectData()
             position.x(sensorMaskCornersData[(i - 1) * 6 + 0] - 1);
             originalPosition = position;
             delete[] sensorMaskCornersData;
-            openedH5File->getFile()->closeDataset(sensorMaskCornersDataset);
+            sensorMaskCornersData = nullptr;
+            dataset->getFile()->closeDataset(sensorMaskCornersDataset);
         }
     }
 
@@ -273,105 +278,108 @@ void H5ObjectToVisualize::changeImages()
  */
 void H5ObjectToVisualize::reloadSlices()
 {
-    setZIndex(index.z());
-    setYIndex(index.y());
-    setXIndex(index.x());
+    reloadXY();
+    reloadXZ();
+    reloadYZ();
 }
 
 void H5ObjectToVisualize::reloadXY()
 {
-    setZIndex(index.z());
+    setZIndex(int(index.z()));
 }
 
 void H5ObjectToVisualize::reloadXZ()
 {
-    setYIndex(index.y());
+    setYIndex(int(index.y()));
 }
 
 void H5ObjectToVisualize::reloadYZ()
 {
-    setXIndex(index.x());
+    setXIndex(int(index.x()));
 }
 
 /**
  * @brief Slice XY loaded slot
  * @param[in] r Request
  */
-void H5ObjectToVisualize::sliceXYLoaded(Request *r)
+void H5ObjectToVisualize::sliceXYLoaded(Request *request)
 {
-    //XYloadedFlag = false;
-    // Copy image data from request
-    //memcpy(dataXY, r->data, static_cast<size_t>(size.y() * size.x()) * sizeof(float));
-    //XYloadedFlag = true;
-    if (index.z() == H5Helper::Vector3D(r->offset).z())
-        currentXYLoaded = true;
-    else
-        currentXYLoaded = false;
-    if (areCurrentSlicesLoaded())
-        emit slicesLoaded();
+    if (index.z() == H5Helper::Vector3D(request->offset).z()) {
+        currentXYLoadedFlag = true;
+        emit currentXYLoaded();
+    } else {
+        currentXYLoadedFlag = false;
+    }
     emit imageXYChanged(createImageXY());
-    emit dataXYChanged(dataXY, H5Helper::Vector3D(r->offset).z());
-    threadXY->deleteDoneRequest(r);
+    emit dataXYChanged(dataXY, H5Helper::Vector3D(request->offset).z());
+    checkCurrentDataIsLoaded();
+    threadXY->deleteDoneRequest(request);
 }
 
 /**
  * @brief Slice XZ loaded slot
  * @param[in] r request
  */
-void H5ObjectToVisualize::sliceXZLoaded(Request *r)
+void H5ObjectToVisualize::sliceXZLoaded(Request *request)
 {
-    //XZloadedFlag = false;
-    // Copy image data from request
-    //memcpy(dataXZ, r->data, static_cast<size_t>(size.z() * size.x()) * sizeof(float));
-    //XZloadedFlag = true;
-    if (index.y() == H5Helper::Vector3D(r->offset).y())
-        currentXZLoaded = true;
-    else
-        currentXZLoaded = false;
-    if (areCurrentSlicesLoaded())
-        emit slicesLoaded();
+    if (index.y() == H5Helper::Vector3D(request->offset).y()) {
+        currentXZLoadedFlag = true;
+        emit currentXZLoaded();
+    } else {
+        currentXZLoadedFlag = false;
+    }
     emit imageXZChanged(createImageXZ());
-    emit dataXZChanged(dataXZ, H5Helper::Vector3D(r->offset).y());
-    threadXZ->deleteDoneRequest(r);
+    emit dataXZChanged(dataXZ, H5Helper::Vector3D(request->offset).y());
+    checkCurrentDataIsLoaded();
+    threadXZ->deleteDoneRequest(request);
 }
 
 /**
  * @brief Slice YZ loaded slot
  * @param[in] r request
  */
-void H5ObjectToVisualize::sliceYZLoaded(Request *r)
+void H5ObjectToVisualize::sliceYZLoaded(Request *request)
 {
-    //YZloadedFlag = false;
-    // Copy image data from request
-    //memcpy(dataYZ, r->data, size.z() * size.y() * sizeof(float));
-    //YZloadedFlag = true;
-    if (index.x() == H5Helper::Vector3D(r->offset).x())
-        currentYZLoaded = true;
-    else
-        currentYZLoaded = false;
-    if (areCurrentSlicesLoaded())
-        emit slicesLoaded();
+    if (index.x() == H5Helper::Vector3D(request->offset).x()) {
+        currentYZLoadedFlag = true;
+        emit currentYZLoaded();
+    } else {
+        currentYZLoadedFlag = false;
+    }
     emit imageYZChanged(createImageYZ());
-    emit dataYZChanged(dataYZ, H5Helper::Vector3D(r->offset).x());
-    threadYZ->deleteDoneRequest(r);
+    emit dataYZChanged(dataYZ, H5Helper::Vector3D(request->offset).x());
+    checkCurrentDataIsLoaded();
+    threadYZ->deleteDoneRequest(request);
 }
 
 void H5ObjectToVisualize::data3DLoaded(Request *request)
 {
-    //data3DLoadedFlag = false;
-    // Copy data from request
-    //memcpy(data3D, request->data, size.getSize() * sizeof(float));
-    //data3DLoadedFlag = true;
-    if (currentStep == H5Helper::Vector4D(request->offset).t())
-        currentData3DLoaded = true;
-    else
-        currentData3DLoaded = false;
-    if (compressHelper) {
-        emit data3DCompressLoaded(thread3D->getDataLC(), thread3D->getDataCC(), thread3D->getLocalStep());
+    if (index.t() == H5Helper::Vector4D(request->offset).t()) {
+        currentData3DLoadedFlag = true;
+        emit currentData3DLoaded();
     } else {
-        emit data3DLoaded(data3D);
+        currentData3DLoadedFlag = false;
     }
+    if (compressHelper) {
+        emit data3DCompressChanged(thread3D->getDataLC(), thread3D->getDataCC(), thread3D->getLocalStep());
+    } else {
+        emit data3DChanged(data3D);
+    }
+    checkCurrentDataIsLoaded();
     thread3D->deleteDoneRequest(request);
+}
+
+void H5ObjectToVisualize::checkCurrentDataIsLoaded()
+{
+    if (loadData3DFlag) {
+        if (areCurrentData3DLoaded() && areCurrentSlicesLoaded()) {
+            emit currentSlicesLoaded();
+            emit currentStepLoaded();
+        }
+    } else if (areCurrentSlicesLoaded()) {
+        emit currentSlicesLoaded();
+        emit currentStepLoaded();
+    }
 }
 
 /**
@@ -380,7 +388,7 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
  */
 bool H5ObjectToVisualize::isCurrentXYLoaded()
 {
-    return currentXYLoaded;
+    return currentXYLoadedFlag;
 }
 
 /**
@@ -389,7 +397,7 @@ bool H5ObjectToVisualize::isCurrentXYLoaded()
  */
 bool H5ObjectToVisualize::isCurrentXZLoaded()
 {
-    return currentXZLoaded;
+    return currentXZLoadedFlag;
 }
 
 /**
@@ -398,7 +406,7 @@ bool H5ObjectToVisualize::isCurrentXZLoaded()
  */
 bool H5ObjectToVisualize::isCurrentYZLoaded()
 {
-    return currentYZLoaded;
+    return currentYZLoadedFlag;
 }
 
 /**
@@ -407,7 +415,7 @@ bool H5ObjectToVisualize::isCurrentYZLoaded()
  */
 bool H5ObjectToVisualize::areCurrentSlicesLoaded()
 {
-    if (currentXYLoaded && currentXZLoaded && currentYZLoaded)
+    if (currentXYLoadedFlag && currentXZLoadedFlag && currentYZLoadedFlag)
         return true;
     else
         return false;
@@ -457,15 +465,19 @@ QImage H5ObjectToVisualize::createImageYZ()
 
 void H5ObjectToVisualize::load3Ddata()
 {
-    //data3DLoadedFlag = false;
-    thread3D->createRequest(dataset, currentStep, data3D);
+    thread3D->createRequest(dataset, index.t(), data3D);
+    emit data3DLoadingStarted();
     thread3D->start();
-    emit data3DLoading();
+}
+
+bool H5ObjectToVisualize::getMinMaxValuesTrim() const
+{
+    return minMaxValuesTrimFlag;
 }
 
 bool H5ObjectToVisualize::areCurrentData3DLoaded() const
 {
-    return currentData3DLoaded;
+    return currentData3DLoadedFlag;
 }
 
 float *H5ObjectToVisualize::getData3D() const
@@ -488,16 +500,69 @@ hsize_t H5ObjectToVisualize::getLocalStep() const
     return thread3D->getLocalStep();
 }
 
-bool H5ObjectToVisualize::getData3DloadingFlag() const
+bool H5ObjectToVisualize::getData3DLoadingFlag() const
 {
-    return data3DloadingFlag;
+    return loadData3DFlag;
 }
 
-void H5ObjectToVisualize::setData3DloadingFlag(bool value)
+void H5ObjectToVisualize::setData3DLoadingFlag(bool value)
 {
-  data3DloadingFlag = value;
-  if (!currentData3DLoaded)
+  loadData3DFlag = value;
+  if (loadData3DFlag && !currentData3DLoadedFlag)
       load3Ddata();
+}
+
+void H5ObjectToVisualize::setHoveredPointInImageXY(int x, int y)
+{
+    emit(hoveredPointInImage(getValueAtPointFromXY(x, y)));
+}
+
+void H5ObjectToVisualize::setHoveredPointInImageXZ(int x, int z)
+{
+    emit(hoveredPointInImage(getValueAtPointFromXZ(x, z)));
+}
+
+void H5ObjectToVisualize::setHoveredPointInImageYZ(int y, int z)
+{
+    emit(hoveredPointInImage(getValueAtPointFromYZ(y, z)));
+}
+
+void H5ObjectToVisualize::disconnectSignals()
+{
+    disconnect(this, SIGNAL(minValueChanged(float)), nullptr, nullptr);
+    disconnect(this, SIGNAL(maxValueChanged(float)), nullptr, nullptr);
+    disconnect(this, SIGNAL(colormapChanged(ColorMap::Type)), nullptr, nullptr);
+    disconnect(this, SIGNAL(opacityChanged(QVector<float>)), nullptr, nullptr);
+    disconnect(this, SIGNAL(minMaxValuesTrimChanged(bool)), nullptr, nullptr);
+
+    disconnect(this, SIGNAL(currentSlicesLoaded()), nullptr, nullptr);
+    disconnect(this, SIGNAL(currentXYLoaded()), nullptr, nullptr);
+    disconnect(this, SIGNAL(currentXZLoaded()), nullptr, nullptr);
+    disconnect(this, SIGNAL(currentYZLoaded()), nullptr, nullptr);
+    disconnect(this, SIGNAL(currentData3DLoaded()), nullptr, nullptr);
+    disconnect(this, SIGNAL(currentStepLoaded()), nullptr, nullptr);
+
+    disconnect(this, SIGNAL(dataYZLoadingStarted()), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXZLoadingStarted()), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXYLoadingStarted()), nullptr, nullptr);
+    disconnect(this, SIGNAL(data3DLoadingStarted()), nullptr, nullptr);
+
+    disconnect(this, SIGNAL(xIndexChanged(int)), nullptr, nullptr);
+    disconnect(this, SIGNAL(yIndexChanged(int)), nullptr, nullptr);
+    disconnect(this, SIGNAL(zIndexChanged(int)), nullptr, nullptr);
+    disconnect(this, SIGNAL(stepChanged(int)), nullptr, nullptr);
+
+    disconnect(this, SIGNAL(data3DChanged(float *)), nullptr, nullptr);
+    disconnect(this, SIGNAL(data3DCompressChanged(float *, float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXYChanged(float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXZChanged(float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataYZChanged(float *, hsize_t)), nullptr, nullptr);
+
+    disconnect(this, SIGNAL(imageXYChanged(QImage)), nullptr, nullptr);
+    disconnect(this, SIGNAL(imageXZChanged(QImage)), nullptr, nullptr);
+    disconnect(this, SIGNAL(imageYZChanged(QImage)), nullptr, nullptr);
+
+    disconnect(this, SIGNAL(hoveredPointInImage(float)), nullptr, nullptr);
 }
 
 H5Helper::CompressHelper *H5ObjectToVisualize::getCompressHelper() const
@@ -518,26 +583,26 @@ void H5ObjectToVisualize::setOpacity(const QVector<float> &value)
 
 bool H5ObjectToVisualize::isSelected() const
 {
-    return selected;
+    return selectedFlag;
 }
 
 void H5ObjectToVisualize::setSelected(bool value)
 {
-    selected = value;
+    selectedFlag = value;
 }
 
 void H5ObjectToVisualize::toggleSelected()
 {
-    selected = !selected;
+    setSelected(!selectedFlag);
 }
 
 /**
  * @brief Returns OpenedH5File
  * @return OpenedH5File
  */
-H5OpenedFile *H5ObjectToVisualize::getOpenedH5File() const
+H5Helper::File *H5ObjectToVisualize::getFile() const
 {
-    return openedH5File;
+    return dataset->getFile();
 }
 
 /**
@@ -613,15 +678,17 @@ hsize_t H5ObjectToVisualize::getZIndex()
  * @brief Starts loading image data with new X index
  * @param[in] value X index
  */
-void H5ObjectToVisualize::setXIndex(hsize_t value)
+void H5ObjectToVisualize::setXIndex(int value)
 {
     index.x(value);
-    currentYZLoaded = false;
+    emit xIndexChanged(value);
+    currentYZLoadedFlag = false;
     if (type == H5OpenedFile::DATASET_3D) {
-        threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, value), H5Helper::Vector3D(size.z(), size.y(), 1), dataYZ);
+        threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, hsize_t(value)), H5Helper::Vector3D(size.z(), size.y(), 1), dataYZ);
     } else {
-        threadYZ->createRequest(dataset, H5Helper::Vector4D(currentStep, 0, 0, value), H5Helper::Vector4D(1, size.z(), size.y(), 1), dataYZ);
+        threadYZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, 0, hsize_t(value)), H5Helper::Vector4D(1, size.z(), size.y(), 1), dataYZ);
     }
+    emit dataYZLoadingStarted();
     threadYZ->start();
 }
 
@@ -629,14 +696,16 @@ void H5ObjectToVisualize::setXIndex(hsize_t value)
  * @brief Starts loading image data with new Y index
  * @param[in] value Y index
  */
-void H5ObjectToVisualize::setYIndex(hsize_t value)
+void H5ObjectToVisualize::setYIndex(int value)
 {
     index.y(value);
-    currentXZLoaded = false;
+    emit yIndexChanged(value);
+    currentXZLoadedFlag = false;
     if (type == H5OpenedFile::DATASET_3D)
-        threadXZ->createRequest(dataset, H5Helper::Vector3D(0, value, 0), H5Helper::Vector3D(size.z(), 1, size.x()), dataXZ);
+        threadXZ->createRequest(dataset, H5Helper::Vector3D(0, hsize_t(value), 0), H5Helper::Vector3D(size.z(), 1, size.x()), dataXZ);
     else
-        threadXZ->createRequest(dataset, H5Helper::Vector4D(currentStep, 0, value, 0), H5Helper::Vector4D(1, size.z(), 1, size.x()), dataXZ);
+        threadXZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, hsize_t(value), 0), H5Helper::Vector4D(1, size.z(), 1, size.x()), dataXZ);
+    emit dataXZLoadingStarted();
     threadXZ->start();
 }
 
@@ -644,33 +713,39 @@ void H5ObjectToVisualize::setYIndex(hsize_t value)
  * @brief Starts loading image data with new Z index
  * @param[in] value Z index
  */
-void H5ObjectToVisualize::setZIndex(hsize_t value)
+void H5ObjectToVisualize::setZIndex(int value)
 {
     index.z(value);
-    currentXYLoaded = false;
+    emit zIndexChanged(value);
+    currentXYLoadedFlag = false;
     if (type == H5OpenedFile::DATASET_3D)
-        threadXY->createRequest(dataset, H5Helper::Vector3D(value, 0, 0), H5Helper::Vector3D(1, size.y(), size.x()), dataXY);
+        threadXY->createRequest(dataset, H5Helper::Vector3D(hsize_t(value), 0, 0), H5Helper::Vector3D(1, size.y(), size.x()), dataXY);
     else
-        threadXY->createRequest(dataset, H5Helper::Vector4D(currentStep, value, 0, 0), H5Helper::Vector4D(1, 1, size.y(), size.x()), dataXY);
+        threadXY->createRequest(dataset, H5Helper::Vector4D(index.t(), hsize_t(value), 0, 0), H5Helper::Vector4D(1, 1, size.y(), size.x()), dataXY);
+    emit dataXYLoadingStarted();
     threadXY->start();
 }
 
-/**
- * @brief Gets count (unused)
- * @return Count
- */
-int H5ObjectToVisualize::getSlicesCount()
+void H5ObjectToVisualize::setToMaxValuePosition()
 {
-    return slicesCount;
+    setXIndex(int(H5Helper::Vector3D(maxValuePosition).x()));
+    setYIndex(int(H5Helper::Vector3D(maxValuePosition).y()));
+    setZIndex(int(H5Helper::Vector3D(maxValuePosition).z()));
+    setCurrentStep(int(H5Helper::Vector4D(maxValuePosition).t()));
 }
 
-/**
- * @brief Sets count (unused)
- * @param[in] value Count
- */
-void H5ObjectToVisualize::setSlicesCount(int value)
+void H5ObjectToVisualize::setToMinValuePosition()
 {
-    slicesCount = value;
+    setXIndex(int(H5Helper::Vector3D(minValuePosition).x()));
+    setYIndex(int(H5Helper::Vector3D(minValuePosition).y()));
+    setZIndex(int(H5Helper::Vector3D(minValuePosition).z()));
+    setCurrentStep(int(H5Helper::Vector4D(minValuePosition).t()));
+}
+
+void H5ObjectToVisualize::setMinMaxValuesTrim(bool value)
+{
+    minMaxValuesTrimFlag = value;
+    emit minMaxValuesTrimChanged(value);
 }
 
 /**
@@ -742,23 +817,23 @@ hsize_t H5ObjectToVisualize::getSteps()
  */
 hsize_t H5ObjectToVisualize::getCurrentStep()
 {
-    return currentStep;
+    return index.t();
 }
 
 /**
  * @brief Synchronizes loading time series
  * @param[in] step Step
  */
-void H5ObjectToVisualize::setCurrentStep(hsize_t step)
+void H5ObjectToVisualize::setCurrentStep(int step)
 {
     if (type == H5OpenedFile::DATASET_4D) {
         try {
-            currentStep = step;
-            reloadSlices();
-            if (data3DloadingFlag) {
+            index.t(hsize_t(step));
+            emit stepChanged(step);
+            if (loadData3DFlag) {
                 load3Ddata();
             }
-            emit stepChanged();
+            reloadSlices();
         } catch(std::exception &) {
             std::cerr << "Wrong step" << std::endl;
         }
@@ -785,6 +860,10 @@ void H5ObjectToVisualize::setColormap(ColorMap::Type colormap)
     changeImages();
 }
 
+/**
+ * @brief Sets colormap
+ * @param[in] colormap Colormap
+ */
 void H5ObjectToVisualize::setColormap(int colormap)
 {
     setColormap(static_cast<ColorMap::Type>(colormap));
@@ -856,10 +935,7 @@ float H5ObjectToVisualize::getOriginalMaxValue()
  */
 float H5ObjectToVisualize::getValueAtPointFromXY(int x, int y)
 {
-    //if (XYloadedFlag)
-        return dataXY[static_cast<hsize_t>(x) + size.x() * static_cast<hsize_t>(y)];
-    //else
-    //    return 0.0;
+    return dataXY[hsize_t(x) + size.x() * hsize_t(y)];
 }
 
 /**
@@ -870,10 +946,7 @@ float H5ObjectToVisualize::getValueAtPointFromXY(int x, int y)
  */
 float H5ObjectToVisualize::getValueAtPointFromXZ(int x, int z)
 {
-    //if (XZloadedFlag)
-        return dataXZ[static_cast<hsize_t>(x) + size.x() * static_cast<hsize_t>(z)];
-    //else
-    //    return 0.0;
+    return dataXZ[hsize_t(x) + size.x() * hsize_t(z)];
 }
 
 /**
@@ -884,10 +957,7 @@ float H5ObjectToVisualize::getValueAtPointFromXZ(int x, int z)
  */
 float H5ObjectToVisualize::getValueAtPointFromYZ(int y, int z)
 {
-    //if (YZloadedFlag)
-        return dataYZ[static_cast<hsize_t>(y) + size.y() * static_cast<hsize_t>(z)];
-    //else
-    //    return 0.0;
+    return dataYZ[hsize_t(y) + size.y() * hsize_t(z)];
 }
 
 /**
@@ -900,7 +970,6 @@ QList<QPair<QString, QString>> H5ObjectToVisualize::getInfo()
     if (type == H5OpenedFile::DATASET_3D) {
         info.append(QPair<QString, QString>("Name", getName()));
         info.append(QPair<QString, QString>("Type", "3D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
-
         info.append(QPair<QString, QString>("Size", QString::fromStdString(size)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())
             info.append(QPair<QString, QString>("Original size", QString::fromStdString(originalSize)));
@@ -921,6 +990,12 @@ QList<QPair<QString, QString>> H5ObjectToVisualize::getInfo()
     } else if (type == H5OpenedFile::DATASET_4D) {
         info.append(QPair<QString, QString>("Name", getName()));
         info.append(QPair<QString, QString>("Type", "4D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
+
+        if (compressHelper) {
+            info.append(QPair<QString, QString>("Compression period", QString::number(compressHelper->getPeriod())));
+            info.append(QPair<QString, QString>("Multiple of overlap size", QString::number(compressHelper->getMos())));
+            info.append(QPair<QString, QString>("Number of harmonics", QString::number(compressHelper->getHarmonics())));
+        }
 
         info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(size)));
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z())

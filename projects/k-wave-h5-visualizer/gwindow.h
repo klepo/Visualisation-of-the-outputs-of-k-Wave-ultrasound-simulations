@@ -2,8 +2,8 @@
  * @file        gwindow.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -13,39 +13,31 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
 #ifndef GWINDOW_H
 #define GWINDOW_H
 
-#include <QMainWindow>
-#include <QMessageBox>
-#include <QLabel>
+#include <QFileDialog>
 
 #include <qvector3di.h>
 #include <colormap.h>
 #include <openglwindow.h>
-#include <abstractobjectwidget.h>
+#include <abstractwidget.h>
+#include <h5objecttovisualize.h>
 
 /**
  * @brief The GWindow class represents wrapper for the 3D rendering window
  */
-class GWindow : public OpenGLWindow, AbstractObjectWidget
+class GWindow : public OpenGLWindow, AbstractWidget
 {
     Q_OBJECT
 
 public:
-    GWindow(QMainWindow *qMainWindow = nullptr);
+    GWindow(QWidget *parent);
     ~GWindow();
-
-    void initialize();
-    void render();
-    bool event(QEvent *event);
-    void resizeEvent(QResizeEvent *);
-
-    QImage getImage();
 
     /// Slice vertices
     static const GLfloat sliceVertices[];
@@ -56,125 +48,116 @@ public:
     /// Cube elements
     static const GLint cubeElements[];
 
-    bool isVolumeRenderingEnabled() const;
+    QImage getImage();
 
-    bool areData3DLoaded() const;
+signals:
+    void viewVolumeRenderingChanged(bool value);
 
 public slots:
-    void setViewFrame(bool value);
-    void setSlicesCount(int value);
     void setViewVolumeRendering(bool value);
     void setViewXYSlice(bool value);
     void setViewXZSlice(bool value);
     void setViewYZSlice(bool value);
-
-    void setTrim(bool value);
-    void setOrthogonal(bool value);
+    void setViewFrame(bool value);
     void setFillSpace(bool value);
-
-    void setVolumeRenderingMode(int mode = 0);
-    void setInterpolationMode(int mode = 0);
-
-    void clear();
-
+    void setOrthogonal(bool value);
     void alignToXY();
     void alignToXZ();
     void alignToYZ();
     void alignToXYFromBack();
     void alignToXZFromBack();
     void alignToYZFromBack();
+    void setSlicesCount(int value);
+    void setVolumeRenderingMode(int mode = 0);
+    void setInterpolationMode(int mode = 0);
 
-    void saveImage();
+    void setObject(H5ObjectToVisualize *object);
+    void clear();
 
-    void setObject(H5ObjectToVisualize *value);
+    void saveImage(); // TODO move outside
 
-    void set3DData(float *data);
-    void set3DCompressData(float *dataLC, float *dataCC, hsize_t localStep);
+protected:
+    void initialize();
+    void render();
+    bool event(QEvent *event);
+    void resizeEvent(QResizeEvent *);
 
 private slots:
-    void setOpacity(QVector<float> value = QVector<float>(5, 1));
-    void setMinValue(float value);
-    void setMaxValue(float value);
-    void setColormap(ColorMap::Type colormap = ColorMap::JET);
-    void setFrameSize(H5Helper::Vector3D size);
-    void setFrameSize(QVector3DI size);
-    void setDatasetSize(H5Helper::Vector3D size);
-    void setDatasetSize(QVector3DI size);
-    void setDatasetPosition(H5Helper::Vector3D position);
-    void setDatasetPosition(QVector3DI position);
-
     void setCompressRendering(bool value);
+    void setMinValue(float value = 0.0f);
+    void setMaxValue(float value = 0.0f);
+    void setColormap(ColorMap::Type colormap = ColorMap::JET);
+    void setOpacity(QVector<float> value = QVector<float>(1, 1));
+    void setTrim(bool value = false);
 
-    void setXYSlice(float *data, hsize_t index);
-    void setXZSlice(float *data, hsize_t index);
-    void setYZSlice(float *data, hsize_t index);
+    void setFrameSize(H5Helper::Vector3D size);
+    void setFrameSize(QVector3DI size = QVector3DI(1, 1, 1));
+    void setDatasetSize(H5Helper::Vector3D size);
+    void setDatasetSize(QVector3DI size = QVector3DI(1, 1, 1));
+    void setDatasetPosition(H5Helper::Vector3D position);
+    void setDatasetPosition(QVector3DI position = QVector3DI(0, 0, 0));
+
+    void setXYSlice(float *data = nullptr, hsize_t sliceIndex = 0);
+    void setXZSlice(float *data = nullptr, hsize_t sliceIndex = 0);
+    void setYZSlice(float *data = nullptr, hsize_t sliceIndex = 0);
+    void set3DData(float *data = nullptr);
+    void set3DCompressData(float *dataLC = nullptr, float *dataCC = nullptr, hsize_t localStep = 0);
 
 private:
-    void renderFrame();
-    void renderBox();
+    Q_DISABLE_COPY(GWindow)
 
+    void renderBox(bool frame = false);
     void unload3DTexture();
     void unload3DCompressTexture();
-    void clearSlices();
+    void unloadSlicesTextures();
     QPointF convertPointToOpenGLRelative(QPointF point);
-    //float round(float number, float precision);
 
-    QMainWindow *qMainWindow = nullptr;
+    QWidget *parent = nullptr;
+    H5Helper::CompressHelper *compressHelper = nullptr;
+
+    QOpenGLShaderProgram *program = nullptr;
+
+    GLint aPosition;
+
+    GLint uMatrix;
+    GLint uSliceMatrix;
 
     GLint uVolumeTexture;
-
     GLint uVolumeTextureLC;
     GLint uVolumeTextureCC;
-
     GLint uTextureBE;
     GLint uTextureBE_1;
-
-    GLint uStepLocal;
-    GLint uHarmonics;
-    GLint uBSize;
-
     GLint uColormapTexture;
     GLint uOpacityTexture;
     GLint uSliceTexture;
     GLint uBoxBackSampler;
     GLint uBoxFrontSampler;
 
-    GLint m_uFrame;
-    GLint m_uSlices;
-    GLint m_uXYBorder;
-    GLint m_uXZBorder;
-    GLint m_uYZBorder;
-    GLint m_uVolumeRendering;
-    GLint m_uVolumeCompressRendering;
-    GLint m_uVolumeRenderingBox;
+    GLint uStepLocal2;
+    GLint uHarmonics;
+    GLint uBSize2;
 
-    GLint m_uTrim;
+    GLint uFrame;
+    GLint uSlices;
+    GLint uXYBorder;
+    GLint uXZBorder;
+    GLint uYZBorder;
+    GLint uVolumeRenderingBox;
+    GLint uVolumeRendering;
+    GLint uVolumeCompressRendering;
+    GLint uTrim;
+    GLint uSteps;
+    GLint uFrameColor;
+    GLint uWidth;
+    GLint uHeight;
+    GLint uMin;
+    GLint uMax;
+    GLint uMode;
 
-    GLint m_uSteps;
-
-    GLint m_uFrameColor;
-
-    GLint m_uWidth;
-    GLint m_uHeight;
-
-    GLint m_uColor;
-
-    GLint m_uMin;
-    GLint m_uMax;
-
-    GLint m_uMode;
-
-    GLint m_aPosition;
-
-    GLint m_uMatrix;
-    GLint m_uSliceMatrix;
-
-    QOpenGLShaderProgram *m_program;
-
-    GLuint iboCubeElements;
-    GLuint iboSliceElements;
-    QOpenGLBuffer vboCubeVertices;
+    QOpenGLBuffer iboSliceElements;
+    QOpenGLBuffer iboCubeElements;
     QOpenGLBuffer vboSliceVertices;
+    QOpenGLBuffer vboCubeVertices;
 
     GLuint vao;
     GLuint texture;
@@ -186,14 +169,13 @@ private:
     GLuint textureBufferBE_1;
     GLuint textureFboBack;
     GLuint textureFboFront;
-    GLuint fbo;
-    GLuint rbo;
-
+    GLuint colormapTexture;
+    GLuint opacityTexture;
     GLuint textureXY;
     GLuint textureXZ;
     GLuint textureYZ;
-    GLuint colormapTexture;
-    GLuint opacityTexture;
+    GLuint fbo;
+    GLuint rbo;
 
     QMatrix4x4 rotateXMatrix;
     QMatrix4x4 rotateYMatrix;
@@ -203,21 +185,23 @@ private:
     QVector3DI frameSize = QVector3DI(1, 1, 1);
     QVector3DI datasetSize = QVector3DI(1, 1, 1);
     QVector3DI datasetPosition = QVector3DI(0, 0, 0);
+    QVector3D sliceIndex = QVector3D(0.5, 0.5, 0.5);
 
-    int slicesCount = 500;
-
-    QVector3D index = QVector3D(0.5, 0.5, 0.5);
-
-    bool frame = true;
     bool trim = false;
-    bool orthogonal = false;
+    int slicesCount = 500;
+    int vRMode = 0;
+
     bool volumeRendering = false;
     bool sliceXY = false;
     bool sliceXZ = false;
     bool sliceYZ = false;
+    bool frame = true;
     bool fillSpace = false;
+    bool orthogonal = false;
 
-    int initialized;
+    int intMode = GL_LINEAR;
+
+    bool initialized = false;
 };
 
 #endif // GWINDOW_H

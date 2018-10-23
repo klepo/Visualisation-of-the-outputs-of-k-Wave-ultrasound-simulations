@@ -2,8 +2,8 @@
  * @file        object.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              19 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Object class definition.
  *
@@ -16,7 +16,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -165,6 +165,7 @@ float Object::readAttributeF(std::string name, bool log) const
         std::cout << "(" << attribute->getStringDatatype() << ")";
     value = *static_cast<float *>(attribute->getData());
     delete attribute;
+    attribute = nullptr;
     if (log)
         std::cout << " = \"" << value << "\"";
     if (log)
@@ -188,6 +189,7 @@ hsize_t Object::readAttributeI(std::string name, bool log) const
         std::cout << "(" << attribute->getStringDatatype() << ")";
     value = *static_cast<hsize_t *>(attribute->getData());
     delete attribute;
+    attribute = nullptr;
     if (log)
         std::cout << " = \"" << value << "\"";
     if (log)
@@ -211,6 +213,7 @@ std::string Object::readAttributeS(std::string name, bool log) const
         std::cout << "(" << attribute->getStringDatatype() << ")";
     value = attribute->getStringValue();
     delete attribute;
+    attribute = nullptr;
     if (log)
         std::cout << " = \"" << value << "\"";
     if (log)

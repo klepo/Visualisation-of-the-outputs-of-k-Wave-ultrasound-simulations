@@ -2,8 +2,8 @@
  * @file        openglwindow.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        30 July      2014 (created) \n
- *              11 September 2017 (updated)
+ * @date        30 July      2014 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The implementation file containing OpenGLWindow class definition.
  *
@@ -16,11 +16,11 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
-#include "openglwindow.h"
+#include <openglwindow.h>
 
 /**
  * @brief Helper sleep function
@@ -79,6 +79,7 @@ OpenGLWindow::~OpenGLWindow()
     //delete moveTimer;
     //delete m_context; // Some BUG - deletion causes wrong freeing memory
     delete device;
+    device  = nullptr;
     //thread->deleteLater();
 }
 
@@ -98,15 +99,6 @@ bool OpenGLWindow::event(QEvent *event)
             break;
     }
     return QWindow::event(event);
-}
-
-/**
- * @brief Returns elapsed milliseconds
- * @return Elapsed milliseconds
- */
-double OpenGLWindow::getElapsedMs() const
-{
-    return elapsedMs;
 }
 
 /**
@@ -193,7 +185,7 @@ void OpenGLWindow::renderNow()
 
     qint64 elapsed = timer.nsecsElapsed();
     elapsedMs = double(elapsed / 1000000.0);
-    emit rendered();
+    emit rendered(elapsedMs);
 
     //QString framesPerSecond;
     //framesPerSecond.setNum(1000.0 / elapsedMs, 'f', 2);
@@ -284,34 +276,100 @@ GLenum OpenGLWindow::checkGlError()
     while ((err = glGetError()) != GL_NO_ERROR) {
         ret = err;
         QMessageBox messageBox;
-        if (err == GL_INVALID_ENUM) {
-            qWarning() << "OpenGL error: GL_INVALID_ENUM " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_INVALID_ENUM") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_INVALID_VALUE) {
-            qWarning() << "OpenGL error: GL_INVALID_VALUE " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_INVALID_VALUE") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_INVALID_OPERATION) {
-            qWarning() << "OpenGL error: GL_INVALID_OPERATION " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_INVALID_OPERATION") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_STACK_OVERFLOW) {
-            qWarning() << "OpenGL error: GL_STACK_OVERFLOW " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_STACK_OVERFLOW") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_STACK_UNDERFLOW) {
-            qWarning() << "OpenGL error: GL_STACK_UNDERFLOW " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_STACK_UNDERFLOW") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_OUT_OF_MEMORY) {
-            qWarning() << "OpenGL error: GL_OUT_OF_MEMORY " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_OUT_OF_MEMORY") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_TABLE_TOO_LARGE) {
-            qWarning() << "OpenGL error: GL_TABLE_TOO_LARGE " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_TABLE_TOO_LARGE") + " " + QString::number(err)).toStdString().c_str());
-        } else if (err == GL_INVALID_FRAMEBUFFER_OPERATION) {
-            qWarning() << "OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION " << err;
-            messageBox.critical(nullptr, "OpenGL error", (QString("GL_INVALID_FRAMEBUFFER_OPERATION") + " " + QString::number(err)).toStdString().c_str());
-        } else {
-            qWarning() << "OpenGL error: " << err;
-            messageBox.critical(nullptr, "OpenGL error", QString::number(err).toStdString().c_str());
-        }
+        qWarning() << "OpenGL error:" << getGLErrorString(err) << err;
+        messageBox.critical(nullptr, "OpenGL error", (getGLErrorString(err) + " " + QString::number(err)).toStdString().c_str());
+    }
+    return ret;
+}
+
+GLenum OpenGLWindow::checkFramebufferStatus()
+{
+    GLenum err = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+    if (err != GL_FRAMEBUFFER_COMPLETE) {
+        QMessageBox messageBox;
+        qWarning() << "OpenGL framebuffer error:" << getGLFramebufferStatusString(err) << err;
+        messageBox.critical(nullptr, "OpenGL error", (getGLFramebufferStatusString(err) + " " + QString::number(err)).toStdString().c_str());
+    }
+    return err;
+}
+
+/**
+ * @brief Converts OpenGL error codes to string
+ * @param[in] errorCode OpenGL error code
+ * @return Error string
+ */
+QString OpenGLWindow::getGLErrorString(GLenum errorCode) const
+{
+    QString ret = "UNKNOWN ERROR";
+    switch (errorCode) {
+    case GL_INVALID_ENUM:
+        ret = "GL_INVALID_ENUM";
+        break;
+    case GL_INVALID_VALUE:
+        ret = "GL_INVALID_VALUE";
+        break;
+    case GL_INVALID_OPERATION:
+        ret = "GL_INVALID_OPERATION";
+        break;
+    case GL_STACK_OVERFLOW:
+        ret = "GL_STACK_OVERFLOW";
+        break;
+    case GL_STACK_UNDERFLOW:
+        ret = "GL_STACK_UNDERFLOW";
+        break;
+    case GL_OUT_OF_MEMORY:
+        ret = "GL_OUT_OF_MEMORY";
+        break;
+    case GL_TABLE_TOO_LARGE:
+        ret = "GL_TABLE_TOO_LARGE";
+        break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        ret = "GL_INVALID_FRAMEBUFFER_OPERATION";
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+/**
+ * @brief Converts OpenGL framebuffer status error codes to string
+ * @param[in] errorCode OpenGL framebuffer status error code
+ * @return Framebuffer error string
+ */
+QString OpenGLWindow::getGLFramebufferStatusString(GLenum errorCode) const
+{
+    QString ret = "UNKNOWN ERROR";
+    switch (errorCode) {
+    case GL_FRAMEBUFFER_COMPLETE:
+        ret = "GL_FRAMEBUFFER_COMPLETE";
+        break;
+    case GL_FRAMEBUFFER_UNDEFINED:
+        ret = "GL_FRAMEBUFFER_UNDEFINED";
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        ret = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        ret = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        ret = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+        ret = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+        break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+        ret = "GL_FRAMEBUFFER_UNSUPPORTED";
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+        ret = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+        ret = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+        break;
+    default:
+        break;
     }
     return ret;
 }

@@ -2,8 +2,8 @@
  * @file        vector.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        16 June      2016 (created) \n
- *              11 September 2017 (updated)
+ * @date        16 June      2016 (created) <br>
+ *              9  October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Vector class declaration.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2017, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
