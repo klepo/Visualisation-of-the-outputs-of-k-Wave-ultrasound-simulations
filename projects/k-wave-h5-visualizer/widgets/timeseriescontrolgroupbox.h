@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              9  October   2018 (updated)
+ *              10 October   2018 (updated)
  *
  * @brief       The header file with TimeSeriesControlGroupBox class declaration.
  *
