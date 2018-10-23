@@ -17,6 +17,7 @@ if (WIN32)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/widgets)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -27,11 +28,14 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5Widgets REQUIRED)
 
 file(GLOB SRCS "*.h" "*.cpp" "*.qrc" "*.ui" "*.rc")
+file(GLOB SRCS2 "widgets/*.h" "widgets/*.cpp" "widgets/*.qrc" "widgets/*.ui" "widgets/*.rc")
 file(GLOB UIS "*.ui")
+file(GLOB UIS2 "widgets/*.ui")
 
 qt5_wrap_ui(UIS_WRAPPED ${UIS})
+qt5_wrap_ui(UIS_WRAPPED2 ${UIS2})
 
-add_executable(${PROJECT_NAME} ${SRCS} ${UIS_WRAPPED})
+add_executable(${PROJECT_NAME} ${SRCS} ${SRCS2} ${UIS_WRAPPED} ${UIS_WRAPPED2})
 
 # Visual Studio startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
