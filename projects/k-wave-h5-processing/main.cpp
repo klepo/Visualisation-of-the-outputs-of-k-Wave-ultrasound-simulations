@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              9  October   2018 (updated)
+ *              23 October   2018 (updated)
  *
  * @brief       The main implementation file containing k-Wave HDF5 processing application.
  *
