@@ -19,7 +19,7 @@
 
 #include <k-wave-h5-helper.h>
 
-#include <settings.h>
+#include "settings.h"
 
 #include "../k-wave-h5-processing/helper.h"
 
