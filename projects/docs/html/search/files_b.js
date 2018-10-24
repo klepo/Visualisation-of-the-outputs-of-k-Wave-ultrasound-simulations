@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['reshape_2ecpp',['reshape.cpp',['../reshape_8cpp.html',1,'']]],
-  ['reshape_2eh',['reshape.h',['../reshape_8h.html',1,'']]]
+  ['settings_2ecpp',['settings.cpp',['../settings_8cpp.html',1,'']]],
+  ['settings_2eh',['settings.h',['../settings_8h.html',1,'']]]
 ];

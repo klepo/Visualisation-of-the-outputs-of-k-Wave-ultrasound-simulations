@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['datasettype',['DatasetType',['../namespace_h_d_f5_helper.html#a2d09ab790697ddf3ad215e7105bb8133',1,'HDF5Helper']]]
+  ['datasettype',['DatasetType',['../namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed',1,'H5Helper']]]
 ];

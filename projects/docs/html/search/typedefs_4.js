@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['pairofdatasets',['PairOfDatasets',['../namespace_h_d_f5_helper.html#aa11e60ab45869e6f00d138e21136fb26',1,'HDF5Helper']]],
-  ['pairofgroups',['PairOfGroups',['../namespace_h_d_f5_helper.html#ab64f44bab8f1c4d382dc03b33da589c4',1,'HDF5Helper']]]
+  ['pairofdatasets',['PairOfDatasets',['../namespace_h5_helper.html#a08277bc2dcbcea0b36f070003ad3176f',1,'H5Helper']]],
+  ['pairofobjects',['PairOfObjects',['../namespace_h5_helper.html#a213278b78587a997696dd32fd74443bf',1,'H5Helper']]]
 ];

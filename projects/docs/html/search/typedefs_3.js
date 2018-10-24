@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['objecttype',['ObjectType',['../class_opened_h5_file.html#aa35c360eb3d64789818b17b6cf387912',1,'OpenedH5File']]]
+  ['mapofdatasets',['MapOfDatasets',['../namespace_h5_helper.html#abb61ff079a034945c4df150f1c2f3c85',1,'H5Helper']]],
+  ['mapofdatasetsit',['MapOfDatasetsIt',['../namespace_h5_helper.html#a65ccbd7d164e26e71c9196c22731e717',1,'H5Helper']]],
+  ['mapofobjects',['MapOfObjects',['../namespace_h5_helper.html#a1a36cb99032018565efca76dcfc01451',1,'H5Helper']]]
 ];
