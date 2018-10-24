@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              9  October   2018 (updated)
+ *              23 October   2018 (updated)
  *
  * @brief       The header file with DtsForPcs class declaration.
  *
@@ -21,8 +21,8 @@
 #define DTSFORPCS_H
 
 #include <k-wave-h5-helper.h>
-#include <filescontext.h>
-#include <compresshelper.h>
+
+#include "filescontext.h"
 
 /**
  * @brief The DtsForPcs class represents wrapper for datasets for processing

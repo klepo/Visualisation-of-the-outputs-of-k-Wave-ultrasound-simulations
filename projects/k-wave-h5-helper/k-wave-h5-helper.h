@@ -26,22 +26,18 @@
  */
 namespace H5Helper {}
 
-#include <attribute.h>
-#include <compresshelper.h>
-#include <dataset.h>
-#include <file.h>
-#include <group.h>
-#include <vector3d.h>
-#include <vector4d.h>
+#include "attribute.h"
+#include "compresshelper.h"
+#include "dataset.h"
+#include "file.h"
+#include "group.h"
+#include "vector3d.h"
+#include "vector4d.h"
 
 /**
  * TODO:
  *  Q_DISABLE_COPY()
  *  Test getOnlyName
- *
- *
- *
- *
  */
 
 #endif // H5HELPER_H

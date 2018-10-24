@@ -23,10 +23,10 @@
 #include <QGroupBox>
 #include <QSlider>
 
-#include <ui_opacitygroupbox.h>
+#include "ui_opacitygroupbox.h"
 
-#include <abstractwidget.h>
-#include <qdoublespinboxts.h>
+#include "abstractwidget.h"
+#include "qdoublespinboxts.h"
 
 namespace Ui {
 class OpacityGroupBox;

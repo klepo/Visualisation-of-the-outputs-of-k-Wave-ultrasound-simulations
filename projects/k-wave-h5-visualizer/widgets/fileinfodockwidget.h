@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              23 October   2018 (updated)
  *
  * @brief       The header file with FileInfoDockWidget class declaration.
  *
@@ -23,10 +23,10 @@
 #include <QDockWidget>
 #include <QScrollBar>
 
-#include <ui_fileinfodockwidget.h>
+#include "ui_fileinfodockwidget.h"
 
-#include <abstractwidget.h>
-#include <h5objecttovisualize.h>
+#include "abstractwidget.h"
+#include "h5objecttovisualize.h"
 
 namespace Ui {
 class FileInfoDockWidget;

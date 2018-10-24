@@ -20,8 +20,8 @@
  *
  */
 
-#include <object.h>
-#include <file.h>
+#include "object.h"
+#include "file.h"
 
 namespace H5Helper {
 

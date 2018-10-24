@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) <br>
- *              9  October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Vector class declaration.
  *
@@ -21,7 +21,7 @@
 #define VECTOR_H
 
 #ifdef __unix
-    #include <stdexcept>
+#include <stdexcept>
 #endif
 
 #include <iostream>
@@ -29,10 +29,13 @@
 #include <cstdint>
 #include <cstring>
 
-#include <hdf5.h>  // HDF5
-
 namespace H5Helper
 {
+/// Unsigned long long datatype
+typedef unsigned long long hsize_t;
+/// Long long datatype
+typedef long long hssize_t;
+
 /**
  * @brief The Vector class represents wrapper for 64-bit unsigned integer vectors
  */

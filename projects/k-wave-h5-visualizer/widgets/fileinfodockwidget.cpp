@@ -17,7 +17,7 @@
  *
  */
 
-#include <fileinfodockwidget.h>
+#include "fileinfodockwidget.h"
 
 FileInfoDockWidget::FileInfoDockWidget(QWidget *parent) :
     QDockWidget(parent),

@@ -22,10 +22,10 @@
 
 #include <QDockWidget>
 
-#include <ui_selecteddatasetdockwidget.h>
+#include "ui_selecteddatasetdockwidget.h"
 
-#include <abstractwidget.h>
-#include <h5objecttovisualize.h>
+#include "abstractwidget.h"
+#include "h5objecttovisualize.h"
 
 namespace Ui {
 class SelectedDatasetDockWidget;

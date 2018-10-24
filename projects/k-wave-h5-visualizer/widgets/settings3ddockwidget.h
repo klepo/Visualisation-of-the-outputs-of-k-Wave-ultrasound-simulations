@@ -22,7 +22,7 @@
 
 #include <QDockWidget>
 
-#include <ui_settings3ddockwidget.h>
+#include "ui_settings3ddockwidget.h"
 
 namespace Ui {
 class Settings3DDockWidget;

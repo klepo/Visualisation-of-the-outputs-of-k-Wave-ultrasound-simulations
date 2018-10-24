@@ -17,7 +17,7 @@
  *
  */
 
-#include <slicedockwidget.h>
+#include "slicedockwidget.h"
 
 const std::map<SliceDockWidget::SliceType, std::string> SliceDockWidget::sliceTypeStr = {
     {XY, "XY"},

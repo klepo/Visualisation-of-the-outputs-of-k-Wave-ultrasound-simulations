@@ -5,7 +5,7 @@
  * @date        30 July      2014 (created) <br>
  *              23 October   2018 (updated)
  *
- * @brief       The implementation file containing Dataset class definition.
+ * @brief       The implementation file containing H5Helper::Dataset class definition.
  *
  * This class is used for better work with k-Wave HDF5 datasets (e.g read, write).
  *
@@ -19,8 +19,8 @@
  *
  */
 
-#include <dataset.h>
-#include <file.h>
+#include "dataset.h"
+#include "file.h"
 
 namespace H5Helper {
 

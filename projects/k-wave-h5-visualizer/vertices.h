@@ -20,7 +20,7 @@
 #ifndef GVERTICES_H
 #define GVERTICES_H
 
-#include <gwindow.h>
+#include "gwindow.h"
 
 const GLfloat GWindow::sliceVertices[] = {
     0.0, 0.0, 0.0,

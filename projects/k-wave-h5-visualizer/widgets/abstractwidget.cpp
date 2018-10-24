@@ -17,7 +17,7 @@
  *
  */
 
-#include <abstractwidget.h>
+#include "abstractwidget.h"
 
 AbstractWidget::~AbstractWidget()
 {

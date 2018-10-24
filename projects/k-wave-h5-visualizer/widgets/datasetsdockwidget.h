@@ -26,10 +26,10 @@
 #include <QCheckBox>
 #include <QLabel>
 
-#include <ui_datasetsdockwidget.h>
+#include "ui_datasetsdockwidget.h"
 
-#include <abstractwidget.h>
-#include <h5objecttovisualize.h>
+#include "abstractwidget.h"
+#include "h5objecttovisualize.h"
 
 namespace Ui {
 class DatasetsDockWidget;

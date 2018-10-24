@@ -17,7 +17,7 @@
  *
  */
 
-#include <datasetsdockwidget.h>
+#include "datasetsdockwidget.h"
 
 DatasetsDockWidget::DatasetsDockWidget(QWidget *parent) :
     QDockWidget(parent),

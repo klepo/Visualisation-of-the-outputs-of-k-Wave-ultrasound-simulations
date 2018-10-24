@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        26 September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with CompressHelper class declaration.
  *
@@ -22,12 +22,12 @@
 
 #include <iostream>
 #include <string>
-#include <algorithm>    // std::sort
+#include <algorithm> // std::sort
 
 //#define _USE_MATH_DEFINES // for C++
 #ifndef M_PI
-    /// M_PI definition
-    #define M_PI 3.14159265358979323846
+/// M_PI definition
+#define M_PI 3.14159265358979323846
 #endif
 
 #include <cmath>
@@ -35,13 +35,18 @@
 #include <complex>
 #include <omp.h>
 
-#include <hdf5.h>  // HDF5
-
 namespace H5Helper
 {
 /// Float complex datatype
 typedef std::complex<float> floatC;
+/// Unsigned long long datatype
+typedef unsigned long long hsize_t;
+/// Long long datatype
+typedef long long hssize_t;
 
+/**
+ * @brief The CompressHelper class represents wrapper for the ultrasound signals compression
+ */
 class CompressHelper
 {
 public:

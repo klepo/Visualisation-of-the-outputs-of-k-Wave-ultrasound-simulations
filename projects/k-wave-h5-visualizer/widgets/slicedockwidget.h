@@ -23,10 +23,10 @@
 #include <QDockWidget>
 #include <QMovie>
 
-#include <ui_slicedockwidget.h>
+#include "ui_slicedockwidget.h"
 
-#include <abstractwidget.h>
-#include <h5objecttovisualize.h>
+#include "abstractwidget.h"
+#include "h5objecttovisualize.h"
 
 namespace Ui {
 class SliceDockWidget;

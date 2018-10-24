@@ -19,7 +19,7 @@
  *
  */
 
-#include <file.h>
+#include "file.h"
 
 namespace H5Helper {
 
@@ -34,11 +34,11 @@ namespace H5Helper {
  */
 #ifdef PARALLEL_HDF5
 File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log) : filename(filename)
-#else
+  #else
 File::File(std::string filename, unsigned int flag, bool log)
     : filename(filename)
     , deleteLog(log)
-#endif
+    #endif
 {
 #ifdef PARALLEL_HDF5
     // Check MPI is initialized
@@ -66,8 +66,8 @@ File::File(std::string filename, unsigned int flag, bool log)
 
     // Create log file
     //if (log) {
-        //logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
-        //logFileStream << filename << std::endl;
+    //logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
+    //logFileStream << filename << std::endl;
     //}
 
     // Create File Access Property List
@@ -437,11 +437,21 @@ Group *File::openGroup(hsize_t idx, bool log)
     return openGroup(getObjNameByIdx(idx), log);
 }
 
+/**
+ * @brief Is group opened?
+ * @param[in] name Group name
+ * @return True/False
+ */
 bool File::isGroupOpened(std::string name) const
 {
     return isObjectOpened(name);
 }
 
+/**
+ * @brief Is group opened?
+ * @param[in] idx Group index
+ * @return True/False
+ */
 bool File::isGroupOpened(hsize_t idx) const
 {
     return isDatasetOpened(getObjNameByIdx(idx));
@@ -477,6 +487,12 @@ void File::closeGroup(Group *group, bool log)
     closeGroup(group->getName(), log);
 }
 
+/**
+ * @brief Opens object
+ * @param[in] name Object name
+ * @param[in] log Logging flag (optional)
+ * @return Opened object
+ */
 Object *File::openObject(std::string name, bool log)
 {
     std::string nameTmp = fixPath(name);
@@ -489,11 +505,22 @@ Object *File::openObject(std::string name, bool log)
     }
 }
 
+/**
+ * @brief Opens object
+ * @param[in] idx Object index
+ * @param[in] log Logging flag (optional)
+ * @return Opened object
+ */
 Object *File::openObject(hsize_t idx, bool log)
 {
     return openObject(getObjNameByIdx(idx), log);
 }
 
+/**
+ * @brief Is object opened?
+ * @param[in] name Object name
+ * @return True/False
+ */
 bool File::isObjectOpened(std::string name) const
 {
     std::string nameTmp = fixPath(name);
@@ -503,11 +530,21 @@ bool File::isObjectOpened(std::string name) const
         return true;
 }
 
+/**
+ * @brief Is object opened?
+ * @param[in] idx Object index
+ * @return True/False
+ */
 bool File::isObjectOpened(hsize_t idx) const
 {
     return isObjectOpened(getObjNameByIdx(idx));
 }
 
+/**
+ * @brief Closes object with given name in HDF5 file
+ * @param[in] name Object name
+ * @param[in] log Logging flag (optional)
+ */
 void File::closeObject(std::string name, bool log)
 {
     std::string nameTmp = fixPath(name);
@@ -522,11 +559,21 @@ void File::closeObject(std::string name, bool log)
     }
 }
 
+/**
+ * @brief Closes object with given index in HDF5 file
+ * @param[in] idx Object index
+ * @param[in] log Logging flag (optional)
+ */
 void File::closeObject(hsize_t idx, bool log)
 {
     closeObject(getObjNameByIdx(idx), log);
 }
 
+/**
+ * @brief Closes given object in HDF5 file
+ * @param[in] object Object
+ * @param[in] log Logging flag (optional)
+ */
 void File::closeObject(Object *object, bool log)
 {
     closeObject(object->getName(), log);
@@ -603,6 +650,13 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId) const
     return H5G_obj_t(type);
 }
 
+/**
+ * @brief Returns object type by name
+ * @param[in] name Name of object in file
+ * @param[in] groupId Group id (optional)
+ * @return Object type
+ * @throw std::runtime_error
+ */
 H5G_obj_t File::getObjTypeByName(std::string name, hid_t groupId) const
 {
     hid_t groupIdTmp = groupId;
@@ -620,6 +674,7 @@ H5G_obj_t File::getObjTypeByName(std::string name, hid_t groupId) const
 /**
  * @brief Exists object with given name?
  * @param[in] name Object name
+ * @param[in] groupId Group id (optional)
  * @return True/False
  */
 bool File::objExistsByName(std::string name, hid_t groupId) const
@@ -634,6 +689,11 @@ bool File::objExistsByName(std::string name, hid_t groupId) const
         return false;
 }
 
+/**
+ * @brief Renames object
+ * @param[in] srcName Source object name
+ * @param[in] dstName Destination object name
+ */
 void File::objRename(std::string srcName, std::string dstName) const
 {
     // TODO Check object is not opened
@@ -643,28 +703,40 @@ void File::objRename(std::string srcName, std::string dstName) const
     }
 }
 
-void File::renameAttribute(std::string srcName, std::string dstName, hid_t groupId) const
+/**
+ * @brief Renames attribute
+ * @param[in] srcName Source attribute name
+ * @param[in] dstName Destination attribute name
+ * @param[in] objectId Object id
+ */
+void File::renameAttribute(std::string srcName, std::string dstName, hid_t objectId) const
 {
-    int groupIdTmp = groupId;
-    if (groupId <= 0)
-        groupIdTmp = file;
+    int objectIdTmp = objectId;
+    if (objectId <= 0)
+        objectIdTmp = file;
 
-    herr_t err = H5Arename(groupIdTmp, srcName.c_str(), dstName.c_str());
+    herr_t err = H5Arename(objectIdTmp, srcName.c_str(), dstName.c_str());
     if (err < 0) {
         throw std::runtime_error("H5Arename error");
     }
 }
 
+/**
+ * @brief Renames attribute
+ * @param[in] srcName Source attribute name
+ * @param[in] dstName Destination attribute name
+ * @param[in] objName Object name
+ */
 void File::renameAttribute(std::string srcName, std::string dstName, std::string objName) const
 {
-    hid_t objId = H5Oopen(file, objName.c_str(), 0);
-    if (objId < 0) {
+    hid_t objectId = H5Oopen(file, objName.c_str(), 0);
+    if (objectId < 0) {
         throw std::runtime_error("H5Oopen error");
     }
 
-    renameAttribute(srcName, dstName, objId);
+    renameAttribute(srcName, dstName, objectId);
 
-    herr_t err = H5Oclose(objId);
+    herr_t err = H5Oclose(objectId);
     if (err < 0) {
         throw std::runtime_error("H5Oopen error");
     }
@@ -697,10 +769,10 @@ std::string File::getRawFilename() const
  */
 void File::setNumberOfElmsToLoad(hsize_t size)
 {
-    #ifdef PARALLEL_HDF5
-        if (mPISize > 1 && size > std::numeric_limits<int>::max())
-            throw std::runtime_error("setNumberOfElmsToLoad error");
-    #endif
+#ifdef PARALLEL_HDF5
+    if (mPISize > 1 && size > std::numeric_limits<int>::max())
+        throw std::runtime_error("setNumberOfElmsToLoad error");
+#endif
     //std::cout << "Number of elements to load: " << size << " (floats: " << size * 4 << " bytes, unsigned 64-bit integers: " << size * 8 << " bytes)" << std::endl;
     numberOfElementsToLoad = size;
 }
@@ -732,6 +804,10 @@ int File::getMPISize() const
     return mPISize;
 }
 
+/**
+ * @brief Sets delete logging flag
+ * @param value Enable/disable delete loggging
+ */
 void File::setDeleteLog(bool value)
 {
     deleteLog = value;
@@ -797,6 +873,11 @@ void File::closeFileAndObjects()
         std::cout << " ... OK" << std::endl;
 }
 
+/**
+ * @brief Trims slashes of path
+ * @param[in] path Path to trim
+ * @return Trimmed path
+ */
 std::string trimSlashes(std::string path)
 {
     size_t first = path.find_first_not_of('/');
@@ -809,6 +890,12 @@ std::string trimSlashes(std::string path)
     return path.substr(first, (last - first + 1));
 }
 
+/**
+ * @brief Concatenates path with name
+ * @param[in] path Path
+ * @param[in] name Name
+ * @return Concatenated path with name
+ */
 std::string concatenatePath(std::string path, std::string name)
 {
     if (path == "/")
@@ -817,6 +904,11 @@ std::string concatenatePath(std::string path, std::string name)
         return path + fixPath(name);
 }
 
+/**
+ * @brief Fixes path with starting slash and trimming
+ * @param[in] path Path
+ * @return Fixed path
+ */
 std::string fixPath(std::string path)
 {
     return "/" + trimSlashes(path);
@@ -828,18 +920,18 @@ std::string fixPath(std::string path)
  */
 double getTime()
 {
-    #ifdef PARALLEL_HDF5
-        return MPI_Wtime() * 1000;
-    #endif
-    #ifdef __unix
-        timeval tv;
-        gettimeofday (&tv, 0);
-        return double (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
-    #endif
+#ifdef PARALLEL_HDF5
+    return MPI_Wtime() * 1000;
+#endif
+#ifdef __unix
+    timeval tv;
+    gettimeofday (&tv, 0);
+    return double (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+#endif
 
-    #ifdef _WIN32
-        return GetTickCount();
-    #endif
+#ifdef _WIN32
+    return GetTickCount();
+#endif
 }
 
 /**
@@ -848,18 +940,18 @@ double getTime()
  */
 size_t getTotalSystemPhysicalMemory()
 {
-    #ifdef __unix
-        long pages = sysconf(_SC_PHYS_PAGES);
-        long page_size = sysconf(_SC_PAGE_SIZE);
-        return pages * page_size;
-    #endif
+#ifdef __unix
+    long pages = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+#endif
 
-    #ifdef _WIN32
-        MEMORYSTATUSEX status;
-        status.dwLength = sizeof(status);
-        GlobalMemoryStatusEx(&status);
-        return size_t(status.ullTotalPhys);
-    #endif
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx(&status);
+    return size_t(status.ullTotalPhys);
+#endif
 }
 
 /**
@@ -868,84 +960,92 @@ size_t getTotalSystemPhysicalMemory()
  */
 size_t getAvailableSystemPhysicalMemory()
 {
-    #ifdef __unix
-        long pages = sysconf(_SC_AVPHYS_PAGES);
-        long page_size = sysconf(_SC_PAGE_SIZE);
-        return pages * page_size;
-    #endif
+#ifdef __unix
+    long pages = sysconf(_SC_AVPHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+#endif
 
-    #ifdef _WIN32
-        MEMORYSTATUSEX status;
-        status.dwLength = sizeof(status);
-        GlobalMemoryStatusEx(&status);
-        return size_t(status.ullAvailPhys);
-    #endif
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx(&status);
+    return size_t(status.ullAvailPhys);
+#endif
 }
 
+/**
+ * @brief Returns system physical memory currently used by process
+ * @return System physical memory currently used by process
+ */
 size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
 {
-    #ifdef __unix
-        // linux file contains this-process info
-        FILE* file = fopen("/proc/self/status", "r");
+#ifdef __unix
+    // linux file contains this-process info
+    FILE* file = fopen("/proc/self/status", "r");
 
-        char buffer[1024] = "";
+    char buffer[1024] = "";
 
-        int currRealMem;
+    int currRealMem;
 
-        // read the entire file
-        while (fscanf(file, " %1023s", buffer) == 1) {
-            if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
-                fscanf(file, " %d", &currRealMem);
-            }
+    // read the entire file
+    while (fscanf(file, " %1023s", buffer) == 1) {
+        if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
+            fscanf(file, " %d", &currRealMem);
         }
-        fclose(file);
-        return size_t(currRealMem);
-    #endif
+    }
+    fclose(file);
+    return size_t(currRealMem);
+#endif
 
-    #ifdef _WIN32
-        PROCESS_MEMORY_COUNTERS pmc;
-        GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-        return size_t(pmc.WorkingSetSize); // bytes
-    #endif
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS pmc;
+    GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+    return size_t(pmc.WorkingSetSize); // bytes
+#endif
 }
 
+/**
+ * @brief Returns peak system physical memory currently used by process
+ * @return Peak system physical memory currently used by process
+ */
 size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc()
 {
-    #ifdef __unix
-        // linux file contains this-process info
-        FILE* file = fopen("/proc/self/status", "r");
+#ifdef __unix
+    // linux file contains this-process info
+    FILE* file = fopen("/proc/self/status", "r");
 
-        char buffer[1024] = "";
+    char buffer[1024] = "";
 
-        //int currRealMem;
-        int peakRealMem;
-        //int currVirtMem;
-        //int peakVirtMem;
+    //int currRealMem;
+    int peakRealMem;
+    //int currVirtMem;
+    //int peakVirtMem;
 
-        // read the entire file
-        while (fscanf(file, " %1023s", buffer) == 1) {
-            /*if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
+    // read the entire file
+    while (fscanf(file, " %1023s", buffer) == 1) {
+        /*if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
                 fscanf(file, " %d", &currRealMem);
             }*/
-            if (strcmp(buffer, "VmHWM:") == 0) {
-                fscanf(file, " %d", &peakRealMem);
-            }
-            /*if (strcmp(buffer, "VmSize:") == 0) {
+        if (strcmp(buffer, "VmHWM:") == 0) {
+            fscanf(file, " %d", &peakRealMem);
+        }
+        /*if (strcmp(buffer, "VmSize:") == 0) {
                 fscanf(file, " %d", &currVirtMem);
             }
             if (strcmp(buffer, "VmPeak:") == 0) {
                 fscanf(file, " %d", &peakVirtMem);
             }*/
-        }
-        fclose(file);
-        return size_t(peakRealMem);
-    #endif
+    }
+    fclose(file);
+    return size_t(peakRealMem);
+#endif
 
-    #ifdef _WIN32
-        PROCESS_MEMORY_COUNTERS pmc;
-        GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-        return size_t(pmc.PeakWorkingSetSize); // bytes
-    #endif
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS pmc;
+    GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+    return size_t(pmc.PeakWorkingSetSize); // bytes
+#endif
 }
 
 /**
@@ -989,17 +1089,21 @@ void convertMultiDimToLinear(Vector position, hsize_t &index, Vector dims)
 
 /**
  * @brief Checks or sets minimal and maximal float value
- * @param[in,out] first First value flag
  * @param[out] minV Minimal value
  * @param[out] maxV Maximal value
  * @param[in] value Input value
+ * @param[out] minVIndex Minimal value index
+ * @param[out] maxVIndex Maximal value index
+ * @param[in] index Input value index
  *
  * This function exists due to OpenMP pragmas
+ *
+ * TODO use templates
  */
 void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
 {
     if (minV > value) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (minV > value) {
                 minV = value;
@@ -1008,7 +1112,7 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVI
         }
     }
     if (maxV < value) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (maxV < value) {
                 maxV = value;
@@ -1020,17 +1124,21 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVI
 
 /**
  * @brief Checks or sets minimal and maximal 64-bit unsigned integer value
- * @param[in,out] first First value flag
  * @param[out] minV Minimal value
  * @param[out] maxV Maximal value
  * @param[in] value Input value
+ * @param[out] minVIndex Minimal value index
+ * @param[out] maxVIndex Maximal value index
+ * @param[in] index Input value index
  *
  * This function exists due to OpenMP pragmas
+ *
+ * TODO use templates
  */
 void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
 {
     if (minV > value) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (minV > value) {
                 minV = value;
@@ -1039,7 +1147,7 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t 
         }
     }
     if (maxV < value) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (maxV < value) {
                 maxV = value;
@@ -1049,10 +1157,25 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t 
     }
 }
 
+/**
+ * @brief Checks or sets minimal and maximal float value
+ * @param[out] minV Minimal value
+ * @param[out] maxV Maximal value
+ * @param[in] minVI Input minimal value
+ * @param[in] maxVI Input maximal value
+ * @param[out] minVIndex Minimal value index
+ * @param[out] maxVIndex Maximal value index
+ * @param[in] minVIIndex Input minimal value index
+ * @param[in] maxVIIndex Input maximal value index
+ *
+ * This function exists due to OpenMP pragmas
+ *
+ * TODO use templates
+ */
 void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
 {
     if (minV > minVI) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (minV > minVI) {
                 minV = minVI;
@@ -1061,7 +1184,7 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, h
         }
     }
     if (maxV < maxVI) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (maxV < maxVI) {
                 maxV = maxVI;
@@ -1071,10 +1194,25 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, h
     }
 }
 
+/**
+ * @brief Checks or sets minimal and maximal 64-bit unsigned integer value
+ * @param[out] minV Minimal value
+ * @param[out] maxV Maximal value
+ * @param[in] minVI Input minimal value
+ * @param[in] maxVI Input maximal value
+ * @param[out] minVIndex Minimal value index
+ * @param[out] maxVIndex Maximal value index
+ * @param[in] minVIIndex Input minimal value index
+ * @param[in] maxVIIndex Input maximal value index
+ *
+ * This function exists due to OpenMP pragmas
+ *
+ * TODO use templates
+ */
 void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
 {
     if (minV > minVI) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (minV > minVI) {
                 minV = minVI;
@@ -1083,7 +1221,7 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t 
         }
     }
     if (maxV < maxVI) {
-        #pragma omp critical
+#pragma omp critical
         {
             if (maxV < maxVI) {
                 maxV = maxVI;

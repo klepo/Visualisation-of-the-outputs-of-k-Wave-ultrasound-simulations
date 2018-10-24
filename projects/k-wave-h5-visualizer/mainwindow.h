@@ -24,9 +24,9 @@
 #include <QMainWindow>
 #include <QTextEdit>
 
-#include <ui_mainwindow.h>
+#include "ui_mainwindow.h"
 
-#include <h5openedfile.h>
+#include "h5openedfile.h"
 
 namespace Ui
 {

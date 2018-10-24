@@ -17,7 +17,7 @@
  *
  */
 
-#include <selecteddatasetdockwidget.h>
+#include "selecteddatasetdockwidget.h"
 
 SelectedDatasetDockWidget::SelectedDatasetDockWidget(QWidget *parent) :
     QDockWidget(parent),

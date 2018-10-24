@@ -17,9 +17,9 @@
  *
  */
 
-#include <mainwindow.h>
-
 #include <QApplication>
+
+#include "mainwindow.h"
 
 /**
  * @brief Main k-Wave visualizer function

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::File class declaration.
  *
@@ -21,16 +21,16 @@
 #define FILE_H
 
 #ifdef __unix
-    #include <stdexcept>
-    #include <sys/time.h>
-    #include <unistd.h>
-    #include <sys/mman.h>
+#include <stdexcept>
+#include <sys/time.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #endif
 
 #ifdef _WIN32
-    #define NOMINMAX
-    #include <Windows.h> // GetTickCount etc.
-    #include "psapi.h"
+#define NOMINMAX
+#include <Windows.h> // GetTickCount etc.
+#include <Psapi.h>
 #endif
 
 #include <iostream>
@@ -39,13 +39,13 @@
 #include <time.h>
 
 #ifdef PARALLEL_HDF5
-    #include <mpi.h>
+#include <mpi.h>
 #endif
 
-#include <vector3d.h>
-#include <vector4d.h>
-#include <group.h>
-#include <dataset.h>
+#include "vector3d.h"
+#include "vector4d.h"
+#include "group.h"
+#include "dataset.h"
 
 namespace H5Helper
 {
@@ -111,11 +111,11 @@ const std::string SRC_SIZE_X_ATTR = "src_size_x";
 class File
 {
 public:
-    #ifdef PARALLEL_HDF5
-        File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log = true);
-    #else
-        File(std::string filename, unsigned int flag, bool log = true);
-    #endif
+#ifdef PARALLEL_HDF5
+    File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log = true);
+#else
+    File(std::string filename, unsigned int flag, bool log = true);
+#endif
 
     ~File();
 

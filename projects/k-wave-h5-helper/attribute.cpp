@@ -19,7 +19,7 @@
  *
  */
 
-#include <attribute.h>
+#include "attribute.h"
 
 namespace H5Helper {
 

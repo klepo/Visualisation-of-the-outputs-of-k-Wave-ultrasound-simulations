@@ -22,9 +22,9 @@
 
 #include <QGroupBox>
 
-#include <ui_timeseriescontrolgroupbox.h>
+#include "ui_timeseriescontrolgroupbox.h"
 
-#include <abstractwidget.h>
+#include "abstractwidget.h"
 
 namespace Ui {
 class TimeSeriesControlGroupBox;

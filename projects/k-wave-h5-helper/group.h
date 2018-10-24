@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              9  October   2018 (updated)
+ *              23  October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Group class declaration.
  *
@@ -20,10 +20,10 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-#include <object.h>
-#include <vector3d.h>
-#include <vector4d.h>
-#include <dataset.h>
+#include "object.h"
+#include "vector3d.h"
+#include "vector4d.h"
+#include "dataset.h"
 
 namespace H5Helper
 {

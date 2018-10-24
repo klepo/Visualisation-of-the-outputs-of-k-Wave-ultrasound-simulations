@@ -22,9 +22,9 @@
 
 #include <QImage>
 
-#include <h5openedfile.h>
-#include <h5readingthread.h>
-#include <colormap.h>
+#include "h5openedfile.h"
+#include "h5readingthread.h"
+#include "colormap.h"
 
 /**
  * @brief The H5ObjectToVisualize class represents wrapper

@@ -17,7 +17,7 @@
  *
  */
 
-#include <datasetinfogroupbox.h>
+#include "datasetinfogroupbox.h"
 
 DatasetInfoGroupBox::DatasetInfoGroupBox(QWidget *parent) :
     QGroupBox(parent),

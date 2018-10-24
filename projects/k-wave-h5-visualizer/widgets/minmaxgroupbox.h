@@ -22,9 +22,9 @@
 
 #include <QGroupBox>
 
-#include <ui_minmaxgroupbox.h>
+#include "ui_minmaxgroupbox.h"
 
-#include <abstractwidget.h>
+#include "abstractwidget.h"
 
 namespace Ui {
 class MinMaxGroupBox;

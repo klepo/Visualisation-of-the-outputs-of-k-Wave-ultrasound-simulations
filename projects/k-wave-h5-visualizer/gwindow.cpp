@@ -19,8 +19,8 @@
  *
  */
 
-#include <gwindow.h>
-#include <vertices.h>
+#include "gwindow.h"
+#include "vertices.h"
 
 /**
  * @brief Creates GWindow

@@ -23,9 +23,9 @@
 #include <QGroupBox>
 #include <QLabel>
 
-#include <ui_datasetinfogroupbox.h>
+#include "ui_datasetinfogroupbox.h"
 
-#include <abstractwidget.h>
+#include "abstractwidget.h"
 
 namespace Ui {
 class DatasetInfoGroupBox;

@@ -21,7 +21,7 @@
  *
  */
 
-#include <h5readingthread.h>
+#include "h5readingthread.h"
 
 /**
  * @brief Creates request for 3D dataset with given offset and count

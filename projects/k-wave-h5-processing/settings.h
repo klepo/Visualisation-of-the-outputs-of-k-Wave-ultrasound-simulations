@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              9  October   2018 (updated)
+ *              23 October   2018 (updated)
  *
  * @brief       The header file with Settings class declaration.
  *
@@ -26,8 +26,8 @@
 #include <math.h>
 #include <iomanip>
 
-#include <paramsdefinition.h>
-#include <helper.h>
+#include "paramsdefinition.h"
+#include "helper.h"
 
 /**
  * @brief The Settings class represents wrapper for processing settings

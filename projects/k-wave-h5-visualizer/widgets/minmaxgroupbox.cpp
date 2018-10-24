@@ -17,7 +17,7 @@
  *
  */
 
-#include <minmaxgroupbox.h>
+#include "minmaxgroupbox.h"
 
 MinMaxGroupBox::MinMaxGroupBox(QWidget *parent) :
     QGroupBox(parent),

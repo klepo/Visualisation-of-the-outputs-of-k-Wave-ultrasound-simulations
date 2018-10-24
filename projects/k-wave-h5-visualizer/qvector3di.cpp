@@ -17,7 +17,7 @@
  *
  */
 
-#include <qvector3di.h>
+#include "qvector3di.h"
 
 /**
  * @brief Creates QVector3DI object

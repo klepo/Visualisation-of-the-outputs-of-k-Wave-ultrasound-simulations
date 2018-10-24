@@ -19,12 +19,12 @@
 
 #include <k-wave-h5-helper.h>
 
-#include <reshape.h>
-#include <downsampling.h>
-#include <changechunks.h>
-#include <compress.h>
-#include <decompress.h>
-#include <difference.h>
+#include "reshape.h"
+#include "downsampling.h"
+#include "changechunks.h"
+#include "compress.h"
+#include "decompress.h"
+#include "difference.h"
 
 /**
  * @brief Main k-Wave processing function

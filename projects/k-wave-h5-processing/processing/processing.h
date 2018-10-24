@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              9  October   2018 (updated)
+ *              23 October   2018 (updated)
  *
  * @brief       The header file with Processing class declaration.
  *
@@ -20,8 +20,9 @@
 #ifndef PROCESSING_H
 #define PROCESSING_H
 
-#include <dtsforpcs.h>
 #include <omp.h>
+
+#include "dtsforpcs.h"
 
 /// Maximal number of frames, only for reshape.
 #define MAX_NUMBER_OF_FRAMES 0 // TODO set 0 -> all steps (frames)

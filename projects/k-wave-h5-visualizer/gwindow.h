@@ -22,11 +22,11 @@
 
 #include <QFileDialog>
 
-#include <qvector3di.h>
-#include <colormap.h>
-#include <openglwindow.h>
-#include <abstractwidget.h>
-#include <h5objecttovisualize.h>
+#include "qvector3di.h"
+#include "colormap.h"
+#include "openglwindow.h"
+#include "abstractwidget.h"
+#include "h5objecttovisualize.h"
 
 /**
  * @brief The GWindow class represents wrapper for the 3D rendering window

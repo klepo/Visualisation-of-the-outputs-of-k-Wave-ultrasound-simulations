@@ -19,7 +19,7 @@
  *
  */
 
-#include <vector.h>
+#include "vector.h"
 
 namespace H5Helper {
 

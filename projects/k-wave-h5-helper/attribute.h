@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              9  October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Attribute class declaration.
  *
@@ -23,10 +23,10 @@
 #include <string>
 
 #ifdef __unix
-    #include <stdexcept>
+#include <stdexcept>
 #endif
 
-#include <hdf5.h>  // HDF5
+#include <hdf5.h> // HDF5
 
 namespace H5Helper
 {

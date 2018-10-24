@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              23 October   2018 (updated)
  *
  * @brief       The implementation file containing OpacityGroupBox class definition.
  *
@@ -17,7 +17,7 @@
  *
  */
 
-#include <opacitygroupbox.h>
+#include "opacitygroupbox.h"
 
 OpacityGroupBox::OpacityGroupBox(QWidget *parent) :
     QGroupBox(parent),

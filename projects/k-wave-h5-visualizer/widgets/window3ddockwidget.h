@@ -22,11 +22,11 @@
 
 #include <QDockWidget>
 
-#include <ui_window3ddockwidget.h>
+#include "ui_window3ddockwidget.h"
 
-#include <abstractwidget.h>
-#include <h5objecttovisualize.h>
-#include <gwindow.h>
+#include "abstractwidget.h"
+#include "h5objecttovisualize.h"
+#include "gwindow.h"
 
 namespace Ui {
 class Window3DDockWidget;

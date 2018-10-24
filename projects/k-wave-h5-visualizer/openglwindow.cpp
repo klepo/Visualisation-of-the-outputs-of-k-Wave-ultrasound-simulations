@@ -20,7 +20,7 @@
  *
  */
 
-#include <openglwindow.h>
+#include "openglwindow.h"
 
 /**
  * @brief Helper sleep function

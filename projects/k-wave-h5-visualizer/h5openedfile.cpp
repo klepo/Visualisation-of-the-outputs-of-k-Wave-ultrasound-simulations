@@ -21,8 +21,8 @@
  *
  */
 
-#include <h5openedfile.h>
-#include <h5objecttovisualize.h>
+#include "h5openedfile.h"
+#include "h5objecttovisualize.h"
 
 /**
  * @brief Creates OpenedH5File object

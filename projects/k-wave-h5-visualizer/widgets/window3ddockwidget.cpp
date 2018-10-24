@@ -17,7 +17,7 @@
  *
  */
 
-#include <window3ddockwidget.h>
+#include "window3ddockwidget.h"
 
 Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
     QDockWidget(parent),
