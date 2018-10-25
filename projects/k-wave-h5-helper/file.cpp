@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -30,7 +30,7 @@ namespace H5Helper {
  * @brief Creates File object with given filename
  * @param[in] filename Path to HDF5 file
  * @param[in] flag Default value: OPEN - open (read and write) file, CREATE - create new file
- * @param[in] log Enable/disable log file (optional)
+ * @param[in] log Delete logging flag (optional)
  * @throw std::runtime_error
  *
  * For PARALLEL_HDF5 MPI_Comm and MPI_Info are passed into this constructor.
@@ -40,7 +40,7 @@ File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info
   #else
 File::File(std::string filename, unsigned int flag, bool log)
     : filename(filename)
-    , deleteLog(log)
+    , deleteLogging(log)
     #endif
 {
 #ifdef PARALLEL_HDF5
@@ -73,8 +73,8 @@ File::File(std::string filename, unsigned int flag, bool log)
     //logFileStream << filename << std::endl;
     //}
 
-    // Create File Access Property List
-    plist_FILE_ACCESS = H5Pcreate(H5P_FILE_ACCESS);
+    // Create File access property list
+    pListFileAccessId = H5Pcreate(H5P_FILE_ACCESS);
 
 #ifdef PARALLEL_HDF5
     // Get number of processes -> set NUMBER_OF_ELEMENTS_TO_LOAD to max int (MPI limit)
@@ -91,7 +91,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     // Set cache
     hsize_t chunkBytes = 64 * 64 * 64 * 4;
     //521
-    err = H5Pset_cache(plist_FILE_ACCESS, 0, 521, 521 * chunkBytes, 0.75);
+    err = H5Pset_cache(pListFileAccessId, 0, 521, 521 * chunkBytes, 0.75);
     if (err < 0) {
         throw std::runtime_error("H5Pset_cache error");
     }
@@ -100,7 +100,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     hsize_t threshold = 0;
     hsize_t alignment = 64 * 64 * 64 * 4;
     // Set alignment
-    err = H5Pset_alignment(plist_FILE_ACCESS, threshold, alignment);
+    err = H5Pset_alignment(pListFileAccessId, threshold, alignment);
     if (err < 0) {
         throw std::runtime_error("H5Pset_alignment error");
     }
@@ -109,8 +109,8 @@ File::File(std::string filename, unsigned int flag, bool log)
     if (flag == File::OPEN) {
         if (log)
             std::cout << "Opening file \"" << filename << "\" ";
-        file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, plist_FILE_ACCESS);
-        if (file < 0) {
+        fileId = H5Fopen(filename.c_str(), H5F_ACC_RDWR, pListFileAccessId);
+        if (fileId < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fopen error");
@@ -145,8 +145,8 @@ File::File(std::string filename, unsigned int flag, bool log)
     } else if (flag == CREATE) {
         if (log)
             std::cout << "Creating file \"" << filename << "\" ";
-        file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, 0, plist_FILE_ACCESS);
-        if (file < 0) {
+        fileId = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, 0, pListFileAccessId);
+        if (fileId < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Fcreate error");
@@ -197,24 +197,24 @@ void File::createDatasetF(std::string name, Vector size, Vector chunkSize, bool 
 /**
  * @brief Creates new dataset of given type in file
  * @param[in] name Name of dataset
- * @param[in] datatype Datatype (H5T_NATIVE_FLOAT | H5T_NATIVE_UINT64)
+ * @param[in] datatypeId Datatype id (H5T_NATIVE_FLOAT | H5T_NATIVE_UINT64)
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void File::createDataset(std::string name, hid_t datatype, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector chunkSize, bool rewrite, bool log)
 {
-    hid_t dataspace = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), nullptr);
-    if (dataspace < 0) {
+    hid_t dataspaceId = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), nullptr);
+    if (dataspaceId < 0) {
         throw std::runtime_error("H5Screate_simple error");
     }
-    if (datatype < 0) {
+    if (datatypeId < 0) {
         throw std::runtime_error("HDF5 datatype error");
     }
-    hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
-    if (plist < 0) {
+    hid_t pListId = H5Pcreate(H5P_DATASET_CREATE);
+    if (pListId < 0) {
         throw std::runtime_error("H5Pcreate error");
     }
 
@@ -224,12 +224,12 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
     }
 
     if (!chunkSize.hasZeros()) {
-        herr_t err = H5Pset_chunk(plist, int(chunkSize.getLength()), chunkSize.getVectorPtr());
+        herr_t err = H5Pset_chunk(pListId, int(chunkSize.getLength()), chunkSize.getVectorPtr());
         if (err < 0) {
             throw std::runtime_error("H5Pset_chunk error");
         }
     } else {
-        herr_t err = H5Pset_layout(plist, H5D_CONTIGUOUS);
+        herr_t err = H5Pset_layout(pListId, H5D_CONTIGUOUS);
         if (err < 0) {
             throw std::runtime_error("H5Pset_layout error");
         }
@@ -252,16 +252,16 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
         std::cout << "Creating dataset \"" << name << "\" ";
 
     if (rewrite) {
-        if (H5Lexists(file, name.c_str(), 0)) {
+        if (H5Lexists(fileId, name.c_str(), 0)) {
             Dataset *dataset = openDataset(name, false);
-            if (H5Tequal(dataset->getDataType(), datatype) && dataset->getDims() == size && dataset->getChunkDims() == chunkSize) {
+            if (H5Tequal(dataset->getDataType(), datatypeId) && dataset->getDims() == size && dataset->getChunkDims() == chunkSize) {
                 if (log)
                     std::cout << "... rewriting original space ... OK" << std::endl;
-                err = H5Sclose(dataspace);
+                err = H5Sclose(dataspaceId);
                 if (err < 0) {
                     throw std::runtime_error("H5Sclose error");
                 }
-                err = H5Pclose(plist);
+                err = H5Pclose(pListId);
                 if (err < 0) {
                     throw std::runtime_error("H5Pclose error");
                 }
@@ -271,26 +271,26 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
             closeDataset(dataset, false);
             if (log)
                 std::cout << "... deleting original link";
-            H5Ldelete(file, name.c_str(), 0);
+            H5Ldelete(fileId, name.c_str(), 0);
         }
     }
 
-    hid_t dataset = H5Dcreate(file, name.c_str(), datatype, dataspace, 0, plist, 0);
-    if (dataset < 0) {
+    hid_t datasetId = H5Dcreate(fileId, name.c_str(), datatypeId, dataspaceId, 0, pListId, 0);
+    if (datasetId < 0) {
         if (log)
             std::cout << "... error" << std::endl;
         throw std::runtime_error("H5Dcreate error");
     }
 
-    err = H5Sclose(dataspace);
+    err = H5Sclose(dataspaceId);
     if (err < 0) {
         throw std::runtime_error("H5Sclose error");
     }
-    err = H5Pclose(plist);
+    err = H5Pclose(pListId);
     if (err < 0) {
         throw std::runtime_error("H5Pclose error");
     }
-    err = H5Dclose(dataset);
+    err = H5Dclose(datasetId);
     if (err < 0) {
         throw std::runtime_error("H5Dclose error");
     }
@@ -303,9 +303,8 @@ void File::createDataset(std::string name, hid_t datatype, Vector size, Vector c
  * @param[in] dataset Dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
- * @throw std::runtime_error
  */
-void File::createDataset(Dataset *dataset, bool rewrite, bool log)
+void File::createDataset(const Dataset *dataset, bool rewrite, bool log)
 {
     createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite, log);
 }
@@ -377,7 +376,7 @@ void File::closeDataset(hsize_t idx, bool log)
  * @param[in] dataset Dataset
  * @param[in] log Logging flag (optional)
  */
-void File::closeDataset(Dataset *dataset, bool log)
+void File::closeDataset(const Dataset *dataset, bool log)
 {
     closeDataset(dataset->getName(), log);
 }
@@ -394,19 +393,19 @@ void File::createGroup(std::string name, bool rewrite, bool log) const
     if (log)
         std::cout << "Creating group \"" << name << "\" ";
     if (rewrite) {
-        H5Ldelete(file, name.c_str(), 0);
+        H5Ldelete(fileId, name.c_str(), 0);
         if (log)
             std::cout << "... rewrite ";
     }
 
-    if (!H5Lexists(file, name.c_str(), 0)) {
-        hid_t group = H5Gcreate(file, name.c_str(), 0, 0, 0);
-        if (group < 0) {
+    if (!H5Lexists(fileId, name.c_str(), 0)) {
+        hid_t groupId = H5Gcreate(fileId, name.c_str(), 0, 0, 0);
+        if (groupId < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Dcreate error");
         }
-        H5Gclose(group);
+        H5Gclose(groupId);
         if (err < 0) {
             throw std::runtime_error("H5Gclose error");
         }
@@ -485,7 +484,7 @@ void File::closeGroup(hsize_t idx, bool log)
  * @param[in] group Group
  * @param[in] log Logging flag (optional)
  */
-void File::closeGroup(Group *group, bool log)
+void File::closeGroup(const Group *group, bool log)
 {
     closeGroup(group->getName(), log);
 }
@@ -577,7 +576,7 @@ void File::closeObject(hsize_t idx, bool log)
  * @param[in] object Object
  * @param[in] log Logging flag (optional)
  */
-void File::closeObject(Object *object, bool log)
+void File::closeObject(const Object *object, bool log)
 {
     closeObject(object->getName(), log);
 }
@@ -592,7 +591,7 @@ hsize_t File::getNumObjs(hid_t groupId) const
 {
     int groupIdTmp = groupId;
     if (groupId <= 0)
-        groupIdTmp = file;
+        groupIdTmp = fileId;
 
     H5G_info_t group_info;
     herr_t err = H5Gget_info(groupIdTmp, &group_info);
@@ -613,7 +612,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
 {
     int groupIdTmp = groupId;
     if (groupId <= 0)
-        groupIdTmp = file;
+        groupIdTmp = fileId;
 
     char *nameC = nullptr;
     size_t size = 0;
@@ -643,7 +642,7 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId) const
 {
     hid_t groupIdTmp = groupId;
     if (groupId <= 0)
-        groupIdTmp = file;
+        groupIdTmp = fileId;
 
     int type = 0;
     type = H5Gget_objtype_by_idx(groupIdTmp, idx);
@@ -664,7 +663,7 @@ H5G_obj_t File::getObjTypeByName(std::string name, hid_t groupId) const
 {
     hid_t groupIdTmp = groupId;
     if (groupId <= 0)
-        groupIdTmp = file;
+        groupIdTmp = fileId;
     H5G_stat_t statbuf;
     // H5Gget_objinfo is deprecated, but H5Gget_info_by_name is slow
     herr_t err = H5Gget_objinfo(groupIdTmp, name.c_str(), 1, &statbuf);
@@ -684,7 +683,7 @@ bool File::objExistsByName(std::string name, hid_t groupId) const
 {
     hid_t groupIdTmp = groupId;
     if (groupId <= 0)
-        groupIdTmp = file;
+        groupIdTmp = fileId;
 
     if (H5Lexists(groupIdTmp, name.c_str(), 0))
         return H5Oexists_by_name(groupIdTmp, name.c_str(), 0) != 0;
@@ -696,11 +695,12 @@ bool File::objExistsByName(std::string name, hid_t groupId) const
  * @brief Renames object
  * @param[in] srcName Source object name
  * @param[in] dstName Destination object name
+ * @throw std::runtime_error
  */
 void File::objRename(std::string srcName, std::string dstName) const
 {
     // TODO Check object is not opened
-    herr_t err = H5Lmove(file, srcName.c_str(), file, dstName.c_str(), 0, 0);
+    herr_t err = H5Lmove(fileId, srcName.c_str(), fileId, dstName.c_str(), 0, 0);
     if (err < 0) {
         throw std::runtime_error("H5Lmove error");
     }
@@ -711,12 +711,13 @@ void File::objRename(std::string srcName, std::string dstName) const
  * @param[in] srcName Source attribute name
  * @param[in] dstName Destination attribute name
  * @param[in] objectId Object id
+ * @throw std::runtime_error
  */
 void File::renameAttribute(std::string srcName, std::string dstName, hid_t objectId) const
 {
     int objectIdTmp = objectId;
     if (objectId <= 0)
-        objectIdTmp = file;
+        objectIdTmp = fileId;
 
     herr_t err = H5Arename(objectIdTmp, srcName.c_str(), dstName.c_str());
     if (err < 0) {
@@ -729,10 +730,11 @@ void File::renameAttribute(std::string srcName, std::string dstName, hid_t objec
  * @param[in] srcName Source attribute name
  * @param[in] dstName Destination attribute name
  * @param[in] objName Object name
+ * @throw std::runtime_error
  */
 void File::renameAttribute(std::string srcName, std::string dstName, std::string objName) const
 {
-    hid_t objectId = H5Oopen(file, objName.c_str(), 0);
+    hid_t objectId = H5Oopen(fileId, objName.c_str(), 0);
     if (objectId < 0) {
         throw std::runtime_error("H5Oopen error");
     }
@@ -809,39 +811,45 @@ int File::getMPISize() const
 
 /**
  * @brief Sets delete logging flag
- * @param value Enable/disable delete loggging
+ * @param[in] value Delete logging flag
  */
-void File::setDeleteLog(bool value)
+void File::setDeleteLogging(bool value)
 {
-    deleteLog = value;
+    deleteLogging = value;
 }
 
+/**
+ * @brief Inserts object to opened object
+ * @param[in] name Object name
+ * @param[in] log Logging flag (optional)
+ * @throw std::runtime_error
+ */
 void File::insertObject(std::string name, bool log)
 {
     std::string nameTmp = fixPath(name);
     if (getObjTypeByName(nameTmp) == H5G_DATASET) {
         if (log)
             std::cout << "Opening dataset \"" << nameTmp << "\" ";
-        hid_t d = H5Dopen(file, nameTmp.c_str(), 0);
-        if (d < 0) {
+        hid_t datasetId = H5Dopen(fileId, nameTmp.c_str(), 0);
+        if (datasetId < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Dopen error");
         }
-        Dataset *dataset = new Dataset(d, nameTmp, this);
+        Dataset *dataset = new Dataset(datasetId, nameTmp, this);
         objects.insert(PairOfObjects(nameTmp, dataset));
         if (log)
             std::cout << "... OK" << std::endl;
     } else if (getObjTypeByName(nameTmp) == H5G_GROUP) {
         if (log)
             std::cout << "Opening group \"" << nameTmp << "\" ";
-        hid_t g = H5Gopen(file, nameTmp.c_str(), 0);
-        if (g < 0) {
+        hid_t groupId = H5Gopen(fileId, nameTmp.c_str(), 0);
+        if (groupId < 0) {
             if (log)
                 std::cout << "... error" << std::endl;
             throw std::runtime_error("H5Gopen error");
         }
-        Group *group = new Group(g, nameTmp, this);
+        Group *group = new Group(groupId, nameTmp, this);
         objects.insert(PairOfObjects(nameTmp, group));
         if (log)
             std::cout << "... OK" << std::endl;
@@ -852,7 +860,6 @@ void File::insertObject(std::string name, bool log)
 
 /**
  * @brief Closes file and objects
- * @throw std::runtime_error
  */
 void File::closeFileAndObjects()
 {
@@ -862,17 +869,17 @@ void File::closeFileAndObjects()
         closeObject(it->second, it->second->getDeleteLog());
     }
 
-    if (deleteLog)
+    if (deleteLogging)
         std::cout << "Closing file \"" << filename << "\"";
-    err = H5Pclose(plist_FILE_ACCESS);
+    err = H5Pclose(pListFileAccessId);
     if (err < 0) {
         //throw std::runtime_error("H5Pclose error");
     }
-    err = H5Fclose(file);
+    err = H5Fclose(fileId);
     if (err < 0) {
         //throw std::runtime_error("H5Fclose error");
     }
-    if (deleteLog)
+    if (deleteLogging)
         std::cout << " ... OK" << std::endl;
 }
 

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Group class definition.
  *
@@ -25,15 +25,14 @@ namespace H5Helper {
 
 /**
  * @brief Creates Group object with given file, name and group
- * @param[in] group Group id
+ * @param[in] groupId Group id
  * @param[in] name Name of group
  * @param[in] file HDF5 File
  */
-Group::Group(hid_t group, std::string name, File *file)
-    : Object(group, name, file)
-    , group(group)
+Group::Group(hid_t groupId, std::string name, File *file)
+    : Object(groupId, name, file)
+    , groupId(groupId)
 {
-
 }
 
 /**
@@ -45,7 +44,7 @@ Group::~Group()
 {
     if (deleteLog)
         std::cout << "Closing group \"" << getName() << "\"";
-    err = H5Gclose(group);
+    err = H5Gclose(groupId);
     if (err < 0) {
         //throw std::runtime_error("H5Gclose error");
     }
@@ -101,7 +100,7 @@ void Group::closeDataset(hsize_t idx, bool log)
  * @param[in] dataset Dataset
  * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(Dataset *dataset, bool log)
+void Group::closeDataset(const Dataset *dataset, bool log)
 {
     closeDataset(dataset->getName(), log);
 }
@@ -179,7 +178,7 @@ void Group::closeGroup(hsize_t idx, bool log)
  * @param[in] group Group
  * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(Group *group, bool log)
+void Group::closeGroup(const Group *group, bool log)
 {
     closeGroup(group->getName(), log);
 }
@@ -201,7 +200,7 @@ void Group::createGroup(std::string name, bool rewrite, bool log) const
  */
 hid_t Group::getId() const
 {
-    return group;
+    return groupId;
 }
 
 /**
@@ -210,7 +209,7 @@ hid_t Group::getId() const
  */
 hsize_t Group::getNumObjs() const
 {
-    return getFile()->getNumObjs(group);
+    return getFile()->getNumObjs(groupId);
 }
 
 /**
@@ -220,7 +219,7 @@ hsize_t Group::getNumObjs() const
  */
 std::string Group::getObjNameByIdx(hsize_t idx) const
 {
-    return getFile()->getObjNameByIdx(idx, group);
+    return getFile()->getObjNameByIdx(idx, groupId);
 }
 
 /**
@@ -230,6 +229,6 @@ std::string Group::getObjNameByIdx(hsize_t idx) const
  */
 H5G_obj_t Group::getObjTypeByIdx(hsize_t idx) const
 {
-    return getFile()->getObjTypeByIdx(idx, group);
+    return getFile()->getObjTypeByIdx(idx, groupId);
 }
 }

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::File class declaration.
  *
@@ -131,15 +131,15 @@ public:
 
     void createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
     void createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
-    void createDataset(std::string name, hid_t type, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
-    void createDataset(Dataset *dataset, bool rewrite = false, bool log = true);
+    void createDataset(std::string name, hid_t datatypeId, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
+    void createDataset(const Dataset *dataset, bool rewrite = false, bool log = true);
     Dataset *openDataset(std::string name, bool log = true);
     Dataset *openDataset(hsize_t idx, bool log = true);
     bool isDatasetOpened(std::string name) const;
     bool isDatasetOpened(hsize_t idx) const;
     void closeDataset(std::string name, bool log = true);
     void closeDataset(hsize_t idx, bool log = true);
-    void closeDataset(Dataset *dataset, bool log = true);
+    void closeDataset(const Dataset *dataset, bool log = true);
 
     void createGroup(std::string name, bool rewrite = false, bool log = true) const;
     Group *openGroup(std::string name, bool log = true);
@@ -148,7 +148,7 @@ public:
     bool isGroupOpened(hsize_t idx) const;
     void closeGroup(std::string name, bool log = true);
     void closeGroup(hsize_t idx, bool log = true);
-    void closeGroup(Group *group, bool log = true);
+    void closeGroup(const Group *group, bool log = true);
 
     Object *openObject(std::string name, bool log = true);
     Object *openObject(hsize_t idx, bool log = true);
@@ -156,7 +156,7 @@ public:
     bool isObjectOpened(hsize_t idx) const;
     void closeObject(std::string name, bool log = true);
     void closeObject(hsize_t idx, bool log = true);
-    void closeObject(Object *object, bool log = true);
+    void closeObject(const Object *object, bool log = true);
 
     hsize_t getNumObjs(hid_t groupId = -1) const;
     std::string getObjNameByIdx(hsize_t idx, hid_t groupId = -1) const;
@@ -166,7 +166,7 @@ public:
 
     void objRename(std::string srcName, std::string dstName) const;
 
-    void renameAttribute(std::string srcName, std::string dstName, hid_t groupId = -1) const;
+    void renameAttribute(std::string srcName, std::string dstName, hid_t objectId = -1) const;
     void renameAttribute(std::string srcName, std::string dstName, std::string objName) const;
 
     std::string getFilename() const;
@@ -179,7 +179,7 @@ public:
 
     int getMPISize() const;
 
-    void setDeleteLog(bool value);
+    void setDeleteLogging(bool value);
 
     /// Open file flag
     static const unsigned int OPEN = 0;
@@ -187,25 +187,32 @@ public:
     static const unsigned int CREATE = 1;
 
 private:
+    /// Disable copy contructor
     File(const File &);
+    /// Disable assignment operator
+    /// \return File
     File &operator=(const File &);
+
     void insertObject(std::string name, bool log = true);
     void closeFileAndObjects();
 
+    /// Domain dimensions
     Vector4D nDims;
+    /// Filename
     std::string filename;
+    /// Number of elements to load for block reading
     hsize_t numberOfElementsToLoad = 512 * 512 * 512;
-    hid_t plist_FILE_ACCESS;
-
-    /// HDF5 file handle
-    hid_t file;
+    /// File access property list id
+    hid_t pListFileAccessId;
+    /// File id
+    hid_t fileId;
     /// Map of objects
     MapOfObjects objects;
-
-    /// Delete log flag
-    bool deleteLog = true;
-
+    /// Delete logging flag
+    bool deleteLogging = true;
+    /// Error handle
     herr_t err;
+    /// MPI size
     int mPISize;
 };
 

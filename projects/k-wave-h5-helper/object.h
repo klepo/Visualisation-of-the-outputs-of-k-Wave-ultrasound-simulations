@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Object class declaration.
  *
@@ -36,10 +36,10 @@ namespace H5Helper
 class Object
 {
 public:
-    Object(hid_t object, std::string name, File *file);
+    Object(hid_t objectId, std::string name, File *file);
     virtual ~Object();
 
-    void setAttribute(Attribute *attribute, bool log = true);
+    void setAttribute(const Attribute *attribute, bool log = true);
     void setAttribute(std::string name, int value, bool log = true);
     void setAttribute(std::string name, unsigned int value, bool log = true);
     void setAttribute(std::string name, hssize_t value, bool log = true);
@@ -91,14 +91,21 @@ protected:
     bool deleteLog = true;
 
 private:
+    /// Disable copy contructor
     Object(const Object &);
+    /// Disable assignment operator
+    /// \return Object
     Object &operator=(const Object &);
-    void createAttribute(std::string name, hid_t datatype, hid_t dataspace, const void *value, bool log = true) const;
-    void setAttribute(std::string name, hid_t datatype, const void *value, bool log = true) const;
-    void creatingAttributeMessage(std::string name, hid_t datatype, const void *value) const;
 
+    void createAttribute(std::string name, hid_t datatypeId, hid_t dataspaceId, const void *value, bool log = true) const;
+    void setAttribute(std::string name, hid_t datatypeId, const void *value, bool log = true) const;
+    void creatingAttributeMessage(std::string name, hid_t datatypeId, const void *value) const;
+
+    /// File
     File *file;
-    hid_t object;
+    /// HDF5 object id
+    hid_t objectId;
+    /// Object name
     std::string name;
 };
 }

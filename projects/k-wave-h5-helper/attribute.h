@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Attribute class declaration.
  *
@@ -36,8 +36,8 @@ namespace H5Helper
 class Attribute
 {
 public:
-    Attribute(hid_t object, std::string name);
-    Attribute(hid_t object, hsize_t idx);
+    Attribute(hid_t objectId, std::string name);
+    Attribute(hid_t objectId, hsize_t idx);
     ~Attribute();
 
     hid_t getDatatype() const;
@@ -47,29 +47,30 @@ public:
     void *getData() const;
     std::string getStringValue() const;
     std::string getStringDatatype() const;
-    static std::string getStringValue(hid_t datatype, const void *value, hsize_t size = 0);
-    static std::string getStringDatatype(hid_t datatype);
+    static std::string getStringValue(hid_t datatypeId, const void *value, hsize_t size = 0);
+    static std::string getStringDatatype(hid_t datatypeId);
 
 private:
     /// Disable copy contructor
     Attribute(const Attribute &);
     /// Disable assignment operator
+    /// \return Attribute
     Attribute &operator=(const Attribute &);
 
-    void loadAttribute(hid_t attribute);
+    void loadAttribute(hid_t attributeId);
 
-    /// HDF5 object id
-    hid_t object;
-    /// HDF5 attribute id
-    hid_t attribute;
+    /// Object id
+    hid_t objectId;
+    /// Attribute id
+    hid_t attributeId;
     /// Attribute name
     std::string name;
-    /// Attribute datatype
-    hid_t datatype;
+    /// Attribute datatype id
+    hid_t datatypeId;
     /// Attribute size
     hsize_t size;
-    /// Attribute dataspace
-    hid_t dataspace;
+    /// Attribute dataspace id
+    hid_t dataspaceId;
     /// Attribute value
     void *value = nullptr;
     /// Error handle

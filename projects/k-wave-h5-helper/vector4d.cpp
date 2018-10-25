@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector4D class definition.
  *
@@ -35,7 +35,6 @@ Vector4D::Vector4D()
 /**
  * @brief Copy constructor for general vector
  * @param[in] vector Original Vector object to copy
- * @throw std::runtime_error
  */
 Vector4D::Vector4D(const Vector &vector)
     : Vector(4)
@@ -193,7 +192,6 @@ void Vector4D::t(int t) const
 {
     this->t(static_cast<hsize_t>(t));
 }
-
 
 /**
  * @brief Returns x value

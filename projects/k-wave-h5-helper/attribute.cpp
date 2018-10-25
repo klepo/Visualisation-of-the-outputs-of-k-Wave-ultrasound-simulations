@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Attribute class definition.
  *
@@ -25,19 +25,19 @@ namespace H5Helper {
 
 /**
  * @brief Creates Attribute object with given name and object
- * @param[in] object HDF5 group or dataset id
+ * @param[in] objectId HDF5 group or dataset id
  * @param[in] name The name of attribute
  * @throw std::runtime_error
  */
-Attribute::Attribute(hid_t object, std::string name)
+Attribute::Attribute(hid_t objectId, std::string name)
+    : objectId(objectId)
 {
-    this->object = object;
-    attribute = H5Aopen_name(object, name.c_str());
-    if (attribute < 0) {
+    attributeId = H5Aopen_name(objectId, name.c_str());
+    if (attributeId < 0) {
         throw std::runtime_error("H5Aopen_name error");
     }
-    loadAttribute(attribute);
-    err = H5Aclose(attribute);
+    loadAttribute(attributeId);
+    err = H5Aclose(attributeId);
     if (err < 0) {
         throw std::runtime_error("H5Aclose error");
     }
@@ -45,19 +45,19 @@ Attribute::Attribute(hid_t object, std::string name)
 
 /**
  * @brief Creates Attribute object with given index and object
- * @param[in] object The id of HDF5 group or dataset
+ * @param[in] objectId HDF5 group or dataset id
  * @param[in] idx The index of attribute
  * @throw std::runtime_error
  */
-Attribute::Attribute(hid_t object, hsize_t idx)
+Attribute::Attribute(hid_t objectId, hsize_t idx)
+    : objectId(objectId)
 {
-    this->object = object;
-    attribute = H5Aopen_by_idx(object, ".", H5_INDEX_NAME, H5_ITER_INC, unsigned(idx), 0, 0);
-    if (attribute < 0) {
+    attributeId = H5Aopen_by_idx(objectId, ".", H5_INDEX_NAME, H5_ITER_INC, unsigned(idx), 0, 0);
+    if (attributeId < 0) {
         throw std::runtime_error("H5Aopen_name error");
     }
-    loadAttribute(attribute);
-    err = H5Aclose(attribute);
+    loadAttribute(attributeId);
+    err = H5Aclose(attributeId);
     if (err < 0) {
         throw std::runtime_error("H5Aclose error");
     }
@@ -72,23 +72,23 @@ Attribute::~Attribute()
 {
     free(value);
     value = nullptr;
-    err = H5Tclose(datatype);
+    err = H5Tclose(datatypeId);
     if (err < 0) {
         //throw std::runtime_error("H5Tclose error");
     }
-    err = H5Sclose(dataspace);
+    err = H5Sclose(dataspaceId);
     if (err < 0) {
         //throw std::runtime_error("H5Sclose error");
     }
 }
 
 /**
- * @brief Returns datatype of attribute
- * @return Datatype of attribute
+ * @brief Returns datatype id of attribute
+ * @return Datatype id of attribute
  */
 hid_t Attribute::getDatatype() const
 {
-    return datatype;
+    return datatypeId;
 }
 
 /**
@@ -110,12 +110,12 @@ std::string Attribute::getName() const
 }
 
 /**
- * @brief Returns dataspace of attribute
- * @return Dataspace of attribute
+ * @brief Returns dataspace id of attribute
+ * @return Dataspace id of attribute
  */
 hid_t Attribute::getDataspace() const
 {
-    return dataspace;
+    return dataspaceId;
 }
 
 /**
@@ -133,7 +133,7 @@ void *Attribute::getData() const
  */
 std::string Attribute::getStringValue() const
 {
-    return getStringValue(datatype, value, size);
+    return getStringValue(datatypeId, value, size);
 }
 
 /**
@@ -142,20 +142,20 @@ std::string Attribute::getStringValue() const
  */
 std::string Attribute::getStringDatatype() const
 {
-    return getStringDatatype(datatype);
+    return getStringDatatype(datatypeId);
 }
 
 /**
  * @brief Returns attribute value as string
- * @param[in] datatype Attribute datatype
+ * @param[in] datatypeId Attribute datatype id
  * @param[in] value Attribute value
  * @param[in] size Attribute size (optional)
  * @return Attribute value as string
  */
-std::string Attribute::getStringValue(hid_t datatype, const void *value, hsize_t size)
+std::string Attribute::getStringValue(hid_t datatypeId, const void *value, hsize_t size)
 {
-    if (H5Tget_class(datatype) == H5Tget_class(H5T_C_S1)) {
-        if (H5Tis_variable_str(datatype)) {
+    if (H5Tget_class(datatypeId) == H5Tget_class(H5T_C_S1)) {
+        if (H5Tis_variable_str(datatypeId)) {
             void *voidValue = const_cast<void *>(value);
             return std::string(*static_cast<char **>(voidValue));
         } else {
@@ -170,19 +170,19 @@ std::string Attribute::getStringValue(hid_t datatype, const void *value, hsize_t
                 return static_cast<const char *>(value);
             }
         }
-    } else if (H5Tequal(datatype, H5T_NATIVE_INT)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_INT)) {
         return std::to_string(*static_cast<const int *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_UINT)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_UINT)) {
         return std::to_string(*static_cast<const unsigned int *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_INT64)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_INT64)) {
         return std::to_string(*static_cast<const hssize_t *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_UINT64)) {
         return std::to_string(*static_cast<const hsize_t *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
         return std::to_string(*static_cast<const float *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_DOUBLE)) {
         return std::to_string(*static_cast<const double *>(value));
-    } else if (H5Tequal(datatype, H5T_NATIVE_LDOUBLE)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_LDOUBLE)) {
         return std::to_string(*static_cast<const long double *>(value));
     } else {
         return static_cast<const char *>(value);
@@ -191,63 +191,63 @@ std::string Attribute::getStringValue(hid_t datatype, const void *value, hsize_t
 
 /**
  * @brief Returns attribute datatype as string
- * @param[in] datatype Attribute datatype
+ * @param[in] datatypeId Attribute datatype id
  * @return Attribute datatype as string
  */
-std::string Attribute::getStringDatatype(hid_t datatype)
+std::string Attribute::getStringDatatype(hid_t datatypeId)
 {
-    if (H5Tget_class(datatype) == H5Tget_class(H5T_C_S1)) {
-        if (H5Tis_variable_str(datatype)) {
+    if (H5Tget_class(datatypeId) == H5Tget_class(H5T_C_S1)) {
+        if (H5Tis_variable_str(datatypeId)) {
             return "H5T_C_S1, H5T_VARIABLE";
         } else {
             return "H5T_C_S1";
         }
-    } else if (H5Tequal(datatype, H5T_NATIVE_INT)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_INT)) {
         return "H5T_NATIVE_INT";
-    } else if (H5Tequal(datatype, H5T_NATIVE_UINT)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_UINT)) {
         return "H5T_NATIVE_UINT";
-    } else if (H5Tequal(datatype, H5T_NATIVE_INT64)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_INT64)) {
         return "H5T_NATIVE_INT64";
-    } else if (H5Tequal(datatype, H5T_NATIVE_UINT64)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_UINT64)) {
         return "H5T_NATIVE_UINT64";
-    } else if (H5Tequal(datatype, H5T_NATIVE_FLOAT)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
         return "H5T_NATIVE_FLOAT";
-    } else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_DOUBLE)) {
         return "H5T_NATIVE_DOUBLE";
-    } else if (H5Tequal(datatype, H5T_NATIVE_LDOUBLE)) {
+    } else if (H5Tequal(datatypeId, H5T_NATIVE_LDOUBLE)) {
         return "H5T_NATIVE_LDOUBLE";
     } else {
-        return std::to_string(datatype);
+        return std::to_string(datatypeId);
     }
 }
 
 /**
  * @brief Loads attribute data
- * @param[in] attribute Attribute id
+ * @param[in] attributeId Attribute id
  * @throw std::runtime_error
  */
-void Attribute::loadAttribute(hid_t attribute)
+void Attribute::loadAttribute(hid_t attributeId)
 {
-    datatype = H5Aget_type(attribute);
-    if (datatype < 0) {
+    datatypeId = H5Aget_type(attributeId);
+    if (datatypeId < 0) {
         throw std::runtime_error("H5Aget_type error");
     }
-    size = H5Aget_storage_size(attribute);
-    ssize_t nameSize = H5Aget_name(attribute, 0, nullptr);
+    size = H5Aget_storage_size(attributeId);
+    ssize_t nameSize = H5Aget_name(attributeId, 0, nullptr);
     if (nameSize < 0) {
         throw std::runtime_error("H5Aget_name error");
     }
     char *nameC = new char[size_t(nameSize) + 1];
-    H5Aget_name(attribute, size_t(nameSize + 1), nameC);
+    H5Aget_name(attributeId, size_t(nameSize + 1), nameC);
     name = std::string(nameC);
     delete[] nameC;
     nameC = nullptr;
-    dataspace = H5Aget_space(attribute);
-    if (dataspace < 0) {
+    dataspaceId = H5Aget_space(attributeId);
+    if (dataspaceId < 0) {
         throw std::runtime_error("H5Aget_space error");
     }
     value = malloc(size_t(size));
-    err = H5Aread(attribute, datatype, value);
+    err = H5Aread(attributeId, datatypeId, value);
     if (err < 0) {
         throw std::runtime_error("H5Aread error");
     }

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24  October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Group class declaration.
  *
@@ -33,7 +33,7 @@ namespace H5Helper
 class Group : public Object
 {
 public:
-    Group(hid_t group, std::string name, File *file);
+    Group(hid_t groupId, std::string name, File *file);
     ~Group();
 
     Dataset *openDataset(std::string name, bool log = true);
@@ -41,7 +41,7 @@ public:
 
     void closeDataset(std::string name, bool log = true);
     void closeDataset(hsize_t idx, bool log = true);
-    void closeDataset(Dataset *dataset, bool log = true);
+    void closeDataset(const Dataset *dataset, bool log = true);
 
     void createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
     void createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true);
@@ -51,7 +51,7 @@ public:
 
     void closeGroup(std::string name, bool log = true);
     void closeGroup(hsize_t idx, bool log = true);
-    void closeGroup(Group *group, bool log = true);
+    void closeGroup(const Group *groupId, bool log = true);
 
     void createGroup(std::string name, bool rewrite = false, bool log = true) const;
 
@@ -61,9 +61,14 @@ public:
     H5G_obj_t getObjTypeByIdx(hsize_t idx) const;
 
 private:
+    /// Disable copy contructor
     Group(const Group &);
+    /// \brief Disable assignment operator
+    /// \return Group
     Group &operator=(const Group &);
-    hid_t group;
+
+    /// Group id
+    hid_t groupId;
 };
 
 }

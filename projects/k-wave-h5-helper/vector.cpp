@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@stud.fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector class definition.
  *
@@ -156,7 +156,6 @@ bool Vector::operator!=(const Vector &vector) const
  * @brief Subscripting operator []
  * @param[in] i Index
  * @return Vector value at index
- * @throw std::runtime_error
  */
 hsize_t &Vector::operator[](hsize_t i)
 {
@@ -168,7 +167,6 @@ hsize_t &Vector::operator[](hsize_t i)
  * @brief Subscripting operator []
  * @param[in] i Index
  * @return Vector value at index
- * @throw std::runtime_error
  */
 hsize_t &Vector::operator[](hssize_t i)
 {
@@ -180,7 +178,6 @@ hsize_t &Vector::operator[](hssize_t i)
  * @brief Subscripting operator []
  * @param[in] i Index
  * @return Vector value at index
- * @throw std::runtime_error
  */
 hsize_t &Vector::operator[](int i)
 {
@@ -192,7 +189,6 @@ hsize_t &Vector::operator[](int i)
  * @brief Subscripting operator []
  * @param[in] i Index
  * @return Vector value at index
- * @throw std::runtime_error
  */
 hsize_t &Vector::operator[](unsigned int i)
 {
@@ -290,6 +286,22 @@ bool Vector::hasZeros() const
 }
 
 /**
+ * @brief Operator std::string
+ * @return String
+ */
+Vector::operator std::string() const
+{
+    std::string str = "";
+    for (hsize_t i = 0; i < length; i++) {
+        str += std::to_string(vector[i]);
+        if (i < length - 1) {
+            str += " x ";
+        }
+    }
+    return str;
+}
+
+/**
  * @brief Copy vector or part of vector
  * @param[in] vectorSrc Source vector
  */
@@ -305,22 +317,6 @@ void Vector::copy(const Vector &vectorSrc)
     for (hsize_t i = 0; i < length; i++) {
         this->vector[this->length - i - 1] = tmp[vectorSrc.getLength() - i - 1];
     }
-}
-
-/**
- * @brief Operator std::string
- * @return String
- */
-Vector::operator std::string() const
-{
-    std::string str = "";
-    for (hsize_t i = 0; i < length; i++) {
-        str += std::to_string(vector[i]);
-        if (i < length - 1) {
-            str += " x ";
-        }
-    }
-    return str;
 }
 
 /**
@@ -359,6 +355,7 @@ void Vector::move(Vector &vector, bool deleteFlag)
 /**
  * @brief Checks index range
  * @param[in] i Index
+ * @throw std::runtime_error
  */
 void Vector::checkIndex(hsize_t i) const
 {

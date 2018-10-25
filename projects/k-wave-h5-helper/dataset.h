@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Dataset class declaration.
  *
@@ -78,7 +78,7 @@ enum class DatasetType
 class Dataset : public Object
 {
 public:
-    Dataset(hid_t dataset, std::string name, File *file);
+    Dataset(hid_t datasetId, std::string name, File *file);
     ~Dataset();
 
     hid_t getId() const;
@@ -121,10 +121,10 @@ public:
     void readDataset(float &data, bool log = true);
     void readDataset(hsize_t &data, bool log = true);
 
-    void writeDataset(Vector offset, Vector count, float *data, bool log = false);
-    void writeDataset(Vector offset, Vector count, hsize_t *data, bool log = false);
-    void writeDataset(float *data, bool log = false);
-    void writeDataset(hsize_t *data, bool log = false);
+    void writeDataset(Vector offset, Vector count, const float *data, bool log = false);
+    void writeDataset(Vector offset, Vector count, const hsize_t *data, bool log = false);
+    void writeDataset(const float *data, bool log = false);
+    void writeDataset(const hsize_t *data, bool log = false);
 
     void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
     void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
@@ -134,11 +134,14 @@ public:
     void readEmptyBlock(bool log = true);
 
 private:
+    /// Disable copy contructor
     Dataset(const Dataset &);
+    /// Disable assignment operator
+    /// \return Dataset
     Dataset &operator=(const Dataset &);
 
     void readDatasetGeneral(Vector offset, Vector count, void *data, bool log = true);
-    void writeDatasetGeneral(Vector offset, Vector count, void *data, bool log = false);
+    void writeDatasetGeneral(Vector offset, Vector count, const void *data, bool log = false);
 
     void checkOffsetAndCountParams(Vector offset, Vector count) const;
 
@@ -150,7 +153,7 @@ private:
     void findGlobalMinAndMaxValueI(bool log = true);
 
     void initBlockReading();
-    Vector getBlockCount(hsize_t index) const;
+    Vector getBlockDims(hsize_t index) const;
     Vector getBlockOffset(hsize_t index) const;
 
     void checkDataTypeAndAllocation(float *&data, int type, hsize_t size) const;
@@ -171,38 +174,58 @@ private:
     void printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const;
     void printsWritingTimeMessage(double t0, double t1, Vector offset, Vector count) const;
 
-    hid_t plist = 0;
-    hid_t plist_DATASET_XFER = 0;
+    /// Dataset property list
+    hid_t pListId = 0;
+    /// Data transfer property list
+    hid_t pListDatasetXferId = 0;
 
     // Block reading
+    /// Number of blocks
     hsize_t numberOfBlocks = 0;
+    /// Number of blocks in dimensions
     Vector numberOfBlocksInDims;
+    /// Last block count
     hsize_t lastBlockCount = 0;
+    /// Block dimensions
     Vector blockDims;
+    /// Last block dimensions
     Vector lastBlockDims;
 
-    //Vector *offsets;
-    //Vector *counts;
+    /// Number of elements to load
     hsize_t numberOfElementsToLoad = 0;
+    /// Real number of elements to load
     hsize_t realNumberOfElementsToLoad = 0;
 
-    hid_t dataset = 0;
-    hid_t dataspace = 0;
-    hid_t datatype = 0;
+    /// Dataset id
+    hid_t datasetId = 0;
+    /// Dataspace id
+    hid_t dataspaceId = 0;
+    /// Datatype id
+    hid_t datatypeId = 0;
 
+    /// Dataset rank
     int rank = 0;
+    /// Dataset dimensions
     Vector dims;
+    /// Dataset chunk dimensions
     Vector chunkDims;
 
+    /// Dataset minimal integer value
     hsize_t minVI = 0;
+    /// Dataset maximal integer value
     hsize_t maxVI = 0;
 
+    /// Dataset minimal float value
     float minVF = 0;
+    /// Dataset maximal float value
     float maxVF = 0;
 
+    /// Minimal value index
     hsize_t minVIndex = 0;
+    /// Maximal value index
     hsize_t maxVIndex = 0;
 
+    /// Is set global minimal and maximal value flag
     bool issetGlobalMinAndMaxValue = false;
 };
 

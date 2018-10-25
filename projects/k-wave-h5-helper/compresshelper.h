@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        26 September 2016 (created) <br>
- *              24 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::CompressHelper class declaration.
  *
@@ -69,6 +69,7 @@ private:
     /// Disable copy contructor
     CompressHelper(const CompressHelper &);
     /// Disable assignment operator
+    /// \return CompressHelper
     CompressHelper &operator=(const CompressHelper &);
 
     static void xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
