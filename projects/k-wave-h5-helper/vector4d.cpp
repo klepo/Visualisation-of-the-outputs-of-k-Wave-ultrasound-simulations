@@ -20,7 +20,6 @@
  */
 
 #include "vector4d.h"
-#include "vector3d.h"
 
 namespace H5Helper {
 

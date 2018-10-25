@@ -70,6 +70,131 @@ CompressHelper::~CompressHelper()
 }
 
 /**
+ * @brief Computes period form data
+ * @param[in] dataSrc Source data
+ * @param[in] length Source length
+ * @return Period
+ */
+hsize_t CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
+{
+    float *dataTmp = new float[length];
+    hsize_t *peaksTmp = new hsize_t[length];
+    hsize_t peaksCount;
+    hsize_t period;
+
+    //xcorr(dataSrc, dataSrc, dataTmp, length, length);
+    findPeaks(dataSrc, peaksTmp, length, peaksCount);
+    hsize_t *peaks = new hsize_t[peaksCount - 1];
+    diff(peaksTmp, peaks, peaksCount);
+    period = median(peaks, peaksCount - 1);
+
+    if (dataTmp) {
+        delete[] dataTmp;
+        dataTmp = nullptr;
+    }
+    if (peaksTmp) {
+        delete[] peaksTmp;
+        peaksTmp = nullptr;
+    }
+    if (peaks) {
+        delete[] peaks;
+        peaks = nullptr;
+    }
+    return period;
+}
+
+/**
+ * @brief Computes sample value for given step using coefficients (decompression)
+ * @param[in] cC Current coefficients
+ * @param[in] lC Last coefficients
+ * @param[in] stepLocal Local step between coefficients
+ * @return Step value
+ */
+float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const
+{
+    float stepValue = 0;
+    hsize_t sH = stepLocal;
+    for (hsize_t h = 0; h < harmonics; h++) {
+        stepValue += real(conj(reinterpret_cast<const floatC *>(cC)[h]) * getBE()[sH]) +
+                real(conj(reinterpret_cast<const floatC *>(lC)[h]) * getBE_1()[sH]);
+        sH += bSize;
+    }
+    return stepValue;
+}
+
+/**
+ * @brief Returns inverted complex exponencial window basis
+ * @return Inverted complex exponencial window basis
+ */
+floatC *CompressHelper::getBE_1() const
+{
+    return bE_1;
+}
+
+/**
+ * @brief Returns complex exponencial window basis
+ * @return Complex exponencial window basis
+ */
+floatC *CompressHelper::getBE() const
+{
+    return bE;
+}
+
+/**
+ * @brief Returns overlap size
+ * @return Overlap size
+ */
+hsize_t CompressHelper::getOSize() const
+{
+    return oSize;
+}
+
+/**
+ * @brief Return base size
+ * @return Base size
+ */
+hsize_t CompressHelper::getBSize() const
+{
+    return bSize;
+}
+
+/**
+ * @brief Returns period
+ * @return Period
+ */
+hsize_t CompressHelper::getPeriod() const
+{
+    return period;
+}
+
+/**
+ * @brief Returns multiple of overlap size
+ * @return Multiple of overlap size
+ */
+hsize_t CompressHelper::getMos() const
+{
+    return mos;
+}
+
+/**
+ * @brief Return number of harmonics
+ * @return Number of harmonics
+ */
+hsize_t CompressHelper::getHarmonics() const
+{
+    return harmonics;
+}
+
+/**
+ * @brief Returns coefficients stride for one step (harmonics * 2;)
+ * @return Coefficients stride for one step
+ */
+hsize_t CompressHelper::getStride() const
+{
+    return stride;
+}
+
+/**
  * @brief Cross correlation
  * @param[in] dataSrc1 Source data 1
  * @param[in] dataSrc2 Source data 2
@@ -77,18 +202,18 @@ CompressHelper::~CompressHelper()
  * @param[in] lengthSrc1 Source length 1
  * @param[in] lengthSrc2 Source length 2
  */
-void CompressHelper::xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const hsize_t lengthSrc1, const hsize_t lengthSrc2)
+void CompressHelper::xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2)
 {
     hsize_t i, j;
-    long long i1;
+    hssize_t i1;
     float tmp;
 
     for (i = 0; i < lengthSrc1 + lengthSrc2 - 1; i++) {
         dataDst[i] = 0;
-        i1 = static_cast<long long>(i);
+        i1 = hssize_t(i);
         tmp = 0.0;
         for (j = 0; j < lengthSrc2; j++) {
-            if (i1 >= 0 && i1 < static_cast<long long>(lengthSrc1))
+            if (i1 >= 0 && i1 < hssize_t(lengthSrc1))
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[lengthSrc2 - 1 - j]);
 
             i1 = i1 - 1;
@@ -105,18 +230,18 @@ void CompressHelper::xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, con
  * @param[in] lengthSrc1 Source length 1
  * @param[in] lengthSrc2 Source length 2
  */
-void CompressHelper::conv(float *dataSrc1, float *dataSrc2, float *dataDst, const hsize_t lengthSrc1, const hsize_t lengthSrc2)
+void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2)
 {
     hsize_t i, j;
-    long long i1;
+    hssize_t i1;
     float tmp;
 
     for (i = 0; i < lengthSrc1 + lengthSrc2 - 1; i++) {
         dataDst[i] = 0;
-        i1 = static_cast<long long>(i);
+        i1 = hssize_t(i);
         tmp = 0.0;
         for (j = 0; j < lengthSrc2; j++) {
-            if (i1 >= 0 && i1 < static_cast<long long>(lengthSrc1))
+            if (i1 >= 0 && i1 < hssize_t(lengthSrc1))
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[j]);
 
             i1 = i1 - 1;
@@ -132,7 +257,7 @@ void CompressHelper::conv(float *dataSrc1, float *dataSrc2, float *dataDst, cons
  * @param[in] lengthSrc Source length
  * @param[out] lengthDst Destination length
  */
-void CompressHelper::findPeaks(float *dataSrc, hsize_t *dataDst, const hsize_t lengthSrc, hsize_t &lengthDst)
+void CompressHelper::findPeaks(const float *dataSrc, hsize_t *dataDst, hsize_t lengthSrc, hsize_t &lengthDst)
 {
     for (hsize_t i = 0; i < lengthSrc; i++) {
         dataDst[i] = 0;
@@ -179,7 +304,7 @@ void CompressHelper::findPeaks(float *dataSrc, hsize_t *dataDst, const hsize_t l
  * @param[out] dataDst Destination
  * @param[in] length Source length
  */
-void CompressHelper::diff(float *dataSrc, float *dataDst, const hsize_t length)
+void CompressHelper::diff(const float *dataSrc, float *dataDst, hsize_t length)
 {
     for (hsize_t i = 0; i < length - 1; i++) {
         dataDst[i] = dataSrc[i + 1] - dataSrc[i];
@@ -192,7 +317,7 @@ void CompressHelper::diff(float *dataSrc, float *dataDst, const hsize_t length)
  * @param[out] dataDst Destination
  * @param[in] length Source length
  */
-void CompressHelper::diff(hsize_t *dataSrc, hsize_t *dataDst, const hsize_t length)
+void CompressHelper::diff(const hsize_t *dataSrc, hsize_t *dataDst, hsize_t length)
 {
     for (hsize_t i = 0; i < length - 1; i++) {
         dataDst[i] = dataSrc[i + 1] - dataSrc[i];
@@ -205,7 +330,7 @@ void CompressHelper::diff(hsize_t *dataSrc, hsize_t *dataDst, const hsize_t leng
  * @param[in] length Source length
  * @return Mean
  */
-float CompressHelper::mean(float *dataSrc, const hsize_t length)
+float CompressHelper::mean(const float *dataSrc, hsize_t length)
 {
     float sum = 0;
     for (hsize_t i = 0; i < length; i++) {
@@ -220,7 +345,7 @@ float CompressHelper::mean(float *dataSrc, const hsize_t length)
  * @param[in] length Source length
  * @return Mean
  */
-hsize_t CompressHelper::mean(hsize_t *dataSrc, const hsize_t length)
+hsize_t CompressHelper::mean(const hsize_t *dataSrc, hsize_t length)
 {
     float sum = 0;
     for (hsize_t i = 0; i < length; i++) {
@@ -235,7 +360,7 @@ hsize_t CompressHelper::mean(hsize_t *dataSrc, const hsize_t length)
  * @param[in] length Source length
  * @return Median
  */
-hsize_t CompressHelper::median(hsize_t *dataSrc, const hsize_t length)
+hsize_t CompressHelper::median(const hsize_t *dataSrc, hsize_t length)
 {
     std::vector<hsize_t> dataSrcVector(dataSrc, dataSrc + length);
     std::sort(dataSrcVector.begin(), dataSrcVector.end());
@@ -243,56 +368,28 @@ hsize_t CompressHelper::median(hsize_t *dataSrc, const hsize_t length)
 }
 
 /**
- * @brief Computes period form data
- * @param[in] dataSrc Source data
- * @param[in] length Source length
- * @return Period
+ * @brief Generates basis function values
+ * @param[in] bSize Base size
+ * @param[in] oSize Overlap size
+ * @param[in] period Period
+ * @param[in] harmonics Harmonics
+ * @param[out] b Window basis
+ * @param[out] e Exponencial basis
+ * @param[out] bE Complex exponencial window basis
+ * @param[out] bE_1 Inverted complex exponencial window basis
+ * @param[in] normalize Normalization flag (optional)
  */
-hsize_t CompressHelper::findPeriod(float *dataSrc, const hsize_t length)
+void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize) const
 {
-    float *dataTmp = new float[length];
-    hsize_t *peaksTmp = new hsize_t[length];
-    hsize_t peaksCount;
-    hsize_t period;
+    // Generate basis function (window)
+    triangular(oSize, b);  // Triangular window
+    //hann(oSize, b);        // Hann window
 
-    //xcorr(dataSrc, dataSrc, dataTmp, length, length);
-    findPeaks(dataSrc, peaksTmp, length, peaksCount);
-    hsize_t *peaks = new hsize_t[peaksCount - 1];
-    diff(peaksTmp, peaks, peaksCount);
-    period = median(peaks, peaksCount - 1);
-
-    if (dataTmp) {
-        delete[] dataTmp;
-        dataTmp = nullptr;
+    // Generate complex exponential window basis functions
+    for (hsize_t ih = 0; ih < harmonics; ih++) {
+        generateE(period, ih, ih + 1, bSize, e);
+        generateBE(ih, bSize, oSize, b, e, bE, bE_1, normalize);
     }
-    if (peaksTmp) {
-        delete[] peaksTmp;
-        peaksTmp = nullptr;
-    }
-    if (peaks) {
-        delete[] peaks;
-        peaks = nullptr;
-    }
-    return period;
-}
-
-/**
- * @brief Computes sample value for given step using coefficients (decompression)
- * @param[in] cC Current coefficients
- * @param[in] lC Last coefficients
- * @param[in] stepLocal Local step between coefficients
- * @return Step value
- */
-float CompressHelper::computeTimeStep(float *cC, float *lC, hsize_t stepLocal)
-{
-    float stepValue = 0;
-    hsize_t sH = stepLocal;
-    for (hsize_t h = 0; h < harmonics; h++) {
-        stepValue += real(conj(reinterpret_cast<floatC *>(cC)[h]) * getBE()[sH]) +
-                     real(conj(reinterpret_cast<floatC *>(lC)[h]) * getBE_1()[sH]);
-        sH += bSize;
-    }
-    return stepValue;
 }
 
 /**
@@ -300,7 +397,7 @@ float CompressHelper::computeTimeStep(float *cC, float *lC, hsize_t stepLocal)
  * @param[in] oSize Overlap size
  * @param[out] w Window
  */
-void CompressHelper::triangular(hsize_t oSize, float *w)
+void CompressHelper::triangular(hsize_t oSize, float *w) const
 {
     for (hsize_t x = 0; x < oSize; x++) {
         w[x] = float(x) / oSize;
@@ -315,87 +412,51 @@ void CompressHelper::triangular(hsize_t oSize, float *w)
  * @param[in] oSize Overlap size
  * @param[out] w Window
  */
-void CompressHelper::hann(hsize_t oSize, float *w)
+void CompressHelper::hann(hsize_t oSize, float *w) const
 {
     for (hsize_t x = 0; x < 2 * oSize + 1; x++) {
         w[x] = float(pow(sin(M_PI * x / (2 * oSize)), 2));
     }
 }
 
-void CompressHelper::generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e)
+/**
+ * @brief Generates complex exponencial basis
+ * @param[in] period Period
+ * @param[in] ih Harmonics index
+ * @param[in] h Harmonic multiple
+ * @param[in] bSize Base size
+ * @param[out] e Exponencial basis
+ */
+void CompressHelper::generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const
 {
     floatC i(0, -1);
-    //#pragma omp parallel for
-    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-        hssize_t hx = hssize_t(ih) * hssize_t(bSize) + x;
+    for (hsize_t x = 0; x < bSize; x++) {
+        hsize_t hx = ih * bSize + x;
         e[hx] = std::exp(i * (2.0f * float(M_PI) / (float(period) / (h))) * float(x));
     }
 }
 
-void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
+/**
+ * @brief Generates complex exponencial window basis
+ * @param[in] ih Harmonics index
+ * @param[in] bSize Base size
+ * @param[in] oSize Overlap size
+ * @param[in] b Window basis
+ * @param[in] e Exponencial basis
+ * @param[out] bE Complex exponencial window basis
+ * @param[out] bE_1 Inverted complex exponencial window basis
+ * @param[in] normalize Normalization flag (optional)
+ */
+void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize) const
 {
-    //#pragma omp parallel for
-    for (hssize_t x = 0; x < hssize_t(bSize); x++) {
-        hssize_t hx = hssize_t(ih) * hssize_t(bSize) + x;
+    for (hsize_t x = 0; x < hsize_t(bSize); x++) {
+        hsize_t hx = ih * bSize + x;
         bE[hx] = b[x] * e[hx];
-        bE_1[hx] = b[(x + hssize_t(oSize)) % (hssize_t(bSize) - 1)] * e[hssize_t(ih) * hssize_t(bSize) + ((x + hssize_t(oSize)) % (hssize_t(bSize) - 1))];
+        bE_1[hx] = b[(x + oSize) % (bSize - 1)] * e[ih * bSize + ((x + oSize) % (bSize - 1))];
         if (normalize) {
-                bE[hx] *= (2.0f / float(oSize));
-                bE_1[hx] *= (2.0f / float(oSize));
+            bE[hx] *= (2.0f / float(oSize));
+            bE_1[hx] *= (2.0f / float(oSize));
         }
-    }
-}
-
-hsize_t CompressHelper::getStride() const
-{
-    return stride;
-}
-
-hsize_t CompressHelper::getMos() const
-{
-    return mos;
-}
-
-hsize_t CompressHelper::getPeriod() const
-{
-    return period;
-}
-
-hsize_t CompressHelper::getHarmonics() const
-{
-    return harmonics;
-}
-
-hsize_t CompressHelper::getBSize() const
-{
-    return bSize;
-}
-
-hsize_t CompressHelper::getOSize() const
-{
-    return oSize;
-}
-
-floatC *CompressHelper::getBE_1() const
-{
-    return bE_1;
-}
-
-floatC *CompressHelper::getBE() const
-{
-    return bE;
-}
-
-void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize)
-{
-    // Generate basis function (window)
-    triangular(oSize, b);  // Triangular window
-    //hann(oSize, b);        // Hann window
-
-    // Generate complex exponential functions
-    for (hssize_t h = 0; h < hssize_t(harmonics); h++) {
-        generateE(period, hsize_t(h), hsize_t(h + 1), bSize, e);
-        generateBE(hsize_t(h), bSize, oSize, b, e, bE, bE_1, normalize);
     }
 }
 }

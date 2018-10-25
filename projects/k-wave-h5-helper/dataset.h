@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Dataset class declaration.
  *
@@ -26,9 +26,10 @@
 #include <iomanip>
 #include <complex>
 
-#include "object.h"
 #include "vector3d.h"
 #include "vector4d.h"
+#include "object.h"
+#include "file.h"
 
 namespace H5Helper
 {
@@ -135,6 +136,7 @@ public:
 private:
     Dataset(const Dataset &);
     Dataset &operator=(const Dataset &);
+
     void readDatasetGeneral(Vector offset, Vector count, void *data, bool log = true);
     void writeDatasetGeneral(Vector offset, Vector count, void *data, bool log = false);
 

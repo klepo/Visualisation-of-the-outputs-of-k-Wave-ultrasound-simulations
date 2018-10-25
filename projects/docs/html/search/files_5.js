@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['helper_2ecpp',['helper.cpp',['../helper_8cpp.html',1,'']]],
-  ['helper_2eh',['helper.h',['../helper_8h.html',1,'']]]
+  ['k_2dwave_2dh5_2dhelper_2eh',['k-wave-h5-helper.h',['../k-wave-h5-helper_8h.html',1,'']]]
 ];

@@ -5,7 +5,7 @@
  * @date        26 September 2016 (created) <br>
  *              24 October   2018 (updated)
  *
- * @brief       The header file with CompressHelper class declaration.
+ * @brief       The header file with H5Helper::CompressHelper class declaration.
  *
  * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -53,9 +53,8 @@ public:
     CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, bool normalize = false);
     ~CompressHelper();
 
-    static hsize_t findPeriod(float *dataSrc, const hsize_t length);
-
-    float computeTimeStep(float *cC, float *lC, hsize_t stepLocal);
+    static hsize_t findPeriod(const float *dataSrc, hsize_t length);
+    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
 
     floatC *getBE() const;
     floatC *getBE_1() const;
@@ -67,37 +66,47 @@ public:
     hsize_t getStride() const;
 
 private:
+    /// Disable copy contructor
     CompressHelper(const CompressHelper &);
+    /// Disable assignment operator
     CompressHelper &operator=(const CompressHelper &);
-    void generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false);
-    static void xcorr(float *dataSrc1, float *dataSrc2, float *dataDst, const hsize_t lengthSrc1, const hsize_t lengthSrc2);
-    static void conv(float *dataSrc1, float *dataSrc2, float *dataDst, const hsize_t lengthSrc1, const hsize_t lengthSrc2);
-    static void findPeaks(float *dataSrc, hsize_t *dataDst, const hsize_t length, hsize_t &lengthDst);
-    static void diff(float *dataSrc, float *dataDst, const hsize_t length);
-    static void diff(hsize_t *dataSrc, hsize_t *dataDst, const hsize_t length);
-    static float mean(float *dataSrc, const hsize_t length);
-    static hsize_t mean(hsize_t *dataSrc, const hsize_t length);
-    static hsize_t median(hsize_t *dataSrc, const hsize_t length);
 
-    void triangular(hsize_t oSize, float *w);   // Triangular window
-    void hann(hsize_t oSize, float *w);         // Hann window
-    void generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e);
-    void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false);
+    static void xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
+    static void conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
+    static void findPeaks(const float *dataSrc, hsize_t *dataDst, hsize_t length, hsize_t &lengthDst);
+    static void diff(const float *dataSrc, float *dataDst, hsize_t length);
+    static void diff(const hsize_t *dataSrc, hsize_t *dataDst, hsize_t length);
+    static float mean(const float *dataSrc, hsize_t length);
+    static hsize_t mean(const hsize_t *dataSrc, hsize_t length);
+    static hsize_t median(const hsize_t *dataSrc, hsize_t length);
 
-    // Overlap size
+    void generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
+    void triangular(hsize_t oSize, float *w) const;
+    void hann(hsize_t oSize, float *w) const;
+    void generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const;
+    void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
+
+    /// Overlap size
     hsize_t oSize = 0;
-    // Base size
+    /// Base size
     hsize_t bSize = 0;
-
+    /// Period
     hsize_t period = 0;
+    /// Multiple of overlap size
     hsize_t mos = 1;
+    /// Number of harmonics
     hsize_t harmonics = 1;
+    /// Coeficients stride
     hsize_t stride = 2;
 
     // Memory for helper functions data, 2D arrays for harmonics
+    /// Window basis
     float *b = nullptr;
+    /// Complex exponencial basis
     floatC *e = nullptr;
+    /// Complex exponencial window basis
     floatC *bE = nullptr;
+    /// Inverted complex exponencial window basis
     floatC *bE_1 = nullptr;
 };
 }

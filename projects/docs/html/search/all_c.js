@@ -1,18 +1,8 @@
 var searchData=
 [
-  ['object',['Object',['../class_h5_helper_1_1_object.html',1,'H5Helper::Object'],['../class_h5_helper_1_1_object.html#a5ac6b0d3304dbb2fc5fec2349e122429',1,'H5Helper::Object::Object()']]],
-  ['object_2ecpp',['object.cpp',['../object_8cpp.html',1,'']]],
-  ['object_2eh',['object.h',['../object_8h.html',1,'']]],
-  ['objexistsbyname',['objExistsByName',['../class_h5_helper_1_1_file.html#a929d9f2be091305c87530322aa01fae3',1,'H5Helper::File']]],
-  ['objrename',['objRename',['../class_h5_helper_1_1_file.html#a1d169b3a756672152b49d5e9444c1bc2',1,'H5Helper::File']]],
-  ['open',['OPEN',['../class_h5_helper_1_1_file.html#a12c310e70fc74e9f72c719b7762f8bad',1,'H5Helper::File']]],
-  ['opendataset',['openDataset',['../class_h5_helper_1_1_file.html#a694849d1a72ab619f97e3807d383f7a8',1,'H5Helper::File::openDataset(std::string name, bool log=true)'],['../class_h5_helper_1_1_file.html#a1c310e09f9a49c56fa531361e1f0104c',1,'H5Helper::File::openDataset(hsize_t idx, bool log=true)'],['../class_h5_helper_1_1_group.html#a49e2ee824f01aba302bccecb7bc53805',1,'H5Helper::Group::openDataset(std::string name, bool log=true)'],['../class_h5_helper_1_1_group.html#a3bb4fa4e2c8d47203a58226e3e129783',1,'H5Helper::Group::openDataset(hsize_t idx, bool log=true)']]],
-  ['opengroup',['openGroup',['../class_h5_helper_1_1_file.html#ada1fb63727fe519940bf7b5cd31f3224',1,'H5Helper::File::openGroup(std::string name, bool log=true)'],['../class_h5_helper_1_1_file.html#a836e55760c9793f3d49a19b36467db65',1,'H5Helper::File::openGroup(hsize_t idx, bool log=true)'],['../class_h5_helper_1_1_group.html#a94e67cbad49ca767f917f26fe351e791',1,'H5Helper::Group::openGroup(std::string name, bool log=true)'],['../class_h5_helper_1_1_group.html#a2c429172426fb7fafa7ccaf21d86e245',1,'H5Helper::Group::openGroup(hsize_t idx, bool log=true)']]],
-  ['openobject',['openObject',['../class_h5_helper_1_1_file.html#a57a0ab3ef8c45455a21123cce8d6e47d',1,'H5Helper::File::openObject(std::string name, bool log=true)'],['../class_h5_helper_1_1_file.html#a63ea22a352ca95f8c54eef39b744aed2',1,'H5Helper::File::openObject(hsize_t idx, bool log=true)']]],
-  ['operator_21_3d',['operator!=',['../class_h5_helper_1_1_vector.html#a6fa2eff9ec145a80995c14534afd93de',1,'H5Helper::Vector']]],
-  ['operator_3c_3c',['operator&lt;&lt;',['../class_params_definition_1_1_flag_1_1_params.html#a9a748dde787aae3752e80345882e0c52',1,'ParamsDefinition::Flag::Params::operator&lt;&lt;()'],['../class_params_definition_1_1_flag.html#a3c3abb25e2967cdc1bac4664b8c7672b',1,'ParamsDefinition::Flag::operator&lt;&lt;()'],['../class_h5_helper_1_1_object.html#a9f6a5f5e48e10f088c819edd560f530f',1,'H5Helper::Object::operator&lt;&lt;()'],['../class_h5_helper_1_1_vector.html#aee79e1c89fe1a753d171287da4b132fa',1,'H5Helper::Vector::operator&lt;&lt;()']]],
-  ['operator_3d',['operator=',['../class_h5_helper_1_1_vector.html#aa5025168165b4669d06c02a632acf8f9',1,'H5Helper::Vector']]],
-  ['operator_3d_3d',['operator==',['../class_h5_helper_1_1_vector.html#aea605b22bdf2f9fe747437060eadd3e0',1,'H5Helper::Vector']]],
-  ['operator_5b_5d',['operator[]',['../class_h5_helper_1_1_vector.html#a4dd26995ef06e0d00bd55f81659acb43',1,'H5Helper::Vector::operator[](hsize_t i) final'],['../class_h5_helper_1_1_vector.html#a0dd3d5789ad6b432e7979dfc0efad7e8',1,'H5Helper::Vector::operator[](hssize_t i) final'],['../class_h5_helper_1_1_vector.html#afc42773dfe4722fccadb7b5361c0a3a0',1,'H5Helper::Vector::operator[](int i) final'],['../class_h5_helper_1_1_vector.html#a6818c42f7660bd1834894f0238ceacd7',1,'H5Helper::Vector::operator[](unsigned int i) final']]],
-  ['string',['string',['../class_h5_helper_1_1_object.html#a44f34887e1bf71c43187386c5320ab79',1,'H5Helper::Object::string()'],['../class_h5_helper_1_1_vector.html#ae29f724e376f01d67a7241e9f05911fc',1,'H5Helper::Vector::string()']]]
+  ['name',['name',['../class_h5_helper_1_1_attribute.html#a5c193eb733f1c7bc103d28934619f9da',1,'H5Helper::Attribute']]],
+  ['nt_5fdataset',['NT_DATASET',['../namespace_h5_helper.html#a39d6334b4d7c0edfc2a9d29cfeae4e3a',1,'H5Helper']]],
+  ['nx_5fdataset',['NX_DATASET',['../namespace_h5_helper.html#a87aeaf53854d8bf158a7ca6ad07768ab',1,'H5Helper']]],
+  ['ny_5fdataset',['NY_DATASET',['../namespace_h5_helper.html#a6cb2582bab0c024fa1f58cf6eea6b056',1,'H5Helper']]],
+  ['nz_5fdataset',['NZ_DATASET',['../namespace_h5_helper.html#a168dce950ad1348d5eb9b5dd2e3a3a1e',1,'H5Helper']]]
 ];

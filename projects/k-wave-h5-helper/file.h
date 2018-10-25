@@ -37,15 +37,15 @@
 #include <fstream>
 #include <algorithm>
 #include <time.h>
+#include <map>
 
 #ifdef PARALLEL_HDF5
 #include <mpi.h>
 #endif
 
-#include "vector3d.h"
+#include <hdf5.h> // HDF5
+
 #include "vector4d.h"
-#include "group.h"
-#include "dataset.h"
 
 namespace H5Helper
 {
@@ -104,6 +104,16 @@ const std::string SRC_SIZE_Z_ATTR = "src_size_z";
 const std::string SRC_SIZE_Y_ATTR = "src_size_y";
 /// Attribute name src_size_x
 const std::string SRC_SIZE_X_ATTR = "src_size_x";
+
+class Object;
+class Dataset;
+class Group;
+
+/// Map of objects datatype
+typedef std::map<std::string, Object *> MapOfObjects;
+
+/// Pair of objects datatype
+typedef std::pair<std::string, Object *> PairOfObjects;
 
 /**
  * @brief The File class represents wrapper for the HDF5 files

@@ -51,17 +51,28 @@ public:
     static std::string getStringDatatype(hid_t datatype);
 
 private:
+    /// Disable copy contructor
     Attribute(const Attribute &);
+    /// Disable assignment operator
     Attribute &operator=(const Attribute &);
+
     void loadAttribute(hid_t attribute);
 
+    /// HDF5 object id
     hid_t object;
+    /// HDF5 attribute id
     hid_t attribute;
+    /// Attribute name
     std::string name;
+    /// Attribute datatype
     hid_t datatype;
+    /// Attribute size
     hsize_t size;
+    /// Attribute dataspace
     hid_t dataspace;
-    void *value;
+    /// Attribute value
+    void *value = nullptr;
+    /// Error handle
     herr_t err;
 };
 }

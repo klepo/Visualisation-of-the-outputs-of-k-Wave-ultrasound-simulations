@@ -1,19 +1,10 @@
 var searchData=
 [
-  ['_7eattribute',['~Attribute',['../class_h_d_f5_helper_1_1_attribute.html#a9d95b3ce33c62f915a034012e62fed76',1,'HDF5Helper::Attribute']]],
-  ['_7edataset',['~Dataset',['../class_h_d_f5_helper_1_1_dataset.html#adf4d05f34bcc44e84e0ca228e18b91cf',1,'HDF5Helper::Dataset']]],
-  ['_7efile',['~File',['../class_h_d_f5_helper_1_1_file.html#a43aba916dfdbab85454ca111186f17e1',1,'HDF5Helper::File']]],
-  ['_7efilescontext',['~FilesContext',['../class_files_context.html#aa0ee30178b46ea0f8955bd7ca2c67e9f',1,'FilesContext']]],
-  ['_7egroup',['~Group',['../class_h_d_f5_helper_1_1_group.html#acf03b29194b319de042e238911542213',1,'HDF5Helper::Group']]],
-  ['_7egwindow',['~GWindow',['../class_g_window.html#af07d6d43d0964faaf712e420768999c8',1,'GWindow']]],
-  ['_7eh5objecttovisualize',['~H5ObjectToVisualize',['../class_opened_h5_file_1_1_h5_object_to_visualize.html#ac78e5824b69c3706b1517e534d0464a5',1,'OpenedH5File::H5ObjectToVisualize']]],
-  ['_7eh5subobjecttovisualize',['~H5SubobjectToVisualize',['../class_opened_h5_file_1_1_h5_subobject_to_visualize.html#a555ddac10827ab2b96400f4b8ec58ddc',1,'OpenedH5File::H5SubobjectToVisualize']]],
-  ['_7ehdf5readingthread',['~HDF5ReadingThread',['../class_h_d_f5_reading_thread.html#a588c84a4788102448e5cfb2c0d017d62',1,'HDF5ReadingThread']]],
-  ['_7emainwindow',['~MainWindow',['../class_main_window.html#ae98d00a93bc118200eeef9f9bba1dba7',1,'MainWindow']]],
-  ['_7eobject',['~Object',['../class_h_d_f5_helper_1_1_object.html#a3efd9eeecf7059fe234bf197008e289a',1,'HDF5Helper::Object']]],
-  ['_7eopenedh5file',['~OpenedH5File',['../class_opened_h5_file.html#a7dae941635c9e4e1c3b1481756d754b1',1,'OpenedH5File']]],
-  ['_7eopenglwindow',['~OpenGLWindow',['../class_open_g_l_window.html#aa220b192c71871aab9100f4058a8d62d',1,'OpenGLWindow']]],
-  ['_7eprocessing',['~Processing',['../class_processing.html#a95dab1a596a090ab31a86259ac067d25',1,'Processing']]],
-  ['_7erequest',['~Request',['../class_request.html#a4d57c725686701f773eb3630630a7ea2',1,'Request']]],
-  ['_7evector',['~Vector',['../class_h_d_f5_helper_1_1_vector.html#a04a9c42e2a3216282ac1618a2a7813ae',1,'HDF5Helper::Vector']]]
+  ['_7eattribute',['~Attribute',['../class_h5_helper_1_1_attribute.html#a59e1b2d34fd1e992834d900f4b8c0f9e',1,'H5Helper::Attribute']]],
+  ['_7ecompresshelper',['~CompressHelper',['../class_h5_helper_1_1_compress_helper.html#ae9028128d1152b694779ff63f3e7894d',1,'H5Helper::CompressHelper']]],
+  ['_7edataset',['~Dataset',['../class_h5_helper_1_1_dataset.html#a176540ad33b7fe1d33818101c99cc74f',1,'H5Helper::Dataset']]],
+  ['_7efile',['~File',['../class_h5_helper_1_1_file.html#a2a05289d820790766196498e4089044e',1,'H5Helper::File']]],
+  ['_7egroup',['~Group',['../class_h5_helper_1_1_group.html#a400ceb717d98547b1402ce9476895894',1,'H5Helper::Group']]],
+  ['_7eobject',['~Object',['../class_h5_helper_1_1_object.html#ad152eae55867707b23c52d220662cf8c',1,'H5Helper::Object']]],
+  ['_7evector',['~Vector',['../class_h5_helper_1_1_vector.html#ade85a65c6400bb5f456226cb187f8f28',1,'H5Helper::Vector']]]
 ];

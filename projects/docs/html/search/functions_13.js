@@ -1,4 +1,10 @@
 var searchData=
 [
-  ['z',['z',['../class_h5_helper_1_1_vector3_d.html#ad8f985427659f11984cd9d354524917a',1,'H5Helper::Vector3D::z(hsize_t z) const'],['../class_h5_helper_1_1_vector3_d.html#afffba16aed3096f99ea9b59b0ec1e96e',1,'H5Helper::Vector3D::z(int z) const'],['../class_h5_helper_1_1_vector3_d.html#aaa2e9bc6a8e7b5cfeda2f361e2f98bc6',1,'H5Helper::Vector3D::z() const'],['../class_h5_helper_1_1_vector4_d.html#a99a0a8317b4ca54f4baba52d24c3b141',1,'H5Helper::Vector4D::z(hsize_t z) const'],['../class_h5_helper_1_1_vector4_d.html#a1ee4d1570a5a8842b02d52a7be03bd61',1,'H5Helper::Vector4D::z(int z) const'],['../class_h5_helper_1_1_vector4_d.html#afc8d44ed6faafd6c6a99656dbbb0bc0c',1,'H5Helper::Vector4D::z() const']]]
+  ['_7eattribute',['~Attribute',['../class_h5_helper_1_1_attribute.html#a59e1b2d34fd1e992834d900f4b8c0f9e',1,'H5Helper::Attribute']]],
+  ['_7ecompresshelper',['~CompressHelper',['../class_h5_helper_1_1_compress_helper.html#ae9028128d1152b694779ff63f3e7894d',1,'H5Helper::CompressHelper']]],
+  ['_7edataset',['~Dataset',['../class_h5_helper_1_1_dataset.html#a176540ad33b7fe1d33818101c99cc74f',1,'H5Helper::Dataset']]],
+  ['_7efile',['~File',['../class_h5_helper_1_1_file.html#a2a05289d820790766196498e4089044e',1,'H5Helper::File']]],
+  ['_7egroup',['~Group',['../class_h5_helper_1_1_group.html#a400ceb717d98547b1402ce9476895894',1,'H5Helper::Group']]],
+  ['_7eobject',['~Object',['../class_h5_helper_1_1_object.html#ad152eae55867707b23c52d220662cf8c',1,'H5Helper::Object']]],
+  ['_7evector',['~Vector',['../class_h5_helper_1_1_vector.html#ade85a65c6400bb5f456226cb187f8f28',1,'H5Helper::Vector']]]
 ];

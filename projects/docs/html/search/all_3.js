@@ -1,5 +1,12 @@
 var searchData=
 [
-  ['err',['err',['../class_h5_helper_1_1_object.html#ae3978d3f86ebce38629f099fbb4edc19',1,'H5Helper::Object']]],
-  ['execute',['execute',['../class_change_chunks.html#a0395e57ac6d568a54406384ff4e6953a',1,'ChangeChunks::execute()'],['../class_compress.html#a6e8c2af9e07c6a88f86d9ab517372e58',1,'Compress::execute()'],['../class_decompress.html#a427db52ad74d4b5db910f4cf7033a120',1,'Decompress::execute()'],['../class_difference.html#af74e4722730c565a8f52f97a3a8ded68',1,'Difference::execute()'],['../class_downsampling.html#abfdad4a401fae3c0e7d1922d393f5d3b',1,'Downsampling::execute()'],['../class_processing.html#a4fe8b534bc8d740a2f49294b79f738d6',1,'Processing::execute()'],['../class_reshape.html#a5739fb1a789be51503e0b7614ace08cc',1,'Reshape::execute()']]]
+  ['dataset',['Dataset',['../class_h5_helper_1_1_dataset.html',1,'H5Helper::Dataset'],['../class_h5_helper_1_1_dataset.html#a0d1e27bfe7afd699c34cfbd3f90a3992',1,'H5Helper::Dataset::Dataset()']]],
+  ['dataset_2ecpp',['dataset.cpp',['../dataset_8cpp.html',1,'']]],
+  ['dataset_2eh',['dataset.h',['../dataset_8h.html',1,'']]],
+  ['datasettype',['DatasetType',['../namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed',1,'H5Helper']]],
+  ['dataspace',['dataspace',['../class_h5_helper_1_1_attribute.html#adee9c1773634284cf824d8a8f25a1185',1,'H5Helper::Attribute']]],
+  ['datatype',['datatype',['../class_h5_helper_1_1_attribute.html#af40d73eff7f205d801d15338aa3aeb4c',1,'H5Helper::Attribute']]],
+  ['datatypestring',['dataTypeString',['../class_h5_helper_1_1_dataset.html#ab9b184a6cb49e870500ebb72652745e1',1,'H5Helper::Dataset']]],
+  ['deletelog',['deleteLog',['../class_h5_helper_1_1_file.html#a17e4c102dec25a61a7fe3072a2d7bd4e',1,'H5Helper::File::deleteLog()'],['../class_h5_helper_1_1_object.html#a76a422e245722847a8ca80869ff413c1',1,'H5Helper::Object::deleteLog()']]],
+  ['diff',['diff',['../class_h5_helper_1_1_compress_helper.html#a4e08d7f32a1978dab52745fa901483a8',1,'H5Helper::CompressHelper::diff(const float *dataSrc, float *dataDst, hsize_t length)'],['../class_h5_helper_1_1_compress_helper.html#ac2c38998a99f7f05f94a9ac48310c65e',1,'H5Helper::CompressHelper::diff(const hsize_t *dataSrc, hsize_t *dataDst, hsize_t length)']]]
 ];

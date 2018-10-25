@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -20,6 +20,9 @@
  */
 
 #include "file.h"
+#include "object.h"
+#include "dataset.h"
+#include "group.h"
 
 namespace H5Helper {
 

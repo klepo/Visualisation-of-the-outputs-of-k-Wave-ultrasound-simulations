@@ -75,7 +75,6 @@ public:
         os << std::string(vector);
         return os;
     }
-
     operator std::string() const;
 
 protected:
@@ -86,11 +85,9 @@ protected:
     /// Vector length
     hsize_t length = 0;
 
-
 private:
     void assign(const Vector &vector, bool deleteFlag);
     void move(Vector &vector, bool deleteFlag);
-
     void checkIndex(hsize_t i) const;
 };
 }

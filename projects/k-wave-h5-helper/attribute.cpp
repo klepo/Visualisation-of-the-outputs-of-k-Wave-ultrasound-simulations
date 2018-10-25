@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Attribute class definition.
  *
@@ -29,8 +29,9 @@ namespace H5Helper {
  * @param[in] name The name of attribute
  * @throw std::runtime_error
  */
-Attribute::Attribute(hid_t object, std::string name) : object(object)
+Attribute::Attribute(hid_t object, std::string name)
 {
+    this->object = object;
     attribute = H5Aopen_name(object, name.c_str());
     if (attribute < 0) {
         throw std::runtime_error("H5Aopen_name error");
@@ -48,8 +49,9 @@ Attribute::Attribute(hid_t object, std::string name) : object(object)
  * @param[in] idx The index of attribute
  * @throw std::runtime_error
  */
-Attribute::Attribute(hid_t object, hsize_t idx) : object(object)
+Attribute::Attribute(hid_t object, hsize_t idx)
 {
+    this->object = object;
     attribute = H5Aopen_by_idx(object, ".", H5_INDEX_NAME, H5_ITER_INC, unsigned(idx), 0, 0);
     if (attribute < 0) {
         throw std::runtime_error("H5Aopen_name error");

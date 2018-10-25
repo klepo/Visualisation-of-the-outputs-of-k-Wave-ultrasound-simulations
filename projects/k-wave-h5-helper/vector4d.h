@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Vector4D class declaration.
  *
@@ -21,10 +21,10 @@
 #define VECTOR4D_H
 
 #include "vector.h"
+#include "vector3d.h"
 
 namespace H5Helper
 {
-class Vector3D;
 /**
  * @brief The Vector4D class represents wrapper for 4D 64-bit unsigned integer vectors
  */

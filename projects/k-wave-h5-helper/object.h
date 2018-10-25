@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              24 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::Object class declaration.
  *
@@ -22,15 +22,14 @@
 
 #include <string>
 #include <iostream>
-#include <map>
 
 #include <hdf5.h>  // HDF5
 
 #include "attribute.h"
+#include "file.h"
 
 namespace H5Helper
 {
-class File;
 /**
  * @brief The Object class represents wrapper for the HDF5 objects
  */
@@ -102,12 +101,6 @@ private:
     hid_t object;
     std::string name;
 };
-
-/// Map of objects datatype
-typedef std::map<std::string, Object *> MapOfObjects;
-
-/// Pair of objects datatype
-typedef std::pair<std::string, Object *> PairOfObjects;
 }
 
 #endif // OBJECT_H

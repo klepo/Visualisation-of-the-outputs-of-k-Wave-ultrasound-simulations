@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['listofstrings',['ListOfStrings',['../class_params_definition.html#ab13fd006750908c0bafe235c9cf02c19',1,'ParamsDefinition']]]
+  ['mapofdatasets',['MapOfDatasets',['../namespace_h5_helper.html#abb61ff079a034945c4df150f1c2f3c85',1,'H5Helper']]],
+  ['mapofdatasetsit',['MapOfDatasetsIt',['../namespace_h5_helper.html#a65ccbd7d164e26e71c9196c22731e717',1,'H5Helper']]],
+  ['mapofobjects',['MapOfObjects',['../namespace_h5_helper.html#a1a36cb99032018565efca76dcfc01451',1,'H5Helper']]]
 ];

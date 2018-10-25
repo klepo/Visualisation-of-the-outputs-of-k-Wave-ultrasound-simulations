@@ -30,7 +30,6 @@ Vector::Vector()
     : vector(nullptr)
     , length(0)
 {
-
 }
 
 /**
@@ -41,8 +40,9 @@ Vector::Vector()
 Vector::Vector(hsize_t length, hsize_t value) : length(length)
 {
     vector = new hsize_t[length]();
-    for (hsize_t i = 0; i < length; i++)
+    for (hsize_t i = 0; i < length; i++) {
         vector[i] = value;
+    }
 }
 
 /**
@@ -56,8 +56,9 @@ Vector::Vector(int length, hsize_t value)
     if (length >= 0) {
         this->length = static_cast<hsize_t>(length);
         vector = new hsize_t[static_cast<hsize_t>(length)]();
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < length; i++) {
             vector[i] = value;
+        }
     } else {
         throw std::runtime_error("Length of Vector is less than zero");
     }
@@ -72,6 +73,10 @@ Vector::Vector(const Vector &vector)
     assign(vector, false);
 }
 
+/**
+ * @brief Move constructor
+ * @param[in] vector Original Vector object to move
+ */
 Vector::Vector(Vector &&vector)
 {
     move(vector, false);
@@ -80,7 +85,7 @@ Vector::Vector(Vector &&vector)
 /**
  * @brief Destructor of Vector object
  *
- * Does nothing.
+ * Deletes vector memory.
  */
 Vector::~Vector()
 {
@@ -103,6 +108,11 @@ Vector &Vector::operator=(const Vector &vector)
     return *this;
 }
 
+/**
+ * @brief Move operator
+ * @param[in] vector Reference to the existing Vector
+ * @return Reference to Vector instance
+ */
 Vector &Vector::operator=(Vector &&vector)
 {
     if (this != &vector) {
@@ -118,11 +128,13 @@ Vector &Vector::operator=(Vector &&vector)
  */
 bool Vector::operator==(const Vector &vector) const
 {
-    if (length != vector.length)
+    if (length != vector.length) {
         return false;
+    }
     for (hsize_t i = 0; i < length; i++) {
-        if (this->vector[i] != vector.vector[i])
+        if (this->vector[i] != vector.vector[i]) {
             return false;
+        }
     }
     return true;
 }
@@ -134,8 +146,9 @@ bool Vector::operator==(const Vector &vector) const
  */
 bool Vector::operator!=(const Vector &vector) const
 {
-    if (vector == *this)
+    if (vector == *this) {
         return false;
+    }
     return true;
 }
 
@@ -209,24 +222,44 @@ hsize_t *Vector::getVectorPtr()
     return vector;
 }
 
+/**
+ * @brief Returns vetor value at index
+ * @param[in] i Index
+ * @return Vector value at index
+ */
 hsize_t Vector::at(hsize_t i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
 }
 
+/**
+ * @brief Returns vetor value at index
+ * @param[in] i Index
+ * @return Vector value at index
+ */
 hsize_t Vector::at(hssize_t i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
 }
 
+/**
+ * @brief Returns vetor value at index
+ * @param[in] i Index
+ * @return Vector value at index
+ */
 hsize_t Vector::at(int i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
 }
 
+/**
+ * @brief Returns vetor value at index
+ * @param[in] i Index
+ * @return Vector value at index
+ */
 hsize_t Vector::at(unsigned int i) const
 {
     checkIndex(hsize_t(i));
@@ -249,8 +282,9 @@ hsize_t Vector::getLength() const
 bool Vector::hasZeros() const
 {
     for (hsize_t i = 0; i < length; i++) {
-        if (vector[i] == 0)
+        if (vector[i] == 0) {
             return true;
+        }
     }
     return false;
 }
@@ -282,8 +316,9 @@ Vector::operator std::string() const
     std::string str = "";
     for (hsize_t i = 0; i < length; i++) {
         str += std::to_string(vector[i]);
-        if (i < length - 1)
+        if (i < length - 1) {
             str += " x ";
+        }
     }
     return str;
 }
@@ -301,10 +336,14 @@ void Vector::assign(const Vector &vector, bool deleteFlag)
     }
     this->length = vector.length;
     this->vector = new hsize_t[length]();
-    //std::memcpy(this->vector, vector.vector, static_cast<size_t>(length) * sizeof(hsize_t));
     std::copy(vector.vector, vector.vector + static_cast<size_t>(length), this->vector);
 }
 
+/**
+ * @brief Helper move function
+ * @param[in] vector Reference to the existing Vector
+ * @param[in] deleteFlag Delete flag (optional)
+ */
 void Vector::move(Vector &vector, bool deleteFlag)
 {
     if (deleteFlag) {
@@ -312,12 +351,15 @@ void Vector::move(Vector &vector, bool deleteFlag)
         this->vector = nullptr;
     }
     this->length = vector.length;
-    //this->vector = vector.vector;
     this->vector = std::move(vector.vector);
     vector.vector = nullptr;
     vector.length = 0;
 }
 
+/**
+ * @brief Checks index range
+ * @param[in] i Index
+ */
 void Vector::checkIndex(hsize_t i) const
 {
     if (i >= length) {

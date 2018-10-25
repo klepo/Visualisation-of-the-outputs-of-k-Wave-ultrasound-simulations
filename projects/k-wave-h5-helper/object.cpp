@@ -21,7 +21,6 @@
  */
 
 #include "object.h"
-#include "file.h"
 
 namespace H5Helper {
 
