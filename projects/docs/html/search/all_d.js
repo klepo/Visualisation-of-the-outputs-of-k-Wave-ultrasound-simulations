@@ -1,20 +1,13 @@
 var searchData=
 [
-  ['object',['Object',['../class_h5_helper_1_1_object.html',1,'H5Helper::Object'],['../class_h5_helper_1_1_attribute.html#ac358bf416ae58f2c1470767b8aae389a',1,'H5Helper::Attribute::object()'],['../class_h5_helper_1_1_object.html#a5ac6b0d3304dbb2fc5fec2349e122429',1,'H5Helper::Object::Object()']]],
-  ['object_2ecpp',['object.cpp',['../object_8cpp.html',1,'']]],
-  ['object_2eh',['object.h',['../object_8h.html',1,'']]],
-  ['objects',['objects',['../class_h5_helper_1_1_file.html#aff219ed3f61ee381932f63a74dba93b3',1,'H5Helper::File']]],
-  ['objexistsbyname',['objExistsByName',['../class_h5_helper_1_1_file.html#a929d9f2be091305c87530322aa01fae3',1,'H5Helper::File']]],
-  ['objrename',['objRename',['../class_h5_helper_1_1_file.html#a1d169b3a756672152b49d5e9444c1bc2',1,'H5Helper::File']]],
-  ['open',['OPEN',['../class_h5_helper_1_1_file.html#a12c310e70fc74e9f72c719b7762f8bad',1,'H5Helper::File']]],
-  ['opendataset',['openDataset',['../class_h5_helper_1_1_file.html#a694849d1a72ab619f97e3807d383f7a8',1,'H5Helper::File::openDataset(std::string name, bool log=true)'],['../class_h5_helper_1_1_file.html#a1c310e09f9a49c56fa531361e1f0104c',1,'H5Helper::File::openDataset(hsize_t idx, bool log=true)'],['../class_h5_helper_1_1_group.html#a49e2ee824f01aba302bccecb7bc53805',1,'H5Helper::Group::openDataset(std::string name, bool log=true)'],['../class_h5_helper_1_1_group.html#a3bb4fa4e2c8d47203a58226e3e129783',1,'H5Helper::Group::openDataset(hsize_t idx, bool log=true)']]],
-  ['opengroup',['openGroup',['../class_h5_helper_1_1_file.html#ada1fb63727fe519940bf7b5cd31f3224',1,'H5Helper::File::openGroup(std::string name, bool log=true)'],['../class_h5_helper_1_1_file.html#a836e55760c9793f3d49a19b36467db65',1,'H5Helper::File::openGroup(hsize_t idx, bool log=true)'],['../class_h5_helper_1_1_group.html#a94e67cbad49ca767f917f26fe351e791',1,'H5Helper::Group::openGroup(std::string name, bool log=true)'],['../class_h5_helper_1_1_group.html#a2c429172426fb7fafa7ccaf21d86e245',1,'H5Helper::Group::openGroup(hsize_t idx, bool log=true)']]],
-  ['openobject',['openObject',['../class_h5_helper_1_1_file.html#a57a0ab3ef8c45455a21123cce8d6e47d',1,'H5Helper::File::openObject(std::string name, bool log=true)'],['../class_h5_helper_1_1_file.html#a63ea22a352ca95f8c54eef39b744aed2',1,'H5Helper::File::openObject(hsize_t idx, bool log=true)']]],
-  ['operator_21_3d',['operator!=',['../class_h5_helper_1_1_vector.html#a6fa2eff9ec145a80995c14534afd93de',1,'H5Helper::Vector']]],
-  ['operator_3c_3c',['operator&lt;&lt;',['../class_h5_helper_1_1_object.html#a9f6a5f5e48e10f088c819edd560f530f',1,'H5Helper::Object::operator&lt;&lt;()'],['../class_h5_helper_1_1_vector.html#aee79e1c89fe1a753d171287da4b132fa',1,'H5Helper::Vector::operator&lt;&lt;()']]],
-  ['operator_3d',['operator=',['../class_h5_helper_1_1_attribute.html#a645b924e98587f86a79629ad9d19d367',1,'H5Helper::Attribute::operator=()'],['../class_h5_helper_1_1_compress_helper.html#ae8e11de2ac7bcde42656511a6f5a4a20',1,'H5Helper::CompressHelper::operator=()'],['../class_h5_helper_1_1_vector.html#aa5025168165b4669d06c02a632acf8f9',1,'H5Helper::Vector::operator=(const Vector &amp;vector)'],['../class_h5_helper_1_1_vector.html#a59707befff54d3bb073da1e09477609e',1,'H5Helper::Vector::operator=(Vector &amp;&amp;vector)']]],
-  ['operator_3d_3d',['operator==',['../class_h5_helper_1_1_vector.html#aea605b22bdf2f9fe747437060eadd3e0',1,'H5Helper::Vector']]],
-  ['operator_5b_5d',['operator[]',['../class_h5_helper_1_1_vector.html#a4dd26995ef06e0d00bd55f81659acb43',1,'H5Helper::Vector::operator[](hsize_t i) final'],['../class_h5_helper_1_1_vector.html#a0dd3d5789ad6b432e7979dfc0efad7e8',1,'H5Helper::Vector::operator[](hssize_t i) final'],['../class_h5_helper_1_1_vector.html#afc42773dfe4722fccadb7b5361c0a3a0',1,'H5Helper::Vector::operator[](int i) final'],['../class_h5_helper_1_1_vector.html#a6818c42f7660bd1834894f0238ceacd7',1,'H5Helper::Vector::operator[](unsigned int i) final']]],
-  ['osize',['oSize',['../class_h5_helper_1_1_compress_helper.html#acaf9a6d893962f048d2afb7e28f9acd9',1,'H5Helper::CompressHelper']]],
-  ['string',['string',['../class_h5_helper_1_1_object.html#a44f34887e1bf71c43187386c5320ab79',1,'H5Helper::Object::string()'],['../class_h5_helper_1_1_vector.html#ae29f724e376f01d67a7241e9f05911fc',1,'H5Helper::Vector::string()']]]
+  ['todouble',['toDouble',['../class_params_definition.html#a2b2acb81f2acfa9e7d7ce381e141e74c',1,'ParamsDefinition']]],
+  ['tofloat',['toFloat',['../class_params_definition.html#a256dfaa58b0e7e60bb52829e037526ed',1,'ParamsDefinition']]],
+  ['toint',['toInt',['../class_params_definition.html#a364845714750a9275d5225ba3ab4294b',1,'ParamsDefinition']]],
+  ['tolongdouble',['toLongDouble',['../class_params_definition.html#a557257d756270885c2c6e30661f33f31',1,'ParamsDefinition']]],
+  ['tolonglong',['toLongLong',['../class_params_definition.html#a9a7f9e697c2392325210cd1e1702ed7a',1,'ParamsDefinition']]],
+  ['tostring',['toString',['../class_params_definition.html#ad440d06284bea2f6068f4e7d4ca33c85',1,'ParamsDefinition']]],
+  ['tounsignedint',['toUnsignedInt',['../class_params_definition.html#a47750eb24ab618e699ced7483cff5b52',1,'ParamsDefinition']]],
+  ['tounsignedlonglong',['toUnsignedLongLong',['../class_params_definition.html#a3f4e2523e1f4e8c749b1d719c5f8c573',1,'ParamsDefinition']]],
+  ['type',['Type',['../class_params_definition.html#a19a2d96c01e1db54ffc33064f869be57',1,'ParamsDefinition::Type()'],['../class_params_definition.html#a08a5b7132936c06d54f2c54ca2be12dd',1,'ParamsDefinition::Type()']]],
+  ['typestrings',['typeStrings',['../class_params_definition.html#a286335e2b23f90a20d185c9c4de174d6',1,'ParamsDefinition']]]
 ];

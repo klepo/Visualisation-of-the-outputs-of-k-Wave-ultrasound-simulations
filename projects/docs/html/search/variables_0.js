@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['attribute',['attribute',['../class_h5_helper_1_1_attribute.html#ab50eabfdac5d8b5cd96c45e94676cf76',1,'H5Helper::Attribute']]]
+  ['enabledebugmsgs',['enableDebugMsgs',['../namespace_helper.html#aaa341bb2a73161b1e6b6c6a031a1bfe5',1,'Helper']]]
 ];

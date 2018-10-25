@@ -1,13 +1,4 @@
 var searchData=
 [
-  ['file',['File',['../class_h5_helper_1_1_file.html#ae357c474eca4725a3db56b820381afeb',1,'H5Helper::File']]],
-  ['fileexists',['fileExists',['../namespace_h5_helper.html#a8f6876bd84b1e635d968e425dadf1def',1,'H5Helper']]],
-  ['findandsetglobalminandmaxvalue',['findAndSetGlobalMinAndMaxValue',['../class_h5_helper_1_1_dataset.html#a066853f5794c184e1b613c3b9ab9c56f',1,'H5Helper::Dataset']]],
-  ['findglobalminandmaxvalue',['findGlobalMinAndMaxValue',['../class_h5_helper_1_1_dataset.html#ad138a93ccb7dd75a6070d5e54f84aef5',1,'H5Helper::Dataset']]],
-  ['findglobalminandmaxvaluef',['findGlobalMinAndMaxValueF',['../class_h5_helper_1_1_dataset.html#a26e89f60c721d19808c737b719a4cb5e',1,'H5Helper::Dataset']]],
-  ['findglobalminandmaxvaluei',['findGlobalMinAndMaxValueI',['../class_h5_helper_1_1_dataset.html#aa1cfd513e998c896d86f4cc4cfacabce',1,'H5Helper::Dataset']]],
-  ['findminandmaxvalue',['findMinAndMaxValue',['../class_h5_helper_1_1_dataset.html#a091a819843ae7e9e535af69dde82c943',1,'H5Helper::Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &amp;minVF, float &amp;maxVF, hsize_t &amp;minVFIndex, hsize_t &amp;maxVFIndex) const'],['../class_h5_helper_1_1_dataset.html#a40014bb3d11403e001bc2b5e3d204b7c',1,'H5Helper::Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &amp;minVI, hsize_t &amp;maxVI, hsize_t &amp;minVIIndex, hsize_t &amp;maxVIIndex) const']]],
-  ['findpeaks',['findPeaks',['../class_h5_helper_1_1_compress_helper.html#a9fca1eabb6d7d36b25fee65f2021d648',1,'H5Helper::CompressHelper']]],
-  ['findperiod',['findPeriod',['../class_h5_helper_1_1_compress_helper.html#a490c892cb249241ca47b244aff4241f9',1,'H5Helper::CompressHelper']]],
-  ['fixpath',['fixPath',['../namespace_h5_helper.html#aa729e0332a190f9ef37a358537e6384c',1,'H5Helper']]]
+  ['execute',['execute',['../class_change_chunks.html#a0395e57ac6d568a54406384ff4e6953a',1,'ChangeChunks::execute()'],['../class_compress.html#a6e8c2af9e07c6a88f86d9ab517372e58',1,'Compress::execute()'],['../class_decompress.html#a427db52ad74d4b5db910f4cf7033a120',1,'Decompress::execute()'],['../class_difference.html#af74e4722730c565a8f52f97a3a8ded68',1,'Difference::execute()'],['../class_downsampling.html#abfdad4a401fae3c0e7d1922d393f5d3b',1,'Downsampling::execute()'],['../class_processing.html#a4fe8b534bc8d740a2f49294b79f738d6',1,'Processing::execute()'],['../class_reshape.html#a5739fb1a789be51503e0b7614ace08cc',1,'Reshape::execute()']]]
 ];

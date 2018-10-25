@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['attribute',['Attribute',['../class_h5_helper_1_1_attribute.html',1,'H5Helper']]]
+  ['changechunks',['ChangeChunks',['../class_change_chunks.html',1,'']]],
+  ['compress',['Compress',['../class_compress.html',1,'']]]
 ];

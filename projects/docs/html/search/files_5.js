@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['k_2dwave_2dh5_2dhelper_2eh',['k-wave-h5-helper.h',['../k-wave-h5-helper_8h.html',1,'']]]
+  ['paramsdefinition_2ecpp',['paramsdefinition.cpp',['../paramsdefinition_8cpp.html',1,'']]],
+  ['paramsdefinition_2eh',['paramsdefinition.h',['../paramsdefinition_8h.html',1,'']]],
+  ['processing_2ecpp',['processing.cpp',['../processing_8cpp.html',1,'']]],
+  ['processing_2eh',['processing.h',['../processing_8h.html',1,'']]]
 ];

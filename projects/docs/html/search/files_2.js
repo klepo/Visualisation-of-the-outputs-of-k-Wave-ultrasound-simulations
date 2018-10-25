@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['dataset_2ecpp',['dataset.cpp',['../dataset_8cpp.html',1,'']]],
-  ['dataset_2eh',['dataset.h',['../dataset_8h.html',1,'']]]
+  ['filescontext_2ecpp',['filescontext.cpp',['../filescontext_8cpp.html',1,'']]],
+  ['filescontext_2eh',['filescontext.h',['../filescontext_8h.html',1,'']]]
 ];
