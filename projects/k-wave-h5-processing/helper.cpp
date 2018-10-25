@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Helper class definition.
  *
@@ -25,15 +25,21 @@ bool enableDebugMsgs = true;
 
 /**
  * @brief Prints debug title
- * @param[in] msg Debugging message
+ * @param[in] str Debugging string
  */
-void printDebugTitle(std::string msg)
+void printDebugTitle(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << std::endl << "---- " << msg << " ----" << std::endl << std::endl;
+    std::cout << std::endl << "---- " << str << " ----" << std::endl << std::endl;
 }
 
+/**
+ * @brief Prints debug time
+ * @param[in] ofWhat Time of what?
+ * @param[in] t0 Start time
+ * @param[in] t1 End time
+ */
 void printDebugTime(std::string ofWhat, double t0, double t1)
 {
     printDebugTwoColumns2S("Time of " + ofWhat, std::to_string(int(t1 - t0)) + " ms");
@@ -41,34 +47,52 @@ void printDebugTime(std::string ofWhat, double t0, double t1)
 
 /**
  * @brief Prints debug message
- * @param[in] msg Debugging message
+ * @param[in] str Debugging message
  */
-void printDebugMsg(std::string msg)
+void printDebugMsg(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << msg << std::endl;
+    std::cout << str << std::endl;
 }
 
-void printMsg(std::string msg)
+/**
+ * @brief Prints message
+ * @param[in] str String
+ */
+void printMsg(std::string str)
 {
-    std::cout << msg << std::endl;
+    std::cout << str << std::endl;
 }
 
-void printDebugMsgStart(std::string msg)
+/**
+ * @brief Prints start debug message
+ * @param[in] str Debugging string
+ */
+void printDebugMsgStart(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << msg << " ... ";
+    std::cout << str << " ... ";
 }
 
-void printDebugMsg2S(std::string msg)
+/**
+ * @brief Prints debug message with 2 spaces
+ * @param[in] str Debugging string
+ */
+void printDebugMsg2S(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << "  " << msg << std::endl;
+    std::cout << "  " << str << std::endl;
 }
 
+/**
+ * @brief Prints debug into two columns with tabulator
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int width)
 {
     if (!enableDebugMsgs)
@@ -79,27 +103,56 @@ void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int
     std::cout << "\t" << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second << std::endl;
 }
 
+/**
+ * @brief Prints debug into two columns with tabulator
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumnsTab(std::string first, unsigned long long second, unsigned int width)
 {
     printDebugTwoColumnsTab(first, std::to_string(second), width);
 }
 
+/**
+ * @brief Prints debug into two columns with tabulator
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumnsTab(std::string first, int second, unsigned int width)
 {
     printDebugTwoColumnsTab(first, std::to_string(second), width);
 }
 
+/**
+ * @brief Prints debug into two columns with tabulator
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumnsTab(std::string first, float second, unsigned int width)
 {
     printDebugTwoColumnsTab(first, std::to_string(second), width);
 }
 
+/**
+ * @brief Prints debug into two columns with tabulator
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumnsTab(std::string first, double second, unsigned int width)
 {
     printDebugTwoColumnsTab(first, std::to_string(second), width);
 }
 
-
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumns2S(std::string first, std::string second, unsigned int width)
 {
     if (!enableDebugMsgs)
@@ -110,40 +163,68 @@ void printDebugTwoColumns2S(std::string first, std::string second, unsigned int 
     std::cout << "  " << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second << std::endl;
 }
 
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumns2S(std::string first, int second, unsigned int width)
 {
     printDebugTwoColumns2S(first, std::to_string(second), width);
 }
 
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumns2S(std::string first, unsigned long long second, unsigned int width)
 {
     printDebugTwoColumns2S(first, std::to_string(second), width);
 }
 
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumns2S(std::string first, float second, unsigned int width)
 {
     printDebugTwoColumns2S(first, std::to_string(second), width);
 }
 
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
 void printDebugTwoColumns2S(std::string first, double second, unsigned int width)
 {
     printDebugTwoColumns2S(first, std::to_string(second), width);
 }
 
-void printDebugString(std::string msg)
+/**
+ * @brief Prints debug string
+ * @param[in] str Debugging string
+ */
+void printDebugString(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << msg;
+    std::cout << str;
 }
 
 /**
  * @brief Prints error message
- * @param[in] msg Debugging message
+ * @param[in] str Debugging string
  */
-void printErrorMsg(std::string msg)
+void printErrorMsg(std::string str)
 {
-    std::cerr << msg << std::endl;
+    std::cerr << str << std::endl;
 }
 
 /**

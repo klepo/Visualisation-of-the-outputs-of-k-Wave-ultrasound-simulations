@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with FilesContext class declaration.
  *
@@ -31,7 +31,7 @@
 class FilesContext
 {
 public:
-    FilesContext(Settings *settings);
+    FilesContext(const Settings *settings);
     ~FilesContext();
 
     H5Helper::File *getSimOutputFile() const;
@@ -40,17 +40,28 @@ public:
     H5Helper::File *getPcsInputFile() const;
 
 private:
+    /// Disable copy contructor
     FilesContext(const FilesContext &);
+    /// Disable assignment operator
+    /// \return FilesContext
     FilesContext &operator=(const FilesContext &);
-    H5Helper::File *loadSimulationFile(std::string filename);
-    void resolveOutputFilename(Settings *settings);
-    H5Helper::File *createOrOpenOutputFile(std::string filename);
-    H5Helper::File *simOutputFile = 0;
-    H5Helper::File *simInputFile = 0;
-    H5Helper::File *pcsOutputFile = 0;
-    H5Helper::File *pcsInputFile = 0;
 
+    H5Helper::File *loadSimulationFile(std::string filename);
+    void resolveOutputFilename(const Settings *settings);
+    H5Helper::File *createOrOpenOutputFile(std::string filename);
+
+    /// Simulation output file
+    H5Helper::File *simOutputFile = nullptr;
+    /// Simulation input file
+    H5Helper::File *simInputFile = nullptr;
+    /// Processing output file
+    H5Helper::File *pcsOutputFile = nullptr;
+    /// Processing input file
+    H5Helper::File *pcsInputFile = nullptr;
+
+    /// New empty output file flag
     bool newEmptyOutputFileFlag = false;
+    /// Output filename
     std::string outputFilename = "";
 };
 

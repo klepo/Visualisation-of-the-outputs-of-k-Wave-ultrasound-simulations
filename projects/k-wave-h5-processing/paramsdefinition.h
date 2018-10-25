@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              9  October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with ParamsDefinition class declaration.
  *
@@ -35,7 +35,7 @@ class ParamsDefinition
 {
 public:
     /// Parameters data types
-    enum Type
+    typedef enum Type
     {
         INT,
         LONGLONG,
@@ -47,12 +47,14 @@ public:
         LONGDOUBLE,
         STRING,
         STRINGS_SEPARATED,
-    };
+    } Type;
+
     /// Data types strings
-    static const char *typeStrings[];
+    static const std::map<Type, std::string> typeStrings;
 
     /// List of strings data type
     typedef std::list<std::string> ListOfStrings;
+    /// Vector of unsigned long longs
     typedef std::vector<unsigned long long> VectorOfULongLongs;
 
     /**
@@ -70,7 +72,7 @@ public:
             Params();
             Params(Type type);
             void defineParam(Type type);
-            void setParam(unsigned int index, void* value);
+            void setParam(unsigned int index, const void* value);
             void readParam(unsigned int index, void* value);
             std::string getParamString(unsigned int index);
             Type getParamType(unsigned int index) const;
@@ -90,26 +92,40 @@ public:
                 for (unsigned int i = 0; i < params.getCount(); i++) {
                     str.append(" ");
                     str.append(params.getParamString(i) + "(");
-                    str.append(typeStrings[params.getParamType(i)]);
+                    str.append(typeStrings.at(params.getParamType(i)));
                     str.append(")");
                 }
                 return os << str;
             }
 
         private:
+            /// Types
             std::vector<Type> types;
+            /// Indices
             std::vector<size_t> indices;
+            /// Integer values
             std::vector<int> valuesInt;
+            /// Long values
             std::vector<long> valuesLong;
+            /// Long long values
             std::vector<long long> valuesLongLong;
+            /// Unsigned integer values
             std::vector<unsigned int> valuesUInt;
+            /// Unsigned long values
             std::vector<unsigned long> valuesUlong;
+            /// Unsigned long long values
             std::vector<unsigned long long> valuesULongLong;
+            /// Unsigned long long separated values
             std::vector<VectorOfULongLongs> valuesULongLongSeparated;
+            /// Float values
             std::vector<float> valuesFloat;
+            /// Double values
             std::vector<double> valuesDouble;
+            /// Long double values
             std::vector<long double> valuesLongDouble;
+            /// String values
             std::vector<std::string> valuesString;
+            /// String separated values
             std::vector<ListOfStrings> valuesStringSeparated;
         };
 
@@ -117,7 +133,7 @@ public:
         Flag(std::string name, Params params);
 
         void defineParam(Type type);
-        void setParam(unsigned int index, void* value);
+        void setParam(unsigned int index, const void *value);
 
         Params getParams() const;
         void setParams(const Params &params);
@@ -138,8 +154,11 @@ public:
         }
 
     private:
+        /// Name of flag
         std::string name;
+        /// Enabled flag
         bool enabled = false;
+        /// Flag params
         Params params;
     };
 
@@ -163,15 +182,16 @@ public:
     static long double toLongDouble(const char *value);
     static std::string toString(const char *value);
 
-    void commandLineParse(int argc, char **argv);
+    void commandLineParse(int argc, const char **argv);
 
     std::string getHelp() const;
     void setHelp(const std::string &value);
 
 private:
+    /// Flags
     Flags flags;
+    /// Help string
     std::string help;
-
 };
 
 #endif // PARAMSDEFINITION_H

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Downsampling class definition.
  *
@@ -25,10 +25,9 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-Downsampling::Downsampling(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Downsampling::Downsampling(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
-
 }
 
 /**
@@ -76,6 +75,7 @@ void Downsampling::execute()
 /**
  * @brief Resamples dataset
  * @param[in] srcDataset Source dataset
+ * @param[in] log Logging flag (optional)
  */
 void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
 {
@@ -131,8 +131,8 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     tmpFile->createDatasetF("tmp", newTmpDatasetDims, newTmpDatasetChunkDims, true, log);
     H5Helper::Dataset *tmpDataset = tmpFile->openDataset("tmp", log);
 
-    float *srcData = 0;
-    float *dstData = 0;
+    float *srcData = nullptr;
+    float *dstData = nullptr;
 
     hsize_t steps = 1;
     if (dimsSrc.getLength() == 4)
@@ -227,10 +227,10 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
 /**
  * @brief Computes destination size
  * @param[in] dimsSrc Source dims
+ * @param[in] maxChunkDims Maximal chunk dimensions
  * @param[in] ratio Dims ratio
  * @param[out] dimsDst Destination Dims
  * @param[out] chunkDims Chunk dims
- * @param[in] maxChunkSize Maximal chunk size
  */
 void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D maxChunkDims, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims)
 {
@@ -259,7 +259,7 @@ void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D
  * @param[in] dstWidth Destination width
  * @param[in] dstHeight Destination height
  */
-void Downsampling::resize2D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight)
+void Downsampling::resize2D(const float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int dstWidth, unsigned int dstHeight)
 {
     resize2D(dataSrc, dataDst, static_cast<hsize_t>(srcWidth), static_cast<hsize_t>(srcHeight), static_cast<hsize_t>(dstWidth), static_cast<hsize_t>(dstHeight));
 }
@@ -273,7 +273,7 @@ void Downsampling::resize2D(float *dataSrc, float *dataDst, unsigned int srcWidt
  * @param[in] dstWidth Destination width
  * @param[in] dstHeight Destination height
  */
-void Downsampling::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight)
+void Downsampling::resize2D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight)
 {
     float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
@@ -321,7 +321,7 @@ void Downsampling::resize2D(float *dataSrc, float *dataDst, hsize_t srcWidth, hs
  * @param[in] dstHeight Destination height
  * @param[in] dstDepth Destination depth
  */
-void Downsampling::resize3D(float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth)
+void Downsampling::resize3D(const float *dataSrc, float *dataDst, unsigned int srcWidth, unsigned int srcHeight, unsigned int srcDepth, unsigned int dstWidth, unsigned int dstHeight, unsigned int dstDepth)
 {
     resize3D(dataSrc, dataDst, static_cast<hsize_t>(srcWidth), static_cast<hsize_t>(srcHeight), static_cast<hsize_t>(srcDepth), static_cast<hsize_t>(dstWidth), static_cast<hsize_t>(dstHeight), static_cast<hsize_t>(dstDepth));
 }
@@ -337,7 +337,7 @@ void Downsampling::resize3D(float *dataSrc, float *dataDst, unsigned int srcWidt
  * @param[in] dstHeight Destination height
  * @param[in] dstDepth Destination depth
  */
-void Downsampling::resize3D(float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth)
+void Downsampling::resize3D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth)
 {
     float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;

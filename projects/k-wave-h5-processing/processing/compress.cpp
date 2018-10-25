@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Compress class definition.
  *
@@ -25,7 +25,7 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-Compress::Compress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Compress::Compress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
@@ -73,6 +73,7 @@ void Compress::execute()
 /**
  * @brief Compresses dataset
  * @param[in] srcDataset Source dataset
+ * @param[in] log Logging flag (optional)
  */
 void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 {

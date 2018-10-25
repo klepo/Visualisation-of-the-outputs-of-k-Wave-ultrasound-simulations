@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Difference class definition.
  *
@@ -25,7 +25,7 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-Difference::Difference(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Difference::Difference(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
@@ -51,7 +51,7 @@ void Difference::execute()
             H5Helper::Dataset *datasetOriginal = it->second;
             H5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
             if (checkDatasetType(datasetType, types)) {
-                H5Helper::Dataset *datasetDecoded = 0;
+                H5Helper::Dataset *datasetDecoded = nullptr;
 
                 for (H5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
                     H5Helper::Dataset *dataset = it2->second;
@@ -88,6 +88,7 @@ void Difference::execute()
  * @brief Subtracts datasets
  * @param[in] datasetOriginal Original dataset
  * @param[in] datasetDecoded Decoded dataset
+ * @param[in] log Logging flag (optional)
  */
 void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::Dataset *datasetDecoded, bool log)
 {

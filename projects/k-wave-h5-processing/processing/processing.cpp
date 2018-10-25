@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Processing class definition.
  *
@@ -25,7 +25,7 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-Processing::Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Processing::Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
 {
     this->outputFile = outputFile;
     this->dtsForPcs = dtsForPcs;
@@ -47,7 +47,7 @@ Processing::~Processing()
  * @param[in] srcDataset Source dataset
  * @param[in] dstDataset Destination dataset
  */
-void Processing::copyAttributes(H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset)
+void Processing::copyAttributes(const H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset)
 {
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
         H5Helper::Attribute *attribute = srcDataset->getAttribute(i);
@@ -72,11 +72,19 @@ bool Processing::checkDatasetType(H5Helper::DatasetType datasetType, std::vector
     return false;
 }
 
+/**
+ * @brief Adds time
+ * @param[in] t Time
+ */
 void Processing::addTime(double t)
 {
     time += t;
 }
 
+/**
+ * @brief Adds size
+ * @param[in] s Size
+ */
 void Processing::addSize(hsize_t s)
 {
     size += s;
@@ -86,16 +94,24 @@ void Processing::addSize(hsize_t s)
  * @brief Returns settings
  * @return Settings
  */
-Settings *Processing::getSettings() const
+const Settings *Processing::getSettings() const
 {
     return settings;
 }
 
+/**
+ * @brief Returns total processing time
+ * @return Total processing time
+ */
 double Processing::getTotalProcessingTime()
 {
     return time;
 }
 
+/**
+ * @brief Returns total processing size
+ * @return Total processing size
+ */
 hsize_t Processing::getTotalProcessingSize()
 {
     return size;

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        19 July      2017 (created) <br>
- *              10 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -27,7 +27,7 @@ Settings::Settings()
 
 }
 
-Settings::Settings(int argc, char **argv)
+Settings::Settings(int argc, const char **argv)
 {
     loadParams(argc, argv);
 }
@@ -37,7 +37,7 @@ Settings::Settings(int argc, char **argv)
  * @param[in] argc Number of arguments
  * @param[in] argv Array of arguments
  */
-void Settings::loadParams(int argc, char **argv)
+void Settings::loadParams(int argc, const char **argv)
 {
     // Define expected params
     // Modes

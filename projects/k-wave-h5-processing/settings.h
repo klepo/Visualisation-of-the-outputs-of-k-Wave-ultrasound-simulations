@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with Settings class declaration.
  *
@@ -36,8 +36,8 @@ class Settings
 {
 public:
     Settings();
-    Settings(int argc, char **argv);
-    void loadParams(int argc, char **argv);
+    Settings(int argc, const char **argv);
+    void loadParams(int argc, const char **argv);
 
     // Simulation data files
     std::string getSimulationOutputFilename() const;
@@ -105,38 +105,60 @@ public:
 
 private:
     // Filenames
+    /// Simulation output filename
     std::string simulationOutputFilename = "";
+    /// Simulation input filename
     std::string simulationInputFilename = "";
+    /// Processing output filename
     std::string processingOutputFilename = "";
+    /// Processing input filename
     std::string processingInputFilename = "";
 
     // Size vars
+    /// Maximal size
     unsigned long long maxSize = 512;
+    /// Block size
     unsigned long long blockSize = 0;
+    /// Period
     unsigned long long period = 0;
-    unsigned long long harmonic = 1;
+    /// Number of harmonics
+    unsigned long long harmonics = 1;
+    /// Multiple of overlap size
     unsigned long long mOS = 1;
 
+    /// Maximal chunk sizes
     ParamsDefinition::VectorOfULongLongs maxChunkSizes = ParamsDefinition::VectorOfULongLongs{64, 64, 64, 1};
+    /// Maximal chunk sizes flag
     bool flagMaxChunkSizes = false;
 
-    // Filter/selection by names
+    /// Selection by names
     ParamsDefinition::ListOfStrings names;
+    /// Selection by names flag
     bool flagNames = false;
 
     // Application modes
+    /// Reshape flag
     bool flagReshape = false;
+    /// Rechunk flag
     bool flagRechunk = false;
+    /// Downsampling flag
     bool flagDwnsmpl = false;
+    /// Compression flag
     bool flagCompress = false;
+    /// Decompression flag
     bool flagDecompress = false;
+    /// Difference flag
     bool flagDifference = false;
+    /// Info flag
     bool flagInfo = false;
+    /// Compute period flag
     bool flagComputePeriod = false;
+    /// Minimal and maximal flag
     bool flagFindMinMax = false;
+    /// Logging flag
     bool flagLog = false;
 
-    // Params definition
+    /// Params definition
     ParamsDefinition paramsDefinition;
 };
 

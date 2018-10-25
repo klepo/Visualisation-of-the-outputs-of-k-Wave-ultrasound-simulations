@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Reshape class definition.
  *
@@ -25,10 +25,9 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-Reshape::Reshape(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Reshape::Reshape(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : ChangeChunks(outputFile, dtsForPcs, settings)
 {
-
 }
 
 /**
@@ -101,7 +100,52 @@ void Reshape::execute()
     }
 }
 
-void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, hsize_t *sensorMaskCornersData, bool log)
+/**
+ * @brief Finds min and max position from sensor mask
+ * @param[in] sensorMaskIndexDataset Sensor mask index dataset
+ * @param[out] min Min position
+ * @param[out] max Max position
+ * @param[in] log Logging flag (optional)
+ */
+void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max, bool log)
+{
+    // Find min and max position from linear saved values
+    hsize_t *data = new hsize_t[sensorMaskIndexDataset->getGeneralBlockDims().getSize()];
+    H5Helper::Vector3D offset;
+    H5Helper::Vector3D count;
+    H5Helper::Vector4D nDims = sensorMaskIndexDataset->getFile()->getNDims();
+
+    min = nDims;
+    max = H5Helper::Vector3D(0, 0, 0);
+
+    for (hsize_t i = 0; i < sensorMaskIndexDataset->getNumberOfBlocks(); i++) {
+        sensorMaskIndexDataset->readBlock(i, offset, count, data, log);
+        for (hssize_t idx = 0; idx < hssize_t(count.x()); idx++) {
+            H5Helper::Vector3D dstPos;
+            // i is indexed from 0, but value of index is from 1
+            H5Helper::convertlinearToMultiDim(data[idx] - 1, dstPos, H5Helper::Vector3D(nDims));
+            if (dstPos.x() < min.x()) min.x(dstPos.x());
+            if (dstPos.y() < min.y()) min.y(dstPos.y());
+            if (dstPos.z() < min.z()) min.z(dstPos.z());
+            if (dstPos.x() > max.x()) max.x(dstPos.x());
+            if (dstPos.y() > max.y()) max.y(dstPos.y());
+            if (dstPos.z() > max.z()) max.z(dstPos.z());
+        }
+    }
+    delete[] data; // !!
+    data = nullptr;
+
+    Helper::printDebugTwoColumns2S("Min sensor mask point", min);
+    Helper::printDebugTwoColumns2S("Max sensor mask point", max);
+}
+
+/**
+ * @brief Reshapes cuboid
+ * @param[in] dataset Dataset
+ * @param[in] sensorMaskCornersData Sensor mask corners data
+ * @param[in] log Logging flag (optional)
+ */
+void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMaskCornersData, bool log)
 {
     // Copy to new file
     if (getOutputFile() != dataset->getFile()) {
@@ -119,6 +163,14 @@ void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, hsize_t *sensorMaskCorne
     dataset->setAttribute(H5Helper::POSITION_X_ATTR, sensorMaskCornersData[(i - 1) * 6 + 0] - 1, log);
 }
 
+/**
+ * @brief Reshapes mask type dataset
+ * @param[in] dataset Dataset
+ * @param[in] globalPosTmp Global position
+ * @param[in] dimsTmp Dimensions
+ * @param[in] chunkDimsTmp Chunk dimensions
+ * @param[in] log Logging flag (optional)
+ */
 void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp, bool log)
 {
     H5Helper::Dataset *sensorMaskIndexDataset = getDtsForPcs()->getSensorMaskIndexDataset();
@@ -339,42 +391,4 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         delete[] sensorMaskData;
         sensorMaskData = nullptr;
     }
-}
-
-/**
- * @brief Finds min and max position from sensor mask
- * @param[in] sensorMaskIndexDataset Sensor mask index dataset
- * @param[out] min Min position
- * @param[out] max Max position
- */
-void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max, bool log)
-{
-    // Find min and max position from linear saved values
-    hsize_t *data = new hsize_t[sensorMaskIndexDataset->getGeneralBlockDims().getSize()];
-    H5Helper::Vector3D offset;
-    H5Helper::Vector3D count;
-    H5Helper::Vector4D nDims = sensorMaskIndexDataset->getFile()->getNDims();
-
-    min = nDims;
-    max = H5Helper::Vector3D(0, 0, 0);
-
-    for (hsize_t i = 0; i < sensorMaskIndexDataset->getNumberOfBlocks(); i++) {
-        sensorMaskIndexDataset->readBlock(i, offset, count, data, log);
-        for (hssize_t idx = 0; idx < hssize_t(count.x()); idx++) {
-            H5Helper::Vector3D dstPos;
-            // i is indexed from 0, but value of index is from 1
-            H5Helper::convertlinearToMultiDim(data[idx] - 1, dstPos, H5Helper::Vector3D(nDims));
-            if (dstPos.x() < min.x()) min.x(dstPos.x());
-            if (dstPos.y() < min.y()) min.y(dstPos.y());
-            if (dstPos.z() < min.z()) min.z(dstPos.z());
-            if (dstPos.x() > max.x()) max.x(dstPos.x());
-            if (dstPos.y() > max.y()) max.y(dstPos.y());
-            if (dstPos.z() > max.z()) max.z(dstPos.z());
-        }
-    }
-    delete[] data; // !!
-    data = nullptr;
-
-    Helper::printDebugTwoColumns2S("Min sensor mask point", min);
-    Helper::printDebugTwoColumns2S("Max sensor mask point", max);
 }

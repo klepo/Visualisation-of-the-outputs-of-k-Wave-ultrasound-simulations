@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with Compress class declaration.
  *
@@ -17,7 +17,6 @@
  *
  */
 
-
 #ifndef COMPRESS_H
 #define COMPRESS_H
 
@@ -30,7 +29,7 @@
 class Compress : public Processing
 {
 public:
-    Compress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
+    Compress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings);
     virtual void execute();
 
 private:

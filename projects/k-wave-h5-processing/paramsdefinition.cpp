@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              9  October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing ParamsDefinition class definition.
  *
@@ -19,25 +19,97 @@
 
 #include "paramsdefinition.h"
 
-const char *ParamsDefinition::typeStrings[] = {
-    "INT",
-    "LONGLONG",
-    "UINT",
-    "ULONGLONG",
-    "FLOAT",
-    "DOUBLE",
-    "LONGDOUBLE",
-    "STRING",
-    "STRINGS_SEPARATED",
+const std::map<ParamsDefinition::Type, std::string> ParamsDefinition::typeStrings = {
+    {INT, "INT"},
+    {LONGLONG, "LONGLONG"},
+    {UINT, "UINT"},
+    {ULONGLONG, "ULONGLONG"},
+    {FLOAT, "FLOAT"},
+    {DOUBLE, "DOUBLE"},
+    {LONGDOUBLE, "LONGDOUBLE"},
+    {STRING, "STRING"},
+    {STRINGS_SEPARATED, "STRINGS_SEPARATED"}
 };
 
 /**
- * @brief Defines parameter with type
+ * @brief Creates Params object
+ */
+ParamsDefinition::Flag::Params::Params()
+{
+
+}
+
+/**
+ * @brief Creates Params object with first param
+ * @param[in] type Firts param type
+ */
+ParamsDefinition::Flag::Params::Params(ParamsDefinition::Type type)
+{
+    defineParam(type);
+}
+
+/**
+ * @brief Defines parameter with given type
  * @param[in] type Parameter type
  */
-void ParamsDefinition::Flag::defineParam(ParamsDefinition::Type type)
+void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
 {
-    params.defineParam(type);
+    switch (type) {
+        case ParamsDefinition::INT:
+            valuesInt.push_back(0);
+            types.push_back(ParamsDefinition::INT);
+            indices.push_back(valuesInt.size() - 1);
+            break;
+        case ParamsDefinition::LONGLONG:
+            valuesLongLong.push_back(0);
+            types.push_back(ParamsDefinition::LONGLONG);
+            indices.push_back(valuesLongLong.size() - 1);
+            break;
+        case ParamsDefinition::UINT:
+            valuesUInt.push_back(0);
+            types.push_back(ParamsDefinition::UINT);
+            indices.push_back(valuesUInt.size() - 1);
+            break;
+        case ParamsDefinition::ULONGLONG:
+            valuesULongLong.push_back(0);
+            types.push_back(ParamsDefinition::ULONGLONG);
+            indices.push_back(valuesULongLong.size() - 1);
+            break;
+        case ParamsDefinition::ULONGLONG_SEPARATED: {
+            VectorOfULongLongs emptyVector;
+            valuesULongLongSeparated.push_back(emptyVector);
+            types.push_back(ParamsDefinition::ULONGLONG_SEPARATED);
+            indices.push_back(valuesULongLongSeparated.size() - 1);
+            break;
+        }
+        case ParamsDefinition::FLOAT:
+            valuesFloat.push_back(0);
+            types.push_back(ParamsDefinition::FLOAT);
+            indices.push_back(valuesFloat.size() - 1);
+            break;
+        case ParamsDefinition::DOUBLE:
+            valuesDouble.push_back(0);
+            types.push_back(ParamsDefinition::DOUBLE);
+            indices.push_back(valuesDouble.size() - 1);
+            break;
+        case ParamsDefinition::LONGDOUBLE:
+            valuesLongDouble.push_back(0);
+            types.push_back(ParamsDefinition::LONGDOUBLE);
+            indices.push_back(valuesLongDouble.size() - 1);
+            break;
+        case ParamsDefinition::STRING:
+            valuesString.push_back("");
+            types.push_back(ParamsDefinition::STRING);
+            indices.push_back(valuesString.size() - 1);
+            break;
+        case ParamsDefinition::STRINGS_SEPARATED: {
+            ListOfStrings emptyVector;
+            valuesStringSeparated.push_back(emptyVector);
+            types.push_back(ParamsDefinition::STRINGS_SEPARATED);
+            indices.push_back(valuesStringSeparated.size() - 1);
+            break;
+        }
+    }
 }
 
 /**
@@ -45,9 +117,43 @@ void ParamsDefinition::Flag::defineParam(ParamsDefinition::Type type)
  * @param[in] index Parameter index
  * @param[in] value Parameter value
  */
-void ParamsDefinition::Flag::setParam(unsigned int index, void *value)
+void ParamsDefinition::Flag::Params::setParam(unsigned int index, const void *value)
 {
-    params.setParam(index, value);
+    Type type = types[index];
+    size_t localIndex = indices[index];
+
+    switch (type) {
+        case ParamsDefinition::INT:
+            valuesInt[localIndex] = *static_cast<const int *>(value);
+            break;
+        case ParamsDefinition::LONGLONG:
+            valuesLongLong[localIndex] = *static_cast<const long long *>(value);
+            break;
+        case ParamsDefinition::UINT:
+            valuesUInt[localIndex] = *static_cast<const unsigned int *>(value);
+            break;
+        case ParamsDefinition::ULONGLONG:
+            valuesULongLong[localIndex] = *static_cast<const unsigned long long *>(value);
+            break;
+        case ParamsDefinition::ULONGLONG_SEPARATED:
+            valuesULongLongSeparated[localIndex] = *static_cast<const VectorOfULongLongs *>(value);
+            break;
+        case ParamsDefinition::FLOAT:
+            valuesFloat[localIndex] = *static_cast<const float *>(value);
+            break;
+        case ParamsDefinition::DOUBLE:
+            valuesDouble[localIndex] = *static_cast<const double *>(value);
+            break;
+        case ParamsDefinition::LONGDOUBLE:
+            valuesLongDouble[localIndex] = *static_cast<const long double *>(value);
+            break;
+        case ParamsDefinition::STRING:
+            valuesString[localIndex] = *static_cast<const std::string *>(value);
+            break;
+        case ParamsDefinition::STRINGS_SEPARATED:
+            valuesStringSeparated[localIndex] = *static_cast<const ListOfStrings *>(value);
+            break;
+    }
 }
 
 /**
@@ -186,84 +292,12 @@ ParamsDefinition::Flag::Flag(std::string name, ParamsDefinition::Flag::Params pa
 }
 
 /**
- * @brief Creates Params object
- */
-ParamsDefinition::Flag::Params::Params()
-{
-
-}
-
-/**
- * @brief Creates Params object with first param
- * @param[in] type Firts param type
- */
-ParamsDefinition::Flag::Params::Params(ParamsDefinition::Type type)
-{
-    defineParam(type);
-}
-
-/**
- * @brief Defines parameter with given type
+ * @brief Defines parameter with type
  * @param[in] type Parameter type
  */
-void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
+void ParamsDefinition::Flag::defineParam(ParamsDefinition::Type type)
 {
-    switch (type) {
-        case ParamsDefinition::INT:
-            valuesInt.push_back(0);
-            types.push_back(ParamsDefinition::INT);
-            indices.push_back(valuesInt.size() - 1);
-            break;
-        case ParamsDefinition::LONGLONG:
-            valuesLongLong.push_back(0);
-            types.push_back(ParamsDefinition::LONGLONG);
-            indices.push_back(valuesLongLong.size() - 1);
-            break;
-        case ParamsDefinition::UINT:
-            valuesUInt.push_back(0);
-            types.push_back(ParamsDefinition::UINT);
-            indices.push_back(valuesUInt.size() - 1);
-            break;
-        case ParamsDefinition::ULONGLONG:
-            valuesULongLong.push_back(0);
-            types.push_back(ParamsDefinition::ULONGLONG);
-            indices.push_back(valuesULongLong.size() - 1);
-            break;
-        case ParamsDefinition::ULONGLONG_SEPARATED: {
-            VectorOfULongLongs emptyVector;
-            valuesULongLongSeparated.push_back(emptyVector);
-            types.push_back(ParamsDefinition::ULONGLONG_SEPARATED);
-            indices.push_back(valuesULongLongSeparated.size() - 1);
-            break;
-        }
-        case ParamsDefinition::FLOAT:
-            valuesFloat.push_back(0);
-            types.push_back(ParamsDefinition::FLOAT);
-            indices.push_back(valuesFloat.size() - 1);
-            break;
-        case ParamsDefinition::DOUBLE:
-            valuesDouble.push_back(0);
-            types.push_back(ParamsDefinition::DOUBLE);
-            indices.push_back(valuesDouble.size() - 1);
-            break;
-        case ParamsDefinition::LONGDOUBLE:
-            valuesLongDouble.push_back(0);
-            types.push_back(ParamsDefinition::LONGDOUBLE);
-            indices.push_back(valuesLongDouble.size() - 1);
-            break;
-        case ParamsDefinition::STRING:
-            valuesString.push_back("");
-            types.push_back(ParamsDefinition::STRING);
-            indices.push_back(valuesString.size() - 1);
-            break;
-        case ParamsDefinition::STRINGS_SEPARATED: {
-            ListOfStrings emptyVector;
-            valuesStringSeparated.push_back(emptyVector);
-            types.push_back(ParamsDefinition::STRINGS_SEPARATED);
-            indices.push_back(valuesStringSeparated.size() - 1);
-            break;
-        }
-    }
+    params.defineParam(type);
 }
 
 /**
@@ -271,43 +305,9 @@ void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
  * @param[in] index Parameter index
  * @param[in] value Parameter value
  */
-void ParamsDefinition::Flag::Params::setParam(unsigned int index, void *value)
+void ParamsDefinition::Flag::setParam(unsigned int index, const void *value)
 {
-    Type type = types[index];
-    size_t localIndex = indices[index];
-
-    switch (type) {
-        case ParamsDefinition::INT:
-            valuesInt[localIndex] = *static_cast<int *>(value);
-            break;
-        case ParamsDefinition::LONGLONG:
-            valuesLongLong[localIndex] = *static_cast<long long *>(value);
-            break;
-        case ParamsDefinition::UINT:
-            valuesUInt[localIndex] = *static_cast<unsigned int *>(value);
-            break;
-        case ParamsDefinition::ULONGLONG:
-            valuesULongLong[localIndex] = *static_cast<unsigned long long *>(value);
-            break;
-        case ParamsDefinition::ULONGLONG_SEPARATED:
-            valuesULongLongSeparated[localIndex] = *static_cast<VectorOfULongLongs *>(value);
-            break;
-        case ParamsDefinition::FLOAT:
-            valuesFloat[localIndex] = *static_cast<float *>(value);
-            break;
-        case ParamsDefinition::DOUBLE:
-            valuesDouble[localIndex] = *static_cast<double *>(value);
-            break;
-        case ParamsDefinition::LONGDOUBLE:
-            valuesLongDouble[localIndex] = *static_cast<long double *>(value);
-            break;
-        case ParamsDefinition::STRING:
-            valuesString[localIndex] = *static_cast<std::string *>(value);
-            break;
-        case ParamsDefinition::STRINGS_SEPARATED:
-            valuesStringSeparated[localIndex] = *static_cast<ListOfStrings *>(value);
-            break;
-    }
+    params.setParam(index, value);
 }
 
 /**
@@ -366,6 +366,11 @@ void ParamsDefinition::defineParamsFlag(std::string name, ParamsDefinition::Flag
     flags.insert(FlagsPair(name, flag));
 }
 
+/**
+ * @brief Defines parameters flag
+ * @param[in] name Flag name
+ * @param[in] paramsDefinition Parameters definition
+ */
 void ParamsDefinition::defineParamsFlag(std::string name, ParamsDefinition::Type paramsDefinition)
 {
     ParamsDefinition::Flag::Params params(paramsDefinition);
@@ -391,6 +396,12 @@ ParamsDefinition::Flags ParamsDefinition::getFlags() const
     return flags;
 }
 
+/**
+ * @brief Convert value to integer
+ * @param[in] value Value
+ * @return Value as integer
+ * @throw std::invalid_argument
+ */
 int ParamsDefinition::toInt(const char *value)
 {
     size_t size;
@@ -401,6 +412,12 @@ int ParamsDefinition::toInt(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to long long
+ * @param[in] value Value
+ * @return Value as long long
+ * @throw std::invalid_argument
+ */
 long long ParamsDefinition::toLongLong(const char *value)
 {
     size_t size;
@@ -411,6 +428,12 @@ long long ParamsDefinition::toLongLong(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to unsigned int
+ * @param[in] value Value
+ * @return Value as unsigned int
+ * @throw std::invalid_argument
+ */
 unsigned int ParamsDefinition::toUnsignedInt(const char *value)
 {
     size_t size;
@@ -421,6 +444,12 @@ unsigned int ParamsDefinition::toUnsignedInt(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to unsigned long long
+ * @param[in] value Value
+ * @return Value as unsigned long long
+ * @throw std::invalid_argument
+ */
 unsigned long long ParamsDefinition::toUnsignedLongLong(const char *value)
 {
     size_t size;
@@ -431,6 +460,12 @@ unsigned long long ParamsDefinition::toUnsignedLongLong(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to float
+ * @param[in] value Value
+ * @return Value as float
+ * @throw std::invalid_argument
+ */
 float ParamsDefinition::toFloat(const char *value)
 {
     size_t size;
@@ -441,6 +476,12 @@ float ParamsDefinition::toFloat(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to double
+ * @param[in] value Value
+ * @return Value as double
+ * @throw std::invalid_argument
+ */
 double ParamsDefinition::toDouble(const char *value)
 {
     size_t size;
@@ -451,6 +492,12 @@ double ParamsDefinition::toDouble(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to long double
+ * @param[in] value Value
+ * @return Value as long double
+ * @throw std::invalid_argument
+ */
 long double ParamsDefinition::toLongDouble(const char *value)
 {
     size_t size;
@@ -461,6 +508,11 @@ long double ParamsDefinition::toLongDouble(const char *value)
     return number;
 }
 
+/**
+ * @brief Convert value to std::string
+ * @param[in] value Value
+ * @return Value as std::string
+ */
 std::string ParamsDefinition::toString(const char *value)
 {
     return std::string(value);
@@ -470,8 +522,9 @@ std::string ParamsDefinition::toString(const char *value)
  * @brief Parses command line arguments
  * @param[in] argc Number of arguments
  * @param[in] argv Array of arguments
+ * @throw std::invalid_argument
  */
-void ParamsDefinition::commandLineParse(int argc, char **argv)
+void ParamsDefinition::commandLineParse(int argc, const char **argv)
 {
     // Params parsing
     for (int i = 1; i < argc; i++) {

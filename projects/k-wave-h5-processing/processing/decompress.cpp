@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Decompress class definition.
  *
@@ -25,7 +25,7 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-Decompress::Decompress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+Decompress::Decompress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
 
@@ -69,6 +69,7 @@ void Decompress::execute()
 /**
  * @brief Decompresses datasets
  * @param[in] srcDataset Source dataset
+ * @param[in] log Logging flag (optional)
  */
 void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 {

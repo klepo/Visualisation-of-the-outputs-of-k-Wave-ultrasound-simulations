@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        19 July      2017 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The main implementation file containing h5-rename application.
  *
@@ -29,7 +29,7 @@
  * @param[in] argv Array of arguments
  * @return EXIT_SUCCESS
  */
-int main(int argc, char **argv)
+int main(int argc, const char **argv)
 {
     Settings *settings = new Settings(argc, argv);
     H5Helper::File *file = nullptr;

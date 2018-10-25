@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with DtsForPcs class declaration.
  *
@@ -35,24 +35,34 @@ public:
     H5Helper::Dataset *getSensorMaskIndexDataset() const;
     H5Helper::Dataset *getSensorMaskCornersDataset() const;
     H5Helper::Dataset *getSourceInputDataset() const;
+    H5Helper::MapOfDatasets getDatasets(H5Helper::DatasetType datasetType = H5Helper::DatasetType::ALL) const;
     hsize_t getSensorMaskSize() const;
     hsize_t getSensorMaskType() const;
-    H5Helper::MapOfDatasets getDatasets(H5Helper::DatasetType datasetType = H5Helper::DatasetType::ALL) const;
 
 private:
+    /// Disable copy contructor
     DtsForPcs(const DtsForPcs &);
+    /// Disable assignment operator
+    /// \return DtsForPcs
     DtsForPcs &operator=(const DtsForPcs &);
-    H5Helper::Dataset *findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile);
-    void findDatasetsForProcessing(H5Helper::Group *group, Settings *settings);
-    bool isFiltered(std::string name, Settings *settings);
 
+    H5Helper::Dataset *findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile = nullptr);
+    void findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings);
+    bool isFiltered(std::string name, const Settings *settings);
+
+    /// Domain dimensions
     H5Helper::Vector4D nDims;
-
-    H5Helper::Dataset *sensorMaskIndexDataset = 0;
-    H5Helper::Dataset *sensorMaskCornersDataset = 0;
-    H5Helper::Dataset *sourceInputDataset = 0;
+    /// Sensor mask index dataset
+    H5Helper::Dataset *sensorMaskIndexDataset = nullptr;
+    /// Sensor mask corners dataset
+    H5Helper::Dataset *sensorMaskCornersDataset = nullptr;
+    /// Source input dataset
+    H5Helper::Dataset *sourceInputDataset = nullptr;
+    /// Sensor mask size
     hsize_t sensorMaskSize = 0;
+    /// Sensor mask type
     hsize_t sensorMaskType = 0;
+    /// Datasets
     H5Helper::MapOfDatasets datasets;
 };
 

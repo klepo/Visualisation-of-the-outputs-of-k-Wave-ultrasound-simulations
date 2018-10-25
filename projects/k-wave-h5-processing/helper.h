@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              9  October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with Helper namespace declaration.
  *
@@ -31,12 +31,12 @@
  */
 namespace Helper
 {
-void printDebugTitle(std::string msg);
+void printDebugTitle(std::string str);
 void printDebugTime(std::string ofWhat, double t0, double t1);
-void printDebugMsg(std::string msg);
-void printMsg(std::string msg);
-void printDebugMsgStart(std::string msg);
-void printDebugMsg2S(std::string msg);
+void printDebugMsg(std::string str);
+void printMsg(std::string str);
+void printDebugMsgStart(std::string str);
+void printDebugMsg2S(std::string str);
 void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int width = 20);
 void printDebugTwoColumnsTab(std::string first, int second, unsigned int width = 20);
 void printDebugTwoColumnsTab(std::string first, unsigned long long second, unsigned int width = 20);
@@ -47,11 +47,12 @@ void printDebugTwoColumns2S(std::string first, int second, unsigned int width = 
 void printDebugTwoColumns2S(std::string first, unsigned long long second, unsigned int width = 20);
 void printDebugTwoColumns2S(std::string first, float second, unsigned int width = 20);
 void printDebugTwoColumns2S(std::string first, double second, unsigned int width = 20);
-void printDebugString(std::string msg);
-void printErrorMsg(std::string msg);
+void printDebugString(std::string str);
+void printErrorMsg(std::string str);
 
 unsigned long long round(float number);
 
+/// Enable debug messages flag
 extern bool enableDebugMsgs;
 }
 

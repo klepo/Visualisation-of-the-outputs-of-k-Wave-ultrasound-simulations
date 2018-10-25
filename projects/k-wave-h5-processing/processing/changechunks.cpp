@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing ChangeChunks class definition.
  *
@@ -25,10 +25,9 @@
  * @param[in] dtsForPcs Datasets for processing
  * @param[in] settings Processing settings
  */
-ChangeChunks::ChangeChunks(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings)
+ChangeChunks::ChangeChunks(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
-
 }
 
 /**
@@ -36,15 +35,6 @@ ChangeChunks::ChangeChunks(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Set
  */
 void ChangeChunks::execute()
 {
-    /*std::vector<H5Helper::DatasetType> types = {
-        H5Helper::DatasetType::BASIC_3D,
-        H5Helper::DatasetType::BASIC_3D_DWNSMPL,
-        H5Helper::DatasetType::CUBOID,
-        H5Helper::DatasetType::CUBOID_ATTR,
-        H5Helper::DatasetType::TIME_STEPS_INDEX,
-        H5Helper::DatasetType::BASIC_INDEX
-    };*/
-
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
@@ -71,6 +61,7 @@ void ChangeChunks::execute()
 /**
  * @brief Changes chunks of dataset
  * @param[in] srcDataset Source dataset
+ * @param[in] log Logging flag (optional)
  */
 void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log)
 {

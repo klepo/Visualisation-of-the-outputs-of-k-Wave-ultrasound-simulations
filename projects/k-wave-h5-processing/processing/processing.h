@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with Processing class declaration.
  *
@@ -33,29 +33,38 @@
 class Processing
 {
 public:
-    Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
+    Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings);
     virtual ~Processing();
     H5Helper::File *getOutputFile() const;
     DtsForPcs *getDtsForPcs() const;
-    Settings *getSettings() const;
+    const Settings *getSettings() const;
     double getTotalProcessingTime();
     hsize_t getTotalProcessingSize();
 
 protected:
     /// Pure virtual execute function
     virtual void execute() = 0;
-    virtual void copyAttributes(H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset) final;
+    virtual void copyAttributes(const H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset) final;
     bool checkDatasetType(H5Helper::DatasetType datasetType, std::vector<H5Helper::DatasetType> types);
     void addTime(double t);
     void addSize(hsize_t s);
 
 private:
+    /// Disable copy contructor
     Processing(const Processing &);
+    /// Disable assignment operator
+    /// \return Processing
     Processing &operator=(const Processing &);
+
+    /// Output file
     H5Helper::File *outputFile;
+    /// Datasets for processing
     DtsForPcs *dtsForPcs;
-    Settings *settings;
+    /// Settings
+    const Settings *settings;
+    /// Time
     double time = 0;
+    /// Size
     hsize_t size = 0;
 };
 

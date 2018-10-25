@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with Difference class declaration.
  *
@@ -17,7 +17,6 @@
  *
  */
 
-
 #ifndef DIFFERENCE_H
 #define DIFFERENCE_H
 
@@ -29,7 +28,7 @@
 class Difference : public Processing
 {
 public:
-    Difference(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
+    Difference(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings);
     virtual void execute();
 
 private:

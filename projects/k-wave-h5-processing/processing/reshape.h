@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The header file with Reshape class declaration.
  *
@@ -28,13 +28,13 @@
 class Reshape : public ChangeChunks
 {
 public:
-    Reshape(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, Settings *settings);
+    Reshape(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings);
     virtual void execute();
 
 private:
     virtual void findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max, bool log = true) final;
-    void reshapeCuboid(H5Helper::Dataset *dataset, hsize_t *sensorMaskCornersData, bool log = true);
-    void reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPos, H5Helper::Vector3D dims, H5Helper::Vector4D chunkDims, bool log = true);
+    void reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMaskCornersData, bool log = true);
+    void reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp, bool log = true);
 };
 
 #endif // RESHAPE_H

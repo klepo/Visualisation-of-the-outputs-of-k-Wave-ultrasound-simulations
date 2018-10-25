@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing DtsForPcs class definition.
  *
@@ -126,15 +126,6 @@ H5Helper::Dataset *DtsForPcs::getSourceInputDataset() const
 }
 
 /**
- * @brief Returns sensor mask type
- * @return Sensor mask type
- */
-hsize_t DtsForPcs::getSensorMaskType() const
-{
-    return sensorMaskType;
-}
-
-/**
  * @brief Returns datasets (by type)
  * @param[in] datasetType Dataset type (optional)
  * @return Datasets
@@ -165,15 +156,24 @@ hsize_t DtsForPcs::getSensorMaskSize() const
 }
 
 /**
+ * @brief Returns sensor mask type
+ * @return Sensor mask type
+ */
+hsize_t DtsForPcs::getSensorMaskType() const
+{
+    return sensorMaskType;
+}
+
+/**
  * @brief Finds and get dataset with given name from given files
  * @param[in] name Dataset name
  * @param[in] simOutputFile Simulation output file
- * @param[in] simInputFile Simulation input file
+ * @param[in] simInputFile Simulation input file (optional)
  * @return Dataset
  */
-H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile = 0)
+H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile)
 {
-    H5Helper::Dataset *dataset = 0;
+    H5Helper::Dataset *dataset = nullptr;
     Helper::printDebugTitle("Find and get "+ name +" dataset");
 
     if (simOutputFile->objExistsByName(name)) {
@@ -184,7 +184,7 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
-    } else if (simInputFile != 0 && simInputFile->objExistsByName(name)) {
+    } else if (simInputFile != nullptr && simInputFile->objExistsByName(name)) {
         // Try to load dataset from simulation input file
         try {
             dataset = simInputFile->openDataset(name, Helper::enableDebugMsgs);
@@ -203,7 +203,7 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
  * @param[in] group Group to searching
  * @param[in] settings Settings
  */
-void DtsForPcs::findDatasetsForProcessing(H5Helper::Group *group, Settings *settings)
+void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
         H5G_obj_t type = group->getObjTypeByIdx(i);
@@ -273,7 +273,7 @@ void DtsForPcs::findDatasetsForProcessing(H5Helper::Group *group, Settings *sett
  * @param[in] settings Settings
  * @return True/False
  */
-bool DtsForPcs::isFiltered(std::string name, Settings *settings)
+bool DtsForPcs::isFiltered(std::string name, const Settings *settings)
 {
     if (settings->getFlagNames()) {
         std::list<std::string> names = settings->getNames();

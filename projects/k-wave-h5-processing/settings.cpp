@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -24,10 +24,14 @@
  */
 Settings::Settings()
 {
-
 }
 
-Settings::Settings(int argc, char **argv)
+/**
+ * @brief Creates Settings object with arguments
+ * @param[in] argc Arguments count
+ * @param[in] argv Agruments string
+ */
+Settings::Settings(int argc, const char **argv)
 {
     loadParams(argc, argv);
 }
@@ -37,7 +41,7 @@ Settings::Settings(int argc, char **argv)
  * @param[in] argc Number of arguments
  * @param[in] argv Array of arguments
  */
-void Settings::loadParams(int argc, char **argv)
+void Settings::loadParams(int argc, const char **argv)
 {
     // Define expected params
     // Modes
@@ -416,26 +420,46 @@ void Settings::setMOS(const unsigned long long &value)
     Helper::printDebugTwoColumns2S("Multiple of overlap size", mOS, 30);
 }
 
+/**
+ * @brief Returns maximal chunk size at X dimension
+ * @return Maximal chunk size at X dimension
+ */
 unsigned long long Settings::getMaxChunkSizeX() const
 {
     return maxChunkSizes.at(0);
 }
 
+/**
+ * @brief Returns maximal chunk size at Y dimension
+ * @return Maximal chunk size at Y dimension
+ */
 unsigned long long Settings::getMaxChunkSizeY() const
 {
     return maxChunkSizes.at(1);
 }
 
+/**
+ * @brief Returns maximal chunk size at Z dimension
+ * @return Maximal chunk size at Z dimension
+ */
 unsigned long long Settings::getMaxChunkSizeZ() const
 {
     return maxChunkSizes.at(2);
 }
 
+/**
+ * @brief Returns maximal chunk size at W dimension
+ * @return Maximal chunk size at W dimension
+ */
 unsigned long long Settings::getMaxChunkSizeW() const
 {
     return maxChunkSizes.at(3);
 }
 
+/**
+ * @brief Returns maximal chunk size at T dimension
+ * @return Maximal chunk size at T dimension
+ */
 unsigned long long Settings::getMaxChunkSizeT() const
 {
     return maxChunkSizes.at(3);
@@ -466,7 +490,7 @@ void Settings::setPeriod(const unsigned long long &value)
  */
 unsigned long long Settings::getHarmonics() const
 {
-    return harmonic;
+    return harmonics;
 }
 
 /**
@@ -475,8 +499,8 @@ unsigned long long Settings::getHarmonics() const
  */
 void Settings::setHarmonic(const unsigned long long &value)
 {
-    harmonic = value;
-    Helper::printDebugTwoColumns2S("Number of harmonics", harmonic, 30);
+    harmonics = value;
+    Helper::printDebugTwoColumns2S("Number of harmonics", harmonics, 30);
 }
 
 /**

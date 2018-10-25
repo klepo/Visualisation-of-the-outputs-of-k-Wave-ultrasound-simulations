@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              23 October   2018 (updated)
+ *              25 October   2018 (updated)
  *
  * @brief       The implementation file containing FilesContext class definition.
  *
@@ -23,7 +23,7 @@
  * @brief Creates FilesContext object
  * @param[in] settings Processing settings
  */
-FilesContext::FilesContext(Settings *settings)
+FilesContext::FilesContext(const Settings *settings)
 {
     Helper::printDebugTitle("Loading of simulation output file");
     // Load simulation output file
@@ -131,7 +131,7 @@ H5Helper::File *FilesContext::getPcsInputFile() const
  */
 H5Helper::File *FilesContext::loadSimulationFile(std::string filename)
 {
-    H5Helper::File *simulationFile = 0;
+    H5Helper::File *simulationFile = nullptr;
     try {
         simulationFile = new H5Helper::File(filename, H5Helper::File::OPEN, Helper::enableDebugMsgs);
     } catch (std::exception &e) {
@@ -145,7 +145,7 @@ H5Helper::File *FilesContext::loadSimulationFile(std::string filename)
  * @brief Resolves output filename
  * @param[in] settings Settings
  */
-void FilesContext::resolveOutputFilename(Settings *settings)
+void FilesContext::resolveOutputFilename(const Settings *settings)
 {
     if (settings->getProcessingOutputFilename().empty()) {
         // Create auto filename
@@ -170,7 +170,7 @@ void FilesContext::resolveOutputFilename(Settings *settings)
  */
 H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
 {
-    H5Helper::File *file = 0;
+    H5Helper::File *file = nullptr;
     if (!H5Helper::fileExists(filename)) {
         try {
             // Try create file
@@ -180,7 +180,7 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
             } else {
                 Helper::printDebugMsg("File \"" + filename + "\" will be created for the processing output");
                 newEmptyOutputFileFlag = true;
-                return 0;
+                return nullptr;
             }
         } catch (std::exception &e) {
             Helper::printErrorMsg(e.what());

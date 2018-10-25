@@ -59,7 +59,7 @@ Group::~Group()
  * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *Group::openDataset(std::string name, bool log)
+Dataset *Group::openDataset(std::string name, bool log) const
 {
     return getFile()->openDataset(concatenatePath(getName(), name), log);
 }
@@ -70,7 +70,7 @@ Dataset *Group::openDataset(std::string name, bool log)
  * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *Group::openDataset(hsize_t idx, bool log)
+Dataset *Group::openDataset(hsize_t idx, bool log) const
 {
     return openDataset(getObjNameByIdx(idx), log);
 }
@@ -80,7 +80,7 @@ Dataset *Group::openDataset(hsize_t idx, bool log)
  * @param[in] name Name of dataset
  * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(std::string name, bool log)
+void Group::closeDataset(std::string name, bool log) const
 {
     getFile()->closeDataset(concatenatePath(getName(), name), log);
 }
@@ -90,7 +90,7 @@ void Group::closeDataset(std::string name, bool log)
  * @param[in] idx Index of dataset in file
  * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(hsize_t idx, bool log)
+void Group::closeDataset(hsize_t idx, bool log) const
 {
     closeDataset(getObjNameByIdx(idx), log);
 }
@@ -100,7 +100,7 @@ void Group::closeDataset(hsize_t idx, bool log)
  * @param[in] dataset Dataset
  * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(const Dataset *dataset, bool log)
+void Group::closeDataset(const Dataset *dataset, bool log) const
 {
     closeDataset(dataset->getName(), log);
 }
@@ -113,7 +113,7 @@ void Group::closeDataset(const Dataset *dataset, bool log)
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  */
-void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log) const
 {
     getFile()->createDatasetI(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
 }
@@ -126,7 +126,7 @@ void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
  * @param[in] log Logging flag (optional)
  */
-void Group::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void Group::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log) const
 {
     getFile()->createDatasetF(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
 }
@@ -137,7 +137,7 @@ void Group::createDatasetF(std::string name, Vector size, Vector chunkSize, bool
  * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *Group::openGroup(std::string name, bool log)
+Group *Group::openGroup(std::string name, bool log) const
 {
     return getFile()->openGroup(concatenatePath(getName(), name), log);
 }
@@ -148,7 +148,7 @@ Group *Group::openGroup(std::string name, bool log)
  * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *Group::openGroup(hsize_t idx, bool log)
+Group *Group::openGroup(hsize_t idx, bool log) const
 {
     return openGroup(getObjNameByIdx(idx), log);
 }
@@ -158,7 +158,7 @@ Group *Group::openGroup(hsize_t idx, bool log)
  * @param[in] name Name of group
  * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(std::string name, bool log)
+void Group::closeGroup(std::string name, bool log) const
 {
     getFile()->closeGroup(concatenatePath(getName(), name), log);
 }
@@ -168,7 +168,7 @@ void Group::closeGroup(std::string name, bool log)
  * @param[in] idx Index of group in file
  * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(hsize_t idx, bool log)
+void Group::closeGroup(hsize_t idx, bool log) const
 {
     closeGroup(getObjNameByIdx(idx), log);
 }
@@ -178,7 +178,7 @@ void Group::closeGroup(hsize_t idx, bool log)
  * @param[in] group Group
  * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(const Group *group, bool log)
+void Group::closeGroup(const Group *group, bool log) const
 {
     closeGroup(group->getName(), log);
 }
