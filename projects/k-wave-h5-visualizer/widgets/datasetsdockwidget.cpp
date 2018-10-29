@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing DatasetsDockWidget class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "datasetsdockwidget.h"
 
+/**
+ * @brief Creates DatasetsDockWidget object
+ * @param[in] parent Parent (optional)
+ */
 DatasetsDockWidget::DatasetsDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DatasetsDockWidget)
@@ -26,12 +30,21 @@ DatasetsDockWidget::DatasetsDockWidget(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/**
+ * @brief Destructor of DatasetsDockWidget
+ *
+ * Deletes ui and clears widget content.
+ */
 DatasetsDockWidget::~DatasetsDockWidget()
 {
     clear();
     delete ui;
 }
 
+/**
+ * @brief Sets file
+ * @param[in] file H5OpenedFile
+ */
 void DatasetsDockWidget::setFile(H5OpenedFile *file)
 {
     clear();
@@ -61,6 +74,9 @@ void DatasetsDockWidget::setFile(H5OpenedFile *file)
     this->setMaximumHeight(16777215);
 }
 
+/**
+ * @brief Clears datasets table and layout
+ */
 void DatasetsDockWidget::clear()
 {
     if (qRadioButtonGroup) {
@@ -76,7 +92,16 @@ void DatasetsDockWidget::clear()
     //adjustSize();
 }
 
+/**
+ * @brief Shows dataset
+ * @param[in] id Dataset index in table
+ * @param[in] flag Selection flag
+ *
+ * Not yet used.
+ * TODO Implement show fuction
+ */
 void DatasetsDockWidget::showDataset(int id, bool flag)
 {
-    // TODO
+    Q_UNUSED(id);
+    Q_UNUSED(flag);
 }

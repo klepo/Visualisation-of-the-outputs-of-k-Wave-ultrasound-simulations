@@ -1,9 +1,9 @@
 /**
- * @file        hdf5readingthread.cpp
+ * @file        h5readingthread.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing H5ReadingThread and Request
  *              class definition.
@@ -28,6 +28,7 @@
  * @param[in] dataset Dataset
  * @param[in] offset Offset
  * @param[in] count Count
+ * @param[in] data Destination memory for reading (optional)
  */
 Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data)
 {
@@ -45,6 +46,7 @@ Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::
  * @brief Creates request for full 3D dataset reading with given step
  * @param[in] dataset Dataset
  * @param[in] step Step
+ * @param[in] data Destination memory for reading (optional)
  */
 Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
 {
@@ -102,7 +104,7 @@ H5ReadingThread::H5ReadingThread(QObject *parent) : QThread(parent)
  * @param[in] dataset Dataset
  * @param[in] offset Offset
  * @param[in] count Count
- * @param[in] limit Length of waiting queue (optional)
+ * @param[in] data Destination memory for reading (optional)
  */
 void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data)
 {
@@ -119,6 +121,7 @@ void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector
  * @brief Creates request for full dataset read in thread with given step
  * @param[in] dataset Dataset
  * @param[in] step Step
+ * @param[in] data Destination memory for reading (optional)
  */
 void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data)
 {
@@ -159,6 +162,10 @@ H5ReadingThread::~H5ReadingThread()
     }
 }
 
+/**
+ * @brief Sets compress helper
+ * @param[in] compressHelper Compress helper
+ */
 void H5ReadingThread::setCompressHelper(H5Helper::CompressHelper *compressHelper)
 {
     this->compressHelper = compressHelper;
@@ -322,16 +329,28 @@ void H5ReadingThread::run()
     }
 }
 
+/**
+ * @brief Returns data for current compress coefficient
+ * @return Data for current compress coefficient
+ */
 float *H5ReadingThread::getDataCC() const
 {
     return dataCC;
 }
 
+/**
+ * @brief Returns data for last compress coefficient
+ * @return Data for current last coefficient
+ */
 float *H5ReadingThread::getDataLC() const
 {
     return dataLC;
 }
 
+/**
+ * @brief Returns local step
+ * @return Local step
+ */
 hsize_t H5ReadingThread::getLocalStep() const
 {
     return localStep;

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing OpenGLWindow class definition.
  *
@@ -45,9 +45,8 @@ void QTest::qSleep(int ms)
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
     , context(nullptr)
-    , device(nullptr)
     , logger(nullptr)
-    , m_update_pending(false)
+    , updatePending(false)
     , mouseDown(false)
     , leftButtonPressed(false)
     , rightButtonPressed(false)
@@ -78,8 +77,6 @@ OpenGLWindow::~OpenGLWindow()
     //moveTimer->stop();
     //delete moveTimer;
     //delete m_context; // Some BUG - deletion causes wrong freeing memory
-    delete device;
-    device  = nullptr;
     //thread->deleteLater();
 }
 
@@ -92,7 +89,7 @@ bool OpenGLWindow::event(QEvent *event)
 {
     switch (event->type()) {
         case QEvent::UpdateRequest:
-            m_update_pending = false;
+            updatePending = false;
             renderNow();
             return true;
         default:
@@ -151,8 +148,8 @@ QPointF OpenGLWindow::getCurrentPositionPressed() const
  */
 void OpenGLWindow::renderLater()
 {
-    if (!m_update_pending) {
-        m_update_pending = true;
+    if (!updatePending) {
+        updatePending = true;
         QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
 }
@@ -282,6 +279,10 @@ GLenum OpenGLWindow::checkGlError()
     return ret;
 }
 
+/**
+ * @brief Checks OpenGL framebuffer status
+ * @return Error code
+ */
 GLenum OpenGLWindow::checkFramebufferStatus()
 {
     GLenum err = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);

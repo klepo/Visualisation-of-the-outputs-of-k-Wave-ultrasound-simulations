@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with OpenGLWindow class declaration.
  *
@@ -80,7 +80,10 @@ signals:
      * @param[in] timeout Timeout in ms
      */
     void setStatusMessage(QString message, int timeout = 3000);
-    /// Rendered signal
+    /**
+     * @brief Rendered signal
+     * @param[in] time Last render time in ms
+     */
     void rendered(double time);
 
 protected:
@@ -101,18 +104,29 @@ private:
     bool hasDebugExtension();
     bool isOpenGLVersionSupported();
     static void messageLogged(const QOpenGLDebugMessage &message);
+
+    /// OpenGL context
     QOpenGLContext *context;
-    QOpenGLPaintDevice *device;
+    /// OpenGL logger
     QOpenGLDebugLogger *logger;
-    bool m_update_pending;
+    /// Update pending flag
+    bool updatePending;
+    /// Elapsed render time in ms
     double elapsedMs = 0;
 
+    /// Mouse down flag
     bool mouseDown;
+    /// Left button pressed flag
     bool leftButtonPressed;
+    /// Right button pressed flag
     bool rightButtonPressed;
+    /// Wheel delta
     int wheelDelta = 0;
+    /// Last position pressed
     QPointF lastPositionPressed;
+    /// Current position pressed
     QPointF currentPositionPressed;
+    /// Current position
     QPointF currentPosition;
 };
 

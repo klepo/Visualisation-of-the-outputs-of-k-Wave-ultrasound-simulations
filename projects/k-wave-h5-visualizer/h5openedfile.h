@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with OpenedH5File class declaration.
  *
@@ -58,9 +58,13 @@ public slots:
 private:
     Q_DISABLE_COPY(H5OpenedFile)
 
+    /// HDF5 file
     H5Helper::File *file = nullptr;
+    /// Domain dimensions
     H5Helper::Vector4D nDims;
+    /// File info
     QMap<QString, QString> info;
+    /// Objects for visualization
     QVector<H5ObjectToVisualize *> objects;
 
     void findDatasetsForVisualization(H5Helper::Group *group);

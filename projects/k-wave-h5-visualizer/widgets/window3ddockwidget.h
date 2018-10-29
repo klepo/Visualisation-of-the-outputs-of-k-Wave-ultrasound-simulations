@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with Window3DDockWidget class declaration.
  *
@@ -32,6 +32,9 @@ namespace Ui {
 class Window3DDockWidget;
 }
 
+/**
+ * @brief The Window3DDockWidget class represents wrapper for the window 3D dock widget
+ */
 class Window3DDockWidget : public QDockWidget, public AbstractWidget
 {
     Q_OBJECT
@@ -54,8 +57,11 @@ private slots:
 private:
     Q_DISABLE_COPY(Window3DDockWidget)
 
+    /// User interface
     Ui::Window3DDockWidget *ui;
+    /// OpenGL window
     GWindow *gWindow;
+    /// Loading 3D data animation
     QMovie *movie;
 };
 

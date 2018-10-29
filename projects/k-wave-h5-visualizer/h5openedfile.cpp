@@ -1,9 +1,9 @@
 /**
- * @file        openedh5file.cpp
+ * @file        h5openedfile.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing OpenedH5File class definition.
  *
@@ -103,6 +103,10 @@ QVector<H5ObjectToVisualize *> H5OpenedFile::getObjects()
     return objects;
 }
 
+/**
+ * @brief Returns objects with selection flag
+ * @return objects with selection flag
+ */
 QVector<H5ObjectToVisualize *> H5OpenedFile::getObjectsSelected()
 {
     QVector<H5ObjectToVisualize *> selectedObjects;

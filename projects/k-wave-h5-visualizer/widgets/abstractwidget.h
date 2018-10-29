@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with AbstractWidget class declaration.
  *
@@ -24,12 +24,16 @@
 #include <QLayout>
 #include <QWidget>
 
+/**
+ * @brief The AbstractWidget class represents wrapper for widgets
+ */
 class AbstractWidget
 {
 public:
     virtual ~AbstractWidget();
 
 public slots:
+    /// Pure virtual celar function
     virtual void clear() = 0;
 
 protected:

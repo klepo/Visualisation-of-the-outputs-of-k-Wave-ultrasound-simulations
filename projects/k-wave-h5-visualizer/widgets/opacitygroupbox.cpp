@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              23 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing OpacityGroupBox class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "opacitygroupbox.h"
 
+/**
+ * @brief Creates OpacityGroupBox object
+ * @param[in] parent Parent (optional)
+ */
 OpacityGroupBox::OpacityGroupBox(QWidget *parent) :
     QGroupBox(parent),
     ui(new Ui::OpacityGroupBox)
@@ -52,46 +56,72 @@ OpacityGroupBox::OpacityGroupBox(QWidget *parent) :
     connect(&spinBoxesMapper, SIGNAL(mapped(int)), this, SLOT(spinBoxValueChanged(int)));
 }
 
+/**
+ * @brief Destructor of OpacityGroupBox
+ *
+ * Deletes ui and clears layout.
+ */
 OpacityGroupBox::~OpacityGroupBox()
 {
     clearLayout(ui->gridLayout);
     delete ui;
 }
 
+/**
+ * @brief Returns opacity vector
+ * @return Opacity vector
+ */
 QVector<float> OpacityGroupBox::getValue() const
 {
     return opacity;
 }
 
-float OpacityGroupBox::getValueAt(int id) const
+/**
+ * @brief Returns opacity value at index
+ * @param[in] index Index
+ * @return Opacity value at index
+ */
+float OpacityGroupBox::getValueAt(int index) const
 {
-    if (id < opacity.size()) {
-        return opacity[id];
+    if (index < opacity.size()) {
+        return opacity[index];
     } else {
-        qCritical() << "Bad id" << id << "for getting opacity";
+        qCritical() << "Bad id" << index << "for getting opacity";
         return 0;
     }
 }
 
-void OpacityGroupBox::setValue(QVector<float> value)
+/**
+ * @brief Sets opacity vector
+ * @param[in] opacity Opacity vector
+ */
+void OpacityGroupBox::setValue(QVector<float> opacity)
 {
-    if (opacity.size() == value.size()) {
+    if (this->opacity.size() == opacity.size()) {
         for (int i = 0; i < spinBoxes.size(); i++) {
-            spinBoxes[i]->setValue(double(value[i]));
+            spinBoxes[i]->setValue(double(opacity[i]));
         }
     }
 }
 
-void OpacityGroupBox::setValueAt(int id, float value)
+/**
+ * @brief Sets opacity value at index
+ * @param[in] index Index
+ * @param[in] value Opacity value at index
+ */
+void OpacityGroupBox::setValueAt(int index, float value)
 {
-    if (id < opacity.size()) {
-        opacity[id] = value;
-        spinBoxes[id]->setValue(double(opacity[id]));
+    if (index < opacity.size()) {
+        opacity[index] = value;
+        spinBoxes[index]->setValue(double(opacity[index]));
     } else {
-        qCritical() << "Bad id" << id << "for setting opacity";
+        qCritical() << "Bad id" << index << "for setting opacity";
     }
 }
 
+/**
+ * @brief Disconnects signals and sets opacity to 0
+ */
 void OpacityGroupBox::clear()
 {
     disconnect(this, SIGNAL(valueChanged(QVector<float>)), nullptr, nullptr);
@@ -102,6 +132,12 @@ void OpacityGroupBox::clear()
     }
 }
 
+/**
+ * @brief Spin box value changed slot
+ * @param[in] id Spin box id
+ *
+ * Sets value to sliders and opacity.
+ */
 void OpacityGroupBox::spinBoxValueChanged(int id)
 {
     sliders[id]->setValue(int(spinBoxes[id]->value() * 1000));
@@ -110,6 +146,12 @@ void OpacityGroupBox::spinBoxValueChanged(int id)
     emit valueChangedAt(id, opacity[id]);
 }
 
+/**
+ * @brief Slider value changed slot
+ * @param[in] id Slider id
+ *
+ * Sets value to spin boxes.
+ */
 void OpacityGroupBox::sliderValueChanged(int id)
 {
     spinBoxes[id]->setValue(double(sliders[id]->value()) / 1000);

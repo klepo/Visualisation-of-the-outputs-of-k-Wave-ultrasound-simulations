@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing MainWindow class definition.
  *
@@ -134,6 +134,7 @@ void MainWindow::on_actionCloseHDF5File_triggered()
 
 /**
  * @brief Shows FPS
+ * @param[in] time Render time in ms
  */
 void MainWindow::showFPS(double time)
 {
@@ -143,6 +144,10 @@ void MainWindow::showFPS(double time)
     ui->dockWidgetWindow3D->setWindowTitle("3D view, last render time: " + ms + "ms (" + framesPerSecond + " fps)");
 }
 
+/**
+ * @brief Shows hovered point value
+ * @param[in] value Hovered point value
+ */
 void MainWindow::showHoveredPointValue(float value)
 {
     ui->statusBar->showMessage("Value: " + QWidget::locale().toString(value, 'f', 4), 3000);
@@ -150,6 +155,8 @@ void MainWindow::showHoveredPointValue(float value)
 
 /**
  * @brief Action on dataset selection changed
+ * @param[in] id Dataset index in table of datasets
+ * @param[in] selected Selected flag
  */
 void MainWindow::datasetSelectionChanged(int id, bool selected)
 {
@@ -199,7 +206,8 @@ void MainWindow::on_actionAbout_triggered()
 }
 
 /**
- * @brief Connects gWindow actions
+ * @brief Connects GWindow actions
+ * @param[in] gWindow GWindow object
  */
 void MainWindow::connectGWindowActions(GWindow *gWindow)
 {

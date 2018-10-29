@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing AbstractWidget class definition.
  *
@@ -19,11 +19,19 @@
 
 #include "abstractwidget.h"
 
+/**
+ * @brief Destructor of AbstractWidget object
+ *
+ * Does nothing.
+ */
 AbstractWidget::~AbstractWidget()
 {
-
 }
 
+/**
+ * @brief Clears given layout
+ * @param[in] layout Layout to clear
+ */
 void AbstractWidget::clearLayout(QLayout *layout)
 {
     int count = layout->count();

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing Settings3DDockWidget class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "settings3ddockwidget.h"
 
+/**
+ * @brief Creates Settings3DDockWidget object
+ * @param[in] parent Parent (optional)
+ */
 Settings3DDockWidget::Settings3DDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::Settings3DDockWidget)
@@ -35,38 +39,67 @@ Settings3DDockWidget::Settings3DDockWidget(QWidget *parent) :
     connect(ui->horizontalSliderVRSlices, SIGNAL(valueChanged(int)), this, SLOT(setVolumeRenderingSlices(int)));
 }
 
+/**
+ * @brief Destructor of Settings3DDockWidget
+ *
+ * Deletes ui.
+ */
 Settings3DDockWidget::~Settings3DDockWidget()
 {
     delete ui;
 }
 
+/**
+ * @brief Returns interpolation mode
+ * @return Interpolation mode
+ */
 int Settings3DDockWidget::getInterpolationMode() const
 {
     return ui->comboBoxInterpolationMode->currentIndex();
 }
 
+/**
+ * @brief Returns volume rendering mode
+ * @return Volume rendering mode
+ */
 int Settings3DDockWidget::getVolumeRenderingMode() const
 {
     return ui->comboBoxVolumeRenderingMode->currentIndex();
 }
 
+/**
+ * @brief Returns volume rendering slices count
+ * @return Volume rendering slices count
+ */
 int Settings3DDockWidget::getVolumeRenderingSlices() const
 {
     return ui->horizontalSliderVRSlices->value();
 }
 
+/**
+ * @brief Sets interpolation mode
+ * @param[in] value Interpolation mode
+ */
 void Settings3DDockWidget::setInterpolationMode(int value)
 {
     ui->comboBoxInterpolationMode->setCurrentIndex(value);
     emit interpolationModeChanged(value);
 }
 
+/**
+ * @brief Sets volume rendering mode
+ * @param[in] value Volume rendering mode
+ */
 void Settings3DDockWidget::setVolumeRenderingMode(int value)
 {
     ui->comboBoxVolumeRenderingMode->setCurrentIndex(value);
     emit volumeRenderingModeChanged(value);
 }
 
+/**
+ * @brief Sets volume rendering slices count
+ * @param[in] value Volume rendering slices count
+ */
 void Settings3DDockWidget::setVolumeRenderingSlices(int value)
 {
     ui->horizontalSliderVRSlices->setValue(value);

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with MinMaxGroupBox class declaration.
  *
@@ -30,6 +30,9 @@ namespace Ui {
 class MinMaxGroupBox;
 }
 
+/**
+ * @brief The MinMaxGroupBox class represents wrapper for the min/max group box
+ */
 class MinMaxGroupBox : public QGroupBox, public AbstractWidget
 {
     Q_OBJECT
@@ -43,8 +46,20 @@ public:
     bool getMinMaxValuesTrim() const;
 
 signals:
+    /**
+     * @brief Min value changed signal
+     * @param[in] min Minimal value
+     */
     void minValueChanged(float min);
+    /**
+     * @brief Max value changed signal
+     * @param[in] max Maximal value
+     */
     void maxValueChanged(float max);
+    /**
+     * @brief Min/Max value trim changed signal
+     * @param[in] value True/False
+     */
     void minMaxValuesTrimChanged(bool value);
 
 public slots:
@@ -64,6 +79,7 @@ private slots:
 private:
     Q_DISABLE_COPY(MinMaxGroupBox)
 
+    /// User interface
     Ui::MinMaxGroupBox *ui;
 };
 

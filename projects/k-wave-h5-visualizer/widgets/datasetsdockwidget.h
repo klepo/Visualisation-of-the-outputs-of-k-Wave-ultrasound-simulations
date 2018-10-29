@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with DatasetsDockWidget class declaration.
  *
@@ -35,6 +35,9 @@ namespace Ui {
 class DatasetsDockWidget;
 }
 
+/**
+ * @brief The DatasetsDockWidget class represents wrapper for the datasets dock widget
+ */
 class DatasetsDockWidget : public QDockWidget, public AbstractWidget
 {
     Q_OBJECT
@@ -44,6 +47,11 @@ public:
     ~DatasetsDockWidget();
 
 signals:
+    /**
+     * @brief Dataset selection changed signal
+     * @param[in] id Dataset index in table
+     * @param[in] flag Selection flag
+     */
     void datasetSelectionChanged(int id, bool flag);
 
 public slots:
@@ -56,8 +64,11 @@ private slots:
 private:
     Q_DISABLE_COPY(DatasetsDockWidget)
 
+    /// Radio buttons group
     QButtonGroup *qRadioButtonGroup = nullptr;
+    /// Check box buttons group
     QButtonGroup *qCheckBoxGroup = nullptr;
+    /// User interface
     Ui::DatasetsDockWidget *ui;
 };
 

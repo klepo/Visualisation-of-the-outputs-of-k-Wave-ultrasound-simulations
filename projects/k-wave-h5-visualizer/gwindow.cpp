@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing GWindow class definition.
  *
@@ -24,7 +24,9 @@
 
 /**
  * @brief Creates GWindow
- * @param[in] qMainWindow QMainWindow (optional)
+ * @param[in] parent Parent QWidget (optional)
+ *
+ * Parent is used for same background color in 3D scene.
  */
 GWindow::GWindow(QWidget *parent)
 {
@@ -295,6 +297,8 @@ void GWindow::setInterpolationMode(int mode)
 void GWindow::setObject(H5ObjectToVisualize *object)
 {
     if (initialized) {
+        sceneName = QString::fromStdString(object->getFile()->getFilename()) + "_" + object->getOnlyName() + "_3Dscene";
+
         connect(object, SIGNAL(minValueChanged(float)), this, SLOT(setMinValue(float)));
         connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));
         connect(object, SIGNAL(colormapChanged(ColorMap::Type)), this, SLOT(setColormap(ColorMap::Type)));
@@ -380,6 +384,8 @@ void GWindow::setObject(H5ObjectToVisualize *object)
 void GWindow::clear()
 {
     if (initialized) {
+        sceneName = "no_name";
+
         disconnect(this, SIGNAL(viewVolumeRenderingChanged(bool)), nullptr, nullptr);
 
         setCompressRendering(false);
@@ -403,18 +409,11 @@ void GWindow::clear()
 }
 
 /**
- * @brief Saves image
- * @param[in] filename Filename
+ * @brief Saves 3D scene image
  */
 void GWindow::saveImage()
 {
-    QString name = "no_name";
-    /*if (object) {
-        QString filename = QString::fromStdString(object->getFile()->getFilename());
-        QString objectName = object->getOnlyName();
-        name = filename + "_" + objectName + "_3Dscene";
-    }*/
-    QString imagefilename = QFileDialog::getSaveFileName(nullptr, "Save image", name + ".png", "Image (*.png)");
+    QString imagefilename = QFileDialog::getSaveFileName(nullptr, "Save image", sceneName + ".png", "Image (*.png)");
 
     if (!imagefilename.isEmpty()) {
         // Save 3D scene to png image
@@ -1161,11 +1160,11 @@ void GWindow::setColormap(ColorMap::Type colormap)
  * @brief Changes opacity
  * @param[in] opacity Opacity
  */
-void GWindow::setOpacity(QVector<float> value)
+void GWindow::setOpacity(QVector<float> opacity)
 {
-    if (value.size() > 0) {
+    if (opacity.size() > 0) {
         glBindTexture(GL_TEXTURE_1D, opacityTexture);
-        glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, value.size(), 0, GL_RED, GL_FLOAT, value.data());
+        glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, opacity.size(), 0, GL_RED, GL_FLOAT, opacity.data());
         glBindTexture(GL_TEXTURE_1D, 0);
         renderLater();
     }
@@ -1365,7 +1364,8 @@ void GWindow::set3DCompressData(float *dataLC, float *dataCC, hsize_t localStep)
 }
 
 /**
- * @brief Renders Box
+ * @brief Renders filled box or box frame
+ * @param[in] frame Frame flag (optional)
  */
 void GWindow::renderBox(bool frame)
 {

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              23 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with FileInfoDockWidget class declaration.
  *
@@ -32,6 +32,9 @@ namespace Ui {
 class FileInfoDockWidget;
 }
 
+/**
+ * @brief The FileInfoDockWidget class represents wrapper for the file info dock widget
+ */
 class FileInfoDockWidget : public QDockWidget, public AbstractWidget
 {
     Q_OBJECT
@@ -47,6 +50,7 @@ public slots:
 private:
     Q_DISABLE_COPY(FileInfoDockWidget)
 
+    /// User interface
     Ui::FileInfoDockWidget *ui;
 };
 

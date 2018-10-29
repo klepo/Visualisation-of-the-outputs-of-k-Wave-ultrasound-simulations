@@ -1,9 +1,9 @@
 /**
- * @file        hdf5readingthread.h
+ * @file        h5readingthread.h
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with HDF5ReadingThread and Request class declaration.
  *
@@ -60,8 +60,8 @@ class H5ReadingThread : public QThread
 public:
     H5ReadingThread(QObject *parent = nullptr);
     ~H5ReadingThread();
-    void setCompressHelper(H5Helper::CompressHelper *compressHelper);
 
+    void setCompressHelper(H5Helper::CompressHelper *compressHelper);
     hsize_t getLocalStep() const;
     float *getDataLC() const;
     float *getDataCC() const;
@@ -84,19 +84,35 @@ signals:
 private:
     Q_DISABLE_COPY(H5ReadingThread)
 
+    /// Mutex for HDF5 reading
     static QMutex mutex;
-    QMutex queueMutex, requestMutex;
+    /// Mutex for queue
+    QMutex queueMutex;
+    /// Mutex for request
+    QMutex requestMutex;
+    /// Queue
     QQueue<Request *> queue;
+    /// Done requests
     QList<Request *> doneRequests;
+    /// Last compress coefficient data
     float *dataLC = nullptr;
+    /// Current compress coefficient data
     float *dataCC = nullptr;
+    /// Last compress coefficient offset
     H5Helper::Vector4D offsetLC;
+    /// Current compress coefficient offset
     H5Helper::Vector4D offsetCC;
+    /// Local step
     hsize_t localStep = 0;
+    /// Compress helper
     H5Helper::CompressHelper *compressHelper = nullptr;
+    /// Mean read time
     double meanTime = 0;
+    /// Read counter
     hsize_t readCount = 0;
+    /// Read time sum
     double timeSum = 0;
+    /// Stop flag
     bool stopFlag = false;
 
 };

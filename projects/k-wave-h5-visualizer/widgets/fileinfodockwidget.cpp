@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing FileInfoDockWidget class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "fileinfodockwidget.h"
 
+/**
+ * @brief Creates FileInfoDockWidget object
+ * @param[in] parent Parent (optional)
+ */
 FileInfoDockWidget::FileInfoDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::FileInfoDockWidget)
@@ -26,12 +30,21 @@ FileInfoDockWidget::FileInfoDockWidget(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/**
+ * @brief Destructor of FileInfoDockWidget
+ *
+ * Deletes ui and clears widget content.
+ */
 FileInfoDockWidget::~FileInfoDockWidget()
 {
     clear();
     delete ui;
 }
 
+/**
+ * @brief Sets file
+ * @param[in] file H5OpenedFile
+ */
 void FileInfoDockWidget::setFile(H5OpenedFile *file)
 {
     // Set info from HDF5 file to GUI (dock panel)
@@ -43,6 +56,9 @@ void FileInfoDockWidget::setFile(H5OpenedFile *file)
     v->setValue(v->minimum());
 }
 
+/**
+ * @brief Clears file info
+ */
 void FileInfoDockWidget::clear()
 {
     ui->textBrowserInfo->clear();

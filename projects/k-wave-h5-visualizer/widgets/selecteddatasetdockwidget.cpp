@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing SelectedDatasetDockWidget class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "selecteddatasetdockwidget.h"
 
+/**
+ * @brief Creates SelectedDatasetDockWidget object
+ * @param[in] parent Parent (optional)
+ */
 SelectedDatasetDockWidget::SelectedDatasetDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::SelectedDatasetDockWidget)
@@ -26,12 +30,21 @@ SelectedDatasetDockWidget::SelectedDatasetDockWidget(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/**
+ * @brief Destructor of SelectedDatasetDockWidget
+ *
+ * Deletes ui and clears selected dataset settings.
+ */
 SelectedDatasetDockWidget::~SelectedDatasetDockWidget()
 {
     clear();
     delete ui;
 }
 
+/**
+ * @brief Sets H5ObjectToVisualize object
+ * @param[in] object H5ObjectToVisualize
+ */
 void SelectedDatasetDockWidget::setObject(H5ObjectToVisualize *object)
 {
     clear();
@@ -66,6 +79,9 @@ void SelectedDatasetDockWidget::setObject(H5ObjectToVisualize *object)
     ui->groupBoxSelectedDatasetInfo->setInfo(object->getInfo());
 }
 
+/**
+ * @brief Clears selected dataset settings and disconnects signals
+ */
 void SelectedDatasetDockWidget::clear()
 {
     // Reset time series control

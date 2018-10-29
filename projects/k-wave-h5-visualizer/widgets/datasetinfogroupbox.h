@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with DatasetInfoGroupBox class declaration.
  *
@@ -31,6 +31,9 @@ namespace Ui {
 class DatasetInfoGroupBox;
 }
 
+/**
+ * @brief The DatasetInfoGroupBox class represents wrapper for the dataset info group box
+ */
 class DatasetInfoGroupBox : public QGroupBox, public AbstractWidget
 {
     Q_OBJECT
@@ -48,7 +51,9 @@ public slots:
 private:
     Q_DISABLE_COPY(DatasetInfoGroupBox)
 
+    /// User interface
     Ui::DatasetInfoGroupBox *ui;
+    /// Dataset info list
     QList<QPair<QString, QString>> info;
 };
 

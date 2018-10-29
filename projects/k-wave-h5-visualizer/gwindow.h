@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -51,6 +51,10 @@ public:
     QImage getImage();
 
 signals:
+    /**
+     * @brief View volume rendering changed signal
+     * @param[in] value View volume rendering flag
+     */
     void viewVolumeRenderingChanged(bool value);
 
 public slots:
@@ -87,7 +91,7 @@ private slots:
     void setMinValue(float value = 0.0f);
     void setMaxValue(float value = 0.0f);
     void setColormap(ColorMap::Type colormap = ColorMap::JET);
-    void setOpacity(QVector<float> value = QVector<float>(1, 1));
+    void setOpacity(QVector<float> opacity = QVector<float>(1, 1));
     void setTrim(bool value = false);
 
     void setFrameSize(H5Helper::Vector3D size);
@@ -112,95 +116,176 @@ private:
     void unloadSlicesTextures();
     QPointF convertPointToOpenGLRelative(QPointF point);
 
+    /// Parent
     QWidget *parent = nullptr;
+    /// Compress helper
     H5Helper::CompressHelper *compressHelper = nullptr;
 
+    /// Shader program
     QOpenGLShaderProgram *program = nullptr;
 
+    /// Position attribute handle
     GLint aPosition;
 
+    // Uniforms
+    /// Main transformation matrix uniform id
     GLint uMatrix;
+    /// Slice matrix uniform id
     GLint uSliceMatrix;
 
+    /// Volume texture uniform id
     GLint uVolumeTexture;
+    /// Volume texture for last compression coefficients uniform id
     GLint uVolumeTextureLC;
+    /// Volume texture for last current coefficients uniform id
     GLint uVolumeTextureCC;
+    /// Complex exponencial window basis texture uniform id
     GLint uTextureBE;
+    /// Inverted complex exponencial window basis texture uniform id
     GLint uTextureBE_1;
+    /// Colormap texture uniform id
     GLint uColormapTexture;
+    /// Opacity texture uniform id
     GLint uOpacityTexture;
+    /// Slice texture uniform id
     GLint uSliceTexture;
+    /// Back box texture uniform id
     GLint uBoxBackSampler;
+    /// Front box texture uniform id
     GLint uBoxFrontSampler;
 
+    /// Local step times 2 uniform id
     GLint uStepLocal2;
+    /// Number of harmonics uniform id
     GLint uHarmonics;
+    /// Base size times 2 uniform id
     GLint uBSize2;
 
+    /// Render frame uniform id
     GLint uFrame;
+    /// Render slices uniform id
     GLint uSlices;
+    /// Render XY border uniform id
     GLint uXYBorder;
+    /// Render XZ border uniform id
     GLint uXZBorder;
+    /// Render YZ border uniform id
     GLint uYZBorder;
+    /// Render volume rendering box uniform id
     GLint uVolumeRenderingBox;
+    /// Render volume rendering uniform id
     GLint uVolumeRendering;
+    /// Render compress rendering uniform id
     GLint uVolumeCompressRendering;
+    /// Trim uniform id
     GLint uTrim;
+    /// Number of steps uniform id
     GLint uSteps;
+    /// Frame color uniform id
     GLint uFrameColor;
+    /// Viewport width uniform id
     GLint uWidth;
+    /// Viewport height uniform id
     GLint uHeight;
+    /// Minimum uniform id
     GLint uMin;
+    /// Maximum uniform id
     GLint uMax;
+    /// Volume rendering mode uniform id
     GLint uMode;
 
+    /// Slice elements buffer
     QOpenGLBuffer iboSliceElements;
+    /// Cube elements buffer
     QOpenGLBuffer iboCubeElements;
+    /// Slice vertices buffer
     QOpenGLBuffer vboSliceVertices;
+    /// Cube vertices buffer
     QOpenGLBuffer vboCubeVertices;
 
+    // OpenGL handles
+    /// Vertex array object handle
     GLuint vao;
+    /// Volume texture handle
     GLuint texture;
+    /// Volume texture for last compression coefficients handle
     GLuint textureLC;
+    /// Volume texture for last current coefficients handle
     GLuint textureCC;
+    /// Complex exponencial window basis texture handle
     GLuint textureBE;
+    /// Inverted complex exponencial window basis texture handle
     GLuint textureBE_1;
+    /// Complex exponencial window basis texture buffer handle
     GLuint textureBufferBE;
+    /// Inverted complex exponencial window basis texture buffer handle
     GLuint textureBufferBE_1;
-    GLuint textureFboBack;
-    GLuint textureFboFront;
+    /// Colormap texture handle
     GLuint colormapTexture;
+    /// Opacity texture handle
     GLuint opacityTexture;
+    /// XY Slice texture handle
     GLuint textureXY;
+    /// XZ Slice texture handle
     GLuint textureXZ;
+    /// YZ Slice texture handle
     GLuint textureYZ;
+    /// Back box texture handle
+    GLuint textureFboBack;
+    /// Front box texture handle
+    GLuint textureFboFront;
+    /// Framebuffer object handle
     GLuint fbo;
+    /// Renderbuffer object handle
     GLuint rbo;
 
+    // Scene manipulation
+    /// Rotate x axis matrix
     QMatrix4x4 rotateXMatrix;
+    /// Rotate y axis matrix
     QMatrix4x4 rotateYMatrix;
+    /// Zoom
     float zoom = 1.0f;
+    /// Position
     QVector3D position;
 
+    /// Frame size
     QVector3DI frameSize = QVector3DI(1, 1, 1);
+    /// Dataset size
     QVector3DI datasetSize = QVector3DI(1, 1, 1);
+    /// Dataset position (sensor mask position)
     QVector3DI datasetPosition = QVector3DI(0, 0, 0);
+    /// Slice index
     QVector3D sliceIndex = QVector3D(0.5, 0.5, 0.5);
 
+    /// Trim flag
     bool trim = false;
+    /// Number of steps for volume ray casting
     int slicesCount = 500;
+    /// Volume rendering mode
     int vRMode = 0;
-
-    bool volumeRendering = false;
-    bool sliceXY = false;
-    bool sliceXZ = false;
-    bool sliceYZ = false;
-    bool frame = true;
-    bool fillSpace = false;
-    bool orthogonal = false;
-
+    /// Iterpolation mode
     int intMode = GL_LINEAR;
 
+    /// View volume rendering flag
+    bool volumeRendering = false;
+    /// View slice XY flag
+    bool sliceXY = false;
+    /// View slice XZ flag
+    bool sliceXZ = false;
+    /// View slice YZ flag
+    bool sliceYZ = false;
+    /// View frame flag
+    bool frame = true;
+    /// Fill space (by sensor mask) flag
+    bool fillSpace = false;
+    /// View orthogonal projection flag
+    bool orthogonal = false;
+
+    /// Name of 3D scene for saving an image
+    QString sceneName = "no_name";
+
+    /// Initialization flag
     bool initialized = false;
 };
 

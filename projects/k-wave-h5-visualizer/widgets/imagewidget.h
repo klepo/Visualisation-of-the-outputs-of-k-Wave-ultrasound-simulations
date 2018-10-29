@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with ImageWidget class declaration.
  *
@@ -56,7 +56,8 @@ public slots:
     void setAdjust(bool adjust);
     void clearImage();
     void refreshImage();
-    void showImage(const QImage &image, QPoint = QPoint(0,0), QString filename = "");
+    void setFilename(QString filename = "");
+    void showImage(const QImage &image, QPoint = QPoint(0,0));
     void saveImage();
 
 private:
@@ -66,11 +67,17 @@ private:
     void paintEvent(QPaintEvent *);
     void mouseMoveEvent(QMouseEvent *);
 
+    /// Original image
     QImage originalImage;
+    /// Scaled image
     QImage scaledImage;
+    /// Point
     QPoint point;
+    /// Filename
     QString filename;
+    /// Adjust flag
     bool adjustFlag;
+    /// Has image flag
     bool hasImage;
 };
 

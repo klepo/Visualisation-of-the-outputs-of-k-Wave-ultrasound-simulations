@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing TimeSeriesControlGroupBox class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "timeseriescontrolgroupbox.h"
 
+/**
+ * @brief Creates TimeSeriesControlGroupBox object
+ * @param[in] parent Parent (optional)
+ */
 TimeSeriesControlGroupBox::TimeSeriesControlGroupBox(QWidget *parent) :
     QGroupBox(parent),
     ui(new Ui::TimeSeriesControlGroupBox)
@@ -30,6 +34,11 @@ TimeSeriesControlGroupBox::TimeSeriesControlGroupBox(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(updateStep()));
 }
 
+/**
+ * @brief Destructor of TimeSeriesControlGroupBox
+ *
+ * Deletes ui and timer.
+ */
 TimeSeriesControlGroupBox::~TimeSeriesControlGroupBox()
 {
     delete ui;
@@ -37,6 +46,10 @@ TimeSeriesControlGroupBox::~TimeSeriesControlGroupBox()
     timer = nullptr;
 }
 
+/**
+ * @brief Set total number of steps
+ * @param[in] steps Number of steps
+ */
 void TimeSeriesControlGroupBox::setSteps(int steps)
 {
     clear();
@@ -47,11 +60,18 @@ void TimeSeriesControlGroupBox::setSteps(int steps)
     ui->spinBoxSelectedDatasetStep->setValue(0);
 }
 
+/**
+ * @brief Sets current step
+ * @param[in] step Step
+ */
 void TimeSeriesControlGroupBox::setCurrentStep(int step)
 {
     ui->spinBoxSelectedDatasetStep->setValue(step);
 }
 
+/**
+ * @brief Continues playing if is active
+ */
 void TimeSeriesControlGroupBox::continuePlaying()
 {
     if (playing && !timer->isActive()) {
@@ -59,6 +79,9 @@ void TimeSeriesControlGroupBox::continuePlaying()
     }
 }
 
+/**
+ * @brief Disconnects signals, stops playing a resets values
+ */
 void TimeSeriesControlGroupBox::clear()
 {
     disconnect(this, SIGNAL(stepChanged(int)), nullptr, nullptr);
@@ -79,6 +102,9 @@ void TimeSeriesControlGroupBox::clear()
     ui->spinBoxTMInterval->setValue(0);
 }
 
+/**
+ * @brief Updates step
+ */
 void TimeSeriesControlGroupBox::updateStep()
 {
     // Get current step
@@ -100,12 +126,19 @@ void TimeSeriesControlGroupBox::updateStep()
     }
 }
 
-
+/**
+ * @brief Spin box selected dataset step value changed slot
+ * @param[in] step Spin box value
+ */
 void TimeSeriesControlGroupBox::on_spinBoxSelectedDatasetStep_valueChanged(int step)
 {
     emit stepChanged(step);
 }
 
+/**
+ * @brief Tool button play clicked slot
+ * @param[in] checked Play button state
+ */
 void TimeSeriesControlGroupBox::on_toolButtonPlay_clicked(bool checked)
 {
     if (checked) {
@@ -117,6 +150,9 @@ void TimeSeriesControlGroupBox::on_toolButtonPlay_clicked(bool checked)
     }
 }
 
+/**
+ * @brief Tool button start clicked slot
+ */
 void TimeSeriesControlGroupBox::on_toolButtonStart_clicked()
 {
     timer->stop();
@@ -125,6 +161,9 @@ void TimeSeriesControlGroupBox::on_toolButtonStart_clicked()
     ui->spinBoxSelectedDatasetStep->setValue(0);
 }
 
+/**
+ * @brief Tool button end clicked slot
+ */
 void TimeSeriesControlGroupBox::on_toolButtonEnd_clicked()
 {
     timer->stop();
@@ -133,6 +172,10 @@ void TimeSeriesControlGroupBox::on_toolButtonEnd_clicked()
     ui->spinBoxSelectedDatasetStep->setValue(ui->spinBoxSelectedDatasetStep->maximum());
 }
 
+/**
+ * @brief Spin box time interval value changed slot
+ * @param[in] value Spin box value
+ */
 void TimeSeriesControlGroupBox::on_spinBoxTMInterval_valueChanged(int value)
 {
     timer->setInterval(value);

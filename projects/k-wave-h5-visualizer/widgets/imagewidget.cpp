@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing ImageWidget class definition.
  *
@@ -105,15 +105,22 @@ void ImageWidget::refreshImage()
 }
 
 /**
+ * @brief Sets filename for image saving
+ * @param[in] filename Filename
+ */
+void ImageWidget::setFilename(QString filename)
+{
+    this->filename = filename;
+}
+
+/**
  * @brief Sets image to widget
  * @param[in] image Image
  * @param[in] point Position of sensor mask image (unused)
- * @param[in] fileName Name for png image saving
  */
-void ImageWidget::showImage(const QImage &image, QPoint point, QString fileName)
+void ImageWidget::showImage(const QImage &image, QPoint point)
 {
     // Save some info
-    this->filename = fileName;
     this->point = point;
     hasImage = true;
     originalImage = image;

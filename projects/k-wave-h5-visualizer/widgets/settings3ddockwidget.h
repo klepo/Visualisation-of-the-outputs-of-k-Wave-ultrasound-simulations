@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with Settings3DDockWidget class declaration.
  *
@@ -28,6 +28,9 @@ namespace Ui {
 class Settings3DDockWidget;
 }
 
+/**
+ * @brief The Settings3DDockWidget class represents wrapper for the settings 3D dock widget
+ */
 class Settings3DDockWidget : public QDockWidget
 {
     Q_OBJECT
@@ -46,13 +49,26 @@ public slots:
     void setVolumeRenderingSlices(int value);
 
 signals:
+    /**
+     * @brief Interpolation mode changed signal
+     * @param[in] value Interpolation mode
+     */
     void interpolationModeChanged(int value);
+    /**
+     * @brief Volume rendering mode changed signal
+     * @param[in] value Volume rendering mode
+     */
     void volumeRenderingModeChanged(int value);
+    /**
+     * @brief Volume rendering slices count changed signal
+     * @param[in] value Volume rendering slices count
+     */
     void volumeRenderingSlicesChanged(int value);
 
 private:
     Q_DISABLE_COPY(Settings3DDockWidget)
 
+    /// User interface
     Ui::Settings3DDockWidget *ui;
 };
 

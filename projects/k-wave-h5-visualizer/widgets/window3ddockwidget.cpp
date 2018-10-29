@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing Window3DDockWidget class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "window3ddockwidget.h"
 
+/**
+ * @brief Creates Window3DDockWidget object
+ * @param[in] parent Parent (optional)
+ */
 Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::Window3DDockWidget)
@@ -41,6 +45,11 @@ Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
     //ui->label3DLoading->setMovie(movie);
 }
 
+/**
+ * @brief Destructor of Window3DDockWidget
+ *
+ * Deletes ui, gWindow and clears gWindow.
+ */
 Window3DDockWidget::~Window3DDockWidget()
 {
     clear();
@@ -49,11 +58,19 @@ Window3DDockWidget::~Window3DDockWidget()
     gWindow = nullptr;
 }
 
+/**
+ * @brief Returns OpenGL window
+ * @return OpenGL window
+ */
 GWindow *Window3DDockWidget::getGWindow() const
 {
     return gWindow;
 }
 
+/**
+ * @brief Sets H5ObjectToVisualize object
+ * @param[in] object H5ObjectToVisualize
+ */
 void Window3DDockWidget::setObject(H5ObjectToVisualize *object)
 {
     clear();
@@ -62,12 +79,19 @@ void Window3DDockWidget::setObject(H5ObjectToVisualize *object)
     connect(object, SIGNAL(currentData3DLoaded()), this, SLOT(hideLabel3DLoading()));
 }
 
+/**
+ * @brief Clears OpenGL window
+ */
 void Window3DDockWidget::clear()
 {
     gWindow->clear();
     hideLabel3DLoading();
 }
 
+/**
+ * @brief Toggles label 3D loading animation
+ * @param[in] value True/False
+ */
 void Window3DDockWidget::toggleLabel3DLoading(bool value)
 {
     if (value) {
@@ -77,11 +101,17 @@ void Window3DDockWidget::toggleLabel3DLoading(bool value)
     }
 }
 
+/**
+ * @brief Hides label 3D loading animation
+ */
 void Window3DDockWidget::hideLabel3DLoading()
 {
     ui->label3DLoading->clear();
 }
 
+/**
+ * @brief Shows label 3D loading animation
+ */
 void Window3DDockWidget::showLabel3DLoading()
 {
     ui->label3DLoading->setMovie(movie);

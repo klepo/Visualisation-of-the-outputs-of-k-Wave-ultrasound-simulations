@@ -1,5 +1,5 @@
 /**
- * @file        h5subobjecttovisualize.cpp
+ * @file        h5objecttovisualize.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
@@ -27,8 +27,6 @@
  * @brief Creates H5ObjectToVisualize object
  * @param[in] dataset Dataset
  * @param[in] type Object type
- * @param[in] openedH5File Opened file
- * @param[in] h5ObjectToVisualize Object to visualize
  * @param[in] parent Parent (optional)
  */
 H5ObjectToVisualize::H5ObjectToVisualize(H5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, QObject *parent)
@@ -283,16 +281,25 @@ void H5ObjectToVisualize::reloadSlices()
     reloadYZ();
 }
 
+/**
+ * @brief Reloads XY slice
+ */
 void H5ObjectToVisualize::reloadXY()
 {
     setZIndex(int(index.z()));
 }
 
+/**
+ * @brief Reloads XZ slice
+ */
 void H5ObjectToVisualize::reloadXZ()
 {
     setYIndex(int(index.y()));
 }
 
+/**
+ * @brief Reloads YZ slice
+ */
 void H5ObjectToVisualize::reloadYZ()
 {
     setXIndex(int(index.x()));
@@ -300,7 +307,7 @@ void H5ObjectToVisualize::reloadYZ()
 
 /**
  * @brief Slice XY loaded slot
- * @param[in] r Request
+ * @param[in] request Request
  */
 void H5ObjectToVisualize::sliceXYLoaded(Request *request)
 {
@@ -318,7 +325,7 @@ void H5ObjectToVisualize::sliceXYLoaded(Request *request)
 
 /**
  * @brief Slice XZ loaded slot
- * @param[in] r request
+ * @param[in] request Request
  */
 void H5ObjectToVisualize::sliceXZLoaded(Request *request)
 {
@@ -336,7 +343,7 @@ void H5ObjectToVisualize::sliceXZLoaded(Request *request)
 
 /**
  * @brief Slice YZ loaded slot
- * @param[in] r request
+ * @param[in] request Request
  */
 void H5ObjectToVisualize::sliceYZLoaded(Request *request)
 {
@@ -352,6 +359,10 @@ void H5ObjectToVisualize::sliceYZLoaded(Request *request)
     threadYZ->deleteDoneRequest(request);
 }
 
+/**
+ * @brief Data 3D loaded slot
+ * @param[in] request Request
+ */
 void H5ObjectToVisualize::data3DLoaded(Request *request)
 {
     if (index.t() == H5Helper::Vector4D(request->offset).t()) {
@@ -369,6 +380,9 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
     thread3D->deleteDoneRequest(request);
 }
 
+/**
+ * @brief Checks current data is loaded
+ */
 void H5ObjectToVisualize::checkCurrentDataIsLoaded()
 {
     if (loadData3DFlag) {
@@ -463,6 +477,9 @@ QImage H5ObjectToVisualize::createImageYZ()
     return qimage;
 }
 
+/**
+ * @brief Starts loading of 3D data
+ */
 void H5ObjectToVisualize::load3Ddata()
 {
     thread3D->createRequest(dataset, index.t(), data3D);
@@ -470,41 +487,73 @@ void H5ObjectToVisualize::load3Ddata()
     thread3D->start();
 }
 
+/**
+ * @brief Returns min/max values trim flag
+ * @return Min/max values trim flag
+ */
 bool H5ObjectToVisualize::getMinMaxValuesTrim() const
 {
     return minMaxValuesTrimFlag;
 }
 
+/**
+ * @brief Are current data 3D loaded?
+ * @return True/False
+ */
 bool H5ObjectToVisualize::areCurrentData3DLoaded() const
 {
     return currentData3DLoadedFlag;
 }
 
+/**
+ * @brief Returns data 3D
+ * @return Data 3D
+ */
 float *H5ObjectToVisualize::getData3D() const
 {
     return data3D;
 }
 
+/**
+ * @brief Returns data 3D for last compress coefficient
+ * @return Data 3D for last compress coefficient
+ */
 float *H5ObjectToVisualize::getData3DLC() const
 {
     return thread3D->getDataLC();
 }
 
+/**
+ * @brief Returns data 3D for current compress coefficient
+ * @return Data 3D for current compress coefficient
+ */
 float *H5ObjectToVisualize::getData3DCC() const
 {
     return thread3D->getDataCC();
 }
 
+/**
+ * @brief Returns local step
+ * @return Local step
+ */
 hsize_t H5ObjectToVisualize::getLocalStep() const
 {
     return thread3D->getLocalStep();
 }
 
+/**
+ * @brief Returns data 3D loading flag
+ * @return Data 3D loading flag
+ */
 bool H5ObjectToVisualize::getData3DLoadingFlag() const
 {
     return loadData3DFlag;
 }
 
+/**
+ * @brief Sets data 3D loading flag
+ * @param[in] value Data 3D loading flag
+ */
 void H5ObjectToVisualize::setData3DLoadingFlag(bool value)
 {
   loadData3DFlag = value;
@@ -512,21 +561,39 @@ void H5ObjectToVisualize::setData3DLoadingFlag(bool value)
       load3Ddata();
 }
 
+/**
+ * @brief Sets hovered point in image XY
+ * @param[in] x X position
+ * @param[in] y Y position
+ */
 void H5ObjectToVisualize::setHoveredPointInImageXY(int x, int y)
 {
     emit(hoveredPointInImage(getValueAtPointFromXY(x, y)));
 }
 
+/**
+ * @brief Sets hovered point in image XZ
+ * @param[in] x X position
+ * @param[in] z Z position
+ */
 void H5ObjectToVisualize::setHoveredPointInImageXZ(int x, int z)
 {
     emit(hoveredPointInImage(getValueAtPointFromXZ(x, z)));
 }
 
+/**
+ * @brief Sets hovered point in image YZ
+ * @param[in] y Y position
+ * @param[in] z Z position
+ */
 void H5ObjectToVisualize::setHoveredPointInImageYZ(int y, int z)
 {
     emit(hoveredPointInImage(getValueAtPointFromYZ(y, z)));
 }
 
+/**
+ * @brief Disconnects all signals
+ */
 void H5ObjectToVisualize::disconnectSignals()
 {
     disconnect(this, SIGNAL(minValueChanged(float)), nullptr, nullptr);
@@ -565,32 +632,55 @@ void H5ObjectToVisualize::disconnectSignals()
     disconnect(this, SIGNAL(hoveredPointInImage(float)), nullptr, nullptr);
 }
 
+/**
+ * @brief Returns compress helper
+ * @return Compress helper
+ */
 H5Helper::CompressHelper *H5ObjectToVisualize::getCompressHelper() const
 {
   return compressHelper;
 }
 
+/**
+ * @brief Returns opacity
+ * @return opacity
+ */
 QVector<float> H5ObjectToVisualize::getOpacity() const
 {
   return opacity;
 }
 
-void H5ObjectToVisualize::setOpacity(const QVector<float> &value)
+/**
+ * @brief Sets opacity
+ * @param[in] opacity Opacity
+ */
+void H5ObjectToVisualize::setOpacity(const QVector<float> &opacity)
 {
-    opacity = value;
+    this->opacity = opacity;
     emit(opacityChanged(opacity));
 }
 
+/**
+ * @brief Is object selected?
+ * @return True/False
+ */
 bool H5ObjectToVisualize::isSelected() const
 {
     return selectedFlag;
 }
 
+/**
+ * @brief Sets object selection flag
+ * @param[in] value True/False
+ */
 void H5ObjectToVisualize::setSelected(bool value)
 {
     selectedFlag = value;
 }
 
+/**
+ * @brief Toggles selection flag
+ */
 void H5ObjectToVisualize::toggleSelected()
 {
     setSelected(!selectedFlag);
@@ -632,16 +722,28 @@ float *H5ObjectToVisualize::getDataYZ()
     return dataYZ;
 }
 
+/**
+ * @brief Returns image XY
+ * @return image XY
+ */
 QImage H5ObjectToVisualize::getImageXY()
 {
     return createImageXY();
 }
 
+/**
+ * @brief Returns image XZ
+ * @return image XZ
+ */
 QImage H5ObjectToVisualize::getImageXZ()
 {
     return createImageXZ();
 }
 
+/**
+ * @brief Returns image YZ
+ * @return image YZ
+ */
 QImage H5ObjectToVisualize::getImageYZ()
 {
     return createImageYZ();
@@ -726,6 +828,9 @@ void H5ObjectToVisualize::setZIndex(int value)
     threadXY->start();
 }
 
+/**
+ * @brief H5ObjectToVisualize::setToMaxValuePosition
+ */
 void H5ObjectToVisualize::setToMaxValuePosition()
 {
     setXIndex(int(H5Helper::Vector3D(maxValuePosition).x()));
@@ -734,6 +839,9 @@ void H5ObjectToVisualize::setToMaxValuePosition()
     setCurrentStep(int(H5Helper::Vector4D(maxValuePosition).t()));
 }
 
+/**
+ * @brief H5ObjectToVisualize::setToMinValuePosition
+ */
 void H5ObjectToVisualize::setToMinValuePosition()
 {
     setXIndex(int(H5Helper::Vector3D(minValuePosition).x()));
@@ -742,6 +850,10 @@ void H5ObjectToVisualize::setToMinValuePosition()
     setCurrentStep(int(H5Helper::Vector4D(minValuePosition).t()));
 }
 
+/**
+ * @brief H5ObjectToVisualize::setMinMaxValuesTrim
+ * @param value
+ */
 void H5ObjectToVisualize::setMinMaxValuesTrim(bool value)
 {
     minMaxValuesTrimFlag = value;

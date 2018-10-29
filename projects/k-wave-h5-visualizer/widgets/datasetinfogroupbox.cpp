@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing DatasetInfoGroupBox class definition.
  *
@@ -19,6 +19,10 @@
 
 #include "datasetinfogroupbox.h"
 
+/**
+ * @brief Creates DatasetInfoGroupBox object
+ * @param[in] parent Parent (optional)
+ */
 DatasetInfoGroupBox::DatasetInfoGroupBox(QWidget *parent) :
     QGroupBox(parent),
     ui(new Ui::DatasetInfoGroupBox)
@@ -26,17 +30,30 @@ DatasetInfoGroupBox::DatasetInfoGroupBox(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/**
+ * @brief Destructor of DatasetInfoGroupBox
+ *
+ * Deletes ui and clears info.
+ */
 DatasetInfoGroupBox::~DatasetInfoGroupBox()
 {
     clear();
     delete ui;
 }
 
+/**
+ * @brief Returns dataset info list
+ * @return Dataset info list
+ */
 QList<QPair<QString, QString> > DatasetInfoGroupBox::getInfo() const
 {
     return info;
 }
 
+/**
+ * @brief Sets dataset info
+ * @param[in] info Dataset info paired strings list
+ */
 void DatasetInfoGroupBox::setInfo(QList<QPair<QString, QString>> info)
 {
     clear();
@@ -45,6 +62,9 @@ void DatasetInfoGroupBox::setInfo(QList<QPair<QString, QString>> info)
         ui->formLayoutSelectedDatasetInfo->addRow(new QLabel(info[i].first + ":"), new QLabel(info[i].second));
 }
 
+/**
+ * @brief Clears info and layout
+ */
 void DatasetInfoGroupBox::clear()
 {
     info = QList<QPair<QString, QString>>();

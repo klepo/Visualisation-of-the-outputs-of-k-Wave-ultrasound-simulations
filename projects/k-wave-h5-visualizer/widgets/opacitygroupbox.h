@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              10 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with OpacityGroupBox class declaration.
  *
@@ -32,6 +32,9 @@ namespace Ui {
 class OpacityGroupBox;
 }
 
+/**
+ * @brief The OpacityGroupBox class represents wrapper for the opacity group box
+ */
 class OpacityGroupBox : public QGroupBox, public AbstractWidget
 {
     Q_OBJECT
@@ -43,12 +46,21 @@ public:
     float getValueAt(int id) const;
 
 signals:
-    void valueChanged(QVector<float> value);
-    void valueChangedAt(int id, float value);
+    /**
+     * @brief Value changed signal
+     * @param[in] opacity Opacity
+     */
+    void valueChanged(QVector<float> opacity);
+    /**
+     * @brief Value changed at index signal
+     * @param[in] index Opacity index
+     * @param[in] value Opacity value
+     */
+    void valueChangedAt(int index, float value);
 
 public slots:
-    void setValue(QVector<float> value);
-    void setValueAt(int id, float value);
+    void setValue(QVector<float> opacity);
+    void setValueAt(int index, float value);
     void clear();
 
 private slots:
@@ -58,12 +70,19 @@ private slots:
 private:
     Q_DISABLE_COPY(OpacityGroupBox)
 
+    /// User interface
     Ui::OpacityGroupBox *ui;
+    /// Opacity
     QVector<float> opacity;
+    /// Spin boxes
     QVector<QDoubleSpinBoxTS *> spinBoxes;
+    /// Sliders
     QVector<QSlider *> sliders;
+    /// Spin boxes mapper
     QSignalMapper spinBoxesMapper;
+    /// Slider mapper
     QSignalMapper sliderMapper;
+    /// Number of steps (sliders/spin boxes)
     static const int steps = 7;
 };
 

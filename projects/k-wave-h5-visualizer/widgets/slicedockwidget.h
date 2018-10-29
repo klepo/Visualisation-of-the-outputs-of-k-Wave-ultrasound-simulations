@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              25 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The header file with SliceDockWidget class declaration.
  *
@@ -32,6 +32,9 @@ namespace Ui {
 class SliceDockWidget;
 }
 
+/**
+ * @brief The SliceDockWidget class represents wrapper for the slice dock widget
+ */
 class SliceDockWidget : public QDockWidget, public AbstractWidget
 {
     Q_OBJECT
@@ -54,7 +57,16 @@ public:
     void setSliceType(const SliceType &value);
 
 signals:
+    /**
+     * @brief Hovered point in image message signal
+     * @param[in] message Message
+     * @param[in] timeout Timeout in ms
+     */
     void hoveredPointInImageMessage(QString message, int timeout = 3000);
+    /**
+     * @brief Slice index changed signal
+     * @param[in] value Slice index
+     */
     void sliceIndexChanged(int value);
 
 public slots:
@@ -64,7 +76,6 @@ public slots:
 
 private slots:
     void on_spinBox_valueChanged(int value);
-    void repaintImage(QImage image);
     void toggleLabelLoading(bool value);
     void hideLabelLoading();
     void showLabelLoading();
@@ -75,9 +86,13 @@ private:
     void setColor(QColor color);
     QString getImageFilename();
 
+    /// User interface
     Ui::SliceDockWidget *ui;
+    /// Slice type
     SliceType sliceType = XY;
+    /// Image name
     QString imageName;
+    /// Loading animation
     QMovie *movie;
 };
 
