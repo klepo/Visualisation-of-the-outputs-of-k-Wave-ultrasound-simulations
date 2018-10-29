@@ -76,7 +76,7 @@ OpenGLWindow::~OpenGLWindow()
 {
     //moveTimer->stop();
     //delete moveTimer;
-    //delete m_context; // Some BUG - deletion causes wrong freeing memory
+    //delete context; // Some BUG - deletion causes wrong freeing memory
     //thread->deleteLater();
 }
 

@@ -21,6 +21,14 @@
 
 #include "mainwindow.h"
 
+
+/**
+ * TODO:
+ *  use const for pointer agruments
+ *  const getters and other functions
+ *  sort methods
+ */
+
 /**
  * @brief Creates MainWindow
  * @param[in] parent Parent (optional)

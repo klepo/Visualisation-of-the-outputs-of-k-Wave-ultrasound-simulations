@@ -207,7 +207,7 @@ void SliceDockWidget::hideLabelLoading()
 }
 
 /**
- * @brief SliceDockWidget::Shows label loading
+ * @brief Shows label loading
  */
 void SliceDockWidget::showLabelLoading()
 {

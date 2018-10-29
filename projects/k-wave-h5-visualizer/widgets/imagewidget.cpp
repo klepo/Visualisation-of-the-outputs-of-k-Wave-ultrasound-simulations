@@ -162,7 +162,7 @@ void ImageWidget::paintEvent(QPaintEvent *)
 }
 
 /**
- * @brief ImageWidget::mouseMoveEvent
+ * @brief Mouse move event
  * @param[in] event Event
  */
 void ImageWidget::mouseMoveEvent(QMouseEvent *event)

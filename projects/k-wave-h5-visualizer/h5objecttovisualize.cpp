@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              23 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing H5ObjectToVisualize
  *              class definition.
@@ -829,7 +829,7 @@ void H5ObjectToVisualize::setZIndex(int value)
 }
 
 /**
- * @brief H5ObjectToVisualize::setToMaxValuePosition
+ * @brief Sets position to max value position
  */
 void H5ObjectToVisualize::setToMaxValuePosition()
 {
@@ -840,7 +840,7 @@ void H5ObjectToVisualize::setToMaxValuePosition()
 }
 
 /**
- * @brief H5ObjectToVisualize::setToMinValuePosition
+ * @brief Sets position to min value position
  */
 void H5ObjectToVisualize::setToMinValuePosition()
 {
@@ -851,8 +851,8 @@ void H5ObjectToVisualize::setToMinValuePosition()
 }
 
 /**
- * @brief H5ObjectToVisualize::setMinMaxValuesTrim
- * @param value
+ * @brief Sets min/max values trim
+ * @param[in] value True/False
  */
 void H5ObjectToVisualize::setMinMaxValuesTrim(bool value)
 {

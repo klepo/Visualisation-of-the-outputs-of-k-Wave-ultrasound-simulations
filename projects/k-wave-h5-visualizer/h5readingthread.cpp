@@ -89,7 +89,7 @@ QString Request::toQString()
 }
 
 /**
- * @brief H5ReadingThread::H5ReadingThread
+ * @brief Creates H5ReadingThread object
  * @param[in] parent
  */
 H5ReadingThread::H5ReadingThread(QObject *parent) : QThread(parent)

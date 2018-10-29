@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              29 October   2018 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -513,7 +513,7 @@ ParamsDefinition::ListOfStrings Settings::getNames() const
 }
 
 /**
- * @brief Settings::setNames
+ * @brief Sets selected datasets or groups
  * @param[in] value Selected datasets or groups names
  */
 void Settings::setNames(const ParamsDefinition::ListOfStrings &value)
