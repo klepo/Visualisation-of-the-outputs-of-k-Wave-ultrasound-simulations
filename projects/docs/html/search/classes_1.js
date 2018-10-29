@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['decompress',['Decompress',['../class_decompress.html',1,'']]],
-  ['difference',['Difference',['../class_difference.html',1,'']]],
-  ['downsampling',['Downsampling',['../class_downsampling.html',1,'']]],
-  ['dtsforpcs',['DtsForPcs',['../class_dts_for_pcs.html',1,'']]]
+  ['changechunks',['ChangeChunks',['../class_change_chunks.html',1,'']]],
+  ['colormap',['ColorMap',['../class_color_map.html',1,'']]],
+  ['compress',['Compress',['../class_compress.html',1,'']]],
+  ['compresshelper',['CompressHelper',['../class_h5_helper_1_1_compress_helper.html',1,'H5Helper']]]
 ];

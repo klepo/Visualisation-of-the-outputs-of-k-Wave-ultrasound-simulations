@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['reshape_2ecpp',['reshape.cpp',['../reshape_8cpp.html',1,'']]],
-  ['reshape_2eh',['reshape.h',['../reshape_8h.html',1,'']]]
+  ['imagewidget_2ecpp',['imagewidget.cpp',['../imagewidget_8cpp.html',1,'']]],
+  ['imagewidget_2eh',['imagewidget.h',['../imagewidget_8h.html',1,'']]]
 ];

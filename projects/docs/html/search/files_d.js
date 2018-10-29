@@ -1,10 +1,11 @@
 var searchData=
 [
-  ['vector_2ecpp',['vector.cpp',['../vector_8cpp.html',1,'']]],
-  ['vector_2eh',['vector.h',['../vector_8h.html',1,'']]],
-  ['vector3d_2ecpp',['vector3d.cpp',['../vector3d_8cpp.html',1,'']]],
-  ['vector3d_2eh',['vector3d.h',['../vector3d_8h.html',1,'']]],
-  ['vector4d_2ecpp',['vector4d.cpp',['../vector4d_8cpp.html',1,'']]],
-  ['vector4d_2eh',['vector4d.h',['../vector4d_8h.html',1,'']]],
-  ['vertices_2eh',['vertices.h',['../vertices_8h.html',1,'']]]
+  ['selecteddatasetdockwidget_2ecpp',['selecteddatasetdockwidget.cpp',['../selecteddatasetdockwidget_8cpp.html',1,'']]],
+  ['selecteddatasetdockwidget_2eh',['selecteddatasetdockwidget.h',['../selecteddatasetdockwidget_8h.html',1,'']]],
+  ['settings_2ecpp',['settings.cpp',['../settings_8cpp.html',1,'']]],
+  ['settings_2eh',['settings.h',['../settings_8h.html',1,'']]],
+  ['settings3ddockwidget_2ecpp',['settings3ddockwidget.cpp',['../settings3ddockwidget_8cpp.html',1,'']]],
+  ['settings3ddockwidget_2eh',['settings3ddockwidget.h',['../settings3ddockwidget_8h.html',1,'']]],
+  ['slicedockwidget_2ecpp',['slicedockwidget.cpp',['../slicedockwidget_8cpp.html',1,'']]],
+  ['slicedockwidget_2eh',['slicedockwidget.h',['../slicedockwidget_8h.html',1,'']]]
 ];

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['maxchunksizes',['maxChunkSizes',['../class_settings.html#a774d7cb51cbe0b1352149129112d1975',1,'Settings']]],
-  ['maxsize',['maxSize',['../class_settings.html#a7a720f8282f76ce117d9e787bdd52d12',1,'Settings']]],
-  ['mos',['mOS',['../class_settings.html#a5b94d5f29f17266d3e7f681237838549',1,'Settings']]]
+  ['groupid',['groupId',['../class_h5_helper_1_1_group.html#a7eb6fc645154d7ab9cf28883a39002dc',1,'H5Helper::Group']]],
+  ['gwindow',['gWindow',['../class_window3_d_dock_widget.html#a0b450f0a4fbc224553aecfa7b7deeeb2',1,'Window3DDockWidget']]]
 ];

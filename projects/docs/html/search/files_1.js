@@ -1,11 +1,11 @@
 var searchData=
 [
-  ['decompress_2ecpp',['decompress.cpp',['../decompress_8cpp.html',1,'']]],
-  ['decompress_2eh',['decompress.h',['../decompress_8h.html',1,'']]],
-  ['difference_2ecpp',['difference.cpp',['../difference_8cpp.html',1,'']]],
-  ['difference_2eh',['difference.h',['../difference_8h.html',1,'']]],
-  ['downsampling_2ecpp',['downsampling.cpp',['../downsampling_8cpp.html',1,'']]],
-  ['downsampling_2eh',['downsampling.h',['../downsampling_8h.html',1,'']]],
-  ['dtsforpcs_2ecpp',['dtsforpcs.cpp',['../dtsforpcs_8cpp.html',1,'']]],
-  ['dtsforpcs_2eh',['dtsforpcs.h',['../dtsforpcs_8h.html',1,'']]]
+  ['changechunks_2ecpp',['changechunks.cpp',['../changechunks_8cpp.html',1,'']]],
+  ['changechunks_2eh',['changechunks.h',['../changechunks_8h.html',1,'']]],
+  ['colormap_2ecpp',['colormap.cpp',['../colormap_8cpp.html',1,'']]],
+  ['colormap_2eh',['colormap.h',['../colormap_8h.html',1,'']]],
+  ['compress_2ecpp',['compress.cpp',['../compress_8cpp.html',1,'']]],
+  ['compress_2eh',['compress.h',['../compress_8h.html',1,'']]],
+  ['compresshelper_2ecpp',['compresshelper.cpp',['../compresshelper_8cpp.html',1,'']]],
+  ['compresshelper_2eh',['compresshelper.h',['../compresshelper_8h.html',1,'']]]
 ];

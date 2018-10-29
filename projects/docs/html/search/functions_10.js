@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['x',['x',['../class_h5_helper_1_1_vector3_d.html#a8029228b36864de24fb25c21a1504513',1,'H5Helper::Vector3D::x(hsize_t x) const'],['../class_h5_helper_1_1_vector3_d.html#a4a27b19de14939c780097000dd208e3c',1,'H5Helper::Vector3D::x(int x) const'],['../class_h5_helper_1_1_vector3_d.html#a3bbe49a2ac68543ef5a71db023dfbdba',1,'H5Helper::Vector3D::x() const'],['../class_h5_helper_1_1_vector4_d.html#a61885f19d33a25c360b3c2c9333e66f6',1,'H5Helper::Vector4D::x(hsize_t x) const'],['../class_h5_helper_1_1_vector4_d.html#abdf5d1f9c7a16e11528cda3440c9ebe7',1,'H5Helper::Vector4D::x(int x) const'],['../class_h5_helper_1_1_vector4_d.html#a15065d34128ddbc142cb0dec1f90fe31',1,'H5Helper::Vector4D::x() const']]],
-  ['xcorr',['xcorr',['../class_h5_helper_1_1_compress_helper.html#a37687ba3995adc200cb13c84d80753b0',1,'H5Helper::CompressHelper']]]
+  ['unload3dcompresstexture',['unload3DCompressTexture',['../class_g_window.html#a1839e59bb987303dd7fad452a70ce6a2',1,'GWindow']]],
+  ['unload3dtexture',['unload3DTexture',['../class_g_window.html#af8de93c823830f3f1f27db84c702aac7',1,'GWindow']]],
+  ['unloadslicestextures',['unloadSlicesTextures',['../class_g_window.html#aa7e278243cde907d7d2a728509ffe6b0',1,'GWindow']]],
+  ['updatestep',['updateStep',['../class_time_series_control_group_box.html#ae6911be3ccca7f55a5a0460d8d5f2e6d',1,'TimeSeriesControlGroupBox']]]
 ];

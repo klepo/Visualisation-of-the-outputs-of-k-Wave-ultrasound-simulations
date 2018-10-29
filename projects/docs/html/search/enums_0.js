@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['type',['Type',['../class_params_definition.html#a19a2d96c01e1db54ffc33064f869be57',1,'ParamsDefinition']]]
+  ['datasettype',['DatasetType',['../namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed',1,'H5Helper']]]
 ];

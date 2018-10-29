@@ -1,13 +1,9 @@
 var searchData=
 [
-  ['changechunks',['ChangeChunks',['../class_change_chunks.html',1,'ChangeChunks'],['../class_change_chunks.html#afcf3df6f58c74fa467f521cdfc318951',1,'ChangeChunks::ChangeChunks()']]],
-  ['changechunks_2ecpp',['changechunks.cpp',['../changechunks_8cpp.html',1,'']]],
-  ['changechunks_2eh',['changechunks.h',['../changechunks_8h.html',1,'']]],
-  ['changechunksofdataset',['changeChunksOfDataset',['../class_change_chunks.html#a001a70638e540839dfb02f21a2bba2b6',1,'ChangeChunks']]],
-  ['checkdatasettype',['checkDatasetType',['../class_processing.html#ab21761ef71325d221b7c0fdb133444b6',1,'Processing']]],
-  ['commandlineparse',['commandLineParse',['../class_params_definition.html#a884678551ffeca4125abfd2e106f51e6',1,'ParamsDefinition']]],
-  ['compress',['Compress',['../class_compress.html',1,'Compress'],['../class_compress.html#a8d2d198cbcd64cb5e1e711ef08b8c191',1,'Compress::Compress()']]],
-  ['compress_2ecpp',['compress.cpp',['../compress_8cpp.html',1,'']]],
-  ['compress_2eh',['compress.h',['../compress_8h.html',1,'']]],
-  ['copyattributes',['copyAttributes',['../class_processing.html#ab793bf993475b4a7cab5b33c9e0a6651',1,'Processing']]]
+  ['b',['b',['../class_h5_helper_1_1_compress_helper.html#a0723a5dabe1eb1fc03d69660c70c4e67',1,'H5Helper::CompressHelper']]],
+  ['be',['bE',['../class_h5_helper_1_1_compress_helper.html#a0b843927a3759baf9d5c7c9771d3b7a5',1,'H5Helper::CompressHelper']]],
+  ['be_5f1',['bE_1',['../class_h5_helper_1_1_compress_helper.html#a796eac8cad48de713ba468d09bb63ded',1,'H5Helper::CompressHelper']]],
+  ['blockdims',['blockDims',['../class_h5_helper_1_1_dataset.html#ada1fee13c388a18b2c95edcc49219353',1,'H5Helper::Dataset']]],
+  ['blocksize',['blockSize',['../class_settings.html#ac27f0a3f50cc4b7f0b5cdb8d731b0aac',1,'Settings']]],
+  ['bsize',['bSize',['../class_h5_helper_1_1_compress_helper.html#adf70d97b62b1fd9a413ba074447db3bb',1,'H5Helper::CompressHelper']]]
 ];

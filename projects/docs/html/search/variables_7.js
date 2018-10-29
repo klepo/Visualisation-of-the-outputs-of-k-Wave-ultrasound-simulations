@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['name',['name',['../class_params_definition_1_1_flag.html#a6a8cb54bbf9bab5f515e695c8d919206',1,'ParamsDefinition::Flag']]],
-  ['names',['names',['../class_settings.html#ac1d8d2af94f3e6dd92d9582faddfe394',1,'Settings']]],
-  ['ndims',['nDims',['../class_dts_for_pcs.html#a930d073920992b1cb175b02c1b55e559',1,'DtsForPcs']]],
-  ['newemptyoutputfileflag',['newEmptyOutputFileFlag',['../class_files_context.html#a8aa7ed9b82d5259f9217ff4dde3d3aa4',1,'FilesContext']]]
+  ['harmonics',['harmonics',['../class_h5_helper_1_1_compress_helper.html#a0cde556117573596b38457f1ca3f1cea',1,'H5Helper::CompressHelper::harmonics()'],['../class_settings.html#ae4333853ae56d27a9181953ce818bbde',1,'Settings::harmonics()']]],
+  ['hasimage',['hasImage',['../class_image_widget.html#a2fd5804f83152871c0bffa118c169255',1,'ImageWidget']]],
+  ['help',['help',['../class_params_definition.html#a8560f72e8f80579b164d103b2677346a',1,'ParamsDefinition']]]
 ];

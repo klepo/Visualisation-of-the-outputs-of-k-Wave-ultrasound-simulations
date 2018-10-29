@@ -64,6 +64,8 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="class_processing-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">Processing Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
@@ -91,13 +93,13 @@ Inheritance diagram for Processing:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acda8e41ff1116a50e0abe875b0ae2956"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#acda8e41ff1116a50e0abe875b0ae2956">Processing</a> (H5Helper::File *outputFile, <a class="el" href="class_dts_for_pcs.html">DtsForPcs</a> *dtsForPcs, const <a class="el" href="class_settings.html">Settings</a> *settings)</td></tr>
+<tr class="memitem:acda8e41ff1116a50e0abe875b0ae2956"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#acda8e41ff1116a50e0abe875b0ae2956">Processing</a> (<a class="el" href="class_h5_helper_1_1_file.html">H5Helper::File</a> *<a class="el" href="class_processing.html#a75e0245ec2b9017a9216d37b64d9c7bd">outputFile</a>, <a class="el" href="class_dts_for_pcs.html">DtsForPcs</a> *<a class="el" href="class_processing.html#aac8044a0b9f3ec25c3c7d5ebea1902ea">dtsForPcs</a>, const <a class="el" href="class_settings.html">Settings</a> *<a class="el" href="class_processing.html#a0f2d7f07b275fafe6cb8cb7fb4ab644d">settings</a>)</td></tr>
 <tr class="memdesc:acda8e41ff1116a50e0abe875b0ae2956"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates <a class="el" href="class_processing.html" title="The Processing class represents wrapper for the HDF5 datasets processing. ">Processing</a> object.  <a href="#acda8e41ff1116a50e0abe875b0ae2956">More...</a><br /></td></tr>
 <tr class="separator:acda8e41ff1116a50e0abe875b0ae2956"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95dab1a596a090ab31a86259ac067d25"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a95dab1a596a090ab31a86259ac067d25">~Processing</a> ()</td></tr>
 <tr class="memdesc:a95dab1a596a090ab31a86259ac067d25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor of <a class="el" href="class_processing.html" title="The Processing class represents wrapper for the HDF5 datasets processing. ">Processing</a> object.  <a href="#a95dab1a596a090ab31a86259ac067d25">More...</a><br /></td></tr>
 <tr class="separator:a95dab1a596a090ab31a86259ac067d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27b65c423c385e47c6d40e4394d875be"><td class="memItemLeft" align="right" valign="top">H5Helper::File *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a27b65c423c385e47c6d40e4394d875be">getOutputFile</a> () const</td></tr>
+<tr class="memitem:a27b65c423c385e47c6d40e4394d875be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_file.html">H5Helper::File</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a27b65c423c385e47c6d40e4394d875be">getOutputFile</a> () const</td></tr>
 <tr class="memdesc:a27b65c423c385e47c6d40e4394d875be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns output file.  <a href="#a27b65c423c385e47c6d40e4394d875be">More...</a><br /></td></tr>
 <tr class="separator:a27b65c423c385e47c6d40e4394d875be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7cd67f260b33beafbde91c3a049c2c33"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_dts_for_pcs.html">DtsForPcs</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a7cd67f260b33beafbde91c3a049c2c33">getDtsForPcs</a> () const</td></tr>
@@ -119,10 +121,10 @@ Protected Member Functions</h2></td></tr>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a4fe8b534bc8d740a2f49294b79f738d6">execute</a> ()=0</td></tr>
 <tr class="memdesc:a4fe8b534bc8d740a2f49294b79f738d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pure virtual execute function. <br /></td></tr>
 <tr class="separator:a4fe8b534bc8d740a2f49294b79f738d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab793bf993475b4a7cab5b33c9e0a6651"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#ab793bf993475b4a7cab5b33c9e0a6651">copyAttributes</a> (const H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset) final</td></tr>
+<tr class="memitem:ab793bf993475b4a7cab5b33c9e0a6651"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#ab793bf993475b4a7cab5b33c9e0a6651">copyAttributes</a> (const <a class="el" href="class_h5_helper_1_1_dataset.html">H5Helper::Dataset</a> *srcDataset, <a class="el" href="class_h5_helper_1_1_dataset.html">H5Helper::Dataset</a> *dstDataset) final</td></tr>
 <tr class="memdesc:ab793bf993475b4a7cab5b33c9e0a6651"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies attributes.  <a href="#ab793bf993475b4a7cab5b33c9e0a6651">More...</a><br /></td></tr>
 <tr class="separator:ab793bf993475b4a7cab5b33c9e0a6651"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab21761ef71325d221b7c0fdb133444b6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#ab21761ef71325d221b7c0fdb133444b6">checkDatasetType</a> (H5Helper::DatasetType datasetType, std::vector&lt; H5Helper::DatasetType &gt; types)</td></tr>
+<tr class="memitem:ab21761ef71325d221b7c0fdb133444b6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#ab21761ef71325d221b7c0fdb133444b6">checkDatasetType</a> (<a class="el" href="namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed">H5Helper::DatasetType</a> datasetType, std::vector&lt; <a class="el" href="namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed">H5Helper::DatasetType</a> &gt; types)</td></tr>
 <tr class="memdesc:ab21761ef71325d221b7c0fdb133444b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks dataset type.  <a href="#ab21761ef71325d221b7c0fdb133444b6">More...</a><br /></td></tr>
 <tr class="separator:ab21761ef71325d221b7c0fdb133444b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ec0d87457b5882580926471c8e73886"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a9ec0d87457b5882580926471c8e73886">addTime</a> (double t)</td></tr>
@@ -131,6 +133,38 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:a0029d3d018bf2eaa6b70953f934e7454"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a0029d3d018bf2eaa6b70953f934e7454">addSize</a> (hsize_t s)</td></tr>
 <tr class="memdesc:a0029d3d018bf2eaa6b70953f934e7454"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds size.  <a href="#a0029d3d018bf2eaa6b70953f934e7454">More...</a><br /></td></tr>
 <tr class="separator:a0029d3d018bf2eaa6b70953f934e7454"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a899a28200d22f2689818e269ff7b6e84"><td class="memItemLeft" align="right" valign="top"><a id="a899a28200d22f2689818e269ff7b6e84"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a899a28200d22f2689818e269ff7b6e84">Processing</a> (const <a class="el" href="class_processing.html">Processing</a> &amp;)</td></tr>
+<tr class="memdesc:a899a28200d22f2689818e269ff7b6e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable copy contructor. <br /></td></tr>
+<tr class="separator:a899a28200d22f2689818e269ff7b6e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fa93fa8f700ac72e81906bba6a0edad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_processing.html">Processing</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a1fa93fa8f700ac72e81906bba6a0edad">operator=</a> (const <a class="el" href="class_processing.html">Processing</a> &amp;)</td></tr>
+<tr class="separator:a1fa93fa8f700ac72e81906bba6a0edad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
+Private Attributes</h2></td></tr>
+<tr class="memitem:a75e0245ec2b9017a9216d37b64d9c7bd"><td class="memItemLeft" align="right" valign="top"><a id="a75e0245ec2b9017a9216d37b64d9c7bd"></a>
+<a class="el" href="class_h5_helper_1_1_file.html">H5Helper::File</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a75e0245ec2b9017a9216d37b64d9c7bd">outputFile</a></td></tr>
+<tr class="memdesc:a75e0245ec2b9017a9216d37b64d9c7bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output file. <br /></td></tr>
+<tr class="separator:a75e0245ec2b9017a9216d37b64d9c7bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac8044a0b9f3ec25c3c7d5ebea1902ea"><td class="memItemLeft" align="right" valign="top"><a id="aac8044a0b9f3ec25c3c7d5ebea1902ea"></a>
+<a class="el" href="class_dts_for_pcs.html">DtsForPcs</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#aac8044a0b9f3ec25c3c7d5ebea1902ea">dtsForPcs</a></td></tr>
+<tr class="memdesc:aac8044a0b9f3ec25c3c7d5ebea1902ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Datasets for processing. <br /></td></tr>
+<tr class="separator:aac8044a0b9f3ec25c3c7d5ebea1902ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f2d7f07b275fafe6cb8cb7fb4ab644d"><td class="memItemLeft" align="right" valign="top"><a id="a0f2d7f07b275fafe6cb8cb7fb4ab644d"></a>
+const <a class="el" href="class_settings.html">Settings</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a0f2d7f07b275fafe6cb8cb7fb4ab644d">settings</a></td></tr>
+<tr class="memdesc:a0f2d7f07b275fafe6cb8cb7fb4ab644d"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_settings.html" title="The Settings class represents wrapper for processing settings. ">Settings</a>. <br /></td></tr>
+<tr class="separator:a0f2d7f07b275fafe6cb8cb7fb4ab644d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b7b6568beca0d8f6606f3a1fd9959dc"><td class="memItemLeft" align="right" valign="top"><a id="a9b7b6568beca0d8f6606f3a1fd9959dc"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a9b7b6568beca0d8f6606f3a1fd9959dc">time</a> = 0</td></tr>
+<tr class="memdesc:a9b7b6568beca0d8f6606f3a1fd9959dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time. <br /></td></tr>
+<tr class="separator:a9b7b6568beca0d8f6606f3a1fd9959dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41ff2d9b23598e0bf741cb47de472896"><td class="memItemLeft" align="right" valign="top"><a id="a41ff2d9b23598e0bf741cb47de472896"></a>
+hsize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_processing.html#a41ff2d9b23598e0bf741cb47de472896">size</a> = 0</td></tr>
+<tr class="memdesc:a41ff2d9b23598e0bf741cb47de472896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size. <br /></td></tr>
+<tr class="separator:a41ff2d9b23598e0bf741cb47de472896"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="class_processing.html" title="The Processing class represents wrapper for the HDF5 datasets processing. ">Processing</a> class represents wrapper for the HDF5 datasets processing. </p>
@@ -146,7 +180,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         <tr>
           <td class="memname">Processing::Processing </td>
           <td>(</td>
-          <td class="paramtype">H5Helper::File *&#160;</td>
+          <td class="paramtype"><a class="el" href="class_h5_helper_1_1_file.html">H5Helper::File</a> *&#160;</td>
           <td class="paramname"><em>outputFile</em>, </td>
         </tr>
         <tr>
@@ -298,13 +332,13 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         <tr>
           <td class="memname">bool Processing::checkDatasetType </td>
           <td>(</td>
-          <td class="paramtype">H5Helper::DatasetType&#160;</td>
+          <td class="paramtype"><a class="el" href="namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed">H5Helper::DatasetType</a>&#160;</td>
           <td class="paramname"><em>datasetType</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; H5Helper::DatasetType &gt;&#160;</td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed">H5Helper::DatasetType</a> &gt;&#160;</td>
           <td class="paramname"><em>types</em>&#160;</td>
         </tr>
         <tr>
@@ -346,13 +380,13 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
         <tr>
           <td class="memname">void Processing::copyAttributes </td>
           <td>(</td>
-          <td class="paramtype">const H5Helper::Dataset *&#160;</td>
+          <td class="paramtype">const <a class="el" href="class_h5_helper_1_1_dataset.html">H5Helper::Dataset</a> *&#160;</td>
           <td class="paramname"><em>srcDataset</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">H5Helper::Dataset *&#160;</td>
+          <td class="paramtype"><a class="el" href="class_h5_helper_1_1_dataset.html">H5Helper::Dataset</a> *&#160;</td>
           <td class="paramname"><em>dstDataset</em>&#160;</td>
         </tr>
         <tr>
@@ -410,7 +444,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">H5Helper::File * Processing::getOutputFile </td>
+          <td class="memname"><a class="el" href="class_h5_helper_1_1_file.html">H5Helper::File</a> * Processing::getOutputFile </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -491,6 +525,33 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 
 </div>
 </div>
+<a id="a1fa93fa8f700ac72e81906bba6a0edad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1fa93fa8f700ac72e81906bba6a0edad">&#9670;&nbsp;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_processing.html">Processing</a>&amp; Processing::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_processing.html">Processing</a> &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Disable assignment operator </p><dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_processing.html" title="The Processing class represents wrapper for the HDF5 datasets processing. ">Processing</a> </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>k-wave-h5-processing/processing/<a class="el" href="processing_8h_source.html">processing.h</a></li>
 <li>k-wave-h5-processing/processing/<a class="el" href="processing_8cpp_source.html">processing.cpp</a></li>
@@ -498,7 +559,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Oct 25 2018 16:19:13 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 19:40:41 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
