@@ -1,26 +1,4 @@
 var searchData=
 [
-  ['max_5fattr',['MAX_ATTR',['../namespace_h5_helper.html#aba6764cc0417387542daa6da54e5ad07',1,'H5Helper']]],
-  ['max_5findex_5fattr',['MAX_INDEX_ATTR',['../namespace_h5_helper.html#ac0692b08b7b0c410039953cb1c6b298c',1,'H5Helper']]],
-  ['maxchunksizes',['maxChunkSizes',['../class_settings.html#a774d7cb51cbe0b1352149129112d1975',1,'Settings']]],
-  ['maxsize',['maxSize',['../class_settings.html#a7a720f8282f76ce117d9e787bdd52d12',1,'Settings']]],
-  ['maxvalue',['maxValue',['../class_h5_object_to_visualize.html#ac4b36f8932f164fa81714113b9323750',1,'H5ObjectToVisualize']]],
-  ['maxvalueposition',['maxValuePosition',['../class_h5_object_to_visualize.html#a98ad37625705f6442931febf50b151f0',1,'H5ObjectToVisualize']]],
-  ['maxvf',['maxVF',['../class_h5_helper_1_1_dataset.html#a54254bd96ef7d1e3c07d48eb88633dac',1,'H5Helper::Dataset']]],
-  ['maxvi',['maxVI',['../class_h5_helper_1_1_dataset.html#ab1ab906784a2c4fcec54f87f4397f112',1,'H5Helper::Dataset']]],
-  ['maxvindex',['maxVIndex',['../class_h5_helper_1_1_dataset.html#a685fe6de23058c6530617d45cec59dcc',1,'H5Helper::Dataset']]],
-  ['meantime',['meanTime',['../class_h5_reading_thread.html#a387fc5718ff5330b8e2b002804185b3e',1,'H5ReadingThread']]],
-  ['min_5fattr',['MIN_ATTR',['../namespace_h5_helper.html#ac81df6edad8f656df6b39addd35685ea',1,'H5Helper']]],
-  ['min_5findex_5fattr',['MIN_INDEX_ATTR',['../namespace_h5_helper.html#a4055ca06510132883f769d0f99854c08',1,'H5Helper']]],
-  ['minmaxvaluestrimflag',['minMaxValuesTrimFlag',['../class_h5_object_to_visualize.html#a1cc3770cbaec4222dc6a38929bc16f78',1,'H5ObjectToVisualize']]],
-  ['minvalue',['minValue',['../class_h5_object_to_visualize.html#abf959d1d7a0cd49b0300605ad6054d9a',1,'H5ObjectToVisualize']]],
-  ['minvalueposition',['minValuePosition',['../class_h5_object_to_visualize.html#a684321a9e9ee922037342930412ed175',1,'H5ObjectToVisualize']]],
-  ['minvf',['minVF',['../class_h5_helper_1_1_dataset.html#a4f0f5221d85cca01af8d7409b88a3989',1,'H5Helper::Dataset']]],
-  ['minvi',['minVI',['../class_h5_helper_1_1_dataset.html#ab217d8ce4c24e1bb753c8918b9a779ce',1,'H5Helper::Dataset']]],
-  ['minvindex',['minVIndex',['../class_h5_helper_1_1_dataset.html#a4a694a1360d961ee6aa9ac12a19064e4',1,'H5Helper::Dataset']]],
-  ['mos',['mOS',['../class_settings.html#a5b94d5f29f17266d3e7f681237838549',1,'Settings::mOS()'],['../class_h5_helper_1_1_compress_helper.html#a6871df8845592b1c95edb72e48ffaf00',1,'H5Helper::CompressHelper::mos()']]],
-  ['mousedown',['mouseDown',['../class_open_g_l_window.html#a3337e64d489113c5b366b928c1f89ade',1,'OpenGLWindow']]],
-  ['movie',['movie',['../class_slice_dock_widget.html#abf2e3fa3f7cae45591f95133fb588497',1,'SliceDockWidget::movie()'],['../class_window3_d_dock_widget.html#ae163c03ddd4f386380321add45ba3c35',1,'Window3DDockWidget::movie()']]],
-  ['mpisize',['mPISize',['../class_h5_helper_1_1_file.html#a0a183055bcdf5488ae043cb3c83a201d',1,'H5Helper::File']]],
-  ['mutex',['mutex',['../class_h5_reading_thread.html#a270b763d380bf5ecc26735319bf9b038',1,'H5ReadingThread']]]
+  ['typestrings',['typeStrings',['../class_params_definition.html#a286335e2b23f90a20d185c9c4de174d6',1,'ParamsDefinition']]]
 ];

@@ -68,8 +68,6 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="class_h5_helper_1_1_object-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -94,7 +92,7 @@ Inheritance diagram for H5Helper::Object:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a65d06ab98492e252fda5dc917b49e934"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a65d06ab98492e252fda5dc917b49e934">Object</a> (hid_t <a class="el" href="class_h5_helper_1_1_object.html#a2b4d8d7e01eb4697b98b05160b3660af">objectId</a>, std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, <a class="el" href="class_h5_helper_1_1_file.html">File</a> *<a class="el" href="class_h5_helper_1_1_object.html#a447003d9ba0167cac98a03e0bee6e1f4">file</a>)</td></tr>
+<tr class="memitem:a65d06ab98492e252fda5dc917b49e934"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a65d06ab98492e252fda5dc917b49e934">Object</a> (hid_t objectId, std::string name, <a class="el" href="class_h5_helper_1_1_file.html">File</a> *file)</td></tr>
 <tr class="memdesc:a65d06ab98492e252fda5dc917b49e934"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates <a class="el" href="class_h5_helper_1_1_object.html" title="The Object class represents wrapper for the HDF5 objects. ">Object</a> with given object and name.  <a href="#a65d06ab98492e252fda5dc917b49e934">More...</a><br /></td></tr>
 <tr class="separator:a65d06ab98492e252fda5dc917b49e934"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad152eae55867707b23c52d220662cf8c"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#ad152eae55867707b23c52d220662cf8c">~Object</a> ()</td></tr>
@@ -103,52 +101,52 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afc34518e67a847a707c0c5dbaca40f58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#afc34518e67a847a707c0c5dbaca40f58">setAttribute</a> (const <a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> *attribute, bool log=true)</td></tr>
 <tr class="memdesc:afc34518e67a847a707c0c5dbaca40f58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by attribute.  <a href="#afc34518e67a847a707c0c5dbaca40f58">More...</a><br /></td></tr>
 <tr class="separator:afc34518e67a847a707c0c5dbaca40f58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a032880a83c15e09fd81bd33ae8100354"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a032880a83c15e09fd81bd33ae8100354">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, int value, bool log=true)</td></tr>
+<tr class="memitem:a032880a83c15e09fd81bd33ae8100354"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a032880a83c15e09fd81bd33ae8100354">setAttribute</a> (std::string name, int value, bool log=true)</td></tr>
 <tr class="memdesc:a032880a83c15e09fd81bd33ae8100354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to integer value.  <a href="#a032880a83c15e09fd81bd33ae8100354">More...</a><br /></td></tr>
 <tr class="separator:a032880a83c15e09fd81bd33ae8100354"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90ac1a314b891f95481f1c58a0263603"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a90ac1a314b891f95481f1c58a0263603">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, unsigned int value, bool log=true)</td></tr>
+<tr class="memitem:a90ac1a314b891f95481f1c58a0263603"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a90ac1a314b891f95481f1c58a0263603">setAttribute</a> (std::string name, unsigned int value, bool log=true)</td></tr>
 <tr class="memdesc:a90ac1a314b891f95481f1c58a0263603"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to unsigned integer value.  <a href="#a90ac1a314b891f95481f1c58a0263603">More...</a><br /></td></tr>
 <tr class="separator:a90ac1a314b891f95481f1c58a0263603"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5570ce8c290e9003be9064ae84f6cfeb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a5570ce8c290e9003be9064ae84f6cfeb">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, <a class="el" href="namespace_h5_helper.html#a56ff0e4b052bc5c18e2467d81cb39a3c">hssize_t</a> value, bool log=true)</td></tr>
+<tr class="memitem:a5570ce8c290e9003be9064ae84f6cfeb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a5570ce8c290e9003be9064ae84f6cfeb">setAttribute</a> (std::string name, <a class="el" href="namespace_h5_helper.html#a56ff0e4b052bc5c18e2467d81cb39a3c">hssize_t</a> value, bool log=true)</td></tr>
 <tr class="memdesc:a5570ce8c290e9003be9064ae84f6cfeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to 64-bit integer value.  <a href="#a5570ce8c290e9003be9064ae84f6cfeb">More...</a><br /></td></tr>
 <tr class="separator:a5570ce8c290e9003be9064ae84f6cfeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a630bee6d1c5bde83339be8139e3ef6cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a630bee6d1c5bde83339be8139e3ef6cc">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> value, bool log=true)</td></tr>
+<tr class="memitem:a630bee6d1c5bde83339be8139e3ef6cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a630bee6d1c5bde83339be8139e3ef6cc">setAttribute</a> (std::string name, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> value, bool log=true)</td></tr>
 <tr class="memdesc:a630bee6d1c5bde83339be8139e3ef6cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to 64-bit unsigned integer value.  <a href="#a630bee6d1c5bde83339be8139e3ef6cc">More...</a><br /></td></tr>
 <tr class="separator:a630bee6d1c5bde83339be8139e3ef6cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd84162f60bd2e4c00b7df1556358169"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#afd84162f60bd2e4c00b7df1556358169">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, float value, bool log=true)</td></tr>
+<tr class="memitem:afd84162f60bd2e4c00b7df1556358169"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#afd84162f60bd2e4c00b7df1556358169">setAttribute</a> (std::string name, float value, bool log=true)</td></tr>
 <tr class="memdesc:afd84162f60bd2e4c00b7df1556358169"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to float value.  <a href="#afd84162f60bd2e4c00b7df1556358169">More...</a><br /></td></tr>
 <tr class="separator:afd84162f60bd2e4c00b7df1556358169"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f6e23028cb6d772442e8afdd6e62047"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a5f6e23028cb6d772442e8afdd6e62047">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, double value, bool log=true)</td></tr>
+<tr class="memitem:a5f6e23028cb6d772442e8afdd6e62047"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a5f6e23028cb6d772442e8afdd6e62047">setAttribute</a> (std::string name, double value, bool log=true)</td></tr>
 <tr class="memdesc:a5f6e23028cb6d772442e8afdd6e62047"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to double value.  <a href="#a5f6e23028cb6d772442e8afdd6e62047">More...</a><br /></td></tr>
 <tr class="separator:a5f6e23028cb6d772442e8afdd6e62047"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c285b4a3b9179f1d62051262965bcee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a2c285b4a3b9179f1d62051262965bcee">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, long double value, bool log=true)</td></tr>
+<tr class="memitem:a2c285b4a3b9179f1d62051262965bcee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a2c285b4a3b9179f1d62051262965bcee">setAttribute</a> (std::string name, long double value, bool log=true)</td></tr>
 <tr class="memdesc:a2c285b4a3b9179f1d62051262965bcee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to long double value.  <a href="#a2c285b4a3b9179f1d62051262965bcee">More...</a><br /></td></tr>
 <tr class="separator:a2c285b4a3b9179f1d62051262965bcee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc96e2f9064625c6d79d3dd45963ce87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#afc96e2f9064625c6d79d3dd45963ce87">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, std::string value, bool log=true)</td></tr>
+<tr class="memitem:afc96e2f9064625c6d79d3dd45963ce87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#afc96e2f9064625c6d79d3dd45963ce87">setAttribute</a> (std::string name, std::string value, bool log=true)</td></tr>
 <tr class="memdesc:afc96e2f9064625c6d79d3dd45963ce87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by given name to string value.  <a href="#afc96e2f9064625c6d79d3dd45963ce87">More...</a><br /></td></tr>
 <tr class="separator:afc96e2f9064625c6d79d3dd45963ce87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0ff8d63b595fadea039c6914d28708d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#ab0ff8d63b595fadea039c6914d28708d">readAttributeF</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, bool log=true) const</td></tr>
+<tr class="memitem:ab0ff8d63b595fadea039c6914d28708d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#ab0ff8d63b595fadea039c6914d28708d">readAttributeF</a> (std::string name, bool log=true) const</td></tr>
 <tr class="memdesc:ab0ff8d63b595fadea039c6914d28708d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns float attribute value.  <a href="#ab0ff8d63b595fadea039c6914d28708d">More...</a><br /></td></tr>
 <tr class="separator:ab0ff8d63b595fadea039c6914d28708d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f5c4295f2b2769b1979f2cbe6cf8116"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a4f5c4295f2b2769b1979f2cbe6cf8116">readAttributeI</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, bool log=true) const</td></tr>
+<tr class="memitem:a4f5c4295f2b2769b1979f2cbe6cf8116"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a4f5c4295f2b2769b1979f2cbe6cf8116">readAttributeI</a> (std::string name, bool log=true) const</td></tr>
 <tr class="memdesc:a4f5c4295f2b2769b1979f2cbe6cf8116"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns 64-bit unsigned integer attribute value.  <a href="#a4f5c4295f2b2769b1979f2cbe6cf8116">More...</a><br /></td></tr>
 <tr class="separator:a4f5c4295f2b2769b1979f2cbe6cf8116"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28efde51e48759b8930940b226a40bcb"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a28efde51e48759b8930940b226a40bcb">readAttributeS</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, bool log=true) const</td></tr>
+<tr class="memitem:a28efde51e48759b8930940b226a40bcb"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a28efde51e48759b8930940b226a40bcb">readAttributeS</a> (std::string name, bool log=true) const</td></tr>
 <tr class="memdesc:a28efde51e48759b8930940b226a40bcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns string attribute value.  <a href="#a28efde51e48759b8930940b226a40bcb">More...</a><br /></td></tr>
 <tr class="separator:a28efde51e48759b8930940b226a40bcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46d6d64b7526724e67a838bbeed3746b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a46d6d64b7526724e67a838bbeed3746b">getAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>) const</td></tr>
+<tr class="memitem:a46d6d64b7526724e67a838bbeed3746b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a46d6d64b7526724e67a838bbeed3746b">getAttribute</a> (std::string name) const</td></tr>
 <tr class="memdesc:a46d6d64b7526724e67a838bbeed3746b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> object by given name.  <a href="#a46d6d64b7526724e67a838bbeed3746b">More...</a><br /></td></tr>
 <tr class="separator:a46d6d64b7526724e67a838bbeed3746b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac14d101f98166d5af97e49055de7d77e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#ac14d101f98166d5af97e49055de7d77e">getAttribute</a> (<a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> idx) const</td></tr>
 <tr class="memdesc:ac14d101f98166d5af97e49055de7d77e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> object by given idx.  <a href="#ac14d101f98166d5af97e49055de7d77e">More...</a><br /></td></tr>
 <tr class="separator:ac14d101f98166d5af97e49055de7d77e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d29c87f9b199bd48c7d0b4f50d87574"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a2d29c87f9b199bd48c7d0b4f50d87574">removeAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, bool log=true) const</td></tr>
+<tr class="memitem:a2d29c87f9b199bd48c7d0b4f50d87574"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a2d29c87f9b199bd48c7d0b4f50d87574">removeAttribute</a> (std::string name, bool log=true) const</td></tr>
 <tr class="memdesc:a2d29c87f9b199bd48c7d0b4f50d87574"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> object by given name.  <a href="#a2d29c87f9b199bd48c7d0b4f50d87574">More...</a><br /></td></tr>
 <tr class="separator:a2d29c87f9b199bd48c7d0b4f50d87574"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a944b7f840b579a2bb70940f4b3cd511f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a944b7f840b579a2bb70940f4b3cd511f">removeAttribute</a> (unsigned int idx, bool log=true) const</td></tr>
 <tr class="memdesc:a944b7f840b579a2bb70940f4b3cd511f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> object by given idx.  <a href="#a944b7f840b579a2bb70940f4b3cd511f">More...</a><br /></td></tr>
 <tr class="separator:a944b7f840b579a2bb70940f4b3cd511f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5c2472c427d18e00118e3e395e1c009"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#aa5c2472c427d18e00118e3e395e1c009">hasAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>) const</td></tr>
+<tr class="memitem:aa5c2472c427d18e00118e3e395e1c009"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#aa5c2472c427d18e00118e3e395e1c009">hasAttribute</a> (std::string name) const</td></tr>
 <tr class="memdesc:aa5c2472c427d18e00118e3e395e1c009"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has object the attribute?  <a href="#aa5c2472c427d18e00118e3e395e1c009">More...</a><br /></td></tr>
 <tr class="separator:aa5c2472c427d18e00118e3e395e1c009"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f77ae4a8d825f97390f06e7d29ee411"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a0f77ae4a8d825f97390f06e7d29ee411">renameAttribute</a> (std::string srcName, std::string dstName) const</td></tr>
@@ -187,39 +185,6 @@ herr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a76a422e245722847a8ca80869ff413c1">deleteLog</a> = true</td></tr>
 <tr class="memdesc:a76a422e245722847a8ca80869ff413c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete log flag. <br /></td></tr>
 <tr class="separator:a76a422e245722847a8ca80869ff413c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a053edb67a6b4c6d2d16d88972d9de6f0"><td class="memItemLeft" align="right" valign="top"><a id="a053edb67a6b4c6d2d16d88972d9de6f0"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a053edb67a6b4c6d2d16d88972d9de6f0">Object</a> (const <a class="el" href="class_h5_helper_1_1_object.html">Object</a> &amp;)</td></tr>
-<tr class="memdesc:a053edb67a6b4c6d2d16d88972d9de6f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable copy contructor. <br /></td></tr>
-<tr class="separator:a053edb67a6b4c6d2d16d88972d9de6f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae15ef29d4cdd7b1212288ef85068c602"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_object.html">Object</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#ae15ef29d4cdd7b1212288ef85068c602">operator=</a> (const <a class="el" href="class_h5_helper_1_1_object.html">Object</a> &amp;)</td></tr>
-<tr class="separator:ae15ef29d4cdd7b1212288ef85068c602"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f3c558b5d53e1a270cba0f2dae8423e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a8f3c558b5d53e1a270cba0f2dae8423e">createAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, hid_t datatypeId, hid_t dataspaceId, const void *value, bool log=true) const</td></tr>
-<tr class="memdesc:a8f3c558b5d53e1a270cba0f2dae8423e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates attribute by name, type, dataspace, and value.  <a href="#a8f3c558b5d53e1a270cba0f2dae8423e">More...</a><br /></td></tr>
-<tr class="separator:a8f3c558b5d53e1a270cba0f2dae8423e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79a9f293e9e8d2916c65d74e252e9fab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a79a9f293e9e8d2916c65d74e252e9fab">setAttribute</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, hid_t datatypeId, const void *value, bool log=true) const</td></tr>
-<tr class="memdesc:a79a9f293e9e8d2916c65d74e252e9fab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets attribute by name, type, and value.  <a href="#a79a9f293e9e8d2916c65d74e252e9fab">More...</a><br /></td></tr>
-<tr class="separator:a79a9f293e9e8d2916c65d74e252e9fab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef7902042336929dcf942e296f48daf1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#aef7902042336929dcf942e296f48daf1">creatingAttributeMessage</a> (std::string <a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a>, hid_t datatypeId, const void *value) const</td></tr>
-<tr class="memdesc:aef7902042336929dcf942e296f48daf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints creating attribute message.  <a href="#aef7902042336929dcf942e296f48daf1">More...</a><br /></td></tr>
-<tr class="separator:aef7902042336929dcf942e296f48daf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a447003d9ba0167cac98a03e0bee6e1f4"><td class="memItemLeft" align="right" valign="top"><a id="a447003d9ba0167cac98a03e0bee6e1f4"></a>
-<a class="el" href="class_h5_helper_1_1_file.html">File</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a447003d9ba0167cac98a03e0bee6e1f4">file</a></td></tr>
-<tr class="memdesc:a447003d9ba0167cac98a03e0bee6e1f4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_file.html" title="The File class represents wrapper for the HDF5 files. ">File</a>. <br /></td></tr>
-<tr class="separator:a447003d9ba0167cac98a03e0bee6e1f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b4d8d7e01eb4697b98b05160b3660af"><td class="memItemLeft" align="right" valign="top"><a id="a2b4d8d7e01eb4697b98b05160b3660af"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a2b4d8d7e01eb4697b98b05160b3660af">objectId</a></td></tr>
-<tr class="memdesc:a2b4d8d7e01eb4697b98b05160b3660af"><td class="mdescLeft">&#160;</td><td class="mdescRight">HDF5 object id. <br /></td></tr>
-<tr class="separator:a2b4d8d7e01eb4697b98b05160b3660af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7545bf37bb4e2494dfae6987ad4db682"><td class="memItemLeft" align="right" valign="top"><a id="a7545bf37bb4e2494dfae6987ad4db682"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_object.html#a7545bf37bb4e2494dfae6987ad4db682">name</a></td></tr>
-<tr class="memdesc:a7545bf37bb4e2494dfae6987ad4db682"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_object.html" title="The Object class represents wrapper for the HDF5 objects. ">Object</a> name. <br /></td></tr>
-<tr class="separator:a7545bf37bb4e2494dfae6987ad4db682"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -309,134 +274,6 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a8f3c558b5d53e1a270cba0f2dae8423e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8f3c558b5d53e1a270cba0f2dae8423e">&#9670;&nbsp;</a></span>createAttribute()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Object::createAttribute </td>
-          <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">hid_t&#160;</td>
-          <td class="paramname"><em>datatypeId</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">hid_t&#160;</td>
-          <td class="paramname"><em>dataspaceId</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>log</em> = <code>true</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Creates attribute by name, type, dataspace, and value. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of attribute </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">datatypeId</td><td>Datatype of attribute </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">dataspaceId</td><td><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> dataspace </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> value </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">log</td><td>Logging flag (optional) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="object_8cpp_source.html#l00385">385</a> of file <a class="el" href="object_8cpp_source.html">object.cpp</a>.</p>
-
-</div>
-</div>
-<a id="aef7902042336929dcf942e296f48daf1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aef7902042336929dcf942e296f48daf1">&#9670;&nbsp;</a></span>creatingAttributeMessage()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Object::creatingAttributeMessage </td>
-          <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">hid_t&#160;</td>
-          <td class="paramname"><em>datatypeId</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Prints creating attribute message. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of attribute </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">datatypeId</td><td>Type of attribute </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> value </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="object_8cpp_source.html#l00463">463</a> of file <a class="el" href="object_8cpp_source.html">object.cpp</a>.</p>
-
-</div>
-</div>
 <a id="a46d6d64b7526724e67a838bbeed3746b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a46d6d64b7526724e67a838bbeed3746b">&#9670;&nbsp;</a></span>getAttribute() <span class="overload">[1/2]</span></h2>
 
@@ -631,33 +468,6 @@ Friends</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="object_8cpp_source.html#l00281">281</a> of file <a class="el" href="object_8cpp_source.html">object.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ae15ef29d4cdd7b1212288ef85068c602"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae15ef29d4cdd7b1212288ef85068c602">&#9670;&nbsp;</a></span>operator=()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_h5_helper_1_1_object.html">Object</a>&amp; H5Helper::Object::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="class_h5_helper_1_1_object.html">Object</a> &amp;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Disable assignment operator </p><dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_h5_helper_1_1_object.html" title="The Object class represents wrapper for the HDF5 objects. ">Object</a> </dd></dl>
 
 </div>
 </div>
@@ -905,7 +715,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="afc34518e67a847a707c0c5dbaca40f58"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc34518e67a847a707c0c5dbaca40f58">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[1/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afc34518e67a847a707c0c5dbaca40f58">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[1/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -944,7 +754,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a032880a83c15e09fd81bd33ae8100354"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a032880a83c15e09fd81bd33ae8100354">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[2/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a032880a83c15e09fd81bd33ae8100354">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[2/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -990,7 +800,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a90ac1a314b891f95481f1c58a0263603"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90ac1a314b891f95481f1c58a0263603">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[3/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a90ac1a314b891f95481f1c58a0263603">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[3/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1036,7 +846,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a5570ce8c290e9003be9064ae84f6cfeb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5570ce8c290e9003be9064ae84f6cfeb">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[4/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5570ce8c290e9003be9064ae84f6cfeb">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[4/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1082,7 +892,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a630bee6d1c5bde83339be8139e3ef6cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a630bee6d1c5bde83339be8139e3ef6cc">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[5/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a630bee6d1c5bde83339be8139e3ef6cc">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[5/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1128,7 +938,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="afd84162f60bd2e4c00b7df1556358169"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd84162f60bd2e4c00b7df1556358169">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[6/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afd84162f60bd2e4c00b7df1556358169">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[6/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1174,7 +984,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a5f6e23028cb6d772442e8afdd6e62047"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5f6e23028cb6d772442e8afdd6e62047">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[7/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f6e23028cb6d772442e8afdd6e62047">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[7/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1220,7 +1030,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="a2c285b4a3b9179f1d62051262965bcee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c285b4a3b9179f1d62051262965bcee">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[8/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c285b4a3b9179f1d62051262965bcee">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[8/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1266,7 +1076,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <a id="afc96e2f9064625c6d79d3dd45963ce87"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc96e2f9064625c6d79d3dd45963ce87">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[9/10]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afc96e2f9064625c6d79d3dd45963ce87">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[9/9]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1308,73 +1118,6 @@ Friends</h2></td></tr>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="object_8cpp_source.html#l00143">143</a> of file <a class="el" href="object_8cpp_source.html">object.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a79a9f293e9e8d2916c65d74e252e9fab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79a9f293e9e8d2916c65d74e252e9fab">&#9670;&nbsp;</a></span>setAttribute() <span class="overload">[10/10]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Object::setAttribute </td>
-          <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">hid_t&#160;</td>
-          <td class="paramname"><em>datatypeId</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>log</em> = <code>true</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Sets attribute by name, type, and value. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of attribute </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">datatypeId</td><td>Datatype of attribute </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> value </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">log</td><td>Logging flag (optional) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="object_8cpp_source.html#l00422">422</a> of file <a class="el" href="object_8cpp_source.html">object.cpp</a>.</p>
 
 </div>
 </div>
@@ -1462,7 +1205,7 @@ Friends</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 19:40:42 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

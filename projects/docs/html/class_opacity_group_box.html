@@ -65,9 +65,6 @@ $(function() {
 <a href="#pub-slots">Public Slots</a> &#124;
 <a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pri-slots">Private Slots</a> &#124;
-<a href="#pri-attribs">Private Attributes</a> &#124;
-<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="class_opacity_group_box-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">OpacityGroupBox Class Reference</div>  </div>
@@ -90,7 +87,7 @@ Inheritance diagram for OpacityGroupBox:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
 Public Slots</h2></td></tr>
-<tr class="memitem:a312c61ab9e6fdf6d868deb7af4ea3000"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a312c61ab9e6fdf6d868deb7af4ea3000">setValue</a> (QVector&lt; float &gt; <a class="el" href="class_opacity_group_box.html#ae544277a2b777131c8dabec615d0e26a">opacity</a>)</td></tr>
+<tr class="memitem:a312c61ab9e6fdf6d868deb7af4ea3000"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a312c61ab9e6fdf6d868deb7af4ea3000">setValue</a> (QVector&lt; float &gt; opacity)</td></tr>
 <tr class="memdesc:a312c61ab9e6fdf6d868deb7af4ea3000"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets opacity vector.  <a href="#a312c61ab9e6fdf6d868deb7af4ea3000">More...</a><br /></td></tr>
 <tr class="separator:a312c61ab9e6fdf6d868deb7af4ea3000"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f5b925854bccc31ee104bd1c490c117"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a3f5b925854bccc31ee104bd1c490c117">setValueAt</a> (int index, float value)</td></tr>
@@ -108,7 +105,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
-<tr class="memitem:a26e02a4560ee77d735d7f0b668f36daf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a26e02a4560ee77d735d7f0b668f36daf">valueChanged</a> (QVector&lt; float &gt; <a class="el" href="class_opacity_group_box.html#ae544277a2b777131c8dabec615d0e26a">opacity</a>)</td></tr>
+<tr class="memitem:a26e02a4560ee77d735d7f0b668f36daf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a26e02a4560ee77d735d7f0b668f36daf">valueChanged</a> (QVector&lt; float &gt; opacity)</td></tr>
 <tr class="memdesc:a26e02a4560ee77d735d7f0b668f36daf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value changed signal.  <a href="#a26e02a4560ee77d735d7f0b668f36daf">More...</a><br /></td></tr>
 <tr class="separator:a26e02a4560ee77d735d7f0b668f36daf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacc76905f74eb4ccfc4d8322f902297b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#aacc76905f74eb4ccfc4d8322f902297b">valueChangedAt</a> (int index, float value)</td></tr>
@@ -133,49 +130,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ace1ce0f76aeb82b810a0ac50059a0e59 inherit pub_methods_class_abstract_widget"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_abstract_widget.html#ace1ce0f76aeb82b810a0ac50059a0e59">~AbstractWidget</a> ()</td></tr>
 <tr class="memdesc:ace1ce0f76aeb82b810a0ac50059a0e59 inherit pub_methods_class_abstract_widget"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor of <a class="el" href="class_abstract_widget.html" title="The AbstractWidget class represents wrapper for widgets. ">AbstractWidget</a> object.  <a href="class_abstract_widget.html#ace1ce0f76aeb82b810a0ac50059a0e59">More...</a><br /></td></tr>
 <tr class="separator:ace1ce0f76aeb82b810a0ac50059a0e59 inherit pub_methods_class_abstract_widget"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-slots"></a>
-Private Slots</h2></td></tr>
-<tr class="memitem:ab70c3b48c427093b06fa4f133d503da2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#ab70c3b48c427093b06fa4f133d503da2">spinBoxValueChanged</a> (int id)</td></tr>
-<tr class="memdesc:ab70c3b48c427093b06fa4f133d503da2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spin box value changed slot.  <a href="#ab70c3b48c427093b06fa4f133d503da2">More...</a><br /></td></tr>
-<tr class="separator:ab70c3b48c427093b06fa4f133d503da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70d34963399fd817cd900dce9ebed081"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a70d34963399fd817cd900dce9ebed081">sliderValueChanged</a> (int id)</td></tr>
-<tr class="memdesc:a70d34963399fd817cd900dce9ebed081"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slider value changed slot.  <a href="#a70d34963399fd817cd900dce9ebed081">More...</a><br /></td></tr>
-<tr class="separator:a70d34963399fd817cd900dce9ebed081"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:aea3e5ff3aff119654693bb6844647844"><td class="memItemLeft" align="right" valign="top"><a id="aea3e5ff3aff119654693bb6844647844"></a>
-Ui::OpacityGroupBox *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#aea3e5ff3aff119654693bb6844647844">ui</a></td></tr>
-<tr class="memdesc:aea3e5ff3aff119654693bb6844647844"><td class="mdescLeft">&#160;</td><td class="mdescRight">User interface. <br /></td></tr>
-<tr class="separator:aea3e5ff3aff119654693bb6844647844"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae544277a2b777131c8dabec615d0e26a"><td class="memItemLeft" align="right" valign="top"><a id="ae544277a2b777131c8dabec615d0e26a"></a>
-QVector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#ae544277a2b777131c8dabec615d0e26a">opacity</a></td></tr>
-<tr class="memdesc:ae544277a2b777131c8dabec615d0e26a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opacity. <br /></td></tr>
-<tr class="separator:ae544277a2b777131c8dabec615d0e26a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c2166eac0ab7493a6aca8bab75113d9"><td class="memItemLeft" align="right" valign="top"><a id="a7c2166eac0ab7493a6aca8bab75113d9"></a>
-QVector&lt; <a class="el" href="class_q_double_spin_box_t_s.html">QDoubleSpinBoxTS</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a7c2166eac0ab7493a6aca8bab75113d9">spinBoxes</a></td></tr>
-<tr class="memdesc:a7c2166eac0ab7493a6aca8bab75113d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spin boxes. <br /></td></tr>
-<tr class="separator:a7c2166eac0ab7493a6aca8bab75113d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ecabe7ab2c53f80e6403c4813d9b856"><td class="memItemLeft" align="right" valign="top"><a id="a3ecabe7ab2c53f80e6403c4813d9b856"></a>
-QVector&lt; QSlider * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a3ecabe7ab2c53f80e6403c4813d9b856">sliders</a></td></tr>
-<tr class="memdesc:a3ecabe7ab2c53f80e6403c4813d9b856"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sliders. <br /></td></tr>
-<tr class="separator:a3ecabe7ab2c53f80e6403c4813d9b856"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b1d790ee2510b2567c0d2c1f9369554"><td class="memItemLeft" align="right" valign="top"><a id="a2b1d790ee2510b2567c0d2c1f9369554"></a>
-QSignalMapper&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a2b1d790ee2510b2567c0d2c1f9369554">spinBoxesMapper</a></td></tr>
-<tr class="memdesc:a2b1d790ee2510b2567c0d2c1f9369554"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spin boxes mapper. <br /></td></tr>
-<tr class="separator:a2b1d790ee2510b2567c0d2c1f9369554"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc41ba3d2a71d648d26a6810838b7297"><td class="memItemLeft" align="right" valign="top"><a id="abc41ba3d2a71d648d26a6810838b7297"></a>
-QSignalMapper&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#abc41ba3d2a71d648d26a6810838b7297">sliderMapper</a></td></tr>
-<tr class="memdesc:abc41ba3d2a71d648d26a6810838b7297"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slider mapper. <br /></td></tr>
-<tr class="separator:abc41ba3d2a71d648d26a6810838b7297"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
-Static Private Attributes</h2></td></tr>
-<tr class="memitem:a15f013050714591ecfb0f178b373844f"><td class="memItemLeft" align="right" valign="top"><a id="a15f013050714591ecfb0f178b373844f"></a>
-static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_opacity_group_box.html#a15f013050714591ecfb0f178b373844f">steps</a> = 7</td></tr>
-<tr class="memdesc:a15f013050714591ecfb0f178b373844f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of steps (sliders/spin boxes) <br /></td></tr>
-<tr class="separator:a15f013050714591ecfb0f178b373844f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -382,80 +336,6 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a70d34963399fd817cd900dce9ebed081"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a70d34963399fd817cd900dce9ebed081">&#9670;&nbsp;</a></span>sliderValueChanged</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void OpacityGroupBox::sliderValueChanged </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>id</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Slider value changed slot. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">id</td><td>Slider id</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Sets value to spin boxes. </p>
-
-<p class="definition">Definition at line <a class="el" href="opacitygroupbox_8cpp_source.html#l00155">155</a> of file <a class="el" href="opacitygroupbox_8cpp_source.html">opacitygroupbox.cpp</a>.</p>
-
-</div>
-</div>
-<a id="ab70c3b48c427093b06fa4f133d503da2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab70c3b48c427093b06fa4f133d503da2">&#9670;&nbsp;</a></span>spinBoxValueChanged</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void OpacityGroupBox::spinBoxValueChanged </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>id</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span><span class="mlabel">slot</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Spin box value changed slot. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">id</td><td>Spin box id</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Sets value to sliders and opacity. </p>
-
-<p class="definition">Definition at line <a class="el" href="opacitygroupbox_8cpp_source.html#l00141">141</a> of file <a class="el" href="opacitygroupbox_8cpp_source.html">opacitygroupbox.cpp</a>.</p>
-
-</div>
-</div>
 <a id="a26e02a4560ee77d735d7f0b668f36daf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a26e02a4560ee77d735d7f0b668f36daf">&#9670;&nbsp;</a></span>valueChanged</h2>
 
@@ -542,7 +422,7 @@ Additional Inherited Members</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 19:40:41 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

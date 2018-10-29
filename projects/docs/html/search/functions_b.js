@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['paintevent',['paintEvent',['../class_image_widget.html#a76adb54f7103bed5ab248c26995645de',1,'ImageWidget']]],
   ['params',['Params',['../class_params_definition_1_1_flag_1_1_params.html#a53c74778bc68bf6846bc47cb7c643dba',1,'ParamsDefinition::Flag::Params::Params()'],['../class_params_definition_1_1_flag_1_1_params.html#aea088bfa9dd62026a8023b33694f0d91',1,'ParamsDefinition::Flag::Params::Params(Type type)']]],
   ['printdebugmsg',['printDebugMsg',['../namespace_helper.html#aa60d45dff35628382d1fc8ebefad768e',1,'Helper']]],
   ['printdebugmsg2s',['printDebugMsg2S',['../namespace_helper.html#a2bfefff5c3b3c27f9519e70c2cfe64cc',1,'Helper']]],
@@ -12,8 +11,5 @@ var searchData=
   ['printdebugtwocolumnstab',['printDebugTwoColumnsTab',['../namespace_helper.html#ae58d85951ce04c4f356bf9b7318c8196',1,'Helper::printDebugTwoColumnsTab(std::string first, std::string second, unsigned int width)'],['../namespace_helper.html#ac6563ebefdb2f4d141f25e1c0436e0bf',1,'Helper::printDebugTwoColumnsTab(std::string first, unsigned long long second, unsigned int width)'],['../namespace_helper.html#a2cb014d42e05cbd27e52e289df95e8b4',1,'Helper::printDebugTwoColumnsTab(std::string first, int second, unsigned int width)'],['../namespace_helper.html#ad24adb599fcb3520f7741d8092945605',1,'Helper::printDebugTwoColumnsTab(std::string first, float second, unsigned int width)'],['../namespace_helper.html#aa8bebe8258142836153fcab6bc2fc336',1,'Helper::printDebugTwoColumnsTab(std::string first, double second, unsigned int width)']]],
   ['printerrormsg',['printErrorMsg',['../namespace_helper.html#a293643abaa25b008d652e2047c1b8647',1,'Helper']]],
   ['printmsg',['printMsg',['../namespace_helper.html#a25929d59f4283d05d86b3b7e7dc3e30a',1,'Helper']]],
-  ['printsreadingmessage',['printsReadingMessage',['../class_h5_helper_1_1_dataset.html#a83d73e7b0ea498c2b08558e53dab574f',1,'H5Helper::Dataset']]],
-  ['printsreadingtimemessage',['printsReadingTimeMessage',['../class_h5_helper_1_1_dataset.html#a597dd1107f7aa1a191eb49a64247ea44',1,'H5Helper::Dataset::printsReadingTimeMessage(double t0, double t1) const'],['../class_h5_helper_1_1_dataset.html#a57c24d0e575a43ae99c14fab9085c847',1,'H5Helper::Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const']]],
-  ['printswritingtimemessage',['printsWritingTimeMessage',['../class_h5_helper_1_1_dataset.html#aba5db1afbf156c9913aa8b3871aa12b6',1,'H5Helper::Dataset']]],
-  ['processing',['Processing',['../class_processing.html#acda8e41ff1116a50e0abe875b0ae2956',1,'Processing::Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)'],['../class_processing.html#a899a28200d22f2689818e269ff7b6e84',1,'Processing::Processing(const Processing &amp;)']]]
+  ['processing',['Processing',['../class_processing.html#acda8e41ff1116a50e0abe875b0ae2956',1,'Processing']]]
 ];

@@ -69,7 +69,6 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="class_h5_helper_1_1_vector-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -181,18 +180,6 @@ Protected Attributes</h2></td></tr>
 <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_vector.html#a8268f5ca347c1249ab277f33726d6fd9">length</a> = 0</td></tr>
 <tr class="memdesc:a8268f5ca347c1249ab277f33726d6fd9"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_vector.html" title="The Vector class represents wrapper for 64-bit unsigned integer vectors. ">Vector</a> length. <br /></td></tr>
 <tr class="separator:a8268f5ca347c1249ab277f33726d6fd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:ad428a49bc509ebf2b5ea2937034f8adf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_vector.html#ad428a49bc509ebf2b5ea2937034f8adf">assign</a> (const <a class="el" href="class_h5_helper_1_1_vector.html">Vector</a> &amp;<a class="el" href="class_h5_helper_1_1_vector.html#a5df1b8a1258eb77bf22bf15e1069ab02">vector</a>, bool deleteFlag)</td></tr>
-<tr class="memdesc:ad428a49bc509ebf2b5ea2937034f8adf"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespace_helper.html" title="Namespace for helper functions. ">Helper</a> assignment function.  <a href="#ad428a49bc509ebf2b5ea2937034f8adf">More...</a><br /></td></tr>
-<tr class="separator:ad428a49bc509ebf2b5ea2937034f8adf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a337d77cf0070651a2f5739944592c666"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_vector.html#a337d77cf0070651a2f5739944592c666">move</a> (<a class="el" href="class_h5_helper_1_1_vector.html">Vector</a> &amp;<a class="el" href="class_h5_helper_1_1_vector.html#a5df1b8a1258eb77bf22bf15e1069ab02">vector</a>, bool deleteFlag)</td></tr>
-<tr class="memdesc:a337d77cf0070651a2f5739944592c666"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="namespace_helper.html" title="Namespace for helper functions. ">Helper</a> move function.  <a href="#a337d77cf0070651a2f5739944592c666">More...</a><br /></td></tr>
-<tr class="separator:a337d77cf0070651a2f5739944592c666"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79effab2d29f2f979c1564bdaf9e6c51"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_vector.html#a79effab2d29f2f979c1564bdaf9e6c51">checkIndex</a> (<a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> i) const</td></tr>
-<tr class="memdesc:a79effab2d29f2f979c1564bdaf9e6c51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks index range.  <a href="#a79effab2d29f2f979c1564bdaf9e6c51">More...</a><br /></td></tr>
-<tr class="separator:a79effab2d29f2f979c1564bdaf9e6c51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -376,53 +363,6 @@ Friends</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ad428a49bc509ebf2b5ea2937034f8adf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad428a49bc509ebf2b5ea2937034f8adf">&#9670;&nbsp;</a></span>assign()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Vector::assign </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="class_h5_helper_1_1_vector.html">Vector</a> &amp;&#160;</td>
-          <td class="paramname"><em>vector</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>deleteFlag</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p><a class="el" href="namespace_helper.html" title="Namespace for helper functions. ">Helper</a> assignment function. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">vector</td><td>Reference to the existing <a class="el" href="class_h5_helper_1_1_vector.html" title="The Vector class represents wrapper for 64-bit unsigned integer vectors. ">Vector</a> </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">deleteFlag</td><td>Delete flag (optional) </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="vector_8cpp_source.html#l00327">327</a> of file <a class="el" href="vector_8cpp_source.html">vector.cpp</a>.</p>
-
-</div>
-</div>
 <a id="acb601637af90a2db42e31f4048af9a38"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acb601637af90a2db42e31f4048af9a38">&#9670;&nbsp;</a></span>at() <span class="overload">[1/4]</span></h2>
 
@@ -568,48 +508,6 @@ Friends</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_h5_helper_1_1_vector.html" title="The Vector class represents wrapper for 64-bit unsigned integer vectors. ">Vector</a> value at index </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="vector_8cpp_source.html#l00259">259</a> of file <a class="el" href="vector_8cpp_source.html">vector.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a79effab2d29f2f979c1564bdaf9e6c51"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79effab2d29f2f979c1564bdaf9e6c51">&#9670;&nbsp;</a></span>checkIndex()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Vector::checkIndex </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a>&#160;</td>
-          <td class="paramname"><em>i</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Checks index range. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">i</td><td>Index </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="vector_8cpp_source.html#l00360">360</a> of file <a class="el" href="vector_8cpp_source.html">vector.cpp</a>.</p>
 
 </div>
 </div>
@@ -767,53 +665,6 @@ Friends</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="vector_8cpp_source.html#l00278">278</a> of file <a class="el" href="vector_8cpp_source.html">vector.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a337d77cf0070651a2f5739944592c666"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a337d77cf0070651a2f5739944592c666">&#9670;&nbsp;</a></span>move()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Vector::move </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="class_h5_helper_1_1_vector.html">Vector</a> &amp;&#160;</td>
-          <td class="paramname"><em>vector</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>deleteFlag</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p><a class="el" href="namespace_helper.html" title="Namespace for helper functions. ">Helper</a> move function. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">vector</td><td>Reference to the existing <a class="el" href="class_h5_helper_1_1_vector.html" title="The Vector class represents wrapper for 64-bit unsigned integer vectors. ">Vector</a> </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">deleteFlag</td><td>Delete flag (optional) </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="vector_8cpp_source.html#l00343">343</a> of file <a class="el" href="vector_8cpp_source.html">vector.cpp</a>.</p>
 
 </div>
 </div>
@@ -1191,7 +1042,7 @@ Friends</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 19:40:42 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

@@ -68,8 +68,6 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="class_h5_helper_1_1_file-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">H5Helper::File Class Reference</div>  </div>
@@ -83,7 +81,7 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae357c474eca4725a3db56b820381afeb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#ae357c474eca4725a3db56b820381afeb">File</a> (std::string <a class="el" href="class_h5_helper_1_1_file.html#aacded0257be939d1a572603cdf416795">filename</a>, unsigned int flag, bool log=true)</td></tr>
+<tr class="memitem:ae357c474eca4725a3db56b820381afeb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#ae357c474eca4725a3db56b820381afeb">File</a> (std::string filename, unsigned int flag, bool log=true)</td></tr>
 <tr class="memdesc:ae357c474eca4725a3db56b820381afeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates <a class="el" href="class_h5_helper_1_1_file.html" title="The File class represents wrapper for the HDF5 files. ">File</a> object with given filename.  <a href="#ae357c474eca4725a3db56b820381afeb">More...</a><br /></td></tr>
 <tr class="separator:ae357c474eca4725a3db56b820381afeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a05289d820790766196498e4089044e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a2a05289d820790766196498e4089044e">~File</a> ()</td></tr>
@@ -223,61 +221,6 @@ static const unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a 
 static const unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a9017d29d22a922337231c49d15b89cc4">CREATE</a> = 1</td></tr>
 <tr class="memdesc:a9017d29d22a922337231c49d15b89cc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create file flag. <br /></td></tr>
 <tr class="separator:a9017d29d22a922337231c49d15b89cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a36c4e04c4330d776757d7201b3131750"><td class="memItemLeft" align="right" valign="top"><a id="a36c4e04c4330d776757d7201b3131750"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a36c4e04c4330d776757d7201b3131750">File</a> (const <a class="el" href="class_h5_helper_1_1_file.html">File</a> &amp;)</td></tr>
-<tr class="memdesc:a36c4e04c4330d776757d7201b3131750"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable copy contructor. <br /></td></tr>
-<tr class="separator:a36c4e04c4330d776757d7201b3131750"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a964c70278a31dbf2ecdcc7fc9e071a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_file.html">File</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a964c70278a31dbf2ecdcc7fc9e071a48">operator=</a> (const <a class="el" href="class_h5_helper_1_1_file.html">File</a> &amp;)</td></tr>
-<tr class="separator:a964c70278a31dbf2ecdcc7fc9e071a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89167f2e6c5f967dcb0c7569c439168a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a89167f2e6c5f967dcb0c7569c439168a">insertObject</a> (std::string name, bool log=true)</td></tr>
-<tr class="memdesc:a89167f2e6c5f967dcb0c7569c439168a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts object to opened object.  <a href="#a89167f2e6c5f967dcb0c7569c439168a">More...</a><br /></td></tr>
-<tr class="separator:a89167f2e6c5f967dcb0c7569c439168a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a409b9afde1c183bd1ff31f1321156f8d"><td class="memItemLeft" align="right" valign="top"><a id="a409b9afde1c183bd1ff31f1321156f8d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a409b9afde1c183bd1ff31f1321156f8d">closeFileAndObjects</a> ()</td></tr>
-<tr class="memdesc:a409b9afde1c183bd1ff31f1321156f8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes file and objects. <br /></td></tr>
-<tr class="separator:a409b9afde1c183bd1ff31f1321156f8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a8975de21aa1944ddc93a00693bd5f4f0"><td class="memItemLeft" align="right" valign="top"><a id="a8975de21aa1944ddc93a00693bd5f4f0"></a>
-<a class="el" href="class_h5_helper_1_1_vector4_d.html">Vector4D</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a8975de21aa1944ddc93a00693bd5f4f0">nDims</a></td></tr>
-<tr class="memdesc:a8975de21aa1944ddc93a00693bd5f4f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Domain dimensions. <br /></td></tr>
-<tr class="separator:a8975de21aa1944ddc93a00693bd5f4f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacded0257be939d1a572603cdf416795"><td class="memItemLeft" align="right" valign="top"><a id="aacded0257be939d1a572603cdf416795"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#aacded0257be939d1a572603cdf416795">filename</a></td></tr>
-<tr class="memdesc:aacded0257be939d1a572603cdf416795"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filename. <br /></td></tr>
-<tr class="separator:aacded0257be939d1a572603cdf416795"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c24644d9c8b27eb93842b1aa3680445"><td class="memItemLeft" align="right" valign="top"><a id="a0c24644d9c8b27eb93842b1aa3680445"></a>
-<a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a0c24644d9c8b27eb93842b1aa3680445">numberOfElementsToLoad</a> = 512 * 512 * 512</td></tr>
-<tr class="memdesc:a0c24644d9c8b27eb93842b1aa3680445"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of elements to load for block reading. <br /></td></tr>
-<tr class="separator:a0c24644d9c8b27eb93842b1aa3680445"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a057b0a3524fbf524b757b30c11bef014"><td class="memItemLeft" align="right" valign="top"><a id="a057b0a3524fbf524b757b30c11bef014"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a057b0a3524fbf524b757b30c11bef014">pListFileAccessId</a></td></tr>
-<tr class="memdesc:a057b0a3524fbf524b757b30c11bef014"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_file.html" title="The File class represents wrapper for the HDF5 files. ">File</a> access property list id. <br /></td></tr>
-<tr class="separator:a057b0a3524fbf524b757b30c11bef014"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae80b4b9b3cea6c3b1b091b532b8c3ded"><td class="memItemLeft" align="right" valign="top"><a id="ae80b4b9b3cea6c3b1b091b532b8c3ded"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#ae80b4b9b3cea6c3b1b091b532b8c3ded">fileId</a></td></tr>
-<tr class="memdesc:ae80b4b9b3cea6c3b1b091b532b8c3ded"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_file.html" title="The File class represents wrapper for the HDF5 files. ">File</a> id. <br /></td></tr>
-<tr class="separator:ae80b4b9b3cea6c3b1b091b532b8c3ded"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff219ed3f61ee381932f63a74dba93b3"><td class="memItemLeft" align="right" valign="top"><a id="aff219ed3f61ee381932f63a74dba93b3"></a>
-<a class="el" href="namespace_h5_helper.html#a1a36cb99032018565efca76dcfc01451">MapOfObjects</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#aff219ed3f61ee381932f63a74dba93b3">objects</a></td></tr>
-<tr class="memdesc:aff219ed3f61ee381932f63a74dba93b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of objects. <br /></td></tr>
-<tr class="separator:aff219ed3f61ee381932f63a74dba93b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8caa8481b78ee307fabcd20d30e60b26"><td class="memItemLeft" align="right" valign="top"><a id="a8caa8481b78ee307fabcd20d30e60b26"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a8caa8481b78ee307fabcd20d30e60b26">deleteLogging</a> = true</td></tr>
-<tr class="memdesc:a8caa8481b78ee307fabcd20d30e60b26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete logging flag. <br /></td></tr>
-<tr class="separator:a8caa8481b78ee307fabcd20d30e60b26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1ae31cd69035681621827dcf3b36dd6"><td class="memItemLeft" align="right" valign="top"><a id="ad1ae31cd69035681621827dcf3b36dd6"></a>
-herr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#ad1ae31cd69035681621827dcf3b36dd6">err</a></td></tr>
-<tr class="memdesc:ad1ae31cd69035681621827dcf3b36dd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error handle. <br /></td></tr>
-<tr class="separator:ad1ae31cd69035681621827dcf3b36dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a183055bcdf5488ae043cb3c83a201d"><td class="memItemLeft" align="right" valign="top"><a id="a0a183055bcdf5488ae043cb3c83a201d"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_file.html#a0a183055bcdf5488ae043cb3c83a201d">mPISize</a></td></tr>
-<tr class="memdesc:a0a183055bcdf5488ae043cb3c83a201d"><td class="mdescLeft">&#160;</td><td class="mdescRight">MPI size. <br /></td></tr>
-<tr class="separator:a0a183055bcdf5488ae043cb3c83a201d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="class_h5_helper_1_1_file.html" title="The File class represents wrapper for the HDF5 files. ">File</a> class represents wrapper for the HDF5 files. </p>
@@ -1284,59 +1227,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 
 </div>
 </div>
-<a id="a89167f2e6c5f967dcb0c7569c439168a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89167f2e6c5f967dcb0c7569c439168a">&#9670;&nbsp;</a></span>insertObject()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::File::insertObject </td>
-          <td>(</td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>log</em> = <code>true</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Inserts object to opened object. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td><a class="el" href="class_h5_helper_1_1_object.html" title="The Object class represents wrapper for the HDF5 objects. ">Object</a> name </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">log</td><td>Logging flag (optional) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="file_8cpp_source.html#l00827">827</a> of file <a class="el" href="file_8cpp_source.html">file.cpp</a>.</p>
-
-</div>
-</div>
 <a id="a0edb9aecc3de75c84b8d5abf7352e143"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0edb9aecc3de75c84b8d5abf7352e143">&#9670;&nbsp;</a></span>isDatasetOpened() <span class="overload">[1/2]</span></h2>
 
@@ -1836,33 +1726,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 
 </div>
 </div>
-<a id="a964c70278a31dbf2ecdcc7fc9e071a48"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a964c70278a31dbf2ecdcc7fc9e071a48">&#9670;&nbsp;</a></span>operator=()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_h5_helper_1_1_file.html">File</a>&amp; H5Helper::File::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="class_h5_helper_1_1_file.html">File</a> &amp;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Disable assignment operator </p><dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_h5_helper_1_1_file.html" title="The File class represents wrapper for the HDF5 files. ">File</a> </dd></dl>
-
-</div>
-</div>
 <a id="a96938910406ff609c0b20c2df3bb6a87"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a96938910406ff609c0b20c2df3bb6a87">&#9670;&nbsp;</a></span>renameAttribute() <span class="overload">[1/2]</span></h2>
 
@@ -2036,7 +1899,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 19:40:42 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

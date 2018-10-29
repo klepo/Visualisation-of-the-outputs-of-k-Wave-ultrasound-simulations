@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['b',['b',['../class_h5_helper_1_1_compress_helper.html#a0723a5dabe1eb1fc03d69660c70c4e67',1,'H5Helper::CompressHelper']]],
-  ['be',['bE',['../class_h5_helper_1_1_compress_helper.html#a0b843927a3759baf9d5c7c9771d3b7a5',1,'H5Helper::CompressHelper']]],
-  ['be_5f1',['bE_1',['../class_h5_helper_1_1_compress_helper.html#a796eac8cad48de713ba468d09bb63ded',1,'H5Helper::CompressHelper']]],
-  ['blockdims',['blockDims',['../class_h5_helper_1_1_dataset.html#ada1fee13c388a18b2c95edcc49219353',1,'H5Helper::Dataset']]],
-  ['blocksize',['blockSize',['../class_settings.html#ac27f0a3f50cc4b7f0b5cdb8d731b0aac',1,'Settings']]],
-  ['bsize',['bSize',['../class_h5_helper_1_1_compress_helper.html#adf70d97b62b1fd9a413ba074447db3bb',1,'H5Helper::CompressHelper']]]
+  ['data',['data',['../class_color_map.html#a1166db02fc6f2af41e9279f2a1186327',1,'ColorMap::data()'],['../class_request.html#a86366d6d5962e0e22df06531bb4b7bf5',1,'Request::data()']]],
+  ['dataset',['dataset',['../class_request.html#abdfb814ebbfdb5291c3563a4c53890d5',1,'Request']]],
+  ['deletelog',['deleteLog',['../class_h5_helper_1_1_object.html#a76a422e245722847a8ca80869ff413c1',1,'H5Helper::Object']]]
 ];

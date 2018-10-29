@@ -1,22 +1,4 @@
 var searchData=
 [
-  ['data',['data',['../class_color_map.html#a1166db02fc6f2af41e9279f2a1186327',1,'ColorMap::data()'],['../class_request.html#a86366d6d5962e0e22df06531bb4b7bf5',1,'Request::data()']]],
-  ['data3d',['data3D',['../class_h5_object_to_visualize.html#a7ae6767aff7bef42c800551878aebb68',1,'H5ObjectToVisualize']]],
-  ['datacc',['dataCC',['../class_h5_reading_thread.html#afd2cd6e4374796e61e8c964c22834cd6',1,'H5ReadingThread']]],
-  ['datalc',['dataLC',['../class_h5_reading_thread.html#a6cdd734a4b979d2d2ca0abe80de32c91',1,'H5ReadingThread']]],
-  ['dataset',['dataset',['../class_h5_object_to_visualize.html#aa2ee5a3c8ea8bb52beb25c8ea73d2c80',1,'H5ObjectToVisualize::dataset()'],['../class_request.html#abdfb814ebbfdb5291c3563a4c53890d5',1,'Request::dataset()']]],
-  ['datasetid',['datasetId',['../class_h5_helper_1_1_dataset.html#afc25117ea3103074284c24d353ca0bb4',1,'H5Helper::Dataset']]],
-  ['datasetposition',['datasetPosition',['../class_g_window.html#a81adbb86fe80ff53cb19dd4896d889f0',1,'GWindow']]],
-  ['datasets',['datasets',['../class_dts_for_pcs.html#aed8128e82599b35e44f511f16c4ef0c1',1,'DtsForPcs']]],
-  ['datasetsize',['datasetSize',['../class_g_window.html#a526d8064126aa2b2cf7ccd15effd7452',1,'GWindow']]],
-  ['dataspaceid',['dataspaceId',['../class_h5_helper_1_1_attribute.html#aac3ff0ea7a5ee7f5aa537342e46cefa4',1,'H5Helper::Attribute::dataspaceId()'],['../class_h5_helper_1_1_dataset.html#acc0e041f392e168efae8ef442288cd1a',1,'H5Helper::Dataset::dataspaceId()']]],
-  ['datatypeid',['datatypeId',['../class_h5_helper_1_1_attribute.html#a1c2100aa395c0d57d391de90075c3b24',1,'H5Helper::Attribute::datatypeId()'],['../class_h5_helper_1_1_dataset.html#af7968feb8717e722b29f4f90171c9cfc',1,'H5Helper::Dataset::datatypeId()']]],
-  ['dataxy',['dataXY',['../class_h5_object_to_visualize.html#a51ddb7a1234fd60e6615afe69726257f',1,'H5ObjectToVisualize']]],
-  ['dataxz',['dataXZ',['../class_h5_object_to_visualize.html#a7d9d1b930639f7ccab774a7d9f534a46',1,'H5ObjectToVisualize']]],
-  ['datayz',['dataYZ',['../class_h5_object_to_visualize.html#ae89cef9a5ca44575f148c32f2737d4b6',1,'H5ObjectToVisualize']]],
-  ['deletelog',['deleteLog',['../class_h5_helper_1_1_object.html#a76a422e245722847a8ca80869ff413c1',1,'H5Helper::Object']]],
-  ['deletelogging',['deleteLogging',['../class_h5_helper_1_1_file.html#a8caa8481b78ee307fabcd20d30e60b26',1,'H5Helper::File']]],
-  ['dims',['dims',['../class_h5_helper_1_1_dataset.html#af927050ccc24e1b369386d1b0bbe19b8',1,'H5Helper::Dataset']]],
-  ['donerequests',['doneRequests',['../class_h5_reading_thread.html#a64c7455ab5169174b11c32fd37391c8f',1,'H5ReadingThread']]],
-  ['dtsforpcs',['dtsForPcs',['../class_processing.html#aac8044a0b9f3ec25c3c7d5ebea1902ea',1,'Processing']]]
+  ['full',['full',['../class_request.html#a2d8adf6838bb49db3603cf9e9ad16e86',1,'Request']]]
 ];

@@ -68,8 +68,6 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pri-methods">Private Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="class_h5_helper_1_1_attribute-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">H5Helper::Attribute Class Reference</div>  </div>
@@ -83,10 +81,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a12f9b9d67b77eb07f89ad6b287eb7627"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a12f9b9d67b77eb07f89ad6b287eb7627">Attribute</a> (hid_t <a class="el" href="class_h5_helper_1_1_attribute.html#a72463db3ba2ae670a793c527efefddeb">objectId</a>, std::string <a class="el" href="class_h5_helper_1_1_attribute.html#a5c193eb733f1c7bc103d28934619f9da">name</a>)</td></tr>
+<tr class="memitem:a12f9b9d67b77eb07f89ad6b287eb7627"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a12f9b9d67b77eb07f89ad6b287eb7627">Attribute</a> (hid_t objectId, std::string name)</td></tr>
 <tr class="memdesc:a12f9b9d67b77eb07f89ad6b287eb7627"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> object with given name and object.  <a href="#a12f9b9d67b77eb07f89ad6b287eb7627">More...</a><br /></td></tr>
 <tr class="separator:a12f9b9d67b77eb07f89ad6b287eb7627"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40bd344e54eb3c3bd1ea5f2a8421e591"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a40bd344e54eb3c3bd1ea5f2a8421e591">Attribute</a> (hid_t <a class="el" href="class_h5_helper_1_1_attribute.html#a72463db3ba2ae670a793c527efefddeb">objectId</a>, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> idx)</td></tr>
+<tr class="memitem:a40bd344e54eb3c3bd1ea5f2a8421e591"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a40bd344e54eb3c3bd1ea5f2a8421e591">Attribute</a> (hid_t objectId, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> idx)</td></tr>
 <tr class="memdesc:a40bd344e54eb3c3bd1ea5f2a8421e591"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> object with given index and object.  <a href="#a40bd344e54eb3c3bd1ea5f2a8421e591">More...</a><br /></td></tr>
 <tr class="separator:a40bd344e54eb3c3bd1ea5f2a8421e591"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59e1b2d34fd1e992834d900f4b8c0f9e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a59e1b2d34fd1e992834d900f4b8c0f9e">~Attribute</a> ()</td></tr>
@@ -116,59 +114,12 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a0ce1816afc82a78b23563259043b90e2"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a0ce1816afc82a78b23563259043b90e2">getStringValue</a> (hid_t <a class="el" href="class_h5_helper_1_1_attribute.html#a1c2100aa395c0d57d391de90075c3b24">datatypeId</a>, const void *<a class="el" href="class_h5_helper_1_1_attribute.html#ae71fdd765a123262d028af609adc7c85">value</a>, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> <a class="el" href="class_h5_helper_1_1_attribute.html#a023fcf7c1986ddaa4f2626c90a8f6d13">size</a>=0)</td></tr>
+<tr class="memitem:a0ce1816afc82a78b23563259043b90e2"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a0ce1816afc82a78b23563259043b90e2">getStringValue</a> (hid_t datatypeId, const void *value, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> size=0)</td></tr>
 <tr class="memdesc:a0ce1816afc82a78b23563259043b90e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns attribute value as string.  <a href="#a0ce1816afc82a78b23563259043b90e2">More...</a><br /></td></tr>
 <tr class="separator:a0ce1816afc82a78b23563259043b90e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5700b2aa8577af5d7403f59d6017a7b"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#af5700b2aa8577af5d7403f59d6017a7b">getStringDatatype</a> (hid_t <a class="el" href="class_h5_helper_1_1_attribute.html#a1c2100aa395c0d57d391de90075c3b24">datatypeId</a>)</td></tr>
+<tr class="memitem:af5700b2aa8577af5d7403f59d6017a7b"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#af5700b2aa8577af5d7403f59d6017a7b">getStringDatatype</a> (hid_t datatypeId)</td></tr>
 <tr class="memdesc:af5700b2aa8577af5d7403f59d6017a7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns attribute datatype as string.  <a href="#af5700b2aa8577af5d7403f59d6017a7b">More...</a><br /></td></tr>
 <tr class="separator:af5700b2aa8577af5d7403f59d6017a7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
-Private Member Functions</h2></td></tr>
-<tr class="memitem:a3d8d6582036bbd9e0b28135e92969b82"><td class="memItemLeft" align="right" valign="top"><a id="a3d8d6582036bbd9e0b28135e92969b82"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a3d8d6582036bbd9e0b28135e92969b82">Attribute</a> (const <a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> &amp;)</td></tr>
-<tr class="memdesc:a3d8d6582036bbd9e0b28135e92969b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable copy contructor. <br /></td></tr>
-<tr class="separator:a3d8d6582036bbd9e0b28135e92969b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a645b924e98587f86a79629ad9d19d367"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a645b924e98587f86a79629ad9d19d367">operator=</a> (const <a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> &amp;)</td></tr>
-<tr class="separator:a645b924e98587f86a79629ad9d19d367"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76cb4596c86d8b4ea6c5b9e5134d1cd5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a76cb4596c86d8b4ea6c5b9e5134d1cd5">loadAttribute</a> (hid_t <a class="el" href="class_h5_helper_1_1_attribute.html#a7da56fb45cda9d55859900b2b665a657">attributeId</a>)</td></tr>
-<tr class="memdesc:a76cb4596c86d8b4ea6c5b9e5134d1cd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads attribute data.  <a href="#a76cb4596c86d8b4ea6c5b9e5134d1cd5">More...</a><br /></td></tr>
-<tr class="separator:a76cb4596c86d8b4ea6c5b9e5134d1cd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a72463db3ba2ae670a793c527efefddeb"><td class="memItemLeft" align="right" valign="top"><a id="a72463db3ba2ae670a793c527efefddeb"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a72463db3ba2ae670a793c527efefddeb">objectId</a></td></tr>
-<tr class="memdesc:a72463db3ba2ae670a793c527efefddeb"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_object.html" title="The Object class represents wrapper for the HDF5 objects. ">Object</a> id. <br /></td></tr>
-<tr class="separator:a72463db3ba2ae670a793c527efefddeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7da56fb45cda9d55859900b2b665a657"><td class="memItemLeft" align="right" valign="top"><a id="a7da56fb45cda9d55859900b2b665a657"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a7da56fb45cda9d55859900b2b665a657">attributeId</a></td></tr>
-<tr class="memdesc:a7da56fb45cda9d55859900b2b665a657"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> id. <br /></td></tr>
-<tr class="separator:a7da56fb45cda9d55859900b2b665a657"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c193eb733f1c7bc103d28934619f9da"><td class="memItemLeft" align="right" valign="top"><a id="a5c193eb733f1c7bc103d28934619f9da"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a5c193eb733f1c7bc103d28934619f9da">name</a></td></tr>
-<tr class="memdesc:a5c193eb733f1c7bc103d28934619f9da"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> name. <br /></td></tr>
-<tr class="separator:a5c193eb733f1c7bc103d28934619f9da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c2100aa395c0d57d391de90075c3b24"><td class="memItemLeft" align="right" valign="top"><a id="a1c2100aa395c0d57d391de90075c3b24"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a1c2100aa395c0d57d391de90075c3b24">datatypeId</a></td></tr>
-<tr class="memdesc:a1c2100aa395c0d57d391de90075c3b24"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> datatype id. <br /></td></tr>
-<tr class="separator:a1c2100aa395c0d57d391de90075c3b24"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a023fcf7c1986ddaa4f2626c90a8f6d13"><td class="memItemLeft" align="right" valign="top"><a id="a023fcf7c1986ddaa4f2626c90a8f6d13"></a>
-<a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#a023fcf7c1986ddaa4f2626c90a8f6d13">size</a></td></tr>
-<tr class="memdesc:a023fcf7c1986ddaa4f2626c90a8f6d13"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> size. <br /></td></tr>
-<tr class="separator:a023fcf7c1986ddaa4f2626c90a8f6d13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac3ff0ea7a5ee7f5aa537342e46cefa4"><td class="memItemLeft" align="right" valign="top"><a id="aac3ff0ea7a5ee7f5aa537342e46cefa4"></a>
-hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#aac3ff0ea7a5ee7f5aa537342e46cefa4">dataspaceId</a></td></tr>
-<tr class="memdesc:aac3ff0ea7a5ee7f5aa537342e46cefa4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> dataspace id. <br /></td></tr>
-<tr class="separator:aac3ff0ea7a5ee7f5aa537342e46cefa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae71fdd765a123262d028af609adc7c85"><td class="memItemLeft" align="right" valign="top"><a id="ae71fdd765a123262d028af609adc7c85"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#ae71fdd765a123262d028af609adc7c85">value</a> = nullptr</td></tr>
-<tr class="memdesc:ae71fdd765a123262d028af609adc7c85"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> value. <br /></td></tr>
-<tr class="separator:ae71fdd765a123262d028af609adc7c85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af54aa70a8aabadbdb3fc061b1f834772"><td class="memItemLeft" align="right" valign="top"><a id="af54aa70a8aabadbdb3fc061b1f834772"></a>
-herr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_attribute.html#af54aa70a8aabadbdb3fc061b1f834772">err</a></td></tr>
-<tr class="memdesc:af54aa70a8aabadbdb3fc061b1f834772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error handle. <br /></td></tr>
-<tr class="separator:af54aa70a8aabadbdb3fc061b1f834772"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> class represents wrapper for the HDF5 attributes. </p>
@@ -534,75 +485,6 @@ herr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 
 </div>
 </div>
-<a id="a76cb4596c86d8b4ea6c5b9e5134d1cd5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76cb4596c86d8b4ea6c5b9e5134d1cd5">&#9670;&nbsp;</a></span>loadAttribute()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void H5Helper::Attribute::loadAttribute </td>
-          <td>(</td>
-          <td class="paramtype">hid_t&#160;</td>
-          <td class="paramname"><em>attributeId</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Loads attribute data. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">attributeId</td><td><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> id </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="exception"><dt>Exceptions</dt><dd>
-  <table class="exception">
-    <tr><td class="paramname">std::runtime_error</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="attribute_8cpp_source.html#l00229">229</a> of file <a class="el" href="attribute_8cpp_source.html">attribute.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a645b924e98587f86a79629ad9d19d367"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a645b924e98587f86a79629ad9d19d367">&#9670;&nbsp;</a></span>operator=()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a>&amp; H5Helper::Attribute::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="class_h5_helper_1_1_attribute.html">Attribute</a> &amp;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Disable assignment operator </p><dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_h5_helper_1_1_attribute.html" title="The Attribute class represents wrapper for the HDF5 attributes. ">Attribute</a> </dd></dl>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>k-wave-h5-helper/<a class="el" href="attribute_8h_source.html">attribute.h</a></li>
 <li>k-wave-h5-helper/<a class="el" href="attribute_8cpp_source.html">attribute.cpp</a></li>
@@ -610,7 +492,7 @@ herr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 19:40:41 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

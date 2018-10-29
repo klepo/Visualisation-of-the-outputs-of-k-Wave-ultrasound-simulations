@@ -66,8 +66,6 @@ $(function() {
 <a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="#pri-attribs">Private Attributes</a> &#124;
-<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="class_h5_reading_thread-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">H5ReadingThread Class Reference</div>  </div>
@@ -121,13 +119,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5a809e4a614d2ed7c4ebcbbb5ddd94cd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a5a809e4a614d2ed7c4ebcbbb5ddd94cd">H5ReadingThread</a> (QObject *parent=nullptr)</td></tr>
-<tr class="memdesc:a5a809e4a614d2ed7c4ebcbbb5ddd94cd"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_h5_reading_thread.html#a5a809e4a614d2ed7c4ebcbbb5ddd94cd" title="H5ReadingThread::H5ReadingThread. ">H5ReadingThread::H5ReadingThread</a>.  <a href="#a5a809e4a614d2ed7c4ebcbbb5ddd94cd">More...</a><br /></td></tr>
+<tr class="memdesc:a5a809e4a614d2ed7c4ebcbbb5ddd94cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates <a class="el" href="class_h5_reading_thread.html" title="The HDF5ReadingThread class represents wrapper for HDF5 reading threads. ">H5ReadingThread</a> object.  <a href="#a5a809e4a614d2ed7c4ebcbbb5ddd94cd">More...</a><br /></td></tr>
 <tr class="separator:a5a809e4a614d2ed7c4ebcbbb5ddd94cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6dd122d9a5a3585b6a6b70c17f80bd25"><td class="memItemLeft" align="right" valign="top"><a id="a6dd122d9a5a3585b6a6b70c17f80bd25"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a6dd122d9a5a3585b6a6b70c17f80bd25">~H5ReadingThread</a> ()</td></tr>
 <tr class="memdesc:a6dd122d9a5a3585b6a6b70c17f80bd25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor of <a class="el" href="class_h5_reading_thread.html" title="The HDF5ReadingThread class represents wrapper for HDF5 reading threads. ">H5ReadingThread</a> object. <br /></td></tr>
 <tr class="separator:a6dd122d9a5a3585b6a6b70c17f80bd25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25a6c9be9986ce129d0b41487f190a89"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a25a6c9be9986ce129d0b41487f190a89">setCompressHelper</a> (<a class="el" href="class_h5_helper_1_1_compress_helper.html">H5Helper::CompressHelper</a> *<a class="el" href="class_h5_reading_thread.html#af99ad464984d6b7e8703c1b77b10a8bf">compressHelper</a>)</td></tr>
+<tr class="memitem:a25a6c9be9986ce129d0b41487f190a89"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a25a6c9be9986ce129d0b41487f190a89">setCompressHelper</a> (<a class="el" href="class_h5_helper_1_1_compress_helper.html">H5Helper::CompressHelper</a> *compressHelper)</td></tr>
 <tr class="memdesc:a25a6c9be9986ce129d0b41487f190a89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets compress helper.  <a href="#a25a6c9be9986ce129d0b41487f190a89">More...</a><br /></td></tr>
 <tr class="separator:a25a6c9be9986ce129d0b41487f190a89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08ea89f02e9058b0dbdeed3cf4ac3a4f"><td class="memItemLeft" align="right" valign="top">hsize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a08ea89f02e9058b0dbdeed3cf4ac3a4f">getLocalStep</a> () const</td></tr>
@@ -146,71 +144,6 @@ Protected Member Functions</h2></td></tr>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#aa7255e3de1349134cea15dc94e7aa73d">run</a> ()</td></tr>
 <tr class="memdesc:aa7255e3de1349134cea15dc94e7aa73d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread work. <br /></td></tr>
 <tr class="separator:aa7255e3de1349134cea15dc94e7aa73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
-Private Attributes</h2></td></tr>
-<tr class="memitem:a92ab9862fd58486f65990bde5f0b23ed"><td class="memItemLeft" align="right" valign="top"><a id="a92ab9862fd58486f65990bde5f0b23ed"></a>
-QMutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a92ab9862fd58486f65990bde5f0b23ed">queueMutex</a></td></tr>
-<tr class="memdesc:a92ab9862fd58486f65990bde5f0b23ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for queue. <br /></td></tr>
-<tr class="separator:a92ab9862fd58486f65990bde5f0b23ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9760938a8dfff9412801e3330f1dd0e1"><td class="memItemLeft" align="right" valign="top"><a id="a9760938a8dfff9412801e3330f1dd0e1"></a>
-QMutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a9760938a8dfff9412801e3330f1dd0e1">requestMutex</a></td></tr>
-<tr class="memdesc:a9760938a8dfff9412801e3330f1dd0e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for request. <br /></td></tr>
-<tr class="separator:a9760938a8dfff9412801e3330f1dd0e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae971a9b752cedc732ad4b6e9916f3244"><td class="memItemLeft" align="right" valign="top"><a id="ae971a9b752cedc732ad4b6e9916f3244"></a>
-QQueue&lt; <a class="el" href="class_request.html">Request</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#ae971a9b752cedc732ad4b6e9916f3244">queue</a></td></tr>
-<tr class="memdesc:ae971a9b752cedc732ad4b6e9916f3244"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue. <br /></td></tr>
-<tr class="separator:ae971a9b752cedc732ad4b6e9916f3244"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64c7455ab5169174b11c32fd37391c8f"><td class="memItemLeft" align="right" valign="top"><a id="a64c7455ab5169174b11c32fd37391c8f"></a>
-QList&lt; <a class="el" href="class_request.html">Request</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a64c7455ab5169174b11c32fd37391c8f">doneRequests</a></td></tr>
-<tr class="memdesc:a64c7455ab5169174b11c32fd37391c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Done requests. <br /></td></tr>
-<tr class="separator:a64c7455ab5169174b11c32fd37391c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cdd734a4b979d2d2ca0abe80de32c91"><td class="memItemLeft" align="right" valign="top"><a id="a6cdd734a4b979d2d2ca0abe80de32c91"></a>
-float *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a6cdd734a4b979d2d2ca0abe80de32c91">dataLC</a> = nullptr</td></tr>
-<tr class="memdesc:a6cdd734a4b979d2d2ca0abe80de32c91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last compress coefficient data. <br /></td></tr>
-<tr class="separator:a6cdd734a4b979d2d2ca0abe80de32c91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd2cd6e4374796e61e8c964c22834cd6"><td class="memItemLeft" align="right" valign="top"><a id="afd2cd6e4374796e61e8c964c22834cd6"></a>
-float *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#afd2cd6e4374796e61e8c964c22834cd6">dataCC</a> = nullptr</td></tr>
-<tr class="memdesc:afd2cd6e4374796e61e8c964c22834cd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current compress coefficient data. <br /></td></tr>
-<tr class="separator:afd2cd6e4374796e61e8c964c22834cd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08ae62f966117aa4e331eac0ff3321db"><td class="memItemLeft" align="right" valign="top"><a id="a08ae62f966117aa4e331eac0ff3321db"></a>
-<a class="el" href="class_h5_helper_1_1_vector4_d.html">H5Helper::Vector4D</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a08ae62f966117aa4e331eac0ff3321db">offsetLC</a></td></tr>
-<tr class="memdesc:a08ae62f966117aa4e331eac0ff3321db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last compress coefficient offset. <br /></td></tr>
-<tr class="separator:a08ae62f966117aa4e331eac0ff3321db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac131d4bbad22022011c75fbeb4462a80"><td class="memItemLeft" align="right" valign="top"><a id="ac131d4bbad22022011c75fbeb4462a80"></a>
-<a class="el" href="class_h5_helper_1_1_vector4_d.html">H5Helper::Vector4D</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#ac131d4bbad22022011c75fbeb4462a80">offsetCC</a></td></tr>
-<tr class="memdesc:ac131d4bbad22022011c75fbeb4462a80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current compress coefficient offset. <br /></td></tr>
-<tr class="separator:ac131d4bbad22022011c75fbeb4462a80"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64796e72cca9d97d93d24cbfbc50d183"><td class="memItemLeft" align="right" valign="top"><a id="a64796e72cca9d97d93d24cbfbc50d183"></a>
-hsize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a64796e72cca9d97d93d24cbfbc50d183">localStep</a> = 0</td></tr>
-<tr class="memdesc:a64796e72cca9d97d93d24cbfbc50d183"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local step. <br /></td></tr>
-<tr class="separator:a64796e72cca9d97d93d24cbfbc50d183"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af99ad464984d6b7e8703c1b77b10a8bf"><td class="memItemLeft" align="right" valign="top"><a id="af99ad464984d6b7e8703c1b77b10a8bf"></a>
-<a class="el" href="class_h5_helper_1_1_compress_helper.html">H5Helper::CompressHelper</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#af99ad464984d6b7e8703c1b77b10a8bf">compressHelper</a> = nullptr</td></tr>
-<tr class="memdesc:af99ad464984d6b7e8703c1b77b10a8bf"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_compress.html" title="The Compress class represents wrapper for compression. ">Compress</a> helper. <br /></td></tr>
-<tr class="separator:af99ad464984d6b7e8703c1b77b10a8bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a387fc5718ff5330b8e2b002804185b3e"><td class="memItemLeft" align="right" valign="top"><a id="a387fc5718ff5330b8e2b002804185b3e"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a387fc5718ff5330b8e2b002804185b3e">meanTime</a> = 0</td></tr>
-<tr class="memdesc:a387fc5718ff5330b8e2b002804185b3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mean read time. <br /></td></tr>
-<tr class="separator:a387fc5718ff5330b8e2b002804185b3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a752436dc2e67c835c6752b90f28db69a"><td class="memItemLeft" align="right" valign="top"><a id="a752436dc2e67c835c6752b90f28db69a"></a>
-hsize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a752436dc2e67c835c6752b90f28db69a">readCount</a> = 0</td></tr>
-<tr class="memdesc:a752436dc2e67c835c6752b90f28db69a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read counter. <br /></td></tr>
-<tr class="separator:a752436dc2e67c835c6752b90f28db69a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a504f3ad9c117b079289630971c32c9ea"><td class="memItemLeft" align="right" valign="top"><a id="a504f3ad9c117b079289630971c32c9ea"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a504f3ad9c117b079289630971c32c9ea">timeSum</a> = 0</td></tr>
-<tr class="memdesc:a504f3ad9c117b079289630971c32c9ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read time sum. <br /></td></tr>
-<tr class="separator:a504f3ad9c117b079289630971c32c9ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf97fc20771b0f80061a04852d4836b7"><td class="memItemLeft" align="right" valign="top"><a id="acf97fc20771b0f80061a04852d4836b7"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#acf97fc20771b0f80061a04852d4836b7">stopFlag</a> = false</td></tr>
-<tr class="memdesc:acf97fc20771b0f80061a04852d4836b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop flag. <br /></td></tr>
-<tr class="separator:acf97fc20771b0f80061a04852d4836b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
-Static Private Attributes</h2></td></tr>
-<tr class="memitem:a270b763d380bf5ecc26735319bf9b038"><td class="memItemLeft" align="right" valign="top">static QMutex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_reading_thread.html#a270b763d380bf5ecc26735319bf9b038">mutex</a></td></tr>
-<tr class="memdesc:a270b763d380bf5ecc26735319bf9b038"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for HDF5 reading.  <a href="#a270b763d380bf5ecc26735319bf9b038">More...</a><br /></td></tr>
-<tr class="separator:a270b763d380bf5ecc26735319bf9b038"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The HDF5ReadingThread class represents wrapper for HDF5 reading threads. </p>
@@ -233,7 +166,7 @@ Static Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="class_h5_reading_thread.html#a5a809e4a614d2ed7c4ebcbbb5ddd94cd" title="H5ReadingThread::H5ReadingThread. ">H5ReadingThread::H5ReadingThread</a>. </p>
+<p>Creates <a class="el" href="class_h5_reading_thread.html" title="The HDF5ReadingThread class represents wrapper for HDF5 reading threads. ">H5ReadingThread</a> object. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">parent</td><td></td></tr>
@@ -491,34 +424,6 @@ Static Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="a270b763d380bf5ecc26735319bf9b038"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a270b763d380bf5ecc26735319bf9b038">&#9670;&nbsp;</a></span>mutex</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">QMutex H5ReadingThread::mutex</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Mutex for HDF5 reading. </p>
-<p>Mutex (static) for synchronization if reading. </p>
-
-<p class="definition">Definition at line <a class="el" href="h5readingthread_8h_source.html#l00088">88</a> of file <a class="el" href="h5readingthread_8h_source.html">h5readingthread.h</a>.</p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>k-wave-h5-visualizer/<a class="el" href="h5readingthread_8h_source.html">h5readingthread.h</a></li>
 <li>k-wave-h5-visualizer/<a class="el" href="h5readingthread_8cpp_source.html">h5readingthread.cpp</a></li>
@@ -526,7 +431,7 @@ Static Private Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 19:40:41 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
