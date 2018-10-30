@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with OpenedH5File class declaration.
  *
@@ -43,13 +43,14 @@ public:
     explicit H5OpenedFile(QString filename, QObject *parent = nullptr);
     ~H5OpenedFile();
 
-    QVector<H5ObjectToVisualize *> getObjects();
-    QVector<H5ObjectToVisualize *> getObjectsSelected();
-    QMap<QString, QString> getInfo();
-    H5Helper::File *getFile();
+    QVector<H5ObjectToVisualize *> getObjects() const;
+    QVector<H5ObjectToVisualize *> getObjectsSelected() const;
+    H5Helper::Vector4D getNDims() const;
+    QMap<QString, QString> getInfo() const;
+    const H5Helper::File *getFile() const;
     QString getFilename() const;
     QString getRawFilename() const;
-    H5Helper::Vector4D getNDims() const;
+
 
 signals:
 
@@ -67,7 +68,7 @@ private:
     /// Objects for visualization
     QVector<H5ObjectToVisualize *> objects;
 
-    void findDatasetsForVisualization(H5Helper::Group *group);
+    void findDatasetsForVisualization(const H5Helper::Group *group);
     void setObject(H5Helper::Dataset *dataset, ObjectType type);
 };
 

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        26 September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with H5Helper::CompressHelper class declaration.
  *
@@ -56,8 +56,8 @@ public:
     static hsize_t findPeriod(const float *dataSrc, hsize_t length);
     float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
 
-    floatC *getBE() const;
-    floatC *getBE_1() const;
+    const floatC *getBE() const;
+    const floatC *getBE_1() const;
     hsize_t getOSize() const;
     hsize_t getBSize() const;
     hsize_t getPeriod() const;

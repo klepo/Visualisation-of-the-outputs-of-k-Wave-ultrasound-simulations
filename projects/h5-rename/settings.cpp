@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        19 July      2017 (created) <br>
- *              25 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -24,7 +24,6 @@
  */
 Settings::Settings()
 {
-
 }
 
 Settings::Settings(int argc, const char **argv)

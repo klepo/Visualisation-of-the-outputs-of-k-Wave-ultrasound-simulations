@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Object class definition.
  *
@@ -44,7 +44,6 @@ Object::Object(hid_t objectId, std::string name, File *file)
  */
 Object::~Object()
 {
-
 }
 
 /**

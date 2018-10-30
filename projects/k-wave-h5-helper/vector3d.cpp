@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector3D class definition.
  *
@@ -49,7 +49,6 @@ Vector3D::Vector3D(const Vector &vector)
 Vector3D::Vector3D(hsize_t value)
     : Vector(3 , value)
 {
-
 }
 
 /**

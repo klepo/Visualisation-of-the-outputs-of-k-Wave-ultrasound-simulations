@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing GWindow class definition.
  *
@@ -297,7 +297,7 @@ void GWindow::setInterpolationMode(int mode)
 void GWindow::setObject(H5ObjectToVisualize *object)
 {
     if (initialized) {
-        sceneName = QString::fromStdString(object->getFile()->getFilename()) + "_" + object->getOnlyName() + "_3Dscene";
+        sceneName = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getOnlyName() + "_3Dscene";
 
         connect(object, SIGNAL(minValueChanged(float)), this, SLOT(setMinValue(float)));
         connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));
@@ -322,8 +322,8 @@ void GWindow::setObject(H5ObjectToVisualize *object)
         setTrim(object->getMinMaxValuesTrim());
 
         setFrameSize(object->getFrameSize());
-        setDatasetSize(object->getSize());
-        setDatasetPosition(object->getPos());
+        setDatasetSize(object->getDatasetSize());
+        setDatasetPosition(object->getDatasetPosition());
 
         setXYSlice(object->getDataXY(), object->getZIndex());
         setXZSlice(object->getDataXZ(), object->getYIndex());
@@ -338,7 +338,7 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE);
             glBufferData(GL_TEXTURE_BUFFER,
                          sizeof(GLfloat) * GLuint(compressHelper->getStride() * compressHelper->getBSize()),
-                         reinterpret_cast<float *>(compressHelper->getBE()),
+                         reinterpret_cast<const float *>(compressHelper->getBE()),
                          GL_STATIC_DRAW);
             glBindBuffer(GL_TEXTURE_BUFFER, 0);
             glBindTexture(GL_TEXTURE_BUFFER, textureBE);
@@ -348,7 +348,7 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE_1);
             glBufferData(GL_TEXTURE_BUFFER,
                          sizeof(GLfloat) * GLuint(compressHelper->getStride() * compressHelper->getBSize()),
-                         reinterpret_cast<float *>(compressHelper->getBE_1()),
+                         reinterpret_cast<const float *>(compressHelper->getBE_1()),
                          GL_STATIC_DRAW);
             glBindBuffer(GL_TEXTURE_BUFFER, 0);
             glBindTexture(GL_TEXTURE_BUFFER, textureBE_1);
@@ -360,7 +360,7 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             program->setUniformValue(uBSize2, int(compressHelper->getBSize() * 2));
             program->release();
 
-            if (object->areCurrentData3DLoaded()) {
+            if (object->isCurrentData3DLoaded()) {
                 set3DCompressData(object->getData3DLC(), object->getData3DCC(), object->getLocalStep() * 2);
             } else {
                 set3DCompressData();
@@ -368,7 +368,7 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             setCompressRendering(true);
         } else {
             set3DCompressData();
-            if (object->areCurrentData3DLoaded()) {
+            if (object->isCurrentData3DLoaded()) {
                 set3DData(object->getData3D());
             } else {
                 set3DData();
@@ -1244,7 +1244,7 @@ void GWindow::setDatasetPosition(QVector3DI position)
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
-void GWindow::setXYSlice(float *data, hsize_t index)
+void GWindow::setXYSlice(const float *data, hsize_t index)
 {
     float indexTmp = index;
     if (datasetSize.z() == 1) // Index -> 0
@@ -1266,7 +1266,7 @@ void GWindow::setXYSlice(float *data, hsize_t index)
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
-void GWindow::setXZSlice(float *data, hsize_t index)
+void GWindow::setXZSlice(const float *data, hsize_t index)
 {
     float indexTmp = index;
     if (datasetSize.y() == 1) // Index -> 0
@@ -1288,7 +1288,7 @@ void GWindow::setXZSlice(float *data, hsize_t index)
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
-void GWindow::setYZSlice(float *data, hsize_t index)
+void GWindow::setYZSlice(const float *data, hsize_t index)
 {
     float indexTmp = index;
     if (datasetSize.x() == 1) // Index -> 0
@@ -1309,7 +1309,7 @@ void GWindow::setYZSlice(float *data, hsize_t index)
  * @brief Sets 3D data to 3D texture
  * @param[in] data 3D data
  */
-void GWindow::set3DData(float *data)
+void GWindow::set3DData(const float *data)
 {
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1331,7 +1331,7 @@ void GWindow::set3DData(float *data)
  * @param[in] dataCC 3D compression current coefficients data
  * @param[in] localStep Local step between coefficients
  */
-void GWindow::set3DCompressData(float *dataLC, float *dataCC, hsize_t localStep)
+void GWindow::set3DCompressData(const float *dataLC, const float *dataCC, hsize_t localStep)
 {
     if (compressHelper) {
         glBindTexture(GL_TEXTURE_3D, textureLC);
@@ -1436,7 +1436,7 @@ void GWindow::unloadSlicesTextures()
  * @param[in] point Point to convert
  * @return Converted point
  */
-QPointF GWindow::convertPointToOpenGLRelative(QPointF point)
+QPointF GWindow::convertPointToOpenGLRelative(QPointF point) const
 {
     QPointF pointOutput;
     pointOutput.setX((point.x() / double(width()) - 0.5) * 2.0);

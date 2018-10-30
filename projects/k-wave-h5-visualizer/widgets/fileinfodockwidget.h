@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with FileInfoDockWidget class declaration.
  *
@@ -44,7 +44,7 @@ public:
     ~FileInfoDockWidget();
 
 public slots:
-    void setFile(H5OpenedFile *file);
+    void setFile(const H5OpenedFile *file);
     void clear();
 
 private:

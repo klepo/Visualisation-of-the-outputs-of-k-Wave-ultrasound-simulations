@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing OpenGLWindow class definition.
  *
@@ -194,7 +194,6 @@ void OpenGLWindow::renderNow()
     lastPositionPressed = currentPositionPressed;
     wheelDelta = 0;
 }
-
 
 /**
  * @brief Expose event
@@ -419,7 +418,7 @@ void OpenGLWindow::checkInitAndMakeCurrentContext()
  * @brief Has debug extension?
  * @return True/False
  */
-bool OpenGLWindow::hasDebugExtension()
+bool OpenGLWindow::hasDebugExtension() const
 {
     return context->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
 }
@@ -428,7 +427,7 @@ bool OpenGLWindow::hasDebugExtension()
  * @brief Is OpenGL version supported?
  * @return True/False
  */
-bool OpenGLWindow::isOpenGLVersionSupported()
+bool OpenGLWindow::isOpenGLVersionSupported() const
 {
     OPENGL_FUNCTIONS* funcs = nullptr;
     funcs = context->versionFunctions<OPENGL_FUNCTIONS>();

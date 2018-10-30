@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing FileInfoDockWidget class definition.
  *
@@ -45,7 +45,7 @@ FileInfoDockWidget::~FileInfoDockWidget()
  * @brief Sets file
  * @param[in] file H5OpenedFile
  */
-void FileInfoDockWidget::setFile(H5OpenedFile *file)
+void FileInfoDockWidget::setFile(const H5OpenedFile *file)
 {
     // Set info from HDF5 file to GUI (dock panel)
     ui->textBrowserInfo->clear();

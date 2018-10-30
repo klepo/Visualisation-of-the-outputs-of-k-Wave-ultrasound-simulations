@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with HDF5ReadingThread and Request class declaration.
  *
@@ -61,30 +61,32 @@ public:
     H5ReadingThread(QObject *parent = nullptr);
     ~H5ReadingThread();
 
-    void setCompressHelper(H5Helper::CompressHelper *compressHelper);
+    const float *getDataLC() const;
+    const float *getDataCC() const;
     hsize_t getLocalStep() const;
-    float *getDataLC() const;
-    float *getDataCC() const;
+    void setCompressHelper(const H5Helper::CompressHelper *compressHelper);
 
 public slots:
     void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data = nullptr);
     void createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data = nullptr);
     void stopCurrentBlockReading();
-    void clearRequests();
     void clearDoneRequests();
+    void clearRequests();
     void deleteDoneRequest(Request *request);
 
 protected:
     virtual void run();
 
 signals:
-    /// Request done signal
+    /**
+     * @brief Request done signal
+     */
     void requestDone(Request *);
 
 private:
     Q_DISABLE_COPY(H5ReadingThread)
 
-    /// Mutex for HDF5 reading
+    /// Mutex (static) for synchronization of HDF5 reading
     static QMutex mutex;
     /// Mutex for queue
     QMutex queueMutex;
@@ -105,7 +107,7 @@ private:
     /// Local step
     hsize_t localStep = 0;
     /// Compress helper
-    H5Helper::CompressHelper *compressHelper = nullptr;
+    const H5Helper::CompressHelper *compressHelper = nullptr;
     /// Mean read time
     double meanTime = 0;
     /// Read counter

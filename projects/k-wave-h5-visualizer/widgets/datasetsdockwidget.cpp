@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing DatasetsDockWidget class definition.
  *
@@ -45,7 +45,7 @@ DatasetsDockWidget::~DatasetsDockWidget()
  * @brief Sets file
  * @param[in] file H5OpenedFile
  */
-void DatasetsDockWidget::setFile(H5OpenedFile *file)
+void DatasetsDockWidget::setFile(const H5OpenedFile *file)
 {
     clear();
     ui->formLayout->addRow("Dataset", new QLabel("Show"));

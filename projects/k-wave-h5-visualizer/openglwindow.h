@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with OpenGLWindow class declaration.
  *
@@ -57,6 +57,7 @@ class OpenGLWindow : public QWindow, public OPENGL_FUNCTIONS
 public:
     explicit OpenGLWindow(QWindow *parent = nullptr);
     ~OpenGLWindow();
+
     /// Pure virtual render function
     virtual void render() = 0;
     /// Pure virtual initialization function
@@ -101,8 +102,8 @@ protected:
 private:
     Q_DISABLE_COPY(OpenGLWindow)
 
-    bool hasDebugExtension();
-    bool isOpenGLVersionSupported();
+    bool hasDebugExtension() const;
+    bool isOpenGLVersionSupported() const;
     static void messageLogged(const QOpenGLDebugMessage &message);
 
     /// OpenGL context

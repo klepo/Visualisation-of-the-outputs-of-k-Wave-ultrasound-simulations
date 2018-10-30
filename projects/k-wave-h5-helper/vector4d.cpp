@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector4D class definition.
  *
@@ -49,7 +49,6 @@ Vector4D::Vector4D(const Vector &vector)
 Vector4D::Vector4D(hsize_t value)
     : Vector(4, value)
 {
-
 }
 
 /**

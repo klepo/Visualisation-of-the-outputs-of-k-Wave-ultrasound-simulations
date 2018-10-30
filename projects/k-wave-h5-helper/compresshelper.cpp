@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::CompressHelper class definition.
  *
@@ -126,7 +126,7 @@ float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t 
  * @brief Returns complex exponencial window basis
  * @return Complex exponencial window basis
  */
-floatC *CompressHelper::getBE() const
+const floatC *CompressHelper::getBE() const
 {
     return bE;
 }
@@ -135,7 +135,7 @@ floatC *CompressHelper::getBE() const
  * @brief Returns inverted complex exponencial window basis
  * @return Inverted complex exponencial window basis
  */
-floatC *CompressHelper::getBE_1() const
+const floatC *CompressHelper::getBE_1() const
 {
     return bE_1;
 }

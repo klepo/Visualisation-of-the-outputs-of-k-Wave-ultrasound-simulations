@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing OpenedH5File class definition.
  *
@@ -70,35 +70,16 @@ H5OpenedFile::~H5OpenedFile()
         delete objects[i];
         objects[i] = nullptr;
     }
-    //objects.clear();
+    objects.clear();
     delete file;
     file = nullptr;
-}
-
-/**
- * @brief Sets object
- * @param[in] dataset Dataset
- * @param[in] type Object type
- */
-void H5OpenedFile::setObject(H5Helper::Dataset *dataset, ObjectType type)
-{
-    bool objectExists = false;
-    foreach (H5ObjectToVisualize *object, objects) {
-        if (object->getDataset()->getName() == dataset->getName()) {
-            objectExists = true;
-            break;
-        }
-    }
-
-    if (!objectExists)
-        objects.push_back(new H5ObjectToVisualize(dataset, type, this));
 }
 
 /**
  * @brief Returns objects
  * @return objects
  */
-QVector<H5ObjectToVisualize *> H5OpenedFile::getObjects()
+QVector<H5ObjectToVisualize *> H5OpenedFile::getObjects() const
 {
     return objects;
 }
@@ -107,7 +88,7 @@ QVector<H5ObjectToVisualize *> H5OpenedFile::getObjects()
  * @brief Returns objects with selection flag
  * @return objects with selection flag
  */
-QVector<H5ObjectToVisualize *> H5OpenedFile::getObjectsSelected()
+QVector<H5ObjectToVisualize *> H5OpenedFile::getObjectsSelected() const
 {
     QVector<H5ObjectToVisualize *> selectedObjects;
     foreach (H5ObjectToVisualize *object, objects) {
@@ -119,10 +100,58 @@ QVector<H5ObjectToVisualize *> H5OpenedFile::getObjectsSelected()
 }
 
 /**
+ * @brief Returns nDims
+ * @return nDims
+ */
+H5Helper::Vector4D H5OpenedFile::getNDims() const
+{
+    return nDims;
+}
+
+/**
+ * @brief Returns simulation info from HDF5 file
+ * @return Info data structure
+ */
+QMap<QString, QString> H5OpenedFile::getInfo() const
+{
+    return info;
+}
+
+/**
+ * @brief Returns HDF5 file
+ * @return HDF5 file
+ */
+const H5Helper::File *H5OpenedFile::getFile() const
+{
+    return file;
+}
+
+/**
+ * @brief Returns filename
+ * @return Filename
+ */
+QString H5OpenedFile::getFilename() const
+{
+    return QString::fromStdString(file->getFilename());
+}
+
+/**
+ * @brief Returns filename without extension
+ * @return Filename without extension
+ */
+QString H5OpenedFile::getRawFilename() const
+{
+    std::string filename = file->getFilename();
+    size_t lastindex = filename.find_last_of(".");
+    std::string rawname = filename.substr(0, lastindex);
+    return QString::fromStdString(rawname);
+}
+
+/**
  * @brief Finds datasets for visualization
  * @param[in] group Group to search
  */
-void H5OpenedFile::findDatasetsForVisualization(H5Helper::Group *group)
+void H5OpenedFile::findDatasetsForVisualization(const H5Helper::Group *group)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
         H5G_obj_t type = group->getObjTypeByIdx(i);
@@ -173,49 +202,20 @@ void H5OpenedFile::findDatasetsForVisualization(H5Helper::Group *group)
 }
 
 /**
- * @brief Returns nDims
- * @return nDims
+ * @brief Sets object
+ * @param[in] dataset Dataset
+ * @param[in] type Object type
  */
-H5Helper::Vector4D H5OpenedFile::getNDims() const
+void H5OpenedFile::setObject(H5Helper::Dataset *dataset, ObjectType type)
 {
-    return nDims;
-}
+    bool objectExists = false;
+    foreach (H5ObjectToVisualize *object, objects) {
+        if (object->getName() == QString::fromStdString(dataset->getName())) {
+            objectExists = true;
+            break;
+        }
+    }
 
-/**
- * @brief Returns simulation info from HDF5 file
- * @return Info data structure
- */
-QMap<QString, QString> H5OpenedFile::getInfo()
-{
-    return info;
-}
-
-/**
- * @brief Returns HDF5 file
- * @return HDF5 file
- */
-H5Helper::File *H5OpenedFile::getFile()
-{
-    return file;
-}
-
-/**
- * @brief Returns filename
- * @return Filename
- */
-QString H5OpenedFile::getFilename() const
-{
-    return QString::fromStdString(file->getFilename());
-}
-
-/**
- * @brief Returns filename without extension
- * @return Filename without extension
- */
-QString H5OpenedFile::getRawFilename() const
-{
-    std::string filename = file->getFilename();
-    size_t lastindex = filename.find_last_of(".");
-    std::string rawname = filename.substr(0, lastindex);
-    return QString::fromStdString(rawname);
+    if (!objectExists)
+        objects.push_back(new H5ObjectToVisualize(dataset, type, this));
 }

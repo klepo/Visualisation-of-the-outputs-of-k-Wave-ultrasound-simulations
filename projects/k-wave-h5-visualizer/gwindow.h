@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -101,11 +101,11 @@ private slots:
     void setDatasetPosition(H5Helper::Vector3D position);
     void setDatasetPosition(QVector3DI position = QVector3DI(0, 0, 0));
 
-    void setXYSlice(float *data = nullptr, hsize_t sliceIndex = 0);
-    void setXZSlice(float *data = nullptr, hsize_t sliceIndex = 0);
-    void setYZSlice(float *data = nullptr, hsize_t sliceIndex = 0);
-    void set3DData(float *data = nullptr);
-    void set3DCompressData(float *dataLC = nullptr, float *dataCC = nullptr, hsize_t localStep = 0);
+    void setXYSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
+    void setXZSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
+    void setYZSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
+    void set3DData(const float *data = nullptr);
+    void set3DCompressData(const float *dataLC = nullptr, const float *dataCC = nullptr, hsize_t localStep = 0);
 
 private:
     Q_DISABLE_COPY(GWindow)
@@ -114,12 +114,12 @@ private:
     void unload3DTexture();
     void unload3DCompressTexture();
     void unloadSlicesTextures();
-    QPointF convertPointToOpenGLRelative(QPointF point);
+    QPointF convertPointToOpenGLRelative(QPointF point) const;
 
     /// Parent
     QWidget *parent = nullptr;
     /// Compress helper
-    H5Helper::CompressHelper *compressHelper = nullptr;
+    const H5Helper::CompressHelper *compressHelper = nullptr;
 
     /// Shader program
     QOpenGLShaderProgram *program = nullptr;

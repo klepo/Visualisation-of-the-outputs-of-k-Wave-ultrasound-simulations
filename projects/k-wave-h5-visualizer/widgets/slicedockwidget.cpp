@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing SliceDockWidget class definition.
  *
@@ -94,12 +94,12 @@ void SliceDockWidget::setSliceType(const SliceType &value)
 void SliceDockWidget::setObject(H5ObjectToVisualize *object)
 {
     // Set image name
-    imageName = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getName();
+    imageName = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getOnlyName();
     ui->imageWidget->setFilename(getImageFilename());
 
     if (sliceType == XY) {
-        ui->verticalSlider->setMaximum(int(object->getSize().z() - 1));
-        ui->spinBox->setMaximum(int(object->getSize().z() - 1));
+        ui->verticalSlider->setMaximum(int(object->getDatasetSize().z() - 1));
+        ui->spinBox->setMaximum(int(object->getDatasetSize().z() - 1));
         ui->spinBox->setValue(int(object->getZIndex()));
         connect(object, SIGNAL(dataXYLoadingStarted()), this, SLOT(showLabelLoading()));
         if (!object->isCurrentXYLoaded()) {
@@ -113,8 +113,8 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXY(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setZIndex(int)));
     } else if (sliceType == XZ) {
-        ui->verticalSlider->setMaximum(int(object->getSize().y() - 1));
-        ui->spinBox->setMaximum(int(object->getSize().y() - 1));
+        ui->verticalSlider->setMaximum(int(object->getDatasetSize().y() - 1));
+        ui->spinBox->setMaximum(int(object->getDatasetSize().y() - 1));
         ui->spinBox->setValue(int(object->getYIndex()));
         connect(object, SIGNAL(dataXZLoadingStarted()), this, SLOT(showLabelLoading()));
         if (!object->isCurrentXZLoaded()) {
@@ -128,8 +128,8 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setYIndex(int)));
     } else if (sliceType == YZ) {
-        ui->verticalSlider->setMaximum(int(object->getSize().x() - 1));
-        ui->spinBox->setMaximum(int(object->getSize().x() - 1));
+        ui->verticalSlider->setMaximum(int(object->getDatasetSize().x() - 1));
+        ui->spinBox->setMaximum(int(object->getDatasetSize().x() - 1));
         ui->spinBox->setValue(int(object->getXIndex()));
         connect(object, SIGNAL(dataYZLoadingStarted()), this, SLOT(showLabelLoading()));
         if (!object->isCurrentYZLoaded()) {

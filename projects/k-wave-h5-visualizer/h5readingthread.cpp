@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing H5ReadingThread and Request
  *              class definition.
@@ -100,6 +100,59 @@ H5ReadingThread::H5ReadingThread(QObject *parent) : QThread(parent)
 }
 
 /**
+ * @brief Destructor of H5ReadingThread object
+ */
+H5ReadingThread::~H5ReadingThread()
+{
+    clearRequests();
+    clearDoneRequests();
+    if (dataLC) {
+        delete[] dataLC;
+        dataLC = nullptr;
+    }
+    if (dataCC) {
+        delete[] dataCC;
+        dataCC = nullptr;
+    }
+}
+
+/**
+ * @brief Returns data for current compress coefficient
+ * @return Data for current compress coefficient
+ */
+const float *H5ReadingThread::getDataCC() const
+{
+    return dataCC;
+}
+
+/**
+ * @brief Returns data for last compress coefficient
+ * @return Data for current last coefficient
+ */
+const float *H5ReadingThread::getDataLC() const
+{
+    return dataLC;
+}
+
+/**
+ * @brief Returns local step
+ * @return Local step
+ */
+hsize_t H5ReadingThread::getLocalStep() const
+{
+    return localStep;
+}
+
+/**
+ * @brief Sets compress helper
+ * @param[in] compressHelper Compress helper
+ */
+void H5ReadingThread::setCompressHelper(const H5Helper::CompressHelper *compressHelper)
+{
+    this->compressHelper = compressHelper;
+}
+
+/**
  * @brief Creates request in thread
  * @param[in] dataset Dataset
  * @param[in] offset Offset
@@ -146,32 +199,6 @@ void H5ReadingThread::stopCurrentBlockReading()
 }
 
 /**
- * @brief Destructor of H5ReadingThread object
- */
-H5ReadingThread::~H5ReadingThread()
-{
-    clearRequests();
-    clearDoneRequests();
-    if (dataLC) {
-        delete[] dataLC;
-        dataLC = nullptr;
-    }
-    if (dataCC) {
-        delete[] dataCC;
-        dataCC = nullptr;
-    }
-}
-
-/**
- * @brief Sets compress helper
- * @param[in] compressHelper Compress helper
- */
-void H5ReadingThread::setCompressHelper(H5Helper::CompressHelper *compressHelper)
-{
-    this->compressHelper = compressHelper;
-}
-
-/**
  * @brief Clears all done requests
  */
 void H5ReadingThread::clearDoneRequests()
@@ -195,11 +222,6 @@ void H5ReadingThread::clearRequests()
 }
 
 /**
- * @brief Mutex (static) for synchronization if reading
- */
-QMutex H5ReadingThread::mutex;
-
-/**
  * @brief Deletes one done request
  * @param[in] r Request
  */
@@ -212,12 +234,6 @@ void H5ReadingThread::deleteDoneRequest(Request *r)
         r = nullptr;
     }
 }
-
-/*void H5ReadingThread::stop()
-{
-    QMutexLocker locker(&stopMutex);
-    stopFlag = true;
-}*/
 
 /**
  * @brief Thread work
@@ -290,7 +306,7 @@ void H5ReadingThread::run()
 
 #pragma omp parallel for
                         for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
-                            r->data[p] = compressHelper->computeTimeStep(&this->dataCC[p * xStride], &this->dataLC[p * xStride], localStep);
+                            r->data[p] = compressHelper->computeTimeStep(&this->dataCC[p * hssize_t(xStride)], &this->dataLC[p * hssize_t(xStride)], localStep);
                         }
                     }
                 } else {
@@ -330,28 +346,6 @@ void H5ReadingThread::run()
 }
 
 /**
- * @brief Returns data for current compress coefficient
- * @return Data for current compress coefficient
+ * @brief Mutex (static) for synchronization of HDF5 reading
  */
-float *H5ReadingThread::getDataCC() const
-{
-    return dataCC;
-}
-
-/**
- * @brief Returns data for last compress coefficient
- * @return Data for current last coefficient
- */
-float *H5ReadingThread::getDataLC() const
-{
-    return dataLC;
-}
-
-/**
- * @brief Returns local step
- * @return Local step
- */
-hsize_t H5ReadingThread::getLocalStep() const
-{
-    return localStep;
-}
+QMutex H5ReadingThread::mutex;

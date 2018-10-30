@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        3  November  2016 (created) <br>
- *              9  October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The implementation file containing QVector3DI class definition.
  *
@@ -24,7 +24,6 @@
  */
 QVector3DI::QVector3DI() : QVector3D()
 {
-
 }
 
 /**
@@ -35,7 +34,6 @@ QVector3DI::QVector3DI() : QVector3D()
  */
 QVector3DI::QVector3DI(int x, int y, int z) : QVector3D(float(x), float(y), float(z))
 {
-
 }
 
 /**
@@ -46,7 +44,6 @@ QVector3DI::QVector3DI(int x, int y, int z) : QVector3D(float(x), float(y), floa
  */
 QVector3DI::QVector3DI(unsigned long long x, unsigned long long y, unsigned long long z) : QVector3D(float(x), float(y), float(z))
 {
-
 }
 
 /**

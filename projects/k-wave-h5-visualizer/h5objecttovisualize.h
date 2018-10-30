@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              30 October   2018 (updated)
  *
  * @brief       The header file with H5ObjectToVisualize class declaration.
  *
@@ -37,70 +37,58 @@ public:
     explicit H5ObjectToVisualize(H5Helper::Dataset *dataset, H5OpenedFile::ObjectType type, QObject *parent = nullptr);
     ~H5ObjectToVisualize();
 
-    hsize_t getXIndex();
-    hsize_t getYIndex();
-    hsize_t getZIndex();
+    const float *getDataXY() const;
+    const float *getDataXZ() const;
+    const float *getDataYZ() const;
+    const float *getData3D() const;
+    const float *getData3DLC() const;
+    const float *getData3DCC() const;
 
-    float getMinValue();
-    float getMaxValue();
-    float getOriginalMinValue();
-    float getOriginalMaxValue();
-
-    H5Helper::Dataset *getDataset();
-
-    // Simulation info from file
-    QList<QPair<QString, QString>> getInfo();
-
-    float *getDataXY();
-    float *getDataXZ();
-    float *getDataYZ();
-
-    QImage getImageXY();
-    QImage getImageXZ();
-    QImage getImageYZ();
-
-    float getValueAtPointFromXY(int x, int y);
-    float getValueAtPointFromXZ(int x, int z);
-    float getValueAtPointFromYZ(int y, int z);
-
-    QString getName();
-    QString getOnlyName() const;
-    H5OpenedFile::ObjectType getType();
-    ColorMap::Type getColormap();
-
-    H5Helper::Vector3D getFrameSize();
-    H5Helper::Vector3D getOriginalFrameSize();
-    H5Helper::Vector3D getSize();
-    H5Helper::Vector3D getOriginalSize();
-    H5Helper::Vector3D getPos();
-    H5Helper::Vector3D getOriginalPos();
-    hsize_t getSteps();
-    hsize_t getCurrentStep();
-
-    bool isCurrentXYLoaded();
-    bool isCurrentXZLoaded();
-    bool isCurrentYZLoaded();
-
-    bool areCurrentSlicesLoaded();
-
-    H5Helper::File *getFile() const;
-
-    bool isSelected() const;
-
-    QVector<float> getOpacity() const;
-
-    H5Helper::CompressHelper *getCompressHelper() const;
-
-    bool getData3DLoadingFlag() const;
-
-    float *getData3D() const;
-    float *getData3DLC() const;
-    float *getData3DCC() const;
+    hsize_t getXIndex() const;
+    hsize_t getYIndex() const;
+    hsize_t getZIndex() const;
+    hsize_t getSteps() const;
+    hsize_t getCurrentStep() const;
     hsize_t getLocalStep() const;
 
-    bool areCurrentData3DLoaded() const;
+    QImage getImageXY() const;
+    QImage getImageXZ() const;
+    QImage getImageYZ() const;
 
+    float getMinValue() const;
+    float getMaxValue() const;
+    float getOriginalMinValue() const;
+    float getOriginalMaxValue() const;
+    ColorMap::Type getColormap() const;
+    QVector<float> getOpacity() const;
     bool getMinMaxValuesTrim() const;
+
+    H5Helper::Vector3D getFrameSize() const;
+    H5Helper::Vector3D getOriginalFrameSize() const;
+    H5Helper::Vector3D getDatasetSize() const;
+    H5Helper::Vector3D getOriginalDatasetSize() const;
+    H5Helper::Vector3D getDatasetPosition() const;
+    H5Helper::Vector3D getOriginalDatasetPosition() const;
+
+    QString getName() const;
+    QString getOnlyName() const;
+    H5OpenedFile::ObjectType getType() const;
+    QList<QPair<QString, QString>> getInfo() const;
+
+    float getValueAtPointFromXY(int x, int y) const;
+    float getValueAtPointFromXZ(int x, int z) const;
+    float getValueAtPointFromYZ(int y, int z) const;
+
+    bool isCurrentXYLoaded() const;
+    bool isCurrentXZLoaded() const;
+    bool isCurrentYZLoaded() const;
+    bool areCurrentSlicesLoaded() const;
+    bool isCurrentData3DLoaded() const;
+
+    const H5Helper::File *getFile() const;
+    const H5Helper::CompressHelper *getCompressHelper() const;
+
+    bool isSelected() const;
 
 signals:
     /**
@@ -196,32 +184,32 @@ signals:
      * @brief Data 3D changed signal
      * @param[in] data3D Data 3D
      */
-    void data3DChanged(float *data3D);
+    void data3DChanged(const float *data3D);
     /**
      * @brief Data 3D compress changed signal
      * @param[in] data3DLC Data 3D for last compress coefficient
      * @param[in] data3DCC Data 3D for current compress coefficient
      * @param[in] localStep Local step
      */
-    void data3DCompressChanged(float *data3DLC, float *data3DCC, hsize_t localStep);
+    void data3DCompressChanged(const float *data3DLC, const float *data3DCC, hsize_t localStep);
     /**
      * @brief Data XY changed signal
      * @param[in] data Data
      * @param[in] index Index
      */
-    void dataXYChanged(float *data, hsize_t index);
+    void dataXYChanged(const float *data, hsize_t index);
     /**
      * @brief Data XZ changed signal
      * @param[in] data Data
      * @param[in] index Index
      */
-    void dataXZChanged(float *data, hsize_t index);
+    void dataXZChanged(const float *data, hsize_t index);
     /**
      * @brief Data YZ changed signal
      * @param[in] data Data
      * @param[in] index Index
      */
-    void dataYZChanged(float *data, hsize_t index);
+    void dataYZChanged(const float *data, hsize_t index);
 
     /**
      * @brief Image XY changed signal
@@ -293,9 +281,9 @@ private:
     void changeImages();
     void load3Ddata();
 
-    QImage createImageXY();
-    QImage createImageXZ();
-    QImage createImageYZ();
+    QImage createImageXY() const;
+    QImage createImageXZ() const;
+    QImage createImageYZ() const;
 
     /// Selected flag
     bool selectedFlag = false;
@@ -383,7 +371,7 @@ private:
     hsize_t steps = 1;
 
     /// Compression helper
-    H5Helper::CompressHelper *compressHelper = nullptr;
+    const H5Helper::CompressHelper *compressHelper = nullptr;
 };
 
 #endif // H5OBJECTTOVISUALIZE_H
