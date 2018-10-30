@@ -16,6 +16,6 @@ var searchData=
   ['tounsignedint',['toUnsignedInt',['../class_params_definition.html#a47750eb24ab618e699ced7483cff5b52',1,'ParamsDefinition']]],
   ['tounsignedlonglong',['toUnsignedLongLong',['../class_params_definition.html#a3f4e2523e1f4e8c749b1d719c5f8c573',1,'ParamsDefinition']]],
   ['trimslashes',['trimSlashes',['../namespace_h5_helper.html#acc65cb2fb4e56c91d8e8a6b3a8e66ef9',1,'H5Helper']]],
-  ['type',['Type',['../class_color_map.html#a53cae19ea2c85f653822d11b85cd7825',1,'ColorMap::Type()'],['../class_params_definition.html#a19a2d96c01e1db54ffc33064f869be57',1,'ParamsDefinition::Type()'],['../class_params_definition.html#a08a5b7132936c06d54f2c54ca2be12dd',1,'ParamsDefinition::Type()']]],
+  ['type',['Type',['../class_color_map.html#a53cae19ea2c85f653822d11b85cd7825',1,'ColorMap::Type()'],['../class_params_definition.html#a19a2d96c01e1db54ffc33064f869be57',1,'ParamsDefinition::Type()'],['../class_color_map.html#a3ecf879bac794a2db99e5d5a8a33a0aa',1,'ColorMap::Type()'],['../class_params_definition.html#a08a5b7132936c06d54f2c54ca2be12dd',1,'ParamsDefinition::Type()']]],
   ['typestrings',['typeStrings',['../class_params_definition.html#a286335e2b23f90a20d185c9c4de174d6',1,'ParamsDefinition']]]
 ];

@@ -97,12 +97,16 @@ Public Types</h2></td></tr>
  }<tr class="memdesc:a53cae19ea2c85f653822d11b85cd7825"><td class="mdescLeft">&#160;</td><td class="mdescRight">Colormap types. <br /></td></tr>
 </td></tr>
 <tr class="separator:a53cae19ea2c85f653822d11b85cd7825"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ecf879bac794a2db99e5d5a8a33a0aa"><td class="memItemLeft" align="right" valign="top"><a id="a3ecf879bac794a2db99e5d5a8a33a0aa"></a>
+typedef enum <a class="el" href="class_color_map.html#a53cae19ea2c85f653822d11b85cd7825">ColorMap::Type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_map.html#a3ecf879bac794a2db99e5d5a8a33a0aa">Type</a></td></tr>
+<tr class="memdesc:a3ecf879bac794a2db99e5d5a8a33a0aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Colormap types. <br /></td></tr>
+<tr class="separator:a3ecf879bac794a2db99e5d5a8a33a0aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a212614aea2f15521aadb9f773af5a2f8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_map.html#a212614aea2f15521aadb9f773af5a2f8">applyColorMap</a> (int length, float minValue, float maxValue, float *srcData, unsigned char *dstData, <a class="el" href="class_color_map.html#a53cae19ea2c85f653822d11b85cd7825">ColorMap::Type</a> type)</td></tr>
-<tr class="memdesc:a212614aea2f15521aadb9f773af5a2f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies colormap.  <a href="#a212614aea2f15521aadb9f773af5a2f8">More...</a><br /></td></tr>
-<tr class="separator:a212614aea2f15521aadb9f773af5a2f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a328b4f84c2a78626c4b4197720a8a701"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_color_map.html#a328b4f84c2a78626c4b4197720a8a701">applyColorMap</a> (int length, float minValue, float maxValue, const float *srcData, unsigned char *dstData, <a class="el" href="class_color_map.html#a53cae19ea2c85f653822d11b85cd7825">ColorMap::Type</a> type)</td></tr>
+<tr class="memdesc:a328b4f84c2a78626c4b4197720a8a701"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies colormap.  <a href="#a328b4f84c2a78626c4b4197720a8a701">More...</a><br /></td></tr>
+<tr class="separator:a328b4f84c2a78626c4b4197720a8a701"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -116,8 +120,8 @@ static const unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a
 
 <p class="definition">Definition at line <a class="el" href="colormap_8h_source.html#l00028">28</a> of file <a class="el" href="colormap_8h_source.html">colormap.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a212614aea2f15521aadb9f773af5a2f8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a212614aea2f15521aadb9f773af5a2f8">&#9670;&nbsp;</a></span>applyColorMap()</h2>
+<a id="a328b4f84c2a78626c4b4197720a8a701"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a328b4f84c2a78626c4b4197720a8a701">&#9670;&nbsp;</a></span>applyColorMap()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -146,7 +150,7 @@ static const unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">float *&#160;</td>
+          <td class="paramtype">const float *&#160;</td>
           <td class="paramname"><em>srcData</em>, </td>
         </tr>
         <tr>
@@ -187,7 +191,7 @@ static const unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="colormap_8cpp_source.html#l03124">3124</a> of file <a class="el" href="colormap_8cpp_source.html">colormap.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="colormap_8cpp_source.html#l03119">3119</a> of file <a class="el" href="colormap_8cpp_source.html">colormap.cpp</a>.</p>
 
 </div>
 </div>
@@ -198,7 +202,7 @@ static const unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Oct 29 2018 20:25:59 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Oct 30 2018 16:10:35 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
