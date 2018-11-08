@@ -823,11 +823,11 @@ void H5ObjectToVisualize::disconnectSignals()
     disconnect(this, SIGNAL(zIndexChanged(int)), nullptr, nullptr);
     disconnect(this, SIGNAL(stepChanged(int)), nullptr, nullptr);
 
-    disconnect(this, SIGNAL(data3DChanged(float *)), nullptr, nullptr);
-    disconnect(this, SIGNAL(data3DCompressChanged(float *, float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataXYChanged(float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataXZChanged(float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataYZChanged(float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(data3DChanged(const float *)), nullptr, nullptr);
+    disconnect(this, SIGNAL(data3DCompressChanged(const float *, const float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXYChanged(const float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXZChanged(const float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataYZChanged(const float *, hsize_t)), nullptr, nullptr);
 
     disconnect(this, SIGNAL(imageXYChanged(QImage)), nullptr, nullptr);
     disconnect(this, SIGNAL(imageXZChanged(QImage)), nullptr, nullptr);

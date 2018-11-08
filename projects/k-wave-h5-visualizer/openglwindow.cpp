@@ -66,7 +66,13 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     surfaceFormat.setAlphaBufferSize(8);
     // Smoother lines
     surfaceFormat.setSamples(4);
+
+    //surfaceFormat.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+    //surfaceFormat.setSwapInterval(0);
+
     setFormat(surfaceFormat);
+
+    qDebug() << this->requestedFormat().swapBehavior() << this->requestedFormat().swapInterval();
 }
 
 /**
@@ -166,7 +172,7 @@ void OpenGLWindow::renderNow()
 
     checkInitAndMakeCurrentContext();
 
-    glFinish();
+    //glFinish();
 
     // timer
     QElapsedTimer timer;
@@ -175,8 +181,11 @@ void OpenGLWindow::renderNow()
     render();
 
     glFinish();
-
+    //glFlush();
     context->swapBuffers(this);
+    //context->makeCurrent(this);
+    //context->makeCurrent(this);
+    //context->swapBuffers(this);
 
     //QTest::qSleep(17); // max ca 60 fps
 

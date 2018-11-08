@@ -305,11 +305,11 @@ void GWindow::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(opacityChanged(QVector<float>)), this, SLOT(setOpacity(QVector<float>)));
         connect(object, SIGNAL(minMaxValuesTrimChanged(bool)), this, SLOT(setTrim(bool)));
 
-        connect(object, SIGNAL(data3DChanged(float *)), this, SLOT(set3DData(float *)));
-        connect(object, SIGNAL(data3DCompressChanged(float *, float *, hsize_t)), this, SLOT(set3DCompressData(float *, float *, hsize_t)));
-        connect(object, SIGNAL(dataXYChanged(float *, hsize_t)), this, SLOT(setXYSlice(float *, hsize_t)));
-        connect(object, SIGNAL(dataXZChanged(float *, hsize_t)), this, SLOT(setXZSlice(float *, hsize_t)));
-        connect(object, SIGNAL(dataYZChanged(float *, hsize_t)), this, SLOT(setYZSlice(float *, hsize_t)));
+        connect(object, SIGNAL(data3DChanged(const float *)), this, SLOT(set3DData(const float *)));
+        connect(object, SIGNAL(data3DCompressChanged(const float *, const float *, hsize_t)), this, SLOT(set3DCompressData(const float *, const float *, hsize_t)));
+        connect(object, SIGNAL(dataXYChanged(const float *, hsize_t)), this, SLOT(setXYSlice(const float *, hsize_t)));
+        connect(object, SIGNAL(dataXZChanged(const float *, hsize_t)), this, SLOT(setXZSlice(const float *, hsize_t)));
+        connect(object, SIGNAL(dataYZChanged(const float *, hsize_t)), this, SLOT(setYZSlice(const float *, hsize_t)));
 
         connect(this, SIGNAL(viewVolumeRenderingChanged(bool)), object, SLOT(setData3DLoadingFlag(bool)));
 

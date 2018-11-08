@@ -855,7 +855,7 @@ void Dataset::readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &m
 void Dataset::readDataset(float &data, bool log)
 {
     if (dims.getSize() == 1) {
-        float *dataTmp;
+        float *dataTmp = nullptr;
         readDataset(Vector(dims.getLength(), 0), dims, dataTmp, log);
         data = dataTmp[0];
         if (dataTmp) {
@@ -876,7 +876,7 @@ void Dataset::readDataset(float &data, bool log)
 void Dataset::readDataset(hsize_t &data, bool log)
 {
     if (dims.getSize() == 1) {
-        hsize_t *dataTmp;
+        hsize_t *dataTmp = nullptr;
         readDataset(Vector(dims.getLength(), 0), dims, dataTmp, log);
         data = dataTmp[0];
         if (dataTmp) {
