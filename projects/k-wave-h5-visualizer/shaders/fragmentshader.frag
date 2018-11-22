@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        3  November  2016 (created) <br>
- *              10 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       Fragment shader for slice and volume rendering.
  *
@@ -41,6 +41,8 @@ uniform bool uVolumeCompressRendering;
 
 uniform int uMode;
 
+uniform int uInt;
+
 uniform bool uTrim;
 
 uniform int uSteps;
@@ -65,6 +67,10 @@ uniform int uBSize2;
 //int bSize2;
 //int stepLocal2;
 ivec3 volumeSize;
+ivec3 volumeSizeC;
+float xStep;
+float u1 = -0.5f;
+float u2 = +0.5f;
 
 bool isTrimmed(float value)
 {
@@ -119,31 +125,92 @@ vec2 getBE_1(int i)
     return vec2(texelFetch(uTextureBE_1, i).r, texelFetch(uTextureBE_1, i + 1).r);
 }
 
-float computeTimeStep(ivec3 pointI)
+/*float computeTimeStep(ivec3 pointIReal, ivec3 pointIImag, int sH)
+{
+    vec2 cCC = conjC(vec2(texelFetch(uVolumeCC, pointIReal, 0).r, texelFetch(uVolumeCC, pointIImag, 0).r));
+    vec2 lCC = conjC(vec2(texelFetch(uVolumeLC, pointIReal, 0).r, texelFetch(uVolumeLC, pointIImag, 0).r));
+    return mulC(cCC, getBE(sH)).x + mulC(lCC, getBE_1(sH)).x;
+}
+
+float getTimeStepValue(ivec3 pointI, vec3 rem)
 {
     ivec3 pointIReal = pointI;
     ivec3 pointIImag = pointI;
     pointIImag.x += 1;
-    float stepValue = 0;
+    float stepValue = 0.0f;
     int sH = uStepLocal2;
     for (int h = 0; h < uHarmonics; h++) {
-        vec2 lCC = conjC(vec2(texelFetch(uVolumeCC, pointIReal, 0).r, texelFetch(uVolumeCC, pointIImag, 0).r));
-        vec2 cCC = conjC(vec2(texelFetch(uVolumeLC, pointIReal, 0).r, texelFetch(uVolumeLC, pointIImag, 0).r));
-        stepValue += mulC(cCC, getBE(sH)).x + mulC(lCC, getBE_1(sH)).x;
+        //vec2 cCC = conjC(vec2(texelFetch(uVolumeCC, pointIReal, 0).r, texelFetch(uVolumeCC, pointIImag, 0).r));
+        //vec2 lCC = conjC(vec2(texelFetch(uVolumeLC, pointIReal, 0).r, texelFetch(uVolumeLC, pointIImag, 0).r));
+        //stepValue += mulC(cCC, getBE(sH)).x + mulC(lCC, getBE_1(sH)).x;
+        float v000 = computeTimeStep(pointIReal, pointIImag, sH);
+        float v100 = computeTimeStep(ivec3(pointIReal.x + 2 * uHarmonics, pointIReal.yz), ivec3(pointIImag.x + 2 * uHarmonics, pointIImag.yz), sH);
+        float v010 = computeTimeStep(ivec3(pointIReal.x, pointIReal.y + 1, pointIReal.z), ivec3(pointIImag.x, pointIImag.y + 1, pointIImag.z), sH);
+        float v110 = computeTimeStep(ivec3(pointIReal.x + 2 * uHarmonics, pointIReal.y + 1, pointIReal.z), ivec3(pointIImag.x + 2 * uHarmonics, pointIImag.y + 1, pointIImag.z), sH);
+        float v001 = computeTimeStep(ivec3(pointIReal.xy, pointIReal.z + 1), ivec3(pointIImag.xy, pointIImag.z + 1), sH);
+        float v101 = computeTimeStep(ivec3(pointIReal.x + 2 * uHarmonics, pointIReal.y, pointIReal.z + 1), ivec3(pointIImag.x + 2 * uHarmonics, pointIImag.y, pointIImag.z + 1), sH);
+        float v011 = computeTimeStep(ivec3(pointIReal.x, pointIReal.y + 1, pointIReal.z + 1), ivec3(pointIImag.x, pointIImag.y + 1, pointIImag.z + 1), sH);
+        float v111 = computeTimeStep(ivec3(pointIReal.x + 2 * uHarmonics, pointIReal.y + 1, pointIReal.z + 1), ivec3(pointIImag.x + 2 * uHarmonics, pointIImag.y + 1, pointIImag.z + 1), sH);
+
+        stepValue += mix(mix(mix(v000, v100, rem.x), mix(v010, v110, rem.x), rem.y), mix(mix(v001, v101, rem.x), mix(v011, v111, rem.x), rem.y), rem.z);
+        //stepValue += computeTimeStep(pointIReal, pointIImag, sH);
         sH += uBSize2;
         pointIReal.x += 2;
         pointIImag.x += 2;
     }
     return stepValue;
+}*/
+
+float getTimeStepValueF(vec3 point)
+{
+    float pointB = float(volumeSize.x) * point.x + u1;
+    int pointI = int(floor(pointB));
+    float rem = pointB - pointI;
+    vec3 pointF = point;
+    pointF.x = (float(int(floor(float(volumeSize.x) * point.x + u1)) * 2 * uHarmonics) + u2) / float(volumeSizeC.x);
+    vec3 pointIReal = pointF;
+    vec3 pointIImag = pointF;
+    pointIImag.x += xStep;
+    float stepValue = 0.0f;
+    int sH = uStepLocal2;
+    for (int h = 0; h < uHarmonics; h++) {
+        vec2 cCC = conjC(vec2(texture(uVolumeCC, pointIReal).r, texture(uVolumeCC, pointIImag).r));
+        vec2 lCC = conjC(vec2(texture(uVolumeLC, pointIReal).r, texture(uVolumeLC, pointIImag).r));
+        if (uInt == 1) {
+            stepValue += mulC(cCC, getBE(sH)).x + mulC(lCC, getBE_1(sH)).x;
+        } else {
+            vec2 cCC1 = conjC(vec2(texture(uVolumeCC, vec3(pointIReal.x + 2 * uHarmonics * xStep, pointIReal.yz)).r, texture(uVolumeCC, vec3(pointIImag.x + 2 * uHarmonics * xStep, pointIImag.yz)).r));
+            vec2 lCC1 = conjC(vec2(texture(uVolumeLC, vec3(pointIReal.x + 2 * uHarmonics * xStep, pointIReal.yz)).r, texture(uVolumeLC, vec3(pointIImag.x + 2 * uHarmonics * xStep, pointIImag.yz)).r));
+            stepValue += mix(mulC(cCC, getBE(sH)).x + mulC(lCC, getBE_1(sH)).x, mulC(cCC1, getBE(sH)).x + mulC(lCC1, getBE_1(sH)).x, rem);
+        }
+        sH += uBSize2;
+        pointIReal.x += 2 * xStep;
+        pointIImag.x += 2 * xStep;
+    }
+    return stepValue;
+}
+
+ivec3 relToAbs(vec3 point)
+{
+    return ivec3(vec3(volumeSize * point));
+}
+
+vec3 absToRel(ivec3 point)
+{
+    return vec3(point) / vec3(volumeSize);
 }
 
 float getTexelValue(vec3 point)
 {
     if (uVolumeCompressRendering) {
-        ivec3 pointI = ivec3(vec3(volumeSize) * point);
-        pointI.x = pointI.x * 2 * uHarmonics;
-        return computeTimeStep(pointI);
-        //return texelFetch(uVolumeLC, pointI, 0).r;
+        //vec3 pointB = (vec3(volumeSize) * point)/* - 0.5f*/;
+        //ivec3 pointI = ivec3(floor(pointB));
+        //vec3 rem = pointB - pointI;
+        //pointI.x = pointI.x * 2 * uHarmonics;
+        //vec3 pointF = point;
+        //pointF.x = (float(int(float(volumeSize.x) * point.x) * 2 * uHarmonics) + 0.5f) / float(volumeSizeC.x);
+        return getTimeStepValueF(point);
+        //return getTimeStepValue(pointI, rem);
     } else {
         return texture(uVolume, point).r;
     }
@@ -194,6 +261,14 @@ void main() {
     } else if (uVolumeRendering) {
         if (uVolumeCompressRendering) {
             volumeSize = textureSize(uVolume, 0);
+            volumeSizeC = textureSize(uVolumeCC, 0);
+            xStep = 1.0f / float(volumeSizeC.x);
+            //u2 = 0.5f;
+            if (uInt == 1) {
+                u1 = 0;
+            } else {
+                u1 = -0.5f;
+            }
         }
         vec2 coords = vec2((gl_FragCoord.x / uWidth), (gl_FragCoord.y / uHeight));
         vec3 backPoint = vec3(texture(uBoxBackSampler, coords));
@@ -232,8 +307,10 @@ void main() {
         for (i = 0; i < it; i++) {
             if (uMode == 0) { // Accumulation (Alpha blending)
                 vec4 cIn = computeColor(getTexelValue(point));
-                //if (cIn.a == 0.0f)
-                //    continue;
+                if (cIn.a == 0.0f) {
+                    point += path;
+                    continue;
+                }
                 //if (i > 0)
                 cIn.a = uSteps50 * cIn.a;
                 cOut.rgb = cOut.rgb + (1 - cOut.a) * cIn.rgb * cIn.a;

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              29 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing Window3DDockWidget class definition.
  *
@@ -52,7 +52,7 @@ Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
  */
 Window3DDockWidget::~Window3DDockWidget()
 {
-    clear();
+    //clear();
     delete ui;
     delete gWindow;
     gWindow = nullptr;

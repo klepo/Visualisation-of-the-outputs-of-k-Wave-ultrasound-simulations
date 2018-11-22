@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -105,7 +105,8 @@ private slots:
     void setXZSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
     void setYZSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
     void set3DData(const float *data = nullptr);
-    void set3DCompressData(const float *dataLC = nullptr, const float *dataCC = nullptr, hsize_t localStep = 0);
+    void set3DCompressData(const float *dataLC = nullptr, const float *dataCC = nullptr);
+    void set3DCompressLocalStep(hsize_t localStep);
 
 private:
     Q_DISABLE_COPY(GWindow)
@@ -193,6 +194,9 @@ private:
     GLint uMax;
     /// Volume rendering mode uniform id
     GLint uMode;
+
+    /// Interpolation mode 0 - linear/1 - nearest
+    GLint uInt;
 
     /// Slice elements buffer
     QOpenGLBuffer iboSliceElements;

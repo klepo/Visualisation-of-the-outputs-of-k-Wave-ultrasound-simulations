@@ -16,8 +16,6 @@ var searchData=
   ['getdata3d',['getData3D',['../class_h5_object_to_visualize.html#ab8c838f1b71b99756308385fa864dafa',1,'H5ObjectToVisualize']]],
   ['getdata3dcc',['getData3DCC',['../class_h5_object_to_visualize.html#a16cbf3d8236423abb9ed99aac5d249a7',1,'H5ObjectToVisualize']]],
   ['getdata3dlc',['getData3DLC',['../class_h5_object_to_visualize.html#afca6257df38afe33e7b1d504797caec8',1,'H5ObjectToVisualize']]],
-  ['getdatacc',['getDataCC',['../class_h5_reading_thread.html#a692b033b2a3187b2ef9756e626f8e10d',1,'H5ReadingThread']]],
-  ['getdatalc',['getDataLC',['../class_h5_reading_thread.html#ad0a90b06a9811025e54a60f92ada7d49',1,'H5ReadingThread']]],
   ['getdatasetposition',['getDatasetPosition',['../class_h5_object_to_visualize.html#a66a4ed14e7c62a9ba33c27cf13690da8',1,'H5ObjectToVisualize']]],
   ['getdatasets',['getDatasets',['../class_dts_for_pcs.html#a01ad34f670b8257ae12307ac20a4b961',1,'DtsForPcs']]],
   ['getdatasetsize',['getDatasetSize',['../class_h5_object_to_visualize.html#a40937a700875bd49c4c69091e4dd79ce',1,'H5ObjectToVisualize']]],

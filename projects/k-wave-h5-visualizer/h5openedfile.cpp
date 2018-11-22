@@ -3,12 +3,11 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
- * @brief       The implementation file containing OpenedH5File class definition.
+ * @brief       The implementation file containing H5OpenedFile class definition.
  *
- * Object of class H5ObjectToVisualize contains class H5SubobjectToVisualize
- * and H5ObjectToVisualize. This class is for encapsulation of HDF5 file properties
+ * This class is for encapsulation of HDF5 file properties
  * and datasets or groups with data to visualize.
  *
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data

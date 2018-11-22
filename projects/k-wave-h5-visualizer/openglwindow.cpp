@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing OpenGLWindow class definition.
  *
@@ -72,7 +72,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
 
     setFormat(surfaceFormat);
 
-    qDebug() << this->requestedFormat().swapBehavior() << this->requestedFormat().swapInterval();
+    //qDebug() << this->requestedFormat().swapBehavior() << this->requestedFormat().swapInterval();
 }
 
 /**
@@ -93,6 +93,7 @@ OpenGLWindow::~OpenGLWindow()
  */
 bool OpenGLWindow::event(QEvent *event)
 {
+    //qDebug() << event->type();
     switch (event->type()) {
         case QEvent::UpdateRequest:
             updatePending = false;

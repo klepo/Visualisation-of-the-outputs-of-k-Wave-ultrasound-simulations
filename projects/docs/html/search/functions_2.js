@@ -1,7 +1,7 @@
 var searchData=
 [
   ['data3dchanged',['data3DChanged',['../class_h5_object_to_visualize.html#accd3ffea0c76b1764b0452518387f673',1,'H5ObjectToVisualize']]],
-  ['data3dcompresschanged',['data3DCompressChanged',['../class_h5_object_to_visualize.html#ab68b0f7b09e2aa3a0cf58f75c0dcfcef',1,'H5ObjectToVisualize']]],
+  ['data3dcompresschanged',['data3DCompressChanged',['../class_h5_object_to_visualize.html#a474171d8fc2345223bd59242487dfcdb',1,'H5ObjectToVisualize']]],
   ['data3dloadingstarted',['data3DLoadingStarted',['../class_h5_object_to_visualize.html#a7ba889be533f5de0251eea907c134218',1,'H5ObjectToVisualize']]],
   ['dataset',['Dataset',['../class_h5_helper_1_1_dataset.html#a562e9460e1cde60a68977ddd592e0d8e',1,'H5Helper::Dataset']]],
   ['datasetinfogroupbox',['DatasetInfoGroupBox',['../class_dataset_info_group_box.html#a6ad34f5d0864cd5ea57b227a75a3c2a9',1,'DatasetInfoGroupBox']]],

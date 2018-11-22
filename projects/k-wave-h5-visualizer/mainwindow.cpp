@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing MainWindow class definition.
  *
@@ -63,7 +63,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     // Close file
-    on_actionCloseHDF5File_triggered();
+    //on_actionCloseHDF5File_triggered();
+    if (openedH5File) {
+        delete openedH5File;
+        openedH5File = nullptr;
+    }
 
     delete ui;
 }

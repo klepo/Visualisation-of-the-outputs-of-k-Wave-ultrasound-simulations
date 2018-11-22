@@ -18,7 +18,7 @@ var searchData=
   ['rendered',['rendered',['../class_open_g_l_window.html#ace3e246dbcbec53193a32f1ebe5e31b9',1,'OpenGLWindow']]],
   ['renderlater',['renderLater',['../class_open_g_l_window.html#abea9e50147496e5110b86f03122fbece',1,'OpenGLWindow']]],
   ['rendernow',['renderNow',['../class_open_g_l_window.html#a8398ed62d646739fe54fae94c477ad1d',1,'OpenGLWindow']]],
-  ['request',['Request',['../class_request.html#a1e921c5c235d29d49645f9aab8abc5ad',1,'Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data=nullptr)'],['../class_request.html#a0b6944e39c1c1476bb79c8aba1aef322',1,'Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data=nullptr)']]],
+  ['request',['Request',['../class_request.html#ad503367bfc64bc2f5b8be874ba67a748',1,'Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC=nullptr, float *dataCC=nullptr)'],['../class_request.html#a6310191e08db4a699de5c015d7069407',1,'Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC=nullptr, float *dataCC=nullptr)']]],
   ['requestdone',['requestDone',['../class_h5_reading_thread.html#ae9d2f2a3fbf33f6e1994b5471fa036ec',1,'H5ReadingThread']]],
   ['reshape',['Reshape',['../class_reshape.html#ab52323a9a6a8cfac96fc67e2e223b36e',1,'Reshape']]],
   ['resizeevent',['resizeEvent',['../class_g_window.html#abc0022eaedc32b2f5d622f2e062ac8b9',1,'GWindow']]],

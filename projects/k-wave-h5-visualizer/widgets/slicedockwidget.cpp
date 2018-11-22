@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing SliceDockWidget class definition.
  *
@@ -102,46 +102,46 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         ui->spinBox->setMaximum(int(object->getDatasetSize().z() - 1));
         ui->spinBox->setValue(int(object->getZIndex()));
         connect(object, SIGNAL(dataXYLoadingStarted()), this, SLOT(showLabelLoading()));
-        if (!object->isCurrentXYLoaded()) {
-            object->reloadXY();
-        } else {
-            ui->imageWidget->showImage(object->getImageXY());
-        }
         connect(object, SIGNAL(zIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageXYChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentXYLoaded()), this, SLOT(hideLabelLoading()));
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXY(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setZIndex(int)));
+        if (!object->isCurrentXYLoaded()) {
+            object->reloadXY();
+        } else {
+            ui->imageWidget->showImage(object->getImageXY());
+        }
     } else if (sliceType == XZ) {
         ui->verticalSlider->setMaximum(int(object->getDatasetSize().y() - 1));
         ui->spinBox->setMaximum(int(object->getDatasetSize().y() - 1));
         ui->spinBox->setValue(int(object->getYIndex()));
         connect(object, SIGNAL(dataXZLoadingStarted()), this, SLOT(showLabelLoading()));
-        if (!object->isCurrentXZLoaded()) {
-            object->reloadXZ();
-        } else {
-            ui->imageWidget->showImage(object->getImageXZ());
-        }
         connect(object, SIGNAL(yIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageXZChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentXZLoaded()), this, SLOT(hideLabelLoading()));
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setYIndex(int)));
+        if (!object->isCurrentXZLoaded()) {
+            object->reloadXZ();
+        } else {
+            ui->imageWidget->showImage(object->getImageXZ());
+        }
     } else if (sliceType == YZ) {
         ui->verticalSlider->setMaximum(int(object->getDatasetSize().x() - 1));
         ui->spinBox->setMaximum(int(object->getDatasetSize().x() - 1));
         ui->spinBox->setValue(int(object->getXIndex()));
         connect(object, SIGNAL(dataYZLoadingStarted()), this, SLOT(showLabelLoading()));
-        if (!object->isCurrentYZLoaded()) {
-            object->reloadYZ();
-        } else {
-            ui->imageWidget->showImage(object->getImageYZ());
-        }
         connect(object, SIGNAL(xIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageYZChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentYZLoaded()), this, SLOT(hideLabelLoading()));
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageYZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setXIndex(int)));
+        if (!object->isCurrentYZLoaded()) {
+            object->reloadYZ();
+        } else {
+            ui->imageWidget->showImage(object->getImageYZ());
+        }
     }
 }
 

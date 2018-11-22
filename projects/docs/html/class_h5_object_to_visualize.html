@@ -181,10 +181,6 @@ Signals</h2></td></tr>
 <tr class="memitem:ad72ce451401c993e723d4185fd82b74a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#ad72ce451401c993e723d4185fd82b74a">minMaxValuesTrimChanged</a> (bool value)</td></tr>
 <tr class="memdesc:ad72ce451401c993e723d4185fd82b74a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min/max values trim changed signal.  <a href="#ad72ce451401c993e723d4185fd82b74a">More...</a><br /></td></tr>
 <tr class="separator:ad72ce451401c993e723d4185fd82b74a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22cc3cb203d6193438010db15db795f3"><td class="memItemLeft" align="right" valign="top"><a id="a22cc3cb203d6193438010db15db795f3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a22cc3cb203d6193438010db15db795f3">currentSlicesLoaded</a> ()</td></tr>
-<tr class="memdesc:a22cc3cb203d6193438010db15db795f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current slices loaded signal. <br /></td></tr>
-<tr class="separator:a22cc3cb203d6193438010db15db795f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbf2594ccadb69538ece81017a452aaf"><td class="memItemLeft" align="right" valign="top"><a id="acbf2594ccadb69538ece81017a452aaf"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#acbf2594ccadb69538ece81017a452aaf">currentXYLoaded</a> ()</td></tr>
 <tr class="memdesc:acbf2594ccadb69538ece81017a452aaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current XY loaded signal. <br /></td></tr>
@@ -197,6 +193,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a6e325289a40cae39f1b766bcd56d9eb0">currentYZLoaded</a> ()</td></tr>
 <tr class="memdesc:a6e325289a40cae39f1b766bcd56d9eb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current YZ loaded signal. <br /></td></tr>
 <tr class="separator:a6e325289a40cae39f1b766bcd56d9eb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22cc3cb203d6193438010db15db795f3"><td class="memItemLeft" align="right" valign="top"><a id="a22cc3cb203d6193438010db15db795f3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a22cc3cb203d6193438010db15db795f3">currentSlicesLoaded</a> ()</td></tr>
+<tr class="memdesc:a22cc3cb203d6193438010db15db795f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current slices loaded signal. <br /></td></tr>
+<tr class="separator:a22cc3cb203d6193438010db15db795f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1666c633995eaff3fe7e9112b9cfc466"><td class="memItemLeft" align="right" valign="top"><a id="a1666c633995eaff3fe7e9112b9cfc466"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a1666c633995eaff3fe7e9112b9cfc466">currentData3DLoaded</a> ()</td></tr>
 <tr class="memdesc:a1666c633995eaff3fe7e9112b9cfc466"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current data3D loaded signal. <br /></td></tr>
@@ -236,9 +236,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:accd3ffea0c76b1764b0452518387f673"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#accd3ffea0c76b1764b0452518387f673">data3DChanged</a> (const float *data3D)</td></tr>
 <tr class="memdesc:accd3ffea0c76b1764b0452518387f673"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data 3D changed signal.  <a href="#accd3ffea0c76b1764b0452518387f673">More...</a><br /></td></tr>
 <tr class="separator:accd3ffea0c76b1764b0452518387f673"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab68b0f7b09e2aa3a0cf58f75c0dcfcef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#ab68b0f7b09e2aa3a0cf58f75c0dcfcef">data3DCompressChanged</a> (const float *data3DLC, const float *data3DCC, hsize_t localStep)</td></tr>
-<tr class="memdesc:ab68b0f7b09e2aa3a0cf58f75c0dcfcef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data 3D compress changed signal.  <a href="#ab68b0f7b09e2aa3a0cf58f75c0dcfcef">More...</a><br /></td></tr>
-<tr class="separator:ab68b0f7b09e2aa3a0cf58f75c0dcfcef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a474171d8fc2345223bd59242487dfcdb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a474171d8fc2345223bd59242487dfcdb">data3DCompressChanged</a> (const float *data3DLC, const float *data3DCC)</td></tr>
+<tr class="memdesc:a474171d8fc2345223bd59242487dfcdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data 3D compress changed signal.  <a href="#a474171d8fc2345223bd59242487dfcdb">More...</a><br /></td></tr>
+<tr class="separator:a474171d8fc2345223bd59242487dfcdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf998643ce0b830964a126b50043941e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#acf998643ce0b830964a126b50043941e">localStep3DCompressChanged</a> (hsize_t localStep)</td></tr>
+<tr class="memdesc:acf998643ce0b830964a126b50043941e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local step 3D compress changed signal.  <a href="#acf998643ce0b830964a126b50043941e">More...</a><br /></td></tr>
+<tr class="separator:acf998643ce0b830964a126b50043941e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82eddd1a3bc53a0a500d366e68b3ab16"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a82eddd1a3bc53a0a500d366e68b3ab16">dataXYChanged</a> (const float *data, hsize_t index)</td></tr>
 <tr class="memdesc:a82eddd1a3bc53a0a500d366e68b3ab16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data XY changed signal.  <a href="#a82eddd1a3bc53a0a500d366e68b3ab16">More...</a><br /></td></tr>
 <tr class="separator:a82eddd1a3bc53a0a500d366e68b3ab16"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -389,6 +392,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a56b5bd070a76f60dd1781a9e3579e314"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a56b5bd070a76f60dd1781a9e3579e314">isCurrentData3DLoaded</a> () const</td></tr>
 <tr class="memdesc:a56b5bd070a76f60dd1781a9e3579e314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Are current data 3D loaded?  <a href="#a56b5bd070a76f60dd1781a9e3579e314">More...</a><br /></td></tr>
 <tr class="separator:a56b5bd070a76f60dd1781a9e3579e314"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c2f0f64e87b62c55aa5ef87f42f00ca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#a0c2f0f64e87b62c55aa5ef87f42f00ca">isCurrentStepLoaded</a> () const</td></tr>
+<tr class="memdesc:a0c2f0f64e87b62c55aa5ef87f42f00ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is current step loaded?  <a href="#a0c2f0f64e87b62c55aa5ef87f42f00ca">More...</a><br /></td></tr>
+<tr class="separator:a0c2f0f64e87b62c55aa5ef87f42f00ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac12351973df08f4f34a63e7dee15a187"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_h5_helper_1_1_file.html">H5Helper::File</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_object_to_visualize.html#ac12351973df08f4f34a63e7dee15a187">getFile</a> () const</td></tr>
 <tr class="memdesc:ac12351973df08f4f34a63e7dee15a187"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns OpenedH5File.  <a href="#ac12351973df08f4f34a63e7dee15a187">More...</a><br /></td></tr>
 <tr class="separator:ac12351973df08f4f34a63e7dee15a187"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -499,7 +505,7 @@ Public Member Functions</h2></td></tr>
 <p>Are current slices Loaded? </p>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00506">506</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00541">541</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -571,8 +577,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab68b0f7b09e2aa3a0cf58f75c0dcfcef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab68b0f7b09e2aa3a0cf58f75c0dcfcef">&#9670;&nbsp;</a></span>data3DCompressChanged</h2>
+<a id="a474171d8fc2345223bd59242487dfcdb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a474171d8fc2345223bd59242487dfcdb">&#9670;&nbsp;</a></span>data3DCompressChanged</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -590,13 +596,7 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float *&#160;</td>
-          <td class="paramname"><em>data3DCC</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">hsize_t&#160;</td>
-          <td class="paramname"><em>localStep</em>&#160;</td>
+          <td class="paramname"><em>data3DCC</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -616,7 +616,6 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data3DLC</td><td>Data 3D for last compress coefficient </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">data3DCC</td><td>Data 3D for current compress coefficient </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">localStep</td><td>Local step </td></tr>
   </table>
   </dd>
 </dl>
@@ -776,7 +775,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns colormap. </p>
 <dl class="section return"><dt>Returns</dt><dd>Colormap </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00279">279</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00314">314</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -798,7 +797,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns compress helper. </p>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_compress.html" title="The Compress class represents wrapper for compression. ">Compress</a> helper </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00536">536</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00587">587</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -820,7 +819,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns current step. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current step </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00198">198</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00230">230</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -842,7 +841,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns data 3D. </p>
 <dl class="section return"><dt>Returns</dt><dd>Data 3D </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00135">135</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00167">167</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -864,7 +863,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns data 3D for current compress coefficient. </p>
 <dl class="section return"><dt>Returns</dt><dd>Data 3D for current compress coefficient </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00153">153</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00185">185</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -886,7 +885,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns data 3D for last compress coefficient. </p>
 <dl class="section return"><dt>Returns</dt><dd>Data 3D for last compress coefficient </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00144">144</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00176">176</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -908,7 +907,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns Position. </p>
 <dl class="section return"><dt>Returns</dt><dd>Position </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00342">342</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00377">377</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -930,7 +929,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns size. </p>
 <dl class="section return"><dt>Returns</dt><dd>Size </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00324">324</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00359">359</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -952,7 +951,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns data XY. </p>
 <dl class="section return"><dt>Returns</dt><dd>Float XY data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00108">108</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00140">140</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -974,7 +973,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns data XZ. </p>
 <dl class="section return"><dt>Returns</dt><dd>Float XZ data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00117">117</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00149">149</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -996,7 +995,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns data YZ. </p>
 <dl class="section return"><dt>Returns</dt><dd>Float YZ data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00126">126</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00158">158</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1018,7 +1017,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns OpenedH5File. </p>
 <dl class="section return"><dt>Returns</dt><dd>OpenedH5File </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00527">527</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00578">578</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1040,7 +1039,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns frame size. </p>
 <dl class="section return"><dt>Returns</dt><dd>Frame size </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00306">306</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00341">341</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1062,7 +1061,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns image XY. </p>
 <dl class="section return"><dt>Returns</dt><dd>image XY </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00216">216</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00248">248</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1084,7 +1083,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns image XZ. </p>
 <dl class="section return"><dt>Returns</dt><dd>image XZ </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00225">225</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00258">258</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1106,7 +1105,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns image YZ. </p>
 <dl class="section return"><dt>Returns</dt><dd>image YZ </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00234">234</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00268">268</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1128,7 +1127,7 @@ Public Member Functions</h2></td></tr>
 <p>Creates simulation info data structure. </p>
 <dl class="section return"><dt>Returns</dt><dd>Info structure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00387">387</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00422">422</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1150,7 +1149,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns local step. </p>
 <dl class="section return"><dt>Returns</dt><dd>Local step </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00207">207</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00239">239</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1172,7 +1171,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns maximal value. </p>
 <dl class="section return"><dt>Returns</dt><dd>Maximal global current value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00252">252</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00287">287</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1194,7 +1193,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns min/max values trim flag. </p>
 <dl class="section return"><dt>Returns</dt><dd>Min/max values trim flag </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00297">297</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00332">332</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1216,7 +1215,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns minimal value. </p>
 <dl class="section return"><dt>Returns</dt><dd>Minimal global current value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00243">243</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00278">278</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1238,7 +1237,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns subobject name. </p>
 <dl class="section return"><dt>Returns</dt><dd>Subobject name </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00360">360</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00395">395</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1260,7 +1259,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns subobject only name. </p>
 <dl class="section return"><dt>Returns</dt><dd>Subobject only name </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00369">369</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00404">404</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1282,7 +1281,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns opacity. </p>
 <dl class="section return"><dt>Returns</dt><dd>opacity </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00288">288</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00323">323</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1304,7 +1303,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns original position. </p>
 <dl class="section return"><dt>Returns</dt><dd>Original position </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00351">351</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00386">386</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1326,7 +1325,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns original size. </p>
 <dl class="section return"><dt>Returns</dt><dd>Original size </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00333">333</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00368">368</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1348,7 +1347,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns original frame size. </p>
 <dl class="section return"><dt>Returns</dt><dd>Original frame size </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00315">315</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00350">350</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1370,7 +1369,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns original maximal value. </p>
 <dl class="section return"><dt>Returns</dt><dd>Maximal global original value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00270">270</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00305">305</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1392,7 +1391,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns original minimal value. </p>
 <dl class="section return"><dt>Returns</dt><dd>Minimal global original value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00261">261</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00296">296</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1414,7 +1413,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns steps. </p>
 <dl class="section return"><dt>Returns</dt><dd>Steps </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00189">189</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00221">221</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1436,7 +1435,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns subobject type. </p>
 <dl class="section return"><dt>Returns</dt><dd>Subobject type </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00378">378</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00413">413</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1476,7 +1475,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Float value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00448">448</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00483">483</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1516,7 +1515,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Float value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00459">459</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00494">494</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1556,7 +1555,7 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Float value </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00470">470</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00505">505</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1578,7 +1577,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns current X index. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current X index </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00162">162</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00194">194</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1600,7 +1599,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns current Y index. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current Y index </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00171">171</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00203">203</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1622,7 +1621,7 @@ Public Member Functions</h2></td></tr>
 <p>Returns current Z index. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current Z index </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00180">180</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00212">212</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1780,7 +1779,29 @@ Public Member Functions</h2></td></tr>
 <p>Are current data 3D loaded? </p>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00518">518</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00553">553</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a0c2f0f64e87b62c55aa5ef87f42f00ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c2f0f64e87b62c55aa5ef87f42f00ca">&#9670;&nbsp;</a></span>isCurrentStepLoaded()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool H5ObjectToVisualize::isCurrentStepLoaded </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Is current step loaded? </p>
+<dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00562">562</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1802,7 +1823,7 @@ Public Member Functions</h2></td></tr>
 <p>Is current XY Loaded? </p>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00479">479</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00514">514</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1824,7 +1845,7 @@ Public Member Functions</h2></td></tr>
 <p>Is current XZ Loaded? </p>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00488">488</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00523">523</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1846,7 +1867,7 @@ Public Member Functions</h2></td></tr>
 <p>Is current YZ Loaded? </p>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00497">497</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00532">532</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -1868,7 +1889,41 @@ Public Member Functions</h2></td></tr>
 <p>Is object selected? </p>
 <dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00545">545</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00596">596</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+
+</div>
+</div>
+<a id="acf998643ce0b830964a126b50043941e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf998643ce0b830964a126b50043941e">&#9670;&nbsp;</a></span>localStep3DCompressChanged</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void H5ObjectToVisualize::localStep3DCompressChanged </td>
+          <td>(</td>
+          <td class="paramtype">hsize_t&#160;</td>
+          <td class="paramname"><em>localStep</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">signal</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Local step 3D compress changed signal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">localStep</td><td>Local step </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -2040,7 +2095,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00576">576</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00627">627</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2076,7 +2131,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00587">587</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00638">638</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2112,7 +2167,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00690">690</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00741">741</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2148,7 +2203,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00761">761</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00812">812</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2195,7 +2250,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00773">773</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00824">824</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2242,7 +2297,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00783">783</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00834">834</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2289,7 +2344,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00793">793</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00844">844</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2325,7 +2380,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00565">565</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00616">616</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2361,7 +2416,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00606">606</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00657">657</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2397,7 +2452,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00554">554</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00605">605</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2433,7 +2488,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00596">596</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00647">647</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2469,7 +2524,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00744">744</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00795">795</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2505,7 +2560,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00616">616</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00667">667</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2541,7 +2596,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00634">634</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00685">685</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2577,7 +2632,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00651">651</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="h5objecttovisualize_8cpp_source.html#l00702">702</a> of file <a class="el" href="h5objecttovisualize_8cpp_source.html">h5objecttovisualize.cpp</a>.</p>
 
 </div>
 </div>
@@ -2724,7 +2779,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Oct 30 2018 16:10:36 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 22 2018 17:09:24 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

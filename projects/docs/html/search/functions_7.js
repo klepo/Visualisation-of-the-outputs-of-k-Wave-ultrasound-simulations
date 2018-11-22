@@ -8,6 +8,7 @@ var searchData=
   ['initialize',['initialize',['../class_g_window.html#a5d19e9cd2aa6ee137600a112455deac0',1,'GWindow::initialize()'],['../class_open_g_l_window.html#a00b6a24198503b88aea4c5a995723db2',1,'OpenGLWindow::initialize()']]],
   ['interpolationmodechanged',['interpolationModeChanged',['../class_settings3_d_dock_widget.html#a7c514b8605cc6f655063421ede085500',1,'Settings3DDockWidget']]],
   ['iscurrentdata3dloaded',['isCurrentData3DLoaded',['../class_h5_object_to_visualize.html#a56b5bd070a76f60dd1781a9e3579e314',1,'H5ObjectToVisualize']]],
+  ['iscurrentsteploaded',['isCurrentStepLoaded',['../class_h5_object_to_visualize.html#a0c2f0f64e87b62c55aa5ef87f42f00ca',1,'H5ObjectToVisualize']]],
   ['iscurrentxyloaded',['isCurrentXYLoaded',['../class_h5_object_to_visualize.html#a33ccb4dc951dc0a0049d665fbbfd9ce4',1,'H5ObjectToVisualize']]],
   ['iscurrentxzloaded',['isCurrentXZLoaded',['../class_h5_object_to_visualize.html#a9dd851ae2a74584cb223bec610876acc',1,'H5ObjectToVisualize']]],
   ['iscurrentyzloaded',['isCurrentYZLoaded',['../class_h5_object_to_visualize.html#a9f6842ec44e9740de4be17ffe1705ef9',1,'H5ObjectToVisualize']]],

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing DatasetsDockWidget class definition.
  *
@@ -59,15 +59,15 @@ void DatasetsDockWidget::setFile(const H5OpenedFile *file)
     foreach (H5ObjectToVisualize *object, file->getObjects()) {
         // Create radioButton and checkbox
         QRadioButton *radioButton = new QRadioButton(object->getName());
-        QCheckBox *checkBox = new QCheckBox();
-        checkBox->setAccessibleName(object->getName());
+        //QCheckBox *checkBox = new QCheckBox();
+        //checkBox->setAccessibleName(object->getName());
         qRadioButtonGroup->addButton(radioButton, id);
-        qCheckBoxGroup->addButton(checkBox, id);
-        ui->formLayout->addRow(radioButton, checkBox);
+        //qCheckBoxGroup->addButton(checkBox, id);
+        ui->formLayout->addRow(radioButton/*, checkBox*/);
         id++;
     }
     connect(qRadioButtonGroup, SIGNAL(buttonToggled(int, bool)), this, SIGNAL(datasetSelectionChanged(int, bool)));
-    connect(qCheckBoxGroup, SIGNAL(buttonToggled(int, bool)), this, SLOT(showDataset(int, bool)));
+    //connect(qCheckBoxGroup, SIGNAL(buttonToggled(int, bool)), this, SLOT(showDataset(int, bool)));
 
     qRadioButtonGroup->button(0)->setChecked(true);
     //adjustSize();
@@ -83,10 +83,10 @@ void DatasetsDockWidget::clear()
         delete qRadioButtonGroup;
         qRadioButtonGroup = nullptr;
     }
-    if (qCheckBoxGroup) {
+    /*if (qCheckBoxGroup) {
         delete qCheckBoxGroup;
         qCheckBoxGroup = nullptr;
-    }
+    }*/
     clearLayout(ui->formLayout);
     this->setMaximumHeight(20);
     //adjustSize();

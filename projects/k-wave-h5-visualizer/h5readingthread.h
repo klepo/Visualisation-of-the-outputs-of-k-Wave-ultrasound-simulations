@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
- * @brief       The header file with HDF5ReadingThread and Request class declaration.
+ * @brief       The header file with H5ReadingThread and Request class declaration.
  *
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -30,8 +30,8 @@
 class Request
 {
 public:
-    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data = nullptr);
-    Request(H5Helper::Dataset *dataset, hsize_t step, float *data = nullptr);
+    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
+    Request(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
     ~Request();
     QString toQString();
 
@@ -45,14 +45,20 @@ public:
     hsize_t step = 0;
     /// Dataset
     H5Helper::Dataset *dataset = nullptr;
-    /// Data
+    /// External data
     float *data = nullptr;
-    /// External memory?
-    bool extData = false;
+    /// External dataLC
+    float *dataLC = nullptr;
+    /// External dataCC
+    float *dataCC = nullptr;
+    /// DataLC changed flag
+    bool dataLCChanged = false;
+    /// DataCC changed flag
+    bool dataCCChanged = false;
 };
 
 /**
- * @brief The HDF5ReadingThread class represents wrapper for HDF5 reading threads
+ * @brief The H5ReadingThread class represents wrapper for HDF5 reading threads
  */
 class H5ReadingThread : public QThread
 {
@@ -61,14 +67,12 @@ public:
     H5ReadingThread(QObject *parent = nullptr);
     ~H5ReadingThread();
 
-    const float *getDataLC() const;
-    const float *getDataCC() const;
     hsize_t getLocalStep() const;
     void setCompressHelper(const H5Helper::CompressHelper *compressHelper);
 
 public slots:
-    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data = nullptr);
-    void createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data = nullptr);
+    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
+    void createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
     void stopCurrentBlockReading();
     void clearDoneRequests();
     void clearRequests();
@@ -97,9 +101,9 @@ private:
     /// Done requests
     QList<Request *> doneRequests;
     /// Last compress coefficient data
-    float *dataLC = nullptr;
+    bool initLCFlag = true;
     /// Current compress coefficient data
-    float *dataCC = nullptr;
+    bool initCCFlag = true;
     /// Last compress coefficient offset
     H5Helper::Vector4D offsetLC;
     /// Current compress coefficient offset

@@ -2,8 +2,12 @@ var searchData=
 [
   ['data',['data',['../class_color_map.html#a1166db02fc6f2af41e9279f2a1186327',1,'ColorMap::data()'],['../class_request.html#a86366d6d5962e0e22df06531bb4b7bf5',1,'Request::data()']]],
   ['data3dchanged',['data3DChanged',['../class_h5_object_to_visualize.html#accd3ffea0c76b1764b0452518387f673',1,'H5ObjectToVisualize']]],
-  ['data3dcompresschanged',['data3DCompressChanged',['../class_h5_object_to_visualize.html#ab68b0f7b09e2aa3a0cf58f75c0dcfcef',1,'H5ObjectToVisualize']]],
+  ['data3dcompresschanged',['data3DCompressChanged',['../class_h5_object_to_visualize.html#a474171d8fc2345223bd59242487dfcdb',1,'H5ObjectToVisualize']]],
   ['data3dloadingstarted',['data3DLoadingStarted',['../class_h5_object_to_visualize.html#a7ba889be533f5de0251eea907c134218',1,'H5ObjectToVisualize']]],
+  ['datacc',['dataCC',['../class_request.html#afcb6c4643fcf982887eba5e0bbc40f73',1,'Request']]],
+  ['dataccchanged',['dataCCChanged',['../class_request.html#a5a15815f840483a4b98c474ef776cc8f',1,'Request']]],
+  ['datalc',['dataLC',['../class_request.html#a76dc247b59dfe6596b80aa3c708b0836',1,'Request']]],
+  ['datalcchanged',['dataLCChanged',['../class_request.html#a2e53249b933c2ee0a1129c495cfb1a25',1,'Request']]],
   ['dataset',['Dataset',['../class_h5_helper_1_1_dataset.html',1,'H5Helper::Dataset'],['../class_h5_helper_1_1_dataset.html#a562e9460e1cde60a68977ddd592e0d8e',1,'H5Helper::Dataset::Dataset()'],['../class_request.html#abdfb814ebbfdb5291c3563a4c53890d5',1,'Request::dataset()']]],
   ['dataset_2ecpp',['dataset.cpp',['../dataset_8cpp.html',1,'']]],
   ['dataset_2eh',['dataset.h',['../dataset_8h.html',1,'']]],

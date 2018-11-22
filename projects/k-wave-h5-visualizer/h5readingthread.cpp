@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing H5ReadingThread and Request
  *              class definition.
@@ -28,27 +28,30 @@
  * @param[in] dataset Dataset
  * @param[in] offset Offset
  * @param[in] count Count
- * @param[in] data Destination memory for reading (optional)
+ * @param[in] data Destination memory for reading
+ * @param[in] dataLC Destination memory for LC reading
+ * @param[in] dataCC Destination memory for CC reading
  */
-Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data)
+Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC, float *dataCC)
 {
     this->dataset = dataset;
     this->offset = offset;
     this->count = count;
     this->full = false;
-    if (data) {
-        this->data = data;
-        this->extData = true;
-    }
+    this->data = data;
+    this->dataLC = dataLC;
+    this->dataCC = dataCC;
 }
 
 /**
  * @brief Creates request for full 3D dataset reading with given step
  * @param[in] dataset Dataset
  * @param[in] step Step
- * @param[in] data Destination memory for reading (optional)
+ * @param[in] data Destination memory for reading
+ * @param[in] dataLC Destination memory for LC reading
+ * @param[in] dataCC Destination memory for CC reading
  */
-Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
+Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC, float *dataCC)
 {
     this->dataset = dataset;
     if (dataset->getRank() == 3) {
@@ -60,10 +63,9 @@ Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
     }
     this->full = true;
     this->step = step;
-    if (data) {
-        this->data = data;
-        this->extData = true;
-    }
+    this->data = data;
+    this->dataLC = dataLC;
+    this->dataCC = dataCC;
 }
 
 /**
@@ -73,10 +75,7 @@ Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data)
  */
 Request::~Request()
 {
-    if (!this->extData) {
-        delete[] data;
-        data = nullptr;
-    }
+
 }
 
 /**
@@ -106,32 +105,6 @@ H5ReadingThread::~H5ReadingThread()
 {
     clearRequests();
     clearDoneRequests();
-    if (dataLC) {
-        delete[] dataLC;
-        dataLC = nullptr;
-    }
-    if (dataCC) {
-        delete[] dataCC;
-        dataCC = nullptr;
-    }
-}
-
-/**
- * @brief Returns data for current compress coefficient
- * @return Data for current compress coefficient
- */
-const float *H5ReadingThread::getDataCC() const
-{
-    return dataCC;
-}
-
-/**
- * @brief Returns data for last compress coefficient
- * @return Data for current last coefficient
- */
-const float *H5ReadingThread::getDataLC() const
-{
-    return dataLC;
 }
 
 /**
@@ -157,9 +130,11 @@ void H5ReadingThread::setCompressHelper(const H5Helper::CompressHelper *compress
  * @param[in] dataset Dataset
  * @param[in] offset Offset
  * @param[in] count Count
- * @param[in] data Destination memory for reading (optional)
+ * @param[in] data Destination memory for reading
+ * @param[in] dataLC Destination memory for LC reading
+ * @param[in] dataCC Destination memory for CC reading
  */
-void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data)
+void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC, float *dataCC)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -167,16 +142,18 @@ void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, H5Helper::Vector
         delete r;
         r = nullptr;
     }
-    queue.enqueue(new Request(dataset, offset, count, data));
+    queue.enqueue(new Request(dataset, offset, count, data, dataLC, dataCC));
 }
 
 /**
  * @brief Creates request for full dataset read in thread with given step
  * @param[in] dataset Dataset
  * @param[in] step Step
- * @param[in] data Destination memory for reading (optional)
+ * @param[in] data Destination memory for reading
+ * @param[in] dataLC Destination memory for LC reading
+ * @param[in] dataCC Destination memory for CC reading
  */
-void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data)
+void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC, float *dataCC)
 {
     QMutexLocker locker(&queueMutex);
     while (!queue.isEmpty()) {
@@ -184,7 +161,7 @@ void H5ReadingThread::createRequest(H5Helper::Dataset *dataset, hsize_t step, fl
         delete r;
         r = nullptr;
     }
-    Request *r = new Request(dataset, step, data);
+    Request *r = new Request(dataset, step, data, dataLC, dataCC);
     if (compressHelper)
         r->count[r->count.getLength() - 1] = r->count[r->count.getLength() - 1] / compressHelper->getStride();
     queue.enqueue(r);
@@ -256,7 +233,11 @@ void H5ReadingThread::run()
         }
         queueMutex.unlock();
 
+#ifdef QT_DEBUG
+        bool log =  true;
+#else
         bool log =  false;
+#endif
 
         if (r) {
             try {
@@ -289,30 +270,27 @@ void H5ReadingThread::run()
                         offsetCC.t(steps - 1);
                     offsetCC.x(offsetCC.x() * xStride);
 
-                    if (!this->dataLC || this->offsetLC != offsetLC) {
-                        r->dataset->readDataset(offsetLC, count, this->dataLC, log);
+                    if (initLCFlag || this->offsetLC != offsetLC) {
+                        r->dataset->readDataset(offsetLC, count, r->dataLC, log);
                         this->offsetLC = offsetLC;
+                        initLCFlag = false;
+                        r->dataLCChanged = true;
                     }
 
-                    if (!this->dataCC || this->offsetCC != offsetCC) {
-                        r->dataset->readDataset(offsetCC, count, this->dataCC, log);
+                    if (initCCFlag || this->offsetCC != offsetCC) {
+                        r->dataset->readDataset(offsetCC, count, r->dataCC, log);
                         this->offsetCC = offsetCC;
+                        initCCFlag = false;
+                        r->dataCCChanged = true;
                     }
 
                     if (!r->full) {
-                        if (!r->extData) {
-                            r->data = new float[r->count.getSize()]();
-                        }
-
 #pragma omp parallel for
                         for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
-                            r->data[p] = compressHelper->computeTimeStep(&this->dataCC[p * hssize_t(xStride)], &this->dataLC[p * hssize_t(xStride)], localStep);
+                            r->data[p] = compressHelper->computeTimeStep(&r->dataCC[p * hssize_t(xStride)], &r->dataLC[p * hssize_t(xStride)], localStep);
                         }
                     }
                 } else {
-                    if (!r->extData) {
-                        r->data = new float[r->count.getSize()]();
-                    }
                     r->dataset->readDataset(r->offset, r->count, r->data, log);
                 }
 

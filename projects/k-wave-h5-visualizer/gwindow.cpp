@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing GWindow class definition.
  *
@@ -50,7 +50,6 @@ GWindow::~GWindow()
     glDeleteTextures(1, &texture);
     glDeleteTextures(1, &textureLC);
     glDeleteTextures(1, &textureCC);
-    glDeleteTextures(1, &textureCC);
     glDeleteTextures(1, &textureBE);
     glDeleteTextures(1, &textureBE_1);
     glDeleteTextures(1, &textureBufferBE);
@@ -63,7 +62,7 @@ GWindow::~GWindow()
     glDeleteFramebuffers(1, &fbo);
     glDeleteRenderbuffers(1, &rbo);
 
-    program->release();
+    //program->release();
     delete program;
     program = nullptr;
 }
@@ -257,6 +256,11 @@ void GWindow::setInterpolationMode(int mode)
         glMode = GL_NEAREST;
     intMode = glMode;
     if (initialized) {
+
+        program->bind();
+        program->setUniformValue(uInt, mode);
+        program->release();
+
         glBindTexture(GL_TEXTURE_3D, texture);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, glMode);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, glMode);
@@ -306,7 +310,8 @@ void GWindow::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(minMaxValuesTrimChanged(bool)), this, SLOT(setTrim(bool)));
 
         connect(object, SIGNAL(data3DChanged(const float *)), this, SLOT(set3DData(const float *)));
-        connect(object, SIGNAL(data3DCompressChanged(const float *, const float *, hsize_t)), this, SLOT(set3DCompressData(const float *, const float *, hsize_t)));
+        connect(object, SIGNAL(data3DCompressChanged(const float *, const float *)), this, SLOT(set3DCompressData(const float *, const float *)));
+        connect(object, SIGNAL(localStep3DCompressChanged(hsize_t)), this, SLOT(set3DCompressLocalStep(hsize_t)));
         connect(object, SIGNAL(dataXYChanged(const float *, hsize_t)), this, SLOT(setXYSlice(const float *, hsize_t)));
         connect(object, SIGNAL(dataXZChanged(const float *, hsize_t)), this, SLOT(setXZSlice(const float *, hsize_t)));
         connect(object, SIGNAL(dataYZChanged(const float *, hsize_t)), this, SLOT(setYZSlice(const float *, hsize_t)));
@@ -331,8 +336,8 @@ void GWindow::setObject(H5ObjectToVisualize *object)
 
         object->setData3DLoadingFlag(volumeRendering);
 
+        compressHelper = object->getCompressHelper();
         if (object->getCompressHelper()) {
-            compressHelper = object->getCompressHelper();
             set3DData();
 
             glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE);
@@ -360,8 +365,9 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             program->setUniformValue(uBSize2, int(compressHelper->getBSize() * 2));
             program->release();
 
+            set3DCompressLocalStep(object->getLocalStep());
             if (object->isCurrentData3DLoaded()) {
-                set3DCompressData(object->getData3DLC(), object->getData3DCC(), object->getLocalStep() * 2);
+                set3DCompressData(object->getData3DLC(), object->getData3DCC());
             } else {
                 set3DCompressData();
             }
@@ -471,6 +477,8 @@ void GWindow::initialize()
     uMin = program->uniformLocation("uMin");
     uMax = program->uniformLocation("uMax");
     uMode = program->uniformLocation("uMode");
+
+    uInt = program->uniformLocation("uInt");
 
     // Create index buffers
     // for slices
@@ -691,7 +699,13 @@ void GWindow::initialize()
     program->setUniformValue(uMax, 0.0f);
     program->setUniformValue(uMode, vRMode);
 
+    program->setUniformValue(uInt, 0);
+
     program->release();
+
+    //int i;
+    //glGetIntegerv(GL_MAX_PROGRAM_TEXEL_OFFSET, &i);
+    //qDebug() << i;
 
     initialized = true;
     renderLater();
@@ -1082,7 +1096,7 @@ bool GWindow::event(QEvent *event)
  */
 void GWindow::resizeEvent(QResizeEvent *)
 {
-    if (initialized) {
+    if (initialized && this->isActive()) {
         // Resize framebuffer texture
         glBindTexture(GL_TEXTURE_2D, textureFboBack);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width(), height(), 0, GL_RGB, GL_FLOAT, nullptr);
@@ -1329,9 +1343,8 @@ void GWindow::set3DData(const float *data)
  * @brief Sets 3D compression coefficients data to 3D texture
  * @param[in] dataLC 3D compression last coefficients data
  * @param[in] dataCC 3D compression current coefficients data
- * @param[in] localStep Local step between coefficients
  */
-void GWindow::set3DCompressData(const float *dataLC, const float *dataCC, hsize_t localStep)
+void GWindow::set3DCompressData(const float *dataLC, const float *dataCC)
 {
     if (compressHelper) {
         glBindTexture(GL_TEXTURE_3D, textureLC);
@@ -1355,12 +1368,22 @@ void GWindow::set3DCompressData(const float *dataLC, const float *dataCC, hsize_
             unload3DCompressTexture();
             return;
         }
+    }
+    renderLater();
+}
 
+/**
+ * @brief Sets 3D compression coefficients local step
+ * @param[in] localStep Local step between coefficients
+ */
+void GWindow::set3DCompressLocalStep(hsize_t localStep)
+{
+    if (initialized) {
         program->bind();
         program->setUniformValue(uStepLocal2, int(localStep * 2));
         program->release();
+        renderLater();
     }
-    renderLater();
 }
 
 /**

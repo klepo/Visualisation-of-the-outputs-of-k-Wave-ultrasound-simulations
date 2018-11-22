@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The header file with H5ObjectToVisualize class declaration.
  *
@@ -84,6 +84,7 @@ public:
     bool isCurrentYZLoaded() const;
     bool areCurrentSlicesLoaded() const;
     bool isCurrentData3DLoaded() const;
+    bool isCurrentStepLoaded() const;
 
     const H5Helper::File *getFile() const;
     const H5Helper::CompressHelper *getCompressHelper() const;
@@ -118,10 +119,6 @@ signals:
     void minMaxValuesTrimChanged(bool value);
 
     /**
-     * @brief Current slices loaded signal
-     */
-    void currentSlicesLoaded();
-    /**
      * @brief Current XY loaded signal
      */
     void currentXYLoaded();
@@ -133,6 +130,10 @@ signals:
      * @brief Current YZ loaded signal
      */
     void currentYZLoaded();
+    /**
+     * @brief Current slices loaded signal
+     */
+    void currentSlicesLoaded();
     /**
      * @brief Current data3D loaded signal
      */
@@ -189,9 +190,13 @@ signals:
      * @brief Data 3D compress changed signal
      * @param[in] data3DLC Data 3D for last compress coefficient
      * @param[in] data3DCC Data 3D for current compress coefficient
+     */
+    void data3DCompressChanged(const float *data3DLC, const float *data3DCC);
+    /**
+     * @brief Local step 3D compress changed signal
      * @param[in] localStep Local step
      */
-    void data3DCompressChanged(const float *data3DLC, const float *data3DCC, hsize_t localStep);
+    void localStep3DCompressChanged(hsize_t localStep);
     /**
      * @brief Data XY changed signal
      * @param[in] data Data
@@ -281,10 +286,6 @@ private:
     void changeImages();
     void load3Ddata();
 
-    QImage createImageXY() const;
-    QImage createImageXZ() const;
-    QImage createImageYZ() const;
-
     /// Selected flag
     bool selectedFlag = false;
     /// HDF5 Dataset
@@ -321,14 +322,28 @@ private:
     // Memory for loaded slices and 3D data
     /// Data XY
     float *dataXY = nullptr;
+    /// Data XY LC
+    float *dataXYLC = nullptr;
+    /// Data XY CC
+    float *dataXYCC = nullptr;
     /// Data XZ
     float *dataXZ = nullptr;
+    /// Data XZ LC
+    float *dataXZLC = nullptr;
+    /// Data XZ CC
+    float *dataXZCC = nullptr;
     /// Data YZ
     float *dataYZ = nullptr;
+    /// Data YZ LC
+    float *dataYZLC = nullptr;
+    /// Data YZ CC
+    float *dataYZCC = nullptr;
     /// Data 3D
     float *data3D = nullptr;
-    //float *data3DLC = nullptr;
-    //float *data3DCC = nullptr;
+    /// Data 3D LC
+    float *data3DLC = nullptr;
+    /// Data 3D CC
+    float *data3DCC = nullptr;
 
     // Dataset settings
     /// Minimal value

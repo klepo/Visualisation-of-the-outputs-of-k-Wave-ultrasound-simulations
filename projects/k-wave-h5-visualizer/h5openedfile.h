@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
- * @brief       The header file with OpenedH5File class declaration.
+ * @brief       The header file with H5OpenedFile class declaration.
  *
  * @license     This file is part of the k-Wave-h5-visualizer tool for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -27,7 +27,7 @@
 class H5ObjectToVisualize;
 
 /**
- * @brief The OpenedH5File class represents wrapper for opened HDF5 file
+ * @brief The H5OpenedFile class represents wrapper for opened HDF5 file
  */
 class H5OpenedFile : public QObject
 {

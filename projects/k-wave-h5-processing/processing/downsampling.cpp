@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              22 November  2018 (updated)
  *
  * @brief       The implementation file containing Downsampling class definition.
  *
@@ -39,11 +39,11 @@ void Downsampling::execute()
         H5Helper::DatasetType::BASIC_3D,
         H5Helper::DatasetType::RESHAPED_3D,
         H5Helper::DatasetType::CUBOID,
-        H5Helper::DatasetType::CUBOID_C,
+        //H5Helper::DatasetType::CUBOID_C,
         H5Helper::DatasetType::CUBOID_D,
         H5Helper::DatasetType::CUBOID_S,
         H5Helper::DatasetType::CUBOID_ATTR,
-        H5Helper::DatasetType::CUBOID_ATTR_C,
+        //H5Helper::DatasetType::CUBOID_ATTR_C,
         H5Helper::DatasetType::CUBOID_ATTR_D,
         H5Helper::DatasetType::CUBOID_ATTR_S,
     };
