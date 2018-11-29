@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing Decompress class definition.
  *
@@ -143,7 +143,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     double t0 = H5Helper::getTime();
 
     // Variables for block reading
-    float *dataC = new float[srcDataset->getGeneralBlockDims().getSize()];
+    float *dataC = new float[srcDataset->getGeneralBlockDims().getSize()]();
     H5Helper::Vector offset;
     H5Helper::Vector count;
     float maxV = std::numeric_limits<float>::min();

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The header file with H5ObjectToVisualize class declaration.
  *
@@ -237,6 +237,27 @@ signals:
      * @param[in] value Point value
      */
     void hoveredPointInImage(float value);
+
+    /**
+     * @brief Last XY reading time in nanoseconds
+     * @param[in] time Time
+     */
+    void lastXYReadingTimeNs(qint64 time);
+    /**
+     * @brief Last XZ reading time in nanoseconds
+     * @param[in] time Time
+     */
+    void lastXZReadingTimeNs(qint64 time);
+    /**
+     * @brief Last YZ reading time in nanoseconds
+     * @param[in] time Time
+     */
+    void lastYZReadingTimeNs(qint64 time);
+    /**
+     * @brief Last 3D reading time in nanoseconds
+     * @param[in] time Time
+     */
+    void last3DReadingTimeNs(qint64 time);
 
 public slots:
     void setMinValue(float value);

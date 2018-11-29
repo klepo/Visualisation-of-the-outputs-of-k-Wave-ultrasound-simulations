@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              30 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::CompressHelper class definition.
  *
@@ -77,14 +77,14 @@ CompressHelper::~CompressHelper()
  */
 hsize_t CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
 {
-    float *dataTmp = new float[length];
-    hsize_t *peaksTmp = new hsize_t[length];
+    float *dataTmp = new float[length]();
+    hsize_t *peaksTmp = new hsize_t[length]();
     hsize_t peaksCount;
     hsize_t period;
 
     //xcorr(dataSrc, dataSrc, dataTmp, length, length);
     findPeaks(dataSrc, peaksTmp, length, peaksCount);
-    hsize_t *peaks = new hsize_t[peaksCount - 1];
+    hsize_t *peaks = new hsize_t[peaksCount - 1]();
     diff(peaksTmp, peaks, peaksCount);
     period = median(peaks, peaksCount - 1);
 

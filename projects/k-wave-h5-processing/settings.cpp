@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              29 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -113,7 +113,7 @@ void Settings::loadParams(int argc, const char **argv)
                              "                                          HDF5SimulationInputFilename must be sensor_mask_index or\n"
                              "                                          sensor_mask_corners dataset.\n"
                              "\n"
-                             "  -changeChunks ......................... Optional parameter. Sets a new chunks size of\n"
+                             "  -changeChunks ......................... Optional parameter. Sets a new chunks size of float\n"
                              "                                          datasets and saves datasets to the output file.\n"
                              "\n"
                              "  -dwnsmpl .............................. Optional parameter. Performs downsampling of datasets\n"
@@ -369,14 +369,16 @@ ParamsDefinition::VectorOfULongLongs Settings::getMaxChunkSizes() const
  */
 void Settings::setMaxChunkSizes(const ParamsDefinition::VectorOfULongLongs &value)
 {
-    maxChunkSizes = value;
+    //maxChunkSizes = value;
     for (size_t i = 0; i < value.size(); i++) {
         maxChunkSizes[i] = value[i];
     }
     std::string sizesString;
-    for (ParamsDefinition::VectorOfULongLongs::const_iterator ci = maxChunkSizes.begin(); ci != maxChunkSizes.end(); ++ci) {
+    ParamsDefinition::VectorOfULongLongs maxChunkSizesR = maxChunkSizes;
+    std::reverse(maxChunkSizesR.begin(), maxChunkSizesR.end());
+    for (ParamsDefinition::VectorOfULongLongs::const_iterator ci = maxChunkSizesR.begin(); ci != maxChunkSizesR.end(); ++ci) {
         sizesString +=  std::to_string(*ci);
-        if (std::next(ci) != maxChunkSizes.end())
+        if (std::next(ci) != maxChunkSizesR.end())
             sizesString += " x ";
     }
     Helper::printDebugTwoColumns2S("New chunk sizes", sizesString, 30);

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Attribute class definition.
  *
@@ -237,7 +237,7 @@ void Attribute::loadAttribute(hid_t attributeId)
     if (nameSize < 0) {
         throw std::runtime_error("H5Aget_name error");
     }
-    char *nameC = new char[size_t(nameSize) + 1];
+    char *nameC = new char[size_t(nameSize) + 1]();
     H5Aget_name(attributeId, size_t(nameSize + 1), nameC);
     name = std::string(nameC);
     delete[] nameC;

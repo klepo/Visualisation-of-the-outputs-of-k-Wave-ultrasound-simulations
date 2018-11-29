@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::Dataset class definition.
  *
@@ -499,6 +499,24 @@ std::string Dataset::getTypeString(DatasetType type) const
             return "Cuboid type with attributes (downsampled difference)";
     };
     return "Unknown type";
+}
+
+/**
+ * @brief Is float type?
+ * @return True/False
+ */
+bool Dataset::isFloatType() const
+{
+    return H5Tequal(datatypeId, H5T_NATIVE_FLOAT) != 0;
+}
+
+/**
+ * @brief Is 64-bit unsigned integer type?
+ * @return True/False
+ */
+bool Dataset::isIntegerType() const
+{
+    return H5Tequal(datatypeId, H5T_NATIVE_UINT64) != 0;
 }
 
 /**
@@ -1366,7 +1384,7 @@ Vector Dataset::getBlockOffset(hsize_t index) const
 
 /**
  * @brief Checks data type and allocates memory
- * @param[out] data
+ * @param[out] data Output data - must be nullptr or allocated
  * @param[in] type
  * @param[in] size
  * @throw std::runtime_error
@@ -1390,7 +1408,7 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
 
 /**
  * @brief Checks data type and allocates memory
- * @param[out] data
+ * @param[out] data Output data - must be nullptr or allocated
  * @param[in] type
  * @param[in] size
  * @throw std::runtime_error
@@ -1443,24 +1461,6 @@ void Dataset::checkFloatType() const
 void Dataset::checkIntegerType() const
 {
     checkType(H5T_NATIVE_UINT64);
-}
-
-/**
- * @brief Is float type?
- * @return True/False
- */
-bool Dataset::isFloatType() const
-{
-    return H5Tequal(datatypeId, H5T_NATIVE_FLOAT) != 0;
-}
-
-/**
- * @brief Is 64-bit unsigned integer type?
- * @return True/False
- */
-bool Dataset::isIntegerType() const
-{
-    return H5Tequal(datatypeId, H5T_NATIVE_UINT64) != 0;
 }
 
 /**

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              29 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The header file with Window3DDockWidget class declaration.
  *
@@ -53,6 +53,7 @@ private slots:
     void toggleLabel3DLoading(bool value);
     void hideLabel3DLoading();
     void showLabel3DLoading();
+    void showReadingTime(qint64 value);
 
 private:
     Q_DISABLE_COPY(Window3DDockWidget)

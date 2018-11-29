@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The header file with H5Helper::Dataset class declaration.
  *
@@ -91,6 +91,8 @@ public:
     DatasetType getType(hsize_t sensorMaskSize = 0) const;
     std::string getTypeString() const;
     std::string getTypeString(DatasetType type) const;
+    bool isFloatType() const;
+    bool isIntegerType() const;
 
     void getGlobalMaxValue(float &value, hsize_t &maxVFIndex, bool reset = false);
     void getGlobalMinValue(float &value, hsize_t &minVFIndex, bool reset = false);
@@ -162,8 +164,6 @@ private:
     void checkType(int type) const;
     void checkFloatType() const;
     void checkIntegerType() const;
-    bool isFloatType() const;
-    bool isIntegerType() const;
 
     std::string dataTypeString(int type) const;
     std::string memoryErrorMessage(hsize_t size, int type) const;

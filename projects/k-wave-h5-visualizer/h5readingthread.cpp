@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing H5ReadingThread and Request
  *              class definition.
@@ -241,10 +241,10 @@ void H5ReadingThread::run()
 
         if (r) {
             try {
-#ifdef QT_DEBUG
+//#ifdef QT_DEBUG
                 QElapsedTimer elapsedTimer;
                 elapsedTimer.restart();
-#endif
+//#endif
 
                 if (compressHelper) {
                     hsize_t xStride = compressHelper->getStride();
@@ -296,9 +296,10 @@ void H5ReadingThread::run()
 
                 QMutexLocker locker(&requestMutex);
 
+                r->nsecsElapsed = elapsedTimer.nsecsElapsed();
 #ifdef QT_DEBUG
                 // Time measuring
-                timeSum += elapsedTimer.nsecsElapsed();
+                timeSum += r->nsecsElapsed;
                 readCount++;
                 meanTime = timeSum / readCount;
                 if (r->full) {

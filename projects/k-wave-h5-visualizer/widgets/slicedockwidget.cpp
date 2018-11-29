@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              22 November  2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing SliceDockWidget class definition.
  *
@@ -44,7 +44,7 @@ SliceDockWidget::SliceDockWidget(QWidget *parent) :
 
     QFont newFont = font();
     newFont.setBold(true);
-    setFont(newFont);
+    ui->spinBox->setFont(newFont);
     setSliceType(sliceType);
 }
 
@@ -98,10 +98,11 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
     ui->imageWidget->setFilename(getImageFilename());
 
     if (sliceType == XY) {
-        ui->verticalSlider->setMaximum(int(object->getDatasetSize().z() - 1));
+        ui->horizontalSlider->setMaximum(int(object->getDatasetSize().z() - 1));
         ui->spinBox->setMaximum(int(object->getDatasetSize().z() - 1));
         ui->spinBox->setValue(int(object->getZIndex()));
         connect(object, SIGNAL(dataXYLoadingStarted()), this, SLOT(showLabelLoading()));
+        connect(object, SIGNAL(lastXYReadingTimeNs(qint64)), this, SLOT(showReadingTime(qint64)));
         connect(object, SIGNAL(zIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageXYChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentXYLoaded()), this, SLOT(hideLabelLoading()));
@@ -113,10 +114,11 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
             ui->imageWidget->showImage(object->getImageXY());
         }
     } else if (sliceType == XZ) {
-        ui->verticalSlider->setMaximum(int(object->getDatasetSize().y() - 1));
+        ui->horizontalSlider->setMaximum(int(object->getDatasetSize().y() - 1));
         ui->spinBox->setMaximum(int(object->getDatasetSize().y() - 1));
         ui->spinBox->setValue(int(object->getYIndex()));
         connect(object, SIGNAL(dataXZLoadingStarted()), this, SLOT(showLabelLoading()));
+        connect(object, SIGNAL(lastXZReadingTimeNs(qint64)), this, SLOT(showReadingTime(qint64)));
         connect(object, SIGNAL(yIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageXZChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentXZLoaded()), this, SLOT(hideLabelLoading()));
@@ -128,10 +130,11 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
             ui->imageWidget->showImage(object->getImageXZ());
         }
     } else if (sliceType == YZ) {
-        ui->verticalSlider->setMaximum(int(object->getDatasetSize().x() - 1));
+        ui->horizontalSlider->setMaximum(int(object->getDatasetSize().x() - 1));
         ui->spinBox->setMaximum(int(object->getDatasetSize().x() - 1));
         ui->spinBox->setValue(int(object->getXIndex()));
         connect(object, SIGNAL(dataYZLoadingStarted()), this, SLOT(showLabelLoading()));
+        connect(object, SIGNAL(lastYZReadingTimeNs(qint64)), this, SLOT(showReadingTime(qint64)));
         connect(object, SIGNAL(xIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageYZChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentYZLoaded()), this, SLOT(hideLabelLoading()));
@@ -161,11 +164,12 @@ void SliceDockWidget::clear()
 {
     disconnect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), nullptr, nullptr);
     disconnect(this, SIGNAL(sliceIndexChanged(int)), nullptr, nullptr);
-    ui->verticalSlider->setMaximum(0);
+    ui->horizontalSlider->setMaximum(0);
     ui->spinBox->setMaximum(0);
     ui->spinBox->setValue(0);
     ui->imageWidget->clearImage();
     hideLabelLoading();
+    ui->labelInfo->clear();
     imageName.clear();
 }
 
@@ -215,13 +219,28 @@ void SliceDockWidget::showLabelLoading()
 }
 
 /**
+ * @brief Shows reading time
+ * @param[in] value Time in nanosecons
+ */
+void SliceDockWidget::showReadingTime(qint64 value)
+{
+    if (sliceType == XY) {
+        ui->labelInfo->setText("Last read time: " + QString::number(double(value) / 1000000, 'f', 3) + " ms");
+    } else if (sliceType == XZ) {
+        ui->labelInfo->setText("Last read time: " + QString::number(double(value) / 1000000, 'f', 3) + " ms");
+    } else if (sliceType == YZ) {
+        ui->labelInfo->setText("Last read time: " + QString::number(double(value) / 1000000, 'f', 3) + " ms");
+    }
+}
+
+/**
  * @brief Sets style color
  * @param[in] color Color
  */
 void SliceDockWidget::setColor(QColor color)
 {
     QString colorString = "color: rgb(" + QString::number(color.red()) + ", " + QString::number(color.green()) + ", " + QString::number(color.blue()) + ");";
-    setStyleSheet(colorString);
+    ui->spinBox->setStyleSheet(colorString);
 }
 
 /**
@@ -232,5 +251,3 @@ QString SliceDockWidget::getImageFilename()
 {
     return imageName + "_-_" + QString::fromStdString(sliceTypeStr.at(sliceType)) + "_" + QString::number(ui->spinBox->value());
 }
-
-

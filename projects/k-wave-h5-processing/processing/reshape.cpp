@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing Reshape class definition.
  *
@@ -110,7 +110,7 @@ void Reshape::execute()
 void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max, bool log)
 {
     // Find min and max position from linear saved values
-    hsize_t *data = new hsize_t[sensorMaskIndexDataset->getGeneralBlockDims().getSize()];
+    hsize_t *data = new hsize_t[sensorMaskIndexDataset->getGeneralBlockDims().getSize()]();
     H5Helper::Vector3D offset;
     H5Helper::Vector3D count;
     H5Helper::Vector4D nDims = sensorMaskIndexDataset->getFile()->getNDims();
@@ -223,7 +223,7 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
     // Check whether is possible to write whole one step (3D dataset)
     if (datasetDims.z() * datasetDims.y() * datasetDims.x() <= dataset->getNumberOfElmsToLoad()) {
         useTmpFlag = true;
-        tmpData = new float[datasetDims.z() * datasetDims.y() * datasetDims.x()];
+        tmpData = new float[datasetDims.z() * datasetDims.y() * datasetDims.x()]();
         // Read sensorMaskIndexDataset only once
         sensorMaskIndexDataset->readBlock(0, offset, count, sensorMaskData, log);
 

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -1269,7 +1269,7 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
     Vector count;
 
     if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_FLOAT)) {
-        float *data = new float[srcDataset->getGeneralBlockDims().getSize()];
+        float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
             srcDataset->readBlock(i, offset, count, data, log);
             dstDataset->writeDataset(offset, count, data, log);
@@ -1277,7 +1277,7 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
         delete[] data;
         data = nullptr;
     } else if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_UINT64)) {
-        hsize_t *data = new hsize_t[srcDataset->getGeneralBlockDims().getSize()];
+        hsize_t *data = new hsize_t[srcDataset->getGeneralBlockDims().getSize()]();
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
             srcDataset->readBlock(i, offset, count, data, log);
             dstDataset->writeDataset(offset, count, data, log);

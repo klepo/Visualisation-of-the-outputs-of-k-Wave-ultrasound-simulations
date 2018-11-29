@@ -125,6 +125,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aaadb70de631d0952a288a97ddb877216"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_dataset.html#aaadb70de631d0952a288a97ddb877216">getTypeString</a> (<a class="el" href="namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed">DatasetType</a> type) const</td></tr>
 <tr class="memdesc:aaadb70de631d0952a288a97ddb877216"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns dataset type as string.  <a href="#aaadb70de631d0952a288a97ddb877216">More...</a><br /></td></tr>
 <tr class="separator:aaadb70de631d0952a288a97ddb877216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a463e6e00cd36c73f9b1730f371784671"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_dataset.html#a463e6e00cd36c73f9b1730f371784671">isFloatType</a> () const</td></tr>
+<tr class="memdesc:a463e6e00cd36c73f9b1730f371784671"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is float type?  <a href="#a463e6e00cd36c73f9b1730f371784671">More...</a><br /></td></tr>
+<tr class="separator:a463e6e00cd36c73f9b1730f371784671"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4600d45878940c2b708667c663236dd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_dataset.html#ae4600d45878940c2b708667c663236dd">isIntegerType</a> () const</td></tr>
+<tr class="memdesc:ae4600d45878940c2b708667c663236dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is 64-bit unsigned integer type?  <a href="#ae4600d45878940c2b708667c663236dd">More...</a><br /></td></tr>
+<tr class="separator:ae4600d45878940c2b708667c663236dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a112447094769ee993c37669f11b0868f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_h5_helper_1_1_dataset.html#a112447094769ee993c37669f11b0868f">getGlobalMaxValue</a> (float &amp;value, <a class="el" href="namespace_h5_helper.html#a71fdd46d93b8182b0b3cef1979369d51">hsize_t</a> &amp;maxVFIndex, bool reset=false)</td></tr>
 <tr class="memdesc:a112447094769ee993c37669f11b0868f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns global maximal float value.  <a href="#a112447094769ee993c37669f11b0868f">More...</a><br /></td></tr>
 <tr class="separator:a112447094769ee993c37669f11b0868f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -433,7 +439,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </dl>
 <p>The values are loaded from dataset attributes or searched from dataset data and are stored to this object. </p>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00572">572</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00590">590</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -543,7 +549,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Returns general block dims of block reading. </p>
 <dl class="section return"><dt>Returns</dt><dd>General block dims of block reading </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00660">660</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00678">678</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -589,7 +595,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00540">540</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00558">558</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -635,7 +641,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00510">510</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00528">528</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -681,7 +687,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00555">555</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00573">573</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -727,7 +733,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00525">525</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00543">543</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -771,7 +777,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Returns number of blocks for block reading. </p>
 <dl class="section return"><dt>Returns</dt><dd>Number of blocks for block reading </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00642">642</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00660">660</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -793,7 +799,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Returns number of blocks in dims for block reading. </p>
 <dl class="section return"><dt>Returns</dt><dd>Number of blocks in dims for block reading </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00651">651</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00669">669</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -815,7 +821,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Returns number of elements to load for block reading. </p>
 <dl class="section return"><dt>Returns</dt><dd>Number of elements to load for block reading </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00669">669</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00687">687</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -859,7 +865,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Returns real number of elements to load from dataset in block reading. </p>
 <dl class="section return"><dt>Returns</dt><dd>Real number of elements to load from dataset </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00633">633</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00651">651</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -965,6 +971,50 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 
 </div>
 </div>
+<a id="a463e6e00cd36c73f9b1730f371784671"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a463e6e00cd36c73f9b1730f371784671">&#9670;&nbsp;</a></span>isFloatType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool H5Helper::Dataset::isFloatType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Is float type? </p>
+<dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00508">508</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ae4600d45878940c2b708667c663236dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4600d45878940c2b708667c663236dd">&#9670;&nbsp;</a></span>isIntegerType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool H5Helper::Dataset::isIntegerType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Is 64-bit unsigned integer type? </p>
+<dl class="section return"><dt>Returns</dt><dd>True/False </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00517">517</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+
+</div>
+</div>
 <a id="aa77995640e642197fed3292dbd40ff47"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa77995640e642197fed3292dbd40ff47">&#9670;&nbsp;</a></span>readBlock() <span class="overload">[1/4]</span></h2>
 
@@ -1049,7 +1099,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00949">949</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00967">967</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1137,7 +1187,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00968">968</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00986">986</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1197,7 +1247,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00983">983</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l01001">1001</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1257,7 +1307,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00998">998</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l01016">1016</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1345,7 +1395,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00739">739</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00757">757</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1433,7 +1483,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00760">760</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00778">778</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1493,7 +1543,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00777">777</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00795">795</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1553,7 +1603,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00793">793</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00811">811</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1592,7 +1642,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00806">806</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00824">824</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1631,7 +1681,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00816">816</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00834">834</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1698,7 +1748,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00830">830</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00848">848</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1765,7 +1815,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00844">844</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00862">862</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1810,7 +1860,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00855">855</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00873">873</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1855,7 +1905,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00876">876</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00894">894</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1889,7 +1939,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l01010">1010</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l01028">1028</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1917,7 +1967,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00695">695</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00713">713</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1962,7 +2012,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00708">708</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00726">726</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -1990,7 +2040,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00678">678</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00696">696</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -2043,7 +2093,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00898">898</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00916">916</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -2096,7 +2146,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00911">911</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00929">929</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -2135,7 +2185,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00922">922</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00940">940</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -2174,7 +2224,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00932">932</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataset_8cpp_source.html#l00950">950</a> of file <a class="el" href="dataset_8cpp_source.html">dataset.cpp</a>.</p>
 
 </div>
 </div>
@@ -2185,7 +2235,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Nov 22 2018 17:09:25 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Nov 29 2018 14:59:02 for Visualisation of Ultrasound Propagation in Human Body by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

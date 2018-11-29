@@ -10,12 +10,13 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS +=  \
+    \ #h5-rename \
     k-wave-h5-helper \
     \ #k-wave-h5-helper-parallel \
     k-wave-h5-processing \
     \ #k-wave-h5-processing-parallel \
-    tests \
-    h5-rename \
+    rewrite-ram \
+    \ #tests \
 
 greaterThan(QT_VERSION, 5) {
     greaterThan(QT_MINOR_VERSION, 2) {

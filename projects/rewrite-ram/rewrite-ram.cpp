@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <mpi.h>
 #include <iostream>
 #include <string>
 
@@ -11,9 +10,11 @@
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
-#include <Winsock2.h>
+#include <Windows.h>
+#include <winsock.h>
 #endif
+
+#include <k-wave-h5-helper.h>
 
 size_t getTotalSystemPhysicalMemory()
 {
@@ -56,44 +57,59 @@ size_t upperPowerOfTwo(size_t x)
     x |= x >> 8;
     x |= x >> 16;
     return x + 1;
-
 }
 
-size_t roundUp(size_t numToRound, int multiple)
+size_t roundUp(size_t numToRound, size_t multiple)
 {
     if (multiple == 0) {
         return numToRound;
     }
 
-    int remainder = numToRound % multiple;
+    size_t remainder = numToRound % multiple;
     if (remainder == 0)
         return numToRound;
     return numToRound + multiple - remainder;
 }
 
-int mPISize;
-int mPIRank;
-MPI_Comm comm = MPI_COMM_WORLD;
-MPI_Info info = MPI_INFO_NULL;
-
 int main(int argc, char **argv) {
-    mlockall(MCL_CURRENT | MCL_FUTURE);
-
-    int buflen = 512;
-    char hostname[buflen];
-    gethostname(hostname, buflen);
-    MPI_Init(&argc, &argv);
-    MPI_Comm_size(comm, &mPISize);
-    MPI_Comm_rank(comm, &mPIRank);
-
-    std::cout << "process rank " << mPIRank << " of " << mPISize << " on host " << hostname << std::endl;
+    //mlockall(MCL_CURRENT | MCL_FUTURE);
 
     setlocale(LC_NUMERIC, "");
 
-    printf("Total system physical memory:     \t%'zu bytes\n", getTotalSystemPhysicalMemory());
-    printf("Available system physical memory: \t%'zu bytes\n", getAvailableSystemPhysicalMemory());
+    printf("Total system physical memory:     \t%zu bytes\n", getTotalSystemPhysicalMemory());
+    printf("Available system physical memory: \t%zu bytes\n", getAvailableSystemPhysicalMemory());
 
-    int *mem = NULL;
+    // pripravit soubory, ruzne chunky
+    // linearni,
+    // bloky 1x8x8x8,    2x8x8x8,    4x8x8x8,    8x8x8x8,    16x8x8x8,    32x8x8x8,    64x8x8x8
+    // bloky 1x16x16x16, 2x16x16x16, 4x16x16x16, 8x16x16x16, 16x16x16x16, 32x16x16x16, 16x16x16x16
+    // bloky 1x32x32x32, 2x32x32x32, 4x32x32x32, 8x32x32x32, 16x32x32x32, 32x32x32x32, 32x32x32x32
+    // bloky 1x64x64x64, 2x64x64x64, 4x64x64x64, 8x64x64x64, 16x64x64x64, 32x64x64x64, 64x64x64x64
+    // udelat rozlozeni manualne?
+
+
+    try {
+        H5Helper::File *file = new H5Helper::File("d:/study/DVI/data/linear/output_kidney_linear_p_cuboid_modified.h5", H5Helper::File::OPEN, true);
+        H5Helper::Dataset *dataset = file->openDataset("p/0", true);
+        float *dataXY = nullptr;
+        float *dataXZ = nullptr;
+        float *dataYZ = nullptr;
+        H5Helper::Vector4D dims = dataset->getDims();
+        std::cout << "Dimensions \t" << dims << std::endl;
+        std::cout << "Chunks     \t" << dataset->getChunkDims() << std::endl;
+        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, dims.z() / 2, 0, 0), H5Helper::Vector4D(1, 1, dims.y(), dims.x()), dataXY, true);
+        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, 0, dims.y() / 2, 0), H5Helper::Vector4D(1, dims.z(), 1, dims.x()), dataXZ, true);
+        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, 0, 0, dims.x() / 2), H5Helper::Vector4D(1, dims.z(), dims.y(), 1), dataYZ, true);
+        delete[] dataXY;
+        delete[] dataXZ;
+        delete[] dataYZ;
+        delete file;
+    } catch (std::exception &e) {
+           std::cerr << e.what() << std::endl;
+           std::exit(EXIT_FAILURE);
+    }
+
+    /*int *mem = nullptr;
     size_t size = 0;
     size_t block = 1024 * 1024 * 32;
     size_t inc = block * sizeof(int);
@@ -101,7 +117,7 @@ int main(int argc, char **argv) {
     if (argc == 2) {
         try {
             size_t s;
-            min = std::stoi(argv[1], &s);
+            min = std::stoull(argv[1], &s);
             if (strlen(argv[1]) != s || min <= 0)
                 throw std::invalid_argument(argv[1]);
             //min = roundUp(min, 2);
@@ -118,7 +134,7 @@ int main(int argc, char **argv) {
     printf("--------\n");
     do {
         mem = (int *) calloc(1, inc);
-        if (mem == NULL || min > getAvailableSystemPhysicalMemory())
+        if (mem == nullptr || min > getAvailableSystemPhysicalMemory())
             break;
         size += inc;
         printf("Allocated size:                     \t%'zu bytes\n", size);
@@ -127,15 +143,13 @@ int main(int argc, char **argv) {
         for (unsigned int i = 0; i < block; i++) {
             mem[i] = 1;
         }
-    } while (mem != NULL && min < getAvailableSystemPhysicalMemory());
-    if (mem == NULL)
+    } while (mem != nullptr && min < getAvailableSystemPhysicalMemory());
+    if (mem == nullptr)
         printf("mem == NULL\n");
     printf("--------\n");
     printf("Available system physical memory: \t%'zu bytes\n", getAvailableSystemPhysicalMemory());
     printf("Allocated size:                   \t%'zu bytes\n", size);
-
-    MPI_Finalize();
-
+*/
     return 0;
 }
 

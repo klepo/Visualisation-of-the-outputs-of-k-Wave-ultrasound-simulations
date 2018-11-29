@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing H5ObjectToVisualize
  *              class definition.
@@ -886,6 +886,10 @@ void H5ObjectToVisualize::disconnectSignals()
     disconnect(this, SIGNAL(imageYZChanged(QImage)), nullptr, nullptr);
 
     disconnect(this, SIGNAL(hoveredPointInImage(float)), nullptr, nullptr);
+    disconnect(this, SIGNAL(lastXYReadingTimeNs(qint64)), nullptr, nullptr);
+    disconnect(this, SIGNAL(lastXZReadingTimeNs(qint64)), nullptr, nullptr);
+    disconnect(this, SIGNAL(lastYZReadingTimeNs(qint64)), nullptr, nullptr);
+    disconnect(this, SIGNAL(last3DReadingTimeNs(qint64)), nullptr, nullptr);
 }
 
 /**
@@ -902,6 +906,7 @@ void H5ObjectToVisualize::sliceXYLoaded(Request *request)
     }
     emit imageXYChanged(getImageXY());
     emit dataXYChanged(dataXY, H5Helper::Vector3D(request->offset).z());
+    emit lastXYReadingTimeNs(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     threadXY->deleteDoneRequest(request);
 }
@@ -920,6 +925,7 @@ void H5ObjectToVisualize::sliceXZLoaded(Request *request)
     }
     emit imageXZChanged(getImageXZ());
     emit dataXZChanged(dataXZ, H5Helper::Vector3D(request->offset).y());
+    emit lastXZReadingTimeNs(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     threadXZ->deleteDoneRequest(request);
 }
@@ -938,6 +944,7 @@ void H5ObjectToVisualize::sliceYZLoaded(Request *request)
     }
     emit imageYZChanged(getImageYZ());
     emit dataYZChanged(dataYZ, H5Helper::Vector3D(request->offset).x());
+    emit lastYZReadingTimeNs(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     threadYZ->deleteDoneRequest(request);
 }
@@ -962,6 +969,7 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
     } else {
         emit data3DChanged(data3D);
     }
+    emit last3DReadingTimeNs(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     thread3D->deleteDoneRequest(request);
 }
@@ -972,20 +980,20 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
 void H5ObjectToVisualize::initialize()
 {
     // Allocation memory for slices
-    dataXY = new float[size.y() * size.x()];
-    dataXZ = new float[size.z() * size.x()];
-    dataYZ = new float[size.z() * size.y()];
-    data3D = new float[size.getSize()];
+    dataXY = new float[size.y() * size.x()]();
+    dataXZ = new float[size.z() * size.x()]();
+    dataYZ = new float[size.z() * size.y()]();
+    data3D = new float[size.getSize()]();
 
     if (compressHelper) {
-        dataXYCC = new float[size.y() * size.x() * compressHelper->getStride()];
-        dataXYLC = new float[size.y() * size.x() * compressHelper->getStride()];
-        dataXZCC = new float[size.z() * size.x() * compressHelper->getStride()];
-        dataXZLC = new float[size.z() * size.x() * compressHelper->getStride()];
-        dataYZCC = new float[size.z() * size.y() * compressHelper->getStride()];
-        dataYZLC = new float[size.z() * size.y() * compressHelper->getStride()];
-        data3DCC = new float[size.getSize() * compressHelper->getStride()];
-        data3DLC = new float[size.getSize() * compressHelper->getStride()];
+        dataXYCC = new float[size.y() * size.x() * compressHelper->getStride()]();
+        dataXYLC = new float[size.y() * size.x() * compressHelper->getStride()]();
+        dataXZCC = new float[size.z() * size.x() * compressHelper->getStride()]();
+        dataXZLC = new float[size.z() * size.x() * compressHelper->getStride()]();
+        dataYZCC = new float[size.z() * size.y() * compressHelper->getStride()]();
+        dataYZLC = new float[size.z() * size.y() * compressHelper->getStride()]();
+        data3DCC = new float[size.getSize() * compressHelper->getStride()]();
+        data3DLC = new float[size.getSize() * compressHelper->getStride()]();
     }
 
     index.x(H5Helper::Vector3D(maxValuePosition).x());

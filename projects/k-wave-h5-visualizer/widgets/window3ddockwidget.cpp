@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              22 November  2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing Window3DDockWidget class definition.
  *
@@ -77,6 +77,8 @@ void Window3DDockWidget::setObject(H5ObjectToVisualize *object)
     gWindow->setObject(object);
     connect(object, SIGNAL(data3DLoadingStarted()), this, SLOT(showLabel3DLoading()));
     connect(object, SIGNAL(currentData3DLoaded()), this, SLOT(hideLabel3DLoading()));
+    connect(object, SIGNAL(last3DReadingTimeNs(qint64)), this, SLOT(showReadingTime(qint64)));
+
 }
 
 /**
@@ -116,3 +118,13 @@ void Window3DDockWidget::showLabel3DLoading()
 {
     ui->label3DLoading->setMovie(movie);
 }
+
+/**
+ * @brief Shows reading time
+ * @param[in] value Time in nanosecons
+ */
+void Window3DDockWidget::showReadingTime(qint64 value)
+{
+    ui->labelInfo->setText("Last 3D read time: " + QString::number(double(value) / 1000000, 'f', 3) + " ms");
+}
+

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The header file with H5ReadingThread and Request class declaration.
  *
@@ -43,6 +43,8 @@ public:
     bool full = false;
     /// Step
     hsize_t step = 0;
+    /// Reading time
+    qint64 nsecsElapsed = 0;
     /// Dataset
     H5Helper::Dataset *dataset = nullptr;
     /// External data

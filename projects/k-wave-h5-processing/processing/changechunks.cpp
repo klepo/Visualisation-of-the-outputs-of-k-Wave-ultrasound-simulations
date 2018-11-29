@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              29 November  2018 (updated)
  *
  * @brief       The implementation file containing ChangeChunks class definition.
  *
@@ -42,7 +42,7 @@ void ChangeChunks::execute()
         for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             H5Helper::Dataset *dataset = it->second;
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
-            if (datasetType != H5Helper::DatasetType::UNKNOWN) {
+            if (datasetType != H5Helper::DatasetType::UNKNOWN && dataset->isFloatType()) {
                 Helper::printDebugMsg("Change chunks of dataset " + dataset->getName());
                 changeChunksOfDataset(dataset, getSettings()->getFlagLog());
                 count++;
@@ -89,7 +89,7 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
 
     double t0 = H5Helper::getTime();
 
-    float *data = new float[srcDataset->getGeneralBlockDims().getSize()];
+    float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
     float minV = std::numeric_limits<float>::max();
     float maxV = std::numeric_limits<float>::min();
     hsize_t minVIndex = 0;

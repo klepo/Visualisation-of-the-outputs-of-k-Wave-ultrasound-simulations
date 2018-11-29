@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -82,9 +83,10 @@
    <addaction name="separator"/>
    <addaction name="actionExportImageFrom3DScene"/>
    <addaction name="separator"/>
-   <addaction name="actionInfo"/>
    <addaction name="actionDatasets"/>
    <addaction name="actionSelectedDataset"/>
+   <addaction name="actionInfo"/>
+   <addaction name="action3DSettings"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -149,23 +151,11 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="SliceDockWidget" name="dockWidgetSliceXY">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
   </widget>
   <widget class="SliceDockWidget" name="dockWidgetSliceXZ">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -542,6 +532,21 @@
     <string>3D view</string>
    </property>
   </action>
+  <action name="action3DSettings">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>3D Settings</string>
+   </property>
+   <property name="toolTip">
+    <string>3D Settings</string>
+   </property>
+  </action>
+  <zorder>dockWidgetSettings3D</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -823,6 +828,22 @@
     <hint type="destinationlabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action3DSettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dockWidgetSettings3D</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>900</x>
+     <y>646</y>
     </hint>
    </hints>
   </connection>

@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>150</height>
+    <height>154</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>200</width>
-    <height>150</height>
+    <height>154</height>
    </size>
   </property>
   <property name="allowedAreas">
@@ -23,7 +23,7 @@
    <string>Slice</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0" columnminimumwidth="0,0,0,0">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -62,14 +62,31 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="5">
-     <widget class="QSlider" name="verticalSlider">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
+    <item row="0" column="0">
+     <widget class="QToolButton" name="toolButtonSave">
+      <property name="toolTip">
+       <string>Export image</string>
+      </property>
+      <property name="text">
+       <string>Export image</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../resources.qrc">
+        <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="5">
+    <item row="0" column="2">
+     <widget class="QSlider" name="horizontalSlider">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QSpinBox" name="spinBox"/>
+    </item>
+    <item row="2" column="0" colspan="4">
      <widget class="QScrollArea" name="scrollArea">
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
@@ -82,8 +99,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>175</width>
-         <height>100</height>
+         <width>200</width>
+         <height>82</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -116,25 +133,41 @@
       </widget>
      </widget>
     </item>
-    <item row="0" column="3" colspan="3" alignment="Qt::AlignRight">
-     <widget class="QSpinBox" name="spinBox"/>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="labelLoading"/>
-    </item>
-    <item row="0" column="0">
-     <widget class="QToolButton" name="toolButtonSave">
-      <property name="toolTip">
-       <string>Export image</string>
-      </property>
-      <property name="text">
-       <string>Export image</string>
-      </property>
-      <property name="icon">
-       <iconset resource="../resources.qrc">
-        <normaloff>:/icons/icons/images/icons_10.png</normaloff>:/icons/icons/images/icons_10.png</iconset>
-      </property>
-     </widget>
+    <item row="4" column="0" colspan="4">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="labelInfo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="indent">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelLoading">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="indent">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -158,14 +191,14 @@
  </resources>
  <connections>
   <connection>
-   <sender>verticalSlider</sender>
+   <sender>horizontalSlider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>spinBox</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>186</x>
-     <y>55</y>
+     <x>159</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>183</x>
@@ -176,7 +209,7 @@
   <connection>
    <sender>spinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>verticalSlider</receiver>
+   <receiver>horizontalSlider</receiver>
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -184,8 +217,8 @@
      <y>31</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>55</y>
+     <x>159</x>
+     <y>49</y>
     </hint>
    </hints>
   </connection>
@@ -213,7 +246,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>8</x>
-     <y>27</y>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>25</x>

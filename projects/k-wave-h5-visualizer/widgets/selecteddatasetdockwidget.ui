@@ -7,13 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>204</height>
+    <height>150</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>430</width>
-    <height>204</height>
+    <height>150</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>430</width>
+    <height>16777215</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -56,7 +62,7 @@
          <x>0</x>
          <y>0</y>
          <width>430</width>
-         <height>176</height>
+         <height>122</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayoutSelectedDatasetScroll">
