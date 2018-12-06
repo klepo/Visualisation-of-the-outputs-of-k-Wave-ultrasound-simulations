@@ -337,6 +337,15 @@ std::string Object::getOnlyName() const
         return name;
 }
 
+std::string Object::getNameWithUnderscores() const
+{
+    std::string s = name;
+    std::replace( s.begin(), s.end(), '/', '_');
+    return s;
+}
+
+
+
 /**
  * @brief Returns file where object is opened
  * @return File

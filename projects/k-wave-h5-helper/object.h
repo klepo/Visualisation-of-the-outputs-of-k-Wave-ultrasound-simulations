@@ -66,6 +66,7 @@ public:
     hsize_t getNumAttrs() const;
     std::string getName() const;
     std::string getOnlyName() const;
+    std::string getNameWithUnderscores() const;
     File *getFile() const;
 
     void setDeleteLog(bool value);
