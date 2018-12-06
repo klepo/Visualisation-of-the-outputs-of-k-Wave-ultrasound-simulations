@@ -24,3 +24,14 @@ DEPENDPATH += $$PWD
 include($$PWD/../k-wave-h5-helper/k-wave-h5-helper.pri)
 
 SOURCES += rewrite-ram.cpp
+
+# Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
+include($$PWD/../detect_arch_and_build_mode.pri)
+
+# Copy built file to destination
+win32 {
+    WDIR = windows-binaries
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR\" $(MKDIR) \"$$PWD/../../$$WDIR\") &
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../$$WDIR/$$BUILD_MODE\") &
+    QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD/$${TARGET}.exe\" \"$$PWD/../../$$WDIR/$$BUILD_MODE/$${TARGET}.exe\" &
+}

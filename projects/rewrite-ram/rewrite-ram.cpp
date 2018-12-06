@@ -14,7 +14,9 @@
 #include <winsock.h>
 #endif
 
-#include <k-wave-h5-helper.h>
+#include <omp.h>
+
+//#include <k-wave-h5-helper.h>
 
 size_t getTotalSystemPhysicalMemory()
 {
@@ -72,12 +74,37 @@ size_t roundUp(size_t numToRound, size_t multiple)
 }
 
 int main(int argc, char **argv) {
+    float coeff = 0.9999f;
+
+    if (argc == 2) {
+        try {
+            size_t pos;
+            coeff = std::stof(argv[1], &pos);
+            if (strlen(argv[1]) != pos || coeff <= 0 || coeff >= 1)
+                throw std::invalid_argument(argv[1]);
+        } catch (std::invalid_argument) {
+            printf("Wrong parameter");
+            exit(EXIT_FAILURE);
+        }
+    }
+
     //mlockall(MCL_CURRENT | MCL_FUTURE);
 
-    setlocale(LC_NUMERIC, "");
+    //setlocale(LC_NUMERIC, "");
 
-    printf("Total system physical memory:     \t%zu bytes\n", getTotalSystemPhysicalMemory());
-    printf("Available system physical memory: \t%zu bytes\n", getAvailableSystemPhysicalMemory());
+    std::cout << "Total system physical memory:                       " << getTotalSystemPhysicalMemory() << " bytes" << std::endl;
+    std::cout << "Available system physical memory before allocation: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    size_t size = size_t(float(getAvailableSystemPhysicalMemory()) * coeff);
+    std::cout << "Memory to allocate:                                 " << size << " bytes" << std::endl;
+    char *mem = static_cast<char *>(_aligned_malloc(size, upperPowerOfTwo(1000000000)));
+    std::cout << "Allocation is running ..." << std::endl;
+    #pragma omp parallel for
+    for (long long i = 0; i < static_cast<long long>(size); i++) {
+        mem[i] = 0;//'A' + rand() % 24;
+    }
+    std::cout << "Available system physical memory after allocation:  " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    _aligned_free(mem);
+    std::cout << "Available system physical memory after freeing:     " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
 
     // pripravit soubory, ruzne chunky
     // linearni,
@@ -88,7 +115,7 @@ int main(int argc, char **argv) {
     // udelat rozlozeni manualne?
 
 
-    try {
+    /*try {
         H5Helper::File *file = new H5Helper::File("d:/study/DVI/data/linear/output_kidney_linear_p_cuboid_modified.h5", H5Helper::File::OPEN, true);
         H5Helper::Dataset *dataset = file->openDataset("p/0", true);
         float *dataXY = nullptr;
@@ -107,7 +134,7 @@ int main(int argc, char **argv) {
     } catch (std::exception &e) {
            std::cerr << e.what() << std::endl;
            std::exit(EXIT_FAILURE);
-    }
+    }*/
 
     /*int *mem = nullptr;
     size_t size = 0;
@@ -116,9 +143,9 @@ int main(int argc, char **argv) {
     size_t min = block * 16;
     if (argc == 2) {
         try {
-            size_t s;
-            min = std::stoull(argv[1], &s);
-            if (strlen(argv[1]) != s || min <= 0)
+            size_t pos;
+            min = std::stoull(argv[1], &pos);
+            if (strlen(argv[1]) != pos || min <= 0)
                 throw std::invalid_argument(argv[1]);
             //min = roundUp(min, 2);
             //min = roundUp(min, 8);
