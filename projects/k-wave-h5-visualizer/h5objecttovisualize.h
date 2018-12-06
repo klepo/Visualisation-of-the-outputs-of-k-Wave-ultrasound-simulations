@@ -406,6 +406,12 @@ private:
     /// Number of steps
     hsize_t steps = 1;
 
+    //Log times
+    QVector<qint64> timesXY;
+    QVector<qint64> timesXZ;
+    QVector<qint64> timesYZ;
+    QVector<qint64> times3D;
+
     /// Compression helper
     const H5Helper::CompressHelper *compressHelper = nullptr;
 };

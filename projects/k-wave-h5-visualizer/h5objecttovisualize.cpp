@@ -131,6 +131,54 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
         delete compressHelper;
         compressHelper = nullptr;
     }
+
+    QFile *file = new QFile;
+    file->setFileName(QString::fromStdString(getFile()->getFilename()) + QString::fromStdString(dataset->getNameWithUnderscores()) + "_" + QDateTime::currentDateTime().toString("ddMMyyhhmmss") + ".log");
+    file->open(QIODevice::ReadWrite | QIODevice::Text);
+    QTextStream out(file);
+    out.setCodec("UTF-8");
+    //out << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss\n");
+    out << "\"Slice XY\"\n";
+    for (QVector<qint64>::iterator it = timesXY.begin(); it != timesXY.end(); it++) {
+         out << *it << "\n";
+    }
+    out << "\n\n";
+    out << "\"Slice XZ\"\n";
+    for (QVector<qint64>::iterator it = timesXZ.begin(); it != timesXZ.end(); it++) {
+         out << *it<< "\n";
+    }
+    out << "\n\n";
+    out << "\"Slice YZ\"\n";
+    for (QVector<qint64>::iterator it = timesYZ.begin(); it != timesYZ.end(); it++) {
+         out << *it<< "\n";
+    }
+    out << "\n\n";
+    out << "\"3D data\"\n";
+    for (QVector<qint64>::iterator it = times3D.begin(); it != times3D.end(); it++) {
+         out << *it << "\n";
+    }
+    out << "\n\n";
+    file->close();
+
+    QFileInfo fileInfo(*file);
+    QString program = "gnuplot";
+    QStringList arguments;
+    arguments << "-e";
+    arguments << "set output '" + file->fileName() + ".pdf';input='" + file->fileName() + "';";
+    arguments << fileInfo.path() + "/plot.txt";
+
+    QProcess *process = new QProcess(this);
+    process->start(program, arguments);
+    process->waitForStarted();
+    if (process->state() == QProcess::NotRunning) {
+        qDebug() << "gnuplot error:" << process->error();
+    } else {
+        process->waitForFinished();
+        qDebug() << "gnuplot exitStatus:" << process->exitStatus();
+        qDebug() << "gnuplot exitCode:" << process->exitCode();
+        qDebug() << "gnuplot stdout:" << process->readAllStandardOutput();
+        qDebug() << "gnuplot stderr:" << process->readAllStandardError();
+    }
 }
 
 /**
@@ -403,7 +451,7 @@ QString H5ObjectToVisualize::getName() const
  */
 QString H5ObjectToVisualize::getOnlyName() const
 {
-    return QString::fromStdString(dataset->getOnlyName());;
+    return QString::fromStdString(dataset->getOnlyName());
 }
 
 /**
@@ -907,6 +955,7 @@ void H5ObjectToVisualize::sliceXYLoaded(Request *request)
     emit imageXYChanged(getImageXY());
     emit dataXYChanged(dataXY, H5Helper::Vector3D(request->offset).z());
     emit lastXYReadingTimeNs(request->nsecsElapsed);
+    timesXY.append(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     threadXY->deleteDoneRequest(request);
 }
@@ -926,6 +975,7 @@ void H5ObjectToVisualize::sliceXZLoaded(Request *request)
     emit imageXZChanged(getImageXZ());
     emit dataXZChanged(dataXZ, H5Helper::Vector3D(request->offset).y());
     emit lastXZReadingTimeNs(request->nsecsElapsed);
+    timesXZ.append(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     threadXZ->deleteDoneRequest(request);
 }
@@ -945,6 +995,7 @@ void H5ObjectToVisualize::sliceYZLoaded(Request *request)
     emit imageYZChanged(getImageYZ());
     emit dataYZChanged(dataYZ, H5Helper::Vector3D(request->offset).x());
     emit lastYZReadingTimeNs(request->nsecsElapsed);
+    timesYZ.append(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     threadYZ->deleteDoneRequest(request);
 }
@@ -970,6 +1021,7 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
         emit data3DChanged(data3D);
     }
     emit last3DReadingTimeNs(request->nsecsElapsed);
+    times3D.append(request->nsecsElapsed);
     checkCurrentDataIsLoaded();
     thread3D->deleteDoneRequest(request);
 }
