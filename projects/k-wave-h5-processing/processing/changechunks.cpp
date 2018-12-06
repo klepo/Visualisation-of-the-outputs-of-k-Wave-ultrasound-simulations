@@ -101,6 +101,18 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     H5Helper::Vector offset;
     H5Helper::Vector count;
 
+    std::vector<H5Helper::DatasetType> compressTypes = {
+        H5Helper::DatasetType::TIME_STEPS_C_INDEX,
+        H5Helper::DatasetType::CUBOID_C,
+        H5Helper::DatasetType::CUBOID_ATTR_C
+    };
+
+    bool findMinMaxFlag = true;
+    if (checkDatasetType(srcDataset->getType(), compressTypes)) {
+        findMinMaxFlag = false;
+    }
+
+
     // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
         srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex, log);
@@ -108,7 +120,9 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
 
         hsize_t linearOffset;
         convertMultiDimToLinear(offset, linearOffset, srcDataset->getDims());
-        H5Helper::checkOrSetMinMaxValue(minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex, linearOffset + maxVIndex);
+        if (findMinMaxFlag) {
+            H5Helper::checkOrSetMinMaxValue(minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex, linearOffset + maxVIndex);
+        }
     }
     delete[] data;
     data = nullptr;
@@ -117,10 +131,12 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     copyAttributes(srcDataset, dstDataset);
 
     // Set min/max values
-    dstDataset->setAttribute(H5Helper::MIN_ATTR, minVG, log);
-    dstDataset->setAttribute(H5Helper::MAX_ATTR, maxVG, log);
-    dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVGIndex, log);
-    dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVGIndex, log);
+    if (findMinMaxFlag) {
+        dstDataset->setAttribute(H5Helper::MIN_ATTR, minVG, log);
+        dstDataset->setAttribute(H5Helper::MAX_ATTR, maxVG, log);
+        dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVGIndex, log);
+        dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVGIndex, log);
+    }
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("changing chunks of the whole dataset", t0, t1);

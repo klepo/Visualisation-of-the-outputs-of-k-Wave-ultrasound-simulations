@@ -125,9 +125,9 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     // Chunk dims
     H5Helper::Vector chunkDims(srcDataset->getChunkDims());
     if (dims.getLength() == 4) { // 4D dataset
-        chunkDims[3] *= compressHelper->getHarmonics() * 2;
+        chunkDims[3] = hsize_t((compressHelper->getHarmonics() * 2) * ceil(float(chunkDims[3]) / float(compressHelper->getHarmonics() * 2)));
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        chunkDims[2] *= compressHelper->getHarmonics() * 2;
+        chunkDims[2] = hsize_t((compressHelper->getHarmonics() * 2) * ceil(float(chunkDims[2]) / float(compressHelper->getHarmonics() * 2)));
     } else { // Something wrong.
         Helper::printErrorMsg("Something wrong with dataset dims");
         return;

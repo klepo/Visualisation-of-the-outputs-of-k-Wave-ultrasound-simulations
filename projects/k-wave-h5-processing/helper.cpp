@@ -42,7 +42,7 @@ void printDebugTitle(std::string str)
  */
 void printDebugTime(std::string ofWhat, double t0, double t1)
 {
-    printDebugTwoColumns2S("Time of " + ofWhat, std::to_string(int(t1 - t0)) + " ms");
+    printDebugTwoColumns2S("Time of " + ofWhat + ":", std::to_string(int(t1 - t0)) + " ms");
 }
 
 /**

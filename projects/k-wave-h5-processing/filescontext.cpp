@@ -193,7 +193,7 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
 
     file->setNumberOfElmsToLoad(simOutputFile->getNumberOfElmsToLoad());
 
-    Helper::printDebugTitle("Copy dimensions and root attributes to output file");
+    //Helper::printDebugTitle("Copy dimensions and root attributes to output file");
 
     // Copy nT, nX, nY, nZ
     Helper::printDebugMsgStart("Copy nT, nX, nY, nZ");
