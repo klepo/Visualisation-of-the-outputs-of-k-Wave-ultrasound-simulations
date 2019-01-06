@@ -47,31 +47,33 @@ DatasetsDockWidget::~DatasetsDockWidget()
  */
 void DatasetsDockWidget::setFile(const H5OpenedFile *file)
 {
-    clear();
-    ui->formLayout->addRow("Dataset", new QLabel("Show"));
+    if (file->getObjects().size() > 0) {
+        clear();
+        ui->formLayout->addRow("Dataset", new QLabel("Show"));
 
-    qRadioButtonGroup = new QButtonGroup(this);
-    qCheckBoxGroup = new QButtonGroup(this);
-    qCheckBoxGroup->setExclusive(false);
+        qRadioButtonGroup = new QButtonGroup(this);
+        qCheckBoxGroup = new QButtonGroup(this);
+        qCheckBoxGroup->setExclusive(false);
 
-    int id = 0;
-    // Load objects to visualize from file
-    foreach (H5ObjectToVisualize *object, file->getObjects()) {
-        // Create radioButton and checkbox
-        QRadioButton *radioButton = new QRadioButton(object->getName());
-        //QCheckBox *checkBox = new QCheckBox();
-        //checkBox->setAccessibleName(object->getName());
-        qRadioButtonGroup->addButton(radioButton, id);
-        //qCheckBoxGroup->addButton(checkBox, id);
-        ui->formLayout->addRow(radioButton/*, checkBox*/);
-        id++;
+        int id = 0;
+        // Load objects to visualize from file
+        foreach (H5ObjectToVisualize *object, file->getObjects()) {
+            // Create radioButton and checkbox
+            QRadioButton *radioButton = new QRadioButton(object->getName());
+            //QCheckBox *checkBox = new QCheckBox();
+            //checkBox->setAccessibleName(object->getName());
+            qRadioButtonGroup->addButton(radioButton, id);
+            //qCheckBoxGroup->addButton(checkBox, id);
+            ui->formLayout->addRow(radioButton/*, checkBox*/);
+            id++;
+        }
+        connect(qRadioButtonGroup, SIGNAL(buttonToggled(int, bool)), this, SIGNAL(datasetSelectionChanged(int, bool)));
+        //connect(qCheckBoxGroup, SIGNAL(buttonToggled(int, bool)), this, SLOT(showDataset(int, bool)));
+
+        qRadioButtonGroup->button(0)->setChecked(true);
+        //adjustSize();
+        this->setMaximumHeight(16777215);
     }
-    connect(qRadioButtonGroup, SIGNAL(buttonToggled(int, bool)), this, SIGNAL(datasetSelectionChanged(int, bool)));
-    //connect(qCheckBoxGroup, SIGNAL(buttonToggled(int, bool)), this, SLOT(showDataset(int, bool)));
-
-    qRadioButtonGroup->button(0)->setChecked(true);
-    //adjustSize();
-    this->setMaximumHeight(16777215);
 }
 
 /**
