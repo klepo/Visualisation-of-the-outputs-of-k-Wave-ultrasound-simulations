@@ -86,19 +86,24 @@ void ImageWidget::refreshImage()
         // if is adjusting enabled
         if (point.x() == 0 && point.y() == 0 && adjustFlag) {
             // Scale to width or height according to widget size
-            if (double(originalImage.width()) / originalImage.height() >= double(width()) / height())
+            if (double(originalImage.width()) / originalImage.height() >= double(width()) / height()) {
                 scaledImage = scaledImage.scaledToWidth(width(), Qt::SmoothTransformation);
-            else
+            } else {
                 scaledImage = scaledImage.scaledToHeight(height(), Qt::SmoothTransformation);
+            }
             //emit imageResized(_qimage.width(),_qimage.height());
             setMinimumWidth(10);
             setMinimumHeight(10);
+            adjustSize();
         } else {
             //  Original image size
-            if ((originalImage.width() + point.x()) > width())
+            if ((originalImage.width() + point.x()) > width()) {
                 setMinimumWidth(originalImage.width() + point.x());
-            if ((originalImage.height() + point.y()) > height())
+            }
+            if ((originalImage.height() + point.y()) > height()) {
                 setMinimumHeight(originalImage.height() + point.y());
+            }
+            adjustSize();
         }
     }
     repaint();
