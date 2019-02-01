@@ -108,9 +108,9 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(currentXYLoaded()), this, SLOT(hideLabelLoading()));
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXY(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setZIndex(int)));
-        if (!object->isCurrentXYLoaded()) {
-            object->reloadXY();
-        } else {
+        connect(this, SIGNAL(visibilityChanged(bool)), object, SLOT(setDataXYLoadingFlag(bool)));
+        object->setDataXYLoadingFlag(isVisible());
+        if (object->isCurrentXYLoaded()) {
             ui->imageWidget->showImage(object->getImageXY());
         }
     } else if (sliceType == XZ) {
@@ -124,9 +124,9 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(currentXZLoaded()), this, SLOT(hideLabelLoading()));
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setYIndex(int)));
-        if (!object->isCurrentXZLoaded()) {
-            object->reloadXZ();
-        } else {
+        connect(this, SIGNAL(visibilityChanged(bool)), object, SLOT(setDataXZLoadingFlag(bool)));
+        object->setDataXZLoadingFlag(isVisible());
+        if (object->isCurrentXZLoaded()) {
             ui->imageWidget->showImage(object->getImageXZ());
         }
     } else if (sliceType == YZ) {
@@ -140,9 +140,9 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(currentYZLoaded()), this, SLOT(hideLabelLoading()));
         connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageYZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setXIndex(int)));
-        if (!object->isCurrentYZLoaded()) {
-            object->reloadYZ();
-        } else {
+        connect(this, SIGNAL(visibilityChanged(bool)), object, SLOT(setDataYZLoadingFlag(bool)));
+        object->setDataYZLoadingFlag(isVisible());
+        if (object->isCurrentYZLoaded()) {
             ui->imageWidget->showImage(object->getImageYZ());
         }
     }
@@ -164,6 +164,7 @@ void SliceDockWidget::clear()
 {
     disconnect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), nullptr, nullptr);
     disconnect(this, SIGNAL(sliceIndexChanged(int)), nullptr, nullptr);
+    //disconnect(this, SIGNAL(visibilityChanged(bool)), nullptr, nullptr);
     ui->horizontalSlider->setMaximum(0);
     ui->spinBox->setMaximum(0);
     ui->spinBox->setValue(0);
