@@ -85,7 +85,7 @@ signals:
      * @brief Rendered signal
      * @param[in] time Last render time in ms
      */
-    void rendered(double time);
+    void rendered(qint64 elapsedNs);
 
 protected:
     virtual void exposeEvent(QExposeEvent *event);
@@ -113,7 +113,7 @@ private:
     /// Update pending flag
     bool updatePending;
     /// Elapsed render time in ms
-    double elapsedMs = 0;
+    qint64 elapsedNs = 0;
 
     /// Mouse down flag
     bool mouseDown;

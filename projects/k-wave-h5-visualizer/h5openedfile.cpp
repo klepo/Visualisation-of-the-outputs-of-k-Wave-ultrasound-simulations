@@ -49,7 +49,8 @@ H5OpenedFile::H5OpenedFile(QString filename, QObject *parent) :
         attribute = nullptr;
     }
 
-    qRegisterMetaType<H5ObjectToVisualize *>("H5ObjectToVisualize");
+    //qRegisterMetaType<H5ObjectToVisualize *>("H5ObjectToVisualize");
+    //qRegisterMetaType<H5ObjectToVisualize *>("hsize_t");
 
     qDebug() << "Find datasets for visualization...";
 
@@ -207,6 +208,9 @@ void H5OpenedFile::findDatasetsForVisualization(const H5Helper::Group *group)
  */
 void H5OpenedFile::setObject(H5Helper::Dataset *dataset, ObjectType type)
 {
+    QTime dieTime= QTime::currentTime().addSecs(1);
+        while (QTime::currentTime() < dieTime)
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 5000);
     bool objectExists = false;
     foreach (H5ObjectToVisualize *object, objects) {
         if (object->getName() == QString::fromStdString(dataset->getName())) {

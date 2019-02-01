@@ -31,6 +31,7 @@
 GWindow::GWindow(QWidget *parent)
 {
     this->parent = parent;
+    connect(this, SIGNAL(rendered(qint64)), this, SLOT(gWindowRendered(qint64)));
 }
 
 /**
@@ -97,6 +98,7 @@ void GWindow::setViewVolumeRendering(bool value)
 void GWindow::setViewXYSlice(bool value)
 {
     sliceXY = value;
+    emit viewXYSliceChanged(value);
     renderLater();
 }
 
@@ -107,6 +109,7 @@ void GWindow::setViewXYSlice(bool value)
 void GWindow::setViewXZSlice(bool value)
 {
     sliceXZ = value;
+    emit viewXZSliceChanged(value);
     renderLater();
 }
 
@@ -117,6 +120,7 @@ void GWindow::setViewXZSlice(bool value)
 void GWindow::setViewYZSlice(bool value)
 {
     sliceYZ = value;
+    emit viewYZSliceChanged(value);
     renderLater();
 }
 
@@ -309,14 +313,19 @@ void GWindow::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(opacityChanged(QVector<float>)), this, SLOT(setOpacity(QVector<float>)));
         connect(object, SIGNAL(minMaxValuesTrimChanged(bool)), this, SLOT(setTrim(bool)));
 
-        connect(object, SIGNAL(data3DChanged(const float *)), this, SLOT(set3DData(const float *)));
-        connect(object, SIGNAL(data3DCompressChanged(const float *, const float *)), this, SLOT(set3DCompressData(const float *, const float *)));
-        connect(object, SIGNAL(localStep3DCompressChanged(hsize_t)), this, SLOT(set3DCompressLocalStep(hsize_t)));
-        connect(object, SIGNAL(dataXYChanged(const float *, hsize_t)), this, SLOT(setXYSlice(const float *, hsize_t)));
-        connect(object, SIGNAL(dataXZChanged(const float *, hsize_t)), this, SLOT(setXZSlice(const float *, hsize_t)));
-        connect(object, SIGNAL(dataYZChanged(const float *, hsize_t)), this, SLOT(setYZSlice(const float *, hsize_t)));
+        connect(object, SIGNAL(data3DChanged(hsize_t, const float *)), this, SLOT(set3DData(hsize_t, const float *)));
+        connect(object, SIGNAL(data3DCompressChanged(hsize_t, const float *, const float *)), this, SLOT(set3DCompressData(hsize_t, const float *, const float *)));
+        connect(object, SIGNAL(localStep3DCompressChanged(hsize_t, hsize_t)), this, SLOT(set3DCompressLocalStep(hsize_t, hsize_t)));
+        connect(object, SIGNAL(dataXYChanged(hsize_t, const float *, hsize_t)), this, SLOT(setXYSlice(hsize_t, const float *, hsize_t)));
+        connect(object, SIGNAL(dataXZChanged(hsize_t, const float *, hsize_t)), this, SLOT(setXZSlice(hsize_t, const float *, hsize_t)));
+        connect(object, SIGNAL(dataYZChanged(hsize_t, const float *, hsize_t)), this, SLOT(setYZSlice(hsize_t, const float *, hsize_t)));
 
         connect(this, SIGNAL(viewVolumeRenderingChanged(bool)), object, SLOT(setData3DLoadingFlag(bool)));
+        connect(this, SIGNAL(viewXYSliceChanged(bool)), object, SLOT(checkXY()));
+        connect(this, SIGNAL(viewXZSliceChanged(bool)), object, SLOT(checkXZ()));
+        connect(this, SIGNAL(viewYZSliceChanged(bool)), object, SLOT(checkYZ()));
+
+        connect(this, SIGNAL(stepRendered(qint64, hsize_t)), object, SLOT(logRenderTime(qint64, hsize_t)));
 
         setCompressRendering(false);
 
@@ -330,15 +339,17 @@ void GWindow::setObject(H5ObjectToVisualize *object)
         setDatasetSize(object->getDatasetSize());
         setDatasetPosition(object->getDatasetPosition());
 
-        setXYSlice(object->getDataXY(), object->getZIndex());
-        setXZSlice(object->getDataXZ(), object->getYIndex());
-        setYZSlice(object->getDataYZ(), object->getXIndex());
+        currentStep = object->getCurrentStep();
+
+        setXYSlice(object->getCurrentStep(), object->getDataXY(), object->getZIndex());
+        setXZSlice(object->getCurrentStep(), object->getDataXZ(), object->getYIndex());
+        setYZSlice(object->getCurrentStep(), object->getDataYZ(), object->getXIndex());
 
         object->setData3DLoadingFlag(volumeRendering);
 
         compressHelper = object->getCompressHelper();
         if (object->getCompressHelper()) {
-            set3DData();
+            set3DData(object->getCurrentStep());
 
             glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE);
             glBufferData(GL_TEXTURE_BUFFER,
@@ -365,19 +376,19 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             program->setUniformValue(uBSize2, int(compressHelper->getBSize() * 2));
             program->release();
 
-            set3DCompressLocalStep(object->getLocalStep());
+            set3DCompressLocalStep(object->getCurrentStep(), object->getLocalStep());
             if (object->isCurrentData3DLoaded()) {
-                set3DCompressData(object->getData3DLC(), object->getData3DCC());
+                set3DCompressData(object->getCurrentStep(), object->getData3DLC(), object->getData3DCC());
             } else {
-                set3DCompressData();
+                set3DCompressData(object->getCurrentStep());
             }
             setCompressRendering(true);
         } else {
-            set3DCompressData();
+            set3DCompressData(object->getCurrentStep());
             if (object->isCurrentData3DLoaded()) {
-                set3DData(object->getData3D());
+                set3DData(object->getCurrentStep(), object->getData3D());
             } else {
-                set3DData();
+                set3DData(object->getCurrentStep());
             }
         }
         renderLater();
@@ -393,6 +404,10 @@ void GWindow::clear()
         sceneName = "no_name";
 
         disconnect(this, SIGNAL(viewVolumeRenderingChanged(bool)), nullptr, nullptr);
+        disconnect(this, SIGNAL(viewXYSliceChanged(bool)), nullptr, nullptr);
+        disconnect(this, SIGNAL(viewXZSliceChanged(bool)), nullptr, nullptr);
+        disconnect(this, SIGNAL(viewYZSliceChanged(bool)), nullptr, nullptr);
+        disconnect(this, SIGNAL(stepRendered(qint64, hsize_t)), nullptr, nullptr);
 
         setCompressRendering(false);
 
@@ -1258,21 +1273,24 @@ void GWindow::setDatasetPosition(QVector3DI position)
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
-void GWindow::setXYSlice(const float *data, hsize_t index)
+void GWindow::setXYSlice(hsize_t step, const float *data, hsize_t index)
 {
-    float indexTmp = index;
-    if (datasetSize.z() == 1) // Index -> 0
-        indexTmp = 0;
-    else
-        indexTmp = float(index) / (datasetSize.z() - 1);
+    if (sliceXY) {
+        currentStep = step;
+        float indexTmp = index;
+        if (datasetSize.z() == 1) // Index -> 0
+            indexTmp = 0;
+        else
+            indexTmp = float(index) / (datasetSize.z() - 1);
 
-    //qDebug() << "setXYSlice";
-    glBindTexture(GL_TEXTURE_2D, textureXY);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), 0, GL_RED, GL_FLOAT, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    this->sliceIndex.setZ(indexTmp);
-    renderLater();
+        //qDebug() << "setXYSlice";
+        glBindTexture(GL_TEXTURE_2D, textureXY);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), 0, GL_RED, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        this->sliceIndex.setZ(indexTmp);
+        renderLater();
+    }
 }
 
 /**
@@ -1280,21 +1298,24 @@ void GWindow::setXYSlice(const float *data, hsize_t index)
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
-void GWindow::setXZSlice(const float *data, hsize_t index)
+void GWindow::setXZSlice(hsize_t step, const float *data, hsize_t index)
 {
-    float indexTmp = index;
-    if (datasetSize.y() == 1) // Index -> 0
-        indexTmp = float(0);
-    else
-        indexTmp = float(index) / (datasetSize.y() - 1);
+    if (sliceXZ) {
+        currentStep = step;
+        float indexTmp = index;
+        if (datasetSize.y() == 1) // Index -> 0
+            indexTmp = float(0);
+        else
+            indexTmp = float(index) / (datasetSize.y() - 1);
 
-    //qDebug() << "setXZSlice";
-    glBindTexture(GL_TEXTURE_2D, textureXZ);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    this->sliceIndex.setY(indexTmp);
-    renderLater();
+        //qDebug() << "setXZSlice";
+        glBindTexture(GL_TEXTURE_2D, textureXZ);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        this->sliceIndex.setY(indexTmp);
+        renderLater();
+    }
 }
 
 /**
@@ -1302,29 +1323,34 @@ void GWindow::setXZSlice(const float *data, hsize_t index)
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
-void GWindow::setYZSlice(const float *data, hsize_t index)
+void GWindow::setYZSlice(hsize_t step, const float *data, hsize_t index)
 {
-    float indexTmp = index;
-    if (datasetSize.x() == 1) // Index -> 0
-        indexTmp = float(0);
-    else
-        indexTmp = float(index) / (datasetSize.x() - 1);
+    if (sliceYZ) {
+        currentStep = step;
+        float indexTmp = index;
+        if (datasetSize.x() == 1) // Index -> 0
+            indexTmp = float(0);
+        else
+            indexTmp = float(index) / (datasetSize.x() - 1);
 
-    //qDebug() << "setYZSlice";
-    glBindTexture(GL_TEXTURE_2D, textureYZ);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    this->sliceIndex.setX(indexTmp);
-    renderLater();
+        //qDebug() << "setYZSlice";
+        glBindTexture(GL_TEXTURE_2D, textureYZ);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        this->sliceIndex.setX(indexTmp);
+        renderLater();
+    }
 }
 
 /**
  * @brief Sets 3D data to 3D texture
  * @param[in] data 3D data
  */
-void GWindow::set3DData(const float *data)
+void GWindow::set3DData(hsize_t step, const float *data)
 {
+    // TODO if volume rendering enabled
+    currentStep = step;
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
@@ -1344,9 +1370,11 @@ void GWindow::set3DData(const float *data)
  * @param[in] dataLC 3D compression last coefficients data
  * @param[in] dataCC 3D compression current coefficients data
  */
-void GWindow::set3DCompressData(const float *dataLC, const float *dataCC)
+void GWindow::set3DCompressData(hsize_t step, const float *dataLC, const float *dataCC)
 {
     if (compressHelper) {
+        // TODO if volume rendering enabled
+        currentStep = step;
         glBindTexture(GL_TEXTURE_3D, textureLC);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(compressHelper->getStride()), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, dataLC);
@@ -1376,14 +1404,20 @@ void GWindow::set3DCompressData(const float *dataLC, const float *dataCC)
  * @brief Sets 3D compression coefficients local step
  * @param[in] localStep Local step between coefficients
  */
-void GWindow::set3DCompressLocalStep(hsize_t localStep)
+void GWindow::set3DCompressLocalStep(hsize_t step, hsize_t localStep)
 {
+    currentStep = step;
     if (initialized) {
         program->bind();
         program->setUniformValue(uStepLocal2, int(localStep * 2));
         program->release();
         renderLater();
     }
+}
+
+void GWindow::gWindowRendered(qint64 elapsedNs)
+{
+    emit stepRendered(elapsedNs, currentStep);
 }
 
 /**

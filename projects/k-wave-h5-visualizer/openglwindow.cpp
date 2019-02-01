@@ -190,14 +190,14 @@ void OpenGLWindow::renderNow()
 
     //QTest::qSleep(17); // max ca 60 fps
 
-    qint64 elapsed = timer.nsecsElapsed();
-    elapsedMs = double(elapsed / 1000000.0);
-    emit rendered(elapsedMs);
+    elapsedNs = timer.nsecsElapsed();
+    //elapsedMs = double(elapsed / 1000000.0);
+    emit rendered(elapsedNs);
 
     //QString framesPerSecond;
-    //framesPerSecond.setNum(1000.0 / elapsedMs, 'f', 2);
+    //framesPerSecond.setNum(1000.0 / elapsedNs, 'f', 2);
 
-    //qDebug() << "render time:" << elapsedMs << "ms";
+    //qDebug() << "render time:" << elapsedNs << "ms";
     //qDebug() << framesPerSecond.toDouble() << "fps";
 
     // Change last position

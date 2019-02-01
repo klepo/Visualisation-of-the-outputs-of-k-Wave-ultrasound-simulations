@@ -51,7 +51,7 @@ unix {
     QMAKE_LFLAGS += -Wl,-rpath,$$HDF5_LIBS_DIR
     INCLUDEPATH += $$HDF5_INCLUDE_DIR
     LIBS += -L$$HDF5_LIBS_DIR \
-        -lhdf5 \
+        -lhdf5_serial \
         -lz \
         -ldl \
 }

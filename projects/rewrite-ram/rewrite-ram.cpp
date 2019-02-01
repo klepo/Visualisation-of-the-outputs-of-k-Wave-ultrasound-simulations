@@ -6,6 +6,7 @@
 
 #ifdef __unix
 #include <unistd.h>
+#include <string.h>
 #include <sys/mman.h>
 #endif
 
@@ -17,6 +18,28 @@
 #include <omp.h>
 
 //#include <k-wave-h5-helper.h>
+
+#ifdef _WIN32
+void *memalloc(size_t alignment, size_t size)
+{
+    return _aligned_malloc(size, alignment);
+}
+
+void memfree(void *data)
+{
+    _aligned_free(data);
+}
+#else
+void *memalloc(size_t alignment, size_t size)
+{
+    return aligned_alloc(alignment, size);
+}
+
+void memfree(void *data)
+{
+    free(data);
+}
+#endif
 
 size_t getTotalSystemPhysicalMemory()
 {
@@ -96,14 +119,14 @@ int main(int argc, char **argv) {
     std::cout << "Available system physical memory before allocation: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
     size_t size = size_t(float(getAvailableSystemPhysicalMemory()) * coeff);
     std::cout << "Memory to allocate:                                 " << size << " bytes" << std::endl;
-    char *mem = static_cast<char *>(_aligned_malloc(size, upperPowerOfTwo(1000000000)));
+    char *mem = static_cast<char *>(memalloc(upperPowerOfTwo(1000000000), size));
     std::cout << "Allocation is running ..." << std::endl;
     #pragma omp parallel for
     for (long long i = 0; i < static_cast<long long>(size); i++) {
         mem[i] = 0;//'A' + rand() % 24;
     }
     std::cout << "Available system physical memory after allocation:  " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
-    _aligned_free(mem);
+    memfree(mem);
     std::cout << "Available system physical memory after freeing:     " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
 
     // pripravit soubory, ruzne chunky

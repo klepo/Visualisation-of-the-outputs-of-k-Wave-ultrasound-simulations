@@ -151,41 +151,65 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="SliceDockWidget" name="dockWidgetSliceXY">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
   </widget>
   <widget class="SliceDockWidget" name="dockWidgetSliceXZ">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
   </widget>
   <widget class="SliceDockWidget" name="dockWidgetSliceYZ">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
   </widget>
   <widget class="Window3DDockWidget" name="dockWidgetWindow3D">
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
-    <number>1</number>
+    <number>8</number>
    </attribute>
   </widget>
   <widget class="DatasetsDockWidget" name="dockWidgetDatasets">
+   <property name="allowedAreas">
+    <set>Qt::RightDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
   </widget>
   <widget class="SelectedDatasetDockWidget" name="dockWidgetSelectedDataset">
+   <property name="allowedAreas">
+    <set>Qt::RightDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
   </widget>
   <widget class="FileInfoDockWidget" name="dockWidgetInfo">
+   <property name="allowedAreas">
+    <set>Qt::RightDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
   </widget>
   <widget class="Settings3DDockWidget" name="dockWidgetSettings3D">
+   <property name="allowedAreas">
+    <set>Qt::RightDockWidgetArea</set>
+   </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>

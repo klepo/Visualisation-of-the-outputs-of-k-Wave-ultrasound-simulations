@@ -47,13 +47,25 @@ public:
 private slots:
     void on_actionLoadHDF5File_triggered();
     void on_actionCloseHDF5File_triggered();
-    void showFPS(double time);
+    void showFPS(qint64 elapsedNs);
+    void showOpeningFile();
+    void hideOpeningFile();
     void showHoveredPointValue(float value);
     void datasetSelectionChanged(int id, bool selected);
     void on_actionAbout_triggered();
 
+    void on_dockWidgetSliceXY_visibilityChanged(bool visible);
+
+    void on_dockWidgetSliceXZ_visibilityChanged(bool visible);
+
+    void on_dockWidgetSliceYZ_visibilityChanged(bool visible);
+
 private:
     Q_DISABLE_COPY(MainWindow)
+
+    bool last3DXY = true;
+    bool last3DXZ = true;
+    bool last3DYZ = true;
 
     void connectGWindowActions(GWindow *gWindow);
     void clearGUIForDataset();
@@ -63,6 +75,9 @@ private:
     Ui::MainWindow *ui;
     /// Opened H5 file
     H5OpenedFile *openedH5File = nullptr;
+
+    QMovie *movie;
+    QLabel *labelLoading;
 };
 
 #endif // MAINWINDOW_H

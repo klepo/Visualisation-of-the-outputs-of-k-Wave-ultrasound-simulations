@@ -56,6 +56,11 @@ signals:
      * @param[in] value View volume rendering flag
      */
     void viewVolumeRenderingChanged(bool value);
+    void viewXYSliceChanged(bool value);
+    void viewXZSliceChanged(bool value);
+    void viewYZSliceChanged(bool value);
+
+    void stepRendered(qint64, hsize_t);
 
 public slots:
     void setViewVolumeRendering(bool value);
@@ -101,12 +106,14 @@ private slots:
     void setDatasetPosition(H5Helper::Vector3D position);
     void setDatasetPosition(QVector3DI position = QVector3DI(0, 0, 0));
 
-    void setXYSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
-    void setXZSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
-    void setYZSlice(const float *data = nullptr, hsize_t sliceIndex = 0);
-    void set3DData(const float *data = nullptr);
-    void set3DCompressData(const float *dataLC = nullptr, const float *dataCC = nullptr);
-    void set3DCompressLocalStep(hsize_t localStep);
+    void setXYSlice(hsize_t step, const float *data = nullptr, hsize_t sliceIndex = 0);
+    void setXZSlice(hsize_t step, const float *data = nullptr, hsize_t sliceIndex = 0);
+    void setYZSlice(hsize_t step, const float *data = nullptr, hsize_t sliceIndex = 0);
+    void set3DData(hsize_t step, const float *data = nullptr);
+    void set3DCompressData(hsize_t step, const float *dataLC = nullptr, const float *dataCC = nullptr);
+    void set3DCompressLocalStep(hsize_t step, hsize_t localStep);
+
+    void gWindowRendered(qint64 elapsedNs);
 
 private:
     Q_DISABLE_COPY(GWindow)
@@ -261,6 +268,8 @@ private:
     QVector3DI datasetPosition = QVector3DI(0, 0, 0);
     /// Slice index
     QVector3D sliceIndex = QVector3D(0.5, 0.5, 0.5);
+    /// Current step
+    hsize_t currentStep = 0;
 
     /// Trim flag
     bool trim = false;

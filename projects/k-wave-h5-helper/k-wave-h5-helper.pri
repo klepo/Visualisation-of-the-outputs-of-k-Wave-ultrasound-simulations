@@ -4,7 +4,7 @@ INCLUDEPATH += $$PWD/../k-wave-h5-helper
 DEPENDPATH += $$PWD/../k-wave-h5-helper
 
 win32:!win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../k-wave-h5-helper/k-wave-h5-helper.lib
-else:unix|win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../k-wave-h5-helper/k-wave-h5-helper.a
+else:unix|win32-g++: PRE_TARGETDEPS += $$OUT_PWD/../k-wave-h5-helper/libk-wave-h5-helper.a
 
 k-wave-h5-helperMakefile.target = $$OUT_PWD/../k-wave-h5-helper/Makefile
 CONFIG(debug, debug|release) {
@@ -16,7 +16,7 @@ CONFIG(release, debug|release) {
 
 win32:!win32-g++:k-wave-h5-helper.target = $$OUT_PWD/../k-wave-h5-helper/k-wave-h5-helper.lib
 else:unix|win32-g++:k-wave-h5-helper.target = $$OUT_PWD/../k-wave-h5-helper/libk-wave-h5-helper.a
-k-wave-h5-helper.commands = cd $$OUT_PWD/../k-wave-h5-helper/ && $(MAKE)
+k-wave-h5-helper.commands = cd "$$OUT_PWD/"../k-wave-h5-helper/ && $(MAKE)
 k-wave-h5-helper.depends = k-wave-h5-helperMakefile
 
 QMAKE_EXTRA_TARGETS += k-wave-h5-helperrMakefile k-wave-h5-helper

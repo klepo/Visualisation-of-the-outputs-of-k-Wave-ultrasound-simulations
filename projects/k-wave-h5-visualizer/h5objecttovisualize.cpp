@@ -131,31 +131,36 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
         delete compressHelper;
         compressHelper = nullptr;
     }
-
+/*
     QFile *file = new QFile;
     file->setFileName(QString::fromStdString(getFile()->getFilename()) + QString::fromStdString(dataset->getNameWithUnderscores()) + "_" + QDateTime::currentDateTime().toString("ddMMyyhhmmss") + ".log");
     file->open(QIODevice::ReadWrite | QIODevice::Text);
     QTextStream out(file);
     out.setCodec("UTF-8");
     //out << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss\n");
-    out << "\"Slice XY\"\n";
-    for (QVector<qint64>::iterator it = timesXY.begin(); it != timesXY.end(); it++) {
-         out << *it << "\n";
+    out << "\"Step\" \"Slice XY\"\n";
+    for (int i = 0; i < timesXY.size(); i++) {
+         out << stepsXY[i] << " " << timesXY[i] << "\n";
     }
     out << "\n\n";
-    out << "\"Slice XZ\"\n";
-    for (QVector<qint64>::iterator it = timesXZ.begin(); it != timesXZ.end(); it++) {
-         out << *it<< "\n";
+    out << "\"Step\" \"Slice XZ\"\n";
+    for (int i = 0; i < timesXZ.size(); i++) {
+        out << stepsXZ[i] << " " << timesXZ[i] << "\n";
     }
     out << "\n\n";
-    out << "\"Slice YZ\"\n";
-    for (QVector<qint64>::iterator it = timesYZ.begin(); it != timesYZ.end(); it++) {
-         out << *it<< "\n";
+    out << "\"Step\" \"Slice YZ\"\n";
+    for (int i = 0; i < timesYZ.size(); i++) {
+        out << stepsYZ[i] << " " << timesYZ[i] << "\n";
     }
     out << "\n\n";
-    out << "\"3D data\"\n";
-    for (QVector<qint64>::iterator it = times3D.begin(); it != times3D.end(); it++) {
-         out << *it << "\n";
+    out << "\"Step\" \"3D data\"\n";
+    for (int i = 0; i < times3D.size(); i++) {
+        out << steps3D[i] << " " << times3D[i] << "\n";
+    }
+    out << "\n\n";
+    out << "\"Step\" \"Render\"\n";
+    for (int i = 0; i < renderTimes.size(); i++) {
+        out << renderSteps[i] << " " << renderTimes[i] << "\n";
     }
     out << "\n\n";
     file->close();
@@ -179,6 +184,7 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
         qDebug() << "gnuplot stdout:" << process->readAllStandardOutput();
         qDebug() << "gnuplot stderr:" << process->readAllStandardError();
     }
+    */
 }
 
 /**
@@ -561,7 +567,11 @@ float H5ObjectToVisualize::getValueAtPointFromYZ(int y, int z) const
  */
 bool H5ObjectToVisualize::isCurrentXYLoaded() const
 {
-    return currentXYLoadedFlag;
+    if (loadDataXYFlag) {
+        return currentXYLoadedFlag;
+    } else {
+        return true;
+    }
 }
 
 /**
@@ -570,7 +580,11 @@ bool H5ObjectToVisualize::isCurrentXYLoaded() const
  */
 bool H5ObjectToVisualize::isCurrentXZLoaded() const
 {
-    return currentXZLoadedFlag;
+    if (loadDataXZFlag) {
+        return currentXZLoadedFlag;
+    } else {
+        return true;
+    }
 }
 
 /**
@@ -579,7 +593,11 @@ bool H5ObjectToVisualize::isCurrentXZLoaded() const
  */
 bool H5ObjectToVisualize::isCurrentYZLoaded() const
 {
-    return currentYZLoadedFlag;
+    if (loadDataYZFlag) {
+        return currentYZLoadedFlag;
+    } else {
+        return true;
+    }
 }
 
 /**
@@ -588,7 +606,7 @@ bool H5ObjectToVisualize::isCurrentYZLoaded() const
  */
 bool H5ObjectToVisualize::areCurrentSlicesLoaded() const
 {
-    if (currentXYLoadedFlag && currentXZLoadedFlag && currentYZLoadedFlag)
+    if (isCurrentXYLoaded() && isCurrentXZLoaded() && isCurrentYZLoaded())
         return true;
     else
         return false;
@@ -600,7 +618,11 @@ bool H5ObjectToVisualize::areCurrentSlicesLoaded() const
  */
 bool H5ObjectToVisualize::isCurrentData3DLoaded() const
 {
-    return currentData3DLoadedFlag;
+    if (loadData3DFlag) {
+        return currentData3DLoadedFlag;
+    } else {
+        return true;
+    }
 }
 
 /**
@@ -609,14 +631,11 @@ bool H5ObjectToVisualize::isCurrentData3DLoaded() const
  */
 bool H5ObjectToVisualize::isCurrentStepLoaded() const
 {
-    if (loadData3DFlag) {
-        if (isCurrentData3DLoaded() && areCurrentSlicesLoaded()) {
-            return true;
-        }
-    } else if (areCurrentSlicesLoaded()) {
+    if (isCurrentData3DLoaded() && areCurrentSlicesLoaded()) {
         return true;
+    } else   {
+        return false;
     }
-    return false;
 }
 
 /**
@@ -714,16 +733,18 @@ void H5ObjectToVisualize::setMinMaxValuesTrim(bool value)
  */
 void H5ObjectToVisualize::setXIndex(int value)
 {
-    index.x(value);
-    emit xIndexChanged(value);
     currentYZLoadedFlag = false;
-    if (type == H5OpenedFile::DATASET_3D) {
-        threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, hsize_t(value)), H5Helper::Vector3D(size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
-    } else {
-        threadYZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, 0, hsize_t(value)), H5Helper::Vector4D(1, size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
+    if (loadDataYZFlag) {
+        index.x(value);
+        emit xIndexChanged(value);
+        if (type == H5OpenedFile::DATASET_3D) {
+            threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, hsize_t(value)), H5Helper::Vector3D(size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
+        } else {
+            threadYZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, 0, hsize_t(value)), H5Helper::Vector4D(1, size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
+        }
+        emit dataYZLoadingStarted();
+        threadYZ->start();
     }
-    emit dataYZLoadingStarted();
-    threadYZ->start();
 }
 
 /**
@@ -732,15 +753,17 @@ void H5ObjectToVisualize::setXIndex(int value)
  */
 void H5ObjectToVisualize::setYIndex(int value)
 {
-    index.y(value);
-    emit yIndexChanged(value);
     currentXZLoadedFlag = false;
-    if (type == H5OpenedFile::DATASET_3D)
-        threadXZ->createRequest(dataset, H5Helper::Vector3D(0, hsize_t(value), 0), H5Helper::Vector3D(size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
-    else
-        threadXZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, hsize_t(value), 0), H5Helper::Vector4D(1, size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
-    emit dataXZLoadingStarted();
-    threadXZ->start();
+    if (loadDataXZFlag) {
+        index.y(value);
+        emit yIndexChanged(value);
+        if (type == H5OpenedFile::DATASET_3D)
+            threadXZ->createRequest(dataset, H5Helper::Vector3D(0, hsize_t(value), 0), H5Helper::Vector3D(size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
+        else
+            threadXZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, hsize_t(value), 0), H5Helper::Vector4D(1, size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
+        emit dataXZLoadingStarted();
+        threadXZ->start();
+    }
 }
 
 /**
@@ -749,15 +772,17 @@ void H5ObjectToVisualize::setYIndex(int value)
  */
 void H5ObjectToVisualize::setZIndex(int value)
 {
-    index.z(value);
-    emit zIndexChanged(value);
     currentXYLoadedFlag = false;
-    if (type == H5OpenedFile::DATASET_3D)
-        threadXY->createRequest(dataset, H5Helper::Vector3D(hsize_t(value), 0, 0), H5Helper::Vector3D(1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
-    else
-        threadXY->createRequest(dataset, H5Helper::Vector4D(index.t(), hsize_t(value), 0, 0), H5Helper::Vector4D(1, 1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
-    emit dataXYLoadingStarted();
-    threadXY->start();
+    if (loadDataXYFlag) {
+        index.z(value);
+        emit zIndexChanged(value);
+        if (type == H5OpenedFile::DATASET_3D)
+            threadXY->createRequest(dataset, H5Helper::Vector3D(hsize_t(value), 0, 0), H5Helper::Vector3D(1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
+        else
+            threadXY->createRequest(dataset, H5Helper::Vector4D(index.t(), hsize_t(value), 0, 0), H5Helper::Vector4D(1, 1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
+        emit dataXYLoadingStarted();
+        threadXY->start();
+    }
 }
 
 /**
@@ -790,12 +815,12 @@ void H5ObjectToVisualize::setCurrentStep(int step)
 {
     if (type == H5OpenedFile::DATASET_4D) {
         try {
-            index.t(hsize_t(step));
-            emit stepChanged(step);
-            if (loadData3DFlag) {
+            if (loadDataXYFlag || loadDataXZFlag || loadDataYZFlag || loadData3DFlag) {
+                index.t(hsize_t(step));
+                emit stepChanged(step);
                 load3Ddata();
+                reloadSlices();
             }
-            reloadSlices();
         } catch(std::exception &) {
             std::cerr << "Wrong step" << std::endl;
         }
@@ -836,6 +861,50 @@ void H5ObjectToVisualize::reloadYZ()
     setXIndex(int(index.x()));
 }
 
+void H5ObjectToVisualize::checkXY()
+{
+    if (loadDataXYFlag && currentXYLoadedFlag) {
+        emit imageXYChanged(getImageXY());
+        emit dataXYChanged(getCurrentStep(), dataXY, index.z());
+    } else if (loadDataXYFlag) {
+        reloadXY();
+    }
+}
+
+void H5ObjectToVisualize::checkXZ()
+{
+    if (loadDataXZFlag && currentXZLoadedFlag) {
+        emit imageXZChanged(getImageXZ());
+        emit dataXZChanged(getCurrentStep(), dataXZ, index.y());
+    } else if (loadDataXZFlag) {
+        reloadXZ();
+    }
+}
+
+void H5ObjectToVisualize::checkYZ()
+{
+    if (loadDataYZFlag && currentYZLoadedFlag) {
+        emit imageYZChanged(getImageYZ());
+        emit dataYZChanged(getCurrentStep(), dataYZ, index.x());
+    } else if (loadDataYZFlag) {
+        reloadYZ();
+    }
+}
+
+void H5ObjectToVisualize::check3D()
+{
+    if (loadData3DFlag && currentData3DLoadedFlag) {
+        if (compressHelper) {
+            emit data3DCompressChanged(getCurrentStep(), data3DLC, data3DCC);
+            emit localStep3DCompressChanged(getCurrentStep(), thread3D->getLocalStep());
+        } else {
+            emit data3DChanged(getCurrentStep(), data3D);
+        }
+    } else if (loadDataYZFlag) {
+        load3Ddata();
+    }
+}
+
 /**
  * @brief Sets object selection flag
  * @param[in] value True/False
@@ -853,15 +922,40 @@ void H5ObjectToVisualize::toggleSelected()
     setSelected(!selectedFlag);
 }
 
+void H5ObjectToVisualize::setDataXYLoadingFlag(bool value)
+{
+    loadDataXYFlag = value;
+    if (loadDataXYFlag && !currentXYLoadedFlag) {
+        reloadXY();
+    }
+}
+
+void H5ObjectToVisualize::setDataXZLoadingFlag(bool value)
+{
+    loadDataXZFlag = value;
+    if (loadDataXZFlag && !currentXZLoadedFlag) {
+        reloadXZ();
+    }
+}
+
+void H5ObjectToVisualize::setDataYZLoadingFlag(bool value)
+{
+    loadDataYZFlag = value;
+    if (loadDataYZFlag && !currentYZLoadedFlag) {
+        reloadYZ();
+    }
+}
+
 /**
  * @brief Sets data 3D loading flag
  * @param[in] value Data 3D loading flag
  */
 void H5ObjectToVisualize::setData3DLoadingFlag(bool value)
 {
-  loadData3DFlag = value;
-  if (loadData3DFlag && !currentData3DLoadedFlag)
-      load3Ddata();
+    loadData3DFlag = value;
+    if (loadData3DFlag && !currentData3DLoadedFlag) {
+        load3Ddata();
+    }
 }
 
 /**
@@ -894,6 +988,12 @@ void H5ObjectToVisualize::setHoveredPointInImageYZ(int y, int z)
     emit(hoveredPointInImage(getValueAtPointFromYZ(y, z)));
 }
 
+void H5ObjectToVisualize::logRenderTime(qint64 elapsedNs, hsize_t step)
+{
+    renderTimes.append(elapsedNs);
+    renderSteps.append(step);
+}
+
 /**
  * @brief Disconnects all signals
  */
@@ -922,12 +1022,12 @@ void H5ObjectToVisualize::disconnectSignals()
     disconnect(this, SIGNAL(zIndexChanged(int)), nullptr, nullptr);
     disconnect(this, SIGNAL(stepChanged(int)), nullptr, nullptr);
 
-    disconnect(this, SIGNAL(data3DChanged(const float *)), nullptr, nullptr);
-    disconnect(this, SIGNAL(data3DCompressChanged(const float *, const float *)), nullptr, nullptr);
-    disconnect(this, SIGNAL(localStep3DCompressChanged(hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataXYChanged(const float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataXZChanged(const float *, hsize_t)), nullptr, nullptr);
-    disconnect(this, SIGNAL(dataYZChanged(const float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(data3DChanged(hsize_t, const float *)), nullptr, nullptr);
+    disconnect(this, SIGNAL(data3DCompressChanged(hsize_t, const float *, const float *)), nullptr, nullptr);
+    disconnect(this, SIGNAL(localStep3DCompressChanged(hsize_t, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXYChanged(hsize_t, const float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataXZChanged(hsize_t, const float *, hsize_t)), nullptr, nullptr);
+    disconnect(this, SIGNAL(dataYZChanged(hsize_t, const float *, hsize_t)), nullptr, nullptr);
 
     disconnect(this, SIGNAL(imageXYChanged(QImage)), nullptr, nullptr);
     disconnect(this, SIGNAL(imageXZChanged(QImage)), nullptr, nullptr);
@@ -953,9 +1053,10 @@ void H5ObjectToVisualize::sliceXYLoaded(Request *request)
         currentXYLoadedFlag = false;
     }
     emit imageXYChanged(getImageXY());
-    emit dataXYChanged(dataXY, H5Helper::Vector3D(request->offset).z());
+    emit dataXYChanged(H5Helper::Vector4D(request->offset).t(), dataXY, H5Helper::Vector3D(request->offset).z());
     emit lastXYReadingTimeNs(request->nsecsElapsed);
     timesXY.append(request->nsecsElapsed);
+    stepsXY.append(H5Helper::Vector4D(request->offset).t());
     checkCurrentDataIsLoaded();
     threadXY->deleteDoneRequest(request);
 }
@@ -973,9 +1074,10 @@ void H5ObjectToVisualize::sliceXZLoaded(Request *request)
         currentXZLoadedFlag = false;
     }
     emit imageXZChanged(getImageXZ());
-    emit dataXZChanged(dataXZ, H5Helper::Vector3D(request->offset).y());
+    emit dataXZChanged(H5Helper::Vector4D(request->offset).t(), dataXZ, H5Helper::Vector3D(request->offset).y());
     emit lastXZReadingTimeNs(request->nsecsElapsed);
     timesXZ.append(request->nsecsElapsed);
+    stepsXZ.append(H5Helper::Vector4D(request->offset).t());
     checkCurrentDataIsLoaded();
     threadXZ->deleteDoneRequest(request);
 }
@@ -993,9 +1095,10 @@ void H5ObjectToVisualize::sliceYZLoaded(Request *request)
         currentYZLoadedFlag = false;
     }
     emit imageYZChanged(getImageYZ());
-    emit dataYZChanged(dataYZ, H5Helper::Vector3D(request->offset).x());
+    emit dataYZChanged(H5Helper::Vector4D(request->offset).t(), dataYZ, H5Helper::Vector3D(request->offset).x());
     emit lastYZReadingTimeNs(request->nsecsElapsed);
     timesYZ.append(request->nsecsElapsed);
+    stepsYZ.append(H5Helper::Vector4D(request->offset).t());
     checkCurrentDataIsLoaded();
     threadYZ->deleteDoneRequest(request);
 }
@@ -1014,14 +1117,15 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
     }
     if (compressHelper) {
         if (request->dataCCChanged || request->dataLCChanged) {
-            emit data3DCompressChanged(data3DLC, data3DCC);
+            emit data3DCompressChanged(H5Helper::Vector4D(request->offset).t(), data3DLC, data3DCC);
         }
-        emit localStep3DCompressChanged(thread3D->getLocalStep());
+        emit localStep3DCompressChanged(H5Helper::Vector4D(request->offset).t(), thread3D->getLocalStep());
     } else {
-        emit data3DChanged(data3D);
+        emit data3DChanged(H5Helper::Vector4D(request->offset).t(), data3D);
     }
     emit last3DReadingTimeNs(request->nsecsElapsed);
     times3D.append(request->nsecsElapsed);
+    steps3D.append(H5Helper::Vector4D(request->offset).t());
     checkCurrentDataIsLoaded();
     thread3D->deleteDoneRequest(request);
 }
@@ -1031,11 +1135,12 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
  */
 void H5ObjectToVisualize::initialize()
 {
+    qDebug() << "Memory allocation...";
     // Allocation memory for slices
     dataXY = new float[size.y() * size.x()]();
     dataXZ = new float[size.z() * size.x()]();
     dataYZ = new float[size.z() * size.y()]();
-    data3D = new float[size.getSize()]();
+    //data3D = new float[size.getSize()]();
 
     if (compressHelper) {
         dataXYCC = new float[size.y() * size.x() * compressHelper->getStride()]();
@@ -1063,6 +1168,7 @@ void H5ObjectToVisualize::loadObjectData()
     chunkSize = dataset->getChunkDims();
 
     // Get global min/max values
+    qDebug() << "Find global minimal and maximal values...";
     dataset->findAndSetGlobalMinAndMaxValue();
     hsize_t minValueIndex;
     hsize_t maxValueIndex;
@@ -1165,14 +1271,11 @@ void H5ObjectToVisualize::loadObjectData()
  */
 void H5ObjectToVisualize::checkCurrentDataIsLoaded()
 {
-    if (loadData3DFlag) {
-        if (isCurrentData3DLoaded() && areCurrentSlicesLoaded()) {
-            emit currentSlicesLoaded();
-            emit currentStepLoaded();
-        }
-    } else if (areCurrentSlicesLoaded()) {
+    if (isCurrentData3DLoaded() && areCurrentSlicesLoaded()) {
         emit currentSlicesLoaded();
         emit currentStepLoaded();
+    } else if (areCurrentSlicesLoaded()) {
+        emit currentSlicesLoaded();
     }
 }
 
@@ -1191,7 +1294,13 @@ void H5ObjectToVisualize::changeImages()
  */
 void H5ObjectToVisualize::load3Ddata()
 {
-    thread3D->createRequest(dataset, index.t(), data3D, data3DLC, data3DCC);
-    emit data3DLoadingStarted();
-    thread3D->start();
+    currentData3DLoadedFlag = false;
+    if (loadData3DFlag) {
+        if (!data3D) {
+            data3D = new float[size.getSize()]();
+        }
+        thread3D->createRequest(dataset, index.t(), data3D, data3DLC, data3DCC);
+        emit data3DLoadingStarted();
+        thread3D->start();
+    }
 }

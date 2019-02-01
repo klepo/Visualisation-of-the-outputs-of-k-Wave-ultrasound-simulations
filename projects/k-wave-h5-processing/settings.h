@@ -25,6 +25,7 @@
 #include <sstream>
 #include <math.h>
 #include <iomanip>
+#include <algorithm>
 
 #include "paramsdefinition.h"
 #include "helper.h"

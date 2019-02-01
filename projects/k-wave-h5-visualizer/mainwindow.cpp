@@ -51,6 +51,14 @@ MainWindow::MainWindow(QWidget *parent)
     // Hide HDF5 info widget
     ui->dockWidgetInfo->setVisible(false);
 
+    labelLoading = new QLabel;
+    statusBar()->setStyleSheet("QStatusBar::item { border: 0px solid black }");
+    movie = new QMovie(":/icons/icons/loading.gif");
+    movie->setCacheMode(QMovie::CacheAll);
+    movie->start();
+    labelLoading->setMinimumSize(20, 20);
+    statusBar()->addPermanentWidget(labelLoading);
+
     // Clear GUI
     clearGUI();
 }
@@ -77,6 +85,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::on_actionLoadHDF5File_triggered()
 {
+    showOpeningFile();
     // Create a dialog for opening a file
     QSettings settings(QApplication::organizationName(), QApplication::applicationName());
     QString filename = QFileDialog::getOpenFileName(nullptr, "Open File", settings.value("hdf5datafile", QDir::homePath()).toString(), "HDF5 Files (*.h5)");
@@ -106,6 +115,7 @@ void MainWindow::on_actionLoadHDF5File_triggered()
                 on_actionCloseHDF5File_triggered();
                 QMessageBox messageBox;
                 messageBox.warning(nullptr, "Notification", "Empty HDF5 file!");
+                hideOpeningFile();
                 return;
             }
         } catch (std::exception e) {
@@ -116,6 +126,7 @@ void MainWindow::on_actionLoadHDF5File_triggered()
             messageBox.critical(nullptr, "Error", "Wrong HDF5 file!");
         }
     }
+    hideOpeningFile();
 }
 
 /**
@@ -128,7 +139,8 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     // Delete H5OpenedFile and H5ObjectToVisualize objects
     // Because of the missing smart pointers it must be done after clearing widgets
     if (openedH5File) {
-        delete openedH5File;
+        //delete openedH5File;
+        openedH5File->deleteLater();
         openedH5File = nullptr;
     }
 
@@ -140,12 +152,25 @@ void MainWindow::on_actionCloseHDF5File_triggered()
  * @brief Shows FPS
  * @param[in] time Render time in ms
  */
-void MainWindow::showFPS(double time)
+void MainWindow::showFPS(qint64 elapsedNs)
 {
     QString framesPerSecond, ms;
-    framesPerSecond.setNum(1000.0 / time, 'f', 2);
-    ms.setNum(time, 'f', 2);
+    double elapsedMs = double(elapsedNs / 1000000.0);
+    framesPerSecond.setNum(1000.0 / elapsedMs, 'f', 2);
+    ms.setNum(elapsedMs, 'f', 2);
     ui->dockWidgetWindow3D->setWindowTitle("3D view, last render time: " + ms + "ms (" + framesPerSecond + " fps)");
+}
+
+void MainWindow::showOpeningFile()
+{
+    statusBar()->showMessage("Opening file ...");
+    labelLoading->setMovie(movie);
+}
+
+void MainWindow::hideOpeningFile()
+{
+    labelLoading->clear();
+    statusBar()->clearMessage();
 }
 
 /**
@@ -217,7 +242,7 @@ void MainWindow::connectGWindowActions(GWindow *gWindow)
 {
     // Connect signals from gWindow
     connect(gWindow, SIGNAL(setStatusMessage(QString, int)), ui->statusBar, SLOT(showMessage(QString, int)));
-    connect(gWindow, SIGNAL(rendered(double)), this, SLOT(showFPS(double)));
+    connect(gWindow, SIGNAL(rendered(qint64)), this, SLOT(showFPS(qint64)));
 
     // Connect signals to gWindow
     // Enable/disable VR
@@ -228,9 +253,13 @@ void MainWindow::connectGWindowActions(GWindow *gWindow)
     connect(ui->action3DXY, SIGNAL(toggled(bool)), gWindow, SLOT(setViewXYSlice(bool)));
     connect(ui->action3DXZ, SIGNAL(toggled(bool)), gWindow, SLOT(setViewXZSlice(bool)));
     connect(ui->action3DYZ, SIGNAL(toggled(bool)), gWindow, SLOT(setViewYZSlice(bool)));
+
     gWindow->setViewXYSlice(ui->action3DXY->isChecked());
     gWindow->setViewXZSlice(ui->action3DXZ->isChecked());
     gWindow->setViewYZSlice(ui->action3DYZ->isChecked());
+    last3DXY = ui->action3DXY->isChecked();
+    last3DXZ = ui->action3DXZ->isChecked();
+    last3DYZ = ui->action3DYZ->isChecked();
 
     // Show/hide 3D frame
     connect(ui->actionViewFrame, SIGNAL(toggled(bool)), gWindow, SLOT(setViewFrame(bool)));
@@ -299,4 +328,40 @@ void MainWindow::clearGUI()
 
     // Clear GUI for selected dataset
     clearGUIForDataset();
+}
+
+void MainWindow::on_dockWidgetSliceXY_visibilityChanged(bool visible)
+{
+    if (visible) {
+        ui->action3DXY->setEnabled(true);
+        ui->action3DXY->setChecked(last3DXY);
+    } else {
+        last3DXY = ui->action3DXY->isChecked();
+        ui->action3DXY->setChecked(false);
+        ui->action3DXY->setEnabled(false);
+    }
+}
+
+void MainWindow::on_dockWidgetSliceXZ_visibilityChanged(bool visible)
+{
+    if (visible) {
+        ui->action3DXZ->setEnabled(true);
+        ui->action3DXZ->setChecked(last3DXZ);
+    } else {
+        last3DXZ = ui->action3DXZ->isChecked();
+        ui->action3DXZ->setChecked(false);
+        ui->action3DXZ->setEnabled(false);
+    }
+}
+
+void MainWindow::on_dockWidgetSliceYZ_visibilityChanged(bool visible)
+{
+    if (visible) {
+        ui->action3DYZ->setEnabled(true);
+        ui->action3DYZ->setChecked(last3DYZ);
+    } else {
+        last3DYZ = ui->action3DYZ->isChecked();
+        ui->action3DYZ->setChecked(false);
+        ui->action3DYZ->setEnabled(false);
+    }
 }

@@ -185,36 +185,36 @@ signals:
      * @brief Data 3D changed signal
      * @param[in] data3D Data 3D
      */
-    void data3DChanged(const float *data3D);
+    void data3DChanged(hsize_t step, const float *data3D);
     /**
      * @brief Data 3D compress changed signal
      * @param[in] data3DLC Data 3D for last compress coefficient
      * @param[in] data3DCC Data 3D for current compress coefficient
      */
-    void data3DCompressChanged(const float *data3DLC, const float *data3DCC);
+    void data3DCompressChanged(hsize_t step, const float *data3DLC, const float *data3DCC);
     /**
      * @brief Local step 3D compress changed signal
      * @param[in] localStep Local step
      */
-    void localStep3DCompressChanged(hsize_t localStep);
+    void localStep3DCompressChanged(hsize_t step, hsize_t localStep);
     /**
      * @brief Data XY changed signal
      * @param[in] data Data
      * @param[in] index Index
      */
-    void dataXYChanged(const float *data, hsize_t index);
+    void dataXYChanged(hsize_t step, const float *data, hsize_t index);
     /**
      * @brief Data XZ changed signal
      * @param[in] data Data
      * @param[in] index Index
      */
-    void dataXZChanged(const float *data, hsize_t index);
+    void dataXZChanged(hsize_t step, const float *data, hsize_t index);
     /**
      * @brief Data YZ changed signal
      * @param[in] data Data
      * @param[in] index Index
      */
-    void dataYZChanged(const float *data, hsize_t index);
+    void dataYZChanged(hsize_t step, const float *data, hsize_t index);
 
     /**
      * @brief Image XY changed signal
@@ -242,22 +242,22 @@ signals:
      * @brief Last XY reading time in nanoseconds
      * @param[in] time Time
      */
-    void lastXYReadingTimeNs(qint64 time);
+    void lastXYReadingTimeNs(qint64 elapsedNs);
     /**
      * @brief Last XZ reading time in nanoseconds
      * @param[in] time Time
      */
-    void lastXZReadingTimeNs(qint64 time);
+    void lastXZReadingTimeNs(qint64 elapsedNs);
     /**
      * @brief Last YZ reading time in nanoseconds
      * @param[in] time Time
      */
-    void lastYZReadingTimeNs(qint64 time);
+    void lastYZReadingTimeNs(qint64 elapsedNs);
     /**
      * @brief Last 3D reading time in nanoseconds
      * @param[in] time Time
      */
-    void last3DReadingTimeNs(qint64 time);
+    void last3DReadingTimeNs(qint64 elapsedNs);
 
 public slots:
     void setMinValue(float value);
@@ -281,14 +281,24 @@ public slots:
     void reloadXZ();
     void reloadYZ();
 
+    void checkXY();
+    void checkXZ();
+    void checkYZ();
+    void check3D();
+
     void setSelected(bool value);
     void toggleSelected();
 
+    void setDataXYLoadingFlag(bool value);
+    void setDataXZLoadingFlag(bool value);
+    void setDataYZLoadingFlag(bool value);
     void setData3DLoadingFlag(bool value);
 
     void setHoveredPointInImageXY(int x, int y);
     void setHoveredPointInImageXZ(int x, int z);
     void setHoveredPointInImageYZ(int y, int z);
+
+    void logRenderTime(qint64 elapsedNs, hsize_t step);
 
     void disconnectSignals();
 
@@ -323,10 +333,14 @@ private:
     /// Current data 3D loaded flag
     bool currentData3DLoadedFlag = false;
 
+    /// Load Slices flag
+    bool loadDataXYFlag = false;
+    /// Load Slices flag
+    bool loadDataXZFlag = false;
+    /// Load Slices flag
+    bool loadDataYZFlag = false;
     /// Load Data 3D Flag
     bool loadData3DFlag = false;
-    /// Load Slices flag
-    bool loadSlicesFlag = false;
 
     /// Slices index
     H5Helper::Vector4D index;
@@ -408,9 +422,15 @@ private:
 
     //Log times
     QVector<qint64> timesXY;
+    QVector<hsize_t> stepsXY;
     QVector<qint64> timesXZ;
+    QVector<hsize_t> stepsXZ;
     QVector<qint64> timesYZ;
+    QVector<hsize_t> stepsYZ;
     QVector<qint64> times3D;
+    QVector<hsize_t> steps3D;
+    QVector<qint64> renderTimes;
+    QVector<hsize_t> renderSteps;
 
     /// Compression helper
     const H5Helper::CompressHelper *compressHelper = nullptr;
