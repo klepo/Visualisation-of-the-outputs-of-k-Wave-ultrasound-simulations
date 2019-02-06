@@ -65,6 +65,8 @@ void ChangeChunks::execute()
  */
 void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log)
 {
+    double t0 = H5Helper::getTime();
+
     // Dims
     H5Helper::Vector dims = srcDataset->getDims();
 
@@ -86,8 +88,6 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true, log);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName(), log);
-
-    double t0 = H5Helper::getTime();
 
     float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
     float minV = std::numeric_limits<float>::max();
@@ -111,7 +111,6 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     if (checkDatasetType(srcDataset->getType(), compressTypes)) {
         findMinMaxFlag = false;
     }
-
 
     // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {

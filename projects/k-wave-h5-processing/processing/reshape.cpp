@@ -147,6 +147,8 @@ void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskI
  */
 void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMaskCornersData, bool log)
 {
+    double t0 = H5Helper::getTime();
+
     // Copy to new file
     if (getOutputFile() != dataset->getFile()) {
         changeChunksOfDataset(dataset, log);
@@ -161,6 +163,13 @@ void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMas
     dataset->setAttribute(H5Helper::POSITION_Z_ATTR, sensorMaskCornersData[(i - 1) * 6 + 2] - 1, log);
     dataset->setAttribute(H5Helper::POSITION_Y_ATTR, sensorMaskCornersData[(i - 1) * 6 + 1] - 1, log);
     dataset->setAttribute(H5Helper::POSITION_X_ATTR, sensorMaskCornersData[(i - 1) * 6 + 0] - 1, log);
+
+    double t1 = H5Helper::getTime();
+    Helper::printDebugTime("dataset reshaping", t0, t1);
+
+    if (getOutputFile() != dataset->getFile()) {
+        getOutputFile()->closeDataset(dataset, log);
+    }
 }
 
 /**
@@ -173,6 +182,8 @@ void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMas
  */
 void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp, bool log)
 {
+    double t0 = H5Helper::getTime();
+
     H5Helper::Dataset *sensorMaskIndexDataset = getDtsForPcs()->getSensorMaskIndexDataset();
     H5Helper::DatasetType datasetType = dataset->getType(getDtsForPcs()->getSensorMaskSize());
 
@@ -391,4 +402,9 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         delete[] sensorMaskData;
         sensorMaskData = nullptr;
     }
+
+    double t1 = H5Helper::getTime();
+    Helper::printDebugTime("dataset reshaping", t0, t1);
+
+    getOutputFile()->closeDataset(dstDataset, log);
 }

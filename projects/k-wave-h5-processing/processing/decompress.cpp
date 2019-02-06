@@ -73,6 +73,8 @@ void Decompress::execute()
  */
 void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 {
+    double t0 = H5Helper::getTime();
+
     // First decoding parameter - multiple of overlap size
     hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
 
@@ -139,8 +141,6 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     std::string srcName = srcDataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, log);
     getOutputFile()->createDatasetF(srcName + "_d", outputDims, chunkDims, true, log);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_d", log);
-
-    double t0 = H5Helper::getTime();
 
     // Variables for block reading
     float *dataC = new float[srcDataset->getGeneralBlockDims().getSize()]();

@@ -707,17 +707,6 @@ void Dataset::setNumberOfElmsToLoad(hsize_t count)
 }
 
 /**
- * @brief Sets maximal number of elements to load for block reading
- * @param[in] count Number of elements to load for block reading
- */
-void Dataset::setMaxNumberOfElmsToLoad(hsize_t count)
-{
-    if (count < getNumberOfElmsToLoad()) {
-        setNumberOfElmsToLoad(count);
-    }
-}
-
-/**
  * @brief Sets MPIO access type
  * @param[in] type MPIO access type
  * @param[in] log Logging flag (optional)
@@ -1538,11 +1527,11 @@ void Dataset::printsReadingTimeMessage(double t0, double t1) const
  */
 void Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const
 {
-    unsigned int widthTmp = 10;
+    unsigned int widthTmp = 15;
     if (widthTmp <= getName().length())
-        widthTmp = (static_cast<unsigned int>(getName().length()) / 10) * 10 + 10;
+        widthTmp = (static_cast<unsigned int>(getName().length()) / 15) * 15 + 15;
     std::cout << "  " << std::setw(widthTmp) << std::left << getName();
-    std::cout << std::setw(12) << std::right << "read time: ";
+    std::cout << std::setw(15) << std::right << "read time: ";
     std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
     std::cout << std::setw(8) << std::right << "offset: ";
     std::cout << std::setw(20) << std::left << offset;
@@ -1560,11 +1549,11 @@ void Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vect
  */
 void Dataset::printsWritingTimeMessage(double t0, double t1, Vector offset, Vector count) const
 {
-    unsigned int widthTmp = 10;
+    unsigned int widthTmp = 15;
     if (widthTmp <= getName().length())
-        widthTmp = (static_cast<unsigned int>(getName().length()) / 10) * 10 + 10;
+        widthTmp = (static_cast<unsigned int>(getName().length()) / 15) * 15 + 15;
     std::cout << "  " << std::setw(widthTmp) << std::left << getName();
-    std::cout << std::setw(12) << std::right << "write time: ";
+    std::cout << std::setw(15) << std::right << "write time: ";
     std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
     std::cout << std::setw(8) << std::right << "offset: ";
     std::cout << std::setw(20) << std::left << offset;

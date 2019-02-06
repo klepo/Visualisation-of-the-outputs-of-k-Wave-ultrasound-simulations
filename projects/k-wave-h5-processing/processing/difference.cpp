@@ -92,6 +92,8 @@ void Difference::execute()
  */
 void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::Dataset *datasetDecoded, bool log)
 {
+    double t0 = H5Helper::getTime();
+
     H5Helper::Vector outputDims = datasetOriginal->getDims();
     H5Helper::Vector outputChunkDims = datasetOriginal->getChunkDims();
 
@@ -177,6 +179,9 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     Helper::printDebugTwoColumns2S("MSE", mse);
     Helper::printDebugTwoColumns2S("SNR", std::to_string(10 * log10(meanO2 / float(mse))) + " dB");
     Helper::printDebugTwoColumns2S("PSNR", std::to_string(10 * log10((maxValue * maxValue) / float(mse))) + " dB");
+
+    double t1 = H5Helper::getTime();
+    Helper::printDebugTime("datasets difference", t0, t1);
 
     getOutputFile()->closeDataset(dstDataset, log);
 }

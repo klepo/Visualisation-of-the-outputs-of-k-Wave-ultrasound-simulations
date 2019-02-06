@@ -108,7 +108,6 @@ public:
     Vector getGeneralBlockDims() const;
     hsize_t getNumberOfElmsToLoad() const;
     void setNumberOfElmsToLoad(hsize_t count);
-    void setMaxNumberOfElmsToLoad(hsize_t count);
 
     void setMPIOAccess(H5FD_mpio_xfer_t type, bool log = true);
 

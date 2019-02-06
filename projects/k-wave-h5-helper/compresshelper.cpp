@@ -213,9 +213,9 @@ void CompressHelper::xcorr(const float *dataSrc1, const float *dataSrc2, float *
         i1 = hssize_t(i);
         tmp = 0.0;
         for (j = 0; j < lengthSrc2; j++) {
-            if (i1 >= 0 && i1 < hssize_t(lengthSrc1))
+            if (i1 >= 0 && i1 < hssize_t(lengthSrc1)) {
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[lengthSrc2 - 1 - j]);
-
+            }
             i1 = i1 - 1;
             dataDst[i] = tmp;
         }
@@ -241,9 +241,9 @@ void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *d
         i1 = hssize_t(i);
         tmp = 0.0;
         for (j = 0; j < lengthSrc2; j++) {
-            if (i1 >= 0 && i1 < hssize_t(lengthSrc1))
+            if (i1 >= 0 && i1 < hssize_t(lengthSrc1)) {
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[j]);
-
+            }
             i1 = i1 - 1;
             dataDst[i] = tmp;
         }

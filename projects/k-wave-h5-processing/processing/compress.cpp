@@ -77,6 +77,8 @@ void Compress::execute()
  */
 void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 {
+    double t0 = H5Helper::getTime();
+
     if (!getSettings()->getPeriod()) {
         Helper::printErrorMsg("No known period for compression");
         return;
@@ -144,8 +146,6 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName() + "_c", outputDims, chunkDims, true, log);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName() + "_c", log);
-
-    double t0 = H5Helper::getTime();
 
     // Variables for block reading
     float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
