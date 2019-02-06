@@ -94,7 +94,7 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     float ratio = float(getSettings()->getMaxSize()) / maxDim;
     // Check downsampling size
     if (ratio >= 1) {
-        Helper::printErrorMsg("Bad destination size for downsampling (" + std::to_string(getSettings()->getMaxSize()) + " >= " + std::to_string(maxDim) + ")");
+        Helper::printErrorMsg("Bad output size for downsampling (" + std::to_string(getSettings()->getMaxSize()) + " >= " + std::to_string(maxDim) + ")");
         return;
     }
 
@@ -122,15 +122,6 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
 
     double t0 = H5Helper::getTime();
 
-    // Tmp has original Z dimension (simOutputFile->getNZ())
-    H5Helper::Vector3D newTmpDatasetDims(dimsSrc3D.z(), dimsDst3D.y(), dimsDst3D.x());
-    H5Helper::Vector3D newTmpDatasetChunkDims(dimsSrc3D.z(), 1, dimsDst3D.x());
-
-    // Create temp file and dataset
-    H5Helper::File *tmpFile = new H5Helper::File("tmp.h5", H5Helper::File::CREATE, log);
-    tmpFile->createDatasetF("tmp", newTmpDatasetDims, newTmpDatasetChunkDims, true, log);
-    H5Helper::Dataset *tmpDataset = tmpFile->openDataset("tmp", log);
-
     float *srcData = nullptr;
     float *dstData = nullptr;
 
@@ -139,10 +130,10 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         steps = H5Helper::Vector4D(dimsSrc).w();
 
     // If we have enough memory, resample full 3D dataset
-    if (srcDataset->getNumberOfElmsToLoad() >= srcDataset->getSize()) {
+    if (srcDataset->getNumberOfElmsToLoad() >= dimsSrc3D.getSize()) {
         srcData = new float[dimsSrc3D.getSize()]();
         dstData = new float[dimsDst3D.getSize()]();
-        for (unsigned int t = 0; t < steps; t++) {
+        for (hsize_t t = 0; t < steps; t++) {
             if (dimsSrc.getLength() == 4)
                 srcDataset->readDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData, log);
             else
@@ -158,32 +149,62 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         delete[] dstData;
         dstData = nullptr;
     } else {
-        hsize_t maxSize = std::max(dimsSrc3D.x(), std::max(dimsSrc3D.y(), dimsSrc3D.z())) * std::max(dimsSrc3D.x(), std::max(dimsSrc3D.y(), dimsSrc3D.z()));
-        srcData = new float[maxSize]();
-        dstData = new float[maxSize]();
-        for (unsigned int t = 0; t < steps; t++) {
-            // First 2D slices in XY plane
-            for (unsigned int z = 0; z < dimsSrc3D.z(); z++) {
-                if (dimsSrc.getLength() == 4)
-                    srcDataset->readDataset(H5Helper::Vector4D(t, z, 0, 0), H5Helper::Vector4D(1, 1, dimsSrc3D.y(), dimsSrc3D.x()), srcData, log);
-                else
-                    srcDataset->readDataset(H5Helper::Vector3D(z, 0, 0), H5Helper::Vector3D(1, dimsSrc3D.y(), dimsSrc3D.x()), srcData, log);
-                //dstData = new float[dimsDst3D.x() * dimsDst3D.y()]();
-                resize2D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsDst3D.x(), dimsDst3D.y());
-                tmpDataset->writeDataset(H5Helper::Vector3D(z, 0, 0), H5Helper::Vector3D(1, dimsDst3D.y(), dimsDst3D.x()), dstData, log);
-                //delete[] srcData;
-                //delete[] dstData;
+        // Tmp dataset has original Z dimension (simOutputFile->getNZ())
+        H5Helper::Vector3D newTmpDatasetDims(dimsSrc3D.z(), dimsDst3D.y(), dimsDst3D.x());
+        H5Helper::Vector3D newTmpDatasetChunkDims(dimsSrc3D.z(), 1, dimsDst3D.x());
+
+        // Create temp file and dataset
+        H5Helper::File *tmpFile = new H5Helper::File("tmp.h5", H5Helper::File::CREATE, log);
+        tmpFile->createDatasetF("tmp", newTmpDatasetDims, newTmpDatasetChunkDims, true, log);
+        H5Helper::Dataset *tmpDataset = tmpFile->openDataset("tmp", log);
+
+        // Check minimal one slice to read
+        if (srcDataset->getNumberOfElmsToLoad() < dimsSrc3D.y() * dimsSrc3D.x()) {
+            srcDataset->setNumberOfElmsToLoad(dimsSrc3D.y() * dimsSrc3D.x());
+        }
+        //hsize_t maxSize = std::max(dimsSrc3D.x(), std::max(dimsSrc3D.y(), dimsSrc3D.z())) * std::max(dimsSrc3D.x(), std::max(dimsSrc3D.y(), dimsSrc3D.z()));
+        //srcData = new float[maxSize]();
+        //dstData = new float[maxSize]();
+        H5Helper::Vector offset;
+        H5Helper::Vector count;
+        srcData = new float[srcDataset->getGeneralBlockDims().getSize()]();
+        dstData = new float[dimsSrc3D.z() * dimsDst3D.y() * dimsDst3D.x()]();
+        for (hsize_t t = 0; t < steps; t++) {
+            for (hsize_t i = 0; i < H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z(); i++) {
+                // Offset for x and y should be always 0
+                srcDataset->readBlock(t * i, offset, count, srcData, log);
+                // First 2D slices in XY plane
+                for (hsize_t z = 0; z < H5Helper::Vector3D(count).z(); z++) {
+                    /*if (dimsSrc.getLength() == 4)
+                        srcDataset->readDataset(H5Helper::Vector4D(t, z, 0, 0), H5Helper::Vector4D(1, 1, dimsSrc3D.y(), dimsSrc3D.x()), srcData, log);
+                    else
+                        srcDataset->readDataset(H5Helper::Vector3D(z, 0, 0), H5Helper::Vector3D(1, dimsSrc3D.y(), dimsSrc3D.x()), srcData, log);*/
+                    //dstData = new float[dimsDst3D.x() * dimsDst3D.y()]();
+                    resize2D(&srcData[z * dimsSrc3D.x() * dimsSrc3D.y()], &dstData[z * dimsDst3D.x() * dimsDst3D.y()], dimsSrc3D.x(), dimsSrc3D.y(), dimsDst3D.x(), dimsDst3D.y());
+                    //tmpDataset->writeDataset(H5Helper::Vector3D(z, 0, 0), H5Helper::Vector3D(1, dimsDst3D.y(), dimsDst3D.x()), dstData, log);
+                    //delete[] srcData;
+                    //delete[] dstData;
+                }
+                tmpDataset->writeDataset(offset, H5Helper::Vector3D(H5Helper::Vector3D(count).z(), dimsDst3D.y(), dimsDst3D.x()), dstData, log);
             }
 
-            // and after 2D slices XZ plane
-            for (unsigned int y = 0; y < dimsDst3D.y(); y++) {
-                tmpDataset->readDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsSrc3D.z(), 1, dimsDst3D.x()), srcData, log);
+            // and after 2D slices in XZ plane
+            hsize_t yCount = H5Helper::Vector3D(srcDataset->getGeneralBlockDims().getSize()).z();
+            for (hsize_t y = 0; y < dimsDst3D.y(); y += yCount) {
+                if (y + yCount > dimsDst3D.y()) {
+                    yCount = dimsDst3D.y() - y;
+                }
+                tmpDataset->readDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsSrc3D.z(), yCount, dimsDst3D.x()), srcData, log);
                 //dstData = new float[dimsDst3D.x() * dimsDst3D.z()]();
-                resize2D(srcData, dstData, dimsDst3D.x(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.z());
+
+                for (hsize_t r = 0; r < dimsDst3D.y() * yCount; r++) {
+                    resize3D(srcData, dstData, dimsDst3D.x(), yCount, dimsSrc3D.z(), dimsDst3D.x(), yCount, dimsDst3D.z());
+                }
+
                 if (dimsSrc.getLength() == 4)
-                    dstDataset->writeDataset(H5Helper::Vector4D(t, 0, y, 0), H5Helper::Vector4D(1, dimsDst3D.z(), 1, dimsDst3D.x()), dstData, log);
+                    dstDataset->writeDataset(H5Helper::Vector4D(t, 0, y, 0), H5Helper::Vector4D(1, dimsDst3D.z(), yCount, dimsDst3D.x()), dstData, log);
                 else
-                    dstDataset->writeDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsDst3D.z(), 1, dimsDst3D.x()), dstData, log);
+                    dstDataset->writeDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsDst3D.z(), yCount, dimsDst3D.x()), dstData, log);
                 //delete[] srcData;
                 //delete[] dstData;
             }
@@ -192,12 +213,11 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         srcData = nullptr;
         delete[] dstData;
         dstData = nullptr;
+
+        delete tmpFile;
+        tmpFile = nullptr;
+        remove("tmp.h5");
     }
-
-
-    delete tmpFile;
-    tmpFile = nullptr;
-    remove("tmp.h5");
 
     dstDataset->findAndSetGlobalMinAndMaxValue(true, log);
 
@@ -283,6 +303,7 @@ void Downsampling::resize2D(const float *dataSrc, float *dataDst, hsize_t srcWid
         #pragma omp parallel for
         for (hssize_t x = 0; x < hssize_t(dstWidth); x++) {
 
+            // Linear interpolation
             //float newX = static_cast<float>(x) / scaleWidth;
             //float newY = static_cast<float>(y) / scaleHeight;
             //hsize_t left = static_cast<hsize_t>(floor(newX));
