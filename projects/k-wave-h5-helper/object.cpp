@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::Object class definition.
  *
@@ -159,7 +159,15 @@ float Object::readAttributeF(std::string name, bool log) const
     Attribute *attribute = getAttribute(name);
     if (log)
         std::cout << "(" << attribute->getStringDatatype() << ")";
-    value = *static_cast<float *>(attribute->getData());
+    if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT)
+        || H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT)
+        || H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT64)
+        || H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT64)) {
+        ssize_t valueI = *static_cast<ssize_t *>(attribute->getData());
+        value = float(valueI);
+    } else {
+        value = *static_cast<float *>(attribute->getData());
+    }
     delete attribute;
     attribute = nullptr;
     if (log)
@@ -183,7 +191,18 @@ hsize_t Object::readAttributeI(std::string name, bool log) const
     Attribute *attribute = getAttribute(name);
     if (log)
         std::cout << "(" << attribute->getStringDatatype() << ")";
-    value = *static_cast<hsize_t *>(attribute->getData());
+    if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_FLOAT)) {
+        float valueF = *static_cast<float *>(attribute->getData());
+        value = hsize_t(valueF);
+    } else if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_DOUBLE)) {
+        double valueD = *static_cast<double *>(attribute->getData());
+        value = hsize_t(valueD);
+    } else if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_LDOUBLE)) {
+        long double valueLD = *static_cast<long double *>(attribute->getData());
+        value = hsize_t(valueLD);
+    } else {
+        value = *static_cast<hsize_t *>(attribute->getData());
+    }
     delete attribute;
     attribute = nullptr;
     if (log)
@@ -337,6 +356,10 @@ std::string Object::getOnlyName() const
         return name;
 }
 
+/**
+ * @brief Returns the name of object with underscores
+ * @return Name of object
+ */
 std::string Object::getNameWithUnderscores() const
 {
     std::string s = name;

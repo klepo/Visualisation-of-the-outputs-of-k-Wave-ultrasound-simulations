@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with H5Helper::File class declaration.
  *
@@ -46,6 +46,7 @@
 #include <hdf5.h> // HDF5
 
 #include "vector4d.h"
+#include "vector4d.cpp"
 
 namespace H5Helper
 {
@@ -63,8 +64,20 @@ const std::string NX_DATASET = "Nx";
 const std::string NY_DATASET = "Ny";
 /// Dataset name Nz
 const std::string NZ_DATASET = "Nz";
+/// Dataset name dt
+const std::string DT_DATASET = "dt";
+/// Dataset name dx
+const std::string DX_DATASET = "dx";
+/// Dataset name dy
+const std::string DY_DATASET = "dy";
+/// Dataset name dz
+const std::string DZ_DATASET = "dz";
 /// Dataset name p_source_input
 const std::string P_SOURCE_INPUT_DATASET = "p_source_input";
+/// Dataset name p
+const std::string P_INDEX_DATASET = "p";
+/// Dataset name p/1
+const std::string P_CUBOID_DATASET = "p/1";
 
 /// Attribute name min
 const std::string MIN_ATTR = "min";
@@ -74,6 +87,8 @@ const std::string MAX_ATTR = "max";
 const std::string MIN_INDEX_ATTR = "min_index";
 /// Attribute name max_index
 const std::string MAX_INDEX_ATTR = "max_index";
+/// Attribute name period
+const std::string PERIOD_ATTR = "period";
 /// Attribute name src_dataset_name
 const std::string SRC_DATASET_NAME_ATTR = "src_dataset_name";
 /// Attribute name c_type
@@ -176,6 +191,10 @@ public:
     hsize_t getNumberOfElmsToLoad() const;
 
     Vector4D getNDims() const;
+    Vector4DF getDValues() const;
+
+    float getFrequency(float period) const;
+    float getPeriod(float frequency) const;
 
     int getMPISize() const;
 
@@ -198,6 +217,8 @@ private:
 
     /// Domain dimensions
     Vector4D nDims;
+    /// Grid point spacing
+    Vector4DF dValues;
     /// Filename
     std::string filename;
     /// Number of elements to load for block reading

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::Dataset class definition.
  *
@@ -227,6 +227,20 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             }
         }
         if (H5Tequal(datatypeId, H5T_FLOAT)) {
+            if (dims == Vector3D(1, 1, 1)) {
+                if (getOnlyName() == DT_DATASET) {
+                    return DatasetType::DT;
+                }
+                if (getOnlyName() == DX_DATASET) {
+                    return DatasetType::DX;
+                }
+                if (getOnlyName() == DY_DATASET) {
+                    return DatasetType::DY;
+                }
+                if (getOnlyName() == DZ_DATASET) {
+                    return DatasetType::DZ;
+                }
+            }
             if (getOnlyName() == P_SOURCE_INPUT_DATASET) {
                 return DatasetType::P_SOURCE_INPUT;
             }
@@ -441,6 +455,14 @@ std::string Dataset::getTypeString(DatasetType type) const
             return "Nz type";
         case DatasetType::N_DIM_T:
             return "Nt type";
+        case DatasetType::DX:
+            return "dx type";
+        case DatasetType::DY:
+            return "dy type";
+        case DatasetType::DZ:
+            return "dz type";
+        case DatasetType::DT:
+            return "dt type";
         case DatasetType::MASK_INDEX:
             return "Sensor mask index type";
         case DatasetType::MASK_CORNERS:

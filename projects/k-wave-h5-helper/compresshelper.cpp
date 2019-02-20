@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::CompressHelper class definition.
  *
@@ -28,9 +28,9 @@ namespace H5Helper {
  * @param[in] harmonics Number of harmonics
  * @param[in] normalize Normalizes basis functions for compression (optional)
  */
-CompressHelper::CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, bool normalize)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize)
 {
-    oSize = period * mos;
+    oSize = hsize_t(period * mos);
     bSize = oSize * 2 + 1;
     this->period = period;
     this->mos = mos;
@@ -75,18 +75,40 @@ CompressHelper::~CompressHelper()
  * @param[in] length Source length
  * @return Period
  */
-hsize_t CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
+float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
 {
     float *dataTmp = new float[length]();
-    hsize_t *peaksTmp = new hsize_t[length]();
+    float *peaksTmp = new float[length]();
+    float *locsTmp = new float[length]();
     hsize_t peaksCount;
-    hsize_t period;
+    float period;
 
     //xcorr(dataSrc, dataSrc, dataTmp, length, length);
-    findPeaks(dataSrc, peaksTmp, length, peaksCount);
-    hsize_t *peaks = new hsize_t[peaksCount - 1]();
-    diff(peaksTmp, peaks, peaksCount);
-    period = median(peaks, peaksCount - 1);
+    findPeaks(dataSrc, locsTmp, peaksTmp, length, peaksCount);
+
+    float *newLocsTmp = new float[peaksCount]();
+    float *newLocs = new float[peaksCount]();
+
+    // Find max peak
+    float m = std::numeric_limits<float>::min();
+    for (hsize_t i = 0; i < peaksCount; i++) {
+        if (peaksTmp[i] > m) {
+            m = peaksTmp[i];
+        }
+    }
+
+    // Filter peaks under 0.5 * max
+    hsize_t j = 0;
+    for (hsize_t i = 0; i < peaksCount; i++) {
+        if (peaksTmp[i] > 0.5f * m) {
+            newLocsTmp[j] = locsTmp[i];
+            j++;
+        }
+    }
+
+    float *locs = new float[j - 1]();
+    diff(newLocsTmp, locs, j);
+    period = median(locs, j - 1);
 
     if (dataTmp) {
         delete[] dataTmp;
@@ -96,9 +118,21 @@ hsize_t CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
         delete[] peaksTmp;
         peaksTmp = nullptr;
     }
-    if (peaks) {
-        delete[] peaks;
-        peaks = nullptr;
+    if (locsTmp) {
+        delete[] locsTmp;
+        locsTmp = nullptr;
+    }
+    if (newLocsTmp) {
+        delete[] newLocsTmp;
+        newLocsTmp = nullptr;
+    }
+    if (newLocs) {
+        delete[] newLocs;
+        newLocs = nullptr;
+    }
+    if (locs) {
+        delete[] locs;
+        locs = nullptr;
     }
     return period;
 }
@@ -162,7 +196,7 @@ hsize_t CompressHelper::getBSize() const
  * @brief Returns period
  * @return Period
  */
-hsize_t CompressHelper::getPeriod() const
+float CompressHelper::getPeriod() const
 {
     return period;
 }
@@ -253,14 +287,16 @@ void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *d
 /**
  * @brief Finds peaks in source signal
  * @param[in] dataSrc Source data
- * @param[out] dataDst Destination
+ * @param[out] locsDst Destination for locations
+ * @param[out] peaksDst Destination for peaks
  * @param[in] lengthSrc Source length
  * @param[out] lengthDst Destination length
  */
-void CompressHelper::findPeaks(const float *dataSrc, hsize_t *dataDst, hsize_t lengthSrc, hsize_t &lengthDst)
+void CompressHelper::findPeaks(const float *dataSrc, float *locsDst, float *peaksDst, hsize_t lengthSrc, hsize_t &lengthDst)
 {
     for (hsize_t i = 0; i < lengthSrc; i++) {
-        dataDst[i] = 0;
+        locsDst[i] = 0;
+        peaksDst[i] = 0;
     }
 
     lengthDst = 0;
@@ -292,7 +328,10 @@ void CompressHelper::findPeaks(const float *dataSrc, hsize_t *dataDst, hsize_t l
 
         // Peaks between
         if (i > 0 && i < lengthSrc - 1 && lengthSrc > 2 && dataSrc[i] > dataSrc[i - 1] && dataSrc[i] >= dataSrc[i + 1]) {
-            dataDst[lengthDst] = i;
+            float d1 = dataSrc[i] - dataSrc[i - 1];
+            float d2 = dataSrc[i] - dataSrc[i + 1];
+            locsDst[lengthDst] = i + d1 / (d1 + d2) - 0.5f;
+            peaksDst[lengthDst] = dataSrc[i];
             lengthDst++;
         }
     }
@@ -360,6 +399,19 @@ hsize_t CompressHelper::mean(const hsize_t *dataSrc, hsize_t length)
  * @param[in] length Source length
  * @return Median
  */
+float CompressHelper::median(const float *dataSrc, hsize_t length)
+{
+    std::vector<float> dataSrcVector(dataSrc, dataSrc + length);
+    std::sort(dataSrcVector.begin(), dataSrcVector.end());
+    return dataSrcVector[size_t(length / 2)];
+}
+
+/**
+ * @brief Median
+ * @param[in] dataSrc Source data
+ * @param[in] length Source length
+ * @return Median
+ */
 hsize_t CompressHelper::median(const hsize_t *dataSrc, hsize_t length)
 {
     std::vector<hsize_t> dataSrcVector(dataSrc, dataSrc + length);
@@ -379,7 +431,7 @@ hsize_t CompressHelper::median(const hsize_t *dataSrc, hsize_t length)
  * @param[out] bE_1 Inverted complex exponencial window basis
  * @param[in] normalize Normalization flag (optional)
  */
-void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize) const
+void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize) const
 {
     // Generate basis function (window)
     triangular(oSize, b);  // Triangular window
@@ -427,12 +479,12 @@ void CompressHelper::hann(hsize_t oSize, float *w) const
  * @param[in] bSize Base size
  * @param[out] e Exponencial basis
  */
-void CompressHelper::generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const
+void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const
 {
     floatC i(0, -1);
     for (hsize_t x = 0; x < bSize; x++) {
         hsize_t hx = ih * bSize + x;
-        e[hx] = std::exp(i * (2.0f * float(M_PI) / (float(period) / (h))) * float(x));
+        e[hx] = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
     }
 }
 

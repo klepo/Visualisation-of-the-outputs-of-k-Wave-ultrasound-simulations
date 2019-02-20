@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
- * @brief       The header file with H5Helper::Vector4D class declaration.
+ * @brief       The header file with H5Helper::Vector4DT class declaration.
  *
  * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -20,40 +20,40 @@
 #ifndef VECTOR4D_H
 #define VECTOR4D_H
 
-#include "vector.h"
 #include "vector3d.h"
 
 namespace H5Helper
 {
 /**
- * @brief The Vector4D class represents wrapper for 4D 64-bit unsigned integer vectors
+ * @brief The Vector4DT class represents wrapper for 4D vectors
  */
-class Vector4D : public Vector
+template <class T>
+class Vector4DT : public VectorT<T>
 {
 public:
-    Vector4D();
-    Vector4D(const Vector &vector);
-    Vector4D(hsize_t value);
-    Vector4D(hsize_t value, const Vector3D &vector);
-    Vector4D(hsize_t w, hsize_t z, hsize_t y, hsize_t x);
-    void set(hsize_t w, hsize_t z, hsize_t y, hsize_t x);
-    void set(int w, int z, int y, int x);
-    void x(hsize_t x) const;
-    void y(hsize_t y) const;
-    void z(hsize_t z) const;
-    void w(hsize_t w) const;
-    void t(hsize_t t) const;
-    void x(int x) const;
-    void y(int y) const;
-    void z(int z) const;
-    void w(int w) const;
-    void t(int t) const;
-    hsize_t x() const;
-    hsize_t y() const;
-    hsize_t z() const;
-    hsize_t w() const;
-    hsize_t t() const;
+    Vector4DT();
+    Vector4DT(const VectorT<T> &vector);
+    Vector4DT(T value);
+    Vector4DT(T value, const Vector3DT<T> &vector);
+    Vector4DT(T w, T z, T y, T x);
+    void set(T w, T z, T y, T x);
+    void x(T x) const;
+    void y(T y) const;
+    void z(T z) const;
+    void w(T w) const;
+    void t(T t) const;
+    T x() const;
+    T y() const;
+    T z() const;
+    T w() const;
+    T t() const;
 };
+
+/// Unsigned long long 4D vector datatype
+typedef Vector4DT<hsize_t> Vector4D;
+/// Float 4D vector datatype
+typedef Vector4DT<float> Vector4DF;
+
 }
 
 #endif // VECTOR4D_H

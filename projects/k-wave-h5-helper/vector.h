@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) <br>
- *              24 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
- * @brief       The header file with H5Helper::Vector class declaration.
+ * @brief       The header file with H5Helper::VectorT class declaration.
  *
  * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -29,6 +29,8 @@
 #include <cstdint>
 #include <cstring>
 
+#pragma clang diagnostic ignored "-Wfloat-equal"
+
 namespace H5Helper
 {
 /// Unsigned long long datatype
@@ -37,31 +39,32 @@ typedef unsigned long long hsize_t;
 typedef long long hssize_t;
 
 /**
- * @brief The Vector class represents wrapper for 64-bit unsigned integer vectors
+ * @brief The VectorT class represents wrapper for vectors
  */
-class Vector
+template <class T>
+class VectorT
 {
 public:
-    Vector();
-    Vector(hsize_t length, hsize_t value = 0);
-    Vector(int length, hsize_t value = 0);
-    Vector(const Vector &vector);
-    Vector(Vector &&vector);
-    virtual ~Vector();
-    virtual Vector &operator=(const Vector &vector);
-    virtual Vector &operator=(Vector &&vector);
-    virtual bool operator==(const Vector &vector) const final;
-    virtual bool operator!=(const Vector &vector) const final;
-    virtual hsize_t &operator[](hsize_t i) final;
-    virtual hsize_t &operator[](hssize_t i) final;
-    virtual hsize_t &operator[](int i) final;
-    virtual hsize_t &operator[](unsigned int i) final;
-    virtual hsize_t getSize() const final;
-    virtual hsize_t *getVectorPtr() final;
-    virtual hsize_t at(hsize_t i) const final;
-    virtual hsize_t at(hssize_t i) const final;
-    virtual hsize_t at(int i) const final;
-    virtual hsize_t at(unsigned int i) const final;
+    VectorT();
+    VectorT(hsize_t length, T value = 0);
+    VectorT(int length, T value = 0);
+    VectorT(const VectorT<T> &vector);
+    VectorT(VectorT<T> &&vector);
+    virtual ~VectorT();
+    virtual VectorT<T> &operator=(const VectorT<T> &vector);
+    virtual VectorT<T> &operator=(VectorT<T> &&vector);
+    virtual bool operator==(const VectorT<T> &vector) const final;
+    virtual bool operator!=(const VectorT<T> &vector) const final;
+    virtual T &operator[](hsize_t i) final;
+    virtual T &operator[](hssize_t i) final;
+    virtual T &operator[](int i) final;
+    virtual T &operator[](unsigned int i) final;
+    virtual T getSize() const final;
+    virtual T *getVectorPtr() final;
+    virtual T at(hsize_t i) const final;
+    virtual T at(hssize_t i) const final;
+    virtual T at(int i) const final;
+    virtual T at(unsigned int i) const final;
     virtual hsize_t getLength() const final;
     virtual bool hasZeros() const final;
 
@@ -71,7 +74,7 @@ public:
      * @param[in] vector Vector
      * @return std::ostream
      */
-    friend std::ostream &operator<<(std::ostream &os, const Vector &vector) {
+    friend std::ostream &operator<<(std::ostream &os, const VectorT<T> &vector) {
         os << std::string(vector);
         return os;
     }
@@ -79,17 +82,23 @@ public:
 
 protected:
     /// Copy data or part of data
-    void copy(const Vector &vectorSrc);
+    void copy(const VectorT<T> &vectorSrc);
     /// Vector data
-    hsize_t *vector = nullptr;
+    T *vector = nullptr;
     /// Vector length
     hsize_t length = 0;
 
 private:
-    void assign(const Vector &vector, bool deleteFlag);
-    void move(Vector &vector, bool deleteFlag);
+    void assign(const VectorT<T> &vector, bool deleteFlag);
+    void move(VectorT<T> &vector, bool deleteFlag);
     void checkIndex(hsize_t i) const;
 };
+
+/// Unsigned long long vector datatype
+typedef VectorT<hsize_t> Vector;
+/// Float vector datatype
+typedef VectorT<float> VectorF;
+
 }
 
 #endif // VECTOR_H

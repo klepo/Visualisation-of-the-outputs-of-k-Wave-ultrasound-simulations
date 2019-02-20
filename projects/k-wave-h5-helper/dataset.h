@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with H5Helper::Dataset class declaration.
  *
@@ -26,10 +26,9 @@
 #include <iomanip>
 #include <complex>
 
-#include "vector3d.h"
-#include "vector4d.h"
 #include "object.h"
-#include "file.h"
+#include "vector3d.h"
+#include "vector3d.cpp"
 
 namespace H5Helper
 {
@@ -42,6 +41,10 @@ enum class DatasetType
     N_DIM_Y,
     N_DIM_Z,
     N_DIM_T,
+    DX,
+    DY,
+    DZ,
+    DT,
     MASK_INDEX,
     MASK_CORNERS,
     P_SOURCE_INPUT,

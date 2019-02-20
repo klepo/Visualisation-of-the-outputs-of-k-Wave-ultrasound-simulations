@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              24 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
- * @brief       The header file with H5Helper::Vector3D class declaration.
+ * @brief       The header file with H5Helper::Vector3DT class declaration.
  *
  * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -25,27 +25,30 @@
 namespace H5Helper
 {
 /**
- * @brief The Vector3D class represents wrapper for 3D 64-bit unsigned integer vectors
+ * @brief The Vector3DT class represents wrapper for 3D vectors
  */
-class Vector3D : public Vector
+template <class T>
+class Vector3DT : public VectorT<T>
 {
 public:
-    Vector3D();
-    Vector3D(const Vector &vector);
-    Vector3D(hsize_t value);
-    Vector3D(hsize_t z, hsize_t y, hsize_t x);
-    void set(hsize_t z, hsize_t y, hsize_t x);
-    void set(int z, int y, int x);
-    void x(hsize_t x) const;
-    void y(hsize_t y) const;
-    void z(hsize_t z) const;
-    void x(int x) const;
-    void y(int y) const;
-    void z(int z) const;
-    hsize_t x() const;
-    hsize_t y() const;
-    hsize_t z() const;
+    Vector3DT();
+    Vector3DT(const VectorT<T> &vector);
+    Vector3DT(T value);
+    Vector3DT(T z, T y, T x);
+    void set(T z, T y, T x);
+    void x(T x) const;
+    void y(T y) const;
+    void z(T z) const;
+    T x() const;
+    T y() const;
+    T z() const;
 };
+
+/// Unsigned long long 3D vector datatype
+typedef Vector3DT<hsize_t> Vector3D;
+/// Float 3D vector datatype
+typedef Vector3DT<float> Vector3DF;
+
 }
 
 #endif // VECTOR3D_H

@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@stud.fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
- * @brief       The implementation file containing H5Helper::Vector class definition.
+ * @brief       The implementation file containing H5Helper::VectorT class definition.
  *
  * This class is used for multidimensional 64-bit unsigned integer vector representation.
  *
@@ -21,12 +21,19 @@
 
 #include "vector.h"
 
+#ifndef VECTOR_CPP
+#define VECTOR_CPP
+
 namespace H5Helper {
+
+template class VectorT<hsize_t>;
+template class VectorT<float>;
 
 /**
  * @brief Creates Vector with zero length
  */
-Vector::Vector()
+template <class T>
+VectorT<T>::VectorT()
     : vector(nullptr)
     , length(0)
 {
@@ -37,9 +44,10 @@ Vector::Vector()
  * @param[in] length Vector length
  * @param[in] value Fill value
  */
-Vector::Vector(hsize_t length, hsize_t value) : length(length)
+template <class T>
+VectorT<T>::VectorT(hsize_t length, T value) : length(length)
 {
-    vector = new hsize_t[length]();
+    vector = new T[length]();
     for (hsize_t i = 0; i < length; i++) {
         vector[i] = value;
     }
@@ -51,11 +59,12 @@ Vector::Vector(hsize_t length, hsize_t value) : length(length)
  * @param[in] value Fill value
  * @throw std::runtime_error
  */
-Vector::Vector(int length, hsize_t value)
+template <class T>
+VectorT<T>::VectorT(int length, T value)
 {
     if (length >= 0) {
         this->length = static_cast<hsize_t>(length);
-        vector = new hsize_t[static_cast<hsize_t>(length)]();
+        vector = new T[static_cast<hsize_t>(length)]();
         for (int i = 0; i < length; i++) {
             vector[i] = value;
         }
@@ -68,7 +77,8 @@ Vector::Vector(int length, hsize_t value)
  * @brief Copy constructor
  * @param[in] vector Original Vector object to copy
  */
-Vector::Vector(const Vector &vector)
+template <class T>
+VectorT<T>::VectorT(const VectorT<T> &vector)
 {
     assign(vector, false);
 }
@@ -77,7 +87,8 @@ Vector::Vector(const Vector &vector)
  * @brief Move constructor
  * @param[in] vector Original Vector object to move
  */
-Vector::Vector(Vector &&vector)
+template <class T>
+VectorT<T>::VectorT(VectorT<T> &&vector)
 {
     move(vector, false);
 }
@@ -87,7 +98,8 @@ Vector::Vector(Vector &&vector)
  *
  * Deletes vector memory.
  */
-Vector::~Vector()
+template <class T>
+VectorT<T>::~VectorT()
 {
     if (vector) {
         delete[] vector;
@@ -100,7 +112,8 @@ Vector::~Vector()
  * @param[in] vector Reference to the existing Vector
  * @return Reference to Vector instance
  */
-Vector &Vector::operator=(const Vector &vector)
+template <class T>
+VectorT<T> &VectorT<T>::operator=(const VectorT<T> &vector)
 {
     if (this != &vector) {
         assign(vector, true);
@@ -113,7 +126,8 @@ Vector &Vector::operator=(const Vector &vector)
  * @param[in] vector Reference to the existing Vector
  * @return Reference to Vector instance
  */
-Vector &Vector::operator=(Vector &&vector)
+template <class T>
+VectorT<T> &VectorT<T>::operator=(VectorT<T> &&vector)
 {
     if (this != &vector) {
         move(vector, true);
@@ -126,7 +140,8 @@ Vector &Vector::operator=(Vector &&vector)
  * @param[in] vector Reference to the existing Vector
  * @return True/False
  */
-bool Vector::operator==(const Vector &vector) const
+template <class T>
+bool VectorT<T>::operator==(const VectorT<T> &vector) const
 {
     if (length != vector.length) {
         return false;
@@ -144,7 +159,8 @@ bool Vector::operator==(const Vector &vector) const
  * @param[in] vector Reference to the existing Vector
  * @return True/False
  */
-bool Vector::operator!=(const Vector &vector) const
+template <class T>
+bool VectorT<T>::operator!=(const VectorT<T> &vector) const
 {
     if (vector == *this) {
         return false;
@@ -157,7 +173,8 @@ bool Vector::operator!=(const Vector &vector) const
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t &Vector::operator[](hsize_t i)
+template <class T>
+T &VectorT<T>::operator[](hsize_t i)
 {
     checkIndex(i);
     return vector[i];
@@ -168,7 +185,8 @@ hsize_t &Vector::operator[](hsize_t i)
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t &Vector::operator[](hssize_t i)
+template <class T>
+T &VectorT<T>::operator[](hssize_t i)
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -179,7 +197,8 @@ hsize_t &Vector::operator[](hssize_t i)
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t &Vector::operator[](int i)
+template <class T>
+T &VectorT<T>::operator[](int i)
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -190,7 +209,8 @@ hsize_t &Vector::operator[](int i)
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t &Vector::operator[](unsigned int i)
+template <class T>
+T &VectorT<T>::operator[](unsigned int i)
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -200,9 +220,10 @@ hsize_t &Vector::operator[](unsigned int i)
  * @brief Returns size of vector
  * @return Size of vector
  */
-hsize_t Vector::getSize() const
+template <class T>
+T VectorT<T>::getSize() const
 {
-    hsize_t size = 1;
+    T size = 1;
     for (hsize_t i = 0; i < length; i++) {
         size *= vector[i];
     }
@@ -213,7 +234,8 @@ hsize_t Vector::getSize() const
  * @brief Returns vector pointer
  * @return Vector pointer
  */
-hsize_t *Vector::getVectorPtr()
+template <class T>
+T *VectorT<T>::getVectorPtr()
 {
     return vector;
 }
@@ -223,7 +245,8 @@ hsize_t *Vector::getVectorPtr()
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t Vector::at(hsize_t i) const
+template <class T>
+T VectorT<T>::at(hsize_t i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -234,7 +257,8 @@ hsize_t Vector::at(hsize_t i) const
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t Vector::at(hssize_t i) const
+template <class T>
+T VectorT<T>::at(hssize_t i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -245,7 +269,8 @@ hsize_t Vector::at(hssize_t i) const
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t Vector::at(int i) const
+template <class T>
+T VectorT<T>::at(int i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -256,7 +281,8 @@ hsize_t Vector::at(int i) const
  * @param[in] i Index
  * @return Vector value at index
  */
-hsize_t Vector::at(unsigned int i) const
+template <class T>
+T VectorT<T>::at(unsigned int i) const
 {
     checkIndex(hsize_t(i));
     return vector[hsize_t(i)];
@@ -266,7 +292,8 @@ hsize_t Vector::at(unsigned int i) const
  * @brief Returns length of vector
  * @return Length of vector
  */
-hsize_t Vector::getLength() const
+template <class T>
+hsize_t VectorT<T>::getLength() const
 {
     return length;
 }
@@ -275,10 +302,11 @@ hsize_t Vector::getLength() const
  * @brief Has vector everywhere zeros?
  * @return True/False
  */
-bool Vector::hasZeros() const
+template <class T>
+bool VectorT<T>::hasZeros() const
 {
     for (hsize_t i = 0; i < length; i++) {
-        if (vector[i] == 0) {
+        if (vector[i] == T(0)) {
             return true;
         }
     }
@@ -289,7 +317,8 @@ bool Vector::hasZeros() const
  * @brief Operator std::string
  * @return String
  */
-Vector::operator std::string() const
+template <class T>
+VectorT<T>::operator std::string() const
 {
     std::string str = "";
     for (hsize_t i = 0; i < length; i++) {
@@ -305,9 +334,10 @@ Vector::operator std::string() const
  * @brief Copy vector or part of vector
  * @param[in] vectorSrc Source vector
  */
-void Vector::copy(const Vector &vectorSrc)
+template <class T>
+void VectorT<T>::copy(const VectorT<T> &vectorSrc)
 {
-    Vector tmp = vectorSrc;
+    VectorT<T> tmp = vectorSrc;
     hsize_t length = vectorSrc.getLength();
 
     if (this->length < length) {
@@ -324,14 +354,15 @@ void Vector::copy(const Vector &vectorSrc)
  * @param[in] vector Reference to the existing Vector
  * @param[in] deleteFlag Delete flag (optional)
  */
-void Vector::assign(const Vector &vector, bool deleteFlag)
+template <class T>
+void VectorT<T>::assign(const VectorT<T> &vector, bool deleteFlag)
 {
     if (deleteFlag) {
         delete[] this->vector;
         this->vector = nullptr;
     }
     this->length = vector.length;
-    this->vector = new hsize_t[length]();
+    this->vector = new T[length]();
     std::copy(vector.vector, vector.vector + static_cast<size_t>(length), this->vector);
 }
 
@@ -340,7 +371,8 @@ void Vector::assign(const Vector &vector, bool deleteFlag)
  * @param[in] vector Reference to the existing Vector
  * @param[in] deleteFlag Delete flag (optional)
  */
-void Vector::move(Vector &vector, bool deleteFlag)
+template <class T>
+void VectorT<T>::move(VectorT<T> &vector, bool deleteFlag)
 {
     if (deleteFlag) {
         delete[] this->vector;
@@ -357,10 +389,13 @@ void Vector::move(Vector &vector, bool deleteFlag)
  * @param[in] i Index
  * @throw std::runtime_error
  */
-void Vector::checkIndex(hsize_t i) const
+template <class T>
+void VectorT<T>::checkIndex(hsize_t i) const
 {
     if (i >= length) {
         throw std::runtime_error("Index to Vector is too big");
     }
 }
 }
+
+#endif // VECTOR_CPP

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        26 September 2016 (created) <br>
- *              30 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with H5Helper::CompressHelper class declaration.
  *
@@ -50,17 +50,17 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(hsize_t period, hsize_t mos, hsize_t harmonics, bool normalize = false);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false);
     ~CompressHelper();
 
-    static hsize_t findPeriod(const float *dataSrc, hsize_t length);
+    static float findPeriod(const float *dataSrc, hsize_t length);
     float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
 
     const floatC *getBE() const;
     const floatC *getBE_1() const;
     hsize_t getOSize() const;
     hsize_t getBSize() const;
-    hsize_t getPeriod() const;
+    float getPeriod() const;
     hsize_t getMos() const;
     hsize_t getHarmonics() const;
     hsize_t getStride() const;
@@ -74,17 +74,18 @@ private:
 
     static void xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
     static void conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
-    static void findPeaks(const float *dataSrc, hsize_t *dataDst, hsize_t length, hsize_t &lengthDst);
+    static void findPeaks(const float *dataSrc, float *locsDst, float *peaksDst, hsize_t length, hsize_t &lengthDst);
     static void diff(const float *dataSrc, float *dataDst, hsize_t length);
     static void diff(const hsize_t *dataSrc, hsize_t *dataDst, hsize_t length);
     static float mean(const float *dataSrc, hsize_t length);
     static hsize_t mean(const hsize_t *dataSrc, hsize_t length);
+    static float median(const float *dataSrc, hsize_t length);
     static hsize_t median(const hsize_t *dataSrc, hsize_t length);
 
-    void generateFunctions(hsize_t bSize, hsize_t oSize, hsize_t period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
+    void generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
     void triangular(hsize_t oSize, float *w) const;
     void hann(hsize_t oSize, float *w) const;
-    void generateE(hsize_t period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const;
+    void generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const;
     void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
 
     /// Overlap size
@@ -92,7 +93,7 @@ private:
     /// Base size
     hsize_t bSize = 0;
     /// Period
-    hsize_t period = 0;
+    float period = 0;
     /// Multiple of overlap size
     hsize_t mos = 1;
     /// Number of harmonics

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file including all important H5Helper classes.
  *
@@ -20,19 +20,20 @@
 #ifndef H5HELPER_H
 #define H5HELPER_H
 
-/**
- * @namespace H5Helper
- * @brief Namespace for the %H5Helper library
- */
-namespace H5Helper {}
-
 #include "attribute.h"
 #include "compresshelper.h"
 #include "dataset.h"
 #include "file.h"
 #include "group.h"
+#include "vector.h"
 #include "vector3d.h"
 #include "vector4d.h"
+
+/**
+ * @namespace H5Helper
+ * @brief Namespace for the %H5Helper library
+ */
+namespace H5Helper {}
 
 /**
  * TODO:

@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
- * @brief       The implementation file containing H5Helper::Vector3D class definition.
+ * @brief       The implementation file containing H5Helper::Vector3DT class definition.
  *
  * This class is used for 3D 64-bit unsigned integer vector representation.
  *
@@ -20,14 +20,22 @@
  */
 
 #include "vector3d.h"
+#include "vector.cpp"
+
+#ifndef VECTOR3D_CPP
+#define VECTOR3D_CPP
 
 namespace H5Helper {
+
+template class Vector3DT<hsize_t>;
+template class Vector3DT<float>;
 
 /**
  * @brief Creates Vector3D with zero values
  */
-Vector3D::Vector3D()
-    : Vector(3)
+template <class T>
+Vector3DT<T>::Vector3DT()
+    : VectorT<T>(3)
 {
     set(0, 0, 0);
 }
@@ -36,8 +44,9 @@ Vector3D::Vector3D()
  * @brief Copy constructor for general vector
  * @param[in] vector Original Vector object to copy
  */
-Vector3D::Vector3D(const Vector &vector)
-    : Vector(3)
+template <class T>
+Vector3DT<T>::Vector3DT(const VectorT<T> &vector)
+    : VectorT<T>(3)
 {
     copy(vector);
 }
@@ -46,8 +55,9 @@ Vector3D::Vector3D(const Vector &vector)
  * @brief Creates Vector3D with given fill value
  * @param[in] value Fill value
  */
-Vector3D::Vector3D(hsize_t value)
-    : Vector(3 , value)
+template <class T>
+Vector3DT<T>::Vector3DT(T value)
+    : VectorT<T>(3 , value)
 {
 }
 
@@ -57,8 +67,9 @@ Vector3D::Vector3D(hsize_t value)
  * @param[in] y Y value
  * @param[in] x X value
  */
-Vector3D::Vector3D(hsize_t z, hsize_t y, hsize_t x)
-    : Vector(3)
+template <class T>
+Vector3DT<T>::Vector3DT(T z, T y, T x)
+    : VectorT<T>(3)
 {
     set(z, y, x);
 }
@@ -69,102 +80,73 @@ Vector3D::Vector3D(hsize_t z, hsize_t y, hsize_t x)
  * @param[in] y Y value
  * @param[in] x X value
  */
-void Vector3D::set(hsize_t z, hsize_t y, hsize_t x)
+template <class T>
+void Vector3DT<T>::set(T z, T y, T x)
 {
-    vector[0] = z;
-    vector[1] = y;
-    vector[2] = x;
-}
-
-/**
- * @brief Sets vector values
- * @param[in] z Z value
- * @param[in] y Y value
- * @param[in] x X value
- */
-void Vector3D::set(int z, int y, int x)
-{
-    set(static_cast<hsize_t>(z), static_cast<hsize_t>(y), static_cast<hsize_t>(x));
+    this->vector[0] = z;
+    this->vector[1] = y;
+    this->vector[2] = x;
 }
 
 /**
  * @brief Sets vector x value
  * @param[in] x X value
  */
-void Vector3D::x(hsize_t x) const
+template <class T>
+void Vector3DT<T>::x(T x) const
 {
-    vector[2] = x;
+    this->vector[2] = x;
 }
 
 /**
  * @brief Sets vector y value
  * @param[in] y Y value
  */
-void Vector3D::y(hsize_t y) const
+template <class T>
+void Vector3DT<T>::y(T y) const
 {
-    vector[1] = y;
+    this->vector[1] = y;
 }
 
 /**
  * @brief Sets vector z value
  * @param[in] z Z value
  */
-void Vector3D::z(hsize_t z) const
+template <class T>
+void Vector3DT<T>::z(T z) const
 {
-    vector[0] = z;
-}
-
-/**
- * @brief Sets vector x value
- * @param[in] x X value
- */
-void Vector3D::x(const int x) const
-{
-    this->x(static_cast<hsize_t>(x));
-}
-
-/**
- * @brief Sets vector y value
- * @param[in] y Y value
- */
-void Vector3D::y(int y) const
-{
-    this->y(static_cast<hsize_t>(y));
-}
-
-/**
- * @brief Sets vector z value
- * @param[in] z Z value
- */
-void Vector3D::z(int z) const
-{
-    this->z(static_cast<hsize_t>(z));
+    this->vector[0] = z;
 }
 
 /**
  * @brief Returns x value
  * @return X value
  */
-hsize_t Vector3D::x() const
+template <class T>
+T Vector3DT<T>::x() const
 {
-    return vector[2];
+    return this->vector[2];
 }
 
 /**
  * @brief Returns y value
  * @return Y value
  */
-hsize_t Vector3D::y() const
+template <class T>
+T Vector3DT<T>::y() const
 {
-    return vector[1];
+    return this->vector[1];
 }
 
 /**
  * @brief Returns z value
  * @return Z value
  */
-hsize_t Vector3D::z() const
+template <class T>
+T Vector3DT<T>::z() const
 {
-    return vector[0];
+    return this->vector[0];
 }
 }
+
+#endif // VECTOR3D_CPP

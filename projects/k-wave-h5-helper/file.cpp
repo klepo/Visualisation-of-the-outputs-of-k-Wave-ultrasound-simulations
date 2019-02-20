@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -137,10 +137,36 @@ File::File(std::string filename, unsigned int flag, bool log)
             openDataset(NZ_DATASET, false)->readDataset(data, false);
             nDims.z(data);
             closeDataset(NZ_DATASET, false);
-
         } catch(std::exception) {
             closeFileAndObjects();
             throw std::runtime_error("Wrong File");
+        }
+
+
+        try {
+            // Load point spacing values
+            float dataD;
+
+            openDataset(DT_DATASET, false)->readDataset(dataD, false);
+            dValues.w(dataD);
+            closeDataset(DT_DATASET, false);
+
+            openDataset(DX_DATASET, false)->readDataset(dataD, false);
+            dValues.x(dataD);
+            closeDataset(DX_DATASET, false);
+
+            openDataset(DY_DATASET, false)->readDataset(dataD, false);
+            dValues.y(dataD);
+            closeDataset(DY_DATASET, false);
+
+            openDataset(DZ_DATASET, false)->readDataset(dataD, false);
+            dValues.z(dataD);
+            closeDataset(DZ_DATASET, false);
+
+        } catch(std::exception) {
+            //closeFileAndObjects();
+            //throw std::runtime_error("Wrong File");
+            std::cout << "Point spacing values are not in the file \"" << filename << "\""<< std::endl;
         }
     } else if (flag == CREATE) {
         if (log)
@@ -798,6 +824,45 @@ hsize_t File::getNumberOfElmsToLoad() const
 Vector4D File::getNDims() const
 {
     return nDims;
+}
+
+/**
+ * @brief Returns time point spacing values
+ * @return Time point spacing values
+ */
+Vector4DF File::getDValues() const
+{
+    return dValues;
+}
+
+/**
+ * @brief Returns frequency, dt dataset value must be known.
+ * @param[in] period Period
+ * @return Frequency
+ */
+float File::getFrequency(float period) const
+{
+    if (dValues.t() != 0) {
+        return 1.0f / (period * dValues.t());
+    } else {
+        std::cout << "Cannot compute real frequency from period. Time point spacing (dt) is unkown" << std::endl;
+        return 0;
+    }
+}
+
+/**
+ * @brief Returns period, dt dataset value must be known.
+ * @param[in] frequency Frequency
+ * @return Period
+ */
+float File::getPeriod(float frequency) const
+{
+    if (dValues.t() != 0) {
+        return 1.0f / (frequency * dValues.t());
+    } else {
+        std::cout << "Cannot compute period from real frequency. Time point spacing (dt) is unkown" << std::endl;
+        return 0;
+    }
 }
 
 /**

@@ -3,9 +3,9 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              30 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
- * @brief       The implementation file containing H5Helper::Vector4D class definition.
+ * @brief       The implementation file containing H5Helper::Vector4DT class definition.
  *
  * This class is used for 4D 64-bit unsigned integer vector representation.
  *
@@ -20,14 +20,22 @@
  */
 
 #include "vector4d.h"
+#include "vector.cpp"
+
+#ifndef VECTOR4D_CPP
+#define VECTOR4D_CPP
 
 namespace H5Helper {
+
+template class Vector4DT<hsize_t>;
+template class Vector4DT<float>;
 
 /**
  * @brief Creates Vector4D with zero values
  */
-Vector4D::Vector4D()
-    : Vector(4)
+template <class T>
+Vector4DT<T>::Vector4DT()
+    : VectorT<T>(4)
 {
     set(0, 0, 0, 0);
 }
@@ -36,8 +44,9 @@ Vector4D::Vector4D()
  * @brief Copy constructor for general vector
  * @param[in] vector Original Vector object to copy
  */
-Vector4D::Vector4D(const Vector &vector)
-    : Vector(4)
+template <class T>
+Vector4DT<T>::Vector4DT(const VectorT<T> &vector)
+    : VectorT<T>(4)
 {
     copy(vector);
 }
@@ -46,8 +55,9 @@ Vector4D::Vector4D(const Vector &vector)
  * @brief Creates Vector4D with given fill value
  * @param[in] value Fill value
  */
-Vector4D::Vector4D(hsize_t value)
-    : Vector(4, value)
+template <class T>
+Vector4DT<T>::Vector4DT(T value)
+    : VectorT<T>(4, value)
 {
 }
 
@@ -56,8 +66,9 @@ Vector4D::Vector4D(hsize_t value)
  * @param[in] value W value
  * @param[in] vector Original Vector3D object to copy
  */
-Vector4D::Vector4D(hsize_t value, const Vector3D &vector)
-    : Vector(4)
+template <class T>
+Vector4DT<T>::Vector4DT(T value, const Vector3DT<T> &vector)
+    : VectorT<T>(4)
 {
     set(value, vector.z(), vector.y(), vector.x());
 }
@@ -69,8 +80,9 @@ Vector4D::Vector4D(hsize_t value, const Vector3D &vector)
  * @param[in] y Y value
  * @param[in] x X value
  */
-Vector4D::Vector4D(hsize_t w, hsize_t z, hsize_t y, hsize_t x)
-    : Vector(4)
+template <class T>
+Vector4DT<T>::Vector4DT(T w, T z, T y, T x)
+    : VectorT<T>(4)
 {
     set(w, z, y, x);
 }
@@ -82,158 +94,114 @@ Vector4D::Vector4D(hsize_t w, hsize_t z, hsize_t y, hsize_t x)
  * @param[in] y Y value
  * @param[in] x X value
  */
-void Vector4D::set(hsize_t w, hsize_t z, hsize_t y, hsize_t x)
+template <class T>
+void Vector4DT<T>::set(T w, T z, T y, T x)
 {
-    vector[0] = w;
-    vector[1] = z;
-    vector[2] = y;
-    vector[3] = x;
-}
-
-/**
- * @brief Sets vector values
- * @param[in] w W value
- * @param[in] z Z value
- * @param[in] y Y value
- * @param[in] x X value
- */
-void Vector4D::set(int w, int z, int y, int x)
-{
-    set(static_cast<hsize_t>(w), static_cast<hsize_t>(z), static_cast<hsize_t>(y), static_cast<hsize_t>(x));
+    this->vector[0] = w;
+    this->vector[1] = z;
+    this->vector[2] = y;
+    this->vector[3] = x;
 }
 
 /**
  * @brief Sets vector x value
  * @param[in] x X value
  */
-void Vector4D::x(hsize_t x) const
+template <class T>
+void Vector4DT<T>::x(T x) const
 {
-    vector[3] = x;
+    this->vector[3] = x;
 }
 
 /**
  * @brief Sets vector y value
  * @param[in] y Y value
  */
-void Vector4D::y(hsize_t y) const
+template <class T>
+void Vector4DT<T>::y(T y) const
 {
-    vector[2] = y;
+    this->vector[2] = y;
 }
 
 /**
  * @brief Sets vector z value
  * @param[in] z Z value
  */
-void Vector4D::z(hsize_t z) const
+template <class T>
+void Vector4DT<T>::z(T z) const
 {
-    vector[1] = z;
+    this->vector[1] = z;
 }
 
 /**
  * @brief Sets vector w value
  * @param[in] w W value
  */
-void Vector4D::w(hsize_t w) const
+template <class T>
+void Vector4DT<T>::w(T w) const
 {
-    vector[0] = w;
+    this->vector[0] = w;
 }
 
 /**
  * @brief Sets vector t value (same as w)
  * @param[in] t T value
  */
-void Vector4D::t(hsize_t t) const
+template <class T>
+void Vector4DT<T>::t(T t) const
 {
-    vector[0] = t;
-}
-
-/**
- * @brief Sets vector x value
- * @param[in] x X value
- */
-void Vector4D::x(int x) const
-{
-    this->x(static_cast<hsize_t>(x));
-}
-
-/**
- * @brief Sets vector y value
- * @param[in] y Y value
- */
-void Vector4D::y(int y) const
-{
-    this->y(static_cast<hsize_t>(y));
-}
-
-/**
- * @brief Sets vector z value
- * @param[in] z Z value
- */
-void Vector4D::z(int z) const
-{
-    this->z(static_cast<hsize_t>(z));
-}
-
-/**
- * @brief Sets vector w value
- * @param[in] w W value
- */
-void Vector4D::w(int w) const
-{
-    this->w(static_cast<hsize_t>(w));
-}
-
-/**
- * @brief Sets vector t value (same as w)
- * @param[in] t T value
- */
-void Vector4D::t(int t) const
-{
-    this->t(static_cast<hsize_t>(t));
+    this->vector[0] = t;
 }
 
 /**
  * @brief Returns x value
  * @return X value
  */
-hsize_t Vector4D::x() const
+template <class T>
+T Vector4DT<T>::x() const
 {
-    return vector[3];
+    return this->vector[3];
 }
 
 /**
  * @brief Returns y value
  * @return Y value
  */
-hsize_t Vector4D::y() const
+template <class T>
+T Vector4DT<T>::y() const
 {
-    return vector[2];
+    return this->vector[2];
 }
 
 /**
  * @brief Returns z value
  * @return Z value
  */
-hsize_t Vector4D::z() const
+template <class T>
+T Vector4DT<T>::z() const
 {
-    return vector[1];
+    return this->vector[1];
 }
 
 /**
  * @brief Returns w value
  * @return W value
  */
-hsize_t Vector4D::w() const
+template <class T>
+T Vector4DT<T>::w() const
 {
-    return vector[0];
+    return this->vector[0];
 }
 
 /**
  * @brief Returns t value (same as w)
  * @return T value
  */
-hsize_t Vector4D::t() const
+template <class T>
+T Vector4DT<T>::t() const
 {
-    return vector[0];
+    return this->vector[0];
 }
 }
+
+#endif // VECTOR4D_CPP
