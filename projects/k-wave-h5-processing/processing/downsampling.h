@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with Downsampling class declaration.
  *

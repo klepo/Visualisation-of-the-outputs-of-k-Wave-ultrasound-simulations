@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with Settings class declaration.
  *
@@ -67,8 +67,8 @@ public:
     unsigned long long getMaxChunkSizeT() const;
 
     // Period
-    unsigned long long getPeriod() const;
-    void setPeriod(const unsigned long long &value);
+    float getPeriod() const;
+    void setPeriod(const float &value);
 
     // Harmonic
     unsigned long long getHarmonics() const;
@@ -121,7 +121,7 @@ private:
     /// Block size
     unsigned long long blockSize = 0;
     /// Period
-    unsigned long long period = 0;
+    float period = 0.0f;
     /// Number of harmonics
     unsigned long long harmonics = 1;
     /// Multiple of overlap size

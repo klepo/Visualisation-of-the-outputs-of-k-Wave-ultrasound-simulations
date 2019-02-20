@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing Compress class definition.
  *
@@ -79,7 +79,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 {
     double t0 = H5Helper::getTime();
 
-    if (!getSettings()->getPeriod()) {
+    if (getSettings()->getPeriod() == 0.0f) {
         Helper::printErrorMsg("No known period for compression");
         return;
     }
@@ -90,7 +90,11 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonics(), true);
 
     if (log)
-         Helper::printDebugMsg("Compression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
+         Helper::printDebugMsg("Compression with period "
+                               + std::to_string(compressHelper->getPeriod())
+                               + " steps (" + std::to_string(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
+                               + "Hz) and " + std::to_string(compressHelper->getHarmonics())
+                               + " harmonic frequencies");
 
     // Overlap size and base size
     hsize_t oSize = compressHelper->getOSize();

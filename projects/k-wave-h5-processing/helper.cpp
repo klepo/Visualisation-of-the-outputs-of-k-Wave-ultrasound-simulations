@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing Helper class definition.
  *
@@ -133,7 +133,10 @@ void printDebugTwoColumnsTab(std::string first, int second, unsigned int width)
  */
 void printDebugTwoColumnsTab(std::string first, float second, unsigned int width)
 {
-    printDebugTwoColumnsTab(first, std::to_string(second), width);
+    std::ostringstream out;
+    out.precision(4);
+    out << second;
+    printDebugTwoColumnsTab(first, out.str(), width);
 }
 
 /**
@@ -193,7 +196,10 @@ void printDebugTwoColumns2S(std::string first, unsigned long long second, unsign
  */
 void printDebugTwoColumns2S(std::string first, float second, unsigned int width)
 {
-    printDebugTwoColumns2S(first, std::to_string(second), width);
+    std::ostringstream out;
+    out.precision(4);
+    out << second;
+    printDebugTwoColumns2S(first, out.str(), width);
 }
 
 /**
@@ -230,10 +236,28 @@ void printErrorMsg(std::string str)
 /**
  * @brief Round
  * @param[in] number Float number
+ * @param[in] n Number of decimal places
+ * @return Rounded number
+ */
+float roundf(float number, int n)
+{
+    if (n != 0) {
+        float c = powf(10.0, float(n));
+        float c1 = roundf(number * c);
+        return c1 / c;
+    } else {
+        return (number >= 0.0f) ? floorf(number + 0.5f) : ceilf(number - 0.5f);
+    }
+}
+
+/**
+ * @brief Round
+ * @param[in] number Float number
  * @return Rounded number
  */
 unsigned long long round(float number)
 {
-    return static_cast<unsigned long long>(floor(double(number) + 0.5));
+    return static_cast<unsigned long long>(roundf(number));
 }
+
 }

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing FilesContext class definition.
  *
@@ -207,6 +207,19 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         std::exit(EXIT_FAILURE);
     }
     Helper::printDebugMsg("OK");
+    // Copy dt, dx, dy, dz
+    Helper::printDebugMsgStart("Copy dt, dx, dy, dz");
+    try {
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::DX_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::DY_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::DZ_DATASET, true, false);
+        H5Helper::copyDataset(simOutputFile, file, H5Helper::DT_DATASET, true, false);
+        Helper::printDebugMsg("OK");
+    } catch (std::exception &) {
+        Helper::printDebugMsg("are not in the file");
+        //std::cerr << e.what() << std::endl;
+        //std::exit(EXIT_FAILURE);
+    }
 
     // Copy root (info) attributes to destination h5 file
     Helper::printDebugMsgStart("Copy root (info) attributes");

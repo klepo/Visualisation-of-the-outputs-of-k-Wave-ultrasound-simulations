@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing Decompress class definition.
  *
@@ -81,7 +81,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     // Second decoding parameter - period
     // Third encoding parameter - number of harmonic frequencies
     hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log) : 1;
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeI(H5Helper::C_PERIOD_ATTR, log), mos, harmonics);
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics);
 
     if (log)
         Helper::printDebugMsg("Decompression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
@@ -198,7 +198,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                     //#pragma omp parallel for
                     for (hssize_t p = 0; p < hssize_t(outputStepSize); p++) {
                         hsize_t pOffset = compressHelper->getHarmonics() * hsize_t(p);
-                        hsize_t sP = stepsToWriteOffset + p;
+                        hsize_t sP = stepsToWriteOffset + hsize_t(p);
                         data[sP] = 0;
 
                         // For every hamornics

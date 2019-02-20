@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with Helper namespace declaration.
  *
@@ -21,6 +21,7 @@
 #define HELPER_H
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <string>
 #include <cmath>
@@ -50,6 +51,7 @@ void printDebugTwoColumns2S(std::string first, double second, unsigned int width
 void printDebugString(std::string str);
 void printErrorMsg(std::string str);
 
+float roundf(float number, int n = 0);
 unsigned long long round(float number);
 
 /// Enable debug messages flag

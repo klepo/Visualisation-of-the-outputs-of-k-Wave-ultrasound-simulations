@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with DtsForPcs class declaration.
  *
@@ -34,7 +34,6 @@ public:
     H5Helper::Vector4D getNDims() const;
     H5Helper::Dataset *getSensorMaskIndexDataset() const;
     H5Helper::Dataset *getSensorMaskCornersDataset() const;
-    H5Helper::Dataset *getSourceInputDataset() const;
     H5Helper::MapOfDatasets getDatasets(H5Helper::DatasetType datasetType = H5Helper::DatasetType::ALL) const;
     hsize_t getSensorMaskSize() const;
     hsize_t getSensorMaskType() const;
@@ -56,8 +55,6 @@ private:
     H5Helper::Dataset *sensorMaskIndexDataset = nullptr;
     /// Sensor mask corners dataset
     H5Helper::Dataset *sensorMaskCornersDataset = nullptr;
-    /// Source input dataset
-    H5Helper::Dataset *sourceInputDataset = nullptr;
     /// Sensor mask size
     hsize_t sensorMaskSize = 0;
     /// Sensor mask type

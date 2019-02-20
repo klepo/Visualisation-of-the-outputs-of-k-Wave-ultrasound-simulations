@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing Reshape class definition.
  *
@@ -328,9 +328,13 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
                         || datasetType == H5Helper::DatasetType::TIME_STEPS_C_INDEX
                         || datasetType == H5Helper::DatasetType::TIME_STEPS_D_INDEX
                         || datasetType == H5Helper::DatasetType::TIME_STEPS_S_INDEX) {
-                        dstDataset->writeDataset(H5Helper::Vector4D(step, dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(), (dstPos.x() - globalPos.x()) * xStride), H5Helper::Vector4D(1, 1, 1, xStride), &datasetData[i * xStride], false);
+                        dstDataset->writeDataset(H5Helper::Vector4D(step, dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(), (dstPos.x() - globalPos.x()) * xStride),
+                                                 H5Helper::Vector4D(1, 1, 1, xStride),
+                                                 &datasetData[hsize_t(i) * xStride], false);
                     } else if (datasetType == H5Helper::DatasetType::BASIC_INDEX) {
-                        dstDataset->writeDataset(H5Helper::Vector3D(dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(), (dstPos.x() - globalPos.x())), H5Helper::Vector3D(1, 1, 1), &datasetData[i], false);
+                        dstDataset->writeDataset(H5Helper::Vector3D(dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(), (dstPos.x() - globalPos.x())),
+                                                 H5Helper::Vector3D(1, 1, 1),
+                                                 &datasetData[i], false);
                     } else { // Something wrong.
                         Helper::printErrorMsg("Something wrong with dataset type");
                         return;
@@ -345,7 +349,7 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
                     H5Helper::Vector3D dstPos;
                     H5Helper::convertlinearToMultiDim(sensorMaskData[i] - 1, dstPos, nDims);
                     for (hssize_t j = 0; j < hssize_t(xStride); j++) {
-                        tmpData[(dstPos.z() - globalPos.z()) * datasetDims.y() * datasetDims.x() + (dstPos.y() - globalPos.y()) * datasetDims.x() + (dstPos.x() - globalPos.x()) * xStride + j] = datasetData[i * xStride + j];
+                        tmpData[(dstPos.z() - globalPos.z()) * datasetDims.y() * datasetDims.x() + (dstPos.y() - globalPos.y()) * datasetDims.x() + (dstPos.x() - globalPos.x()) * xStride + hsize_t(j)] = datasetData[hsize_t(i) * xStride + hsize_t(j)];
                     }
                 }
             }

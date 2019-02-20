@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -67,7 +67,7 @@ void Settings::loadParams(int argc, const char **argv)
     paramsDefinition.defineParamsFlag("c", ParamsDefinition::ULONGLONG);
 
     // Period
-    paramsDefinition.defineParamsFlag("p", ParamsDefinition::ULONGLONG);
+    paramsDefinition.defineParamsFlag("p", ParamsDefinition::FLOAT);
 
     // Harmonics
     paramsDefinition.defineParamsFlag("h", ParamsDefinition::ULONGLONG);
@@ -140,7 +140,7 @@ void Settings::loadParams(int argc, const char **argv)
                              "                                          system physical memory.\n"
                              "\n"
                              "  -p period ............................. Optional parameter. Sets period of input signal for\n"
-                             "                                          compression of time series HIFU data.\n"
+                             "                                          compression of time series HIFU data (float).\n"
                              "\n"
                              "  -h harmonics........................... Optional parameter. Sets multiple of harmonic frequency for\n"
                              "                                          compression of time series HIFU data.\n"
@@ -244,7 +244,7 @@ void Settings::loadParams(int argc, const char **argv)
     }
 
     if (flags.at("p").getEnabled()) {
-        unsigned long long period;
+        float period;
         flags.at("p").getParams().readParam(0, &period);
         setPeriod(period);
     }
@@ -474,7 +474,7 @@ unsigned long long Settings::getMaxChunkSizeT() const
  * @brief Returns period
  * @return Period
  */
-unsigned long long Settings::getPeriod() const
+float Settings::getPeriod() const
 {
     return period;
 }
@@ -483,7 +483,7 @@ unsigned long long Settings::getPeriod() const
  * @brief Sets period for compression
  * @param[in] value Period for compression
  */
-void Settings::setPeriod(const unsigned long long &value)
+void Settings::setPeriod(const float &value)
 {
     period = value;
     Helper::printDebugTwoColumns2S("Period for compression", period, 30);

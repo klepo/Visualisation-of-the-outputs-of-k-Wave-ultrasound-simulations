@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              25 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing DtsForPcs class definition.
  *
@@ -54,21 +54,54 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
         Helper::printDebugMsg("Sensor mask is not in simulation output or input file");
     }
 
-    // Try to open the p_source_input dataset for getting the simulation frequency
-    sourceInputDataset = findAndGetDataset(H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
-
-    // Get period from input signal
-    if (!settings->getPeriod() && sourceInputDataset) {
-        if (settings->getFlagComputePeriod()){
-            H5Helper::Vector3D dims = sourceInputDataset->getDims();
+    // Get period from signal
+    if (settings->getFlagComputePeriod()) {
+        // Try to open the p_source_input dataset for getting the simulation frequency
+        H5Helper::Dataset *dataset = findAndGetDataset(H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
+        if (dataset == nullptr) {
+            dataset = findAndGetDataset(H5Helper::P_INDEX_DATASET, filesContext->getSimOutputFile());
+        }
+        if (dataset == nullptr) {
+            dataset = findAndGetDataset(H5Helper::P_CUBOID_DATASET, filesContext->getSimOutputFile());
+        }
+        if (dataset) {
             float *data = nullptr;
-            sourceInputDataset->readDataset(H5Helper::Vector3D(0, 0, 0), H5Helper::Vector3D(1, dims.y(), 1), data);
-            settings->setPeriod(H5Helper::CompressHelper::findPeriod(data, dims.y()));
-            sourceInputDataset->setAttribute("period", settings->getPeriod());
+            hsize_t length = 0;
+            hsize_t limit = 500;
+            if (dataset->getRank() == 3) {
+                H5Helper::Vector3D dims = dataset->getDims();
+                length = dims.y() > limit ? limit : dims.y();
+                dataset->readDataset(H5Helper::Vector3D(0, dims.y() - length, hsize_t(dims.x() / 2)), H5Helper::Vector3D(1, length, 1), data, Helper::enableDebugMsgs);
+            } else if (dataset->getRank() == 4) {
+                H5Helper::Vector4D dims = dataset->getDims();
+                length = dims.t() > limit ? limit : dims.t();
+                dataset->readDataset(H5Helper::Vector4D(dims.t() - length, hsize_t(dims.z() / 2), hsize_t(dims.y() / 2), hsize_t(dims.x() / 2)), H5Helper::Vector4D(length, 1, 1, 1), data, Helper::enableDebugMsgs);
+            }
+            settings->setPeriod(Helper::roundf(H5Helper::CompressHelper::findPeriod(data, length), 3));
+            dataset->setAttribute(H5Helper::PERIOD_ATTR, settings->getPeriod(), Helper::enableDebugMsgs);
             delete[] data;
             data = nullptr;
-        } else if (sourceInputDataset->hasAttribute("period")) {
-            settings->setPeriod(sourceInputDataset->readAttributeI("period", false));
+            dataset->getFile()->closeDataset(dataset, Helper::enableDebugMsgs);
+        } else {
+            Helper::printErrorMsg("Missing signal for the computing of period");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (settings->getPeriod() == 0.0f) {
+        H5Helper::Dataset *dataset = findAndGetDataset(H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
+        if (dataset == nullptr) {
+            dataset = findAndGetDataset(H5Helper::P_INDEX_DATASET, filesContext->getSimOutputFile());
+        }
+        if (dataset == nullptr) {
+            dataset = findAndGetDataset(H5Helper::P_CUBOID_DATASET, filesContext->getSimOutputFile());
+        }
+
+        if (dataset) {
+            if (dataset->hasAttribute(H5Helper::PERIOD_ATTR)) {
+                settings->setPeriod(dataset->readAttributeF(H5Helper::PERIOD_ATTR, Helper::enableDebugMsgs));
+            }
+            dataset->getFile()->closeDataset(dataset, Helper::enableDebugMsgs);
         }
     }
 
@@ -114,15 +147,6 @@ H5Helper::Dataset *DtsForPcs::getSensorMaskIndexDataset() const
 H5Helper::Dataset *DtsForPcs::getSensorMaskCornersDataset() const
 {
     return sensorMaskCornersDataset;
-}
-
-/**
- * @brief Returns source input dataset
- * @return Source input dataset
- */
-H5Helper::Dataset *DtsForPcs::getSourceInputDataset() const
-{
-    return sourceInputDataset;
 }
 
 /**
@@ -232,6 +256,17 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                 if (settings->getFlagInfo()) {
                     Helper::printDebugTwoColumnsTab("size", dataset->getDims());
                     Helper::printDebugTwoColumnsTab("chunk size", dataset->getChunkDims());
+                    if (dataset->getSize() == 1) {
+                        if (dataset->isFloatType()) {
+                            float data;
+                            dataset->readDataset(data, false);
+                            Helper::printDebugTwoColumnsTab("value", data);
+                        } else if (dataset->isIntegerType()) {
+                            hsize_t data;
+                            dataset->readDataset(data, false);
+                            Helper::printDebugTwoColumnsTab("value", data);
+                        }
+                    }
                 }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
