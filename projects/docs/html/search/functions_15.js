@@ -25,6 +25,6 @@ var searchData=
   ['_7esettings3ddockwidget',['~Settings3DDockWidget',['../class_settings3_d_dock_widget.html#a371a1462cc226f13959f96c555f69966',1,'Settings3DDockWidget']]],
   ['_7eslicedockwidget',['~SliceDockWidget',['../class_slice_dock_widget.html#a6797abcfabf17a87aae5afd287f17786',1,'SliceDockWidget']]],
   ['_7etimeseriescontrolgroupbox',['~TimeSeriesControlGroupBox',['../class_time_series_control_group_box.html#abf51b5f8a10dfcfa945638adafc28707',1,'TimeSeriesControlGroupBox']]],
-  ['_7evector',['~Vector',['../class_h5_helper_1_1_vector.html#ade85a65c6400bb5f456226cb187f8f28',1,'H5Helper::Vector']]],
+  ['_7evectort',['~VectorT',['../class_h5_helper_1_1_vector_t.html#a09407fb4216d798cf7196a7a3256f12d',1,'H5Helper::VectorT']]],
   ['_7ewindow3ddockwidget',['~Window3DDockWidget',['../class_window3_d_dock_widget.html#aa01d97e1efccfa81ba961c4931e2ed0e',1,'Window3DDockWidget']]]
 ];

@@ -2,7 +2,7 @@ var searchData=
 [
   ['saveimage',['saveImage',['../class_g_window.html#ae4dade0504db6f86c5b58dcbf71808f4',1,'GWindow::saveImage()'],['../class_image_widget.html#a87708c3a96fa805db909ab8bdd9392df',1,'ImageWidget::saveImage()']]],
   ['selecteddatasetdockwidget',['SelectedDatasetDockWidget',['../class_selected_dataset_dock_widget.html#ac80e37e9ea840cf88c18e3843c492be4',1,'SelectedDatasetDockWidget']]],
-  ['set',['set',['../class_h5_helper_1_1_vector3_d.html#ac1a6101ef38d2fe20dd7acd4a9a0f453',1,'H5Helper::Vector3D::set(hsize_t z, hsize_t y, hsize_t x)'],['../class_h5_helper_1_1_vector3_d.html#a0868b169cc79a2ff016bd3c9a6e2146a',1,'H5Helper::Vector3D::set(int z, int y, int x)'],['../class_h5_helper_1_1_vector4_d.html#aa8cd46137502b9d6119a9dde4e69daec',1,'H5Helper::Vector4D::set(hsize_t w, hsize_t z, hsize_t y, hsize_t x)'],['../class_h5_helper_1_1_vector4_d.html#a627ac24acb299402920c9783b5bb145f',1,'H5Helper::Vector4D::set(int w, int z, int y, int x)']]],
+  ['set',['set',['../class_h5_helper_1_1_vector3_d_t.html#a54171e10bf10cb0ff6382463dacc6027',1,'H5Helper::Vector3DT::set()'],['../class_h5_helper_1_1_vector4_d_t.html#a40527e0b3da0d28f6b9fd65d3f09bfdc',1,'H5Helper::Vector4DT::set()']]],
   ['setadjust',['setAdjust',['../class_image_widget.html#a7bc58d721b520d0b88a3b0ed04680fb6',1,'ImageWidget']]],
   ['setattribute',['setAttribute',['../class_h5_helper_1_1_object.html#afc34518e67a847a707c0c5dbaca40f58',1,'H5Helper::Object::setAttribute(const Attribute *attribute, bool log=true)'],['../class_h5_helper_1_1_object.html#a032880a83c15e09fd81bd33ae8100354',1,'H5Helper::Object::setAttribute(std::string name, int value, bool log=true)'],['../class_h5_helper_1_1_object.html#a90ac1a314b891f95481f1c58a0263603',1,'H5Helper::Object::setAttribute(std::string name, unsigned int value, bool log=true)'],['../class_h5_helper_1_1_object.html#a5570ce8c290e9003be9064ae84f6cfeb',1,'H5Helper::Object::setAttribute(std::string name, hssize_t value, bool log=true)'],['../class_h5_helper_1_1_object.html#a630bee6d1c5bde83339be8139e3ef6cc',1,'H5Helper::Object::setAttribute(std::string name, hsize_t value, bool log=true)'],['../class_h5_helper_1_1_object.html#afd84162f60bd2e4c00b7df1556358169',1,'H5Helper::Object::setAttribute(std::string name, float value, bool log=true)'],['../class_h5_helper_1_1_object.html#a5f6e23028cb6d772442e8afdd6e62047',1,'H5Helper::Object::setAttribute(std::string name, double value, bool log=true)'],['../class_h5_helper_1_1_object.html#a2c285b4a3b9179f1d62051262965bcee',1,'H5Helper::Object::setAttribute(std::string name, long double value, bool log=true)'],['../class_h5_helper_1_1_object.html#afc96e2f9064625c6d79d3dd45963ce87',1,'H5Helper::Object::setAttribute(std::string name, std::string value, bool log=true)']]],
   ['setblocksize',['setBlockSize',['../class_settings.html#a931cbb29691f18d7adf41ecb59537cfd',1,'Settings']]],
@@ -10,6 +10,9 @@ var searchData=
   ['setcompresshelper',['setCompressHelper',['../class_h5_reading_thread.html#ae23db4aca99981815dfb20bab6c5c033',1,'H5ReadingThread']]],
   ['setcurrentstep',['setCurrentStep',['../class_h5_object_to_visualize.html#a86dc6b45f5a746dd7141a528caa90a7c',1,'H5ObjectToVisualize::setCurrentStep()'],['../class_time_series_control_group_box.html#a43437eb542ef5328cdfac73606e8adc5',1,'TimeSeriesControlGroupBox::setCurrentStep()']]],
   ['setdata3dloadingflag',['setData3DLoadingFlag',['../class_h5_object_to_visualize.html#afabeaa458d64ed6f6a8760d08827e44e',1,'H5ObjectToVisualize']]],
+  ['setdataxyloadingflag',['setDataXYLoadingFlag',['../class_h5_object_to_visualize.html#aae5e1f9eb8b7129e3dbebcfdf058c45b',1,'H5ObjectToVisualize']]],
+  ['setdataxzloadingflag',['setDataXZLoadingFlag',['../class_h5_object_to_visualize.html#ae73b6d97ef777b1cb3eb39b07c7b95ed',1,'H5ObjectToVisualize']]],
+  ['setdatayzloadingflag',['setDataYZLoadingFlag',['../class_h5_object_to_visualize.html#abd6c9e276cdb534b1b717eec3d8027e3',1,'H5ObjectToVisualize']]],
   ['setdeletelog',['setDeleteLog',['../class_h5_helper_1_1_object.html#aca49426d396015db7e99dbd9053acd93',1,'H5Helper::Object']]],
   ['setdeletelogging',['setDeleteLogging',['../class_h5_helper_1_1_file.html#a2858e9c2de3eb048aeda789cdf59a0af',1,'H5Helper::File']]],
   ['setenabled',['setEnabled',['../class_params_definition_1_1_flag.html#ae8821c8a68d026d65893b881542cf66d',1,'ParamsDefinition::Flag']]],
@@ -35,7 +38,6 @@ var searchData=
   ['setinfo',['setInfo',['../class_dataset_info_group_box.html#a64dbaa6fe8f8c5e3979abc8297ceb907',1,'DatasetInfoGroupBox']]],
   ['setinterpolationmode',['setInterpolationMode',['../class_g_window.html#a827c7116de8056f47a3bbc78365ceceb',1,'GWindow::setInterpolationMode()'],['../class_settings3_d_dock_widget.html#a613787f660b356f4d019c38909690167',1,'Settings3DDockWidget::setInterpolationMode()']]],
   ['setmaxchunksizes',['setMaxChunkSizes',['../class_settings.html#a77a4b22d79cb73a16903daedf7fadc23',1,'Settings']]],
-  ['setmaxnumberofelmstoload',['setMaxNumberOfElmsToLoad',['../class_h5_helper_1_1_dataset.html#a4e3744be99479599c90d0a622251fc82',1,'H5Helper::Dataset']]],
   ['setmaxsize',['setMaxSize',['../class_settings.html#a0f5afa282fa186f4d1584da172750011',1,'Settings']]],
   ['setmaxvalue',['setMaxValue',['../class_h5_object_to_visualize.html#a7607c7a21ae5500d00677547cf80b7e1',1,'H5ObjectToVisualize::setMaxValue()'],['../class_min_max_group_box.html#a8ccd3ccf4e3f8aa2f99afeec611bd7bb',1,'MinMaxGroupBox::setMaxValue()']]],
   ['setminmaxvaluestrim',['setMinMaxValuesTrim',['../class_h5_object_to_visualize.html#afe1a721e9c5e9c9e7e202dec38e64ee1',1,'H5ObjectToVisualize::setMinMaxValuesTrim()'],['../class_min_max_group_box.html#a849c5ff581c777a618d0c811237725a5',1,'MinMaxGroupBox::setMinMaxValuesTrim()']]],
@@ -49,7 +51,7 @@ var searchData=
   ['setorthogonal',['setOrthogonal',['../class_g_window.html#a9ecc6073e0544f946e8229fdfbb1902b',1,'GWindow']]],
   ['setparam',['setParam',['../class_params_definition_1_1_flag_1_1_params.html#a5dcd612653169ae4d7cf83df2514f41b',1,'ParamsDefinition::Flag::Params::setParam()'],['../class_params_definition_1_1_flag.html#a84d4ab71a13c3e80d299a1c3323c0b04',1,'ParamsDefinition::Flag::setParam()']]],
   ['setparams',['setParams',['../class_params_definition_1_1_flag.html#a2505e7fb65a62e7e8d5ccb05d4ed45a7',1,'ParamsDefinition::Flag']]],
-  ['setperiod',['setPeriod',['../class_settings.html#a8a97e784b3ac13e2ebb1549e468ee8c4',1,'Settings']]],
+  ['setperiod',['setPeriod',['../class_settings.html#a99e42f15aee31280073752f1b6f9e66b',1,'Settings']]],
   ['setprocessinginputfilename',['setProcessingInputFilename',['../class_settings.html#a04aa56a4ad41a19c986a4f9e5f5ee82d',1,'Settings']]],
   ['setprocessingoutputfilename',['setProcessingOutputFilename',['../class_settings.html#a1bfc069a579fdfbe314505b98e5db4e2',1,'Settings']]],
   ['setrange',['setRange',['../class_min_max_group_box.html#a750c757c1c68aada2fb05b3650e96078',1,'MinMaxGroupBox']]],
@@ -86,5 +88,6 @@ var searchData=
   ['slicedockwidget',['SliceDockWidget',['../class_slice_dock_widget.html#a9a7bcb7db9d8e0754b29284932f91143',1,'SliceDockWidget']]],
   ['sliceindexchanged',['sliceIndexChanged',['../class_slice_dock_widget.html#a4d3495374886e67b6d19b559bb3a77fd',1,'SliceDockWidget']]],
   ['stepchanged',['stepChanged',['../class_h5_object_to_visualize.html#a104bc2d0005cd7f2025f5364f0047617',1,'H5ObjectToVisualize::stepChanged()'],['../class_time_series_control_group_box.html#a17ec8dfd99f6b17807faa357cf6b4ebb',1,'TimeSeriesControlGroupBox::stepChanged()']]],
+  ['steprendered',['stepRendered',['../class_g_window.html#a7957a67751a402d769c3cf55e8357e7e',1,'GWindow']]],
   ['stopcurrentblockreading',['stopCurrentBlockReading',['../class_h5_reading_thread.html#ae147e0a015a615bf2084aee8100609ab',1,'H5ReadingThread']]]
 ];

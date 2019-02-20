@@ -24,7 +24,14 @@ var menudata={children:[
 {text:"p",url:"namespacemembers_func.html#index_p"},
 {text:"r",url:"namespacemembers_func.html#index_r"},
 {text:"t",url:"namespacemembers_func.html#index_t"}]},
-{text:"Variables",url:"namespacemembers_vars.html"},
+{text:"Variables",url:"namespacemembers_vars.html",children:[
+{text:"c",url:"namespacemembers_vars.html#index_c"},
+{text:"d",url:"namespacemembers_vars.html#index_d"},
+{text:"e",url:"namespacemembers_vars.html#index_e"},
+{text:"m",url:"namespacemembers_vars.html#index_m"},
+{text:"n",url:"namespacemembers_vars.html#index_n"},
+{text:"p",url:"namespacemembers_vars.html#index_p"},
+{text:"s",url:"namespacemembers_vars.html#index_s"}]},
 {text:"Typedefs",url:"namespacemembers_type.html"},
 {text:"Enumerations",url:"namespacemembers_enum.html"}]}]},
 {text:"Classes",url:"annotated.html",children:[

@@ -15,7 +15,7 @@ var searchData=
   ['removeattribute',['removeAttribute',['../class_h5_helper_1_1_object.html#a2d29c87f9b199bd48c7d0b4f50d87574',1,'H5Helper::Object::removeAttribute(std::string name, bool log=true) const'],['../class_h5_helper_1_1_object.html#a944b7f840b579a2bb70940f4b3cd511f',1,'H5Helper::Object::removeAttribute(unsigned int idx, bool log=true) const']]],
   ['renameattribute',['renameAttribute',['../class_h5_helper_1_1_file.html#a96938910406ff609c0b20c2df3bb6a87',1,'H5Helper::File::renameAttribute(std::string srcName, std::string dstName, hid_t objectId=-1) const'],['../class_h5_helper_1_1_file.html#af3b5dba95feac854722b9dc361c7c3fe',1,'H5Helper::File::renameAttribute(std::string srcName, std::string dstName, std::string objName) const'],['../class_h5_helper_1_1_object.html#a0f77ae4a8d825f97390f06e7d29ee411',1,'H5Helper::Object::renameAttribute()']]],
   ['render',['render',['../class_g_window.html#a998c545343f35a91bf0eaf5564664d1b',1,'GWindow::render()'],['../class_open_g_l_window.html#a0e0194a4f0a30af7249819094c7d1d35',1,'OpenGLWindow::render()']]],
-  ['rendered',['rendered',['../class_open_g_l_window.html#ace3e246dbcbec53193a32f1ebe5e31b9',1,'OpenGLWindow']]],
+  ['rendered',['rendered',['../class_open_g_l_window.html#ad184cf58b28366711c737ef0cdb83279',1,'OpenGLWindow']]],
   ['renderlater',['renderLater',['../class_open_g_l_window.html#abea9e50147496e5110b86f03122fbece',1,'OpenGLWindow']]],
   ['rendernow',['renderNow',['../class_open_g_l_window.html#a8398ed62d646739fe54fae94c477ad1d',1,'OpenGLWindow']]],
   ['request',['Request',['../class_request.html',1,'Request'],['../class_request.html#ad503367bfc64bc2f5b8be874ba67a748',1,'Request::Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC=nullptr, float *dataCC=nullptr)'],['../class_request.html#a6310191e08db4a699de5c015d7069407',1,'Request::Request(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC=nullptr, float *dataCC=nullptr)']]],
@@ -25,5 +25,6 @@ var searchData=
   ['reshape_2eh',['reshape.h',['../reshape_8h.html',1,'']]],
   ['resizeevent',['resizeEvent',['../class_g_window.html#abc0022eaedc32b2f5d622f2e062ac8b9',1,'GWindow']]],
   ['round',['round',['../namespace_helper.html#a9da30bb6051be147d47ebcc86b161dfb',1,'Helper']]],
+  ['roundf',['roundf',['../namespace_helper.html#a00b7fa2470b3d400ec5b23bf7295caf8',1,'Helper']]],
   ['run',['run',['../class_h5_reading_thread.html#aa7255e3de1349134cea15dc94e7aa73d',1,'H5ReadingThread']]]
 ];

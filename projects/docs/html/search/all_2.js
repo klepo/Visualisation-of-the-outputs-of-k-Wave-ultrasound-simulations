@@ -1,8 +1,8 @@
 var searchData=
 [
   ['data',['data',['../class_color_map.html#a1166db02fc6f2af41e9279f2a1186327',1,'ColorMap::data()'],['../class_request.html#a86366d6d5962e0e22df06531bb4b7bf5',1,'Request::data()']]],
-  ['data3dchanged',['data3DChanged',['../class_h5_object_to_visualize.html#accd3ffea0c76b1764b0452518387f673',1,'H5ObjectToVisualize']]],
-  ['data3dcompresschanged',['data3DCompressChanged',['../class_h5_object_to_visualize.html#a474171d8fc2345223bd59242487dfcdb',1,'H5ObjectToVisualize']]],
+  ['data3dchanged',['data3DChanged',['../class_h5_object_to_visualize.html#aac9af12d416d2738d8a524783ae2acc9',1,'H5ObjectToVisualize']]],
+  ['data3dcompresschanged',['data3DCompressChanged',['../class_h5_object_to_visualize.html#a8422d789f01a63d556de96bc3c1a5a26',1,'H5ObjectToVisualize']]],
   ['data3dloadingstarted',['data3DLoadingStarted',['../class_h5_object_to_visualize.html#a7ba889be533f5de0251eea907c134218',1,'H5ObjectToVisualize']]],
   ['datacc',['dataCC',['../class_request.html#afcb6c4643fcf982887eba5e0bbc40f73',1,'Request']]],
   ['dataccchanged',['dataCCChanged',['../class_request.html#a5a15815f840483a4b98c474ef776cc8f',1,'Request']]],
@@ -19,11 +19,11 @@ var searchData=
   ['datasetsdockwidget_2eh',['datasetsdockwidget.h',['../datasetsdockwidget_8h.html',1,'']]],
   ['datasetselectionchanged',['datasetSelectionChanged',['../class_datasets_dock_widget.html#aea40ed14297e18adff4ea216e584113e',1,'DatasetsDockWidget']]],
   ['datasettype',['DatasetType',['../namespace_h5_helper.html#aa8a1badac8d4ead79f2465f9620132ed',1,'H5Helper']]],
-  ['dataxychanged',['dataXYChanged',['../class_h5_object_to_visualize.html#a82eddd1a3bc53a0a500d366e68b3ab16',1,'H5ObjectToVisualize']]],
+  ['dataxychanged',['dataXYChanged',['../class_h5_object_to_visualize.html#aaa8d02422859d7523f20bcc53b4bbde1',1,'H5ObjectToVisualize']]],
   ['dataxyloadingstarted',['dataXYLoadingStarted',['../class_h5_object_to_visualize.html#a5cb004edb521604f250115026bd0637a',1,'H5ObjectToVisualize']]],
-  ['dataxzchanged',['dataXZChanged',['../class_h5_object_to_visualize.html#a237b75f026fee9c22be600cf5b7d486f',1,'H5ObjectToVisualize']]],
+  ['dataxzchanged',['dataXZChanged',['../class_h5_object_to_visualize.html#ae414f87922a8670657ca2534ce448d91',1,'H5ObjectToVisualize']]],
   ['dataxzloadingstarted',['dataXZLoadingStarted',['../class_h5_object_to_visualize.html#a776b22916b8b9b9289d2e0980b9acc57',1,'H5ObjectToVisualize']]],
-  ['datayzchanged',['dataYZChanged',['../class_h5_object_to_visualize.html#a9fedeaa8f24733f9fd105bc3a7d1e9e0',1,'H5ObjectToVisualize']]],
+  ['datayzchanged',['dataYZChanged',['../class_h5_object_to_visualize.html#a02ceba1fd1bbe7aa80a7953bdb7740b8',1,'H5ObjectToVisualize']]],
   ['datayzloadingstarted',['dataYZLoadingStarted',['../class_h5_object_to_visualize.html#a612e19f2900e415ebaad997312384c45',1,'H5ObjectToVisualize']]],
   ['decompress',['Decompress',['../class_decompress.html',1,'Decompress'],['../class_decompress.html#a1412f7ebe064c7767f314246a3e823db',1,'Decompress::Decompress()']]],
   ['decompress_2ecpp',['decompress.cpp',['../decompress_8cpp.html',1,'']]],
@@ -39,7 +39,11 @@ var searchData=
   ['downsampling',['Downsampling',['../class_downsampling.html',1,'Downsampling'],['../class_downsampling.html#a7918e29f42f48ad8bc1cd9e8029dc3ca',1,'Downsampling::Downsampling()']]],
   ['downsampling_2ecpp',['downsampling.cpp',['../downsampling_8cpp.html',1,'']]],
   ['downsampling_2eh',['downsampling.h',['../downsampling_8h.html',1,'']]],
+  ['dt_5fdataset',['DT_DATASET',['../namespace_h5_helper.html#a349cc932705c6dc5f31475d3a12beeb2',1,'H5Helper']]],
   ['dtsforpcs',['DtsForPcs',['../class_dts_for_pcs.html',1,'DtsForPcs'],['../class_dts_for_pcs.html#a40cc79b14cb8a86b76c5972afa8fe9a1',1,'DtsForPcs::DtsForPcs()']]],
   ['dtsforpcs_2ecpp',['dtsforpcs.cpp',['../dtsforpcs_8cpp.html',1,'']]],
-  ['dtsforpcs_2eh',['dtsforpcs.h',['../dtsforpcs_8h.html',1,'']]]
+  ['dtsforpcs_2eh',['dtsforpcs.h',['../dtsforpcs_8h.html',1,'']]],
+  ['dx_5fdataset',['DX_DATASET',['../namespace_h5_helper.html#a762d4f90f4d9e3ec14cf9a98b66230b4',1,'H5Helper']]],
+  ['dy_5fdataset',['DY_DATASET',['../namespace_h5_helper.html#a3362baf6ae7b7f2956bd38f0b80c7ace',1,'H5Helper']]],
+  ['dz_5fdataset',['DZ_DATASET',['../namespace_h5_helper.html#a540d4de28df79555d6fd88e86b2d447c',1,'H5Helper']]]
 ];
