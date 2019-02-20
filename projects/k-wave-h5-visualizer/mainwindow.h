@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 October   2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with MainWindow class declaration.
  *
@@ -63,8 +63,11 @@ private slots:
 private:
     Q_DISABLE_COPY(MainWindow)
 
+    /// Last 3D XY view flag
     bool last3DXY = true;
+    /// Last 3D XZ view flag
     bool last3DXZ = true;
+    /// Last 3D YZ view flag
     bool last3DYZ = true;
 
     void connectGWindowActions(GWindow *gWindow);
@@ -76,7 +79,9 @@ private:
     /// Opened H5 file
     H5OpenedFile *openedH5File = nullptr;
 
+    /// Loading animation
     QMovie *movie;
+    /// Loading label for animation
     QLabel *labelLoading;
 };
 

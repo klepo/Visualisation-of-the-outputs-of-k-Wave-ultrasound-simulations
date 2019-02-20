@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with GWindow class declaration.
  *
@@ -56,10 +56,25 @@ signals:
      * @param[in] value View volume rendering flag
      */
     void viewVolumeRenderingChanged(bool value);
+    /**
+     * @brief View XY slice changed signal
+     * @param[in] value View XY slice flag
+     */
     void viewXYSliceChanged(bool value);
+    /**
+     * @brief View XZ slice changed signal
+     * @param[in] value XZ slice flag
+     */
     void viewXZSliceChanged(bool value);
+    /**
+     * @brief View YZ slice changed signal
+     * @param[in] value View YZ slice flag
+     */
     void viewYZSliceChanged(bool value);
 
+    /**
+     * @brief Step rendered signal
+     */
     void stepRendered(qint64, hsize_t);
 
 public slots:

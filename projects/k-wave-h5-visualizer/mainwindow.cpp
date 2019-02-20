@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing MainWindow class definition.
  *
@@ -150,7 +150,7 @@ void MainWindow::on_actionCloseHDF5File_triggered()
 
 /**
  * @brief Shows FPS
- * @param[in] time Render time in ms
+ * @param[in] elapsedNs Render time in ns
  */
 void MainWindow::showFPS(qint64 elapsedNs)
 {
@@ -161,12 +161,18 @@ void MainWindow::showFPS(qint64 elapsedNs)
     ui->dockWidgetWindow3D->setWindowTitle("3D view, last render time: " + ms + "ms (" + framesPerSecond + " fps)");
 }
 
+/**
+ * @brief Shows opening file animation
+ */
 void MainWindow::showOpeningFile()
 {
     statusBar()->showMessage("Opening file ...");
     labelLoading->setMovie(movie);
 }
 
+/**
+ * @brief Hides opening file animation
+ */
 void MainWindow::hideOpeningFile()
 {
     labelLoading->clear();
@@ -330,6 +336,10 @@ void MainWindow::clearGUI()
     clearGUIForDataset();
 }
 
+/**
+ * @brief Sets, Disable or enable 3D XY slice view
+ * @param[in] visible True/False
+ */
 void MainWindow::on_dockWidgetSliceXY_visibilityChanged(bool visible)
 {
     if (visible) {
@@ -342,6 +352,10 @@ void MainWindow::on_dockWidgetSliceXY_visibilityChanged(bool visible)
     }
 }
 
+/**
+ * @brief Sets, Disable or enable 3D XZ slice view
+ * @param[in] visible True/False
+ */
 void MainWindow::on_dockWidgetSliceXZ_visibilityChanged(bool visible)
 {
     if (visible) {
@@ -354,6 +368,10 @@ void MainWindow::on_dockWidgetSliceXZ_visibilityChanged(bool visible)
     }
 }
 
+/**
+ * @brief Sets, Disable or enable 3D YZ slice view
+ * @param[in] visible True/False
+ */
 void MainWindow::on_dockWidgetSliceYZ_visibilityChanged(bool visible)
 {
     if (visible) {

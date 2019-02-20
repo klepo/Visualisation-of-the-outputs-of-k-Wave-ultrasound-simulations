@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              29 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The header file with H5ObjectToVisualize class declaration.
  *
@@ -183,34 +183,40 @@ signals:
 
     /**
      * @brief Data 3D changed signal
+     * @param[in] step Global step
      * @param[in] data3D Data 3D
      */
     void data3DChanged(hsize_t step, const float *data3D);
     /**
      * @brief Data 3D compress changed signal
+     * @param[in] step Global step
      * @param[in] data3DLC Data 3D for last compress coefficient
      * @param[in] data3DCC Data 3D for current compress coefficient
      */
     void data3DCompressChanged(hsize_t step, const float *data3DLC, const float *data3DCC);
     /**
      * @brief Local step 3D compress changed signal
+     * @param[in] step Global step
      * @param[in] localStep Local step
      */
     void localStep3DCompressChanged(hsize_t step, hsize_t localStep);
     /**
      * @brief Data XY changed signal
+     * @param[in] step Global step
      * @param[in] data Data
      * @param[in] index Index
      */
     void dataXYChanged(hsize_t step, const float *data, hsize_t index);
     /**
      * @brief Data XZ changed signal
+     * @param[in] step Global step
      * @param[in] data Data
      * @param[in] index Index
      */
     void dataXZChanged(hsize_t step, const float *data, hsize_t index);
     /**
      * @brief Data YZ changed signal
+     * @param[in] step Global step
      * @param[in] data Data
      * @param[in] index Index
      */
@@ -240,22 +246,22 @@ signals:
 
     /**
      * @brief Last XY reading time in nanoseconds
-     * @param[in] time Time
+     * @param[in] elapsedNs Time in ns
      */
     void lastXYReadingTimeNs(qint64 elapsedNs);
     /**
      * @brief Last XZ reading time in nanoseconds
-     * @param[in] time Time
+     * @param[in] elapsedNs Time in ns
      */
     void lastXZReadingTimeNs(qint64 elapsedNs);
     /**
      * @brief Last YZ reading time in nanoseconds
-     * @param[in] time Time
+     * @param[in] elapsedNs Time in ns
      */
     void lastYZReadingTimeNs(qint64 elapsedNs);
     /**
      * @brief Last 3D reading time in nanoseconds
-     * @param[in] time Time
+     * @param[in] elapsedNs Time in ns
      */
     void last3DReadingTimeNs(qint64 elapsedNs);
 
@@ -407,6 +413,8 @@ private:
     H5Helper::Vector3D originalSize;
     /// Size
     H5Helper::Vector3D size;
+    /// Size
+    H5Helper::Vector4DF pointSpacing;
     /// Original position
     H5Helper::Vector3D originalPosition;
     /// Position
@@ -420,16 +428,25 @@ private:
     /// Number of steps
     hsize_t steps = 1;
 
-    //Log times
+    /// Log times XY
     QVector<qint64> timesXY;
+    /// Log steps XY
     QVector<hsize_t> stepsXY;
+    /// Log times XZ
     QVector<qint64> timesXZ;
+    /// Log steps XZ
     QVector<hsize_t> stepsXZ;
+    /// Log times YZ
     QVector<qint64> timesYZ;
+    /// Log steps YZ
     QVector<hsize_t> stepsYZ;
+    /// Log times 3D
     QVector<qint64> times3D;
+    /// Log steps 3D
     QVector<hsize_t> steps3D;
+    /// Log render times
     QVector<qint64> renderTimes;
+    /// Log steps steps
     QVector<hsize_t> renderSteps;
 
     /// Compression helper

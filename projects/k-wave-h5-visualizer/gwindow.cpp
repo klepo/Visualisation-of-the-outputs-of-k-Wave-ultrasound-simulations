@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              22 November  2018 (updated)
+ *              20 February  2019 (updated)
  *
  * @brief       The implementation file containing GWindow class definition.
  *
@@ -1270,6 +1270,7 @@ void GWindow::setDatasetPosition(QVector3DI position)
 
 /**
  * @brief Sets XY slice data to texture
+ * @param[in] step Global step
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
@@ -1295,6 +1296,7 @@ void GWindow::setXYSlice(hsize_t step, const float *data, hsize_t index)
 
 /**
  * @brief Sets XZ slice data to texture
+ * @param[in] step Global step
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
@@ -1320,6 +1322,7 @@ void GWindow::setXZSlice(hsize_t step, const float *data, hsize_t index)
 
 /**
  * @brief Sets YZ slice data to texture
+ * @param[in] step Global step
  * @param[in] data Slice data
  * @param[in] index Slice index
  */
@@ -1345,6 +1348,7 @@ void GWindow::setYZSlice(hsize_t step, const float *data, hsize_t index)
 
 /**
  * @brief Sets 3D data to 3D texture
+ * @param[in] step Global step
  * @param[in] data 3D data
  */
 void GWindow::set3DData(hsize_t step, const float *data)
@@ -1367,6 +1371,7 @@ void GWindow::set3DData(hsize_t step, const float *data)
 
 /**
  * @brief Sets 3D compression coefficients data to 3D texture
+ * @param[in] step Global step
  * @param[in] dataLC 3D compression last coefficients data
  * @param[in] dataCC 3D compression current coefficients data
  */
@@ -1402,6 +1407,7 @@ void GWindow::set3DCompressData(hsize_t step, const float *dataLC, const float *
 
 /**
  * @brief Sets 3D compression coefficients local step
+ * @param[in] step Global step
  * @param[in] localStep Local step between coefficients
  */
 void GWindow::set3DCompressLocalStep(hsize_t step, hsize_t localStep)
@@ -1415,6 +1421,10 @@ void GWindow::set3DCompressLocalStep(hsize_t step, hsize_t localStep)
     }
 }
 
+/**
+ * @brief gWindow rendered
+ * @param[in] elapsedNs Elapsed nanoseconds
+ */
 void GWindow::gWindowRendered(qint64 elapsedNs)
 {
     emit stepRendered(elapsedNs, currentStep);
