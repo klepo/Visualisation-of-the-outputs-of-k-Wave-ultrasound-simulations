@@ -35,6 +35,7 @@ var searchData=
   ['setflaglog',['setFlagLog',['../class_settings.html#ae37ba92366baa6a7ab46d7655d62f0ff',1,'Settings']]],
   ['setflagnames',['setFlagNames',['../class_settings.html#ad8284d825914ba1ae939344cc146b1c4',1,'Settings']]],
   ['setflagreshape',['setFlagReshape',['../class_settings.html#a86d7ca9562b52a8252d1501fc0b1785c',1,'Settings']]],
+  ['setfrequency',['setFrequency',['../class_settings.html#ac755c2e089c665d8e9ce081ef084b391',1,'Settings']]],
   ['setharmonic',['setHarmonic',['../class_settings.html#afa42d326917ea200abc7900181a69267',1,'Settings']]],
   ['sethelp',['setHelp',['../class_params_definition.html#ac914bf2e4f2c8397fa8ebbffbfb5fcf8',1,'ParamsDefinition']]],
   ['sethoveredpointinimagexy',['setHoveredPointInImageXY',['../class_h5_object_to_visualize.html#a02c2d903f9578ff8c3edbb92536b899f',1,'H5ObjectToVisualize']]],

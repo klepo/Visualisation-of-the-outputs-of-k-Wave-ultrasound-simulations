@@ -45,7 +45,7 @@ var searchData=
   ['getflagreshape',['getFlagReshape',['../class_settings.html#af848479da9e7ff6c200b93f4c31c49b2',1,'Settings']]],
   ['getflags',['getFlags',['../class_params_definition.html#a2418d57648370b65e6ed4f9c0f3e6105',1,'ParamsDefinition']]],
   ['getframesize',['getFrameSize',['../class_h5_object_to_visualize.html#ae99b92c2df7402e8264b9d210693722c',1,'H5ObjectToVisualize']]],
-  ['getfrequency',['getFrequency',['../class_h5_helper_1_1_file.html#a5b9b0ed849a6627e9cc3ed05ac97f9b2',1,'H5Helper::File']]],
+  ['getfrequency',['getFrequency',['../class_h5_helper_1_1_file.html#a5b9b0ed849a6627e9cc3ed05ac97f9b2',1,'H5Helper::File::getFrequency()'],['../class_settings.html#ab92deb5e9cf3a12edb008cc15de008d2',1,'Settings::getFrequency()']]],
   ['getgeneralblockdims',['getGeneralBlockDims',['../class_h5_helper_1_1_dataset.html#a4c1e97e130558463240ea3fc9d2e5cae',1,'H5Helper::Dataset']]],
   ['getglerrorstring',['getGLErrorString',['../class_open_g_l_window.html#a5060167bb1001ccc6e9cd3ff871842d3',1,'OpenGLWindow']]],
   ['getglframebufferstatusstring',['getGLFramebufferStatusString',['../class_open_g_l_window.html#a388edb5cf1ac6cb8fa490fc6f645fce4',1,'OpenGLWindow']]],
