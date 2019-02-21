@@ -18,7 +18,6 @@ TARGET = k-wave-h5-helper
 VERSION = 1.1
 
 win32:QMAKE_LFLAGS += /ignore:4099
-win32:QMAKE_CXXFLAGS += -wd4068
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD

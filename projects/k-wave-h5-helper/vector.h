@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <cstring>
 
+#pragma warning(disable:4068)
 #pragma clang diagnostic ignored "-Wfloat-equal"
 
 namespace H5Helper
