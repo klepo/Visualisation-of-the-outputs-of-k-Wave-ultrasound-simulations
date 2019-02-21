@@ -29,11 +29,12 @@ FilesContext::FilesContext(const Settings *settings)
     // Load simulation output file
     if (!settings->getSimulationOutputFilename().empty()) {
         simOutputFile = loadSimulationFile(settings->getSimulationOutputFilename());
-        if (settings->getBlockSize() != 0)
+        if (settings->getBlockSize() != 0) {
             simOutputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+        }
     } else {
-        Helper::printErrorMsg("Missing parameter -f (simulation output filename)");
         Helper::printMsg(settings->getParamsDefinition().getHelp());
+        Helper::printErrorMsg("Missing parameter -f (simulation output filename)");
         exit(EXIT_FAILURE);
     }
 
@@ -41,8 +42,9 @@ FilesContext::FilesContext(const Settings *settings)
     if (!settings->getSimulationInputFilename().empty()) {
         Helper::printDebugTitle("Loading of simulation input file");
         simInputFile = loadSimulationFile(settings->getSimulationInputFilename());
-        if (settings->getBlockSize() != 0)
+        if (settings->getBlockSize() != 0) {
             simInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+        }
     }
 
     // Create or open processing output file
@@ -54,8 +56,9 @@ FilesContext::FilesContext(const Settings *settings)
     if (!settings->getProcessingInputFilename().empty()) {
         Helper::printDebugTitle("Loading of processing input file");
         pcsInputFile = loadSimulationFile(settings->getProcessingInputFilename());
-        if (settings->getBlockSize() != 0)
+        if (settings->getBlockSize() != 0) {
             pcsInputFile->setNumberOfElmsToLoad(settings->getBlockSize());
+        }
     }
 }
 

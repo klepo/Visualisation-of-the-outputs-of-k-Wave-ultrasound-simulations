@@ -54,6 +54,12 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
         Helper::printDebugMsg("Sensor mask is not in simulation output or input file");
     }
 
+    if (settings->getFrequency() > 0 && settings->getPeriod() > 0) {
+        Helper::printMsg(settings->getParamsDefinition().getHelp());
+        Helper::printErrorMsg("Set period or frequency, not both");
+        exit(EXIT_FAILURE);
+    }
+
     // Get period from signal
     if (settings->getFlagComputePeriod()) {
         // Try to open the p_source_input dataset for getting the simulation frequency
@@ -84,6 +90,18 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             dataset->getFile()->closeDataset(dataset, Helper::enableDebugMsgs);
         } else {
             Helper::printErrorMsg("Missing signal for the computing of period");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // TODO check this
+    if (settings->getFrequency() > 0) {
+        if (filesContext->getSimOutputFile()->getDValues().t() > 0) {
+            settings->setPeriod(filesContext->getSimOutputFile()->getPeriod(settings->getFrequency()));
+        } else if (filesContext->getSimInputFile() != nullptr && filesContext->getSimInputFile()->getDValues().t() > 0) {
+            settings->setPeriod(filesContext->getSimInputFile()->getPeriod(settings->getFrequency()));
+        } else {
+            Helper::printErrorMsg("Cannot compute period from frequency, missing dt dataset");
             exit(EXIT_FAILURE);
         }
     }

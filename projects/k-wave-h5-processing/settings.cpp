@@ -69,6 +69,9 @@ void Settings::loadParams(int argc, const char **argv)
     // Period
     paramsDefinition.defineParamsFlag("p", ParamsDefinition::FLOAT);
 
+    // Frequency
+    paramsDefinition.defineParamsFlag("fq", ParamsDefinition::FLOAT);
+
     // Harmonics
     paramsDefinition.defineParamsFlag("h", ParamsDefinition::ULONGLONG);
 
@@ -140,6 +143,9 @@ void Settings::loadParams(int argc, const char **argv)
                              "                                          system physical memory.\n"
                              "\n"
                              "  -p period ............................. Optional parameter. Sets period of input signal for\n"
+                             "                                          compression of time series HIFU data (float).\n"
+                             "\n"
+                             "  -fq frequency ......................... Optional parameter. Sets frequency of input signal for\n"
                              "                                          compression of time series HIFU data (float).\n"
                              "\n"
                              "  -h harmonics........................... Optional parameter. Sets multiple of harmonic frequency for\n"
@@ -247,6 +253,12 @@ void Settings::loadParams(int argc, const char **argv)
         float period;
         flags.at("p").getParams().readParam(0, &period);
         setPeriod(period);
+    }
+
+    if (flags.at("fq").getEnabled()) {
+        float frequency;
+        flags.at("fq").getParams().readParam(0, &frequency);
+        setFrequency(frequency);
     }
 
     if (flags.at("h").getEnabled()) {
@@ -487,6 +499,25 @@ void Settings::setPeriod(const float &value)
 {
     period = value;
     Helper::printDebugTwoColumns2S("Period for compression", period, 30);
+}
+
+/**
+ * @brief Returns frequency
+ * @return Frequency
+ */
+float Settings::getFrequency() const
+{
+    return frequency;
+}
+
+/**
+ * @brief Sets frequency for compression
+ * @param[in] value Frequency for compression
+ */
+void Settings::setFrequency(const float &value)
+{
+    frequency = value;
+    Helper::printDebugTwoColumns2S("Frequency for compression", frequency, 30);
 }
 
 /**

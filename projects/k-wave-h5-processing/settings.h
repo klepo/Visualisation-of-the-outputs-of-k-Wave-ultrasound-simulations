@@ -66,9 +66,11 @@ public:
     unsigned long long getMaxChunkSizeW() const;
     unsigned long long getMaxChunkSizeT() const;
 
-    // Period
+    // Period or frequency
     float getPeriod() const;
     void setPeriod(const float &value);
+    float getFrequency() const;
+    void setFrequency(const float &value);
 
     // Harmonic
     unsigned long long getHarmonics() const;
@@ -122,6 +124,8 @@ private:
     unsigned long long blockSize = 0;
     /// Period
     float period = 0.0f;
+    /// Input frequency
+    float frequency = 0.0f;
     /// Number of harmonics
     unsigned long long harmonics = 1;
     /// Multiple of overlap size
