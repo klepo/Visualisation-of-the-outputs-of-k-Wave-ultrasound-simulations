@@ -70,7 +70,7 @@ CompressHelper::~CompressHelper()
 }
 
 /**
- * @brief Computes period form data
+ * @brief Computes period from data
  * @param[in] dataSrc Source data
  * @param[in] length Source length
  * @return Period
