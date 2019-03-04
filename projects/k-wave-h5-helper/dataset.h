@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              20 February  2019 (updated)
+ *              3  March     2019 (updated)
  *
  * @brief       The header file with H5Helper::Dataset class declaration.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -160,16 +160,16 @@ private:
     Vector getBlockDims(hsize_t index) const;
     Vector getBlockOffset(hsize_t index) const;
 
-    void checkDataTypeAndAllocation(float *&data, int type, hsize_t size) const;
-    void checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size) const;
+    void checkDataTypeAndAllocation(float *&data, hid_t type, hsize_t size) const;
+    void checkDataTypeAndAllocation(hsize_t *&data, hid_t type, hsize_t size) const;
 
-    void checkType(int type) const;
+    void checkType(hid_t type) const;
     void checkFloatType() const;
     void checkIntegerType() const;
 
-    std::string dataTypeString(int type) const;
-    std::string memoryErrorMessage(hsize_t size, int type) const;
-    std::string readErrorMessage(hsize_t size, int type) const;
+    std::string dataTypeString(hid_t type) const;
+    std::string memoryErrorMessage(hsize_t size, hid_t type) const;
+    std::string readErrorMessage(hsize_t size, hid_t type) const;
 
     void printsReadingMessage(hsize_t block = 0) const;
     void printsReadingTimeMessage(double t0, double t1) const;

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              20 February  2019 (updated)
+ *              3  March     2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::Dataset class definition.
  *
@@ -15,7 +15,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -1400,7 +1400,7 @@ Vector Dataset::getBlockOffset(hsize_t index) const
  * @param[in] size
  * @throw std::runtime_error
  */
-void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size) const
+void Dataset::checkDataTypeAndAllocation(hsize_t *&data, hid_t type, hsize_t size) const
 {
     checkType(type);
 
@@ -1424,7 +1424,7 @@ void Dataset::checkDataTypeAndAllocation(hsize_t *&data, int type, hsize_t size)
  * @param[in] size
  * @throw std::runtime_error
  */
-void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size) const
+void Dataset::checkDataTypeAndAllocation(float *&data, hid_t type, hsize_t size) const
 {
     checkType(type);
 
@@ -1445,7 +1445,7 @@ void Dataset::checkDataTypeAndAllocation(float *&data, int type, hsize_t size) c
  * @brief Checks datatype (H5T_NATIVE_FLOAT or H5T_NATIVE_UINT64)
  * @param[in] type Datatype
  */
-void Dataset::checkType(int type) const
+void Dataset::checkType(hid_t type) const
 {
     if (type == H5T_NATIVE_FLOAT) {
         if (!isFloatType())
@@ -1479,7 +1479,7 @@ void Dataset::checkIntegerType() const
  * @param[in] type Datatype
  * @return Datatype as string
  */
-std::string Dataset::dataTypeString(int type) const
+std::string Dataset::dataTypeString(hid_t type) const
 {
     std::string typeStr = "unknown type";
     if (type == H5T_NATIVE_UINT64)
@@ -1495,7 +1495,7 @@ std::string Dataset::dataTypeString(int type) const
  * @param[in] type Datatype
  * @return Memory error message
  */
-std::string Dataset::memoryErrorMessage(hsize_t size, int type) const
+std::string Dataset::memoryErrorMessage(hsize_t size, hid_t type) const
 {
     return "There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " " + dataTypeString(type) + ")";
 }
@@ -1506,7 +1506,7 @@ std::string Dataset::memoryErrorMessage(hsize_t size, int type) const
  * @param[in] type Datatype
  * @return Read error message
  */
-std::string Dataset::readErrorMessage(hsize_t size, int type) const
+std::string Dataset::readErrorMessage(hsize_t size, hid_t type) const
 {
     return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type) + " (max size: " + std::to_string(getNumberOfElmsToLoad()) + " " + dataTypeString(type) + ")";
 }

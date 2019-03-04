@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              20 February  2019 (updated)
+ *              3  March     2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -15,7 +15,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -615,7 +615,7 @@ void File::closeObject(const Object *object, bool log)
  */
 hsize_t File::getNumObjs(hid_t groupId) const
 {
-    int groupIdTmp = groupId;
+    hid_t groupIdTmp = groupId;
     if (groupId <= 0)
         groupIdTmp = fileId;
 
@@ -636,7 +636,7 @@ hsize_t File::getNumObjs(hid_t groupId) const
  */
 std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
 {
-    int groupIdTmp = groupId;
+    hid_t groupIdTmp = groupId;
     if (groupId <= 0)
         groupIdTmp = fileId;
 
@@ -741,7 +741,7 @@ void File::objRename(std::string srcName, std::string dstName) const
  */
 void File::renameAttribute(std::string srcName, std::string dstName, hid_t objectId) const
 {
-    int objectIdTmp = objectId;
+    hid_t objectIdTmp = objectId;
     if (objectId <= 0)
         objectIdTmp = fileId;
 
