@@ -114,4 +114,5 @@ endif()
 message(STATUS "PROJECT_NAME=" "${PROJECT_NAME}")
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${HDF5_INCLUDE_DIR})
+target_compile_options(${PROJECT_NAME} PUBLIC ${OpenMP_LINK_FLAG})
 target_link_libraries(${PROJECT_NAME} ${OpenMP_LINK_FLAG} ${HDF5_LIBRARIES})
