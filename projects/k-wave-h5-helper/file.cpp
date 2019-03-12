@@ -268,9 +268,10 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
     size_t pos = 0;
     std::string token;
     while ((pos = s.find(delimiter)) != std::string::npos) {
-        token = s.substr(0, pos);
+        token += s.substr(0, pos);
         if (token.length() > 0)
             createGroup(token, false, log);
+        token += "/";
         s.erase(0, pos + delimiter.length());
     }
 
@@ -278,7 +279,7 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
         std::cout << "Creating dataset \"" << name << "\" ";
 
     if (rewrite) {
-        if (H5Lexists(fileId, name.c_str(), 0)) {
+        if (objExistsByName(name, fileId)) {
             Dataset *dataset = openDataset(name, false);
             if (H5Tequal(dataset->getDataType(), datatypeId) && dataset->getDims() == size && dataset->getChunkDims() == chunkSize) {
                 if (log)
@@ -424,7 +425,7 @@ void File::createGroup(std::string name, bool rewrite, bool log) const
             std::cout << "... rewrite ";
     }
 
-    if (!H5Lexists(fileId, name.c_str(), 0)) {
+    if (!objExistsByName(name, fileId)) {
         hid_t groupId = H5Gcreate(fileId, name.c_str(), 0, 0, 0);
         if (groupId < 0) {
             if (log)
@@ -711,10 +712,30 @@ bool File::objExistsByName(std::string name, hid_t groupId) const
     if (groupId <= 0)
         groupIdTmp = fileId;
 
-    if (H5Lexists(groupIdTmp, name.c_str(), 0))
-        return H5Oexists_by_name(groupIdTmp, name.c_str(), 0) != 0;
-    else
+    // Check every group
+    std::string s = name;
+    std::string delimiter = "/";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token += s.substr(0, pos);
+        if (token.length() > 0) {
+            if (H5Lexists(groupIdTmp, token.c_str(), 0) <= 0) {
+                return false;
+            } else {
+                if (H5Oexists_by_name(groupIdTmp, token.c_str(), 0) <= 0) {
+                    return false;
+                }
+            }
+        }
+        token += "/";
+        s.erase(0, pos + delimiter.length());
+    }
+    if (H5Lexists(groupIdTmp, name.c_str(), 0) > 0) {
+        return (H5Oexists_by_name(groupIdTmp, name.c_str(), 0) > 0);
+    } else {
         return false;
+    }
 }
 
 /**

@@ -220,21 +220,21 @@ private:
     /// Grid point spacing
     Vector4DF dValues;
     /// Filename
-    std::string filename;
+    std::string filename = "";
     /// Number of elements to load for block reading
     hsize_t numberOfElementsToLoad = 512 * 512 * 512;
     /// File access property list id
-    hid_t pListFileAccessId;
+    hid_t pListFileAccessId = -1;
     /// File id
-    hid_t fileId;
+    hid_t fileId = -1;
     /// Map of objects
     MapOfObjects objects;
     /// Delete logging flag
     bool deleteLogging = true;
     /// Error handle
-    herr_t err;
+    herr_t err = -1;
     /// MPI size
-    int mPISize;
+    int mPISize = 0;
 };
 
 // General functions
