@@ -75,13 +75,12 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 {
     double t0 = H5Helper::getTime();
 
-    // First decoding parameter - multiple of overlap size
+    // First decoding parameter     - period
+    // Second decoding parameter    - multiple of overlap size
     hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
-
-    // Second decoding parameter - period
-    // Third encoding parameter - number of harmonic frequencies
+    // Third encoding parameter     - number of harmonic frequencies
     hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log) : 1;
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics);
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics, false, getSettings()->getFlagShift());
 
     if (log)
         Helper::printDebugMsg("Decompression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");

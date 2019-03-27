@@ -76,6 +76,10 @@ public:
     unsigned long long getHarmonics() const;
     void setHarmonic(const unsigned long long &value);
 
+    // Time shift flag for compression
+    bool getFlagShift() const;
+    void setFlagShift(bool value);
+
     // Selected names
     ParamsDefinition::ListOfStrings getNames() const;
     void setNames(const ParamsDefinition::ListOfStrings &value);
@@ -130,6 +134,8 @@ private:
     unsigned long long harmonics = 1;
     /// Multiple of overlap size
     unsigned long long mOS = 1;
+    /// Shift flag
+    bool shift = false;
 
     /// Maximal chunk sizes
     ParamsDefinition::VectorOfULongLongs maxChunkSizes = ParamsDefinition::VectorOfULongLongs{64, 64, 64, 1};

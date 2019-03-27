@@ -56,6 +56,7 @@ void Settings::loadParams(int argc, const char **argv)
     paramsDefinition.defineParamsFlag("computePeriod");
     paramsDefinition.defineParamsFlag("findMinMax");
     paramsDefinition.defineParamsFlag("log");
+    paramsDefinition.defineParamsFlag("shift");
 
     // Size
     paramsDefinition.defineParamsFlag("s", ParamsDefinition::ULONGLONG);
@@ -154,6 +155,9 @@ void Settings::loadParams(int argc, const char **argv)
                              "  -mos size ............................. Optional parameter. Sets multiple of overlap size for\n"
                              "                                          compression of time series HIFU data.\n"
                              "\n"
+                             "  -shift ................................ Optional parameter. Enables time shift for compression\n"
+                             "                                          of time series HIFU data.\n"
+                             "\n"
                              "  -names name1;name2;... ................ Optional parameter. Names of selected datasets or groups\n"
                              "                                          to processing.\n"
                              "\n"
@@ -198,6 +202,7 @@ void Settings::loadParams(int argc, const char **argv)
     setFlagInfo(flags.at("info").getEnabled());
     setFlagComputePeriod(flags.at("computePeriod").getEnabled());
     setFlagFindMinMax(flags.at("findMinMax").getEnabled());
+    setFlagShift(flags.at("shift").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
 
@@ -434,7 +439,7 @@ unsigned long long Settings::getMOS() const
 void Settings::setMOS(const unsigned long long &value)
 {
     mOS = value;
-    Helper::printDebugTwoColumns2S("Multiple of overlap size", mOS, 30);
+    Helper::printDebugTwoColumns2S("Multiple of overlap size for compression", mOS, 40);
 }
 
 /**
@@ -498,7 +503,7 @@ float Settings::getPeriod() const
 void Settings::setPeriod(const float &value)
 {
     period = value;
-    Helper::printDebugTwoColumns2S("Period for compression", period, 30);
+    Helper::printDebugTwoColumns2S("Period for compression", period, 40);
 }
 
 /**
@@ -517,12 +522,12 @@ float Settings::getFrequency() const
 void Settings::setFrequency(const float &value)
 {
     frequency = value;
-    Helper::printDebugTwoColumns2S("Frequency for compression", frequency, 30);
+    Helper::printDebugTwoColumns2S("Frequency for compression", frequency, 40);
 }
 
 /**
  * @brief Returns multiple of harmonic frequency for compression
- * @return Harmonic
+ * @return Number of harmonics
  */
 unsigned long long Settings::getHarmonics() const
 {
@@ -536,7 +541,26 @@ unsigned long long Settings::getHarmonics() const
 void Settings::setHarmonic(const unsigned long long &value)
 {
     harmonics = value;
-    Helper::printDebugTwoColumns2S("Number of harmonics", harmonics, 30);
+    Helper::printDebugTwoColumns2S("Number of harmonics for compression", harmonics, 40);
+}
+
+/**
+ * @brief Returns time shift flag for compression
+ * @return Shift flag
+ */
+bool Settings::getFlagShift() const
+{
+    return shift;
+}
+
+/**
+ * @brief Sets time shift flag for compression
+ * @param[in] value Time shift flag for compression
+ */
+void Settings::setFlagShift(bool value)
+{
+    shift = value;
+    Helper::printDebugTwoColumns2S("Time shift flag for compression", shift, 40);
 }
 
 /**

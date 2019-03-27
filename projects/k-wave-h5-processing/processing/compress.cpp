@@ -84,17 +84,18 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
         return;
     }
 
-    // First encoding parameter - multiple of overlap size
-    // Second encoding parameter - period
-    // Third encoding parameter - number of harmonic frequencies
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonics(), true);
+    // First encoding parameter     - period
+    // Second encoding parameter    - multiple of overlap size
+    // Third encoding parameter     - number of harmonic frequencies
+    // Fourth encoding parameter    - shift flag
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonics(), true, getSettings()->getFlagShift());
 
     if (log)
-         Helper::printDebugMsg("Compression with period "
-                               + std::to_string(compressHelper->getPeriod())
-                               + " steps (" + std::to_string(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
-                               + "Hz) and " + std::to_string(compressHelper->getHarmonics())
-                               + " harmonic frequencies");
+        Helper::printDebugMsg("Compression with period "
+                              + std::to_string(compressHelper->getPeriod())
+                              + " steps (" + std::to_string(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
+                              + "Hz) and " + std::to_string(compressHelper->getHarmonics())
+                              + " harmonic frequencies");
 
     // Overlap size and base size
     hsize_t oSize = compressHelper->getOSize();
