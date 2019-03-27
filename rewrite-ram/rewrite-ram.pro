@@ -31,7 +31,7 @@ include($$PWD/../detect_arch_and_build_mode.pri)
 # Copy built file to destination
 win32 {
     WDIR = windows-binaries
-    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR\" $(MKDIR) \"$$PWD/../../$$WDIR\") &
-    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../../$$WDIR/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../../$$WDIR/$$BUILD_MODE\") &
-    QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD/$${TARGET}.exe\" \"$$PWD/../../$$WDIR/$$BUILD_MODE/$${TARGET}.exe\" &
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../$$WDIR\" $(MKDIR) \"$$PWD/../$$WDIR\") &
+    QMAKE_POST_LINK += ($(CHK_DIR_EXISTS) \"$$PWD/../$$WDIR/$$BUILD_MODE\" $(MKDIR) \"$$PWD/../$$WDIR/$$BUILD_MODE\") &
+    QMAKE_POST_LINK += $${QMAKE_COPY} \"$$OUT_PWD/$${TARGET}.exe\" \"$$PWD/../$$WDIR/$$BUILD_MODE/$${TARGET}.exe\" &
 }
