@@ -53,7 +53,7 @@ SOURCES += \
     widgets/selecteddatasetdockwidget.cpp \
     widgets/window3ddockwidget.cpp \
     widgets/settings3ddockwidget.cpp \
-    widgets/timeseriescontrolgroupbox.cpp
+    widgets/timeseriescontrolgroupbox.cpp \
 
 HEADERS += \
     mainwindow.h \
@@ -77,7 +77,7 @@ HEADERS += \
     widgets/selecteddatasetdockwidget.h \
     widgets/settings3ddockwidget.h \
     widgets/window3ddockwidget.h \
-    widgets/timeseriescontrolgroupbox.h
+    widgets/timeseriescontrolgroupbox.h \
 
 FORMS += \
     mainwindow.ui \
@@ -90,7 +90,7 @@ FORMS += \
     widgets/selecteddatasetdockwidget.ui \
     widgets/settings3ddockwidget.ui \
     widgets/window3ddockwidget.ui \
-    widgets/timeseriescontrolgroupbox.ui
+    widgets/timeseriescontrolgroupbox.ui \
 
 RESOURCES += \
     resources.qrc \
