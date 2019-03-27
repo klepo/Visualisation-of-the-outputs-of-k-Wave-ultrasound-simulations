@@ -28,7 +28,7 @@ namespace H5Helper {
  * @param[in] harmonics Number of harmonics
  * @param[in] normalize Normalizes basis functions for compression (optional)
  */
-CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift)
 {
     oSize = hsize_t(period * mos);
     bSize = oSize * 2 + 1;
@@ -41,7 +41,7 @@ CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, boo
     bE = new floatC[harmonics * bSize]();
     bE_1 = new floatC[harmonics * bSize]();
 
-    generateFunctions(bSize, oSize, period, harmonics, b, e, bE, bE_1, normalize);
+    generateFunctions(bSize, oSize, period, harmonics, b, e, bE, bE_1, normalize, shift);
 }
 
 /**
@@ -431,7 +431,7 @@ hsize_t CompressHelper::median(const hsize_t *dataSrc, hsize_t length)
  * @param[out] bE_1 Inverted complex exponencial window basis
  * @param[in] normalize Normalization flag (optional)
  */
-void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize) const
+void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize, bool shift) const
 {
     // Generate basis function (window)
     triangular(oSize, b);  // Triangular window
@@ -439,7 +439,7 @@ void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float perio
 
     // Generate complex exponential window basis functions
     for (hsize_t ih = 0; ih < harmonics; ih++) {
-        generateE(period, ih, ih + 1, bSize, e);
+        generateE(period, ih, ih + 1, bSize, e, shift);
         generateBE(ih, bSize, oSize, b, e, bE, bE_1, normalize);
     }
 }
@@ -479,12 +479,15 @@ void CompressHelper::hann(hsize_t oSize, float *w) const
  * @param[in] bSize Base size
  * @param[out] e Exponencial basis
  */
-void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const
+void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e, bool shift) const
 {
     floatC i(0, -1);
     for (hsize_t x = 0; x < bSize; x++) {
         hsize_t hx = ih * bSize + x;
         e[hx] = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
+        if (shift) {
+            e[hx] *= std::exp(-i * float(M_PI) / period);
+        }
     }
 }
 

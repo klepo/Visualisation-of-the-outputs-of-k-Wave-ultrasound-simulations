@@ -50,7 +50,7 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false);
     ~CompressHelper();
 
     static float findPeriod(const float *dataSrc, hsize_t length);
@@ -82,10 +82,10 @@ private:
     static float median(const float *dataSrc, hsize_t length);
     static hsize_t median(const hsize_t *dataSrc, hsize_t length);
 
-    void generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
+    void generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false, bool shift = false) const;
     void triangular(hsize_t oSize, float *w) const;
     void hann(hsize_t oSize, float *w) const;
-    void generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e) const;
+    void generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e, bool shift = false) const;
     void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
 
     /// Overlap size
