@@ -1,4 +1,3 @@
-/projects/*.user
-/projects/hdf5_paths.pri
-/projects/hdf5-parallel_paths.pri
-/*build*
+/*.user
+/hdf5_paths.pri
+/hdf5-parallel_paths.pri
