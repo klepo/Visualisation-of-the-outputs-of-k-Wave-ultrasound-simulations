@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              22 November  2018 (updated)
+ *              27 March     2019 (updated)
  *
  * @brief       The implementation file containing DatasetsDockWidget class definition.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 

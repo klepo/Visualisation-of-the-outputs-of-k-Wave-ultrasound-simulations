@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              20 February  2019 (updated)
+ *              27 March     2019 (updated)
  *
  * @brief       The implementation file containing H5Helper::CompressHelper class definition.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
@@ -27,6 +27,7 @@ namespace H5Helper {
  * @param[in] mos Multiple of overlap size
  * @param[in] harmonics Number of harmonics
  * @param[in] normalize Normalizes basis functions for compression (optional)
+ * @param[in] shift Shifts phases of complex exponencial basis function (velocity time shift) (optional)
  */
 CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift)
 {

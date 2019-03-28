@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     0.0
  * @date        30 July      2014 (created) <br>
- *              9  October   2018 (updated)
+ *              27 March     2019 (updated)
  *
  * @brief       Old not updated nonfunctional! The implementation file containing k-Wave HDF5 processing application.
  *
@@ -13,7 +13,7 @@
  *              license. A copy of the LGPL license should have been received with this file.
  *              Otherwise, it can be found at: http://www.gnu.org/copyleft/lesser.html.
  *
- * @copyright   Copyright © 2018, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
+ * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
 
