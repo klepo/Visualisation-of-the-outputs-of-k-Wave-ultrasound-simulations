@@ -258,14 +258,12 @@ void H5ReadingThread::run()
                     H5Helper::Vector4D count = r->count;
                     count.x(count.x() * xStride);
 
-                    offsetLC.t((stepC) - 1);
-                    if (hssize_t(stepC) - 1 < 0)
-                        offsetLC.t(0);
+                    offsetLC.t(stepC);
                     if (offsetLC.t() >= steps)
                         offsetLC.t(steps - 1);
                     offsetLC.x(offsetLC.x() * xStride);
 
-                    offsetCC.t(stepC);
+                    offsetCC.t(stepC + 1);
                     if (offsetCC.t() >= steps)
                         offsetCC.t(steps - 1);
                     offsetCC.x(offsetCC.x() * xStride);

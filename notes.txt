@@ -1,0 +1,3 @@
+reg. výraz pro vyhledání updated data:
+    find: <br>\r\n \*(.)*\(updated\)
+    replace: <br>\r\n *              27 March     2019 \(updated\)

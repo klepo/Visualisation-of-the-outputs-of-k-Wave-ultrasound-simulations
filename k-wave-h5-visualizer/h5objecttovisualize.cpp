@@ -1238,9 +1238,9 @@ void H5ObjectToVisualize::loadObjectData()
         position.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR, false));
         position.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR, false));
         originalPosition = position;
-    } else if (type == H5OpenedFile::DATASET_4D) {
+    } else if (dataset->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {// if (dataset->getType(0, ) == H5Helper::DatasetType::BASIC_CUBOID) {
         // Try to get position from sensor_mask_corners dataset
-        if (dataset->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {
+        if (type == H5OpenedFile::DATASET_4D || dataset->getType() == H5Helper::DatasetType::BASIC_CUBOID) {
             H5Helper::Dataset *sensorMaskCornersDataset = dataset->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
             hsize_t *sensorMaskCornersData = nullptr;
             sensorMaskCornersDataset->readDataset(sensorMaskCornersData);

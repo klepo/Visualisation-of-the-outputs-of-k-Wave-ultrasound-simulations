@@ -163,6 +163,7 @@ void H5OpenedFile::findDatasetsForVisualization(const H5Helper::Group *group)
             H5Helper::DatasetType datasetType = dataset->getType();
 
             if (datasetType == H5Helper::DatasetType::BASIC_3D
+                    || datasetType == H5Helper::DatasetType::BASIC_CUBOID
                     || datasetType == H5Helper::DatasetType::RESHAPED_3D
                     || datasetType == H5Helper::DatasetType::BASIC_3D_DWNSMPL
                     || datasetType == H5Helper::DatasetType::RESHAPED_3D_DWNSMPL

@@ -220,6 +220,10 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                                 H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
                             }
                         }*/
+                        if (frame == 0 && savingFlag)
+                        {
+                          sCTmp2[pH] += sCTmp1[pH];
+                        }
                     }
                 }
 
@@ -235,7 +239,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     }
 
                     // Drop first "half" frame
-                    if (frame > 0) {
+                    //if (frame > 0) {
                         if (log)
                             Helper::printDebugMsgStart("Saving frame " + std::to_string(frame) + "/" + std::to_string(outputSteps));
 
@@ -246,7 +250,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 
                         if (log)
                             Helper::printDebugMsg("saved");
-                    }
+                    //}
 
                     // Set zeros
                     memset(dataC, 0, (outputStepSize / 2) * sizeof(dataC));

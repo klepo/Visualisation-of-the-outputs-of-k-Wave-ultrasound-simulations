@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <iomanip>
 #include <complex>
+#include <algorithm>
 
 #include "object.h"
 #include "vector3d.h"
@@ -53,6 +54,7 @@ enum class DatasetType
     BASIC_3D_DWNSMPL,
     RESHAPED_3D_DWNSMPL,
     BASIC_INDEX,
+    BASIC_CUBOID,
     TIME_STEPS_INDEX,
     TIME_STEPS_C_INDEX,
     TIME_STEPS_D_INDEX,

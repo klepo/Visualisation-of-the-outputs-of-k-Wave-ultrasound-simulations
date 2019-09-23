@@ -202,9 +202,12 @@ void Settings::loadParams(int argc, const char **argv)
     setFlagInfo(flags.at("info").getEnabled());
     setFlagComputePeriod(flags.at("computePeriod").getEnabled());
     setFlagFindMinMax(flags.at("findMinMax").getEnabled());
-    setFlagShift(flags.at("shift").getEnabled());
 
     setFlagNames(flags.at("names").getEnabled());
+
+    if (flags.at("compress").getEnabled() || flags.at("decompress").getEnabled()) {
+        setFlagShift(flags.at("shift").getEnabled());
+    }
 
     if (flags.at("names").getEnabled()) {
         ParamsDefinition::ListOfStrings names;
@@ -560,7 +563,11 @@ bool Settings::getFlagShift() const
 void Settings::setFlagShift(bool value)
 {
     shift = value;
-    Helper::printDebugTwoColumns2S("Time shift flag for compression", shift, 40);
+    if (shift) {
+        Helper::printDebugTwoColumns2S("Time shift flag for compression", "TRUE", 40);
+    } else {
+        Helper::printDebugTwoColumns2S("Time shift flag for compression", "FALSE", 40);
+    }
 }
 
 /**

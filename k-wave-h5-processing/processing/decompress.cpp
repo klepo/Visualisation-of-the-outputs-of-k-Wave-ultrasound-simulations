@@ -100,14 +100,14 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t outputStepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = H5Helper::Vector4D(dims).w();
-        outputSteps = (steps + 2) * oSize ;
+        outputSteps = (steps + 1) * oSize ;
         outputDims[0] = outputSteps;
         outputDims[3] /= compressHelper->getHarmonics() * 2;
         stepSize = dims[1] * dims[2] * dims[3];
         outputStepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = H5Helper::Vector3D(dims).y();
-        outputSteps = (steps + 2) * oSize;
+        outputSteps = (steps + 1) * oSize;
         outputDims[1] = outputSteps;
         outputDims[2] /= compressHelper->getHarmonics() * 2;
         stepSize = dims[2];
@@ -182,7 +182,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
             // Because of last coefficients duplication
             if (framesOffset + framesCount == steps)
-                framesCount += 2;
+                framesCount += 1;
 
             // For every frame
             for (hsize_t frame = 0; frame < framesCount; frame++) {
@@ -215,8 +215,8 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                                     lC[pH] = conj(H5Helper::floatC(dataC[pHC], dataC[pHC + 1]));
 
                                 // Don't load last two coefficients (duplicate)
-                                if (framesOffsetGlobal < steps - 1) {
-                                    hsize_t fPHC = frameOffset + pHC;
+                                if (framesOffsetGlobal < steps - 2) {
+                                    hsize_t fPHC = frameOffset + pHC + stepSize;
                                     // Read coefficient
                                     cC[pH] = conj(H5Helper::floatC(dataC[fPHC], dataC[fPHC + 1]));
                                 }

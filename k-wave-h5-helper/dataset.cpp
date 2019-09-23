@@ -202,6 +202,7 @@ hid_t Dataset::getDataType() const
 DatasetType Dataset::getType(hsize_t sensorMaskSize) const
 {
     Vector4D nDims = getFile()->getNDims();
+    std::string name = getName();
     if (getDims().getLength() == 3) { // 3D type
         Vector3D dims = getDims();
         if (H5Tequal(datatypeId, H5T_NATIVE_UINT64)) {
@@ -226,7 +227,7 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 return DatasetType::MASK_CORNERS;
             }
         }
-        if (H5Tequal(datatypeId, H5T_FLOAT)) {
+        if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
             if (dims == Vector3D(1, 1, 1)) {
                 if (getOnlyName() == DT_DATASET) {
                     return DatasetType::DT;
@@ -260,6 +261,7 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             if (hasAttribute(POSITION_X_ATTR)
                     && hasAttribute(POSITION_Y_ATTR)
                     && hasAttribute(POSITION_Z_ATTR)
+                    && std::count(name.begin(), name.end(), '/') == 1
                     ) {
                 return DatasetType::RESHAPED_3D;
             }
@@ -278,6 +280,13 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                     && dims.x() == nDims.x()
                     ) {
                 return DatasetType::BASIC_3D;
+            }
+            if (dims.z() <= nDims.z()
+                && dims.y() <= nDims.y()
+                && dims.x() <= nDims.x()
+                && std::count(name.begin(), name.end(), '/') > 1
+                ) {
+                return DatasetType::BASIC_CUBOID;
             }
             if (dims.z() == 1
                     && dims.y() == 1
@@ -324,7 +333,7 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
         }
     }
     if (getDims().getLength() == 4) { // 4D type (cuboids)
-        if (H5Tequal(datatypeId, H5T_FLOAT)) {
+        if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
             // Downsampled
             if (hasAttribute(SRC_SIZE_X_ATTR)
                     && hasAttribute(SRC_SIZE_Y_ATTR)
@@ -471,6 +480,8 @@ std::string Dataset::getTypeString(DatasetType type) const
             return "P source input type";
         case DatasetType::BASIC_3D:
             return "3D type";
+        case DatasetType::BASIC_CUBOID:
+            return "3D cuboid type";
         case DatasetType::RESHAPED_3D:
             return "3D type (reshaped index)";
         case DatasetType::BASIC_3D_DWNSMPL:
