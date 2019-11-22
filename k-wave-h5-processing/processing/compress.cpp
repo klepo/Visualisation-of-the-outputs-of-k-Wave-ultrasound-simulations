@@ -112,14 +112,14 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t outputStepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
         steps = H5Helper::Vector4D(dims).w();
-        outputSteps = hsize_t(floor(float(steps) / oSize)) - 1;
+        outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[0] = outputSteps;
         outputDims[3] *= compressHelper->getHarmonics() * 2;
         stepSize = dims[1] * dims[2] * dims[3];
         outputStepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = H5Helper::Vector3D(dims).y();
-        outputSteps = hsize_t(floor(float(steps) / oSize)) - 1;
+        outputSteps = hsize_t(floor(float(steps) / oSize));
         outputDims[1] = outputSteps;
         outputDims[2] *= compressHelper->getHarmonics() * 2;
         stepSize = dims[2];
@@ -220,6 +220,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                                 H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
                             }
                         }*/
+                        // Mirror first "half" frame
                         if (frame == 0 && savingFlag)
                         {
                           sCTmp2[pH] += sCTmp1[pH];
@@ -241,12 +242,12 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     // Drop first "half" frame
                     //if (frame > 0) {
                         if (log)
-                            Helper::printDebugMsgStart("Saving frame " + std::to_string(frame) + "/" + std::to_string(outputSteps));
+                            Helper::printDebugMsgStart("Saving frame " + std::to_string(frame + 1) + "/" + std::to_string(outputSteps));
 
                         if (dims.getLength() == 4) // 4D dataset
-                            dstDataset->writeDataset(H5Helper::Vector4D(frame - 1, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), reinterpret_cast<float *>(dataC));
+                            dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), reinterpret_cast<float *>(dataC));
                         else if (dims.getLength() == 3) // 3D dataset
-                            dstDataset->writeDataset(H5Helper::Vector3D(0, frame - 1, 0), H5Helper::Vector3D(1, 1, outputDims[2]), reinterpret_cast<float *>(dataC));
+                            dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), reinterpret_cast<float *>(dataC));
 
                         if (log)
                             Helper::printDebugMsg("saved");

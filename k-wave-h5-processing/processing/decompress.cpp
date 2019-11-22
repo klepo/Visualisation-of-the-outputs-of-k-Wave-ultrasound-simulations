@@ -119,14 +119,20 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     // Chunk dims
     H5Helper::Vector chunkDims(srcDataset->getChunkDims());
-    /*if (dims.getLength() == 4) { // 4D dataset
-        chunkDims[3] /= compressHelper->getHarmonics() * 2;
+    if (dims.getLength() == 4) { // 4D dataset
+        //chunkDims[3] /= compressHelper->getHarmonics() * 2;
+        if (chunkDims[3] > outputDims[3]) {
+            chunkDims[3] = outputDims[3];
+        }
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        chunkDims[2] /= compressHelper->getHarmonics() * 2;
+        //chunkDims[2] /= compressHelper->getHarmonics() * 2;
+        if (chunkDims[2] > outputDims[2]) {
+            chunkDims[2] = outputDims[2];
+        }
     } else { // Something wrong.
         Helper::printErrorMsg("Something wrong with dataset dims");
         return;
-    }*/
+    }
 
     Helper::printDebugTwoColumns2S("steps", steps);
     Helper::printDebugTwoColumns2S("outputSteps", outputSteps);

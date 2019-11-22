@@ -79,6 +79,8 @@ private slots:
 private:
     Q_DISABLE_COPY(MinMaxGroupBox)
 
+    static const int DIVIDER = 1000000000;
+
     /// User interface
     Ui::MinMaxGroupBox *ui;
 };

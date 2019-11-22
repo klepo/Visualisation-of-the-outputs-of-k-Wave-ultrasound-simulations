@@ -94,15 +94,15 @@ void ImageWidget::refreshImage()
             //emit imageResized(_qimage.width(),_qimage.height());
             setMinimumWidth(10);
             setMinimumHeight(10);
-            adjustSize();
+            //adjustSize();
         } else {
             //  Original image size
-            if ((originalImage.width() + point.x()) > width()) {
+            //if ((originalImage.width() + point.x()) > width()) {
                 setMinimumWidth(originalImage.width() + point.x());
-            }
-            if ((originalImage.height() + point.y()) > height()) {
+            //}
+            //if ((originalImage.height() + point.y()) > height()) {
                 setMinimumHeight(originalImage.height() + point.y());
-            }
+            //}
             adjustSize();
         }
     }

@@ -187,6 +187,7 @@ void SliceDockWidget::on_spinBox_valueChanged(int value)
     } else if (sliceType == YZ) {
         setWindowTitle("YZ slice (X = " + QString::number(value) + ")");
     }
+    ui->imageWidget->setFilename(getImageFilename());
     emit sliceIndexChanged(value);
 }
 

@@ -167,7 +167,7 @@ float getTimeStepValueF(vec3 point)
     int pointI = int(floor(pointB));
     float rem = pointB - pointI;
     vec3 pointF = point;
-    pointF.x = (float(int(floor(float(volumeSize.x) * point.x + u1)) * 2 * uHarmonics) + u2) / float(volumeSizeC.x);
+    pointF.x = (float(pointI * 2 * uHarmonics) + u2) / float(volumeSizeC.x);
     vec3 pointIReal = pointF;
     vec3 pointIImag = pointF;
     pointIImag.x += xStep;

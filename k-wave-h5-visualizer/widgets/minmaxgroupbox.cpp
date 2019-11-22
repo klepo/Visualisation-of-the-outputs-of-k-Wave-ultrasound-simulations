@@ -79,8 +79,8 @@ void MinMaxGroupBox::setRange(float min, float max)
     clear();
     ui->doubleSpinBoxMinGlobal->setRange(double(min), double(max));
     ui->doubleSpinBoxMaxGlobal->setRange(double(min), double(max));
-    ui->doubleSpinBoxMinGlobal->setSingleStep(double(max - min) / 1000);
-    ui->doubleSpinBoxMaxGlobal->setSingleStep(double(max - min) / 1000);
+    ui->doubleSpinBoxMinGlobal->setSingleStep(double(max - min) / DIVIDER);
+    ui->doubleSpinBoxMaxGlobal->setSingleStep(double(max - min) / DIVIDER);
     ui->doubleSpinBoxMinGlobal->setValue(double(min));
     ui->doubleSpinBoxMaxGlobal->setValue(double(max));
 }
@@ -146,7 +146,7 @@ void MinMaxGroupBox::clear()
 void MinMaxGroupBox::on_horizontalSliderGlobalMin_valueChanged(int value)
 {
     // Recompute doubles to integers...
-    ui->doubleSpinBoxMinGlobal->setValue(double(value) / 1000 * (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum()) + ui->doubleSpinBoxMinGlobal->minimum());
+    ui->doubleSpinBoxMinGlobal->setValue(double(value) / DIVIDER * (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum()) + ui->doubleSpinBoxMinGlobal->minimum());
 }
 
 /**
@@ -156,7 +156,7 @@ void MinMaxGroupBox::on_horizontalSliderGlobalMin_valueChanged(int value)
 void MinMaxGroupBox::on_horizontalSliderGlobalMax_valueChanged(int value)
 {
     // Recompute doubles to integers...
-    ui->doubleSpinBoxMaxGlobal->setValue(double(value) / 1000 * (ui->doubleSpinBoxMaxGlobal->maximum() - ui->doubleSpinBoxMaxGlobal->minimum()) + ui->doubleSpinBoxMaxGlobal->minimum());
+    ui->doubleSpinBoxMaxGlobal->setValue(double(value) / DIVIDER * (ui->doubleSpinBoxMaxGlobal->maximum() - ui->doubleSpinBoxMaxGlobal->minimum()) + ui->doubleSpinBoxMaxGlobal->minimum());
 }
 
 /**
@@ -167,7 +167,7 @@ void MinMaxGroupBox::on_doubleSpinBoxMinGlobal_valueChanged(double value)
 {
     // Recompute integers to doubles
     ui->horizontalSliderGlobalMin->setTracking(false);
-    ui->horizontalSliderGlobalMin->setSliderPosition(qRound(1000 * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
+    ui->horizontalSliderGlobalMin->setSliderPosition(qRound(DIVIDER * (value - ui->doubleSpinBoxMinGlobal->minimum()) / (ui->doubleSpinBoxMinGlobal->maximum() - ui->doubleSpinBoxMinGlobal->minimum())));
     ui->horizontalSliderGlobalMin->setTracking(true);
     emit minValueChanged(float(value));
 }
@@ -180,7 +180,7 @@ void MinMaxGroupBox::on_doubleSpinBoxMaxGlobal_valueChanged(double value)
 {
     // Recompute integers to doubles
     ui->horizontalSliderGlobalMax->setTracking(false);
-    ui->horizontalSliderGlobalMax->setSliderPosition(qRound(1000 * (value - ui->doubleSpinBoxMaxGlobal->minimum()) / (ui->doubleSpinBoxMaxGlobal->maximum() - ui->doubleSpinBoxMaxGlobal->minimum())));
+    ui->horizontalSliderGlobalMax->setSliderPosition(qRound(DIVIDER * (value - ui->doubleSpinBoxMaxGlobal->minimum()) / (ui->doubleSpinBoxMaxGlobal->maximum() - ui->doubleSpinBoxMaxGlobal->minimum())));
     ui->horizontalSliderGlobalMax->setTracking(true);
     emit maxValueChanged(float(value));
 }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MinMaxGroupBox</class>
  <widget class="QGroupBox" name="MinMaxGroupBox">
@@ -35,7 +36,7 @@
    <item row="2" column="2">
     <widget class="QSlider" name="horizontalSliderGlobalMax">
      <property name="maximum">
-      <number>1000</number>
+      <number>1000000000</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -51,10 +52,10 @@
       </sizepolicy>
      </property>
      <property name="decimals" stdset="0">
-      <number>4</number>
+      <number>8</number>
      </property>
      <property name="maximum" stdset="0">
-      <double>1000.000000000000000</double>
+      <double>1000000000.000000000000000</double>
      </property>
     </widget>
    </item>
@@ -62,9 +63,6 @@
     <widget class="QLabel" name="labelGlobalMin">
      <property name="text">
       <string>min:</string>
-     </property>
-     <property name="buddy">
-      <cstring>doubleSpinBoxMinGlobal</cstring>
      </property>
     </widget>
    </item>
@@ -77,17 +75,17 @@
       </sizepolicy>
      </property>
      <property name="decimals" stdset="0">
-      <number>4</number>
+      <number>8</number>
      </property>
      <property name="maximum" stdset="0">
-      <double>1000.000000000000000</double>
+      <double>1000000000.000000000000000</double>
      </property>
     </widget>
    </item>
    <item row="1" column="2">
     <widget class="QSlider" name="horizontalSliderGlobalMin">
      <property name="maximum">
-      <number>1000</number>
+      <number>1000000000</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

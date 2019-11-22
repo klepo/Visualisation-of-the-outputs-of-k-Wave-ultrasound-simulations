@@ -1229,7 +1229,7 @@ void H5ObjectToVisualize::loadObjectData()
     originalSize = size;
 
     // Set 3D frame size
-    frameSize = H5Helper::Vector3D(dataset->getFile()->getNDims());;
+    frameSize = H5Helper::Vector3D(dataset->getFile()->getNDims());
     originalFrameSize = frameSize;
 
     // If masked

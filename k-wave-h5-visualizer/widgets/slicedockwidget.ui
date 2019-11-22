@@ -16,6 +16,9 @@
     <height>154</height>
    </size>
   </property>
+  <property name="features">
+   <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+  </property>
   <property name="allowedAreas">
    <set>Qt::AllDockWidgetAreas</set>
   </property>
@@ -87,6 +90,12 @@
         </property>
         <item>
          <widget class="ImageWidget" name="imageWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="cursor">
            <cursorShape>CrossCursor</cursorShape>
           </property>

@@ -857,7 +857,7 @@
   </connection>
   <connection>
    <sender>action3DSettings</sender>
-   <signal>toggled(bool)</signal>
+   <signal>triggered(bool)</signal>
    <receiver>dockWidgetSettings3D</receiver>
    <slot>setVisible(bool)</slot>
    <hints>
@@ -868,6 +868,22 @@
     <hint type="destinationlabel">
      <x>900</x>
      <y>646</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dockWidgetSettings3D</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>action3DSettings</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>900</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>
