@@ -95,90 +95,116 @@ void Settings::loadParams(int argc, const char **argv)
     paramsDefinition.defineParamsFlag("d", ParamsDefinition::STRING);
 
     // Help message
-    paramsDefinition.setHelp("\n"
-                             "Usage: k-wave-h5-processing [options]\n"
-                             "where options include:\n\n"
-                             "  -f HDF5SimulationOutputFilename ....... Required parameter.\n"
-                             "                                          HDF5 file with simulation results.\n"
-                             "\n"
-                             "  -m HDF5SimulationInputFilename ........ Optional parameter. HDF5 simulation input filename \n"
-                             "                                          (with sensor_mask_index or sensor_mask_corners\n"
-                             "                                          or p_source_input dataset).\n"
-                             "\n"
-                             "  -o HDF5ProcessingOutputFilename ....... Optional parameter. HDF5 processing output filename. \n"
-                             "                                          Default is HDF5SimulationOutputFilename + \"_modified.h5\".\n"
-                             "\n"
-                             "  -d HDF5ProcessingInputFilename ........ Optional parameter. HDF5 processing input filename for \n"
-                             "                                          reading decompressed datasets from a separate file.\n"
-                             "\n"
-                             "  -reshape .............................. Optional parameter. Performs processing sensor mask\n"
-                             "                                          type datasets to group with 4D datasets and saves datasets\n"
-                             "                                          to the output file. The sensor_mask_index or\n"
-                             "                                          sensor_mask_corners dataset must be in simulation output\n"
-                             "                                          or simulation input file.\n"
-                             "\n"
-                             "  -changeChunks ......................... Optional parameter. Sets a new chunks size of float\n"
-                             "                                          datasets and saves datasets to the output file.\n"
-                             "\n"
-                             "  -dwnsmpl .............................. Optional parameter. Performs downsampling of datasets\n"
-                             "                                          and saves them to the output file.\n"
-                             "\n"
-                             "  -compress ............................. Optional parameter. Performs compression of time series\n"
-                             "                                          dataset data, creates new dataset in the output file with\n"
-                             "                                          coefficients (e.g p_c).\n"
-                             "\n"
-                             "  -decompress ........................... Optional parameter. Performs decompression of time series\n"
-                             "                                          dataset data, needs dataset with coefficients (e.g p_c).\n"
-                             "\n"
-                             "  -difference ........................... Optional parameter. Performs subtraction of time series\n"
-                             "                                          dataset data, needs original dataset and decoded (name_d).\n"
-                             "\n"
-                             "  -s size ............................... Optional parameter. Max size for downsampling.\n"
-                             "                                          Default size is 512.\n"
-                             "\n"
-                             "  -ch chunkSize;chunkSize;... ........... Optional parameter. The sizes for new chunks (x;y;z;t;) from\n"
-                             "                                          1 to maximal appropriately value. Default sizes are 64;64;64;1.\n"
-                             "\n"
-                             "  -c blockSize .......................... Optional parameter. Sets number of data elements\n"
-                             "                                          for block reading. Default value is based on available\n"
-                             "                                          system physical memory.\n"
-                             "\n"
-                             "  -p period ............................. Optional parameter. Sets period of input signal for\n"
-                             "                                          compression of time series HIFU data (float).\n"
-                             "\n"
-                             "  -fq frequency ......................... Optional parameter. Sets frequency of input signal for\n"
-                             "                                          compression of time series HIFU data (float).\n"
-                             "\n"
-                             "  -h harmonics........................... Optional parameter. Sets multiple of harmonic frequency for\n"
-                             "                                          compression of time series HIFU data.\n"
-                             "\n"
-                             "  -mos size ............................. Optional parameter. Sets multiple of overlap size for\n"
-                             "                                          compression of time series HIFU data.\n"
-                             "\n"
-                             "  -shift ................................ Optional parameter. Enables time shift for compression\n"
-                             "                                          of time series HIFU data.\n"
-                             "\n"
-                             "  -names name1;name2;... ................ Optional parameter. Names of selected datasets or groups\n"
-                             "                                          to processing.\n"
-                             "\n"
-                             "  -info ................................. Prints the values of attributes of selected datasets.\n"
-                             "\n"
-                             "  -computePeriod ........................ Computes period from p_source_input. Store it to the \n"
-                             "                                          simulation input file if the file is set.\n"
-                             "\n"
-                             "  -findMinMax ........................... Finds and stores minimal and maximal values and their\n"
-                             "                                          indices of known datasets from simulation output file\n"
-                             "                                          and processing input file.\n"
-                             "\n"
-                             "  -help ................................. Prints this help message.\n"
-                             "\n");
+    paramsDefinition.setHelp(
+        "+---------------------------------------------------------------+\n"
+        "|   Usage: k-wave-h5-processing [parameters]                    |\n"
+        "+---------------------------------------------------------------+\n"
+        "|   Mandatory parameters:                                       |\n"
+        "+-------------------------------+-------------------------------+\n"
+        "| -f <file_name>                | HDF5 output or input file     |\n"
+        "+-------------------------------+-------------------------------+\n"
+        "|   Optional parameters:                                        |\n"
+        "+-------------------------------+-------------------------------+\n"
+        "| -m <file_name>                | HDF5 input file with          |\n"
+        "|                               |   sensor_mask_index or        |\n"
+        "|                               |   sensor_mask_corners or      |\n"
+        "|                               |   p_source_input dataset.     |\n"
+        "| -o <file_name>                | HDF5 processing output file   |\n"
+        "|                               |   Default is HDF5 output or   |\n"
+        "|                               |   input file name + .         |\n"
+        "|                               |   \"_modified.h5\"              |\n"
+        "| -d <file_name>                | HDF5 processing input file    |\n"
+        "|                               |   for reading other datasets  |\n"
+        "|                               |   from a separate file.       |\n"
+        "| -reshape                      | Performs processing sensor    |\n"
+        "|                               |   masktype datasets to group  |\n"
+        "|                               |   with 4D datasets and saves  |\n"
+        "|                               |   datasetsto the output file. |\n"
+        "|                               |   The sensor_mask_index or    |\n"
+        "|                               |   sensor_mask_corners dataset |\n"
+        "|                               |   must be in simulation       |\n"
+        "|                               |   output or simulation input  |\n"
+        "|                               |   file.                       |\n"
+        "| -changeChunks                 | Sets a new chunks size of     |\n"
+        "|                               |   float datasets and saves    |\n"
+        "|                               |   datasets to the output      |\n"
+        "|                               |   file.                       |\n"
+        "| -dwnsmpl                      | Performs downsampling of      |\n"
+        "|                               |   datasets and saves them to  |\n"
+        "|                               |   the output file.            |\n"
+        "| -compress                     | Performs compression of time  |\n"
+        "|                               |   series dataset data,        |\n"
+        "|                               |   creates new dataset in the  |\n"
+        "|                               |   output file with            |\n"
+        "|                               |   coefficients, e.g p_c.      |\n"
+        "| -decompress                   | Performs decompression of     |\n"
+        "|                               |   time series dataset data,   |\n"
+        "|                               |   needs dataset with          |\n"
+        "|                               |   coefficients, e.g p_c.      |\n"
+        "| -difference                   | Performs subtraction of       |\n"
+        "|                               |   datasets data. Needs        |\n"
+        "|                               |   original dataset end        |\n"
+        "|                               |   decoded (name_d) dataset    |\n"
+        "|                               |   with src_dataset_name       |\n"
+        "|                               |   attribute or two dataset    |\n"
+        "|                               |   names - the first name from |\n"
+        "|                               |   HDF5 output or input file   |\n"
+        "|                               |   and the second name from    |\n"
+        "|                               |   HDF5 processing input file. |\n"
+        "| -s <size>                     | Max size for downsampling.    |\n"
+        "|                               |   Default size is 512.        |\n"
+        "| -ch <chunkSize;chunkSize;>    | The sizes for new chunks      |\n"
+        "|                               |   (x;y;z;t;) from 1 to        |\n"
+        "|                               |   maximal appropriately       |\n"
+        "|                               |   value. Default sizes are    |\n"
+        "|                               |   64;64;64;1.                 |\n"
+        "| -c <blockSize>                | Sets number of data elements  |\n"
+        "|                               |   for block reading. Default  |\n"
+        "|                               |   value is based on available |\n"
+        "|                               |   system physical memory.     |\n"
+        "| -p <period>                   | Sets period of input signal   |\n"
+        "|                               |   for compression of time     |\n"
+        "|                               |   series HIFU data (float).   |\n"
+        "| -fq <frequency>               | Sets frequency of input       |\n"
+        "|                               |   signal for compression      |\n"
+        "|                               |   of time series HIFU data    |\n"
+        "|                               |   (float).                    |\n"
+        "| -h <harmonics>                | Sets multiple of harmonic     |\n"
+        "|                               |   frequency for compression   |\n"
+        "|                               |   of time series HIFU data.   |\n"
+        "| -mos <size>                   | Sets multiple of overlap size |\n"
+        "|                               |   for compression of time     |\n"
+        "|                               |   series HIFU data.           |\n"
+        "| -shift                        | Enables time shift for        |\n"
+        "|                               |   compression of time series  |\n"
+        "|                               |   HIFU data.                  |\n"
+        "| -names <name1;name2;>         | Names of selected datasets or |\n"
+        "|                               |   groups to processing.       |\n"
+        "| -info                         | Prints the values of          |\n"
+        "|                               |   attributes of selected      |\n"
+        "|                               |   datasets.                   |\n"
+        "| -computePeriod                | Computes period from          |\n"
+        "|                               |   p_source_input. Store it to |\n"
+        "|                               |   the simulation input file   |\n"
+        "|                               |   if the file is set.         |\n"
+        "| -findMinMax                   | Finds and stores minimal and  |\n"
+        "|                               |   maximal values and their    |\n"
+        "|                               |   indices of known datasets   |\n"
+        "|                               |   from simulation output file |\n"
+        "|                               |   and processing input file.  |\n"
+        "| -help                         | Prints this help message.     |\n"
+        "+-------------------------------+-------------------------------+\n");
 
     // Parse params from command line
     //Helper::printDebugMsg("");
     try {
         paramsDefinition.commandLineParse(argc, argv);
     } catch (std::exception &e) {
-        Helper::printErrorMsg("  Wrong parameter " + std::string(e.what()));
+        Helper::printMsg(paramsDefinition.getHelp());
+        Helper::printErrorMsg("Wrong parameter " + std::string(e.what()));
+
+        Helper::printErrorMsg("1Finds2and3stores4minimal5and6maximal7values8.Finds9and10stores11minimal12and13maximal14values15Finds16and17stores18minimal19and 20maximal 21values 22Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values");
+        Helper::printErrorMsg("Finds and stores minimal and maximal values Finds and stores minimal and maximal values");
         std::exit(EXIT_FAILURE);
     }
 
@@ -186,9 +212,11 @@ void Settings::loadParams(int argc, const char **argv)
     ParamsDefinition::Flags flags = paramsDefinition.getFlags();
 
     if (flags.at("help").getEnabled()) {
-        Helper::printDebugMsg(paramsDefinition.getHelp());
+        Helper::printMsg(paramsDefinition.getHelp());
         exit(EXIT_SUCCESS);
     }
+
+    Helper::printDebugTitle("Settings");
 
     Helper::enableDebugMsgs = flags.at("log").getEnabled();
     setFlagLog(flags.at("log").getEnabled());
@@ -298,7 +326,7 @@ std::string Settings::getSimulationOutputFilename() const
 void Settings::setSimulationOutputFilename(const std::string &value)
 {
     simulationOutputFilename = value;
-    Helper::printDebugTwoColumns2S("Simulation output filename", simulationOutputFilename, 30);
+    Helper::printDebugTwoColumnsS("Simulation output filename", simulationOutputFilename, 0, 30);
 }
 
 /**
@@ -317,7 +345,7 @@ std::string Settings::getSimulationInputFilename() const
 void Settings::setSimulationInputFilename(const std::string &value)
 {
     simulationInputFilename = value;
-    Helper::printDebugTwoColumns2S("Simulation input filename", simulationInputFilename, 30);
+    Helper::printDebugTwoColumnsS("Simulation input filename", simulationInputFilename, 0, 30);
 }
 
 /**
@@ -336,7 +364,7 @@ std::string Settings::getProcessingOutputFilename() const
 void Settings::setProcessingOutputFilename(const std::string &value)
 {
     processingOutputFilename = value;
-    Helper::printDebugTwoColumns2S("Processing output filename", processingOutputFilename, 30);
+    Helper::printDebugTwoColumnsS("Processing output filename", processingOutputFilename, 0, 30);
 }
 
 /**
@@ -355,7 +383,7 @@ std::string Settings::getProcessingInputFilename() const
 void Settings::setProcessingInputFilename(const std::string &value)
 {
     processingInputFilename = value;
-    Helper::printDebugTwoColumns2S("Processing input filename", processingInputFilename, 30);
+    Helper::printDebugTwoColumnsS("Processing input filename", processingInputFilename, 0, 30);
 }
 
 /**
@@ -374,7 +402,7 @@ unsigned long long Settings::getMaxSize() const
 void Settings::setMaxSize(const unsigned long long &value)
 {
     maxSize = value;
-    Helper::printDebugTwoColumns2S("Max size for downsampling", maxSize, 30);
+    Helper::printDebugTwoColumnsS("Max size for downsampling", maxSize, 0, 30);
 }
 
 /**
@@ -404,7 +432,7 @@ void Settings::setMaxChunkSizes(const ParamsDefinition::VectorOfULongLongs &valu
         if (std::next(ci) != maxChunkSizesR.end())
             sizesString += " x ";
     }
-    Helper::printDebugTwoColumns2S("New chunk sizes", sizesString, 30);
+    Helper::printDebugTwoColumnsS("New chunk sizes", sizesString, 0, 30);
 }
 
 /**
@@ -423,7 +451,7 @@ unsigned long long Settings::getBlockSize() const
 void Settings::setBlockSize(const unsigned long long &value)
 {
     blockSize = value;
-    Helper::printDebugTwoColumns2S("Max size for block reading", blockSize, 30);
+    Helper::printDebugTwoColumnsS("Max size for block reading", blockSize, 0, 30);
 }
 
 /**
@@ -442,7 +470,7 @@ unsigned long long Settings::getMOS() const
 void Settings::setMOS(const unsigned long long &value)
 {
     mOS = value;
-    Helper::printDebugTwoColumns2S("Multiple of overlap size for compression", mOS, 40);
+    Helper::printDebugTwoColumnsS("Multiple of overlap size for compression", mOS, 0, 40);
 }
 
 /**
@@ -506,7 +534,7 @@ float Settings::getPeriod() const
 void Settings::setPeriod(const float &value)
 {
     period = value;
-    Helper::printDebugTwoColumns2S("Period for compression", period, 40);
+    Helper::printDebugTwoColumnsS("Period for compression", period, 0, 40);
 }
 
 /**
@@ -525,7 +553,7 @@ float Settings::getFrequency() const
 void Settings::setFrequency(const float &value)
 {
     frequency = value;
-    Helper::printDebugTwoColumns2S("Frequency for compression", frequency, 40);
+    Helper::printDebugTwoColumnsS("Frequency for compression", frequency, 0, 40);
 }
 
 /**
@@ -544,7 +572,7 @@ unsigned long long Settings::getHarmonics() const
 void Settings::setHarmonic(const unsigned long long &value)
 {
     harmonics = value;
-    Helper::printDebugTwoColumns2S("Number of harmonics for compression", harmonics, 40);
+    Helper::printDebugTwoColumnsS("Number of harmonics for compression", harmonics, 0, 40);
 }
 
 /**
@@ -564,9 +592,9 @@ void Settings::setFlagShift(bool value)
 {
     shift = value;
     if (shift) {
-        Helper::printDebugTwoColumns2S("Time shift flag for compression", "TRUE", 40);
+        Helper::printDebugTwoColumnsS("Time shift flag for compression", "TRUE", 0, 40);
     } else {
-        Helper::printDebugTwoColumns2S("Time shift flag for compression", "FALSE", 40);
+        Helper::printDebugTwoColumnsS("Time shift flag for compression", "FALSE", 0, 40);
     }
 }
 
@@ -591,7 +619,7 @@ void Settings::setNames(const ParamsDefinition::ListOfStrings &value)
         namesString +=  *ci;
         namesString += ", ";
     }
-    Helper::printDebugTwoColumns2S("Selected datasets or groups", namesString, 30);
+    Helper::printDebugTwoColumnsS("Selected datasets or groups", namesString, 0, 30);
 }
 
 /**
@@ -629,9 +657,9 @@ void Settings::setFlagReshape(bool value)
 {
     flagReshape = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Reshape mode", "ON");
+        Helper::printDebugTwoColumnsS("Reshape mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Reshape mode", "OFF");
+        Helper::printDebugTwoColumnsS("Reshape mode", "OFF");
 }
 
 /**
@@ -651,9 +679,9 @@ void Settings::setFlagChangeChunks(bool value)
 {
     flagRechunk = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Change chunks mode", "ON");
+        Helper::printDebugTwoColumnsS("Change chunks mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Change chunks mode", "OFF");
+        Helper::printDebugTwoColumnsS("Change chunks mode", "OFF");
 }
 
 /**
@@ -673,9 +701,9 @@ void Settings::setFlagDwnsmpl(bool value)
 {
     flagDwnsmpl = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Downsampling mode", "ON");
+        Helper::printDebugTwoColumnsS("Downsampling mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Downsampling mode", "OFF");
+        Helper::printDebugTwoColumnsS("Downsampling mode", "OFF");
 }
 
 /**
@@ -695,9 +723,9 @@ void Settings::setFlagCompress(bool value)
 {
     flagCompress = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Compression mode", "ON");
+        Helper::printDebugTwoColumnsS("Compression mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Compression mode", "OFF");
+        Helper::printDebugTwoColumnsS("Compression mode", "OFF");
 }
 
 /**
@@ -717,9 +745,9 @@ void Settings::setFlagDecompress(bool value)
 {
     flagDecompress = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Decompression mode", "ON");
+        Helper::printDebugTwoColumnsS("Decompression mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Decompression mode", "OFF");
+        Helper::printDebugTwoColumnsS("Decompression mode", "OFF");
 }
 
 /**
@@ -739,9 +767,9 @@ void Settings::setFlagDifference(bool value)
 {
     flagDifference = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Difference mode", "ON");
+        Helper::printDebugTwoColumnsS("Difference mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Difference mode", "OFF");
+        Helper::printDebugTwoColumnsS("Difference mode", "OFF");
 }
 
 /**
@@ -761,9 +789,9 @@ void Settings::setFlagInfo(bool value)
 {
     flagInfo = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Info mode", "ON");
+        Helper::printDebugTwoColumnsS("Info mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Info mode", "OFF");
+        Helper::printDebugTwoColumnsS("Info mode", "OFF");
 }
 
 /**
@@ -783,9 +811,9 @@ void Settings::setFlagComputePeriod(bool value)
 {
     flagComputePeriod = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Compute period mode", "ON");
+        Helper::printDebugTwoColumnsS("Compute period mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Compute period mode", "OFF");
+        Helper::printDebugTwoColumnsS("Compute period mode", "OFF");
 }
 
 /**
@@ -805,9 +833,9 @@ void Settings::setFlagFindMinMax(bool value)
 {
     flagFindMinMax = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Find min/max mode", "ON");
+        Helper::printDebugTwoColumnsS("Find min/max mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Find min/max mode", "OFF");
+        Helper::printDebugTwoColumnsS("Find min/max mode", "OFF");
 }
 
 /**
@@ -827,9 +855,9 @@ void Settings::setFlagLog(bool value)
 {
     flagLog = value;
     if (value)
-        Helper::printDebugTwoColumns2S("Log mode", "ON");
+        Helper::printDebugTwoColumnsS("Log mode", "ON");
     else
-        Helper::printDebugTwoColumns2S("Log", "OFF");
+        Helper::printDebugTwoColumnsS("Log", "OFF");
 }
 
 /**

@@ -17,6 +17,8 @@
  *
  */
 
+#include <bitset>
+
 #include "difference.h"
 
 /**
@@ -47,33 +49,60 @@ void Difference::execute()
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
         int count = 0;
-        for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            H5Helper::Dataset *datasetOriginal = it->second;
-            H5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
-            if (checkDatasetType(datasetType, types)) {
-                H5Helper::Dataset *datasetDecoded = nullptr;
+        // Compare 2 selected datasets
+        if (getSettings()->getNames().size() == 2) {
+            H5Helper::Dataset *dataset1 = getDtsForPcs()->getDatasets().at(getSettings()->getNames().back());
+            H5Helper::Dataset *dataset2 = getDtsForPcs()->getDatasets2().at(getSettings()->getNames().front());
+            H5Helper::DatasetType dataset1Type = dataset1->getType(sensorMaskSize);
+            H5Helper::DatasetType dataset2Type = dataset2->getType(sensorMaskSize);
 
-                for (H5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
-                    H5Helper::Dataset *dataset = it2->second;
-                    H5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
+            if (dataset1->getRank() == dataset1->getRank()) {
+                if( ((dataset1Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset1Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
+                     && (dataset2Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset2Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
+                     && (H5Helper::Vector3D(dataset1->getDims()).x() == H5Helper::Vector3D(dataset2->getDims()).x()))
+                    || (H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))) {
 
-                    if ((datasetDecodedType == H5Helper::DatasetType::TIME_STEPS_D_INDEX && datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX)
-                            || (datasetDecodedType == H5Helper::DatasetType::CUBOID_D && datasetType == H5Helper::DatasetType::CUBOID)
-                            || (datasetDecodedType == H5Helper::DatasetType::CUBOID_ATTR_D && datasetType == H5Helper::DatasetType::CUBOID_ATTR)
-                            ) {
-                        if (datasetOriginal->getName() == dataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, false)) {
-                            datasetDecoded = dataset;
-                            break;
-                        }
+                    if (H5Helper::Vector3D(dataset1->getDims()).y() < H5Helper::Vector3D(dataset2->getDims()).y()
+                        || (dataset1->getRank() == 4 && H5Helper::Vector4D(dataset1->getDims()).t() < H5Helper::Vector4D(dataset2->getDims()).t())) {
+                        Helper::printDebugMsg("Subtraction of datasets " + dataset2->getName() + " and " + dataset1->getName());
+                        subtractDatasets(dataset2, dataset1, getSettings()->getFlagLog());
+                    } else {
+                        Helper::printDebugMsg("Subtraction of datasets " + dataset1->getName() + " and " + dataset2->getName());
+                        subtractDatasets(dataset1, dataset2, getSettings()->getFlagLog());
                     }
-                }
-                if (datasetDecoded) {
-                    Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
-                    subtractDatasets(datasetOriginal, datasetDecoded, getSettings()->getFlagLog());
                     Helper::printDebugMsg("Subtraction of datasets done");
                     count++;
                 }
             }
+        } else { // Compare original and decoded datasets
+          for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
+              H5Helper::Dataset *datasetOriginal = it->second;
+              H5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
+              if (checkDatasetType(datasetType, types)) {
+                  H5Helper::Dataset *datasetDecoded = nullptr;
+
+                  for (H5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
+                      H5Helper::Dataset *dataset = it2->second;
+                      H5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
+
+                      if ((datasetDecodedType == H5Helper::DatasetType::TIME_STEPS_D_INDEX && datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX)
+                          || (datasetDecodedType == H5Helper::DatasetType::CUBOID_D && datasetType == H5Helper::DatasetType::CUBOID)
+                          || (datasetDecodedType == H5Helper::DatasetType::CUBOID_ATTR_D && datasetType == H5Helper::DatasetType::CUBOID_ATTR)
+                          ) {
+                          if (datasetOriginal->getName() == dataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, false)) {
+                              datasetDecoded = dataset;
+                              break;
+                          }
+                      }
+                  }
+                  if (datasetDecoded) {
+                      Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
+                      subtractDatasets(datasetOriginal, datasetDecoded, getSettings()->getFlagLog());
+                      Helper::printDebugMsg("Subtraction of datasets done");
+                      count++;
+                  }
+              }
+          }
         }
         if (count == 0) {
             Helper::printErrorMsg("No datasets for making difference in simulation output file");
@@ -97,9 +126,12 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     H5Helper::Vector outputDims = datasetOriginal->getDims();
     H5Helper::Vector outputChunkDims = datasetOriginal->getChunkDims();
 
-    std::string srcName = datasetDecoded->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, log);
-    getOutputFile()->createDatasetF(srcName + "_s", outputDims, outputChunkDims, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_s", log);
+    std::string diffName = datasetOriginal->getName() + "-" + datasetDecoded->getOnlyName();
+    if (datasetDecoded->hasAttribute(H5Helper::SRC_DATASET_NAME_ATTR)) {
+        diffName = datasetDecoded->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, log);
+    }
+    getOutputFile()->createDatasetF(diffName + "_s", outputDims, outputChunkDims, true, log);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(diffName + "_s", log);
 
     datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
 
@@ -118,6 +150,8 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     double sumO2 = 0.0;
     double sum2 = 0.0;
 
+    const float r0 = (float(511) / (2 * float(M_PI)));
+
     // Reading and subtraction
     for (hsize_t i = 0; i < datasetOriginal->getNumberOfBlocks(); i++) {
         // First read decoded -> it is larger
@@ -125,17 +159,80 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
         datasetOriginal->readBlock(i, offset, count, dataO, log);
         // The count is from original dataset and is smaller for last step than is in the decoded dataset
 
-        #pragma omp parallel for reduction(+ : sum, sumO2, sum2)
+        //#pragma omp parallel for reduction(+ : sum, sumO2, sum2)
+        //for (hssize_t i = 0; i < hssize_t(count.getSize()) / 2; i += 2) {
         for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
+
+            //float dValue = dataD[i];
+            //dValue = dataO[i];
+
+            /*H5Helper::floatC dValueFC(dataO[i], dataO[i + 1]);
+            //std::cout << dValueFC << std::endl;
+            float dValueFC32 = H5Helper::CompressHelper::convertFloatCTo32b(dValueFC, 120000.0f);
+            H5Helper::floatC dValueFCn = H5Helper::CompressHelper::convert32bToFloatC(dValueFC32, 120000.0f);*/
+
+
+            /*int16_t angleI = 0;
+            int32_t r;
+
+            float sC1Abs = abs(dValueFC);
+            float sC1Arg = arg(dValueFC);
+
+            angleI = int16_t(roundf(sC1Arg * r0));
+            sC1Arg = float(angleI) / r0;
+
+            std::memcpy(&r, &sC1Abs, sizeof r);
+            r >>= 10;
+            r <<= 10;
+            std::memcpy(&sC1Abs, &r, sizeof r);
+
+            dValueFC = std::polar(sC1Abs, sC1Arg);
+
+            dValue = dValueFC.imag();*/
+
+            /*unsigned r;
+            std::memcpy(&r, &dValue, sizeof r);
+            //std::bitset<32> f0(r);
+            r >>= 16;
+            r <<= 16;
+            //std::bitset<32> f1(r);
+            std::memcpy(&dValue, &r, sizeof dValue);*/
+
+            /*float rC = float(32768);
+            //if (abs(dValue) > 16777216) {
+            //    rC /= 67108864;
+            //} else if (abs(dValue) > 4) {
+                rC /= 16777216;
+            //} else if (abs(dValue) > 1) {
+            //    rC /= 4;
+            //}
+            int16_t dValueI = int16_t(roundf(dValue * rC));
+            dValueI >>= 1;
+            dValueI <<= 1;
+            //std::bitset<16> dValueIb(dValueI);
+            //dValueI = (dValueI & ~(1UL << 15)) | (1 << 15);
+            //dValueIb[15] = 1;
+            //std::cout << dValueIb << " " << dValueIb.to_ulong()  << " " << dValueI << '\n';
+
+            dValue = float(dValueI) / rC;*/
+
             dataD[i] = dataO[i] - dataD[i];
+            //dataD[i] = dataO[i] - dValueFCn.real();
+            //dataD[i + 1] = dataO[i + 1] - dValueFCn.imag();
+
             sum += double(abs(dataD[i]));
+            //sum += double(abs(dataD[i + 1]));
             sumO2 += double(dataO[i] * dataO[i]);
+            //sumO2 += double(dataO[i + 1] * dataO[i + 1]);
             sum2 += double(dataD[i] * dataD[i]);
+            //sum2 += double(dataD[i + 1] * dataD[i + 1]);
             // Min/max values
             hsize_t linearOffset;
             convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
             H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + hsize_t(i));
+            //H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i + 1], minVIndex, maxVIndex, linearOffset + hsize_t(i + 1));
             H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
+            //H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i + 1], minVOIndex, maxVOIndex, linearOffset + hsize_t(i + 1));
         }
 
         dstDataset->writeDataset(offset, count, dataD, log);
@@ -174,11 +271,11 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     dstDataset->setAttribute("snr", 10 * log10(meanO2 / float(mse)), log);
     dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / float(mse)), log);
 
-    Helper::printDebugTwoColumns2S("Mean error", std::to_string((meanError / maxValue) * 100) + " %");
-    Helper::printDebugTwoColumns2S("Max error", std::to_string((maxError / maxValue) * 100) + " %");
-    Helper::printDebugTwoColumns2S("MSE", mse);
-    Helper::printDebugTwoColumns2S("SNR", std::to_string(10 * log10(meanO2 / float(mse))) + " dB");
-    Helper::printDebugTwoColumns2S("PSNR", std::to_string(10 * log10((maxValue * maxValue) / float(mse))) + " dB");
+    Helper::printDebugTwoColumnsS("Mean error", std::to_string((meanError / maxValue) * 100) + " %");
+    Helper::printDebugTwoColumnsS("Max error", std::to_string((maxError / maxValue) * 100) + " %");
+    Helper::printDebugTwoColumnsS("MSE", mse);
+    Helper::printDebugTwoColumnsS("SNR", std::to_string(10 * log10(meanO2 / float(mse))) + " dB");
+    Helper::printDebugTwoColumnsS("PSNR", std::to_string(10 * log10((maxValue * maxValue) / float(mse))) + " dB");
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("datasets difference", t0, t1);

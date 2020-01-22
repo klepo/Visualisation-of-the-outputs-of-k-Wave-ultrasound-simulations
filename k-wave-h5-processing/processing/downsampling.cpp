@@ -87,7 +87,7 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     H5Helper::Vector chunkDimsDst;
     H5Helper::Vector3D chunkDimsDst3D;
 
-    Helper::printDebugTwoColumns2S("Size", dimsSrc);
+    Helper::printDebugTwoColumnsS("Size", dimsSrc);
 
     // Compute ratio
     hsize_t maxDim = std::max(std::max(dimsSrc3D.z(), dimsSrc3D.y()), dimsSrc3D.x());
@@ -114,7 +114,7 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         dimsDst = dimsDst3D;
     }
 
-    Helper::printDebugTwoColumns2S("New size", dimsDst);
+    Helper::printDebugTwoColumnsS("New size", dimsDst);
 
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName() + "_" + std::to_string(getSettings()->getMaxSize()), dimsDst, chunkDimsDst, true, log);

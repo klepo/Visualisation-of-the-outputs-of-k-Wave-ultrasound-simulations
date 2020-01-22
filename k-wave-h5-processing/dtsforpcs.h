@@ -35,6 +35,7 @@ public:
     H5Helper::Dataset *getSensorMaskIndexDataset() const;
     H5Helper::Dataset *getSensorMaskCornersDataset() const;
     H5Helper::MapOfDatasets getDatasets(H5Helper::DatasetType datasetType = H5Helper::DatasetType::ALL) const;
+    H5Helper::MapOfDatasets getDatasets2(H5Helper::DatasetType datasetType = H5Helper::DatasetType::ALL) const;
     hsize_t getSensorMaskSize() const;
     hsize_t getSensorMaskType() const;
 
@@ -46,7 +47,7 @@ private:
     DtsForPcs &operator=(const DtsForPcs &);
 
     H5Helper::Dataset *findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile = nullptr);
-    void findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings);
+    void findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings, H5Helper::MapOfDatasets *datasets);
     bool isFiltered(std::string name, const Settings *settings);
 
     /// Domain dimensions
@@ -61,6 +62,8 @@ private:
     hsize_t sensorMaskType = 0;
     /// Datasets
     H5Helper::MapOfDatasets datasets;
+    /// Datasets 2
+    H5Helper::MapOfDatasets datasets2;
 };
 
 #endif // DTSFORPCS_H

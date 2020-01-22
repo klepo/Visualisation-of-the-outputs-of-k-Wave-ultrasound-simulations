@@ -134,13 +134,13 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
         return;
     }
 
-    Helper::printDebugTwoColumns2S("steps", steps);
-    Helper::printDebugTwoColumns2S("outputSteps", outputSteps);
-    Helper::printDebugTwoColumns2S("dims", dims);
-    Helper::printDebugTwoColumns2S("outputDims", outputDims);
-    Helper::printDebugTwoColumns2S("stepSize", stepSize);
-    Helper::printDebugTwoColumns2S("outputStepSize", outputStepSize);
-    Helper::printDebugTwoColumns2S("chunkDims", chunkDims);
+    Helper::printDebugTwoColumnsS("steps", steps);
+    Helper::printDebugTwoColumnsS("outputSteps", outputSteps);
+    Helper::printDebugTwoColumnsS("dims", dims);
+    Helper::printDebugTwoColumnsS("outputDims", outputDims);
+    Helper::printDebugTwoColumnsS("stepSize", stepSize);
+    Helper::printDebugTwoColumnsS("outputStepSize", outputStepSize);
+    Helper::printDebugTwoColumnsS("chunkDims", chunkDims);
 
     // Create destination dataset
     std::string srcName = srcDataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, log);
@@ -250,7 +250,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                             dstDataset->writeDataset(H5Helper::Vector3D(0, step - stepToWrite, 0), H5Helper::Vector3D(1, stepToWrite, outputDims[2]), data);
 
                         if (log)
-                            Helper::printDebugMsg("saved");
+                            Helper::printDebugMsgEnd("saved");
 
                         stepToWrite = 0;
                     }

@@ -127,8 +127,9 @@ int main(int argc, const char **argv)
 
     double t1 = H5Helper::getTime(); // Save the final time
 
+    Helper::printLine();
     Helper::printDebugTime("the entire process", t0, t1);
-    Helper::printDebugMsg("----------------------------------------");
+    Helper::printLine();
 
     //std::cout << H5Helper::getSystemPhysicalMemoryCurrentlyUsedByProc() << std::endl;
     //std::cout << "utime=" << (t1 - t0) / 1000 << "s" << std::endl;

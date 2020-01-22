@@ -493,6 +493,8 @@ void Object::setAttribute(std::string name, hid_t datatypeId, const void *value,
  */
 void Object::creatingAttributeMessage(std::string name, hid_t datatypeId, const void *value) const
 {
-    std::cout << "Creating attribute \"" << name << "\" (" << Attribute::getStringDatatype(datatypeId) << ") = \"" << Attribute::getStringValue(datatypeId, value) << "\"";
+    std::string valueStr = "\"" + Attribute::getStringValue(datatypeId, value) + "\"";
+    std::string nameStr = "\"" + name + "\" (" + Attribute::getStringDatatype(datatypeId) + ") ";
+    std::cout << "Creating attribute " << std::left << std::setw(40) << nameStr << valueStr;
 }
 }

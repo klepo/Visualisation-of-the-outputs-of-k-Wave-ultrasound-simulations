@@ -82,8 +82,8 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
             chunkDims[dims.getLength() - i - 1] = dims[dims.getLength() - i - 1];
     }
 
-    Helper::printDebugTwoColumns2S("Chunk dims", srcDataset->getChunkDims());
-    Helper::printDebugTwoColumns2S("New chunk dims", chunkDims);
+    Helper::printDebugTwoColumnsS("Chunk dims", srcDataset->getChunkDims());
+    Helper::printDebugTwoColumnsS("New chunk dims", chunkDims);
 
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true, log);

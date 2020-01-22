@@ -453,85 +453,85 @@ std::string Dataset::getTypeString(DatasetType type) const
 {
     switch (type) {
         case DatasetType::ALL:
-            return "General k-Wave dataset type";
+            return "General k-Wave dataset";
         case DatasetType::UNKNOWN:
-            return "Unknown type";
+            return "Unknown";
         case DatasetType::N_DIM_X:
-            return "Nx type";
+            return "Nx";
         case DatasetType::N_DIM_Y:
-            return "Ny type";
+            return "Ny";
         case DatasetType::N_DIM_Z:
-            return "Nz type";
+            return "Nz";
         case DatasetType::N_DIM_T:
-            return "Nt type";
+            return "Nt";
         case DatasetType::DX:
-            return "dx type";
+            return "dx";
         case DatasetType::DY:
-            return "dy type";
+            return "dy";
         case DatasetType::DZ:
-            return "dz type";
+            return "dz";
         case DatasetType::DT:
-            return "dt type";
+            return "dt";
         case DatasetType::MASK_INDEX:
-            return "Sensor mask index type";
+            return "Sensor mask index";
         case DatasetType::MASK_CORNERS:
-            return "Sensor mask corners type";
+            return "Sensor mask corners";
         case DatasetType::P_SOURCE_INPUT:
-            return "P source input type";
+            return "P source input";
         case DatasetType::BASIC_3D:
-            return "3D type";
+            return "3D";
         case DatasetType::BASIC_CUBOID:
-            return "3D cuboid type";
+            return "3D cuboid";
         case DatasetType::RESHAPED_3D:
-            return "3D type (reshaped index)";
+            return "3D (reshaped index)";
         case DatasetType::BASIC_3D_DWNSMPL:
-            return "3D type (downsampled)";
+            return "3D (downsampled)";
         case DatasetType::RESHAPED_3D_DWNSMPL:
-            return "3D type (downsampled reshaped index)";
+            return "3D (downsampled reshaped index)";
         case DatasetType::BASIC_INDEX:
-            return "Basic index type";
+            return "Basic index";
         case DatasetType::TIME_STEPS_INDEX:
-            return "Time steps index type (time steps)";
+            return "Time steps index (time steps)";
         case DatasetType::TIME_STEPS_C_INDEX:
-            return "Time steps index type (compressed)";
+            return "Time steps index (compressed)";
         case DatasetType::TIME_STEPS_D_INDEX:
-            return "Time steps index type (decompressed)";
+            return "Time steps index (decompressed)";
         case DatasetType::TIME_STEPS_S_INDEX:
-            return "Time steps index type (difference)";
+            return "Time steps index (difference)";
         case DatasetType::CUBOID:
-            return "Cuboid type";
+            return "Cuboid";
         case DatasetType::CUBOID_C:
-            return "Cuboid type (compressed)";
+            return "Cuboid (compressed)";
         case DatasetType::CUBOID_D:
-            return "Cuboid type (decompressed)";
+            return "Cuboid (decompressed)";
         case DatasetType::CUBOID_S:
-            return "Cuboid type (difference)";
+            return "Cuboid (difference)";
         case DatasetType::CUBOID_DWNSMPL:
-            return "Cuboid type (downsampled";
+            return "Cuboid (downsampled";
         case DatasetType::CUBOID_DWNSMPL_C:
-            return "Cuboid type (downsampled compressed)";
+            return "Cuboid (downsampled compressed)";
         case DatasetType::CUBOID_DWNSMPL_D:
-            return "Cuboid type (downsampled decompressed)";
+            return "Cuboid (downsampled decompressed)";
         case DatasetType::CUBOID_DWNSMPL_S:
-            return "Cuboid type (downsampled difference)";
+            return "Cuboid (downsampled difference)";
         case DatasetType::CUBOID_ATTR:
-            return "Cuboid type with attributes";
+            return "Cuboid with attributes";
         case DatasetType::CUBOID_ATTR_C:
-            return "Cuboid type with attributes (compressed)";
+            return "Cuboid with attributes (compressed)";
         case DatasetType::CUBOID_ATTR_D:
-            return "Cuboid type with attributes (decompressed)";
+            return "Cuboid with attributes (decompressed)";
         case DatasetType::CUBOID_ATTR_S:
-            return "Cuboid type with attributes (difference)";
+            return "Cuboid with attributes (difference)";
         case DatasetType::CUBOID_ATTR_DWNSMPL:
-            return "Cuboid type with attributes (downsampled)";
+            return "Cuboid with attributes (downsampled)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_C:
-            return "Cuboid type with attributes (downsampled compressed)";
+            return "Cuboid with attributes (downsampled compressed)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_D:
-            return "Cuboid type with attributes (downsampled decompressed)";
+            return "Cuboid with attributes (downsampled decompressed)";
         case DatasetType::CUBOID_ATTR_DWNSMPL_S:
-            return "Cuboid type with attributes (downsampled difference)";
-    };
-    return "Unknown type";
+            return "Cuboid with attributes (downsampled difference)";
+    }
+    return "Unknown";
 }
 
 /**

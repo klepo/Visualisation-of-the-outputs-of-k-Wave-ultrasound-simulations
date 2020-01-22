@@ -55,6 +55,8 @@ public:
 
     static float findPeriod(const float *dataSrc, hsize_t length);
     float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
+    static floatC convert32bToFloatC(float value, float maxValue);
+    static float convertFloatCTo32b(floatC value, float maxValue);
 
     const floatC *getBE() const;
     const floatC *getBE_1() const;
@@ -110,6 +112,16 @@ private:
     floatC *bE = nullptr;
     /// Inverted complex exponencial window basis
     floatC *bE_1 = nullptr;
+
+    static const int rBase = 32768;
+    static const int rD0 = 1;
+    static const int rD1 = 4;
+    static const int rD2 = 16777216;
+    static const int rD3 = 67108864;
+    static const float r0;
+    static const float r1;
+    static const float r2;
+    static const float r3;
 };
 }
 

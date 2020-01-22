@@ -135,8 +135,8 @@ void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskI
     delete[] data; // !!
     data = nullptr;
 
-    Helper::printDebugTwoColumns2S("Min sensor mask point", min);
-    Helper::printDebugTwoColumns2S("Max sensor mask point", max);
+    Helper::printDebugTwoColumnsS("Min sensor mask point", min);
+    Helper::printDebugTwoColumnsS("Max sensor mask point", max);
 }
 
 /**
@@ -200,12 +200,12 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
     hsize_t steps = dataset->getDims()[1];
 
     chunkDims.w(std::min(getSettings()->getMaxChunkSizeW(), steps));
-    Helper::printDebugTwoColumns2S("New chunk size", chunkDims);
+    Helper::printDebugTwoColumnsS("New chunk size", chunkDims);
 
     // Compute dataset size
     H5Helper::Vector4D datasetDims(steps, dims);
     H5Helper::Vector4D stepSize(1, dims);
-    Helper::printDebugTwoColumns2S("New dataset size", datasetDims);
+    Helper::printDebugTwoColumnsS("New dataset size", datasetDims);
 
     // Helper variables
     H5Helper::Dataset *dstDataset = nullptr;
@@ -245,14 +245,14 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
             for (hssize_t i = 0; i < hssize_t(sensorMaskIndexDataset->getSize()); i++) {
                 if (sensorMaskData[i] <= last) {
                     cuboidFlag = false;
-                    Helper::printDebugMsg("The shape is not cuboid");
+                    Helper::printDebugMsgEnd("The shape is not cuboid");
                     break;
                 }
                 last = sensorMaskData[i];
             }
         }
         if (cuboidFlag)
-            Helper::printDebugMsg("OK");
+            Helper::printDebugMsgEnd("OK");
 
     } else {
         // TODO

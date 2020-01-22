@@ -21,6 +21,11 @@
 
 namespace H5Helper {
 
+const float CompressHelper::r0 = float(CompressHelper::rBase) / CompressHelper::rD0;
+const float CompressHelper::r1 = float(CompressHelper::rBase) / CompressHelper::rD1;
+const float CompressHelper::r2 = float(CompressHelper::rBase) / CompressHelper::rD2;
+const float CompressHelper::r3 = float(CompressHelper::rBase) / CompressHelper::rD3;
+
 /**
  * @brief Creates CompressHelper object with period, mos, harmonics and normalize flag
  * @param[in] period Period
@@ -155,6 +160,54 @@ float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t 
         sH += bSize;
     }
     return stepValue;
+}
+
+floatC CompressHelper::convert32bToFloatC(float value, float maxValue)
+{
+    /*
+    float rC = r0;
+    int32_t valueI = *reinterpret_cast<int32_t*>(&value);
+    if ((valueI & 1)) {
+        if ((valueI >> 16) & 1) {
+            rC = r3;
+        } else {
+            rC = r1;
+        }
+    } else {
+        if ((valueI >> 16) & 1) {
+            rC = r2;
+        }
+    }
+    return floatC(float(int32_t((valueI >> 17) << 1)) / rC, float(int16_t((valueI >> 1) << 1)) / rC);
+    */
+    int32_t valueI = *reinterpret_cast<int32_t*>(&value);
+    return floatC(float(int32_t((valueI >> 16))) / (float(CompressHelper::rBase) / maxValue),
+                  float(int16_t((valueI))) / (float(CompressHelper::rBase) / maxValue));
+}
+
+float CompressHelper::convertFloatCTo32b(floatC value, float maxValue)
+{
+    /*
+    float dValue = std::max(abs(value.real()), abs(value.imag()));
+    int32_t valueI;
+    if (dValue > rD2) {
+        valueI = int32_t((int16_t(roundf(value.real() * r3)) & ~1) | 1) << 16
+               | uint16_t((int16_t(roundf(value.imag() * r3)) & ~1) | 1);
+    } else if (dValue > rD1) {
+        valueI = int32_t((int16_t(roundf(value.real() * r2)) & ~1) | 1 << 16)
+               | uint16_t((int16_t(roundf(value.imag() * r2)) & ~1) | 0);
+    } else if (dValue > rD0) {
+        valueI = int32_t((int16_t(roundf(value.real() * r1)) & ~1) | 0) << 16
+               | uint16_t((int16_t(roundf(value.imag() * r1)) & ~1) | 1);
+    } else {
+        valueI = int32_t((int16_t(roundf(value.real() * r0)) & ~1) | 0) << 16
+               | uint16_t((int16_t(roundf(value.imag() * r0)) & ~1) | 0);
+    }
+    return *reinterpret_cast<float*>(&valueI);
+    */
+    int32_t valueI = int32_t((int16_t(roundf(value.real() * float(CompressHelper::rBase) / maxValue)))) << 16
+                     | uint16_t((int16_t(roundf(value.imag() * float(CompressHelper::rBase) / maxValue))));
+    return *reinterpret_cast<float*>(&valueI);
 }
 
 /**

@@ -129,13 +129,14 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     // Find datasets for processing
     Helper::printDebugTitle("Find datasets for processing");
     H5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/", Helper::enableDebugMsgs);
-    findDatasetsForProcessing(group, settings);
+    findDatasetsForProcessing(group, settings, &datasets);
     filesContext->getSimOutputFile()->closeGroup("/", Helper::enableDebugMsgs);
 
     // Find datasets for processing in HDF5PcsInputFile
     if (filesContext->getPcsInputFile()) {
+        Helper::printDebugTitle("Find datasets for processing in processing file");
         group = filesContext->getPcsInputFile()->openGroup("/", Helper::enableDebugMsgs);
-        findDatasetsForProcessing(group, settings);
+        findDatasetsForProcessing(group, settings, &datasets2);
         filesContext->getPcsInputFile()->closeGroup("/", Helper::enableDebugMsgs);
     }
 }
@@ -187,6 +188,28 @@ H5Helper::MapOfDatasets DtsForPcs::getDatasets(H5Helper::DatasetType datasetType
         return filteredDatasets;
     }
 }
+
+/**
+ * @brief Returns datasets from processing file (by type)
+ * @param[in] datasetType Dataset type (optional)
+ * @return Datasets
+ */
+H5Helper::MapOfDatasets DtsForPcs::getDatasets2(H5Helper::DatasetType datasetType) const
+{
+    if (datasetType == H5Helper::DatasetType::ALL) {
+        return datasets2;
+    } else {
+        H5Helper::MapOfDatasets map = datasets2;
+        H5Helper::MapOfDatasets filteredDatasets;
+        for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
+            H5Helper::Dataset *dataset = it->second;
+            if (datasetType == dataset->getType(sensorMaskSize))
+                filteredDatasets.insert(H5Helper::PairOfDatasets(dataset->getName(), dataset));
+        }
+        return filteredDatasets;
+    }
+}
+
 
 /**
  * @brief Returns sensor mask size
@@ -245,7 +268,7 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
  * @param[in] group Group to searching
  * @param[in] settings Settings
  */
-void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings)
+void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings, H5Helper::MapOfDatasets *datasets)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
         H5G_obj_t type = group->getObjTypeByIdx(i);
@@ -269,20 +292,22 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                 if (settings->getFlagInfo()) {
                     Helper::enableDebugMsgs = true;
                 }
-                datasets.insert(H5Helper::PairOfDatasets(dataset->getName(), dataset));
-                Helper::printDebugMsg("----> " + dataset->getTypeString(datasetType) + " dataset: " + dataset->getName());
+                datasets->insert(H5Helper::PairOfDatasets(dataset->getName(), dataset));
+                Helper::printDebugMsg("Dataset:");
+                Helper::printDebugTwoColumnsS("name", dataset->getName(), 2);
+                Helper::printDebugTwoColumnsS("type", dataset->getTypeString(datasetType), 2);
                 if (settings->getFlagInfo()) {
-                    Helper::printDebugTwoColumnsTab("size", dataset->getDims());
-                    Helper::printDebugTwoColumnsTab("chunk size", dataset->getChunkDims());
+                    Helper::printDebugTwoColumnsS("size", dataset->getDims(), 2);
+                    Helper::printDebugTwoColumnsS("chunk size", dataset->getChunkDims(), 2);
                     if (dataset->getSize() == 1) {
                         if (dataset->isFloatType()) {
                             float data;
                             dataset->readDataset(data, false);
-                            Helper::printDebugTwoColumnsTab("value", data);
+                            Helper::printDebugTwoColumnsS("value", data, 2);
                         } else if (dataset->isIntegerType()) {
                             hsize_t data;
                             dataset->readDataset(data, false);
-                            Helper::printDebugTwoColumnsTab("value", data);
+                            Helper::printDebugTwoColumnsS("value", data, 2);
                         }
                     }
                 }
@@ -293,11 +318,11 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                 // Print attributes
                 if (settings->getFlagInfo()) {
                     if (dataset->getNumAttrs() > 0) {
-                        Helper::printDebugMsg2S("Attributes");
+                        Helper::printDebugMsg("Attributes:");
                     }
                     for (hsize_t i = 0; i < dataset->getNumAttrs(); i++) {
                         H5Helper::Attribute *attribute = dataset->getAttribute(i);
-                        Helper::printDebugTwoColumnsTab(attribute->getName(), attribute->getStringValue());
+                        Helper::printDebugTwoColumnsS(attribute->getName(), attribute->getStringValue(), 2);
                         delete attribute;
                         attribute = nullptr;
                     }
@@ -314,7 +339,7 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
         // Groups
         if (type == H5G_GROUP) {
             H5Helper::Group *nextGroup = group->openGroup(i, false);
-            findDatasetsForProcessing(nextGroup, settings);
+            findDatasetsForProcessing(nextGroup, settings, datasets);
             group->closeGroup(nextGroup, false);
         }
     }

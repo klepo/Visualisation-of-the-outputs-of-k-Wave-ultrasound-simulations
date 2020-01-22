@@ -22,6 +22,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 #include <hdf5.h>  // HDF5
 

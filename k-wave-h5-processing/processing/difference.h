@@ -21,6 +21,7 @@
 #define DIFFERENCE_H
 
 #include "processing.h"
+#include "compresshelper.h"
 
 /**
  * @brief The Difference class represents wrapper for datasets subtraction

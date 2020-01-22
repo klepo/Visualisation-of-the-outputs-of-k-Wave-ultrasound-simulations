@@ -206,10 +206,11 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         H5Helper::copyDataset(simOutputFile, file, H5Helper::NZ_DATASET, true, false);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::NT_DATASET, true, false);
     } catch (std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        Helper::printDebugMsgEnd("Failed");
+        Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
-    Helper::printDebugMsg("OK");
+    Helper::printDebugMsgEnd("OK");
     // Copy dt, dx, dy, dz
     Helper::printDebugMsgStart("Copy dt, dx, dy, dz");
     try {
@@ -217,9 +218,9 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DY_DATASET, true, false);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DZ_DATASET, true, false);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DT_DATASET, true, false);
-        Helper::printDebugMsg("OK");
+        Helper::printDebugMsgEnd("OK");
     } catch (std::exception &) {
-        Helper::printDebugMsg("are not in the file");
+        Helper::printDebugMsgEnd("are not in the file");
         //std::cerr << e.what() << std::endl;
         //std::exit(EXIT_FAILURE);
     }
@@ -237,10 +238,11 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         simOutputFile->closeGroup(srcGroup, false);
         file->closeGroup(dstGroup, false);
     } catch (std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        Helper::printDebugMsgEnd("Failed");
+        Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
-    Helper::printDebugMsg("OK");
+    Helper::printDebugMsgEnd("OK");
 
     return file;
 }

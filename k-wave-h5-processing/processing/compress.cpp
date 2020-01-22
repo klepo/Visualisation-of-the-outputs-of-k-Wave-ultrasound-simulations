@@ -140,13 +140,13 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
         return;
     }
 
-    Helper::printDebugTwoColumns2S("steps", steps);
-    Helper::printDebugTwoColumns2S("outputSteps", outputSteps);
-    Helper::printDebugTwoColumns2S("dims", dims);
-    Helper::printDebugTwoColumns2S("outputDims", outputDims);
-    Helper::printDebugTwoColumns2S("stepSize", stepSize);
-    Helper::printDebugTwoColumns2S("outputStepSize", outputStepSize);
-    Helper::printDebugTwoColumns2S("chunkDims", chunkDims);
+    Helper::printDebugTwoColumnsS("steps", steps);
+    Helper::printDebugTwoColumnsS("outputSteps", outputSteps);
+    Helper::printDebugTwoColumnsS("dims", dims);
+    Helper::printDebugTwoColumnsS("outputDims", outputDims);
+    Helper::printDebugTwoColumnsS("stepSize", stepSize);
+    Helper::printDebugTwoColumnsS("outputStepSize", outputStepSize);
+    Helper::printDebugTwoColumnsS("chunkDims", chunkDims);
 
     // Create destination dataset
     getOutputFile()->createDatasetF(srcDataset->getName() + "_c", outputDims, chunkDims, true, log);
@@ -250,7 +250,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                             dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), reinterpret_cast<float *>(dataC));
 
                         if (log)
-                            Helper::printDebugMsg("saved");
+                            Helper::printDebugMsgEnd("saved");
                     //}
 
                     // Set zeros

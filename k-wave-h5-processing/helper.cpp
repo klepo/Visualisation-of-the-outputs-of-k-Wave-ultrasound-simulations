@@ -31,7 +31,9 @@ void printDebugTitle(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << std::endl << "---- " << str << " ----" << std::endl << std::endl;
+    printLine();
+    std::cout << wrapMsg("::: " + str + " :::", 2, 0);
+    printLine();
 }
 
 /**
@@ -42,7 +44,7 @@ void printDebugTitle(std::string str)
  */
 void printDebugTime(std::string ofWhat, double t0, double t1)
 {
-    printDebugTwoColumns2S("Time of " + ofWhat + ":", std::to_string(int(t1 - t0)) + " ms");
+    printDebugTwoColumnsS("Time of " + ofWhat + ":", std::to_string(int(t1 - t0)) + " ms");
 }
 
 /**
@@ -53,8 +55,96 @@ void printDebugMsg(std::string str)
 {
     if (!enableDebugMsgs)
         return;
-    std::cout << str << std::endl;
+    std::cout << wrapMsg(str);
 }
+
+/**
+ * @brief Prints start debug message
+ * @param[in] str Debugging string
+ */
+void printDebugMsgStart(std::string str)
+{
+    if (!enableDebugMsgs)
+        return;
+    std::cout << "| " << str << std::string(41 - str.length(), ' ');
+}
+
+/**
+ * @brief Prints end debug message
+ * @param[in] str Debugging string
+ */
+void printDebugMsgEnd(std::string str)
+{
+    if (!enableDebugMsgs)
+        return;
+    std::cout << std::string(20 - str.length(), ' ') << str << " |" << std::endl;
+}
+
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
+void printDebugTwoColumnsS(std::string first, std::string second, size_t indentation, unsigned int width)
+{
+    if (!enableDebugMsgs)
+        return;
+    unsigned int widthTmp = width;
+    if (widthTmp <= first.length())
+        widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
+    std::stringstream ss;
+    ss << std::string(indentation, ' ') << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second;
+    std::cout << wrapMsg(ss.str());
+}
+
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
+void printDebugTwoColumnsS(std::string first, int second, size_t indentation, unsigned int width)
+{
+    printDebugTwoColumnsS(first, std::to_string(second), indentation, width);
+}
+
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
+void printDebugTwoColumnsS(std::string first, unsigned long long second, size_t indentation, unsigned int width)
+{
+    printDebugTwoColumnsS(first, std::to_string(second), indentation, width);
+}
+
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
+void printDebugTwoColumnsS(std::string first, float second, size_t indentation, unsigned int width)
+{
+    std::ostringstream out;
+    out.precision(4);
+    out << second;
+    printDebugTwoColumnsS(first, out.str(), indentation, width);
+}
+
+/**
+ * @brief Prints debug into two columns with 2 spaces
+ * @param[in] first First string
+ * @param[in] second Second string
+ * @param[in] width Column width (optional)
+ */
+void printDebugTwoColumnsS(std::string first, double second, size_t indentation, unsigned int width)
+{
+    printDebugTwoColumnsS(first, std::to_string(second), indentation, width);
+}
+
 
 /**
  * @brief Prints message
@@ -66,171 +156,49 @@ void printMsg(std::string str)
 }
 
 /**
- * @brief Prints start debug message
- * @param[in] str Debugging string
- */
-void printDebugMsgStart(std::string str)
-{
-    if (!enableDebugMsgs)
-        return;
-    std::cout << str << " ... ";
-}
-
-/**
- * @brief Prints debug message with 2 spaces
- * @param[in] str Debugging string
- */
-void printDebugMsg2S(std::string str)
-{
-    if (!enableDebugMsgs)
-        return;
-    std::cout << "  " << str << std::endl;
-}
-
-/**
- * @brief Prints debug into two columns with tabulator
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumnsTab(std::string first, std::string second, unsigned int width)
-{
-    if (!enableDebugMsgs)
-        return;
-    unsigned int widthTmp = width;
-    if (widthTmp <= first.length())
-        widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
-    std::cout << "\t" << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second << std::endl;
-}
-
-/**
- * @brief Prints debug into two columns with tabulator
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumnsTab(std::string first, unsigned long long second, unsigned int width)
-{
-    printDebugTwoColumnsTab(first, std::to_string(second), width);
-}
-
-/**
- * @brief Prints debug into two columns with tabulator
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumnsTab(std::string first, int second, unsigned int width)
-{
-    printDebugTwoColumnsTab(first, std::to_string(second), width);
-}
-
-/**
- * @brief Prints debug into two columns with tabulator
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumnsTab(std::string first, float second, unsigned int width)
-{
-    std::ostringstream out;
-    out.precision(4);
-    out << second;
-    printDebugTwoColumnsTab(first, out.str(), width);
-}
-
-/**
- * @brief Prints debug into two columns with tabulator
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumnsTab(std::string first, double second, unsigned int width)
-{
-    printDebugTwoColumnsTab(first, std::to_string(second), width);
-}
-
-/**
- * @brief Prints debug into two columns with 2 spaces
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumns2S(std::string first, std::string second, unsigned int width)
-{
-    if (!enableDebugMsgs)
-        return;
-    unsigned int widthTmp = width;
-    if (widthTmp <= first.length())
-        widthTmp = (static_cast<unsigned int>(first.length()) / 10) * 10 + 10;
-    std::cout << "  " << std::left << std::setw(widthTmp) << first << std::left << std::setw(static_cast<unsigned int>(second.length())) << second << std::endl;
-}
-
-/**
- * @brief Prints debug into two columns with 2 spaces
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumns2S(std::string first, int second, unsigned int width)
-{
-    printDebugTwoColumns2S(first, std::to_string(second), width);
-}
-
-/**
- * @brief Prints debug into two columns with 2 spaces
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumns2S(std::string first, unsigned long long second, unsigned int width)
-{
-    printDebugTwoColumns2S(first, std::to_string(second), width);
-}
-
-/**
- * @brief Prints debug into two columns with 2 spaces
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumns2S(std::string first, float second, unsigned int width)
-{
-    std::ostringstream out;
-    out.precision(4);
-    out << second;
-    printDebugTwoColumns2S(first, out.str(), width);
-}
-
-/**
- * @brief Prints debug into two columns with 2 spaces
- * @param[in] first First string
- * @param[in] second Second string
- * @param[in] width Column width (optional)
- */
-void printDebugTwoColumns2S(std::string first, double second, unsigned int width)
-{
-    printDebugTwoColumns2S(first, std::to_string(second), width);
-}
-
-/**
- * @brief Prints debug string
- * @param[in] str Debugging string
- */
-void printDebugString(std::string str)
-{
-    if (!enableDebugMsgs)
-        return;
-    std::cout << str;
-}
-
-/**
  * @brief Prints error message
  * @param[in] str Debugging string
  */
 void printErrorMsg(std::string str)
 {
-    std::cerr << str << std::endl;
+    printLineErr();
+    std::cerr << wrapMsg("Error: " + str);
+    printLineErr();
+}
+
+void printLine()
+{
+    std::cout << "+" << std::string(63, '-') << "+" << std::endl;
+}
+
+void printLineErr()
+{
+    std::cerr << "+" << std::string(63, '-') << "+" << std::endl;
+}
+
+std::string wrapMsg(std::string str, size_t indentation, size_t firstIndentation)
+{
+    size_t s = 61;
+    std::string strIn = str;
+    std::string strOut = "| " + std::string(firstIndentation, ' ');
+    size_t currentIndentation = firstIndentation;
+    while (strIn.length() + currentIndentation > s) {
+        size_t pos = strIn.substr(0, s - currentIndentation).find_last_of(" ");
+        size_t c = 0;
+        if (pos == std::string::npos) {
+            c = 1;
+            pos = strIn.substr(0, s - currentIndentation - c).find_last_of(",.-?:_\"!'/()=%;~^\\|");
+            if (pos == std::string::npos) {
+                pos = s - currentIndentation - c;
+            }
+        }
+        strOut += strIn.substr(0, pos + c) + std::string(s - pos - c - currentIndentation, ' ') + " |\n";
+        strOut += "| " + std::string(indentation, ' ');
+        strIn = strIn.substr(pos + 1);
+        currentIndentation = indentation;
+    }
+    strOut += strIn + std::string(s - strIn.length() - currentIndentation, ' ') + " |\n";
+    return strOut;
 }
 
 /**
@@ -259,5 +227,4 @@ unsigned long long round(float number)
 {
     return static_cast<unsigned long long>(roundf(number));
 }
-
 }
