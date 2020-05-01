@@ -44,6 +44,7 @@ void printDebugTwoColumnsS(std::string first, float second, size_t indentation =
 void printDebugTwoColumnsS(std::string first, double second, size_t indentation = 0, unsigned int width = 20);
 void printMsg(std::string str);
 void printErrorMsg(std::string str);
+void printDebugLine();
 void printLine();
 void printLineErr();
 std::string wrapMsg(std::string str, size_t indentation = 2, size_t firstIndentation = 0);

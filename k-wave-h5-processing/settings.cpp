@@ -202,9 +202,6 @@ void Settings::loadParams(int argc, const char **argv)
     } catch (std::exception &e) {
         Helper::printMsg(paramsDefinition.getHelp());
         Helper::printErrorMsg("Wrong parameter " + std::string(e.what()));
-
-        Helper::printErrorMsg("1Finds2and3stores4minimal5and6maximal7values8.Finds9and10stores11minimal12and13maximal14values15Finds16and17stores18minimal19and 20maximal 21values 22Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values Finds and stores minimal and maximal values");
-        Helper::printErrorMsg("Finds and stores minimal and maximal values Finds and stores minimal and maximal values");
         std::exit(EXIT_FAILURE);
     }
 
@@ -216,9 +213,9 @@ void Settings::loadParams(int argc, const char **argv)
         exit(EXIT_SUCCESS);
     }
 
+    Helper::enableDebugMsgs = flags.at("log").getEnabled();
     Helper::printDebugTitle("Settings");
 
-    Helper::enableDebugMsgs = flags.at("log").getEnabled();
     setFlagLog(flags.at("log").getEnabled());
 
     setFlagReshape(flags.at("reshape").getEnabled());

@@ -166,6 +166,14 @@ void printErrorMsg(std::string str)
     printLineErr();
 }
 
+void printDebugLine()
+{
+    if (!enableDebugMsgs)
+        return;
+    std::cout << "+" << std::string(63, '-') << "+" << std::endl;
+}
+
+
 void printLine()
 {
     std::cout << "+" << std::string(63, '-') << "+" << std::endl;

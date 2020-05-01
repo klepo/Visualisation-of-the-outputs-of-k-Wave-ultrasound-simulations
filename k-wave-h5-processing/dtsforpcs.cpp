@@ -313,7 +313,7 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                 }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
-                    dataset->findAndSetGlobalMinAndMaxValue(false, settings->getFlagLog());
+                    dataset->findAndSetGlobalMinAndMaxValue(true, settings->getFlagLog());
                 }
                 // Print attributes
                 if (settings->getFlagInfo()) {

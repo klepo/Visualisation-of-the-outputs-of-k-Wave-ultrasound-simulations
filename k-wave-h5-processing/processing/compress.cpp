@@ -92,7 +92,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     if (log)
         Helper::printDebugMsg("Compression with period "
-                              + std::to_string(compressHelper->getPeriod())
+                              + std::to_string(size_t(compressHelper->getPeriod()))
                               + " steps (" + std::to_string(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
                               + "Hz) and " + std::to_string(compressHelper->getHarmonics())
                               + " harmonic frequencies");
@@ -149,8 +149,9 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     Helper::printDebugTwoColumnsS("chunkDims", chunkDims);
 
     // Create destination dataset
-    getOutputFile()->createDatasetF(srcDataset->getName() + "_c", outputDims, chunkDims, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName() + "_c", log);
+    std::string dstName = srcDataset->getSuffixName("_c");
+    getOutputFile()->createDatasetF(dstName, outputDims, chunkDims, true, log);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
     // Variables for block reading
     float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
@@ -207,19 +208,6 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                         sCTmp1[pH] += compressHelper->getBE()[ih * bSize + stepLocal] * data[sP];
                         sCTmp2[pH] += compressHelper->getBE_1()[ih * bSize + stepLocal] * data[sP];
 
-                        // Check if we are at saving point
-                        /*if (savingFlag && frame > 0) {
-                            hsize_t pHC = 2 * pOffset + 2 * ih;
-
-                            // Select accumulated value
-                            if (oddFrameFlag) {
-                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sCTmp1[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC);
-                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp1[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
-                            } else {
-                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, real(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC);
-                                H5Helper::checkOrSetMinMaxValue(first, minV, maxV, imag(sCTmp2[pH]), minVIndex, maxVIndex, (frame - 1) * outputStepSize + pHC + 1);
-                            }
-                        }*/
                         // Mirror first "half" frame
                         if (frame == 0 && savingFlag)
                         {
@@ -240,18 +228,16 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     }
 
                     // Drop first "half" frame
-                    //if (frame > 0) {
-                        if (log)
-                            Helper::printDebugMsgStart("Saving frame " + std::to_string(frame + 1) + "/" + std::to_string(outputSteps));
+                    if (log)
+                        Helper::printDebugMsgStart("Saving frame " + std::to_string(frame + 1) + "/" + std::to_string(outputSteps));
 
-                        if (dims.getLength() == 4) // 4D dataset
-                            dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), reinterpret_cast<float *>(dataC));
-                        else if (dims.getLength() == 3) // 3D dataset
-                            dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), reinterpret_cast<float *>(dataC));
+                    if (dims.getLength() == 4) // 4D dataset
+                        dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), reinterpret_cast<float *>(dataC));
+                    else if (dims.getLength() == 3) // 3D dataset
+                        dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), reinterpret_cast<float *>(dataC));
 
-                        if (log)
-                            Helper::printDebugMsgEnd("saved");
-                    //}
+                    if (log)
+                        Helper::printDebugMsgEnd("saved");
 
                     // Set zeros
                     memset(dataC, 0, (outputStepSize / 2) * sizeof(dataC));
@@ -296,6 +282,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     dstDataset->setAttribute(H5Helper::C_PERIOD_ATTR, getSettings()->getPeriod(), log);
     dstDataset->setAttribute(H5Helper::C_MOS_ATTR, getSettings()->getMOS(), log);
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
+    dstDataset->setAttribute("c_shift", hsize_t(getSettings()->getFlagShift()), log);
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("dataset compression", t0, t1);

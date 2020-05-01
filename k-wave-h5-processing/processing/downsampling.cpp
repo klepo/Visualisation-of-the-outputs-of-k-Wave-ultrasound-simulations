@@ -117,8 +117,9 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     Helper::printDebugTwoColumnsS("New size", dimsDst);
 
     // Create destination dataset
-    getOutputFile()->createDatasetF(srcDataset->getName() + "_" + std::to_string(getSettings()->getMaxSize()), dimsDst, chunkDimsDst, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName() + "_" + std::to_string(getSettings()->getMaxSize()), log);
+    std::string dstName = srcDataset->getSuffixName("_" + std::to_string(getSettings()->getMaxSize()));
+    getOutputFile()->createDatasetF(dstName, dimsDst, chunkDimsDst, true, log);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
     float *srcData = nullptr;
     float *dstData = nullptr;

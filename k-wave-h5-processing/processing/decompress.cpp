@@ -80,10 +80,14 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
     // Third encoding parameter     - number of harmonic frequencies
     hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log) : 1;
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics, false, getSettings()->getFlagShift());
+    bool shift = srcDataset->hasAttribute("c_shift") ? bool(srcDataset->readAttributeI("c_shift", log)) : getSettings()->getFlagShift();
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics, false, shift);
 
     if (log)
-        Helper::printDebugMsg("Decompression with period " + std::to_string(compressHelper->getPeriod()) + " steps "+ "and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
+        Helper::printDebugMsg("Decompression with period "
+                              + std::to_string(size_t(compressHelper->getPeriod()))
+                              + " steps "+ "and " + std::to_string(compressHelper->getHarmonics())
+                              + " harmonic frequencies");
 
     // Overlap size and base size
     hsize_t oSize = compressHelper->getOSize();
@@ -143,9 +147,9 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     Helper::printDebugTwoColumnsS("chunkDims", chunkDims);
 
     // Create destination dataset
-    std::string srcName = srcDataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, log);
-    getOutputFile()->createDatasetF(srcName + "_d", outputDims, chunkDims, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcName + "_d", log);
+    std::string dstName = srcDataset->getSuffixName("_d");
+    getOutputFile()->createDatasetF(dstName, outputDims, chunkDims, true, log);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
     // Variables for block reading
     float *dataC = new float[srcDataset->getGeneralBlockDims().getSize()]();
