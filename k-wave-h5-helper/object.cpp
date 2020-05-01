@@ -357,17 +357,23 @@ std::string Object::getOnlyName() const
 }
 
 /**
+ * @brief Returns the object group name
+ * @return Bbject group name
+ */
+std::string Object::getGroupName() const
+{
+    std::string str = getName().substr(0, getName().find(getOnlyName()) - 1);
+    return str.size() > 0 ? str : "/";
+}
+
+/**
  * @brief Returns the name of object with underscores
  * @return Name of object
  */
-std::string Object::getNameWithUnderscores() const
+std::string Object::getSuffixName(std::string suffix) const
 {
-    std::string s = name;
-    std::replace( s.begin(), s.end(), '/', '_');
-    return s;
+    return (getGroupName() == "/") ? getName() + suffix : getGroupName() + suffix + "/" + getOnlyName();
 }
-
-
 
 /**
  * @brief Returns file where object is opened

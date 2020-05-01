@@ -246,39 +246,39 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 return DatasetType::P_SOURCE_INPUT;
             }
             if (hasAttribute(POSITION_X_ATTR)
-                    && hasAttribute(POSITION_Y_ATTR)
-                    && hasAttribute(POSITION_Z_ATTR)
-                    && hasAttribute(SRC_POSITION_X_ATTR)
-                    && hasAttribute(SRC_POSITION_Y_ATTR)
-                    && hasAttribute(SRC_POSITION_Z_ATTR)
-                    && hasAttribute(SRC_SIZE_X_ATTR)
-                    && hasAttribute(SRC_SIZE_Y_ATTR)
-                    && hasAttribute(SRC_SIZE_Z_ATTR)
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    ) {
+                && hasAttribute(POSITION_Y_ATTR)
+                && hasAttribute(POSITION_Z_ATTR)
+                && hasAttribute(SRC_POSITION_X_ATTR)
+                && hasAttribute(SRC_POSITION_Y_ATTR)
+                && hasAttribute(SRC_POSITION_Z_ATTR)
+                && hasAttribute(SRC_SIZE_X_ATTR)
+                && hasAttribute(SRC_SIZE_Y_ATTR)
+                && hasAttribute(SRC_SIZE_Z_ATTR)
+                && hasAttribute(SRC_DATASET_NAME_ATTR)
+                ) {
                 return DatasetType::RESHAPED_3D_DWNSMPL;
             }
             if (hasAttribute(POSITION_X_ATTR)
-                    && hasAttribute(POSITION_Y_ATTR)
-                    && hasAttribute(POSITION_Z_ATTR)
-                    && std::count(name.begin(), name.end(), '/') == 1
-                    ) {
+                && hasAttribute(POSITION_Y_ATTR)
+                && hasAttribute(POSITION_Z_ATTR)
+                && std::count(name.begin(), name.end(), '/') == 1
+                ) {
                 return DatasetType::RESHAPED_3D;
             }
             if (dims.z() < nDims.z()
-                    && dims.y() < nDims.y()
-                    && dims.x() < nDims.x()
-                    && hasAttribute(SRC_SIZE_X_ATTR)
-                    && hasAttribute(SRC_SIZE_Y_ATTR)
-                    && hasAttribute(SRC_SIZE_Z_ATTR)
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    ) {
+                && dims.y() < nDims.y()
+                && dims.x() < nDims.x()
+                && hasAttribute(SRC_SIZE_X_ATTR)
+                && hasAttribute(SRC_SIZE_Y_ATTR)
+                && hasAttribute(SRC_SIZE_Z_ATTR)
+                && hasAttribute(SRC_DATASET_NAME_ATTR)
+                ) {
                 return DatasetType::BASIC_3D_DWNSMPL;
             }
             if (dims.z() == nDims.z()
-                    && dims.y() == nDims.y()
-                    && dims.x() == nDims.x()
-                    ) {
+                && dims.y() == nDims.y()
+                && dims.x() == nDims.x()
+                ) {
                 return DatasetType::BASIC_3D;
             }
             if (dims.z() <= nDims.z()
@@ -289,45 +289,42 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 return DatasetType::BASIC_CUBOID;
             }
             if (dims.z() == 1
-                    && dims.y() == 1
-                    && dims.x() == sensorMaskSize
-                    && !hasAttribute(SRC_DATASET_NAME_ATTR)
-                    ) {
+                && dims.y() == 1
+                && dims.x() == sensorMaskSize
+                && !hasAttribute(SRC_DATASET_NAME_ATTR)
+                ) {
                 return DatasetType::BASIC_INDEX;
             }
             if (dims.z() == 1
-                    && dims.y() <= nDims.w()
-                    && dims.x() == sensorMaskSize
-                    && !hasAttribute(SRC_DATASET_NAME_ATTR)
-                    ) {
+                && dims.y() <= nDims.w()
+                && dims.x() == sensorMaskSize
+                && !hasAttribute(SRC_DATASET_NAME_ATTR)
+                ) {
                 return DatasetType::TIME_STEPS_INDEX;
             }
             if (dims.z() == 1
-                    //&& dims.y() <= nDims.w()
-                    //&& dims.x() == sensorMaskSize
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(C_PERIOD_ATTR)
-                    && hasAttribute(C_TYPE_ATTR)
-                    && readAttributeS(C_TYPE_ATTR, false) == "c"
-                    ) {
+                //&& dims.y() <= nDims.w()
+                //&& dims.x() == sensorMaskSize
+                && hasAttribute(C_PERIOD_ATTR)
+                && hasAttribute(C_TYPE_ATTR)
+                && readAttributeS(C_TYPE_ATTR, false) == "c"
+                ) {
                 return DatasetType::TIME_STEPS_C_INDEX;
             }
             if (dims.z() == 1
-                    //&& dims.y() <= nDims.w()
-                    //&& dims.x() == sensorMaskSize
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(C_TYPE_ATTR)
-                    && readAttributeS(C_TYPE_ATTR, false) == "d"
-                    ) {
+                //&& dims.y() <= nDims.w()
+                //&& dims.x() == sensorMaskSize
+                && hasAttribute(C_TYPE_ATTR)
+                && readAttributeS(C_TYPE_ATTR, false) == "d"
+                ) {
                 return DatasetType::TIME_STEPS_D_INDEX;
             }
             if (dims.z() == 1
-                    && dims.y() <= nDims.w()
-                    && dims.x() == sensorMaskSize
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    && hasAttribute(C_TYPE_ATTR)
-                    && readAttributeS(C_TYPE_ATTR, false) == "s"
-                    ) {
+                && dims.y() <= nDims.w()
+                && dims.x() == sensorMaskSize
+                && hasAttribute(C_TYPE_ATTR)
+                && readAttributeS(C_TYPE_ATTR, false) == "s"
+                ) {
                 return DatasetType::TIME_STEPS_S_INDEX;
             }
         }
@@ -336,47 +333,47 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
         if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
             // Downsampled
             if (hasAttribute(SRC_SIZE_X_ATTR)
-                    && hasAttribute(SRC_SIZE_Y_ATTR)
-                    && hasAttribute(SRC_SIZE_Z_ATTR)
-                    && hasAttribute(SRC_DATASET_NAME_ATTR)
-                    ) {
+                && hasAttribute(SRC_SIZE_Y_ATTR)
+                && hasAttribute(SRC_SIZE_Z_ATTR)
+                && hasAttribute(SRC_DATASET_NAME_ATTR)
+                ) {
                 // With position attributes
                 if (hasAttribute(POSITION_X_ATTR)
-                        && hasAttribute(POSITION_Y_ATTR)
-                        && hasAttribute(POSITION_Z_ATTR)
-                        && hasAttribute(SRC_POSITION_X_ATTR)
-                        && hasAttribute(SRC_POSITION_Y_ATTR)
-                        && hasAttribute(SRC_POSITION_Z_ATTR)
-                        ) {
+                    && hasAttribute(POSITION_Y_ATTR)
+                    && hasAttribute(POSITION_Z_ATTR)
+                    && hasAttribute(SRC_POSITION_X_ATTR)
+                    && hasAttribute(SRC_POSITION_Y_ATTR)
+                    && hasAttribute(SRC_POSITION_Z_ATTR)
+                    ) {
                     if (hasAttribute(C_TYPE_ATTR)
-                            && hasAttribute(C_PERIOD_ATTR)
-                            && readAttributeS(C_TYPE_ATTR, false) == "c"
-                            ) {
+                        && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR, false) == "c"
+                        ) {
                         return DatasetType::CUBOID_ATTR_DWNSMPL_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "d"
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_ATTR_DWNSMPL_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "s"
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_ATTR_DWNSMPL_S;
                     } else {
                         return DatasetType::CUBOID_ATTR_DWNSMPL;
                     }
                 } else { // Without position attributes
                     if (hasAttribute(C_TYPE_ATTR)
-                            && hasAttribute(C_PERIOD_ATTR)
-                            && readAttributeS(C_TYPE_ATTR, false) == "c"
-                            ) {
+                        && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR, false) == "c"
+                        ) {
                         return DatasetType::CUBOID_DWNSMPL_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "d"
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_DWNSMPL_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "s"
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_DWNSMPL_S;
                     } else {
                         return DatasetType::CUBOID_DWNSMPL;
@@ -385,44 +382,38 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
             } else { // Original
                 // With position attributes
                 if (hasAttribute(POSITION_X_ATTR)
-                        && hasAttribute(POSITION_Y_ATTR)
-                        && hasAttribute(POSITION_Z_ATTR)
-                        ) {
+                    && hasAttribute(POSITION_Y_ATTR)
+                    && hasAttribute(POSITION_Z_ATTR)
+                    ) {
                     if (hasAttribute(C_TYPE_ATTR)
-                            && hasAttribute(C_PERIOD_ATTR)
-                            && readAttributeS(C_TYPE_ATTR, false) == "c"
-                            && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
+                        && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR, false) == "c"
+                        ) {
                         return DatasetType::CUBOID_ATTR_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "d"
-                               && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_ATTR_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "s"
-                               && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_ATTR_S;
                     } else {
                         return DatasetType::CUBOID_ATTR;
                     }
                 } else { // Without position attributes
                     if (hasAttribute(C_TYPE_ATTR)
-                            && hasAttribute(C_PERIOD_ATTR)
-                            && readAttributeS(C_TYPE_ATTR, false) == "c"
-                            && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
+                        && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR, false) == "c"
+                        ) {
                         return DatasetType::CUBOID_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "d"
-                               && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR, false) == "s"
-                               && hasAttribute(SRC_DATASET_NAME_ATTR)
-                            ) {
+                               ) {
                         return DatasetType::CUBOID_S;
                     } else {
                         return DatasetType::CUBOID;
@@ -1193,9 +1184,9 @@ void Dataset::checkOffsetAndCountParams(Vector offset, Vector count) const
 
     for (unsigned int i = 0; i < offset.getLength(); i++) {
         if (offset.at(i) >= dims.at(i))
-            throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i) + "(" + std::to_string(offset.at(i)) + " >= " + std::to_string(dims.at(i)) + ")");
+            throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i) + " (" + std::to_string(offset.at(i)) + " >= " + std::to_string(dims.at(i)) + ")");
         if (count.at(i) <= 0)
-            throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i) + "(" + std::to_string(count.at(i)) + " <= 0)");
+            throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i) + " (" + std::to_string(count.at(i)) + " <= 0)");
         if (offset.at(i) + count.at(i) > dims.at(i))
             throw std::runtime_error("Wrong count - sum of offset and count of dimension " + std::to_string(i) + " is too big (" + std::to_string(offset.at(i)) + " + " + std::to_string(count.at(i)) + " > " + std::to_string(dims.at(i)) + ")");
     }

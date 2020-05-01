@@ -27,7 +27,7 @@
 //#define _USE_MATH_DEFINES // for C++
 #ifndef M_PI
 /// M_PI definition
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846f
 #endif
 
 #include <cmath>
@@ -50,11 +50,11 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, hsize_t complexSize = 2, float *maxValues = nullptr);
     ~CompressHelper();
 
     static float findPeriod(const float *dataSrc, hsize_t length);
-    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
+    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, hsize_t stepCGlobal = 0) const;
     static floatC convert32bToFloatC(float value, float maxValue);
     static float convertFloatCTo32b(floatC value, float maxValue);
 
@@ -66,6 +66,7 @@ public:
     hsize_t getMos() const;
     hsize_t getHarmonics() const;
     hsize_t getStride() const;
+    hsize_t getComplexSize() const;
 
 private:
     /// Disable copy contructor
@@ -101,7 +102,12 @@ private:
     /// Number of harmonics
     hsize_t harmonics = 1;
     /// Coeficients stride
-    hsize_t stride = 2;
+    hsize_t stride = 0;
+    /// Complex size
+    hsize_t complexSize = 2;
+
+    /// Values for 16 bit float decoding
+    float *maxValues = nullptr;
 
     // Memory for helper functions data, 2D arrays for harmonics
     /// Window basis

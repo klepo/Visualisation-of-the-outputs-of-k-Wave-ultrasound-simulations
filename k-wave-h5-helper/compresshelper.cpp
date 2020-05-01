@@ -34,20 +34,23 @@ const float CompressHelper::r3 = float(CompressHelper::rBase) / CompressHelper::
  * @param[in] normalize Normalizes basis functions for compression (optional)
  * @param[in] shift Shifts phases of complex exponencial basis function (velocity time shift) (optional)
  */
-CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, hsize_t complexSize, float* maxValues)
 {
-    oSize = hsize_t(period * mos);
-    bSize = oSize * 2 + 1;
     this->period = period;
     this->mos = mos;
     this->harmonics = harmonics;
-    stride = harmonics * 2;
-    b = new float[bSize]();
-    e = new floatC[harmonics * bSize]();
-    bE = new floatC[harmonics * bSize]();
-    bE_1 = new floatC[harmonics * bSize]();
+    this->complexSize = complexSize;
+    this->maxValues = maxValues;
 
-    generateFunctions(bSize, oSize, period, harmonics, b, e, bE, bE_1, normalize, shift);
+    oSize = hsize_t(period * mos);
+    bSize = oSize * 2 + 1;
+    stride = this->harmonics * this->complexSize;
+    b = new float[bSize]();
+    e = new floatC[this->harmonics * bSize]();
+    bE = new floatC[this->harmonics * bSize]();
+    bE_1 = new floatC[this->harmonics * bSize]();
+
+    generateFunctions(bSize, oSize, this->period, this->harmonics, b, e, bE, bE_1, normalize, shift);
 }
 
 /**
@@ -150,64 +153,38 @@ float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
  * @param[in] stepLocal Local step between coefficients
  * @return Step value
  */
-float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const
+float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, hsize_t stepCGlobal) const
 {
     float stepValue = 0;
     hsize_t sH = stepLocal;
     for (hsize_t h = 0; h < harmonics; h++) {
-        stepValue += real(conj(reinterpret_cast<const floatC *>(cC)[h]) * getBE()[sH]) +
-                real(conj(reinterpret_cast<const floatC *>(lC)[h]) * getBE_1()[sH]);
+        floatC sC1;
+        floatC sC2;
+        if (complexSize == 1) {
+            sC1 = convert32bToFloatC(cC[h], maxValues[stepCGlobal]);
+            sC2 = convert32bToFloatC(cC[h], maxValues[stepCGlobal]);
+        } else {
+            sC1 = reinterpret_cast<const floatC *>(cC)[h];
+            sC2 = reinterpret_cast<const floatC *>(lC)[h];
+        }
+        stepValue += real(conj(sC1) * getBE()[sH]) + real(conj(sC2) * getBE_1()[sH]);
         sH += bSize;
     }
     return stepValue;
 }
 
-floatC CompressHelper::convert32bToFloatC(float value, float maxValue)
+floatC CompressHelper::convert32bToFloatC(float value, float maxValueD)
 {
-    /*
-    float rC = r0;
-    int32_t valueI = *reinterpret_cast<int32_t*>(&value);
-    if ((valueI & 1)) {
-        if ((valueI >> 16) & 1) {
-            rC = r3;
-        } else {
-            rC = r1;
-        }
-    } else {
-        if ((valueI >> 16) & 1) {
-            rC = r2;
-        }
-    }
-    return floatC(float(int32_t((valueI >> 17) << 1)) / rC, float(int16_t((valueI >> 1) << 1)) / rC);
-    */
-    int32_t valueI = *reinterpret_cast<int32_t*>(&value);
-    return floatC(float(int32_t((valueI >> 16))) / (float(CompressHelper::rBase) / maxValue),
-                  float(int16_t((valueI))) / (float(CompressHelper::rBase) / maxValue));
+  int32_t valueI = *reinterpret_cast<int32_t*>(&value);
+  return floatC(float(int32_t(valueI >> 16)) * maxValueD,
+                      float(int16_t(valueI)) * maxValueD);
 }
 
-float CompressHelper::convertFloatCTo32b(floatC value, float maxValue)
+float CompressHelper::convertFloatCTo32b(floatC value, float maxValueM)
 {
-    /*
-    float dValue = std::max(abs(value.real()), abs(value.imag()));
-    int32_t valueI;
-    if (dValue > rD2) {
-        valueI = int32_t((int16_t(roundf(value.real() * r3)) & ~1) | 1) << 16
-               | uint16_t((int16_t(roundf(value.imag() * r3)) & ~1) | 1);
-    } else if (dValue > rD1) {
-        valueI = int32_t((int16_t(roundf(value.real() * r2)) & ~1) | 1 << 16)
-               | uint16_t((int16_t(roundf(value.imag() * r2)) & ~1) | 0);
-    } else if (dValue > rD0) {
-        valueI = int32_t((int16_t(roundf(value.real() * r1)) & ~1) | 0) << 16
-               | uint16_t((int16_t(roundf(value.imag() * r1)) & ~1) | 1);
-    } else {
-        valueI = int32_t((int16_t(roundf(value.real() * r0)) & ~1) | 0) << 16
-               | uint16_t((int16_t(roundf(value.imag() * r0)) & ~1) | 0);
-    }
-    return *reinterpret_cast<float*>(&valueI);
-    */
-    int32_t valueI = int32_t((int16_t(roundf(value.real() * float(CompressHelper::rBase) / maxValue)))) << 16
-                     | uint16_t((int16_t(roundf(value.imag() * float(CompressHelper::rBase) / maxValue))));
-    return *reinterpret_cast<float*>(&valueI);
+  int32_t valueI = int32_t(int16_t(roundf(value.real() * maxValueM))) << 16
+                   | uint16_t(int16_t(roundf(value.imag() * maxValueM)));
+  return *reinterpret_cast<float*>(&valueI);
 }
 
 /**
@@ -280,6 +257,15 @@ hsize_t CompressHelper::getHarmonics() const
 hsize_t CompressHelper::getStride() const
 {
     return stride;
+}
+
+/**
+ * @brief Returns coefficients complex number size (number of floats) for one step
+ * @return Coefficients complex number size (number of floats) for one step
+ */
+hsize_t CompressHelper::getComplexSize() const
+{
+    return complexSize;
 }
 
 /**
@@ -538,9 +524,9 @@ void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSiz
     floatC i(0, -1);
     for (hsize_t x = 0; x < bSize; x++) {
         hsize_t hx = ih * bSize + x;
-        e[hx] = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
+        e[hx] = std::exp(i * (2.0f * M_PI / (period / float(h))) * float(x));
         if (shift) {
-            e[hx] *= std::exp(-i * float(M_PI) / (period / float(h)));
+            e[hx] *= std::exp(-i * M_PI / (period / float(h)));
         }
     }
 }
