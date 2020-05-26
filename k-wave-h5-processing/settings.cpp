@@ -57,6 +57,8 @@ void Settings::loadParams(int argc, const char **argv)
     paramsDefinition.defineParamsFlag("findMinMax");
     paramsDefinition.defineParamsFlag("log");
     paramsDefinition.defineParamsFlag("shift");
+    paramsDefinition.defineParamsFlag("c16bit");
+    paramsDefinition.defineParamsFlag("noOverlap");
 
     // Size
     paramsDefinition.defineParamsFlag("s", ParamsDefinition::ULONGLONG);
@@ -178,6 +180,11 @@ void Settings::loadParams(int argc, const char **argv)
         "| -shift                        | Enables time shift for        |\n"
         "|                               |   compression of time series  |\n"
         "|                               |   HIFU data.                  |\n"
+        "| -c16bit                       | Enables 16bit for compression |\n"
+        "|                               |   of time series HIFU data.   |\n"
+        "| -noOverlap                    | Enables no overlap for        |\n"
+        "|                               |   compression of time series  |\n"
+        "|                               |   HIFU data.                  |\n"
         "| -names <name1;name2;>         | Names of selected datasets or |\n"
         "|                               |   groups to processing.       |\n"
         "| -info                         | Prints the values of          |\n"
@@ -232,6 +239,8 @@ void Settings::loadParams(int argc, const char **argv)
 
     if (flags.at("compress").getEnabled() || flags.at("decompress").getEnabled()) {
         setFlagShift(flags.at("shift").getEnabled());
+        setFlagC16bit(flags.at("c16bit").getEnabled());
+        setFlagNoOverlap(flags.at("noOverlap").getEnabled());
     }
 
     if (flags.at("names").getEnabled()) {
@@ -592,6 +601,52 @@ void Settings::setFlagShift(bool value)
         Helper::printDebugTwoColumnsS("Time shift flag for compression", "TRUE", 0, 40);
     } else {
         Helper::printDebugTwoColumnsS("Time shift flag for compression", "FALSE", 0, 40);
+    }
+}
+
+/**
+ * @brief Returns 16bit flag for compression
+ * @return 16bit flag
+ */
+bool Settings::getFlagC16bit() const
+{
+    return c16bit;
+}
+
+/**
+ * @brief Sets 16bit flag for compression
+ * @param[in] value 16bit flag for compression
+ */
+void Settings::setFlagC16bit(bool value)
+{
+    c16bit = value;
+    if (c16bit) {
+        Helper::printDebugTwoColumnsS("16bit flag for compression", "TRUE", 0, 40);
+    } else {
+        Helper::printDebugTwoColumnsS("16bit flag for compression", "FALSE", 0, 40);
+    }
+}
+
+/**
+ * @brief Returns no overlap flag for compression
+ * @return No overlap flag
+ */
+bool Settings::getFlagNoOverlap() const
+{
+    return noOverlap;
+}
+
+/**
+ * @brief Sets no overlap flag for compression
+ * @param[in] value No overlap flag for compression
+ */
+void Settings::setFlagNoOverlap(bool value)
+{
+    noOverlap = value;
+    if (noOverlap) {
+        Helper::printDebugTwoColumnsS("No overlap flag for compression", "TRUE", 0, 40);
+    } else {
+        Helper::printDebugTwoColumnsS("No overlap flag for compression", "FALSE", 0, 40);
     }
 }
 

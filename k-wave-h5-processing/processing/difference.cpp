@@ -57,11 +57,14 @@ void Difference::execute()
             H5Helper::DatasetType dataset2Type = dataset2->getType(sensorMaskSize);
 
             if (dataset1->getRank() == dataset1->getRank()) {
-                if( ((dataset1Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset1Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
+                if (((dataset1Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset1Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
                      && (dataset2Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset2Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
                      && (H5Helper::Vector3D(dataset1->getDims()).x() == H5Helper::Vector3D(dataset2->getDims()).x()))
-                    || (H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))) {
-
+                    || (H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))
+                    || ((dataset1Type == H5Helper::DatasetType::CUBOID_C || dataset1Type == H5Helper::DatasetType::CUBOID_ATTR_C)
+                        && (dataset2Type == H5Helper::DatasetType::CUBOID_C || dataset2Type == H5Helper::DatasetType::CUBOID_ATTR_C)
+                        && (dataset2->hasAttribute("c_complex_size") && dataset2->readAttributeF("c_complex_size", true) == 1.25f))
+                    ) {
                     if (H5Helper::Vector3D(dataset1->getDims()).y() < H5Helper::Vector3D(dataset2->getDims()).y()
                         || (dataset1->getRank() == 4 && H5Helper::Vector4D(dataset1->getDims()).t() < H5Helper::Vector4D(dataset2->getDims()).t())) {
                         Helper::printDebugMsg("Subtraction of datasets " + dataset2->getName() + " and " + dataset1->getName());
@@ -75,34 +78,34 @@ void Difference::execute()
                 }
             }
         } else { // Compare original and decoded datasets
-          for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-              H5Helper::Dataset *datasetOriginal = it->second;
-              H5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
-              if (checkDatasetType(datasetType, types)) {
-                  H5Helper::Dataset *datasetDecoded = nullptr;
+            for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
+                H5Helper::Dataset *datasetOriginal = it->second;
+                H5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
+                if (checkDatasetType(datasetType, types)) {
+                    H5Helper::Dataset *datasetDecoded = nullptr;
 
-                  for (H5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
-                      H5Helper::Dataset *dataset = it2->second;
-                      H5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
+                    for (H5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
+                        H5Helper::Dataset *dataset = it2->second;
+                        H5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
 
-                      if ((datasetDecodedType == H5Helper::DatasetType::TIME_STEPS_D_INDEX && datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX)
-                          || (datasetDecodedType == H5Helper::DatasetType::CUBOID_D && datasetType == H5Helper::DatasetType::CUBOID)
-                          || (datasetDecodedType == H5Helper::DatasetType::CUBOID_ATTR_D && datasetType == H5Helper::DatasetType::CUBOID_ATTR)
-                          ) {
-                          if (datasetOriginal->getName() == dataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, false)) {
-                              datasetDecoded = dataset;
-                              break;
-                          }
-                      }
-                  }
-                  if (datasetDecoded) {
-                      Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
-                      subtractDatasets(datasetOriginal, datasetDecoded, getSettings()->getFlagLog());
-                      Helper::printDebugMsg("Subtraction of datasets done");
-                      count++;
-                  }
-              }
-          }
+                        if ((datasetDecodedType == H5Helper::DatasetType::TIME_STEPS_D_INDEX && datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX)
+                            || (datasetDecodedType == H5Helper::DatasetType::CUBOID_D && datasetType == H5Helper::DatasetType::CUBOID)
+                            || (datasetDecodedType == H5Helper::DatasetType::CUBOID_ATTR_D && datasetType == H5Helper::DatasetType::CUBOID_ATTR)
+                            ) {
+                            if (datasetOriginal->getName() == dataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, false)) {
+                                datasetDecoded = dataset;
+                                break;
+                            }
+                        }
+                    }
+                    if (datasetDecoded) {
+                        Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
+                        subtractDatasets(datasetOriginal, datasetDecoded, getSettings()->getFlagLog());
+                        Helper::printDebugMsg("Subtraction of datasets done");
+                        count++;
+                    }
+                }
+            }
         }
         if (count == 0) {
             Helper::printErrorMsg("No datasets for making difference in simulation output file");
@@ -175,9 +178,8 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
 
     // Variables for block reading
-    float *dataO = new float[datasetOriginal->getGeneralBlockDims().getSize()]();
-    float *dataD = new float[datasetOriginal->getGeneralBlockDims().getSize()]();
-    float *dataC = new float[datasetOriginal->getGeneralBlockDims().getSize()]();
+    float *dataO = nullptr;
+    float *dataD = nullptr;
     H5Helper::Vector offset;
     H5Helper::Vector count;
     float maxV = std::numeric_limits<float>::min();
@@ -190,176 +192,113 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     double sumO2 = 0.0;
     double sum2 = 0.0;
 
-    const int kMaxExp = 30;
-    float* powers = nullptr;
-    powers = new float[62/*kMaxExp * 2 + 1*/]();
-    for (hsize_t i = 0; i < 62/*kMaxExp * 2 + 1*/; i++)
-    {
-        powers[i] = powf(2, kMaxExp - hssize_t(i));
-    }
+    if (datasetDecoded->hasAttribute("c_complex_size") && datasetDecoded->readAttributeF("c_complex_size", false) == 1.25f) {
+        hsize_t stepSizeO = 0;
+        hsize_t stepSizeD = 0;
+        H5Helper::Vector dimsO = datasetOriginal->getDims();
+        H5Helper::Vector dimsD = datasetDecoded->getDims();
+        if (dimsO.getLength() == 4) { // 4D dataset
+            stepSizeO = dimsO[1] * dimsO[2] * dimsO[3];
+            stepSizeD = dimsD[1] * dimsD[2] * dimsD[3];
+        } else if (dimsO.getLength() == 3) { // 3D dataset (defined by sensor mask)
+            stepSizeO = dimsO[2];
+            stepSizeD = dimsD[2];
+        } else { // Something wrong.
+            Helper::printErrorMsg("Something wrong with dataset dims");
+            return;
+        }
+        float *dataO = new float[stepSizeO]();
+        float *dataD = new float[stepSizeD]();
 
-    hsize_t numberOfElmsToLoad = std::min(datasetDecoded->getRealNumberOfElmsToLoad(), datasetOriginal->getRealNumberOfElmsToLoad());// / 2;
-    datasetDecoded->setNumberOfElmsToLoad(numberOfElmsToLoad);
-    datasetOriginal->setNumberOfElmsToLoad(numberOfElmsToLoad);
-    hsize_t numberOfBlocks = std::min(datasetDecoded->getNumberOfBlocks(), datasetOriginal->getNumberOfBlocks()) - 0;
-    hssize_t originalBlocksOffset = 0;//datasetOriginal->getNumberOfBlocks() - datasetDecoded->getNumberOfBlocks();
-    hssize_t decodedBlocksOffset = 0;//datasetDecoded->getNumberOfBlocks() - datasetOriginal->getNumberOfBlocks();
-
-    uint32_t maxEI = 0;
-    uint32_t maxER = 0;
-    float maxErrI = 0;
-    float maxErrR = 0;
-
-    // Reading and subtraction
-    for (hsize_t i = 0; i < numberOfBlocks; i++) {
-        // First read decoded -> it is larger
-        datasetDecoded->readBlock(i + decodedBlocksOffset, offset, count, dataD, log);
-        datasetOriginal->readBlock(i + originalBlocksOffset, offset, count, dataO, log);
-        // The count is from original dataset and is smaller for last step than is in the decoded dataset
-
-        /*for (hssize_t i = 0; i < hssize_t(count.getSize()); i += N) {
-
-            fdct1D(&dataO[i], &dataC[i]);
-
-            //for (hssize_t j = N / 2; j < N; j++)
-            //    dataC[i + j] = 0;
-
-            idct1D(&dataC[i], &dataD[i]);
-
-        }*/
-
-        //#pragma omp parallel for reduction(+ : sum, sumO2, sum2)
-        for (hssize_t i = 0; i < hssize_t(count.getSize()); i += 2) {
-        //for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
-
-            //int8_t *mBufferPInt8 = reinterpret_cast<int8_t*>(dataD);
-            //int64_t *mBufferPInt64 = reinterpret_cast<int64_t*>(dataD);
-
-            //int32_t cIR = (mBufferPInt32[i] << 3) >> 3;
-            //int32_t cII = (mBufferPInt32[i + 1] << 6) >> 3 | ((mBufferPInt32[i] >> 29) & 7);
-            //uint32_t eR = uint32_t(mBufferPInt32[i + 1]) >> 26;
-
-            /*int64_t r = (mBufferPInt64[i]);
-
-            std::bitset<64> f0(r);
-            std::bitset<32> f1(mBufferPInt32[i]);
-            std::bitset<32> f2(mBufferPInt32[i + 1]);
-
-            std::cout << f0 << " " << f1 << " " << f2 << std::endl;*/
-
-            //dataD[i] = (float(cIR) / powers[eR]);
-            //dataD[i + 1] = (float(cII) / powers[eR]);
-
-            /*if (eI > maxEI || eR > maxER || abs(dataD[i] - dataO[i]) > maxErrR || abs(dataD[i + 1] - dataO[i + 1]) > maxErrI)
-            {
-                if (eI > maxEI) maxEI = eI;
-                if (eR > maxER) maxER = eR;
-                if (abs(dataD[i] - dataO[i]) > maxErrR) maxErrR = abs(dataD[i] - dataO[i]);
-                if (abs(dataD[i + 1] - dataO[i + 1]) > maxErrI) maxErrI = abs(dataD[i + 1] - dataO[i + 1]);
-                //std::cout << i << std::endl;
-                //std::cout << cIR << " " << cII << " " << eR << " " << eI << std::endl;
-                //std::cout << dataD[i] << " " << dataD[i + 1] << std::endl;
-                //std::cout << dataO[i] << " " << dataO[i + 1] << std::endl;
-                //std::cout << dataD[i] - dataO[i] << " " << dataD[i + 1] - dataO[i + 1] << std::endl;
-            }*/
-
-
-
-
-            //dataD[i] = dataO[i];
-            /*float dValue = dataD[i];
-            dValue = dataO[i];*/
-
-            /*H5Helper::floatC dValueFC(dataO[i], dataO[i + 1]);
-            //std::cout << dValueFC << std::endl;
-            float dValueFC32 = H5Helper::CompressHelper::convertFloatCTo32b(dValueFC, 120000.0f);
-            H5Helper::floatC dValueFCn = H5Helper::CompressHelper::convert32bToFloatC(dValueFC32, 120000.0f);*/
-
-
-            /*int16_t angleI = 0;
-            int32_t r;
-
-            float sC1Abs = abs(dValueFC);
-            float sC1Arg = arg(dValueFC);
-
-            angleI = int16_t(roundf(sC1Arg * r0));
-            sC1Arg = float(angleI) / r0;
-
-            std::memcpy(&r, &sC1Abs, sizeof r);
-            r >>= 10;
-            r <<= 10;
-            std::memcpy(&sC1Abs, &r, sizeof r);
-
-            dValueFC = std::polar(sC1Abs, sC1Arg);
-
-            dValue = dValueFC.imag();*/
-
-            /*unsigned r;
-            std::memcpy(&r, &dValue, 4);
-            std::bitset<32> f0(r);
-            unsigned int s = r >> 31;
-            unsigned int e = (r << 1) >> 24;
-            unsigned int m = (r << 9) >> 9;
-            int ee = 0;
-            float mm = frexp(dValue, &ee);
-            std::cout << f0 << " " << dValue << " " << s << " " << e << " " << m << " " << ee << " " << mm << std::endl;
-
-            unsigned int x = 3;
-            dValue *= (1 << x);
-            std::memcpy(&r, &(dValue), 4);
-            //s = r >> 31;
-            e = (r << 1) >> 24;
-            m = (r << 9) >> 9;
-            e = e - x;
-            r = (s << 31) | (e << 23) | (m);
-
-            std::memcpy(&dValue, &r, 4);
-            std::bitset<32> f1(r);
-            //s = r >> 31;
-            e = (r << 1) >> 24;
-            m = (r << 9) >> 9;
-            ee = 0;
-            mm = frexp(dValue, &ee);
-            std::cout << f1 << " " << dValue << " " << s << " " << e << " " << m << " " << ee << " " << mm << " " << std::endl;*/
-
-            /*float rC = float(32768);
-            //if (abs(dValue) > 16777216) {
-            //    rC /= 67108864;
-            //} else if (abs(dValue) > 4) {
-                rC /= 16777216;
-            //} else if (abs(dValue) > 1) {
-            //    rC /= 4;
-            //}
-            int16_t dValueI = int16_t(roundf(dValue * rC));
-            dValueI >>= 1;
-            dValueI <<= 1;
-            //std::bitset<16> dValueIb(dValueI);
-            //dValueI = (dValueI & ~(1UL << 15)) | (1 << 15);
-            //dValueIb[15] = 1;
-            //std::cout << dValueIb << " " << dValueIb.to_ulong()  << " " << dValueI << '\n';
-
-            dValue = float(dValueI) / rC;*/
-
-            //dataD[i] = dataD[i] - dataO[i];
-            dataD[i] = dataD[i] - dataO[i];
-            dataD[i + 1] = dataD[i + 1] - dataO[i + 1];
-
-            sum += double(abs(dataD[i]));
-            sum += double(abs(dataD[i + 1]));
-            sumO2 += double(dataO[i] * dataO[i]);
-            sumO2 += double(dataO[i + 1] * dataO[i + 1]);
-            sum2 += double(dataD[i] * dataD[i]);
-            sum2 += double(dataD[i + 1] * dataD[i + 1]);
-            // Min/max values
-            hsize_t linearOffset;
-            convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
-            H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + hsize_t(i));
-            H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i + 1], minVIndex, maxVIndex, linearOffset + hsize_t(i + 1));
-            H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
-            H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i + 1], minVOIndex, maxVOIndex, linearOffset + hsize_t(i + 1));
+        const int kMaxExp = 30;
+        float* powers = nullptr;
+        powers = new float[70/*kMaxExp * 2 + 1*/]();
+        for (hsize_t i = 0; i < 70/*kMaxExp * 2 + 1*/; i++)
+        {
+            powers[i] = powf(2, kMaxExp - hssize_t(i));
         }
 
-        dstDataset->writeDataset(offset, count, dataD, log);
+        datasetOriginal->setNumberOfElmsToLoad(stepSizeO);
+        datasetDecoded->setNumberOfElmsToLoad(stepSizeD);
+        hsize_t numberOfBlocks = datasetOriginal->getNumberOfBlocks();
+
+        hssize_t iG = 0;
+        // Reading and subtraction
+        for (hsize_t i = 0; i < numberOfBlocks; i++) {
+            datasetDecoded->readBlock(i, offset, count, dataD, log);
+            datasetOriginal->readBlock(i, offset, count, dataO, log);
+            uint8_t* dataD8 = reinterpret_cast<uint8_t*>(dataD);
+            hssize_t p8 = 0;
+            for (hssize_t i = 0; i < hssize_t(count.getSize()); i += 2) {
+                H5Helper::floatC sCO(dataO[i], dataO[i + 1]);
+                H5Helper::floatC sCD;
+                uint8_t e = *reinterpret_cast<uint8_t*>(&dataD8[p8 + 4]);
+                uint8_t s1R = (e >> 6) & 0x1;
+                uint8_t s1I = e >> 7;
+                uint8_t e1 = e & 0x3F;
+                int32_t cIR = *reinterpret_cast<uint16_t*>(&dataD8[p8]) * (s1R ? -1 : 1);
+                int32_t cII = *reinterpret_cast<uint16_t*>(&dataD8[p8 + 2]) * (s1I ? -1 : 1);
+                sCD.real(float(cIR) / powers[e1]);
+                sCD.imag(float(cII) / powers[e1]);
+
+                /*if (iG >= 28377330 && iG <= 28377360) {
+                    std::cout << std::left << std::setw(15) << iG
+                              << std::left << std::setw(25) << sCO
+                              << std::left << std::setw(25) << sCD
+                              << std::left << std::setw(25) << sCO - sCD
+                              << std::left << std::setw(5) << int(e1)
+                              << std::left << std::setw(5) << int(s1R)
+                              << std::left << std::setw(5) << int(s1I)
+                              << std::endl;
+                }*/
+
+                dataO[i] = sCD.real() - sCO.real();
+                dataO[i + 1] = sCD.imag() - sCO.imag();
+
+                sum += double(abs(dataO[i]));
+                sum += double(abs(dataO[i + 1]));
+                sumO2 += double(sCO.real() * sCO.real());
+                sumO2 += double(sCO.imag() * sCO.imag());
+                sum2 += double(dataO[i] * dataO[i]);
+                sum2 += double(dataO[i + 1] * dataO[i + 1]);
+                // Min/max values
+                hsize_t linearOffset;
+                convertMultiDimToLinear(offset, linearOffset, datasetOriginal->getDims());
+                H5Helper::checkOrSetMinMaxValue(minV, maxV, dataO[i], minVIndex, maxVIndex, linearOffset + hsize_t(i));
+                H5Helper::checkOrSetMinMaxValue(minV, maxV, dataO[i + 1], minVIndex, maxVIndex, linearOffset + hsize_t(i + 1));
+                H5Helper::checkOrSetMinMaxValue(minVO, maxVO, sCO.real(), minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
+                H5Helper::checkOrSetMinMaxValue(minVO, maxVO, sCO.imag(), minVOIndex, maxVOIndex, linearOffset + hsize_t(i + 1));
+                p8 += 5;
+                iG += 2;
+            }
+            dstDataset->writeDataset(offset, count, dataO, log);
+        }
+    } else {
+        dataO = new float[datasetOriginal->getGeneralBlockDims().getSize()]();
+        dataD = new float[datasetOriginal->getGeneralBlockDims().getSize()]();
+
+        hsize_t numberOfElmsToLoad = std::min(datasetDecoded->getRealNumberOfElmsToLoad(), datasetOriginal->getRealNumberOfElmsToLoad());
+        datasetDecoded->setNumberOfElmsToLoad(numberOfElmsToLoad);
+        datasetOriginal->setNumberOfElmsToLoad(numberOfElmsToLoad);
+        hsize_t numberOfBlocks = std::min(datasetDecoded->getNumberOfBlocks(), datasetOriginal->getNumberOfBlocks());
+
+        // Reading and subtraction
+        for (hsize_t i = 0; i < numberOfBlocks; i++) {
+            datasetDecoded->readBlock(i, offset, count, dataD, log);
+            datasetOriginal->readBlock(i, offset, count, dataO, log);
+            for (hssize_t i = 0; i < hssize_t(count.getSize()); i++) {
+                dataD[i] = dataD[i] - dataO[i];
+                sum += double(abs(dataD[i]));
+                sumO2 += double(dataO[i] * dataO[i]);
+                sum2 += double(dataD[i] * dataD[i]);
+                // Min/max values
+                hsize_t linearOffset;
+                convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
+                H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + hsize_t(i));
+                H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
+            }
+            dstDataset->writeDataset(offset, count, dataD, log);
+        }
     }
     delete[] dataD;
     dataD = nullptr;

@@ -80,6 +80,15 @@ public:
     bool getFlagShift() const;
     void setFlagShift(bool value);
 
+    // 16bit flag for compression
+    bool getFlagC16bit() const;
+    void setFlagC16bit(bool value);
+
+    // No overlap flag for compression
+    bool getFlagNoOverlap() const;
+    void setFlagNoOverlap(bool value);
+
+
     // Selected names
     ParamsDefinition::ListOfStrings getNames() const;
     void setNames(const ParamsDefinition::ListOfStrings &value);
@@ -136,6 +145,10 @@ private:
     unsigned long long mOS = 1;
     /// Shift flag
     bool shift = false;
+    /// 16bit compression flag
+    bool c16bit = false;
+    /// No overlap compression flag
+    bool noOverlap = false;
 
     /// Maximal chunk sizes
     ParamsDefinition::VectorOfULongLongs maxChunkSizes = ParamsDefinition::VectorOfULongLongs{64, 64, 64, 1};

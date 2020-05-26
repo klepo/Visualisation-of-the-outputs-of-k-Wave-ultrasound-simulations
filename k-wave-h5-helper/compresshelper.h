@@ -58,6 +58,7 @@ public:
     static floatC convert32bToFloatC(float value, float maxValue);
     static float convertFloatCTo32b(floatC value, float maxValue);
 
+    const floatC *getE() const;
     const floatC *getBE() const;
     const floatC *getBE_1() const;
     hsize_t getOSize() const;

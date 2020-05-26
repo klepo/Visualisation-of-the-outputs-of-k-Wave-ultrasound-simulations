@@ -188,6 +188,15 @@ float CompressHelper::convertFloatCTo32b(floatC value, float maxValueM)
 }
 
 /**
+ * @brief Returns complex exponencial basis
+ * @return Complex exponencial basis
+ */
+const floatC *CompressHelper::getE() const
+{
+    return e;
+}
+
+/**
  * @brief Returns complex exponencial window basis
  * @return Complex exponencial window basis
  */
