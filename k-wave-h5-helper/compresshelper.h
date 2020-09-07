@@ -23,8 +23,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm> // std::sort
-//#include <immintrin.h>
-#include <intrin.h>
+#include <immintrin.h>
 
 //#define _USE_MATH_DEFINES // for C++
 #ifndef M_PI
