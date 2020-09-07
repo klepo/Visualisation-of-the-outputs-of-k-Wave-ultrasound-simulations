@@ -116,48 +116,6 @@ void Difference::execute()
     }
 }
 
-static const int N = 128;
-
-/**
- * Pomocna lambda funkce
- */
-static float lambda(int k)
-{
-    if (k == 0) {
-        return 1.0f / sqrt(2.0f);
-    } else {
-        return 1.0f;
-    }
-}
-
-/**
- * Dopredna 1D DCT
- */
-static void fdct1D(const float *f, float *c)
-{
-    for (int k = 0; k < N; k++) {
-        c[k] = 0.0f;
-        for (int n = 0; n < N; n++) {
-            float g_k = lambda(k) * sqrt(2.0f / N) * cosf(k * M_PI / N * (n + 0.5f));
-            c[k] += f[n] * g_k;
-        }
-    }
-}
-
-/**
- * Inverzni 1D DCT
- */
-static void idct1D(const float *c, float *f)
-{
-    for (int n = 0; n < N; n++) {
-        f[n] = 0.0f;
-        for (int k = 0; k < N; k++) {
-            float g_k = lambda(k) * sqrt(2.0f / N) * cosf(k * M_PI / N * (n + 0.5f));
-            f[n] += c[k] * g_k;
-        }
-    }
-}
-
 /**
  * @brief Subtracts datasets
  * @param[in] datasetOriginal Original dataset
@@ -210,13 +168,9 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
         float *dataO = new float[stepSizeO]();
         float *dataD = new float[stepSizeD]();
 
-        const int kMaxExp = 30;
-        float* powers = nullptr;
-        powers = new float[70/*kMaxExp * 2 + 1*/]();
-        for (hsize_t i = 0; i < 70/*kMaxExp * 2 + 1*/; i++)
-        {
-            powers[i] = powf(2, kMaxExp - hssize_t(i));
-        }
+        int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
+        if (datasetDecoded->hasAttribute("c_max_exp"))
+            kMaxExp = int(datasetDecoded->readAttributeI("c_max_exp", false));
 
         datasetOriginal->setNumberOfElmsToLoad(stepSizeO);
         datasetDecoded->setNumberOfElmsToLoad(stepSizeD);
@@ -232,14 +186,8 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
             for (hssize_t i = 0; i < hssize_t(count.getSize()); i += 2) {
                 H5Helper::floatC sCO(dataO[i], dataO[i + 1]);
                 H5Helper::floatC sCD;
-                uint8_t e = *reinterpret_cast<uint8_t*>(&dataD8[p8 + 4]);
-                uint8_t s1R = (e >> 6) & 0x1;
-                uint8_t s1I = e >> 7;
-                uint8_t e1 = e & 0x3F;
-                int32_t cIR = *reinterpret_cast<uint16_t*>(&dataD8[p8]) * (s1R ? -1 : 1);
-                int32_t cII = *reinterpret_cast<uint16_t*>(&dataD8[p8 + 2]) * (s1I ? -1 : 1);
-                sCD.real(float(cIR) / powers[e1]);
-                sCD.imag(float(cII) / powers[e1]);
+
+                H5Helper::CompressHelper::convert40bToFloatC(reinterpret_cast<uint8_t*>(&dataD8[p8]), sCD, kMaxExp);
 
                 /*if (iG >= 28377330 && iG <= 28377360) {
                     std::cout << std::left << std::setw(15) << iG
@@ -250,6 +198,10 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
                               << std::left << std::setw(5) << int(s1R)
                               << std::left << std::setw(5) << int(s1I)
                               << std::endl;
+                }*/
+
+                /*if (i > 2936410 && i < 2936430) {
+                    std::cout << sCO << " " << sCD << std::endl;
                 }*/
 
                 dataO[i] = sCD.real() - sCO.real();

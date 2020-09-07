@@ -92,13 +92,16 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     float sizeMultiplier = getSettings()->getFlagC16bit() ? compressHelper->getHarmonics() * 1.25f : compressHelper->getHarmonics() * 2.0f;
 
-    const int kMaxExp = 30;
-    float* powers = nullptr;
-    powers = new float[70/*kMaxExp * 2 + 1*/]();
-    for (hsize_t i = 0; i < 70/*kMaxExp * 2 + 1*/; i++)
-    {
-        powers[i] = powf(2.0f, float(kMaxExp - hssize_t(i)));
-    }
+    int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
+    if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET)
+        kMaxExp = H5Helper::CompressHelper::kMaxExpP;
+
+    //float* powers = nullptr;
+    //powers = new float[70/*kMaxExp * 2 + 1*/]();
+    //for (hsize_t i = 0; i < 70/*kMaxExp * 2 + 1*/; i++)
+    //{
+    //    powers[i] = powf(2.0f, float(kMaxExp - hssize_t(i)));
+    //}
 
     if (log)
         Helper::printDebugMsg("Compression with period "
@@ -244,10 +247,38 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                         const size_t bIndex = ih * bSize + stepLocal;
 
                         if (getSettings()->getFlagC16bit()) {
+                            pH = pH * 5;
+                            H5Helper::floatC cc1;
+                            H5Helper::floatC cc2;
+                            if (flagNoOverlap) {
+                                /*if (pH / 5 * 2 == 2936420 && stepsOffset + step + 1 == 24)
+                                    std::cout << cc1 << std::endl;*/
+                                H5Helper::CompressHelper::convert40bToFloatC(&sCTmp1Int8[pH], cc1, kMaxExp);
+                                cc1 += compressHelper->getBE()[bIndex] * data[sP] + compressHelper->getBE_1()[bIndex] * data[sP];
+                                /*if (pH / 5 * 2 == 2936420)
+                                    std::cout << cc1 << std::endl;*/
+                                H5Helper::CompressHelper::convertFloatCTo40b(cc1, &sCTmp1Int8[pH], kMaxExp);
+                                //H5Helper::CompressHelper::convert40bToFloatC(&sCTmp1Int8[pH], cc1);
+                                /*if (pH / 5 * 2 == 2936420)
+                                    std::cout << cc1 << std::endl;*/
+                            } else {
+                                H5Helper::CompressHelper::convert40bToFloatC(&sCTmp1Int8[pH], cc1, kMaxExp);
+                                H5Helper::CompressHelper::convert40bToFloatC(&sCTmp2Int8[pH], cc2, kMaxExp);
+                                cc1 += compressHelper->getBE()[bIndex] * data[sP];
+                                cc2 += compressHelper->getBE_1()[bIndex] * data[sP];
+                                H5Helper::CompressHelper::convertFloatCTo40b(cc1, &sCTmp1Int8[pH], kMaxExp);
+                                H5Helper::CompressHelper::convertFloatCTo40b(cc2, &sCTmp2Int8[pH], kMaxExp);
+                                // Mirror first "half" frame
+                                if (mirrorFirstHalfFrameFlag) {
+                                    cc2 += cc1;
+                                    H5Helper::CompressHelper::convertFloatCTo40b(cc2, &sCTmp2Int8[pH], kMaxExp);
+                                }
+                            }
+/*
                             // | 8 + 8 (real part)| 8 + 8 (imaginary part)| 8 (2 (signs) + 6 (exponent index) |
                             pH = pH * 5;
                             uint8_t e = *reinterpret_cast<uint8_t*>(&sCTmp1Int8[pH + 4]);
-                            uint8_t s1R = (e >> 6) & 0x1;
+                            uint8_t s1R = (e >> 6) & 0x1;// neshiftovat
                             uint8_t s1I = e >> 7;
                             e = e & 0x3F;
 
@@ -268,6 +299,10 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                                 // Correlation step
                                 int64_t cIR = *reinterpret_cast<uint16_t*>(&sCTmp1Int8[pH]) * (s1R ? -1 : 1);
                                 int64_t cII = *reinterpret_cast<uint16_t*>(&sCTmp1Int8[pH + 2]) * (s1I ? -1 : 1);
+
+                                if (pH * 2 == 30085380)
+                                    std::cout << H5Helper::floatC(float(cIR) / powers[e], float(cII) / powers[e]) << std::endl;
+
                                 cIR += int64_t(roundf((c1R + c2R) * powers[e]));
                                 cII += int64_t(roundf((c1I + c2I) * powers[e]));
 
@@ -280,7 +315,6 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                                 *reinterpret_cast<uint16_t*>(&sCTmp1Int8[pH]) = uint16_t(abs(cIR));
                                 *reinterpret_cast<uint16_t*>(&sCTmp1Int8[pH + 2]) = uint16_t(abs(cII));
                                 *reinterpret_cast<uint8_t*>(&sCTmp1Int8[pH + 4]) = ((cII < 0) ? 1 : 0) << 7 | ((cIR < 0) ? 1 : 0) << 6 | e;
-
                             } else {
                                 uint8_t e2 = *reinterpret_cast<uint8_t*>(&sCTmp2Int8[pH + 4]);
                                 uint8_t s2R = (e2 >> 6) & 0x1;
@@ -325,11 +359,14 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                                     *reinterpret_cast<uint16_t*>(&sCTmp2Int8[pH + 2]) = uint16_t(abs(c2II));
                                     *reinterpret_cast<uint8_t*>(&sCTmp2Int8[pH + 4]) = ((c2II < 0) ? 1 : 0) << 7 | ((c2IR < 0) ? 1 : 0) << 6 | e;
                                 }
-                            }
+                            }*/
                         } else {
                             // Correlation step
                             sCTmp1FloatC[pH] += compressHelper->getBE()[bIndex] * data[sP];
                             sCTmp2FloatC[pH] += compressHelper->getBE_1()[bIndex] * data[sP];
+
+                            /*if (pH * 2 == 30085380)
+                                std::cout << sCTmp1FloatC[pH] << std::endl;*/
 
                             // Mirror first "half" frame
                             if (mirrorFirstHalfFrameFlag) {
@@ -365,13 +402,13 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                     // Set zeros
                     //memset(dataC, 0, outputStepSize * sizeof(float));
                     // Set zeros for next accumulation
-                    if (getSettings()->getFlagC16bit()) {
+                    /*if (getSettings()->getFlagC16bit()) {
                         int8_t* mCurrentStoreBuffer8 = reinterpret_cast<int8_t*>(dataC);
                         #pragma omp parallel for
                         for (ssize_t i = 0; i < outputStepSize * 4; i += 5) { // TODO
                             *reinterpret_cast<int32_t*>(mCurrentStoreBuffer8 + i) = 0;
                         }
-                    } else {
+                    } else*/ {
                         #pragma omp parallel for
                         for (ssize_t i = 0; i < outputStepSize; i++) {
                             dataC[i] = 0.0f;
@@ -422,6 +459,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
     dstDataset->setAttribute("c_shift", hsize_t(getSettings()->getFlagShift()), log);
     dstDataset->setAttribute("c_complex_size", (getSettings()->getFlagC16bit() ? 1.25f : 2.0f), log);
+    dstDataset->setAttribute("c_max_exp", kMaxExp, log);
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("dataset compression", t0, t1);

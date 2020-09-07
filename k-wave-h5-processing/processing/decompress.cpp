@@ -83,6 +83,8 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     bool shift = srcDataset->hasAttribute("c_shift") ? bool(srcDataset->readAttributeI("c_shift", log)) : getSettings()->getFlagShift();
     H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics, false, shift);
 
+    // TODO 40bit
+
     if (log)
         Helper::printDebugMsg("Decompression with period "
                               + std::to_string(size_t(compressHelper->getPeriod()))

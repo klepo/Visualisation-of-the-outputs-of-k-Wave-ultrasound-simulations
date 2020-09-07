@@ -233,18 +233,18 @@ void H5ReadingThread::run()
         }
         queueMutex.unlock();
 
-#ifdef QT_DEBUG
+        #ifdef QT_DEBUG
         bool log =  true;
-#else
+        #else
         bool log =  false;
-#endif
+        #endif
 
         if (r) {
             try {
-//#ifdef QT_DEBUG
+                //#ifdef QT_DEBUG
                 QElapsedTimer elapsedTimer;
                 elapsedTimer.restart();
-//#endif
+                //#endif
 
                 if (compressHelper) {
                     hsize_t xStride = compressHelper->getStride();
@@ -283,7 +283,7 @@ void H5ReadingThread::run()
                     }
 
                     if (!r->full) {
-#pragma omp parallel for
+                        #pragma omp parallel for
                         for (hssize_t p = 0; p < hssize_t(r->count.getSize()); p++) {
                             r->data[p] = compressHelper->computeTimeStep(&r->dataCC[p * hssize_t(xStride)], &r->dataLC[p * hssize_t(xStride)], localStep);
                         }
@@ -295,7 +295,7 @@ void H5ReadingThread::run()
                 QMutexLocker locker(&requestMutex);
 
                 r->nsecsElapsed = elapsedTimer.nsecsElapsed();
-#ifdef QT_DEBUG
+                #ifdef QT_DEBUG
                 // Time measuring
                 timeSum += r->nsecsElapsed;
                 readCount++;
@@ -305,7 +305,7 @@ void H5ReadingThread::run()
                 } else {
                     qDebug() << QString::fromStdString(r->count) << "(slice): "<< double(meanTime) / 1000000 << "ms";
                 }
-#endif
+                #endif
 
                 doneRequests.append(r);
                 emit requestDone(r);

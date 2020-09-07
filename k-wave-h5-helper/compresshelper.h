@@ -23,6 +23,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm> // std::sort
+//#include <immintrin.h>
+#include <intrin.h>
 
 //#define _USE_MATH_DEFINES // for C++
 #ifndef M_PI
@@ -50,13 +52,13 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, hsize_t complexSize = 2, float *maxValues = nullptr);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, float complexSize = 2.0f, float *maxValues = nullptr);
     ~CompressHelper();
 
     static float findPeriod(const float *dataSrc, hsize_t length);
-    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, hsize_t stepCGlobal = 0) const;
-    static floatC convert32bToFloatC(float value, float maxValue);
-    static float convertFloatCTo32b(floatC value, float maxValue);
+    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, const int32_t e = kMaxExpP) const;
+    static void convert40bToFloatC(const uint8_t* iValues, floatC& cValue, const int32_t e);
+    static void convertFloatCTo40b(const floatC cValue, uint8_t* iValues, const int32_t e);
 
     const floatC *getE() const;
     const floatC *getBE() const;
@@ -67,7 +69,10 @@ public:
     hsize_t getMos() const;
     hsize_t getHarmonics() const;
     hsize_t getStride() const;
-    hsize_t getComplexSize() const;
+    float getComplexSize() const;
+
+    static const int kMaxExpP = 138;
+    static const int kMaxExpU = 114;
 
 private:
     /// Disable copy contructor
@@ -105,7 +110,7 @@ private:
     /// Coeficients stride
     hsize_t stride = 0;
     /// Complex size
-    hsize_t complexSize = 2;
+    float complexSize = 2.0f;
 
     /// Values for 16 bit float decoding
     float *maxValues = nullptr;
@@ -119,16 +124,6 @@ private:
     floatC *bE = nullptr;
     /// Inverted complex exponencial window basis
     floatC *bE_1 = nullptr;
-
-    static const int rBase = 32768;
-    static const int rD0 = 1;
-    static const int rD1 = 4;
-    static const int rD2 = 16777216;
-    static const int rD3 = 67108864;
-    static const float r0;
-    static const float r1;
-    static const float r2;
-    static const float r3;
 };
 }
 

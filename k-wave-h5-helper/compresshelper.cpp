@@ -21,11 +21,6 @@
 
 namespace H5Helper {
 
-const float CompressHelper::r0 = float(CompressHelper::rBase) / CompressHelper::rD0;
-const float CompressHelper::r1 = float(CompressHelper::rBase) / CompressHelper::rD1;
-const float CompressHelper::r2 = float(CompressHelper::rBase) / CompressHelper::rD2;
-const float CompressHelper::r3 = float(CompressHelper::rBase) / CompressHelper::rD3;
-
 /**
  * @brief Creates CompressHelper object with period, mos, harmonics and normalize flag
  * @param[in] period Period
@@ -34,7 +29,7 @@ const float CompressHelper::r3 = float(CompressHelper::rBase) / CompressHelper::
  * @param[in] normalize Normalizes basis functions for compression (optional)
  * @param[in] shift Shifts phases of complex exponencial basis function (velocity time shift) (optional)
  */
-CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, hsize_t complexSize, float* maxValues)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, float complexSize, float* maxValues)
 {
     this->period = period;
     this->mos = mos;
@@ -153,16 +148,16 @@ float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
  * @param[in] stepLocal Local step between coefficients
  * @return Step value
  */
-float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, hsize_t stepCGlobal) const
+float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, const int32_t kMaxExp) const
 {
     float stepValue = 0;
     hsize_t sH = stepLocal;
     for (hsize_t h = 0; h < harmonics; h++) {
         floatC sC1;
         floatC sC2;
-        if (complexSize == 1) {
-            sC1 = convert32bToFloatC(cC[h], maxValues[stepCGlobal]);
-            sC2 = convert32bToFloatC(cC[h], maxValues[stepCGlobal]);
+        if (complexSize == 1.25f) { // TODO kMaxExp
+            convert40bToFloatC(&(reinterpret_cast<const uint8_t *>(cC))[h * 5], sC1, kMaxExp);
+            convert40bToFloatC(&(reinterpret_cast<const uint8_t *>(lC))[h * 5], sC2, kMaxExp);
         } else {
             sC1 = reinterpret_cast<const floatC *>(cC)[h];
             sC2 = reinterpret_cast<const floatC *>(lC)[h];
@@ -173,18 +168,123 @@ float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t 
     return stepValue;
 }
 
-floatC CompressHelper::convert32bToFloatC(float value, float maxValueD)
+void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, const int32_t e)
 {
-  int32_t valueI = *reinterpret_cast<int32_t*>(&value);
-  return floatC(float(int32_t(valueI >> 16)) * maxValueD,
-                      float(int16_t(valueI)) * maxValueD);
+    uint32_t mR = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x20U) << 11 | *reinterpret_cast<const uint16_t*>(&iValues[1]);
+    uint32_t mI = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x10U) << 12 | *reinterpret_cast<const uint16_t*>(&iValues[3]);
+    uint32_t sR = *reinterpret_cast<const uint8_t*>(&iValues[0]) >> 7;
+    uint32_t sI = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x40) >> 6;
+    uint8_t eS = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0xF);
+    mR <<= 6;
+    mI <<= 6;
+    int32_t eR = eS + e;
+    int32_t eI = eS + e;
+    if (mR != 0) {
+        #if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
+            int index = 0;
+            index = 31 ^__builtin_clz (mR);
+        #elif defined _WIN32
+            unsigned long index = 0;
+            _BitScanReverse(&index, mR);
+        #else
+            uint32_t index = 0;
+            _BitScanReverse(&index, mR);
+        #endif
+        mR <<= 23 - index;
+        eR -= 22 - index;
+    } else {
+        eR = 0;
+    }
+    if (mI != 0) {
+        #if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
+            int index = 0;
+            index = 31 ^__builtin_clz (mI);
+        #elif defined _WIN32
+            unsigned long index = 0;
+            _BitScanReverse(&index, mI);
+        #else
+            uint32_t index = 0;
+            _BitScanReverse(&index, mI);
+        #endif
+        mI <<= 23 - index;
+        eI -= 22 - index;
+    } else {
+        eI = 0;
+    }
+    uint32_t ccR = (sR << 31) | (eR << 23) | (mR & 0x007fffff);
+    uint32_t ccI = (sI << 31) | (eI << 23) | (mI & 0x007fffff);
+    cValue = floatC(*reinterpret_cast<float*>(&ccR), *reinterpret_cast<float*>(&ccI));
 }
 
-float CompressHelper::convertFloatCTo32b(floatC value, float maxValueM)
+void CompressHelper::convertFloatCTo40b(const floatC cValue, uint8_t* iValues, const int32_t e)
 {
-  int32_t valueI = int32_t(int16_t(roundf(value.real() * maxValueM))) << 16
-                   | uint16_t(int16_t(roundf(value.imag() * maxValueM)));
-  return *reinterpret_cast<float*>(&valueI);
+    float cR = cValue.real();
+    float cI = cValue.imag();
+    uint32_t mR = *reinterpret_cast<uint32_t*>(&cR);
+    uint32_t mI = *reinterpret_cast<uint32_t*>(&cI);
+    uint8_t sR = mR >> 31;
+    uint8_t sI = mI >> 31;
+    //138 p
+    //114 u
+    int32_t eRS = ((mR & 0x7f800000) >> 23) - e;
+    int32_t eIS = ((mI & 0x7f800000) >> 23) - e;
+    int32_t eS = eRS;
+    mR = (mR & 0x007fffff);
+    mI = (mI & 0x007fffff);
+
+    uint8_t rSR = 6;
+    uint8_t rSI = 6;
+
+    if (eRS > eIS) {
+        rSI += (eRS - eIS);
+        eS = eRS;
+    } else if (eIS > eRS) {
+        rSR += (eIS - eRS);
+        eS = eIS;
+    }
+
+    if (eS < 0) {
+        rSR += -(eS);
+        rSI += -(eS);
+        eS = 0;
+    }
+
+    if (rSR > 23) {
+        rSR = 23;
+    }
+    if (rSI > 23) {
+        rSI = 23;
+    }
+    mR >>= rSR;
+    mI >>= rSI;
+
+    if (mR > 0) {
+        if (mR != (0x7FFFFFU >> rSR)) {
+            // rounding
+            mR++;
+        }
+    }
+    if (mI > 0) {
+        if (mI != (0x7FFFFFU >> rSI)) {
+            // rounding
+            mI++;
+        }
+    }
+
+    mR |= 1UL << (23 - rSR);
+    mR >>= 1;
+    mI |= 1UL << (23 - rSI);
+    mI >>= 1;
+
+    if (eS > 0xF) {
+        mR = 0xFFFF;
+        mI = 0xFFFF;
+        eS = 0xF;
+    }
+
+    iValues[0] = (sR << 7) | (sI << 6) | ((mR & 0x10000) >> 11) | ((mI & 0x10000) >> 12) | (eS & 0xF);
+    *reinterpret_cast<uint16_t*>(&iValues[1]) = mR;
+    *reinterpret_cast<uint16_t*>(&iValues[3]) = mI;
 }
 
 /**
@@ -272,7 +372,7 @@ hsize_t CompressHelper::getStride() const
  * @brief Returns coefficients complex number size (number of floats) for one step
  * @return Coefficients complex number size (number of floats) for one step
  */
-hsize_t CompressHelper::getComplexSize() const
+float CompressHelper::getComplexSize() const
 {
     return complexSize;
 }

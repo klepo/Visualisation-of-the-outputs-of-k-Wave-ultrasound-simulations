@@ -1294,7 +1294,14 @@ void H5ObjectToVisualize::loadObjectData()
     if (dataset->getType() == H5Helper::DatasetType::CUBOID_ATTR_C || dataset->getType() == H5Helper::DatasetType::CUBOID_C) {
         hsize_t mos = dataset->hasAttribute(H5Helper::C_MOS_ATTR) ? dataset->readAttributeI(H5Helper::C_MOS_ATTR) : 1;
         hsize_t harmonics = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
-        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics);
+        hsize_t shift = dataset->hasAttribute("c_shift") ? dataset->readAttributeI("c_shift") : 0;
+        float complexSize = 2.0f;
+        if (dataset->hasAttribute("c_complex_size")) {
+            if (dataset->readAttributeI("c_complex_size") == 1.75f) {
+                complexSize = 1.75f;
+            }
+        }
+        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics, false, shift, complexSize);
 
         size.x(size.x() / compressHelper->getStride());
         originalSize.x(originalSize.x() / compressHelper->getStride());
