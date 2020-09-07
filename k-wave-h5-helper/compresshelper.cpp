@@ -616,7 +616,7 @@ void CompressHelper::triangular(hsize_t oSize, float *w) const
 void CompressHelper::hann(hsize_t oSize, float *w) const
 {
     for (hsize_t x = 0; x < 2 * oSize + 1; x++) {
-        w[x] = float(pow(sin(M_PI * x / (2 * oSize)), 2));
+        w[x] = float(pow(sin(float(M_PI) * x / (2 * oSize)), 2));
     }
 }
 
@@ -633,9 +633,9 @@ void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSiz
     floatC i(0, -1);
     for (hsize_t x = 0; x < bSize; x++) {
         hsize_t hx = ih * bSize + x;
-        e[hx] = std::exp(i * (2.0f * M_PI / (period / float(h))) * float(x));
+        e[hx] = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
         if (shift) {
-            e[hx] *= std::exp(-i * M_PI / (period / float(h)));
+            e[hx] *= std::exp(-i * float(M_PI) / (period / float(h)));
         }
     }
 }

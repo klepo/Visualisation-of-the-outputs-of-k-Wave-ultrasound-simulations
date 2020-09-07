@@ -29,7 +29,7 @@
 //#define _USE_MATH_DEFINES // for C++
 #ifndef M_PI
 /// M_PI definition
-#define M_PI 3.14159265358979323846f
+#define M_PI 3.14159265358979323846
 #endif
 
 #include <cmath>
