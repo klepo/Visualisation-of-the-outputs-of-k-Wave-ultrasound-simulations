@@ -48,7 +48,7 @@ template <class T>
 Vector3DT<T>::Vector3DT(const VectorT<T> &vector)
     : VectorT<T>(3)
 {
-    copy(vector);
+    this->copy(vector);
 }
 
 /**

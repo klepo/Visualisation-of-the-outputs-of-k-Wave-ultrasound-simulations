@@ -21,6 +21,7 @@
 #define PROCESSING_H
 
 #include <omp.h>
+#include <immintrin.h>
 
 #include "dtsforpcs.h"
 
