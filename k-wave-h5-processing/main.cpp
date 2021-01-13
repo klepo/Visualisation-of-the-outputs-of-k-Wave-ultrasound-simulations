@@ -36,6 +36,21 @@ int main(int argc, const char **argv)
 {
     double t0 = H5Helper::getTime(); // Save the start time
 
+    // Test 40bit coding
+    /*//const int kMaxExpP = 138;
+    const int kMaxExpP = 114;
+    //H5Helper::floatC number(pow(2, 26-16) * 0x1FFFF, 134216704);
+    //H5Helper::floatC number(pow(2, 26-16-15) * 0x1, 0.0312500000);
+    H5Helper::floatC number(pow(2, 2-16) * 0x1FFFF, 7.999938964843750000000000000000);
+    //H5Helper::floatC number(pow(2, 2-16-15) * 0x1, 0.000000001862645149230957031250);
+    std::cout << std::fixed << std::setprecision(50) << number << std::endl;
+    uint8_t in[5];
+    H5Helper::CompressHelper::convertFloatCTo40b(number, in, kMaxExpP);
+    H5Helper::CompressHelper::convert40bToFloatC(in, number, kMaxExpP);
+    std::cout << float(number.imag()) << std::endl;
+    return 0;*/
+    //std::exit(EXIT_SUCCESS);
+
     Settings *settings = new Settings(argc, argv);
 
     FilesContext *filesContext = new FilesContext(settings);
@@ -44,13 +59,7 @@ int main(int argc, const char **argv)
     //Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
 
     // TODO:
-    // - šlo by odhadnout mos?
-    // - ošetřit maximální počet prvků podle RAM
-    // - funkce pro error hlášky
-    // - vyřešit případy, kdy je vstup i výstup stejný
-    // - kolize souborů
-
-    //std::exit(EXIT_SUCCESS);
+    // - kolize souborů?
 
     if (settings->getFlagReshape()
             || settings->getFlagDwnsmpl()
@@ -91,10 +100,6 @@ int main(int argc, const char **argv)
             Helper::printDebugTitle("Compression");
             Compress *compress = new Compress(filesContext->getPcsOutputFile(), dtsForPcs, settings);
             compress->execute();
-            //std::cout << "utime=" << compress->getTotalProcessingTime() / 1000 << "s" << std::endl;
-            //std::cout << double(compress->getTotalProcessingSize() * 8 / 1000) / (compress->getTotalProcessingTime() / 1000) << " ";
-            //std::cout << filesContext->getSimOutputFile()->getNumberOfElmsToLoad() << " ";
-            //std::cout << compress->getTotalProcessingTime() / 1000 << " ";
             delete compress;
             compress = nullptr;
         }
@@ -130,11 +135,6 @@ int main(int argc, const char **argv)
     Helper::printDebugLine();
     Helper::printDebugTime("the entire process", t0, t1);
     Helper::printDebugLine();
-
-    //std::cout << H5Helper::getSystemPhysicalMemoryCurrentlyUsedByProc() << std::endl;
-    //std::cout << "utime=" << (t1 - t0) / 1000 << "s" << std::endl;
-    //std::cout << "maxrss="<< H5Helper::getPeakSystemPhysicalMemoryCurrentlyUsedByProc() / 1000 << "kB" << std::endl;
-    //std::cout << H5Helper::getPeakSystemPhysicalMemoryCurrentlyUsedByProc() / 1000 << std::endl;
 
     std::exit(EXIT_SUCCESS);
 }
