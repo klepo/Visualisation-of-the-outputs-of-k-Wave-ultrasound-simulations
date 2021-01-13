@@ -1031,8 +1031,8 @@ double getTime()
 }
 
 /**
- * @brief Returns total system physical memory
- * @return Total system physical memory
+ * @brief Returns total system physical memory in bytes
+ * @return Total system physical memory in bytes
  */
 size_t getTotalSystemPhysicalMemory()
 {
@@ -1041,49 +1041,56 @@ size_t getTotalSystemPhysicalMemory()
     long page_size = sysconf(_SC_PAGE_SIZE);
     return pages * page_size;
 #endif
-
 #ifdef _WIN32
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
-    return size_t(status.ullTotalPhys);
+    return size_t(status.ullTotalPhys); // bytes
 #endif
 }
 
 /**
- * @brief Returns available system physical memory
- * @return Available system physical memory
+ * @brief Returns available system physical memory in bytes
+ * @return Available system physical memory in bytes
  */
 size_t getAvailableSystemPhysicalMemory()
 {
 #ifdef __unix
-    long pages = sysconf(_SC_AVPHYS_PAGES);
-    long page_size = sysconf(_SC_PAGE_SIZE);
-    return pages * page_size;
+    std::string token;
+    std::ifstream file("/proc/meminfo");
+    while (file >> token) {
+        if (token == "MemAvailable:") {
+            unsigned long mem;
+            if (file >> mem) {
+                return mem * 1000; // bytes
+            } else {
+                return 0;
+            }
+        }
+        // ignore rest of the line
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    return 0; // nothing found
 #endif
-
 #ifdef _WIN32
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
-    return size_t(status.ullAvailPhys);
+    return size_t(status.ullAvailPhys); // bytes
 #endif
 }
 
 /**
- * @brief Returns system physical memory currently used by process
- * @return System physical memory currently used by process
+ * @brief Returns system physical memory currently used by process in bytes
+ * @return System physical memory currently used by process in bytes
  */
 size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
 {
 #ifdef __unix
     // linux file contains this-process info
     FILE* file = fopen("/proc/self/status", "r");
-
     char buffer[1024] = "";
-
     int currRealMem;
-
     // read the entire file
     while (fscanf(file, " %1023s", buffer) == 1) {
         if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
@@ -1091,9 +1098,8 @@ size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
         }
     }
     fclose(file);
-    return size_t(currRealMem);
+    return size_t(currRealMem * 1000); // bytes
 #endif
-
 #ifdef _WIN32
     PROCESS_MEMORY_COUNTERS pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
@@ -1102,41 +1108,25 @@ size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
 }
 
 /**
- * @brief Returns peak system physical memory currently used by process
- * @return Peak system physical memory currently used by process
+ * @brief Returns peak system physical memory currently used by process in bytes
+ * @return Peak system physical memory currently used by process in bytes
  */
 size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc()
 {
 #ifdef __unix
     // linux file contains this-process info
     FILE* file = fopen("/proc/self/status", "r");
-
     char buffer[1024] = "";
-
-    //int currRealMem;
     int peakRealMem;
-    //int currVirtMem;
-    //int peakVirtMem;
-
     // read the entire file
     while (fscanf(file, " %1023s", buffer) == 1) {
-        /*if (strcmp(buffer, "VmRSS:") == 0) { // kilobytes
-            fscanf(file, " %d", &currRealMem);
-        }*/
-        if (strcmp(buffer, "VmHWM:") == 0) {
+        if (strcmp(buffer, "VmHWM:") == 0) { // kilobytes
             fscanf(file, " %d", &peakRealMem);
         }
-        /*if (strcmp(buffer, "VmSize:") == 0) {
-            fscanf(file, " %d", &currVirtMem);
-        }
-        if (strcmp(buffer, "VmPeak:") == 0) {
-            fscanf(file, " %d", &peakVirtMem);
-        }*/
     }
     fclose(file);
-    return size_t(peakRealMem);
+    return size_t(peakRealMem * 1000); // bytes
 #endif
-
 #ifdef _WIN32
     PROCESS_MEMORY_COUNTERS pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
