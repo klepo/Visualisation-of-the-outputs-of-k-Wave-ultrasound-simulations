@@ -21,7 +21,6 @@
 #define FILE_H
 
 #ifdef __unix
-#include <stdexcept>
 #include <sys/time.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -33,6 +32,7 @@
 #include <Psapi.h>
 #endif
 
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <algorithm>

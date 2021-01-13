@@ -20,10 +20,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#ifdef __unix
 #include <stdexcept>
-#endif
-
 #include <iostream>
 #include <string>
 #include <cstdint>
