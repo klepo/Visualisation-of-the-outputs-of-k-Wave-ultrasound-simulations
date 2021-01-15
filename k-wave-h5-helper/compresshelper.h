@@ -23,7 +23,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm> // std::sort
-#include <immintrin.h>
+#include <immintrin.h> // _BitScanReverse, __builtin_clz
 
 //#define _USE_MATH_DEFINES // for C++
 #ifndef M_PI
@@ -51,7 +51,7 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, float complexSize = 2.0f, float *maxValues = nullptr);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, float complexSize = 2.0f);
     ~CompressHelper();
 
     static float findPeriod(const float *dataSrc, hsize_t length);
@@ -67,7 +67,7 @@ public:
     float getPeriod() const;
     hsize_t getMos() const;
     hsize_t getHarmonics() const;
-    hsize_t getStride() const;
+    float getStride() const;
     float getComplexSize() const;
 
     static const int kMaxExpP = 138;
@@ -107,12 +107,9 @@ private:
     /// Number of harmonics
     hsize_t harmonics = 1;
     /// Coeficients stride
-    hsize_t stride = 0;
+    float stride = 0.0f;
     /// Complex size
     float complexSize = 2.0f;
-
-    /// Values for 16 bit float decoding
-    float *maxValues = nullptr;
 
     // Memory for helper functions data, 2D arrays for harmonics
     /// Window basis

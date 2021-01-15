@@ -29,17 +29,17 @@ namespace H5Helper {
  * @param[in] normalize Normalizes basis functions for compression (optional)
  * @param[in] shift Shifts phases of complex exponencial basis function (velocity time shift) (optional)
  */
-CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, float complexSize, float* maxValues)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, float complexSize)
 {
     this->period = period;
     this->mos = mos;
     this->harmonics = harmonics;
     this->complexSize = complexSize;
-    this->maxValues = maxValues;
 
     oSize = hsize_t(period * mos);
     bSize = oSize * 2 + 1;
-    stride = this->harmonics * this->complexSize;
+    // TODO
+    stride = float(this->harmonics) * this->complexSize;
     b = new float[bSize]();
     e = new floatC[this->harmonics * bSize]();
     bE = new floatC[this->harmonics * bSize]();
@@ -110,6 +110,7 @@ float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
         }
     }
 
+    // TODO check minimal peaksCount, j
     float *locs = new float[j - 1]();
     diff(newLocsTmp, locs, j);
     period = median(locs, j - 1);
@@ -363,7 +364,7 @@ hsize_t CompressHelper::getHarmonics() const
  * @brief Returns coefficients stride for one step (harmonics * 2;)
  * @return Coefficients stride for one step
  */
-hsize_t CompressHelper::getStride() const
+float CompressHelper::getStride() const
 {
     return stride;
 }

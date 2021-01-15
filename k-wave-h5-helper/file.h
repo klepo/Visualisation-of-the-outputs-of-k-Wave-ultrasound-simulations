@@ -78,6 +78,10 @@ const std::string P_SOURCE_INPUT_DATASET = "p_source_input";
 const std::string P_INDEX_DATASET = "p";
 /// Dataset name p/1
 const std::string P_CUBOID_DATASET = "p/1";
+/// Dataset name p_c
+const std::string P_INDEX_DATASET_C = "p_c";
+/// Dataset name p_c/1
+const std::string P_CUBOID_DATASET_C = "p_c/1";
 
 /// Attribute name min
 const std::string MIN_ATTR = "min";

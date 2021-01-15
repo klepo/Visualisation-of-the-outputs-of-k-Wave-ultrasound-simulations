@@ -724,6 +724,7 @@ void Dataset::setNumberOfElmsToLoad(hsize_t count)
         throw std::runtime_error("setNumberOfElmsToLoad error");
 #endif
     numberOfElementsToLoad = count;
+    // numberOfElementsToLoad of dataset is limited by dataset size
     if (dims.getSize() <= numberOfElementsToLoad) {
         numberOfElementsToLoad = dims.getSize();
     }
