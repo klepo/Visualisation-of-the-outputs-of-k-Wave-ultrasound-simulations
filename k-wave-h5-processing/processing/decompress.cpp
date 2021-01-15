@@ -77,18 +77,29 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     // First decoding parameter     - period
     // Second decoding parameter    - multiple of overlap size
-    hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
     // Third encoding parameter     - number of harmonic frequencies
+    // Fourth encoding parameter    - shift flag
+    hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
     hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log) : 1;
-    bool shift = srcDataset->hasAttribute("c_shift") ? bool(srcDataset->readAttributeI("c_shift", log)) : getSettings()->getFlagShift();
+    bool shift = srcDataset->hasAttribute("c_shift") ? (srcDataset->readAttributeI("c_shift", log) > 0) : getSettings()->getFlagShift();
     H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics, false, shift);
 
-    // TODO 40bit
+    float complexSize = srcDataset->hasAttribute("c_complex_size") ? srcDataset->readAttributeF("c_complex_size", true) : 2.0f;
+    float sizeMultiplier = compressHelper->getHarmonics() * complexSize;
+    bool flagC40bit = complexSize == 1.25f ? true : false;
+
+    int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
+    if (srcDataset->hasAttribute("c_max_exp")) {
+        kMaxExp = int(srcDataset->readAttributeI("c_max_exp", false));
+    } else if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET_C || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET_C) {
+        kMaxExp = H5Helper::CompressHelper::kMaxExpP;
+    }
 
     if (log)
         Helper::printDebugMsg("Decompression with period "
                               + std::to_string(size_t(compressHelper->getPeriod()))
-                              + " steps "+ "and " + std::to_string(compressHelper->getHarmonics())
+                              + " steps (" + std::to_string(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
+                              + " Hz) and " + std::to_string(compressHelper->getHarmonics())
                               + " harmonic frequencies");
 
     // Overlap size and base size
@@ -108,14 +119,14 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
         steps = H5Helper::Vector4D(dims).w();
         outputSteps = (steps + 1) * oSize ;
         outputDims[0] = outputSteps;
-        outputDims[3] /= compressHelper->getHarmonics() * 2;
+        outputDims[3] = hsize_t(floorf(outputDims[3] / sizeMultiplier));
         stepSize = dims[1] * dims[2] * dims[3];
         outputStepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
         steps = H5Helper::Vector3D(dims).y();
         outputSteps = (steps + 1) * oSize;
         outputDims[1] = outputSteps;
-        outputDims[2] /= compressHelper->getHarmonics() * 2;
+        outputDims[2] = hsize_t(floorf(outputDims[2] / sizeMultiplier));;
         stepSize = dims[2];
         outputStepSize = outputDims[2];
     } else { // Something wrong.
@@ -153,8 +164,10 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     getOutputFile()->createDatasetF(dstName, outputDims, chunkDims, true, log);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
+    // Read full steps
+    srcDataset->setNumberOfElmsToLoad((srcDataset->getNumberOfElmsToLoad() / stepSize) * stepSize);
     // Variables for block reading
-    float *dataC = new float[srcDataset->getGeneralBlockDims().getSize()]();
+    float *dataC = (float*) _mm_malloc(srcDataset->getGeneralBlockDims().getSize() * sizeof(float), 16);
     H5Helper::Vector offset;
     H5Helper::Vector count;
     float maxV = std::numeric_limits<float>::min();
@@ -165,8 +178,8 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     // If we have enough memory - minimal for one full step in 3D space
     if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2 + outputStepSize) {
         // Complex buffers for last coefficients
-        H5Helper::floatC *cC = new H5Helper::floatC[stepSize / 2]();
-        H5Helper::floatC *lC = new H5Helper::floatC[stepSize / 2]();
+        H5Helper::floatC *cC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
+        H5Helper::floatC *lC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
 
         // Variable for writing multiple steps at once
         hsize_t stepsToWrite = (dstDataset->getRealNumberOfElmsToLoad() - stepSize + outputStepSize) / outputStepSize;
@@ -196,41 +209,60 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
             if (framesOffset + framesCount == steps)
                 framesCount += 1;
 
+            uint8_t *dataCInt8 = reinterpret_cast<uint8_t*>(dataC);
+            H5Helper::floatC *dataCFloatC = reinterpret_cast<H5Helper::floatC*>(dataC);
+
             // For every frame
             for (hsize_t frame = 0; frame < framesCount; frame++) {
                 hsize_t framesOffsetGlobal = framesOffset + frame;
                 hsize_t frameOffset = frame * stepSize;
+                if (log)
+                    Helper::printDebugMsg("Encoding frame " + std::to_string(framesOffsetGlobal + 1) + "/" + std::to_string(steps + 1));
                 // Decode steps
                 for (hsize_t stepLocal = 0; stepLocal < oSize; stepLocal++) {
                     hsize_t stepOffset = step * outputStepSize;
                     hsize_t stepsToWriteOffset = stepToWrite * outputStepSize;
-
                     // For every coefficient (space point) in frame
-                    //#pragma omp parallel for
+                    #pragma omp parallel for
                     for (hssize_t p = 0; p < hssize_t(outputStepSize); p++) {
                         hsize_t pOffset = compressHelper->getHarmonics() * hsize_t(p);
                         hsize_t sP = stepsToWriteOffset + hsize_t(p);
                         data[sP] = 0;
 
-                        // For every hamornics
+                        // For every harmonics
                         for (hsize_t ih = 0; ih < compressHelper->getHarmonics(); ih++) {
                             hsize_t pH = pOffset + ih;
 
                             if (stepLocal == 0) {
-                                hsize_t pHC = 2 * pOffset + 2 * ih;
+                                hsize_t pHC = pOffset + ih;
 
                                 // Save last coefficients
                                 lC[pH] = cC[pH];
 
-                                // Copy first coefficients
-                                if (framesOffsetGlobal == 0)
-                                    lC[pH] = conj(H5Helper::floatC(dataC[pHC], dataC[pHC + 1]));
+                                if (flagC40bit) {
+                                    pHC = pHC * 5;
+                                }
 
-                                // Don't load last two coefficients (duplicate)
-                                if (framesOffsetGlobal < steps - 2) {
+                                // Copy first coefficients
+                                if (framesOffsetGlobal == 0) {
+                                    if (flagC40bit) {
+                                        H5Helper::CompressHelper::convert40bToFloatC(&dataCInt8[pHC], lC[pH], kMaxExp);
+                                        lC[pH] = conj(lC[pH]);
+                                    } else {
+                                        lC[pH] = conj(dataCFloatC[pHC]);
+                                    }
+                                    cC[pH] = lC[pH];
+                                }
+                                // Don't load last coefficient (duplicate)
+                                if (framesOffsetGlobal < steps - 1) {
                                     hsize_t fPHC = frameOffset + pHC + stepSize;
                                     // Read coefficient
-                                    cC[pH] = conj(H5Helper::floatC(dataC[fPHC], dataC[fPHC + 1]));
+                                    if (flagC40bit) {
+                                        H5Helper::CompressHelper::convert40bToFloatC(&dataCInt8[fPHC], cC[pH], kMaxExp);
+                                        cC[pH] = conj(cC[pH]);
+                                    } else {
+                                        cC[pH] = conj(dataCFloatC[fPHC]);
+                                    }
                                 }
                             }
 
@@ -240,7 +272,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                         }
 
                         // Min/max values
-                        H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepOffset + hsize_t(p));
+                        //H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepOffset + hsize_t(p));
                     }
 
                     step++;
@@ -273,7 +305,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     } else {
         // Not implemented yet
         Helper::printErrorMsg("Not implemented for such big datasets yet");
-        delete[] dataC;
+        _mm_free(dataC);
         dataC = nullptr;
         delete compressHelper;
         compressHelper = nullptr;
@@ -282,7 +314,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     }
 
     // Delete some memory
-    delete[] dataC;
+    _mm_free(dataC);
     dataC = nullptr;
     delete compressHelper;
     compressHelper = nullptr;

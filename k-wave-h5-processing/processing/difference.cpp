@@ -56,6 +56,7 @@ void Difference::execute()
             H5Helper::DatasetType dataset1Type = dataset1->getType(sensorMaskSize);
             H5Helper::DatasetType dataset2Type = dataset2->getType(sensorMaskSize);
 
+            // TODO Sensor mask index compressed with c_complex_size
             if (dataset1->getRank() == dataset1->getRank()) {
                 if (((dataset1Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset1Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
                      && (dataset2Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset2Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
@@ -150,7 +151,15 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     double sumO2 = 0.0;
     double sum2 = 0.0;
 
-    if (datasetDecoded->hasAttribute("c_complex_size") && datasetDecoded->readAttributeF("c_complex_size", false) == 1.25f) {
+    if (datasetDecoded->hasAttribute("c_complex_size")
+        && datasetDecoded->readAttributeF("c_complex_size", false) == 1.25f
+        && (datasetDecoded->getType() == H5Helper::DatasetType::CUBOID_C
+            || datasetDecoded->getType() == H5Helper::DatasetType::CUBOID_ATTR_C
+            || datasetDecoded->getType() == H5Helper::DatasetType::TIME_STEPS_C_INDEX)
+        && (datasetOriginal->getType() == H5Helper::DatasetType::CUBOID_C
+            || datasetOriginal->getType() == H5Helper::DatasetType::CUBOID_ATTR_C
+            || datasetOriginal->getType() == H5Helper::DatasetType::TIME_STEPS_C_INDEX)
+        ) {
         hsize_t stepSizeO = 0;
         hsize_t stepSizeD = 0;
         H5Helper::Vector dimsO = datasetOriginal->getDims();
@@ -165,48 +174,32 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
             Helper::printErrorMsg("Something wrong with dataset dims");
             return;
         }
-        float *dataO = new float[stepSizeO]();
-        float *dataD = new float[stepSizeD]();
+        dataO = new float[stepSizeO]();
+        dataD = new float[stepSizeD]();
 
         int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
-        if (datasetDecoded->hasAttribute("c_max_exp"))
+        if (datasetDecoded->hasAttribute("c_max_exp")) {
             kMaxExp = int(datasetDecoded->readAttributeI("c_max_exp", false));
+        } else if (datasetDecoded->getName() == "/" + H5Helper::P_INDEX_DATASET_C || datasetDecoded->getName() == "/" + H5Helper::P_CUBOID_DATASET_C) {
+            kMaxExp = H5Helper::CompressHelper::kMaxExpP;
+        }
 
         datasetOriginal->setNumberOfElmsToLoad(stepSizeO);
         datasetDecoded->setNumberOfElmsToLoad(stepSizeD);
         hsize_t numberOfBlocks = datasetOriginal->getNumberOfBlocks();
 
-        hssize_t iG = 0;
         // Reading and subtraction
         for (hsize_t i = 0; i < numberOfBlocks; i++) {
             datasetDecoded->readBlock(i, offset, count, dataD, log);
             datasetOriginal->readBlock(i, offset, count, dataO, log);
-            uint8_t* dataD8 = reinterpret_cast<uint8_t*>(dataD);
+            uint8_t *dataD8 = reinterpret_cast<uint8_t*>(dataD);
             hssize_t p8 = 0;
             for (hssize_t i = 0; i < hssize_t(count.getSize()); i += 2) {
                 H5Helper::floatC sCO(dataO[i], dataO[i + 1]);
                 H5Helper::floatC sCD;
-
-                H5Helper::CompressHelper::convert40bToFloatC(reinterpret_cast<uint8_t*>(&dataD8[p8]), sCD, kMaxExp);
-
-                /*if (iG >= 28377330 && iG <= 28377360) {
-                    std::cout << std::left << std::setw(15) << iG
-                              << std::left << std::setw(25) << sCO
-                              << std::left << std::setw(25) << sCD
-                              << std::left << std::setw(25) << sCO - sCD
-                              << std::left << std::setw(5) << int(e1)
-                              << std::left << std::setw(5) << int(s1R)
-                              << std::left << std::setw(5) << int(s1I)
-                              << std::endl;
-                }*/
-
-                /*if (i > 2936410 && i < 2936430) {
-                    std::cout << sCO << " " << sCD << std::endl;
-                }*/
-
+                H5Helper::CompressHelper::convert40bToFloatC(&dataD8[p8], sCD, kMaxExp);
                 dataO[i] = sCD.real() - sCO.real();
                 dataO[i + 1] = sCD.imag() - sCO.imag();
-
                 sum += double(abs(dataO[i]));
                 sum += double(abs(dataO[i + 1]));
                 sumO2 += double(sCO.real() * sCO.real());
@@ -221,7 +214,6 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
                 H5Helper::checkOrSetMinMaxValue(minVO, maxVO, sCO.real(), minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
                 H5Helper::checkOrSetMinMaxValue(minVO, maxVO, sCO.imag(), minVOIndex, maxVOIndex, linearOffset + hsize_t(i + 1));
                 p8 += 5;
-                iG += 2;
             }
             dstDataset->writeDataset(offset, count, dataO, log);
         }

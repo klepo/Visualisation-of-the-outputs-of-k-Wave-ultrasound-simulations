@@ -80,9 +80,9 @@ public:
     bool getFlagShift() const;
     void setFlagShift(bool value);
 
-    // 16bit flag for compression
-    bool getFlagC16bit() const;
-    void setFlagC16bit(bool value);
+    // 40-bit flag for compression
+    bool getFlagC40bit() const;
+    void setFlagC40bit(bool value);
 
     // No overlap flag for compression
     bool getFlagNoOverlap() const;
@@ -145,8 +145,8 @@ private:
     unsigned long long mOS = 1;
     /// Shift flag
     bool shift = false;
-    /// 16bit compression flag
-    bool c16bit = false;
+    /// 40-bit compression flag
+    bool c40bit = false;
     /// No overlap compression flag
     bool noOverlap = false;
 
