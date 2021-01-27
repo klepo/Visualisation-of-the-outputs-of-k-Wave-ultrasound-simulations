@@ -43,7 +43,7 @@ QSize ImageWidget::sizeHint() const
 
 /**
  * @brief Minimum size hint
- * @return SIze
+ * @return Size
  */
 QSize ImageWidget::minimumSizeHint() const
 {

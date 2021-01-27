@@ -121,7 +121,7 @@ void Window3DDockWidget::showLabel3DLoading()
 
 /**
  * @brief Shows reading time
- * @param[in] value Time in nanosecons
+ * @param[in] value Time in nanoseconds
  */
 void Window3DDockWidget::showReadingTime(qint64 value)
 {

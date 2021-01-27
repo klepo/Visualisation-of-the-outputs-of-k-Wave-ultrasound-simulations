@@ -227,8 +227,6 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
     // Flag and temp data for faster reading
     bool useTmpFlag = false;
     float *tmpData = nullptr;
-
-    // TODO rozpoznat, zda je maska cuboid (maska má stejný počet bodů jako obálka, stoupající posloupnost všech indexů), pak se může pouze překopírovat.
     bool cuboidFlag = false;
 
     // Check whether is possible to write whole one step (3D dataset)

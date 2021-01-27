@@ -94,7 +94,7 @@ protected:
     bool deleteLog = true;
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     Object(const Object &);
     /// Disable assignment operator
     /// \return Object

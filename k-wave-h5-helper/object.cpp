@@ -358,7 +358,7 @@ std::string Object::getOnlyName() const
 
 /**
  * @brief Returns the object group name
- * @return Bbject group name
+ * @return Object group name
  */
 std::string Object::getGroupName() const
 {

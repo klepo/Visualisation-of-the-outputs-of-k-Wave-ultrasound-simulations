@@ -48,7 +48,7 @@ public:
     static std::string getStringDatatype(hid_t datatypeId);
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     Attribute(const Attribute &);
     /// Disable assignment operator
     /// \return Attribute

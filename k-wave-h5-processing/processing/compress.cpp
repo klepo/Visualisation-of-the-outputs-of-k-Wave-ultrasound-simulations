@@ -90,7 +90,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     // Fourth encoding parameter    - shift flag
     H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonics(), true, getSettings()->getFlagShift());
 
-    float sizeMultiplier = getSettings()->getFlagC40bit() ? compressHelper->getHarmonics() * 1.25f : compressHelper->getHarmonics() * 2.0f;
+    float sizeMultiplier = getSettings()->getFlagC40bit() ? compressHelper->getHarmonics() * H5Helper::CompressHelper::complexSize40bit : compressHelper->getHarmonics() * 2.0f;
 
     int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
     if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET)
@@ -343,7 +343,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     dstDataset->setAttribute(H5Helper::C_MOS_ATTR, getSettings()->getMOS(), log);
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
     dstDataset->setAttribute("c_shift", hsize_t(getSettings()->getFlagShift()), log);
-    dstDataset->setAttribute("c_complex_size", getSettings()->getFlagC40bit() ? 1.25f : 2.0f, log);
+    dstDataset->setAttribute("c_complex_size", getSettings()->getFlagC40bit() ? H5Helper::CompressHelper::complexSize40bit : 2.0f, log);
     dstDataset->setAttribute("c_max_exp", kMaxExp, log);
 
     double t1 = H5Helper::getTime();

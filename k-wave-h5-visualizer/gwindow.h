@@ -162,9 +162,9 @@ private:
     GLint uVolumeTextureLC;
     /// Volume texture for last current coefficients uniform id
     GLint uVolumeTextureCC;
-    /// Complex exponencial window basis texture uniform id
+    /// Complex exponential window basis texture uniform id
     GLint uTextureBE;
-    /// Inverted complex exponencial window basis texture uniform id
+    /// Inverted complex exponential window basis texture uniform id
     GLint uTextureBE_1;
     /// Colormap texture uniform id
     GLint uColormapTexture;
@@ -238,13 +238,13 @@ private:
     GLuint textureLC;
     /// Volume texture for last current coefficients handle
     GLuint textureCC;
-    /// Complex exponencial window basis texture handle
+    /// Complex exponential window basis texture handle
     GLuint textureBE;
-    /// Inverted complex exponencial window basis texture handle
+    /// Inverted complex exponential window basis texture handle
     GLuint textureBE_1;
-    /// Complex exponencial window basis texture buffer handle
+    /// Complex exponential window basis texture buffer handle
     GLuint textureBufferBE;
-    /// Inverted complex exponencial window basis texture buffer handle
+    /// Inverted complex exponential window basis texture buffer handle
     GLuint textureBufferBE_1;
     /// Colormap texture handle
     GLuint colormapTexture;
@@ -292,7 +292,7 @@ private:
     int slicesCount = 500;
     /// Volume rendering mode
     int vRMode = 0;
-    /// Iterpolation mode
+    /// Interpolation mode
     int intMode = GL_LINEAR;
 
     /// View volume rendering flag

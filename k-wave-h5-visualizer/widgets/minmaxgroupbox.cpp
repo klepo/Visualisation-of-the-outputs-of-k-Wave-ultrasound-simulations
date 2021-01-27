@@ -124,7 +124,7 @@ void MinMaxGroupBox::setMinMaxValuesTrim(bool value)
 }
 
 /**
- * @brief Sets defualt values a disconnects signals
+ * @brief Sets default values a disconnects signals
  */
 void MinMaxGroupBox::clear()
 {

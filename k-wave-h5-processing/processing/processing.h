@@ -51,7 +51,7 @@ protected:
     void addSize(hsize_t s);
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     Processing(const Processing &);
     /// Disable assignment operator
     /// \return Processing

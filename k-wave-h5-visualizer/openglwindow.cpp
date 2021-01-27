@@ -267,7 +267,7 @@ void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
 void OpenGLWindow::wheelEvent(QWheelEvent *event)
 {
     // Save delta
-    wheelDelta = event->delta();
+    wheelDelta = event->angleDelta().y();
     renderLater();
 }
 

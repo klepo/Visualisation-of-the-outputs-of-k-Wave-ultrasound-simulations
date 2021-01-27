@@ -140,7 +140,7 @@ public:
     void readEmptyBlock(bool log = true);
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     Dataset(const Dataset &);
     /// Disable assignment operator
     /// \return Dataset

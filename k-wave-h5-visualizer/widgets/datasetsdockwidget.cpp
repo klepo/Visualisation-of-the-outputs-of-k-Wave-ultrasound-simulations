@@ -100,7 +100,7 @@ void DatasetsDockWidget::clear()
  * @param[in] flag Selection flag
  *
  * Not yet used.
- * TODO Implement show fuction
+ * TODO Implement show function
  */
 void DatasetsDockWidget::showDataset(int id, bool flag)
 {

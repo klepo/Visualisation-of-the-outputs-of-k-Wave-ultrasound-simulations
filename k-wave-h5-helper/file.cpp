@@ -866,7 +866,7 @@ float File::getFrequency(float period) const
     if (dValues.t() != 0) {
         return 1.0f / (period * dValues.t());
     } else {
-        std::cout << "Cannot compute real frequency from period. Time point spacing (dt) is unkown" << std::endl;
+        std::cout << "Cannot compute real frequency from period. Time point spacing (dt) is unknown" << std::endl;
         return 0;
     }
 }
@@ -881,7 +881,7 @@ float File::getPeriod(float frequency) const
     if (dValues.t() != 0) {
         return 1.0f / (frequency * dValues.t());
     } else {
-        std::cout << "Cannot compute period from real frequency. Time point spacing (dt) is unkown" << std::endl;
+        std::cout << "Cannot compute period from real frequency. Time point spacing (dt) is unknown" << std::endl;
         return 0;
     }
 }

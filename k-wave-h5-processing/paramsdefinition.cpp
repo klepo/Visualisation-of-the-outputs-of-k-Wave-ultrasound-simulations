@@ -41,7 +41,7 @@ ParamsDefinition::Flag::Params::Params()
 
 /**
  * @brief Creates Params object with first param
- * @param[in] type Firts param type
+ * @param[in] type First param type
  */
 ParamsDefinition::Flag::Params::Params(ParamsDefinition::Type type)
 {

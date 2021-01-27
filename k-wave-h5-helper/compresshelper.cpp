@@ -21,20 +21,23 @@
 
 namespace H5Helper {
 
+const float CompressHelper::complexSize40bit = 1.25f;
+
 /**
  * @brief Creates CompressHelper object with period, mos, harmonics and normalize flag
  * @param[in] period Period
  * @param[in] mos Multiple of overlap size
  * @param[in] harmonics Number of harmonics
  * @param[in] normalize Normalizes basis functions for compression (optional)
- * @param[in] shift Shifts phases of complex exponencial basis function (velocity time shift) (optional)
+ * @param[in] shift Shifts phases of complex exponential basis function (velocity time shift) (optional)
  */
-CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, float complexSize)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, float complexSize, int32_t kMaxExp)
 {
     this->period = period;
     this->mos = mos;
     this->harmonics = harmonics;
     this->complexSize = complexSize;
+    this->kMaxExp = kMaxExp;
 
     oSize = hsize_t(period * mos);
     bSize = oSize * 2 + 1;
@@ -149,14 +152,14 @@ float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
  * @param[in] stepLocal Local step between coefficients
  * @return Step value
  */
-float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, const int32_t kMaxExp) const
+float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const
 {
     float stepValue = 0;
     hsize_t sH = stepLocal;
     for (hsize_t h = 0; h < harmonics; h++) {
         floatC sC1;
         floatC sC2;
-        if (complexSize == 1.25f) { // TODO kMaxExp
+        if (complexSize == complexSize40bit) {
             convert40bToFloatC(&(reinterpret_cast<const uint8_t *>(cC))[h * 5], sC1, kMaxExp);
             convert40bToFloatC(&(reinterpret_cast<const uint8_t *>(lC))[h * 5], sC2, kMaxExp);
         } else {
@@ -289,8 +292,8 @@ void CompressHelper::convertFloatCTo40b(const floatC cValue, uint8_t* iValues, c
 }
 
 /**
- * @brief Returns complex exponencial basis
- * @return Complex exponencial basis
+ * @brief Returns complex exponential basis
+ * @return Complex exponential basis
  */
 const floatC *CompressHelper::getE() const
 {
@@ -298,8 +301,8 @@ const floatC *CompressHelper::getE() const
 }
 
 /**
- * @brief Returns complex exponencial window basis
- * @return Complex exponencial window basis
+ * @brief Returns complex exponential window basis
+ * @return Complex exponential window basis
  */
 const floatC *CompressHelper::getBE() const
 {
@@ -307,8 +310,8 @@ const floatC *CompressHelper::getBE() const
 }
 
 /**
- * @brief Returns inverted complex exponencial window basis
- * @return Inverted complex exponencial window basis
+ * @brief Returns inverted complex exponential window basis
+ * @return Inverted complex exponential window basis
  */
 const floatC *CompressHelper::getBE_1() const
 {
@@ -576,9 +579,9 @@ hsize_t CompressHelper::median(const hsize_t *dataSrc, hsize_t length)
  * @param[in] period Period
  * @param[in] harmonics Harmonics
  * @param[out] b Window basis
- * @param[out] e Exponencial basis
- * @param[out] bE Complex exponencial window basis
- * @param[out] bE_1 Inverted complex exponencial window basis
+ * @param[out] e Exponential basis
+ * @param[out] bE Complex exponential window basis
+ * @param[out] bE_1 Inverted complex exponential window basis
  * @param[in] normalize Normalization flag (optional)
  */
 void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize, bool shift) const
@@ -622,12 +625,12 @@ void CompressHelper::hann(hsize_t oSize, float *w) const
 }
 
 /**
- * @brief Generates complex exponencial basis
+ * @brief Generates complex exponential basis
  * @param[in] period Period
  * @param[in] ih Harmonics index
  * @param[in] h Harmonic multiple
  * @param[in] bSize Base size
- * @param[out] e Exponencial basis
+ * @param[out] e Exponential basis
  */
 void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e, bool shift) const
 {
@@ -642,14 +645,14 @@ void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSiz
 }
 
 /**
- * @brief Generates complex exponencial window basis
+ * @brief Generates complex exponential window basis
  * @param[in] ih Harmonics index
  * @param[in] bSize Base size
  * @param[in] oSize Overlap size
  * @param[in] b Window basis
- * @param[in] e Exponencial basis
- * @param[out] bE Complex exponencial window basis
- * @param[out] bE_1 Inverted complex exponencial window basis
+ * @param[in] e Exponential basis
+ * @param[out] bE Complex exponential window basis
+ * @param[out] bE_1 Inverted complex exponential window basis
  * @param[in] normalize Normalization flag (optional)
  */
 void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize) const

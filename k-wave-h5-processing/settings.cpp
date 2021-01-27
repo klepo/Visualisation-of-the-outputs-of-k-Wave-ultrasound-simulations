@@ -29,7 +29,7 @@ Settings::Settings()
 /**
  * @brief Creates Settings object with arguments
  * @param[in] argc Arguments count
- * @param[in] argv Agruments string
+ * @param[in] argv Arguments string
  */
 Settings::Settings(int argc, const char **argv)
 {
@@ -119,14 +119,14 @@ void Settings::loadParams(int argc, const char **argv)
         "|                               |   for reading other datasets  |\n"
         "|                               |   from a separate file.       |\n"
         "| -reshape                      | Performs processing sensor    |\n"
-        "|                               |   masktype datasets to group  |\n"
+        "|                               |   mask type datasets to group |\n"
         "|                               |   with 4D datasets and saves  |\n"
-        "|                               |   datasetsto the output file. |\n"
-        "|                               |   The sensor_mask_index or    |\n"
-        "|                               |   sensor_mask_corners dataset |\n"
-        "|                               |   must be in simulation       |\n"
-        "|                               |   output or simulation input  |\n"
-        "|                               |   file.                       |\n"
+        "|                               |   datasets to the output      |\n"
+        "|                               |   file. The sensor_mask_index |\n"
+        "|                               |   or sensor_mask_corners      |\n"
+        "|                               |   dataset must be in          |\n"
+        "|                               |   simulation output or        |\n"
+        "|                               |   simulation input file.      |\n"
         "| -changeChunks                 | Sets a new chunks size of     |\n"
         "|                               |   float datasets and saves    |\n"
         "|                               |   datasets to the output      |\n"

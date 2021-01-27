@@ -64,7 +64,7 @@ void Difference::execute()
                     || (H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))
                     || ((dataset1Type == H5Helper::DatasetType::CUBOID_C || dataset1Type == H5Helper::DatasetType::CUBOID_ATTR_C)
                         && (dataset2Type == H5Helper::DatasetType::CUBOID_C || dataset2Type == H5Helper::DatasetType::CUBOID_ATTR_C)
-                        && (dataset2->hasAttribute("c_complex_size") && dataset2->readAttributeF("c_complex_size", true) == 1.25f))
+                        && (dataset2->hasAttribute("c_complex_size") && dataset2->readAttributeF("c_complex_size", true) == H5Helper::CompressHelper::complexSize40bit))
                     ) {
                     if (H5Helper::Vector3D(dataset1->getDims()).y() < H5Helper::Vector3D(dataset2->getDims()).y()
                         || (dataset1->getRank() == 4 && H5Helper::Vector4D(dataset1->getDims()).t() < H5Helper::Vector4D(dataset2->getDims()).t())) {
@@ -152,7 +152,7 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     double sum2 = 0.0;
 
     if (datasetDecoded->hasAttribute("c_complex_size")
-        && datasetDecoded->readAttributeF("c_complex_size", false) == 1.25f
+        && datasetDecoded->readAttributeF("c_complex_size", false) == H5Helper::CompressHelper::complexSize40bit
         && (datasetDecoded->getType() == H5Helper::DatasetType::CUBOID_C
             || datasetDecoded->getType() == H5Helper::DatasetType::CUBOID_ATTR_C
             || datasetDecoded->getType() == H5Helper::DatasetType::TIME_STEPS_C_INDEX)

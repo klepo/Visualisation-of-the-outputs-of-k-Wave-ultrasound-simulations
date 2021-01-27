@@ -51,11 +51,11 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, float complexSize = 2.0f);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, float complexSize = 2.0f, int32_t kMaxExp = kMaxExpP);
     ~CompressHelper();
 
     static float findPeriod(const float *dataSrc, hsize_t length);
-    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal, const int32_t e = kMaxExpP) const;
+    float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
     static void convert40bToFloatC(const uint8_t* iValues, floatC& cValue, const int32_t e);
     static void convertFloatCTo40b(const floatC cValue, uint8_t* iValues, const int32_t e);
 
@@ -70,11 +70,12 @@ public:
     float getStride() const;
     float getComplexSize() const;
 
-    static const int kMaxExpP = 138;
-    static const int kMaxExpU = 114;
+    static const int32_t kMaxExpP = 138;
+    static const int32_t kMaxExpU = 114;
+    static const float complexSize40bit;
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     CompressHelper(const CompressHelper &);
     /// Disable assignment operator
     /// \return CompressHelper
@@ -106,19 +107,21 @@ private:
     hsize_t mos = 1;
     /// Number of harmonics
     hsize_t harmonics = 1;
-    /// Coeficients stride
+    /// Coefficients stride
     float stride = 0.0f;
     /// Complex size
     float complexSize = 2.0f;
+    /// Max exponent
+    int32_t kMaxExp = kMaxExpP;
 
     // Memory for helper functions data, 2D arrays for harmonics
     /// Window basis
     float *b = nullptr;
-    /// Complex exponencial basis
+    /// Complex exponential basis
     floatC *e = nullptr;
-    /// Complex exponencial window basis
+    /// Complex exponential window basis
     floatC *bE = nullptr;
-    /// Inverted complex exponencial window basis
+    /// Inverted complex exponential window basis
     floatC *bE_1 = nullptr;
 };
 }

@@ -222,7 +222,7 @@ void SliceDockWidget::showLabelLoading()
 
 /**
  * @brief Shows reading time
- * @param[in] value Time in nanosecons
+ * @param[in] value Time in nanoseconds
  */
 void SliceDockWidget::showReadingTime(qint64 value)
 {

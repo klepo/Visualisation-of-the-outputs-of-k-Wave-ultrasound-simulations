@@ -305,7 +305,7 @@ void GWindow::setInterpolationMode(int mode)
 void GWindow::setObject(H5ObjectToVisualize *object)
 {
     if (initialized) {
-        sceneName = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getOnlyName() + "_3Dscene";
+        sceneName = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getOnlyName() + "_3DScene";
 
         connect(object, SIGNAL(minValueChanged(float)), this, SLOT(setMinValue(float)));
         connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));

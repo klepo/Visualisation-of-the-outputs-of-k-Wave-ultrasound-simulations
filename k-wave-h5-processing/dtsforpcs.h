@@ -40,7 +40,7 @@ public:
     hsize_t getSensorMaskType() const;
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     DtsForPcs(const DtsForPcs &);
     /// Disable assignment operator
     /// \return DtsForPcs

@@ -210,7 +210,7 @@ public:
     static const unsigned int CREATE = 1;
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     File(const File &);
     /// Disable assignment operator
     /// \return File

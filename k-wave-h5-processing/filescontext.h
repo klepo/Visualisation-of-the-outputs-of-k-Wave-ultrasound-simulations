@@ -40,7 +40,7 @@ public:
     H5Helper::File *getPcsInputFile() const;
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     FilesContext(const FilesContext &);
     /// Disable assignment operator
     /// \return FilesContext

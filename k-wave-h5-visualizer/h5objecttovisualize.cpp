@@ -1174,7 +1174,7 @@ void H5ObjectToVisualize::data3DLoaded(Request *request)
 }
 
 /**
- * @brief Inicialization of important variables
+ * @brief Initialization of important variables
  */
 void H5ObjectToVisualize::initialize()
 {
@@ -1294,17 +1294,22 @@ void H5ObjectToVisualize::loadObjectData()
     if (dataset->getType() == H5Helper::DatasetType::CUBOID_ATTR_C || dataset->getType() == H5Helper::DatasetType::CUBOID_C) {
         hsize_t mos = dataset->hasAttribute(H5Helper::C_MOS_ATTR) ? dataset->readAttributeI(H5Helper::C_MOS_ATTR) : 1;
         hsize_t harmonics = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
-        hsize_t shift = dataset->hasAttribute("c_shift") ? dataset->readAttributeI("c_shift") : 0;
+        bool shift = dataset->hasAttribute("c_shift") ? dataset->readAttributeI("c_shift") > 0 : false;
         float complexSize = 2.0f;
+        // TODO complexSize40bit
         if (dataset->hasAttribute("c_complex_size")) {
-            if (dataset->readAttributeI("c_complex_size") == 1.75f) {
-                complexSize = 1.75f;
+            if (dataset->readAttributeF("c_complex_size") == H5Helper::CompressHelper::complexSize40bit) {
+                complexSize = H5Helper::CompressHelper::complexSize40bit;
             }
         }
-        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics, false, shift, complexSize);
+        int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
+        if (dataset->getName() == "/" + H5Helper::P_INDEX_DATASET || dataset->getName() == "/" + H5Helper::P_CUBOID_DATASET) {
+            kMaxExp = H5Helper::CompressHelper::kMaxExpP;
+        }
+        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics, false, shift, complexSize, kMaxExp);
 
-        size.x(size.x() / compressHelper->getStride());
-        originalSize.x(originalSize.x() / compressHelper->getStride());
+        size.x(hsize_t(floorf(size.x() / compressHelper->getStride())));
+        originalSize.x(hsize_t(floorf(originalSize.x() / compressHelper->getStride())));
 
         steps = (steps + 2) * compressHelper->getOSize();
         H5Helper::convertlinearToMultiDim(minValueIndex, minValuePosition, H5Helper::Vector4D(steps, size));

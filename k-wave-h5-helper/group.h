@@ -60,7 +60,7 @@ public:
     H5G_obj_t getObjTypeByIdx(hsize_t idx) const;
 
 private:
-    /// Disable copy contructor
+    /// Disable copy constructor
     Group(const Group &);
     /// \brief Disable assignment operator
     /// \return Group

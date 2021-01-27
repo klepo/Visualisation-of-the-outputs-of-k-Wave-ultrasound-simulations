@@ -241,7 +241,7 @@ T *VectorT<T>::getVectorPtr()
 }
 
 /**
- * @brief Returns vetor value at index
+ * @brief Returns vector value at index
  * @param[in] i Index
  * @return Vector value at index
  */
@@ -253,7 +253,7 @@ T VectorT<T>::at(hsize_t i) const
 }
 
 /**
- * @brief Returns vetor value at index
+ * @brief Returns vector value at index
  * @param[in] i Index
  * @return Vector value at index
  */
@@ -265,7 +265,7 @@ T VectorT<T>::at(hssize_t i) const
 }
 
 /**
- * @brief Returns vetor value at index
+ * @brief Returns vector value at index
  * @param[in] i Index
  * @return Vector value at index
  */
@@ -277,7 +277,7 @@ T VectorT<T>::at(int i) const
 }
 
 /**
- * @brief Returns vetor value at index
+ * @brief Returns vector value at index
  * @param[in] i Index
  * @return Vector value at index
  */

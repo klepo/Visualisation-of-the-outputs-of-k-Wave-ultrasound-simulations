@@ -33,7 +33,7 @@ public:
     virtual ~AbstractWidget();
 
 public slots:
-    /// Pure virtual celar function
+    /// Pure virtual clear function
     virtual void clear() = 0;
 
 protected:

@@ -7,6 +7,7 @@
 #-------------------------------------------------
 
 QT += widgets
+
 TEMPLATE = app
 CONFIG += console
 CONFIG -= debug_and_release
@@ -22,10 +23,8 @@ DEPENDPATH += $$PWD
 DEPENDPATH += $$PWD/widgets
 
 # Check Qt version
-greaterThan(QT_MAJOR_VERSION, 5) {
-    greaterThan(QT_MINOR_VERSION, 2) {
-        error(Qt version is too old)
-    }
+lessThan(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_VERSION, 2) {
+    error(Qt version is too old)
 }
 
 # k-wave-h5-helper library

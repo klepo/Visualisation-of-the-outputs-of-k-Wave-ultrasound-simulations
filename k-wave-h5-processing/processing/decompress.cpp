@@ -86,7 +86,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     float complexSize = srcDataset->hasAttribute("c_complex_size") ? srcDataset->readAttributeF("c_complex_size", true) : 2.0f;
     float sizeMultiplier = compressHelper->getHarmonics() * complexSize;
-    bool flagC40bit = complexSize == 1.25f ? true : false;
+    bool flagC40bit = complexSize == H5Helper::CompressHelper::complexSize40bit ? true : false;
 
     int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
     if (srcDataset->hasAttribute("c_max_exp")) {
@@ -270,7 +270,6 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                             hsize_t sH = ih * bSize + stepLocal;
                             data[sP] += real(cC[pH] * compressHelper->getBE()[sH]) + real(lC[pH] * compressHelper->getBE_1()[sH]);
                         }
-
                         // Min/max values
                         //H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepOffset + hsize_t(p));
                     }

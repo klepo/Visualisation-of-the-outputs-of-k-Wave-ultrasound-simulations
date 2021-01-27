@@ -1566,7 +1566,7 @@ void Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vect
 }
 
 /**
- * @brief Prints writting time message with offset and count
+ * @brief Prints writing time message with offset and count
  * @param[in] t0 Star time
  * @param[in] t1 End time
  * @param[in] offset Offset
