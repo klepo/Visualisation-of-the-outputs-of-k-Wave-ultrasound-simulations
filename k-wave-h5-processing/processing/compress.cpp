@@ -331,10 +331,10 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     copyAttributes(srcDataset, dstDataset);
 
     // Set attributes
-    dstDataset->setAttribute(H5Helper::MIN_ATTR, minV, log);
-    dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV, log);
-    dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
-    dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
+    //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV, log);
+    //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV, log);
+    //dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
+    //dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
     dstDataset->setAttribute(H5Helper::C_HARMONICS_ATTR, getSettings()->getHarmonics(), log);
     dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "c", log);
     dstDataset->setAttribute(H5Helper::C_PERIOD_ATTR, getSettings()->getPeriod(), log);

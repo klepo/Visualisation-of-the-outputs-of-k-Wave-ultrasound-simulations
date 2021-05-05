@@ -322,10 +322,10 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     copyAttributes(srcDataset, dstDataset);
 
     // Set attributes
-    dstDataset->setAttribute(H5Helper::MIN_ATTR, minV, log);
-    dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV, log);
-    dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
-    dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
+    //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV, log);
+    //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV, log);
+    //dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
+    //dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
     dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "d", log);
 
     double t1 = H5Helper::getTime();
