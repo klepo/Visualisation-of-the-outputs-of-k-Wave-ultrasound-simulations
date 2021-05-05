@@ -99,9 +99,9 @@ void Difference::execute()
                     } else {
                         Helper::printDebugMsg("Subtraction of datasets " + dataset1->getName() + " and " + dataset2->getName());
                         subtractDatasets(dataset1, dataset2, getSettings()->getFlagLog());
-                        Helper::printDebugMsg("Subtraction of datasets done");
-                        count++;
                     }
+                    Helper::printDebugMsg("Subtraction of datasets done");
+                    count++;
                 } else if (
                     // 40-bit compression difference (40-bit is the second dataset)
                     (((checkDatasetType(dataset1Type, compressedCuboidTypes) && checkDatasetType(dataset2Type, compressedCuboidTypes))
@@ -144,7 +144,7 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     getOutputFile()->createDatasetF(dstName, outputDims, outputChunkDims, true, log);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
-    datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getNumberOfElmsToLoad());
+    datasetDecoded->setNumberOfElmsToLoad(datasetOriginal->getRealNumberOfElmsToLoad());
 
     // Variables for block reading
     float *dataO = nullptr;
