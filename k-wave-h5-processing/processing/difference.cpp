@@ -38,33 +38,59 @@ Difference::Difference(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const S
  */
 void Difference::execute()
 {
-    std::vector<H5Helper::DatasetType> types = {
+    std::vector<H5Helper::DatasetType> maskTypes = {
         H5Helper::DatasetType::TIME_STEPS_INDEX,
+        H5Helper::DatasetType::TIME_STEPS_D_INDEX,
+        };
+    std::vector<H5Helper::DatasetType> compressedMaskTypes = {
+        H5Helper::DatasetType::TIME_STEPS_C_INDEX,
+        };
+    std::vector<H5Helper::DatasetType> cuboidTypes = {
         H5Helper::DatasetType::CUBOID,
-        H5Helper::DatasetType::CUBOID_ATTR
-    };
+        H5Helper::DatasetType::CUBOID_D,
+        H5Helper::DatasetType::CUBOID_ATTR,
+        H5Helper::DatasetType::CUBOID_ATTR_D,
+        };
+    std::vector<H5Helper::DatasetType> compressedCuboidTypes = {
+        H5Helper::DatasetType::CUBOID_C,
+        H5Helper::DatasetType::CUBOID_ATTR_C,
+        };
     // TODO downsampled datasets?
 
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
+        H5Helper::MapOfDatasets map2 = getDtsForPcs()->getDatasets2();
         hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
         int count = 0;
         // Compare 2 selected datasets
         if (getSettings()->getNames().size() == 2) {
-            H5Helper::Dataset *dataset1 = getDtsForPcs()->getDatasets().at(getSettings()->getNames().back());
-            H5Helper::Dataset *dataset2 = getDtsForPcs()->getDatasets2().at(getSettings()->getNames().front());
+            H5Helper::Dataset *dataset1 = nullptr;
+            H5Helper::Dataset *dataset2 = nullptr;
+            try {
+                if (map.size() == 2 && map2.size() == 0) {
+                    dataset1 = map.at(getSettings()->getNames().back());
+                    dataset2 = map.at(getSettings()->getNames().front());
+                } else {
+                    dataset1 = map.at(getSettings()->getNames().back());
+                    dataset2 = map2.at(getSettings()->getNames().front());
+                }
+            } catch(std::exception) {
+                Helper::printErrorMsg("No datasets for making difference in files");
+                return;
+            }
+
             H5Helper::DatasetType dataset1Type = dataset1->getType(sensorMaskSize);
             H5Helper::DatasetType dataset2Type = dataset2->getType(sensorMaskSize);
 
-            // TODO Sensor mask index compressed with c_complex_size
-            if (dataset1->getRank() == dataset1->getRank()) {
-                if (((dataset1Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset1Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
-                     && (dataset2Type == H5Helper::DatasetType::TIME_STEPS_D_INDEX || dataset2Type == H5Helper::DatasetType::TIME_STEPS_INDEX)
-                     && (H5Helper::Vector3D(dataset1->getDims()).x() == H5Helper::Vector3D(dataset2->getDims()).x()))
-                    || (H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))
-                    || ((dataset1Type == H5Helper::DatasetType::CUBOID_C || dataset1Type == H5Helper::DatasetType::CUBOID_ATTR_C)
-                        && (dataset2Type == H5Helper::DatasetType::CUBOID_C || dataset2Type == H5Helper::DatasetType::CUBOID_ATTR_C)
-                        && (dataset2->hasAttribute("c_complex_size") && dataset2->readAttributeF("c_complex_size", true) == H5Helper::CompressHelper::complexSize40bit))
+            if (dataset1->getRank() == dataset2->getRank()) {
+                if (// Time (y) may differ - sensor mask type
+                    (checkDatasetType(dataset1Type, maskTypes)
+                     && checkDatasetType(dataset2Type, maskTypes)
+                     && H5Helper::Vector3D(dataset1->getDims()).x() == H5Helper::Vector3D(dataset2->getDims()).x())
+                    // or time may differ - cuboid type
+                    || (checkDatasetType(dataset1Type, cuboidTypes)
+                        && checkDatasetType(dataset2Type, cuboidTypes)
+                        && H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))
                     ) {
                     if (H5Helper::Vector3D(dataset1->getDims()).y() < H5Helper::Vector3D(dataset2->getDims()).y()
                         || (dataset1->getRank() == 4 && H5Helper::Vector4D(dataset1->getDims()).t() < H5Helper::Vector4D(dataset2->getDims()).t())) {
@@ -73,38 +99,22 @@ void Difference::execute()
                     } else {
                         Helper::printDebugMsg("Subtraction of datasets " + dataset1->getName() + " and " + dataset2->getName());
                         subtractDatasets(dataset1, dataset2, getSettings()->getFlagLog());
-                    }
-                    Helper::printDebugMsg("Subtraction of datasets done");
-                    count++;
-                }
-            }
-        } else { // Compare original and decoded datasets
-            for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-                H5Helper::Dataset *datasetOriginal = it->second;
-                H5Helper::DatasetType datasetType = datasetOriginal->getType(sensorMaskSize);
-                if (checkDatasetType(datasetType, types)) {
-                    H5Helper::Dataset *datasetDecoded = nullptr;
-
-                    for (H5Helper::MapOfDatasetsIt it2 = map.begin(); it2 != map.end(); ++it2) {
-                        H5Helper::Dataset *dataset = it2->second;
-                        H5Helper::DatasetType datasetDecodedType = dataset->getType(sensorMaskSize);
-
-                        if ((datasetDecodedType == H5Helper::DatasetType::TIME_STEPS_D_INDEX && datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX)
-                            || (datasetDecodedType == H5Helper::DatasetType::CUBOID_D && datasetType == H5Helper::DatasetType::CUBOID)
-                            || (datasetDecodedType == H5Helper::DatasetType::CUBOID_ATTR_D && datasetType == H5Helper::DatasetType::CUBOID_ATTR)
-                            ) {
-                            if (datasetOriginal->getName() == dataset->readAttributeS(H5Helper::SRC_DATASET_NAME_ATTR, false)) {
-                                datasetDecoded = dataset;
-                                break;
-                            }
-                        }
-                    }
-                    if (datasetDecoded) {
-                        Helper::printDebugMsg("Subtraction of datasets " + datasetOriginal->getName() + " and " + datasetDecoded->getName());
-                        subtractDatasets(datasetOriginal, datasetDecoded, getSettings()->getFlagLog());
                         Helper::printDebugMsg("Subtraction of datasets done");
                         count++;
                     }
+                } else if (
+                    // 40-bit compression difference (40-bit is the second dataset)
+                    (((checkDatasetType(dataset1Type, compressedCuboidTypes) && checkDatasetType(dataset2Type, compressedCuboidTypes))
+                      || (checkDatasetType(dataset1Type, compressedMaskTypes) && checkDatasetType(dataset2Type, compressedMaskTypes)))
+                     && dataset2->hasAttribute("c_complex_size")
+                     && dataset2->readAttributeF("c_complex_size", true) == H5Helper::CompressHelper::complexSize40bit)
+                    // Or same dims
+                    || dataset1->getDims() == dataset2->getDims()
+                    ) {
+                    Helper::printDebugMsg("Subtraction of datasets " + dataset1->getName() + " and " + dataset2->getName());
+                    subtractDatasets(dataset1, dataset2, getSettings()->getFlagLog());
+                    Helper::printDebugMsg("Subtraction of datasets done");
+                    count++;
                 }
             }
         }

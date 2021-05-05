@@ -217,10 +217,10 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                 hsize_t framesOffsetGlobal = framesOffset + frame;
                 hsize_t frameOffset = frame * stepSize;
                 if (log)
-                    Helper::printDebugMsg("Encoding frame " + std::to_string(framesOffsetGlobal + 1) + "/" + std::to_string(steps + 1));
+                    Helper::printDebugMsg("Decoding frame " + std::to_string(framesOffsetGlobal + 1) + "/" + std::to_string(steps + 1));
                 // Decode steps
                 for (hsize_t stepLocal = 0; stepLocal < oSize; stepLocal++) {
-                    hsize_t stepOffset = step * outputStepSize;
+                    //hsize_t stepOffset = step * outputStepSize;
                     hsize_t stepsToWriteOffset = stepToWrite * outputStepSize;
                     // For every coefficient (space point) in frame
                     #pragma omp parallel for
@@ -270,7 +270,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                             hsize_t sH = ih * bSize + stepLocal;
                             data[sP] += real(cC[pH] * compressHelper->getBE()[sH]) + real(lC[pH] * compressHelper->getBE_1()[sH]);
                         }
-                        // Min/max values
+                        // TODO Min/max values
                         //H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepOffset + hsize_t(p));
                     }
 
@@ -282,9 +282,9 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                             Helper::printDebugMsgStart("Saving steps " + std::to_string(step - stepToWrite) + "-" + std::to_string(step) + "/" + std::to_string(outputSteps));
 
                         if (dims.getLength() == 4) // 4D dataset
-                            dstDataset->writeDataset(H5Helper::Vector4D(step - stepToWrite, 0, 0, 0), H5Helper::Vector4D(stepToWrite, outputDims[1], outputDims[2], outputDims[3]), data);
+                            dstDataset->writeDataset(H5Helper::Vector4D(step - stepToWrite, 0, 0, 0), H5Helper::Vector4D(stepToWrite, outputDims[1], outputDims[2], outputDims[3]), data, log);
                         else if (dims.getLength() == 3) // 3D dataset
-                            dstDataset->writeDataset(H5Helper::Vector3D(0, step - stepToWrite, 0), H5Helper::Vector3D(1, stepToWrite, outputDims[2]), data);
+                            dstDataset->writeDataset(H5Helper::Vector3D(0, step - stepToWrite, 0), H5Helper::Vector3D(1, stepToWrite, outputDims[2]), data, log);
 
                         if (log)
                             Helper::printDebugMsgEnd("saved");

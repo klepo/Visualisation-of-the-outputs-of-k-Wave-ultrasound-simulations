@@ -329,7 +329,13 @@ void main() {
                 } else {
                     texel = min(getTexelValue(point), texel);
                 }
-            } else if (uMode == 3) { // Average intensity projection
+            } else if (uMode == 3) { // Absolute intensity projection
+                if (i == 0) {
+                    texel = abs(getTexelValue(point));
+                } else {
+                    texel = max(abs(getTexelValue(point)), texel);
+                }
+            } else if (uMode == 4) { // Average intensity projection
                 texel += getTexelValue(point);
             } else { // Unknown mode
                 break;
@@ -337,7 +343,7 @@ void main() {
             point += path;
         }
 
-        if (uMode == 3) { // Average intensity projection
+        if (uMode == 4) { // Average intensity projection
             texel = texel / float(it);
         }
 

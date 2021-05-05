@@ -227,7 +227,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                 for (hssize_t p = 0; p < hssize_t(stepSize); p++) {
                     const hsize_t sP = step * stepSize + hsize_t(p);
                     const hsize_t pOffset = compressHelper->getHarmonics() * hsize_t(p);
-                    // Min/max values
+                    // TODO Min/max values
                     //H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepsOffset * stepSize + sP);
 
                     //For every harmonics
@@ -285,15 +285,13 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
                         Helper::printDebugMsgStart("Saving frame " + std::to_string(frame + 1) + "/" + std::to_string(outputSteps));
 
                     if (dims.getLength() == 4) // 4D dataset
-                        dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataC);
+                        dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataC, log);
                     else if (dims.getLength() == 3) // 3D dataset
-                        dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), dataC);
+                        dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), dataC, log);
 
                     if (log)
                         Helper::printDebugMsgEnd("saved");
 
-                    // Set zeros
-                    //memset(dataC, 0, outputStepSize * sizeof(float));
                     // Set zeros for next accumulation
                     #pragma omp parallel for
                     for (ssize_t i = 0; i < ssize_t(outputStepSize); i++) {

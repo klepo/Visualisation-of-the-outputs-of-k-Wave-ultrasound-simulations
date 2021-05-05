@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>244</width>
+    <width>247</width>
     <height>165</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>244</width>
+    <width>247</width>
     <height>165</height>
    </size>
   </property>
@@ -63,6 +63,11 @@
            <item>
             <property name="text">
              <string>Minimum intensity projection</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Absolute intenstity projection</string>
             </property>
            </item>
            <item>
