@@ -92,8 +92,8 @@ void Difference::execute()
                         && checkDatasetType(dataset2Type, cuboidTypes)
                         && H5Helper::Vector3D(dataset1->getDims()) == H5Helper::Vector3D(dataset2->getDims()))
                     ) {
-                    if (H5Helper::Vector3D(dataset1->getDims()).y() < H5Helper::Vector3D(dataset2->getDims()).y()
-                        || (dataset1->getRank() == 4 && H5Helper::Vector4D(dataset1->getDims()).t() < H5Helper::Vector4D(dataset2->getDims()).t())) {
+                    if (H5Helper::Vector3D(dataset1->getDims()).y() > H5Helper::Vector3D(dataset2->getDims()).y()
+                        || (dataset1->getRank() == 4 && H5Helper::Vector4D(dataset1->getDims()).t() > H5Helper::Vector4D(dataset2->getDims()).t())) {
                         Helper::printDebugMsg("Subtraction of datasets " + dataset2->getName() + " and " + dataset1->getName());
                         subtractDatasets(dataset2, dataset1, getSettings()->getFlagLog());
                     } else {
@@ -247,7 +247,7 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
                 sum2 += double(dataD[i] * dataD[i]);
                 // Min/max values
                 hsize_t linearOffset;
-                convertMultiDimToLinear(offset, linearOffset, datasetDecoded->getDims());
+                convertMultiDimToLinear(offset, linearOffset, datasetOriginal->getDims());
                 H5Helper::checkOrSetMinMaxValue(minV, maxV, dataD[i], minVIndex, maxVIndex, linearOffset + hsize_t(i));
                 H5Helper::checkOrSetMinMaxValue(minVO, maxVO, dataO[i], minVOIndex, maxVOIndex, linearOffset + hsize_t(i));
             }
