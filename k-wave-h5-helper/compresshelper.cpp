@@ -174,16 +174,21 @@ float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t 
 
 void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, const int32_t e)
 {
+    // Get mantissas, signs and exponent
     uint32_t mR = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x20U) << 11 | *reinterpret_cast<const uint16_t*>(&iValues[1]);
     uint32_t mI = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x10U) << 12 | *reinterpret_cast<const uint16_t*>(&iValues[3]);
     uint32_t sR = *reinterpret_cast<const uint8_t*>(&iValues[0]) >> 7;
     uint32_t sI = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x40) >> 6;
     uint8_t eS = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0xF);
+    // Add 6 bits, now we have 23 bit mantissas
     mR <<= 6;
     mI <<= 6;
+    // Add e constant (138 or 114)
     int32_t eR = eS + e;
     int32_t eI = eS + e;
+    // Zero mantissa means zero float number
     if (mR != 0) {
+        // Find index of most left one bit
         #if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
             int index = 0;
             index = 31 ^__builtin_clz (mR);
@@ -194,7 +199,9 @@ void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, 
             uint32_t index = 0;
             _BitScanReverse(&index, mR);
         #endif
+            // Shift left by the index
         mR <<= 23 - index;
+        // Recompute final exponent by the index
         eR -= 22 - index;
     } else {
         eR = 0;
@@ -222,70 +229,87 @@ void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, 
 
 void CompressHelper::convertFloatCTo40b(const floatC cValue, uint8_t* iValues, const int32_t e)
 {
+    // Get real and imaginary part
     float cR = cValue.real();
     float cI = cValue.imag();
     uint32_t mR = *reinterpret_cast<uint32_t*>(&cR);
     uint32_t mI = *reinterpret_cast<uint32_t*>(&cI);
+    // Get 1-bit signs
     uint8_t sR = mR >> 31;
     uint8_t sI = mI >> 31;
-    //138 p
-    //114 u
+    //e = 138 p, max exponent is 2^26 (15 + 138 = 153, 153 - 127 = 26)
+    //p max value is pow(2, 26 - 16) * 0x1FFFF = 134216704
+    //p min value is pow(2, 26 - 16 - 15) * 0x1 = 0.0312500000
+    //e = 114 u, max exponent is 2^2  (15 + 114 = 129, 129 - 127 = 2)
+    //u max value is pow(2, 2 - 16) * 0x1FFFF = 7.99993896484375
+    //u max value is pow(2, 2 - 16 - 15) * 0x1 = 0.000000001862645149230957031250
+    // Get 8-bit exponents, subtracts e, (exponent will have 4 bits, values from 0 to 15)
     int32_t eRS = ((mR & 0x7f800000) >> 23) - e;
     int32_t eIS = ((mI & 0x7f800000) >> 23) - e;
     int32_t eS = eRS;
+    // Get 23-bit mantissas
     mR = (mR & 0x007fffff);
     mI = (mI & 0x007fffff);
-
+    // Right shifts of real and imaginary part, we drop 6 bits, the mantissa will have 16 + 1 bits
     uint8_t rSR = 6;
     uint8_t rSI = 6;
-
+    // Find the higher exponent, smaller part will be shifted to right
     if (eRS > eIS) {
+        // Add right shift of imaginary part
         rSI += (eRS - eIS);
         eS = eRS;
     } else if (eIS > eRS) {
+        // Add right shift of real part
         rSR += (eIS - eRS);
         eS = eIS;
     }
-
+    // Crop small values
     if (eS < 0) {
+        // Shift back to left
         rSR += -(eS);
         rSI += -(eS);
+        // Exponent will be 0
         eS = 0;
     }
-
+    // Shift overflow
     if (rSR > 23) {
         rSR = 23;
     }
     if (rSI > 23) {
         rSI = 23;
     }
+    // Shift right
     mR >>= rSR;
     mI >>= rSI;
-
+    // Rounding
     if (mR > 0) {
+        // Check possible overflow
         if (mR != (0x7FFFFFU >> rSR)) {
-            // rounding
             mR++;
         }
     }
     if (mI > 0) {
         if (mI != (0x7FFFFFU >> rSI)) {
-            // rounding
             mI++;
         }
     }
-
+    // Set 1 left flag bit
     mR |= 1UL << (23 - rSR);
+    // Align to 17 bits
     mR >>= 1;
     mI |= 1UL << (23 - rSI);
     mI >>= 1;
 
+    // Exponent overflow, set maximum values
     if (eS > 0xF) {
         mR = 0xFFFF;
         mI = 0xFFFF;
         eS = 0xF;
     }
-
+    // bits: | 1         | 1              | 17            | 17                 | 4                |
+    //       | real sign | imaginary sign | real mantissa | imaginary mantissa | shifted exponent |
+    // Mantissa is composed from: 0-16 zero bits, 1 flag bit, 0-16 data (mantissa or fraction) bits
+    // Number of zero bits means exponent shift from the stored exponent eS
     iValues[0] = (sR << 7) | (sI << 6) | ((mR & 0x10000) >> 11) | ((mI & 0x10000) >> 12) | (eS & 0xF);
     *reinterpret_cast<uint16_t*>(&iValues[1]) = mR;
     *reinterpret_cast<uint16_t*>(&iValues[3]) = mI;
@@ -448,37 +472,13 @@ void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *d
 void CompressHelper::findPeaks(const float *dataSrc, float *locsDst, float *peaksDst, hsize_t lengthSrc, hsize_t &lengthDst)
 {
     for (hsize_t i = 0; i < lengthSrc; i++) {
-        locsDst[i] = 0;
-        peaksDst[i] = 0;
+        locsDst[i] = 0.0f;
+        peaksDst[i] = 0.0f;
     }
 
     lengthDst = 0;
 
     for (hsize_t i = 0; i < lengthSrc; i++) {
-        // If the peak is only one
-        /*if (length == 1) {
-            dataDst[0] = 0;
-            break;
-        }*/
-
-        // If first element is peak
-        /*if (i == 0 && length > 1) {
-            if (dataSrc[i + 1] < dataSrc[i]) {
-                dataDst[j] = i;
-                j++;
-            }
-            continue;
-        }*/
-
-        // If last element is peak
-        /*if (i == length - 1 && length > 1) {
-            if (dataSrc[i - 1] < dataSrc[i]) {
-                dataDst[j] = i;
-                j++;
-            }
-            break;
-        }*/
-
         // Peaks between
         if (i > 0 && i < lengthSrc - 1 && lengthSrc > 2 && dataSrc[i] > dataSrc[i - 1] && dataSrc[i] >= dataSrc[i + 1]) {
             float d1 = dataSrc[i] - dataSrc[i - 1];
@@ -524,7 +524,7 @@ void CompressHelper::diff(const hsize_t *dataSrc, hsize_t *dataDst, hsize_t leng
  */
 float CompressHelper::mean(const float *dataSrc, hsize_t length)
 {
-    float sum = 0;
+    float sum = 0.0f;
     for (hsize_t i = 0; i < length; i++) {
         sum += dataSrc[i];
     }
@@ -539,7 +539,7 @@ float CompressHelper::mean(const float *dataSrc, hsize_t length)
  */
 hsize_t CompressHelper::mean(const hsize_t *dataSrc, hsize_t length)
 {
-    float sum = 0;
+    float sum = 0.0f;
     for (hsize_t i = 0; i < length; i++) {
         sum += dataSrc[i];
     }
@@ -620,7 +620,7 @@ void CompressHelper::triangular(hsize_t oSize, float *w) const
 void CompressHelper::hann(hsize_t oSize, float *w) const
 {
     for (hsize_t x = 0; x < 2 * oSize + 1; x++) {
-        w[x] = float(pow(sin(float(M_PI) * x / (2 * oSize)), 2));
+        w[x] = float(pow(sin(float(M_PI) * x / (2.0f * oSize)), 2));
     }
 }
 
@@ -634,7 +634,7 @@ void CompressHelper::hann(hsize_t oSize, float *w) const
  */
 void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e, bool shift) const
 {
-    floatC i(0, -1);
+    floatC i(0.0f, -1.0f);
     for (hsize_t x = 0; x < bSize; x++) {
         hsize_t hx = ih * bSize + x;
         e[hx] = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
