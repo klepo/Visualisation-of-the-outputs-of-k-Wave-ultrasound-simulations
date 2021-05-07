@@ -165,7 +165,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
     // Read full steps
-    srcDataset->setNumberOfElmsToLoad((srcDataset->getNumberOfElmsToLoad() / stepSize) * stepSize);
+    srcDataset->setNumberOfElmsToLoad((srcDataset->getNumberOfElmsToLoad() / float(stepSize)) * stepSize);
     // Variables for block reading
     float *dataC = (float*) _mm_malloc(srcDataset->getGeneralBlockDims().getSize() * sizeof(float), 16);
     H5Helper::Vector offset;
@@ -176,7 +176,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
-    if (srcDataset->getFile()->getNumberOfElmsToLoad() >= stepSize * 2 + outputStepSize) {
+    if (0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= stepSize * 2 + outputStepSize) {
         // Complex buffers for last coefficients
         H5Helper::floatC *cC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
         H5Helper::floatC *lC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();

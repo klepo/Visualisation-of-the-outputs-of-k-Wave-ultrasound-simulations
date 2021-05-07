@@ -59,7 +59,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
         setNumberOfElmsToLoad(maxCount);
     } else {
-        setNumberOfElmsToLoad((getAvailableSystemPhysicalMemory() / 8));
+        setNumberOfElmsToLoad(0.8f * (getAvailableSystemPhysicalMemory() / 4));
     }
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // ca 10 GB
     // setNumberOfElmsToLoad(25 * 55 * 82);

@@ -723,6 +723,8 @@ void Dataset::setNumberOfElmsToLoad(hsize_t count)
     if (file->getMPISize() > 1 && size > std::numeric_limits<int>::max())
         throw std::runtime_error("setNumberOfElmsToLoad error");
 #endif
+    if (count < 1)
+        throw std::runtime_error("setNumberOfElmsToLoad error");
     numberOfElementsToLoad = count;
     // numberOfElementsToLoad of dataset is limited by dataset size
     if (dims.getSize() <= numberOfElementsToLoad) {

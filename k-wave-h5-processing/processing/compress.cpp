@@ -342,7 +342,8 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
     dstDataset->setAttribute("c_shift", hsize_t(getSettings()->getFlagShift()), log);
     dstDataset->setAttribute("c_complex_size", getSettings()->getFlagC40bit() ? H5Helper::CompressHelper::complexSize40bit : 2.0f, log);
-    dstDataset->setAttribute("c_max_exp", kMaxExp, log);
+    if (getSettings()->getFlagC40bit())
+        dstDataset->setAttribute("c_max_exp", kMaxExp, log);
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("dataset compression", t0, t1);

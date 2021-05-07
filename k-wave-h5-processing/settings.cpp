@@ -222,6 +222,7 @@ void Settings::loadParams(int argc, const char **argv)
     }
 
     Helper::enableDebugMsgs = flags.at("log").getEnabled();
+    Helper::printDebugTitle("k-wave-h5-processing");
     Helper::printDebugTitle("Settings");
 
     setFlagLog(flags.at("log").getEnabled());
