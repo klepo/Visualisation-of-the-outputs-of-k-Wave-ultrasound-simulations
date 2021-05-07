@@ -182,7 +182,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
         H5Helper::floatC *lC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
 
         // Variable for writing multiple steps at once
-        hsize_t stepsToWrite = (dstDataset->getRealNumberOfElmsToLoad() - stepSize + outputStepSize) / outputStepSize;
+        hsize_t stepsToWrite = (dstDataset->getRealNumberOfElmsToLoad() - float(stepSize + outputStepSize)) / outputStepSize;
 
         // Output buffer
         float *data = new float[outputStepSize * stepsToWrite]();
