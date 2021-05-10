@@ -176,7 +176,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
-    if (1) {//0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= stepSize * 2 + outputStepSize) {
+    if (0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= stepSize * 2 + outputStepSize) {
         // Complex buffers for last coefficients
         H5Helper::floatC *cC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
         H5Helper::floatC *lC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
