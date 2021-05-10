@@ -176,13 +176,13 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
-    if (0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= stepSize * 2 + outputStepSize) {
+    if (1) {//0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= stepSize * 2 + outputStepSize) {
         // Complex buffers for last coefficients
         H5Helper::floatC *cC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
         H5Helper::floatC *lC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
 
         // Variable for writing multiple steps at once
-        hsize_t stepsToWrite = (dstDataset->getRealNumberOfElmsToLoad() - float(stepSize + outputStepSize)) / outputStepSize;
+        hsize_t stepsToWrite = ceil((0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4)) / outputStepSize);
 
         // Output buffer
         float *data = new float[outputStepSize * stepsToWrite]();
