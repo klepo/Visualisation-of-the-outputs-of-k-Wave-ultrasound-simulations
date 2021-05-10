@@ -176,7 +176,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset, bool log)
     hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
-    if (srcDataset->getFile()->getNumberOfElmsToLoad() >= outputStepSize * 3) {
+    if (0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= outputStepSize * 3) {
         // Complex buffers for accumulation
         float *sCTmp1 = (float*) _mm_malloc(outputStepSize * sizeof(float), 16);
         float *sCTmp2 = nullptr;

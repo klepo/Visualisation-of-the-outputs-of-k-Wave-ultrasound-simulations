@@ -165,7 +165,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
 
     // Read full steps
-    srcDataset->setNumberOfElmsToLoad((srcDataset->getNumberOfElmsToLoad() / float(stepSize)) * stepSize);
+    srcDataset->setNumberOfElmsToLoad(stepSize);
     // Variables for block reading
     float *dataC = (float*) _mm_malloc(srcDataset->getGeneralBlockDims().getSize() * sizeof(float), 16);
     H5Helper::Vector offset;
