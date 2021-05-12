@@ -21,7 +21,7 @@
 
 #include "settings.h"
 
-#include "../k-wave-h5-processing/helper.h"
+//#include "../k-wave-h5-processing/helper.h"
 
 /**
  * @brief Main k-Wave processing function
