@@ -27,6 +27,7 @@
 #include <complex>
 #include <algorithm>
 
+#include "helper.h"
 #include "object.h"
 #include "vector3d.h"
 #include "vector3d.cpp"
@@ -104,7 +105,7 @@ public:
     void getGlobalMaxValue(hsize_t &value, hsize_t &maxVIIndex, bool reset = false);
     void getGlobalMinValue(hsize_t &value, hsize_t &minVIIndex, bool reset = false);
 
-    void findAndSetGlobalMinAndMaxValue(bool reset = false, bool log = true);
+    void findAndSetGlobalMinAndMaxValue(bool reset = false);
 
     // Block reading
     hsize_t getRealNumberOfElmsToLoad() const;
@@ -114,30 +115,30 @@ public:
     hsize_t getNumberOfElmsToLoad() const;
     void setNumberOfElmsToLoad(hsize_t count);
 
-    void setMPIOAccess(H5FD_mpio_xfer_t type, bool log = true);
+    void setMPIOAccess(H5FD_mpio_xfer_t type);
 
-    void readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true, hsize_t block = 0);
-    void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true, hsize_t block = 0);
-    void readDataset(Vector offset, Vector count, float *&data, bool log = true, hsize_t block = 0);
-    void readDataset(Vector offset, Vector count, hsize_t *&data, bool log = true, hsize_t block = 0);
-    void readDataset(float *&data, bool log = true);
-    void readDataset(hsize_t *&data, bool log = true);
-    void readDataset(float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
-    void readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
-    void readDataset(float &data, bool log = true);
-    void readDataset(hsize_t &data, bool log = true);
+    void readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, hsize_t block = 0);
+    void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, hsize_t block = 0);
+    void readDataset(Vector offset, Vector count, float *&data, hsize_t block = 0);
+    void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t block = 0);
+    void readDataset(float *&data);
+    void readDataset(hsize_t *&data);
+    void readDataset(float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex);
+    void readDataset(hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex);
+    void readDataset(float &data);
+    void readDataset(hsize_t &data);
 
-    void writeDataset(Vector offset, Vector count, const float *data, bool log = false);
-    void writeDataset(Vector offset, Vector count, const hsize_t *data, bool log = false);
-    void writeDataset(const float *data, bool log = false);
-    void writeDataset(const hsize_t *data, bool log = false);
+    void writeDataset(Vector offset, Vector count, const float *data, hsize_t block = 0);
+    void writeDataset(Vector offset, Vector count, const hsize_t *data, hsize_t block = 0);
+    void writeDataset(const float *data);
+    void writeDataset(const hsize_t *data);
 
-    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
-    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, bool log = true);
-    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, bool log = true);
-    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, bool log = true);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data);
 
-    void readEmptyBlock(bool log = true);
+    void readEmptyBlock();
 
 private:
     /// Disable copy constructor
@@ -146,17 +147,17 @@ private:
     /// \return Dataset
     Dataset &operator=(const Dataset &);
 
-    void readDatasetGeneral(Vector offset, Vector count, void *data, bool log = true);
-    void writeDatasetGeneral(Vector offset, Vector count, const void *data, bool log = false);
+    void readDatasetGeneral(Vector offset, Vector count, void *data);
+    void writeDatasetGeneral(Vector offset, Vector count, const void *data);
 
     void checkOffsetAndCountParams(Vector offset, Vector count) const;
 
     void findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const;
     void findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const;
 
-    void findGlobalMinAndMaxValue(bool reset = false, bool log = true);
-    void findGlobalMinAndMaxValueF(bool log = true);
-    void findGlobalMinAndMaxValueI(bool log = true);
+    void findGlobalMinAndMaxValue(bool reset = false);
+    void findGlobalMinAndMaxValueF();
+    void findGlobalMinAndMaxValueI();
 
     void initBlockReading();
     Vector getBlockDims(hsize_t index) const;
@@ -176,6 +177,7 @@ private:
     void printsReadingMessage(hsize_t block = 0) const;
     void printsReadingTimeMessage(double t0, double t1) const;
     void printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const;
+    void printsWritingMessage(hsize_t block = 0) const;
     void printsWritingTimeMessage(double t0, double t1, Vector offset, Vector count) const;
 
     /// Dataset property list

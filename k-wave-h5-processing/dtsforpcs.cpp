@@ -55,7 +55,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     }
 
     if (settings->getFrequency() > 0 && settings->getPeriod() > 0) {
-        Helper::printMsg(settings->getParamsDefinition().getHelp());
+        Helper::printUnformattedMsg(settings->getParamsDefinition().getHelp());
         Helper::printErrorMsg("Set period or frequency, not both");
         exit(EXIT_FAILURE);
     }
@@ -77,17 +77,17 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             if (dataset->getRank() == 3) {
                 H5Helper::Vector3D dims = dataset->getDims();
                 length = dims.y() > limit ? limit : dims.y();
-                dataset->readDataset(H5Helper::Vector3D(0, dims.y() - length, hsize_t(dims.x() / 2)), H5Helper::Vector3D(1, length, 1), data, Helper::enableDebugMsgs);
+                dataset->readDataset(H5Helper::Vector3D(0, dims.y() - length, hsize_t(dims.x() / 2)), H5Helper::Vector3D(1, length, 1), data);
             } else if (dataset->getRank() == 4) {
                 H5Helper::Vector4D dims = dataset->getDims();
                 length = dims.t() > limit ? limit : dims.t();
-                dataset->readDataset(H5Helper::Vector4D(dims.t() - length, hsize_t(dims.z() / 2), hsize_t(dims.y() / 2), hsize_t(dims.x() / 2)), H5Helper::Vector4D(length, 1, 1, 1), data, Helper::enableDebugMsgs);
+                dataset->readDataset(H5Helper::Vector4D(dims.t() - length, hsize_t(dims.z() / 2), hsize_t(dims.y() / 2), hsize_t(dims.x() / 2)), H5Helper::Vector4D(length, 1, 1, 1), data);
             }
             settings->setPeriod(Helper::roundf(H5Helper::CompressHelper::findPeriod(data, length), 3));
-            dataset->setAttribute(H5Helper::PERIOD_ATTR, settings->getPeriod(), Helper::enableDebugMsgs);
+            dataset->setAttribute(H5Helper::PERIOD_ATTR, settings->getPeriod());
             delete[] data;
             data = nullptr;
-            dataset->getFile()->closeDataset(dataset, Helper::enableDebugMsgs);
+            dataset->getFile()->closeDataset(dataset);
         } else {
             Helper::printErrorMsg("Missing signal for the computing of period");
             exit(EXIT_FAILURE);
@@ -117,9 +117,9 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 
         if (dataset) {
             if (dataset->hasAttribute(H5Helper::PERIOD_ATTR)) {
-                settings->setPeriod(dataset->readAttributeF(H5Helper::PERIOD_ATTR, Helper::enableDebugMsgs));
+                settings->setPeriod(dataset->readAttributeF(H5Helper::PERIOD_ATTR));
             }
-            dataset->getFile()->closeDataset(dataset, Helper::enableDebugMsgs);
+            dataset->getFile()->closeDataset(dataset);
         }
     }
 
@@ -128,16 +128,20 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 
     // Find datasets for processing
     Helper::printDebugTitle("Find datasets for processing");
-    H5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/", Helper::enableDebugMsgs);
+    Helper::enableDebugMsgs = false;
+    H5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/");
     findDatasetsForProcessing(group, settings, &datasets);
-    filesContext->getSimOutputFile()->closeGroup("/", Helper::enableDebugMsgs);
+    filesContext->getSimOutputFile()->closeGroup("/");
+    Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
 
     // Find datasets for processing in HDF5PcsInputFile
     if (filesContext->getPcsInputFile()) {
         Helper::printDebugTitle("Find datasets for processing in processing file");
-        group = filesContext->getPcsInputFile()->openGroup("/", Helper::enableDebugMsgs);
+        Helper::enableDebugMsgs = false;
+        group = filesContext->getPcsInputFile()->openGroup("/");
         findDatasetsForProcessing(group, settings, &datasets2);
-        filesContext->getPcsInputFile()->closeGroup("/", Helper::enableDebugMsgs);
+        filesContext->getPcsInputFile()->closeGroup("/");
+        Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
     }
 }
 
@@ -244,7 +248,7 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
     if (simOutputFile->objExistsByName(name)) {
         // Try to load dataset from simulation output file
         try {
-            dataset = simOutputFile->openDataset(name, Helper::enableDebugMsgs);
+            dataset = simOutputFile->openDataset(name);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
@@ -252,7 +256,7 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
     } else if (simInputFile != nullptr && simInputFile->objExistsByName(name)) {
         // Try to load dataset from simulation input file
         try {
-            dataset = simInputFile->openDataset(name, Helper::enableDebugMsgs);
+            dataset = simInputFile->openDataset(name);
         } catch(std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
@@ -284,11 +288,12 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
             if (isFiltered(name, settings))
                 continue;
 
-            H5Helper::Dataset *dataset = group->openDataset(i, Helper::enableDebugMsgs);
+            Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+            H5Helper::Dataset *dataset = group->openDataset(i);
+            Helper::enableDebugMsgs = false;
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
             if (datasetType != H5Helper::DatasetType::UNKNOWN) {
-                bool tmpFlag = Helper::enableDebugMsgs;
                 if (settings->getFlagInfo()) {
                     Helper::enableDebugMsgs = true;
                 }
@@ -302,18 +307,18 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                     if (dataset->getSize() == 1) {
                         if (dataset->isFloatType()) {
                             float data;
-                            dataset->readDataset(data, false);
+                            dataset->readDataset(data);
                             Helper::printDebugTwoColumnsS("value", data, 2);
                         } else if (dataset->isIntegerType()) {
                             hsize_t data;
-                            dataset->readDataset(data, false);
+                            dataset->readDataset(data);
                             Helper::printDebugTwoColumnsS("value", data, 2);
                         }
                     }
                 }
                 // Find min/max values
                 if (settings->getFlagFindMinMax()) {
-                    dataset->findAndSetGlobalMinAndMaxValue(true, settings->getFlagLog());
+                    dataset->findAndSetGlobalMinAndMaxValue(true);
                 }
                 // Print attributes
                 if (settings->getFlagInfo()) {
@@ -327,20 +332,18 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                         attribute = nullptr;
                     }
                 }
-                if (settings->getFlagInfo()) {
-                    Helper::enableDebugMsgs = tmpFlag;
-                }
+                Helper::enableDebugMsgs = false;
             }
             // Unknown type
             else {
-                group->closeDataset(dataset, false);
+                group->closeDataset(dataset);
             }
         }
         // Groups
         if (type == H5G_GROUP) {
-            H5Helper::Group *nextGroup = group->openGroup(i, false);
+            H5Helper::Group *nextGroup = group->openGroup(i);
             findDatasetsForProcessing(nextGroup, settings, datasets);
-            group->closeGroup(nextGroup, false);
+            group->closeGroup(nextGroup);
         }
     }
 }

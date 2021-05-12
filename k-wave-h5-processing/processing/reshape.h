@@ -32,9 +32,9 @@ public:
     virtual void execute();
 
 private:
-    virtual void findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max, bool log = true) final;
-    void reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMaskCornersData, bool log = true);
-    void reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp, bool log = true);
+    virtual void findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max) final;
+    void reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMaskCornersData);
+    void reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp);
 };
 
 #endif // RESHAPE_H

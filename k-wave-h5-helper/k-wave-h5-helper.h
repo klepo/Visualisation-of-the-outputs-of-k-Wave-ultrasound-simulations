@@ -20,6 +20,7 @@
 #ifndef H5HELPER_H
 #define H5HELPER_H
 
+#include "helper.h"
 #include "attribute.h"
 #include "compresshelper.h"
 #include "dataset.h"

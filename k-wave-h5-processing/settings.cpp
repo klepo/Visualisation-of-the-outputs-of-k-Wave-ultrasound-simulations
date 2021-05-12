@@ -208,7 +208,7 @@ void Settings::loadParams(int argc, const char **argv)
     try {
         paramsDefinition.commandLineParse(argc, argv);
     } catch (std::exception &e) {
-        Helper::printMsg(paramsDefinition.getHelp());
+        Helper::printUnformattedMsg(paramsDefinition.getHelp());
         Helper::printErrorMsg("Wrong parameter " + std::string(e.what()));
         std::exit(EXIT_FAILURE);
     }
@@ -217,11 +217,12 @@ void Settings::loadParams(int argc, const char **argv)
     ParamsDefinition::Flags flags = paramsDefinition.getFlags();
 
     if (flags.at("help").getEnabled()) {
-        Helper::printMsg(paramsDefinition.getHelp());
+        Helper::printUnformattedMsg(paramsDefinition.getHelp());
         exit(EXIT_SUCCESS);
     }
 
     Helper::enableDebugMsgs = flags.at("log").getEnabled();
+    Helper::enableDebugMsgsTmp = Helper::enableDebugMsgs;
     Helper::printDebugTitle("k-wave-h5-processing");
     Helper::printDebugTitle("Settings");
 
@@ -669,9 +670,12 @@ void Settings::setNames(const ParamsDefinition::ListOfStrings &value)
 {
     names = value;
     std::string namesString;
+    bool first = true;
     for (ParamsDefinition::ListOfStrings::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
-        namesString +=  *ci;
-        namesString += ", ";
+        if (first)
+            namesString +=  *ci;
+        else
+            namesString += ", " + *ci;
     }
     Helper::printDebugTwoColumnsS("Selected datasets or groups", namesString, 0, 30);
 }

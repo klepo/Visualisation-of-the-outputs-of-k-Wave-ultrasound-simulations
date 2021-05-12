@@ -44,7 +44,7 @@ void ChangeChunks::execute()
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
             if (datasetType != H5Helper::DatasetType::UNKNOWN && dataset->isFloatType()) {
                 Helper::printDebugMsg("Change chunks of dataset " + dataset->getName());
-                changeChunksOfDataset(dataset, getSettings()->getFlagLog());
+                changeChunksOfDataset(dataset);
                 count++;
                 Helper::printDebugMsg("Change chunks of dataset " + dataset->getName() + " done");
             }
@@ -61,9 +61,8 @@ void ChangeChunks::execute()
 /**
  * @brief Changes chunks of dataset
  * @param[in] srcDataset Source dataset
- * @param[in] log Logging flag (optional)
  */
-void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log)
+void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset)
 {
     double t0 = H5Helper::getTime();
 
@@ -86,8 +85,8 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
     Helper::printDebugTwoColumnsS("New chunk dims", chunkDims);
 
     // Create destination dataset
-    getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName(), log);
+    getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName());
 
     float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
     float minV = std::numeric_limits<float>::max();
@@ -114,8 +113,8 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
 
     // Change chunks
     for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-        srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex, log);
-        dstDataset->writeDataset(offset, count, data, log);
+        srcDataset->readBlock(i, offset, count, data, minV, maxV, minVIndex, maxVIndex);
+        dstDataset->writeDataset(offset, count, data);
 
         hsize_t linearOffset;
         convertMultiDimToLinear(offset, linearOffset, srcDataset->getDims());
@@ -131,14 +130,14 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log
 
     // Set min/max values
     if (findMinMaxFlag) {
-        dstDataset->setAttribute(H5Helper::MIN_ATTR, minVG, log);
-        dstDataset->setAttribute(H5Helper::MAX_ATTR, maxVG, log);
-        dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVGIndex, log);
-        dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVGIndex, log);
+        dstDataset->setAttribute(H5Helper::MIN_ATTR, minVG);
+        dstDataset->setAttribute(H5Helper::MAX_ATTR, maxVG);
+        dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVGIndex);
+        dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVGIndex);
     }
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("changing chunks of the whole dataset", t0, t1);
 
-    getOutputFile()->closeDataset(dstDataset, log);
+    getOutputFile()->closeDataset(dstDataset);
 }

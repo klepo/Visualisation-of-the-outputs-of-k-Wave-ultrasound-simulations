@@ -40,25 +40,25 @@ public:
     Object(hid_t objectId, std::string name, File *file);
     virtual ~Object();
 
-    void setAttribute(const Attribute *attribute, bool log = true);
-    void setAttribute(std::string name, int value, bool log = true);
-    void setAttribute(std::string name, unsigned int value, bool log = true);
-    void setAttribute(std::string name, hssize_t value, bool log = true);
-    void setAttribute(std::string name, hsize_t value, bool log = true);
-    void setAttribute(std::string name, float value, bool log = true);
-    void setAttribute(std::string name, double value, bool log = true);
-    void setAttribute(std::string name, long double value, bool log = true);
-    void setAttribute(std::string name, std::string value, bool log = true);
+    void setAttribute(const Attribute *attribute);
+    void setAttribute(std::string name, int value);
+    void setAttribute(std::string name, unsigned int value);
+    void setAttribute(std::string name, hssize_t value);
+    void setAttribute(std::string name, hsize_t value);
+    void setAttribute(std::string name, float value);
+    void setAttribute(std::string name, double value);
+    void setAttribute(std::string name, long double value);
+    void setAttribute(std::string name, std::string value);
 
-    float readAttributeF(std::string name, bool log = true) const;
-    hsize_t readAttributeI(std::string name, bool log = true) const;
-    std::string readAttributeS(std::string name, bool log = true) const;
+    float readAttributeF(std::string name) const;
+    hsize_t readAttributeI(std::string name) const;
+    std::string readAttributeS(std::string name) const;
 
     Attribute *getAttribute(std::string name) const;
     Attribute *getAttribute(hsize_t idx) const;
 
-    void removeAttribute(std::string name, bool log = true) const;
-    void removeAttribute(unsigned int idx, bool log = true) const;
+    void removeAttribute(std::string name) const;
+    void removeAttribute(unsigned int idx) const;
 
     bool hasAttribute(std::string name) const;
 
@@ -70,9 +70,6 @@ public:
     std::string getGroupName() const;
     std::string getSuffixName(std::string suffix) const;
     File *getFile() const;
-
-    void setDeleteLog(bool value);
-    bool getDeleteLog() const;
 
     /**
      * @brief Operator <<
@@ -90,8 +87,6 @@ public:
 protected:
     /// Error handle
     herr_t err = 0;
-    /// Delete log flag
-    bool deleteLog = true;
 
 private:
     /// Disable copy constructor
@@ -100,8 +95,8 @@ private:
     /// \return Object
     Object &operator=(const Object &);
 
-    void createAttribute(std::string name, hid_t datatypeId, hid_t dataspaceId, const void *value, bool log = true) const;
-    void setAttribute(std::string name, hid_t datatypeId, const void *value, bool log = true) const;
+    void createAttribute(std::string name, hid_t datatypeId, hid_t dataspaceId, const void *value) const;
+    void setAttribute(std::string name, hid_t datatypeId, const void *value) const;
     void creatingAttributeMessage(std::string name, hid_t datatypeId, const void *value) const;
 
     /// File

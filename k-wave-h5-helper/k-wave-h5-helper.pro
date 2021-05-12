@@ -29,6 +29,7 @@ include($$PWD/../openmp.pri)
 include($$PWD/../hdf5.pri)
 
 SOURCES += \
+    helper.cpp \
     attribute.cpp \
     compresshelper.cpp \
     dataset.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
     vector4d.cpp \
 
 HEADERS += \
+    helper.h \
     attribute.h \
     compresshelper.h \
     dataset.h \

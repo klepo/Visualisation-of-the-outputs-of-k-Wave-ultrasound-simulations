@@ -58,7 +58,7 @@ void Downsampling::execute()
 
             if (checkDatasetType(datasetType, types)) {
                 Helper::printDebugMsg("Downsampling of dataset " + dataset->getName());
-                resampleDataset(dataset, getSettings()->getFlagLog());
+                resampleDataset(dataset);
                 count++;
                 Helper::printDebugMsg("Downsampling of dataset " + dataset->getName() + " done");
             }
@@ -75,9 +75,8 @@ void Downsampling::execute()
 /**
  * @brief Resamples dataset
  * @param[in] srcDataset Source dataset
- * @param[in] log Logging flag (optional)
  */
-void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
+void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
 {
     // Dims
     H5Helper::Vector dimsSrc = srcDataset->getDims();
@@ -118,8 +117,8 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
 
     // Create destination dataset
     std::string dstName = srcDataset->getSuffixName("_" + std::to_string(getSettings()->getMaxSize()));
-    getOutputFile()->createDatasetF(dstName, dimsDst, chunkDimsDst, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
+    getOutputFile()->createDatasetF(dstName, dimsDst, chunkDimsDst, true);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName);
 
     float *srcData = nullptr;
     float *dstData = nullptr;
@@ -137,15 +136,15 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         dstData = new float[dimsDst3D.getSize()]();
         for (hsize_t t = 0; t < steps; t++) {
             if (dimsSrc.getLength() == 4) {
-                srcDataset->readDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData, log);
+                srcDataset->readDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData);
             } else {
-                srcDataset->readDataset(srcData, log);
+                srcDataset->readDataset(srcData);
             }
             resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(), dimsDst3D.z());
             if (dimsSrc.getLength() == 4) {
-                dstDataset->writeDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsDst3D.z(), dimsDst3D.y(), dimsDst3D.x()), dstData, log);
+                dstDataset->writeDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsDst3D.z(), dimsDst3D.y(), dimsDst3D.x()), dstData);
             } else {
-                dstDataset->writeDataset(dstData, log);
+                dstDataset->writeDataset(dstData);
             }
         }
         delete[] srcData;
@@ -158,9 +157,9 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         H5Helper::Vector3D newTmpDatasetChunkDims(dimsSrc3D.z(), 1, dimsDst3D.x());
 
         // Create temp file and dataset
-        H5Helper::File *tmpFile = new H5Helper::File("tmp.h5", H5Helper::File::CREATE, log);
-        tmpFile->createDatasetF("tmp", newTmpDatasetDims, newTmpDatasetChunkDims, true, log);
-        H5Helper::Dataset *tmpDataset = tmpFile->openDataset("tmp", log);
+        H5Helper::File *tmpFile = new H5Helper::File("tmp.h5", H5Helper::File::CREATE);
+        tmpFile->createDatasetF("tmp", newTmpDatasetDims, newTmpDatasetChunkDims, true);
+        H5Helper::Dataset *tmpDataset = tmpFile->openDataset("tmp");
 
         // Check minimal one slice to read
         if (srcDataset->getNumberOfElmsToLoad() < dimsSrc3D.y() * dimsSrc3D.x()) {
@@ -174,9 +173,9 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
         for (hsize_t t = 0; t < steps; t++) {
             for (hsize_t i = 0; i < H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z(); i++) {
                 // Offset for x and y should be always 0
-                srcDataset->readBlock(t * H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z() + i, offset, count, srcData, log);
+                srcDataset->readBlock(t * H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z() + i, offset, count, srcData);
                 resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(), dimsSrc3D.z());
-                tmpDataset->writeDataset(H5Helper::Vector3D(offset), H5Helper::Vector3D(H5Helper::Vector3D(count).z(), dimsDst3D.y(), dimsDst3D.x()), dstData, log);
+                tmpDataset->writeDataset(H5Helper::Vector3D(offset), H5Helper::Vector3D(H5Helper::Vector3D(count).z(), dimsDst3D.y(), dimsDst3D.x()), dstData);
             }
 
             // and after 2D slices in XZ plane
@@ -185,12 +184,12 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
                 if (y + yCount > dimsDst3D.y()) {
                     yCount = dimsDst3D.y() - y;
                 }
-                tmpDataset->readDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsSrc3D.z(), yCount, dimsDst3D.x()), srcData, log);
+                tmpDataset->readDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsSrc3D.z(), yCount, dimsDst3D.x()), srcData);
                 resize3D(srcData, dstData, dimsDst3D.x(), yCount, dimsSrc3D.z(), dimsDst3D.x(), yCount, dimsDst3D.z());
                 if (dimsSrc.getLength() == 4) {
-                    dstDataset->writeDataset(H5Helper::Vector4D(t, 0, y, 0), H5Helper::Vector4D(1, dimsDst3D.z(), yCount, dimsDst3D.x()), dstData, log);
+                    dstDataset->writeDataset(H5Helper::Vector4D(t, 0, y, 0), H5Helper::Vector4D(1, dimsDst3D.z(), yCount, dimsDst3D.x()), dstData);
                 } else {
-                    dstDataset->writeDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsDst3D.z(), yCount, dimsDst3D.x()), dstData, log);
+                    dstDataset->writeDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsDst3D.z(), yCount, dimsDst3D.x()), dstData);
                 }
             }
         }
@@ -208,28 +207,28 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset, bool log)
     copyAttributes(srcDataset, dstDataset);
 
     // Save attributes
-    dstDataset->setAttribute(H5Helper::SRC_SIZE_X_ATTR, dimsSrc3D.x(), log);
-    dstDataset->setAttribute(H5Helper::SRC_SIZE_Y_ATTR, dimsSrc3D.y(), log);
-    dstDataset->setAttribute(H5Helper::SRC_SIZE_Z_ATTR, dimsSrc3D.z(), log);
-    dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName(), log);
+    dstDataset->setAttribute(H5Helper::SRC_SIZE_X_ATTR, dimsSrc3D.x());
+    dstDataset->setAttribute(H5Helper::SRC_SIZE_Y_ATTR, dimsSrc3D.y());
+    dstDataset->setAttribute(H5Helper::SRC_SIZE_Z_ATTR, dimsSrc3D.z());
+    dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
 
     if (srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR)
             && srcDataset->hasAttribute(H5Helper::POSITION_Y_ATTR)
             && srcDataset->hasAttribute(H5Helper::POSITION_X_ATTR)) {
-        hsize_t z = srcDataset->readAttributeI(H5Helper::POSITION_Z_ATTR, log);
-        hsize_t y = srcDataset->readAttributeI(H5Helper::POSITION_Y_ATTR, log);
-        hsize_t x = srcDataset->readAttributeI(H5Helper::POSITION_X_ATTR, log);
-        dstDataset->setAttribute(H5Helper::POSITION_Z_ATTR, Helper::round(z * ratio), log);
-        dstDataset->setAttribute(H5Helper::POSITION_Y_ATTR, Helper::round(y * ratio), log);
-        dstDataset->setAttribute(H5Helper::POSITION_X_ATTR, Helper::round(x * ratio), log);
-        dstDataset->setAttribute(H5Helper::SRC_POSITION_Z_ATTR, z, log);
-        dstDataset->setAttribute(H5Helper::SRC_POSITION_Y_ATTR, y, log);
-        dstDataset->setAttribute(H5Helper::SRC_POSITION_X_ATTR, x, log);
+        hsize_t z = srcDataset->readAttributeI(H5Helper::POSITION_Z_ATTR);
+        hsize_t y = srcDataset->readAttributeI(H5Helper::POSITION_Y_ATTR);
+        hsize_t x = srcDataset->readAttributeI(H5Helper::POSITION_X_ATTR);
+        dstDataset->setAttribute(H5Helper::POSITION_Z_ATTR, Helper::round(z * ratio));
+        dstDataset->setAttribute(H5Helper::POSITION_Y_ATTR, Helper::round(y * ratio));
+        dstDataset->setAttribute(H5Helper::POSITION_X_ATTR, Helper::round(x * ratio));
+        dstDataset->setAttribute(H5Helper::SRC_POSITION_Z_ATTR, z);
+        dstDataset->setAttribute(H5Helper::SRC_POSITION_Y_ATTR, y);
+        dstDataset->setAttribute(H5Helper::SRC_POSITION_X_ATTR, x);
     }
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("dataset resampling", t0, t1);
 
-    getOutputFile()->closeDataset(dstDataset, log);
+    getOutputFile()->closeDataset(dstDataset);
 }
 
 /**

@@ -32,7 +32,7 @@ public:
     virtual void execute();
 
 protected:
-    virtual void changeChunksOfDataset(H5Helper::Dataset *srcDataset, bool log = true) final;
+    virtual void changeChunksOfDataset(H5Helper::Dataset *srcDataset) final;
 };
 
 #endif // CHANGECHUNKS_H

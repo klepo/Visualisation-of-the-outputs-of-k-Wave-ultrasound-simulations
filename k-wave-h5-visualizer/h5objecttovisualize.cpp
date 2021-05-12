@@ -1234,9 +1234,9 @@ void H5ObjectToVisualize::loadObjectData()
 
     // If masked
     if (dataset->hasAttribute(H5Helper::POSITION_X_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Z_ATTR)) {
-        position.z(dataset->readAttributeI(H5Helper::POSITION_Z_ATTR, false));
-        position.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR, false));
-        position.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR, false));
+        position.z(dataset->readAttributeI(H5Helper::POSITION_Z_ATTR));
+        position.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR));
+        position.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR));
         originalPosition = position;
     } else if (dataset->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {// if (dataset->getType(0, ) == H5Helper::DatasetType::BASIC_CUBOID) {
         // Try to get position from sensor_mask_corners dataset
@@ -1267,17 +1267,17 @@ void H5ObjectToVisualize::loadObjectData()
             && dataset->hasAttribute(H5Helper::SRC_SIZE_Z_ATTR)
             && dataset->hasAttribute(H5Helper::SRC_DATASET_NAME_ATTR)
             ) {
-        originalSize.x(dataset->readAttributeI(H5Helper::SRC_SIZE_X_ATTR, false));
-        originalSize.y(dataset->readAttributeI(H5Helper::SRC_SIZE_Y_ATTR, false));
-        originalSize.z(dataset->readAttributeI(H5Helper::SRC_SIZE_Z_ATTR, false));
+        originalSize.x(dataset->readAttributeI(H5Helper::SRC_SIZE_X_ATTR));
+        originalSize.y(dataset->readAttributeI(H5Helper::SRC_SIZE_Y_ATTR));
+        originalSize.z(dataset->readAttributeI(H5Helper::SRC_SIZE_Z_ATTR));
 
         if (dataset->hasAttribute(H5Helper::SRC_POSITION_Z_ATTR)
                     && dataset->hasAttribute(H5Helper::SRC_POSITION_Y_ATTR)
                     && dataset->hasAttribute(H5Helper::SRC_POSITION_X_ATTR)
                 ) {
-            originalPosition.x(dataset->readAttributeI(H5Helper::SRC_POSITION_X_ATTR, false));
-            originalPosition.y(dataset->readAttributeI(H5Helper::SRC_POSITION_Y_ATTR, false));
-            originalPosition.z(dataset->readAttributeI(H5Helper::SRC_POSITION_Z_ATTR, false));
+            originalPosition.x(dataset->readAttributeI(H5Helper::SRC_POSITION_X_ATTR));
+            originalPosition.y(dataset->readAttributeI(H5Helper::SRC_POSITION_Y_ATTR));
+            originalPosition.z(dataset->readAttributeI(H5Helper::SRC_POSITION_Z_ATTR));
         }
 
         float ratio = float(qMax(size.x(), qMax(size.y(), size.z()))) / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));

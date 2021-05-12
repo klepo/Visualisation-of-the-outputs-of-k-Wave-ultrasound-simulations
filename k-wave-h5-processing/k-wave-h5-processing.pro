@@ -29,7 +29,6 @@ include($$PWD/../k-wave-h5-helper/k-wave-h5-helper.pri)
 
 SOURCES += \
     main.cpp \
-    helper.cpp \
     settings.cpp \
     filescontext.cpp \
     dtsforpcs.cpp \
@@ -43,7 +42,6 @@ SOURCES += \
     processing/difference.cpp \
 
 HEADERS += \
-    helper.h \
     settings.h \
     filescontext.h \
     dtsforpcs.h \

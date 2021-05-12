@@ -32,7 +32,7 @@ namespace H5Helper {
  */
 Object::Object(hid_t objectId, std::string name, File *file)
     : file(file)
-    , objectId(objectId)
+      , objectId(objectId)
 {
     this->name = "/" + trimSlashes(name);
 }
@@ -49,116 +49,104 @@ Object::~Object()
 /**
  * @brief Sets attribute by attribute
  * @param[in] attribute Attribute
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(const Attribute *attribute, bool log)
+void Object::setAttribute(const Attribute *attribute)
 {
-    createAttribute(attribute->getName(), attribute->getDatatype(), attribute->getDataspace(), attribute->getData(), log);
+    createAttribute(attribute->getName(), attribute->getDatatype(), attribute->getDataspace(), attribute->getData());
 }
 
 /**
  * @brief Sets attribute by given name to integer value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, int value, bool log)
+void Object::setAttribute(std::string name, int value)
 {
-    Object::setAttribute(name, H5T_NATIVE_INT, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_INT, &value);
 }
 
 /**
  * @brief Sets attribute by given name to unsigned integer value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, unsigned int value, bool log)
+void Object::setAttribute(std::string name, unsigned int value)
 {
-    Object::setAttribute(name, H5T_NATIVE_UINT, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_UINT, &value);
 }
 
 /**
  * @brief Sets attribute by given name to 64-bit integer value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, hssize_t value, bool log)
+void Object::setAttribute(std::string name, hssize_t value)
 {
-    Object::setAttribute(name, H5T_NATIVE_INT64, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_INT64, &value);
 }
 
 /**
  * @brief Sets attribute by given name to 64-bit unsigned integer value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, hsize_t value, bool log)
+void Object::setAttribute(std::string name, hsize_t value)
 {
-    Object::setAttribute(name, H5T_NATIVE_UINT64, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_UINT64, &value);
 }
 
 /**
  * @brief Sets attribute by given name to float value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, float value, bool log)
+void Object::setAttribute(std::string name, float value)
 {
-    Object::setAttribute(name, H5T_NATIVE_FLOAT, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_FLOAT, &value);
 }
 
 /**
  * @brief Sets attribute by given name to double value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, double value, bool log)
+void Object::setAttribute(std::string name, double value)
 {
-    Object::setAttribute(name, H5T_NATIVE_LDOUBLE, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_LDOUBLE, &value);
 }
 
 /**
  * @brief Sets attribute by given name to long double value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, long double value, bool log)
+void Object::setAttribute(std::string name, long double value)
 {
-    Object::setAttribute(name, H5T_NATIVE_LDOUBLE, &value, log);
+    Object::setAttribute(name, H5T_NATIVE_LDOUBLE, &value);
 }
 
 /**
  * @brief Sets attribute by given name to string value
  * @param[in] name Name of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  */
-void Object::setAttribute(std::string name, std::string value, bool log)
+void Object::setAttribute(std::string name, std::string value)
 {
     const char *str = value.c_str();
-    Object::setAttribute(name, H5T_C_S1, &str, log);
+    Object::setAttribute(name, H5T_C_S1, &str);
 }
 
 /**
  * @brief Returns float attribute value
  * @param[in] name Name of attribute
- * @param[in] log Logging flag (optional)
  * @return Float attribute value
  */
-float Object::readAttributeF(std::string name, bool log) const
+float Object::readAttributeF(std::string name) const
 {
     float value;
-    if (log)
-        std::cout << "Reading attribute \"" << name << "\" ";
+    Helper::printDebugMsgStart("Reading attribute \"" + name + "\"");
     Attribute *attribute = getAttribute(name);
-    if (log)
-        std::cout << "(" << attribute->getStringDatatype() << ")";
+    //attribute->getStringDatatype();
     if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT)
         || H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT)
         || H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT64)
@@ -170,27 +158,21 @@ float Object::readAttributeF(std::string name, bool log) const
     }
     delete attribute;
     attribute = nullptr;
-    if (log)
-        std::cout << " = \"" << value << "\"";
-    if (log)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd(std::to_string(value));
     return value;
 }
 
 /**
  * @brief Returns 64-bit unsigned integer attribute value
  * @param[in] name Name of attribute
- * @param[in] log Logging flag (optional)
  * @return Integer attribute value
  */
-hsize_t Object::readAttributeI(std::string name, bool log) const
+hsize_t Object::readAttributeI(std::string name) const
 {
     hsize_t value;
-    if (log)
-        std::cout << "Reading attribute \"" << name << "\" ";
+    Helper::printDebugMsgStart("Reading attribute \"" + name + "\"");
     Attribute *attribute = getAttribute(name);
-    if (log)
-        std::cout << "(" << attribute->getStringDatatype() << ")";
+    //attribute->getStringDatatype();
     if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_FLOAT)) {
         float valueF = *static_cast<float *>(attribute->getData());
         value = hsize_t(valueF);
@@ -205,34 +187,25 @@ hsize_t Object::readAttributeI(std::string name, bool log) const
     }
     delete attribute;
     attribute = nullptr;
-    if (log)
-        std::cout << " = \"" << value << "\"";
-    if (log)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd(std::to_string(value));
     return value;
 }
 
 /**
  * @brief Returns string attribute value
  * @param[in] name Name of attribute
- * @param[in] log Logging flag (optional)
  * @return String attribute value
  */
-std::string Object::readAttributeS(std::string name, bool log) const
+std::string Object::readAttributeS(std::string name) const
 {
     std::string value;
-    if (log)
-        std::cout << "Reading attribute \"" << name << "\" ";
+    Helper::printDebugMsgStart("Reading attribute \"" + name + "\"");
     Attribute *attribute = getAttribute(name);
-    if (log)
-        std::cout << "(" << attribute->getStringDatatype() << ")";
+    //attribute->getStringDatatype();
     value = attribute->getStringValue();
     delete attribute;
     attribute = nullptr;
-    if (log)
-        std::cout << " = \"" << value << "\"";
-    if (log)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd("\"" + value + "\"");
     return value;
 }
 
@@ -259,36 +232,30 @@ Attribute *Object::getAttribute(hsize_t idx) const
 /**
  * @brief Removes Attribute object by given name
  * @param[in] name Name of attribute
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void Object::removeAttribute(std::string name, bool log) const
+void Object::removeAttribute(std::string name) const
 {
-    if (log)
-        std::cout << "Removing attribute \"" << name << "\"";
+    Helper::printDebugMsgStart("Removing attribute \"" + name + "\"");
     if (Object::hasAttribute(name.c_str())) {
         herr_t err = H5Adelete(objectId, name.c_str());
         if (err < 0) {
-            if (log)
-                std::cout << " ... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Adelete error");
         }
     } else {
-        if (log)
-            std::cout << " ... attribute not exists";
+        Helper::printDebugMsgEnd("attribute not exists");
     }
-    if (log)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd("OK");
 }
 
 /**
  * @brief Removes Attribute object by given idx
  * @param[in] idx Index of attribute
- * @param[in] log Logging flag (optional)
  */
-void Object::removeAttribute(const unsigned int idx, bool log) const
+void Object::removeAttribute(const unsigned int idx) const
 {
-    Object::removeAttribute(this->getAttribute(idx)->getName(), log);
+    Object::removeAttribute(this->getAttribute(idx)->getName());
 }
 
 /**
@@ -385,24 +352,6 @@ File *Object::getFile() const
 }
 
 /**
- * @brief Sets delete logging flag
- * @param[in] value True/False for delete logging flag
- */
-void Object::setDeleteLog(bool value)
-{
-    deleteLog = value;
-}
-
-/**
- * @brief Returns delete logging flag
- * @return True/False
- */
-bool Object::getDeleteLog() const
-{
-    return deleteLog;
-}
-
-/**
  * @brief Operator std::string
  */
 Object::operator std::string() const
@@ -416,36 +365,30 @@ Object::operator std::string() const
  * @param[in] datatypeId Datatype of attribute
  * @param[in] dataspaceId Attribute dataspace
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void Object::createAttribute(std::string name, hid_t datatypeId, hid_t dataspaceId, const void *value, bool log) const
+void Object::createAttribute(std::string name, hid_t datatypeId, hid_t dataspaceId, const void *value) const
 {
-    Object::removeAttribute(name, false);
-    if (log)
-        Object::creatingAttributeMessage(name, datatypeId, value);
+    Object::removeAttribute(name);
+    Object::creatingAttributeMessage(name, datatypeId, value);
 
     // Create attribute
     hid_t attributeId = H5Acreate(objectId, name.c_str(), datatypeId, dataspaceId, 0, 0);
     if (attributeId < 0) {
-        if (log)
-            std::cout << " ... error" << std::endl;
+        Helper::printDebugMsgEnd("error");
         throw std::runtime_error("H5Acreate error");
     }
     herr_t err = H5Awrite(attributeId, datatypeId, value);
     if (err < 0) {
-        if (log)
-            std::cout << " ... error" << std::endl;
+        Helper::printDebugMsgEnd("error");
         throw std::runtime_error("H5Awrite error");
     }
     err = H5Aclose(attributeId);
     if (err < 0) {
-        if (log)
-            std::cout << " ... error" << std::endl;
+        Helper::printDebugMsgEnd("error");
         throw std::runtime_error("H5Aclose error");
     }
-    if (log)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd("OK");
 }
 
 /**
@@ -453,34 +396,33 @@ void Object::createAttribute(std::string name, hid_t datatypeId, hid_t dataspace
  * @param[in] name Name of attribute
  * @param[in] datatypeId Datatype of attribute
  * @param[in] value Attribute value
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void Object::setAttribute(std::string name, hid_t datatypeId, const void *value, bool log) const
+void Object::setAttribute(std::string name, hid_t datatypeId, const void *value) const
 {
     hid_t datatypeIdTmp = H5Tcopy(datatypeId);
     if (datatypeIdTmp < 0) {
-        std::cout << " ... error" << std::endl;
+        Helper::printDebugMsgEnd("error");
         throw std::runtime_error("H5Tcopy error");
     }
     if (datatypeId == H5T_C_S1) {
         herr_t err = H5Tset_size(datatypeIdTmp, size_t(-1));
         if (err < 0) {
-            std::cout << " ... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Tset_size error");
         }
         err = H5Tset_cset(datatypeIdTmp, H5T_CSET_UTF8);
         if (err < 0) {
-            std::cout << " ... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Tset_cset error");
         }
     }
     hid_t dataspaceId = H5Screate(H5S_SCALAR);
     if (dataspaceId < 0) {
-        std::cout << " ... error" << std::endl;
+        Helper::printDebugMsgEnd("error");
         throw std::runtime_error("H5Screate error");
     }
-    createAttribute(name, datatypeIdTmp, dataspaceId, value, log);
+    createAttribute(name, datatypeIdTmp, dataspaceId, value);
     herr_t err = H5Tclose(datatypeIdTmp);
     if (err < 0) {
         throw std::runtime_error("H5Tclose error");
@@ -499,8 +441,13 @@ void Object::setAttribute(std::string name, hid_t datatypeId, const void *value,
  */
 void Object::creatingAttributeMessage(std::string name, hid_t datatypeId, const void *value) const
 {
-    std::string valueStr = "\"" + Attribute::getStringValue(datatypeId, value) + "\"";
-    std::string nameStr = "\"" + name + "\" (" + Attribute::getStringDatatype(datatypeId) + ") ";
-    std::cout << "Creating attribute " << std::left << std::setw(40) << nameStr << valueStr;
+    std::string valueStr = Attribute::getStringValue(datatypeId, value);
+    if (H5Tget_class(datatypeId) == H5Tget_class(H5T_C_S1))
+        valueStr = "\"" + valueStr + "\"";
+   // std::string nameStr = "\"" + name + "\" (" + Attribute::getStringDatatype(datatypeId) + ") ";
+    //std::cout << "Creating attribute " << std::left << std::setw(40) << nameStr << valueStr;
+    Helper::printDebugMsgStart("Creating attribute \"" + name + "\"");
+    Helper::printDebugMsgEnd(valueStr);
+
 }
 }

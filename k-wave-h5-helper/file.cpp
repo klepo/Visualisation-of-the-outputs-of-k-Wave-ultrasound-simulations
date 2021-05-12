@@ -30,18 +30,16 @@ namespace H5Helper {
  * @brief Creates File object with given filename
  * @param[in] filename Path to HDF5 file
  * @param[in] flag Default value: OPEN - open (read and write) file, CREATE - create new file
- * @param[in] log Delete logging flag (optional)
  * @throw std::runtime_error
  *
  * For PARALLEL_HDF5 MPI_Comm and MPI_Info are passed into this constructor.
  */
 #ifdef PARALLEL_HDF5
-File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info, bool log) : filename(filename)
-  #else
-File::File(std::string filename, unsigned int flag, bool log)
+File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info) : filename(filename)
+#else
+File::File(std::string filename, unsigned int flag)
     : filename(filename)
-    , deleteLogging(log)
-    #endif
+#endif
 {
 #ifdef PARALLEL_HDF5
     // Check MPI is initialized
@@ -59,7 +57,7 @@ File::File(std::string filename, unsigned int flag, bool log)
     if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
         setNumberOfElmsToLoad(maxCount);
     } else {*/
-        setNumberOfElmsToLoad(0.8f * (getAvailableSystemPhysicalMemory() / 4));
+    setNumberOfElmsToLoad(0.8f * (getAvailableSystemPhysicalMemory() / 4));
     //}
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // ca 10 GB
     // setNumberOfElmsToLoad(25 * 55 * 82);
@@ -68,10 +66,8 @@ File::File(std::string filename, unsigned int flag, bool log)
     H5Eset_auto(0, nullptr, nullptr);
 
     // Create log file
-    //if (log) {
     //logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
     //logFileStream << filename << std::endl;
-    //}
 
     // Create File access property list
     pListFileAccessId = H5Pcreate(H5P_FILE_ACCESS);
@@ -107,78 +103,66 @@ File::File(std::string filename, unsigned int flag, bool log)
 
     // Open or create file
     if (flag == File::OPEN) {
-        if (log)
-            std::cout << "Opening file \"" << filename << "\" ";
+        Helper::printDebugMsgStart("Opening file \"" + filename + "\"");
         fileId = H5Fopen(filename.c_str(), H5F_ACC_RDWR, pListFileAccessId);
         if (fileId < 0) {
-            if (log)
-                std::cout << "... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Fopen error");
         }
-        if (log)
-            std::cout << "... OK " << std::endl;
+        Helper::printDebugMsgEnd("OK");
 
         try {
             // Load basic datasets values
             hsize_t data;
-
-            openDataset(NT_DATASET, false)->readDataset(data, false);
+            Helper::enableDebugMsgs = false;
+            openDataset(NT_DATASET)->readDataset(data);
             nDims.w(data);
-            closeDataset(NT_DATASET, false);
-
-            openDataset(NX_DATASET, false)->readDataset(data, false);
+            closeDataset(NT_DATASET);
+            openDataset(NX_DATASET)->readDataset(data);
             nDims.x(data);
-            closeDataset(NX_DATASET, false);
-
-            openDataset(NY_DATASET, false)->readDataset(data, false);
+            closeDataset(NX_DATASET);
+            openDataset(NY_DATASET)->readDataset(data);
             nDims.y(data);
-            closeDataset(NY_DATASET, false);
-
-            openDataset(NZ_DATASET, false)->readDataset(data, false);
+            closeDataset(NY_DATASET);
+            openDataset(NZ_DATASET)->readDataset(data);
             nDims.z(data);
-            closeDataset(NZ_DATASET, false);
+            closeDataset(NZ_DATASET);
+            Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
         } catch(std::exception) {
             closeFileAndObjects();
             throw std::runtime_error("Wrong File");
         }
 
-
         try {
             // Load point spacing values
             float dataD;
-
-            openDataset(DT_DATASET, false)->readDataset(dataD, false);
+            Helper::enableDebugMsgs = false;
+            openDataset(DT_DATASET)->readDataset(dataD);
             dValues.w(dataD);
-            closeDataset(DT_DATASET, false);
-
-            openDataset(DX_DATASET, false)->readDataset(dataD, false);
+            closeDataset(DT_DATASET);
+            openDataset(DX_DATASET)->readDataset(dataD);
             dValues.x(dataD);
-            closeDataset(DX_DATASET, false);
-
-            openDataset(DY_DATASET, false)->readDataset(dataD, false);
+            closeDataset(DX_DATASET);
+            openDataset(DY_DATASET)->readDataset(dataD);
             dValues.y(dataD);
-            closeDataset(DY_DATASET, false);
-
-            openDataset(DZ_DATASET, false)->readDataset(dataD, false);
+            closeDataset(DY_DATASET);
+            openDataset(DZ_DATASET)->readDataset(dataD);
             dValues.z(dataD);
-            closeDataset(DZ_DATASET, false);
-
+            closeDataset(DZ_DATASET);
+            Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
         } catch(std::exception) {
             //closeFileAndObjects();
             //throw std::runtime_error("Wrong File");
-            std::cout << "Point spacing values are not in the file \"" << filename << "\""<< std::endl;
+            Helper::printDebugMsg("Point spacing values are not in the file \"" + filename + "\"");
         }
     } else if (flag == CREATE) {
-        if (log)
-            std::cout << "Creating file \"" << filename << "\" ";
+        Helper::printDebugMsgStart("Creating file \"" + filename + "\"");
         fileId = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, 0, pListFileAccessId);
         if (fileId < 0) {
-            if (log)
-                std::cout << "... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Fcreate error");
         }
-        if (log)
-            std::cout << "... OK " << std::endl;
+        Helper::printDebugMsgEnd("OK");
     } else {
         throw std::runtime_error("Wrong File flag");
     }
@@ -200,11 +184,10 @@ File::~File()
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
- * @param[in] log Logging flag (optional)
  */
-void File::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite)
 {
-    File::createDataset(name, H5T_NATIVE_UINT64, size, chunkSize, rewrite, log);
+    File::createDataset(name, H5T_NATIVE_UINT64, size, chunkSize, rewrite);
 }
 
 /**
@@ -213,11 +196,10 @@ void File::createDatasetI(std::string name, Vector size, Vector chunkSize, bool 
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
- * @param[in] log Logging flag (optional)
  */
-void File::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite)
 {
-    File::createDataset(name, H5T_NATIVE_FLOAT, size, chunkSize, rewrite, log);
+    File::createDataset(name, H5T_NATIVE_FLOAT, size, chunkSize, rewrite);
 }
 
 /**
@@ -227,10 +209,9 @@ void File::createDatasetF(std::string name, Vector size, Vector chunkSize, bool 
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector chunkSize, bool rewrite, bool log)
+void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector chunkSize, bool rewrite)
 {
     hid_t dataspaceId = H5Screate_simple(int(size.getLength()), size.getVectorPtr(), nullptr);
     if (dataspaceId < 0) {
@@ -270,20 +251,19 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token += s.substr(0, pos);
         if (token.length() > 0)
-            createGroup(token, false, log);
+            createGroup(token, false);
         token += "/";
         s.erase(0, pos + delimiter.length());
     }
 
-    if (log)
-        std::cout << "Creating dataset \"" << name << "\" ";
+    Helper::printDebugMsgStart("Creating dataset \"" + name + "\"");
 
     if (rewrite) {
         if (objExistsByName(name, fileId)) {
-            Dataset *dataset = openDataset(name, false);
+            Dataset *dataset = openDataset(name);
             if (H5Tequal(dataset->getDataType(), datatypeId) && dataset->getDims() == size && dataset->getChunkDims() == chunkSize) {
-                if (log)
-                    std::cout << "... rewriting original space ... OK" << std::endl;
+                Helper::printDebugMsgStart("  rewriting original space");
+                Helper::printDebugMsgEnd("OK");
                 err = H5Sclose(dataspaceId);
                 if (err < 0) {
                     throw std::runtime_error("H5Sclose error");
@@ -292,20 +272,18 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
                 if (err < 0) {
                     throw std::runtime_error("H5Pclose error");
                 }
-                closeDataset(dataset, false);
+                closeDataset(dataset);
                 return;
             }
-            closeDataset(dataset, false);
-            if (log)
-                std::cout << "... deleting original link";
+            closeDataset(dataset);
+            Helper::printDebugMsgStart("  deleting original link");
             H5Ldelete(fileId, name.c_str(), 0);
         }
     }
 
     hid_t datasetId = H5Dcreate(fileId, name.c_str(), datatypeId, dataspaceId, 0, pListId, 0);
     if (datasetId < 0) {
-        if (log)
-            std::cout << "... error" << std::endl;
+        Helper::printDebugMsgEnd("error");
         throw std::runtime_error("H5Dcreate error");
     }
 
@@ -321,41 +299,37 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
     if (err < 0) {
         throw std::runtime_error("H5Dclose error");
     }
-    if (log)
-        std::cout << "... OK" << std::endl;
+    Helper::printDebugMsgEnd("OK");
 }
 
 /**
  * @brief Creates new dataset with name, type, size, and chunkSize same as given dataset has
  * @param[in] dataset Dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
- * @param[in] log Logging flag (optional)
  */
-void File::createDataset(const Dataset *dataset, bool rewrite, bool log)
+void File::createDataset(const Dataset *dataset, bool rewrite)
 {
-    createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite, log);
+    createDataset(dataset->getName(), dataset->getDataType(), dataset->getDims(), dataset->getChunkDims(), rewrite);
 }
 
 /**
  * @brief Opens dataset by name in HDF5 file
  * @param[in] name Name of dataset
- * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *File::openDataset(std::string name, bool log)
+Dataset *File::openDataset(std::string name)
 {
-    return dynamic_cast<Dataset *>(openObject(name, log));
+    return dynamic_cast<Dataset *>(openObject(name));
 }
 
 /**
  * @brief Opens dataset by index in HDF5 file
  * @param[in] idx Index of dataset in file
- * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *File::openDataset(hsize_t idx, bool log)
+Dataset *File::openDataset(hsize_t idx)
 {
-    return openDataset(getObjNameByIdx(idx), log);
+    return openDataset(getObjNameByIdx(idx));
 }
 
 /**
@@ -381,89 +355,79 @@ bool File::isDatasetOpened(hsize_t idx) const
 /**
  * @brief Closes dataset with given name in HDF5 file
  * @param[in] name Name of dataset
- * @param[in] log Logging flag (optional)
  */
-void File::closeDataset(std::string name, bool log)
+void File::closeDataset(std::string name)
 {
-    closeObject(name, log);
+    closeObject(name);
 }
 
 /**
  * @brief Closes dataset with given index in HDF5 file
  * @param[in] idx Index of dataset in file
- * @param[in] log Logging flag (optional)
  */
-void File::closeDataset(hsize_t idx, bool log)
+void File::closeDataset(hsize_t idx)
 {
-    closeDataset(getObjNameByIdx(idx), log);
+    closeDataset(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes dataset with same name as given dataset has
  * @param[in] dataset Dataset
- * @param[in] log Logging flag (optional)
  */
-void File::closeDataset(const Dataset *dataset, bool log)
+void File::closeDataset(const Dataset *dataset)
 {
-    closeDataset(dataset->getName(), log);
+    closeDataset(dataset->getName());
 }
 
 /**
  * @brief Creates new group with given name
  * @param[in] name Name of group
  * @param[in] rewrite Flag for rewriting existing group (optional)
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void File::createGroup(std::string name, bool rewrite, bool log) const
+void File::createGroup(std::string name, bool rewrite) const
 {
-    if (log)
-        std::cout << "Creating group \"" << name << "\" ";
+    Helper::printDebugMsgStart("Creating group \"" + name + "\"");
     if (rewrite) {
         H5Ldelete(fileId, name.c_str(), 0);
-        if (log)
-            std::cout << "... rewrite ";
+        Helper::printDebugMsgStart("  rewrite");
     }
 
     if (!objExistsByName(name, fileId)) {
         hid_t groupId = H5Gcreate(fileId, name.c_str(), 0, 0, 0);
         if (groupId < 0) {
-            if (log)
-                std::cout << "... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Dcreate error");
         }
         H5Gclose(groupId);
         if (err < 0) {
             throw std::runtime_error("H5Gclose error");
         }
-        if (log)
-            std::cout << "... OK" << std::endl;
+        Helper::printDebugMsgEnd("OK");
     } else {
-        if (log)
-            std::cout << "... OK - group already exists" << std::endl;
+        Helper::printDebugMsgStart("  group already exists");
+        Helper::printDebugMsgEnd("OK");
     }
 }
 
 /**
  * @brief Opens group with given name in HDF5 file
  * @param[in] name Name of group
- * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *File::openGroup(std::string name, bool log)
+Group *File::openGroup(std::string name)
 {
-    return dynamic_cast<Group *>(openObject(name, log));
+    return dynamic_cast<Group *>(openObject(name));
 }
 
 /**
  * @brief Opens group with given index in HDF5 file
  * @param[in] idx Index of group in file
- * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *File::openGroup(hsize_t idx, bool log)
+Group *File::openGroup(hsize_t idx)
 {
-    return openGroup(getObjNameByIdx(idx), log);
+    return openGroup(getObjNameByIdx(idx));
 }
 
 /**
@@ -489,47 +453,42 @@ bool File::isGroupOpened(hsize_t idx) const
 /**
  * @brief Closes group with given name in HDF5 file
  * @param[in] name Name of group
- * @param[in] log Logging flag (optional)
  */
-void File::closeGroup(std::string name, bool log)
+void File::closeGroup(std::string name)
 {
-    closeObject(name, log);
+    closeObject(name);
 }
 
 /**
  * @brief Closes group with given index in HDF5 file
  * @param[in] idx Index of group in file
- * @param[in] log Logging flag (optional)
  */
-void File::closeGroup(hsize_t idx, bool log)
+void File::closeGroup(hsize_t idx)
 {
-    closeGroup(getObjNameByIdx(idx), log);
+    closeGroup(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes group with same name as given group has
  * @param[in] group Group
- * @param[in] log Logging flag (optional)
  */
-void File::closeGroup(const Group *group, bool log)
+void File::closeGroup(const Group *group)
 {
-    closeGroup(group->getName(), log);
+    closeGroup(group->getName());
 }
 
 /**
  * @brief Opens object
  * @param[in] name Object name
- * @param[in] log Logging flag (optional)
  * @return Opened object
  */
-Object *File::openObject(std::string name, bool log)
+Object *File::openObject(std::string name)
 {
     std::string nameTmp = fixPath(name);
     if (objects.find(nameTmp) == objects.end()) {
-        insertObject(nameTmp, log);
-        return openObject(nameTmp, log);
+        insertObject(nameTmp);
+        return openObject(nameTmp);
     } else {
-        objects.find(nameTmp)->second->setDeleteLog(log);
         return objects.find(nameTmp)->second;
     }
 }
@@ -537,12 +496,11 @@ Object *File::openObject(std::string name, bool log)
 /**
  * @brief Opens object
  * @param[in] idx Object index
- * @param[in] log Logging flag (optional)
  * @return Opened object
  */
-Object *File::openObject(hsize_t idx, bool log)
+Object *File::openObject(hsize_t idx)
 {
-    return openObject(getObjNameByIdx(idx), log);
+    return openObject(getObjNameByIdx(idx));
 }
 
 /**
@@ -572,14 +530,12 @@ bool File::isObjectOpened(hsize_t idx) const
 /**
  * @brief Closes object with given name in HDF5 file
  * @param[in] name Object name
- * @param[in] log Logging flag (optional)
  */
-void File::closeObject(std::string name, bool log)
+void File::closeObject(std::string name)
 {
     std::string nameTmp = fixPath(name);
     if (objects.find(nameTmp) != objects.end()) {
         Object *object = objects.find(nameTmp)->second;
-        object->setDeleteLog(log);
         if (object) {
             delete object;
             object = nullptr;
@@ -591,21 +547,19 @@ void File::closeObject(std::string name, bool log)
 /**
  * @brief Closes object with given index in HDF5 file
  * @param[in] idx Object index
- * @param[in] log Logging flag (optional)
  */
-void File::closeObject(hsize_t idx, bool log)
+void File::closeObject(hsize_t idx)
 {
-    closeObject(getObjNameByIdx(idx), log);
+    closeObject(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes given object in HDF5 file
  * @param[in] object Object
- * @param[in] log Logging flag (optional)
  */
-void File::closeObject(const Object *object, bool log)
+void File::closeObject(const Object *object)
 {
-    closeObject(object->getName(), log);
+    closeObject(object->getName());
 }
 
 /**
@@ -866,7 +820,7 @@ float File::getFrequency(float period) const
     if (dValues.t() != 0) {
         return 1.0f / (period * dValues.t());
     } else {
-        std::cout << "Cannot compute real frequency from period. Time point spacing (dt) is unknown" << std::endl;
+        Helper::printMsg("Cannot compute real frequency from period. Time point spacing (dt) is unknown");
         return 0;
     }
 }
@@ -881,7 +835,7 @@ float File::getPeriod(float frequency) const
     if (dValues.t() != 0) {
         return 1.0f / (frequency * dValues.t());
     } else {
-        std::cout << "Cannot compute period from real frequency. Time point spacing (dt) is unknown" << std::endl;
+        Helper::printMsg("Cannot compute period from real frequency. Time point spacing (dt) is unknown");
         return 0;
     }
 }
@@ -896,49 +850,33 @@ int File::getMPISize() const
 }
 
 /**
- * @brief Sets delete logging flag
- * @param[in] value Delete logging flag
- */
-void File::setDeleteLogging(bool value)
-{
-    deleteLogging = value;
-}
-
-/**
  * @brief Inserts object to opened object
  * @param[in] name Object name
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void File::insertObject(std::string name, bool log)
+void File::insertObject(std::string name)
 {
     std::string nameTmp = fixPath(name);
     if (getObjTypeByName(nameTmp) == H5G_DATASET) {
-        if (log)
-            std::cout << "Opening dataset \"" << nameTmp << "\" ";
+        Helper::printDebugMsgStart("Opening dataset \"" + nameTmp + "\"");
         hid_t datasetId = H5Dopen(fileId, nameTmp.c_str(), 0);
         if (datasetId < 0) {
-            if (log)
-                std::cout << "... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Dopen error");
         }
         Dataset *dataset = new Dataset(datasetId, nameTmp, this);
         objects.insert(PairOfObjects(nameTmp, dataset));
-        if (log)
-            std::cout << "... OK" << std::endl;
+        Helper::printDebugMsgEnd("OK");
     } else if (getObjTypeByName(nameTmp) == H5G_GROUP) {
-        if (log)
-            std::cout << "Opening group \"" << nameTmp << "\" ";
+        Helper::printDebugMsgStart("Opening group \"" + nameTmp + "\"");
         hid_t groupId = H5Gopen(fileId, nameTmp.c_str(), 0);
         if (groupId < 0) {
-            if (log)
-                std::cout << "... error" << std::endl;
+            Helper::printDebugMsgEnd("error");
             throw std::runtime_error("H5Gopen error");
         }
         Group *group = new Group(groupId, nameTmp, this);
         objects.insert(PairOfObjects(nameTmp, group));
-        if (log)
-            std::cout << "... OK" << std::endl;
+        Helper::printDebugMsgEnd("OK");
     } else {
         throw std::runtime_error("Object type is not supported");
     }
@@ -952,11 +890,10 @@ void File::closeFileAndObjects()
     MapOfObjects objectsTmp = objects;
     // Delete all loaded objects
     for (MapOfObjects::iterator it = objectsTmp.begin(); it != objectsTmp.end(); ++it) {
-        closeObject(it->second, it->second->getDeleteLog());
+        closeObject(it->second);
     }
 
-    if (deleteLogging)
-        std::cout << "Closing file \"" << filename << "\"";
+    Helper::printDebugMsgStart("Closing file \"" + filename + "\"");
     err = H5Pclose(pListFileAccessId);
     if (err < 0) {
         //throw std::runtime_error("H5Pclose error");
@@ -965,8 +902,7 @@ void File::closeFileAndObjects()
     if (err < 0) {
         //throw std::runtime_error("H5Fclose error");
     }
-    if (deleteLogging)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd("OK");
 }
 
 /**
@@ -1333,13 +1269,12 @@ bool fileExists(const std::string& name)
  * @param[in] srcDataset Source dataset
  * @param[in] dstFile Destination file
  * @param[in] rewrite Rewrite flag (optional)
- * @param[in] log Logging flag (optional)
  * @throw std::runtime_error
  */
-void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
+void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite)
 {
-    dstFile->createDataset(srcDataset, rewrite, log);
-    Dataset *dstDataset = dstFile->openDataset(srcDataset->getName(), log);
+    dstFile->createDataset(srcDataset, rewrite);
+    Dataset *dstDataset = dstFile->openDataset(srcDataset->getName());
 
     Vector offset;
     Vector count;
@@ -1347,16 +1282,16 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
     if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_FLOAT)) {
         float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-            srcDataset->readBlock(i, offset, count, data, log);
-            dstDataset->writeDataset(offset, count, data, log);
+            srcDataset->readBlock(i, offset, count, data);
+            dstDataset->writeDataset(offset, count, data);
         }
         delete[] data;
         data = nullptr;
     } else if (H5Tequal(srcDataset->getDataType(), H5T_NATIVE_UINT64)) {
         hsize_t *data = new hsize_t[srcDataset->getGeneralBlockDims().getSize()]();
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-            srcDataset->readBlock(i, offset, count, data, log);
-            dstDataset->writeDataset(offset, count, data, log);
+            srcDataset->readBlock(i, offset, count, data);
+            dstDataset->writeDataset(offset, count, data);
         }
         delete[] data;
         data = nullptr;
@@ -1367,11 +1302,11 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
     // Copy attributes
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
         Attribute *attribute = srcDataset->getAttribute(i);
-        dstDataset->setAttribute(attribute, log);
+        dstDataset->setAttribute(attribute);
         delete attribute;
         attribute = nullptr;
     }
-    dstFile->closeDataset(dstDataset, log);
+    dstFile->closeDataset(dstDataset);
 }
 
 /**
@@ -1380,21 +1315,19 @@ void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite, bool log)
  * @param[in] dstFile Destination file
  * @param[in] name Dataset name
  * @param[in] rewrite Rewrite flag (optional)
- * @param[in] log Logging flag (optional)
  */
-void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite, bool log)
+void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite)
 {
     if (srcFile->getFilename() != dstFile->getFilename()) {
         bool openedFlag = false;
         if (srcFile->isDatasetOpened(name))
             openedFlag = true;
-        Dataset *srcDataset = srcFile->openDataset(name, log);
-        copyDataset(srcDataset, dstFile, rewrite, log);
+        Dataset *srcDataset = srcFile->openDataset(name);
+        copyDataset(srcDataset, dstFile, rewrite);
         if (!openedFlag)
-            srcFile->closeDataset(srcDataset, log);
+            srcFile->closeDataset(srcDataset);
     } else {
-        if (log)
-            std::cout << "Source file == destination file -> cannot copy datasets" << std::endl;
+        Helper::printDebugMsg("Source file == destination file -> cannot copy datasets");
     }
 }
 }

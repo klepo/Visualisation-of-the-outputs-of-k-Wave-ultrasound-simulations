@@ -33,7 +33,7 @@ public:
     virtual void execute();
 
 private:
-    void compressDataset(H5Helper::Dataset *srcDataset, bool log = true);
+    void compressDataset(H5Helper::Dataset *srcDataset);
 };
 
 #endif // COMPRESS_H

@@ -52,7 +52,7 @@ void Decompress::execute()
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
             if (checkDatasetType(datasetType, types)) {
                 Helper::printDebugMsg("Decompression of dataset " + dataset->getName());
-                decompressDataset(dataset, getSettings()->getFlagLog());
+                decompressDataset(dataset);
                 count++;
                 Helper::printDebugMsg("Decompression of dataset " + dataset->getName() + " done");
             }
@@ -69,9 +69,8 @@ void Decompress::execute()
 /**
  * @brief Decompresses datasets
  * @param[in] srcDataset Source dataset
- * @param[in] log Logging flag (optional)
  */
-void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
+void Decompress::decompressDataset(H5Helper::Dataset *srcDataset)
 {
     double t0 = H5Helper::getTime();
 
@@ -79,28 +78,27 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     // Second decoding parameter    - multiple of overlap size
     // Third encoding parameter     - number of harmonic frequencies
     // Fourth encoding parameter    - shift flag
-    hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR, log) : 1;
-    hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR, log) : 1;
-    bool shift = srcDataset->hasAttribute("c_shift") ? (srcDataset->readAttributeI("c_shift", log) > 0) : getSettings()->getFlagShift();
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR, log), mos, harmonics, false, shift);
+    hsize_t mos = srcDataset->hasAttribute(H5Helper::C_MOS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_MOS_ATTR) : 1;
+    hsize_t harmonics = srcDataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? srcDataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
+    bool shift = srcDataset->hasAttribute("c_shift") ? (srcDataset->readAttributeI("c_shift") > 0) : getSettings()->getFlagShift();
+    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(srcDataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics, false, shift);
 
-    float complexSize = srcDataset->hasAttribute("c_complex_size") ? srcDataset->readAttributeF("c_complex_size", true) : 2.0f;
+    float complexSize = srcDataset->hasAttribute("c_complex_size") ? srcDataset->readAttributeF("c_complex_size") : 2.0f;
     float sizeMultiplier = compressHelper->getHarmonics() * complexSize;
     bool flagC40bit = complexSize == H5Helper::CompressHelper::complexSize40bit ? true : false;
 
     int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
     if (srcDataset->hasAttribute("c_max_exp")) {
-        kMaxExp = int(srcDataset->readAttributeI("c_max_exp", false));
+        kMaxExp = int(srcDataset->readAttributeI("c_max_exp"));
     } else if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET_C || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET_C) {
         kMaxExp = H5Helper::CompressHelper::kMaxExpP;
     }
 
-    if (log)
-        Helper::printDebugMsg("Decompression with period "
-                              + std::to_string(size_t(compressHelper->getPeriod()))
-                              + " steps (" + std::to_string(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
-                              + " Hz) and " + std::to_string(compressHelper->getHarmonics())
-                              + " harmonic frequencies");
+    Helper::printDebugMsg("Decompression with period "
+                          + std::to_string(size_t(compressHelper->getPeriod()))
+                          + " steps (" + Helper::floatToString(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
+                          + " Hz) and " + std::to_string(compressHelper->getHarmonics())
+                          + " harmonic frequencies");
 
     // Overlap size and base size
     hsize_t oSize = compressHelper->getOSize();
@@ -161,8 +159,8 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
     // Create destination dataset
     std::string dstName = srcDataset->getSuffixName("_d");
-    getOutputFile()->createDatasetF(dstName, outputDims, chunkDims, true, log);
-    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName, log);
+    getOutputFile()->createDatasetF(dstName, outputDims, chunkDims, true);
+    H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName);
 
     // Read full steps
     srcDataset->setNumberOfElmsToLoad(stepSize);
@@ -192,7 +190,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
 
         // Reading and decompression
         for (hsize_t i = 0; i < srcDataset->getNumberOfBlocks(); i++) {
-            srcDataset->readBlock(i, offset, count, dataC, log);
+            srcDataset->readBlock(i, offset, count, dataC);
 
             hsize_t framesCount;
             hsize_t framesOffset;
@@ -216,8 +214,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
             for (hsize_t frame = 0; frame < framesCount; frame++) {
                 hsize_t framesOffsetGlobal = framesOffset + frame;
                 hsize_t frameOffset = frame * stepSize;
-                if (log)
-                    Helper::printDebugMsg("Decoding frame " + std::to_string(framesOffsetGlobal + 1) + "/" + std::to_string(steps + 1));
+                Helper::printDebugMsg("Decoding frame " + std::to_string(framesOffsetGlobal + 1) + "/" + std::to_string(steps + 1));
                 // Decode steps
                 for (hsize_t stepLocal = 0; stepLocal < oSize; stepLocal++) {
                     //hsize_t stepOffset = step * outputStepSize;
@@ -278,16 +275,14 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
                     stepToWrite++;
 
                     if (step % stepsToWrite == 0 || step == outputSteps) {
-                        if (log)
-                            Helper::printDebugMsgStart("Saving steps " + std::to_string(step - stepToWrite) + "-" + std::to_string(step) + "/" + std::to_string(outputSteps));
+                        Helper::printDebugMsg("Saving steps " + std::to_string(step - stepToWrite) + "-" + std::to_string(step) + "/" + std::to_string(outputSteps));
 
                         if (dims.getLength() == 4) // 4D dataset
-                            dstDataset->writeDataset(H5Helper::Vector4D(step - stepToWrite, 0, 0, 0), H5Helper::Vector4D(stepToWrite, outputDims[1], outputDims[2], outputDims[3]), data, log);
+                            dstDataset->writeDataset(H5Helper::Vector4D(step - stepToWrite, 0, 0, 0), H5Helper::Vector4D(stepToWrite, outputDims[1], outputDims[2], outputDims[3]), data);
                         else if (dims.getLength() == 3) // 3D dataset
-                            dstDataset->writeDataset(H5Helper::Vector3D(0, step - stepToWrite, 0), H5Helper::Vector3D(1, stepToWrite, outputDims[2]), data, log);
+                            dstDataset->writeDataset(H5Helper::Vector3D(0, step - stepToWrite, 0), H5Helper::Vector3D(1, stepToWrite, outputDims[2]), data);
 
-                        if (log)
-                            Helper::printDebugMsgEnd("saved");
+                        //Helper::printDebugMsgEnd("saved");*/
 
                         stepToWrite = 0;
                     }
@@ -308,7 +303,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
         dataC = nullptr;
         delete compressHelper;
         compressHelper = nullptr;
-        getOutputFile()->closeDataset(dstDataset, log);
+        getOutputFile()->closeDataset(dstDataset);
         return;
     }
 
@@ -322,14 +317,14 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset, bool log)
     copyAttributes(srcDataset, dstDataset);
 
     // Set attributes
-    //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV, log);
-    //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV, log);
-    //dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex, log);
-    //dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex, log);
-    dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "d", log);
+    //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV);
+    //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV);
+    //dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex);
+    //dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex);
+    dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "d");
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("datasets decompression", t0, t1);
 
-    getOutputFile()->closeDataset(dstDataset, log);
+    getOutputFile()->closeDataset(dstDataset);
 }

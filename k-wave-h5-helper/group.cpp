@@ -31,7 +31,7 @@ namespace H5Helper {
  */
 Group::Group(hid_t groupId, std::string name, File *file)
     : Object(groupId, name, file)
-    , groupId(groupId)
+      , groupId(groupId)
 {
 }
 
@@ -42,67 +42,60 @@ Group::Group(hid_t groupId, std::string name, File *file)
  */
 Group::~Group()
 {
-    if (deleteLog)
-        std::cout << "Closing group \"" << getName() << "\"";
+    Helper::printDebugMsgStart("Closing group \"" + getName() + "\"");
     err = H5Gclose(groupId);
     if (err < 0) {
         //throw std::runtime_error("H5Gclose error");
     }
-    if (deleteLog)
-        std::cout << " ... OK" << std::endl;
+    Helper::printDebugMsgEnd("OK");
 
 }
 
 /**
  * @brief Opens dataset by name in HDF5 file
  * @param[in] name Name of dataset
- * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *Group::openDataset(std::string name, bool log) const
+Dataset *Group::openDataset(std::string name) const
 {
-    return getFile()->openDataset(concatenatePath(getName(), name), log);
+    return getFile()->openDataset(concatenatePath(getName(), name));
 }
 
 /**
  * @brief Opens dataset by index in HDF5 file
  * @param[in] idx Index of dataset in file
- * @param[in] log Logging flag (optional)
  * @return Opened dataset
  */
-Dataset *Group::openDataset(hsize_t idx, bool log) const
+Dataset *Group::openDataset(hsize_t idx) const
 {
-    return openDataset(getObjNameByIdx(idx), log);
+    return openDataset(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes dataset with given name in HDF5 file
  * @param[in] name Name of dataset
- * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(std::string name, bool log) const
+void Group::closeDataset(std::string name) const
 {
-    getFile()->closeDataset(concatenatePath(getName(), name), log);
+    getFile()->closeDataset(concatenatePath(getName(), name));
 }
 
 /**
  * @brief Closes dataset with given index in HDF5 file
  * @param[in] idx Index of dataset in file
- * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(hsize_t idx, bool log) const
+void Group::closeDataset(hsize_t idx) const
 {
-    closeDataset(getObjNameByIdx(idx), log);
+    closeDataset(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes dataset with same name as given dataset has
  * @param[in] dataset Dataset
- * @param[in] log Logging flag (optional)
  */
-void Group::closeDataset(const Dataset *dataset, bool log) const
+void Group::closeDataset(const Dataset *dataset) const
 {
-    closeDataset(dataset->getName(), log);
+    closeDataset(dataset->getName());
 }
 
 /**
@@ -111,11 +104,10 @@ void Group::closeDataset(const Dataset *dataset, bool log) const
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
- * @param[in] log Logging flag (optional)
  */
-void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log) const
+void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite) const
 {
-    getFile()->createDatasetI(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
+    getFile()->createDatasetI(concatenatePath(getName(), name), size, chunkSize, rewrite);
 }
 
 /**
@@ -124,74 +116,67 @@ void Group::createDatasetI(std::string name, Vector size, Vector chunkSize, bool
  * @param[in] size Size of dataset
  * @param[in] chunkSize Chunk size of dataset
  * @param[in] rewrite Flag for rewriting existing dataset (optional)
- * @param[in] log Logging flag (optional)
  */
-void Group::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite, bool log) const
+void Group::createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite) const
 {
-    getFile()->createDatasetF(concatenatePath(getName(), name), size, chunkSize, rewrite, log);
+    getFile()->createDatasetF(concatenatePath(getName(), name), size, chunkSize, rewrite);
 }
 
 /**
  * @brief Opens group with given name in HDF5 file
  * @param[in] name Name of group
- * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *Group::openGroup(std::string name, bool log) const
+Group *Group::openGroup(std::string name) const
 {
-    return getFile()->openGroup(concatenatePath(getName(), name), log);
+    return getFile()->openGroup(concatenatePath(getName(), name));
 }
 
 /**
  * @brief Opens group with given index in HDF5 file
  * @param[in] idx Index of group in file
- * @param[in] log Logging flag (optional)
  * @return Opened group
  */
-Group *Group::openGroup(hsize_t idx, bool log) const
+Group *Group::openGroup(hsize_t idx) const
 {
-    return openGroup(getObjNameByIdx(idx), log);
+    return openGroup(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes group with given name in HDF5 file
  * @param[in] name Name of group
- * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(std::string name, bool log) const
+void Group::closeGroup(std::string name) const
 {
-    getFile()->closeGroup(concatenatePath(getName(), name), log);
+    getFile()->closeGroup(concatenatePath(getName(), name));
 }
 
 /**
  * @brief Closes group with given index in HDF5 file
  * @param[in] idx Index of group in file
- * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(hsize_t idx, bool log) const
+void Group::closeGroup(hsize_t idx) const
 {
-    closeGroup(getObjNameByIdx(idx), log);
+    closeGroup(getObjNameByIdx(idx));
 }
 
 /**
  * @brief Closes group with same name as given group
  * @param[in] group Group
- * @param[in] log Logging flag (optional)
  */
-void Group::closeGroup(const Group *group, bool log) const
+void Group::closeGroup(const Group *group) const
 {
-    closeGroup(group->getName(), log);
+    closeGroup(group->getName());
 }
 
 /**
  * @brief Creates new group with given name
  * @param[in] name Name of group
  * @param[in] rewrite Flag for rewriting existing group (optional)
- * @param[in] log Logging flag (optional)
  */
-void Group::createGroup(std::string name, bool rewrite, bool log) const
+void Group::createGroup(std::string name, bool rewrite) const
 {
-    getFile()->createGroup(concatenatePath(getName(), name), rewrite, log);
+    getFile()->createGroup(concatenatePath(getName(), name), rewrite);
 }
 
 /**

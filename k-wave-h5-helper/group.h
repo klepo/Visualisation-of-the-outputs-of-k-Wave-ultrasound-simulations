@@ -35,24 +35,24 @@ public:
     Group(hid_t groupId, std::string name, File *file);
     ~Group();
 
-    Dataset *openDataset(std::string name, bool log = true) const;
-    Dataset *openDataset(hsize_t idx, bool log = true) const;
+    Dataset *openDataset(std::string name) const;
+    Dataset *openDataset(hsize_t idx) const;
 
-    void closeDataset(std::string name, bool log = true) const;
-    void closeDataset(hsize_t idx, bool log = true) const;
-    void closeDataset(const Dataset *dataset, bool log = true) const;
+    void closeDataset(std::string name) const;
+    void closeDataset(hsize_t idx) const;
+    void closeDataset(const Dataset *dataset) const;
 
-    void createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true) const;
-    void createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite = false, bool log = true) const;
+    void createDatasetI(std::string name, Vector size, Vector chunkSize, bool rewrite = false) const;
+    void createDatasetF(std::string name, Vector size, Vector chunkSize, bool rewrite = false) const;
 
-    Group *openGroup(std::string name, bool log = true) const;
-    Group *openGroup(hsize_t idx, bool log = true) const;
+    Group *openGroup(std::string name) const;
+    Group *openGroup(hsize_t idx) const;
 
-    void closeGroup(std::string name, bool log = true) const;
-    void closeGroup(hsize_t idx, bool log = true) const;
-    void closeGroup(const Group *groupId, bool log = true) const;
+    void closeGroup(std::string name) const;
+    void closeGroup(hsize_t idx) const;
+    void closeGroup(const Group *groupId) const;
 
-    void createGroup(std::string name, bool rewrite = false, bool log = true) const;
+    void createGroup(std::string name, bool rewrite = false) const;
 
     hid_t getId() const;
     hsize_t getNumObjs() const;

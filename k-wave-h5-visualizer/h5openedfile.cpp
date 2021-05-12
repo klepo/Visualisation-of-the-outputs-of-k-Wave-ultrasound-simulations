@@ -40,7 +40,7 @@ H5OpenedFile::H5OpenedFile(QString filename, QObject *parent) :
     qDebug() << "Load info (root attributes)...";
 
     // Load info
-    H5Helper::Group *group = file->openGroup("/", false);
+    H5Helper::Group *group = file->openGroup("/");
     for (hsize_t i = 0; i < group->getNumAttrs(); i++) {
         H5Helper::Attribute *attribute = group->getAttribute(i);
         QString value = QString::fromStdString(attribute->getStringValue());

@@ -269,14 +269,14 @@ void H5ReadingThread::run()
                     offsetCC.x(offsetCC.x() * xStride);
 
                     if (initLCFlag || this->offsetLC != offsetLC) {
-                        r->dataset->readDataset(offsetLC, count, r->dataLC, log);
+                        r->dataset->readDataset(offsetLC, count, r->dataLC);
                         this->offsetLC = offsetLC;
                         initLCFlag = false;
                         r->dataLCChanged = true;
                     }
 
                     if (initCCFlag || this->offsetCC != offsetCC) {
-                        r->dataset->readDataset(offsetCC, count, r->dataCC, log);
+                        r->dataset->readDataset(offsetCC, count, r->dataCC);
                         this->offsetCC = offsetCC;
                         initCCFlag = false;
                         r->dataCCChanged = true;
@@ -289,7 +289,7 @@ void H5ReadingThread::run()
                         }
                     }
                 } else {
-                    r->dataset->readDataset(r->offset, r->count, r->data, log);
+                    r->dataset->readDataset(r->offset, r->count, r->data);
                 }
 
                 QMutexLocker locker(&requestMutex);

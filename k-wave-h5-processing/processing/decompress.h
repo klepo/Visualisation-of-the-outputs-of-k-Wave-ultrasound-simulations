@@ -33,7 +33,7 @@ public:
     virtual void execute();
 
 private:
-    void decompressDataset(H5Helper::Dataset *srcDataset, bool log = true);
+    void decompressDataset(H5Helper::Dataset *srcDataset);
 };
 
 #endif // DECOMPRESS_H
