@@ -30,12 +30,10 @@ SOURCES += \
     main.cpp \
     settings.cpp \
     ../k-wave-h5-processing/paramsdefinition.cpp \
-    ../k-wave-h5-processing/helper.cpp \
 
 HEADERS += \
     settings.h \
     ../k-wave-h5-processing/paramsdefinition.h \
-    ../k-wave-h5-processing/helper.h \
 
 # Detect architecture and build mode (ARCH = x86/x64, BUILD_MODE = debug/release)
 include($$PWD/../detect_arch_and_build_mode.pri)
