@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <string>
 #include <cmath>
+#include <stack>
 
 /**
  * @namespace Helper
@@ -52,12 +53,11 @@ void printLineErr();
 std::string wrapMsg(std::string str, size_t indentation = 2, size_t firstIndentation = 0, bool rightAlign = false);
 std::string floatToString(float number, size_t precision = 2);
 
+void setDebugFlagAndStoreLast(bool flag);
+void recoverLastDebugFlag();
+
 float roundf(float number, int n = 0);
 unsigned long long round(float number);
-
-/// Enable debug messages flag
-extern bool enableDebugMsgs;
-extern bool enableDebugMsgsTmp;
 }
 
 #endif // HELPER_H

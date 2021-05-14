@@ -21,9 +21,11 @@
 
 namespace Helper {
 
+/// Enable debug messages flag
 bool enableDebugMsgs = true;
-bool enableDebugMsgsTmp = true;
+/// Debug started flag
 bool debugStarted = false;
+std::stack<bool> debugFlag;
 
 /**
  * @brief Prints debug title
@@ -48,7 +50,8 @@ void printDebugTitle(std::string str)
  */
 void printDebugTime(std::string ofWhat, double t0, double t1)
 {
-    printDebugTwoColumnsS("Time of " + ofWhat, std::to_string(int(t1 - t0)) + " ms");
+    printDebugMsgStart("Time of " + ofWhat);
+    printDebugMsgEnd(std::to_string(int(t1 - t0)) + " ms");
 }
 
 /**
@@ -74,10 +77,10 @@ void printDebugMsgStart(std::string str)
         return;
     if (debugStarted)
         printDebugMsgEnd("");
-    if (41 - int(str.length()) > 0)
-        std::cout << "| " << str << std::string(41 - str.length(), ' ');
+    if (51 - int(str.length()) > 0)
+        std::cout << "| " << str << std::string(51 - str.length(), ' ');
     else
-        std::cout << wrapMsg(str) << "| " << std::string(41, ' ');
+        std::cout << wrapMsg(str) << "| " << std::string(51, ' ');
     debugStarted = true;
 }
 
@@ -90,12 +93,12 @@ void printDebugMsgEnd(std::string str)
     if (!enableDebugMsgs)
         return;
     if (!debugStarted)
-        std::cout << "| " << std::string(41, ' ');
-    if (20 - int(str.length()) <= 0) {
+        std::cout << "| " << std::string(51, ' ');
+    if (10 - int(str.length()) <= 0) {
         printDebugMsgEnd("");
         std::cout << wrapMsg(str, 0, 0, true);
     } else {
-        std::cout << std::string(20 - str.length(), ' ') << str << " |" << std::endl;
+        std::cout << std::string(10 - str.length(), ' ') << str << " |" << std::endl;
     }
     debugStarted = false;
 }
@@ -106,7 +109,7 @@ void printDebugMsgEnd(std::string str)
  */
 void printMsgEnd(std::string str)
 {
-    std::cout << std::string(20 - str.length(), ' ') << str << " |" << std::endl;
+    std::cout << std::string(10 - str.length(), ' ') << str << " |" << std::endl;
     debugStarted = false;
 }
 
@@ -308,5 +311,24 @@ std::string floatToString(float number, size_t precision)
     std::stringstream stream;
     stream << std::fixed << std::setprecision(precision) << number;
     return stream.str();
+}
+
+/**
+ * @brief Store last debug flag and set new debug flag
+ * @param[in] flag Debug flag to set
+ */
+void setDebugFlagAndStoreLast(bool flag)
+{
+    debugFlag.push(enableDebugMsgs);
+    enableDebugMsgs = flag;
+}
+
+/**
+ * @brief Recover last debug flag
+ */
+void recoverLastDebugFlag()
+{
+    enableDebugMsgs = debugFlag.top();
+    debugFlag.pop();
 }
 }

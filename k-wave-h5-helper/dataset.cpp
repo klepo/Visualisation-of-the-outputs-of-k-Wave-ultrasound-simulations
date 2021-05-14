@@ -199,51 +199,42 @@ hid_t Dataset::getDataType() const
  */
 DatasetType Dataset::getType(hsize_t sensorMaskSize) const
 {
+    Helper::setDebugFlagAndStoreLast(false);
     Vector4D nDims = getFile()->getNDims();
     std::string name = getName();
+    DatasetType type = DatasetType::UNKNOWN;
     if (getDims().getLength() == 3) { // 3D type
         Vector3D dims = getDims();
         if (H5Tequal(datatypeId, H5T_NATIVE_UINT64)) {
             if (dims == Vector3D(1, 1, 1)) {
                 if (getOnlyName() == NT_DATASET) {
-                    return DatasetType::N_DIM_T;
+                    type = DatasetType::N_DIM_T;
+                } else if (getOnlyName() == NX_DATASET) {
+                    type = DatasetType::N_DIM_X;
+                } else if (getOnlyName() == NY_DATASET) {
+                    type = DatasetType::N_DIM_Y;
+                } else if (getOnlyName() == NZ_DATASET) {
+                    type = DatasetType::N_DIM_Z;
                 }
-                if (getOnlyName() == NX_DATASET) {
-                    return DatasetType::N_DIM_X;
-                }
-                if (getOnlyName() == NY_DATASET) {
-                    return DatasetType::N_DIM_Y;
-                }
-                if (getOnlyName() == NZ_DATASET) {
-                    return DatasetType::N_DIM_Z;
-                }
+            } else if (getOnlyName() == SENSOR_MASK_INDEX_DATASET) {
+                type = DatasetType::MASK_INDEX;
+            } else if (getOnlyName() == SENSOR_MASK_CORNERS_DATASET) {
+                type = DatasetType::MASK_CORNERS;
             }
-            if (getOnlyName() == SENSOR_MASK_INDEX_DATASET) {
-                return DatasetType::MASK_INDEX;
-            }
-            if (getOnlyName() == SENSOR_MASK_CORNERS_DATASET) {
-                return DatasetType::MASK_CORNERS;
-            }
-        }
-        if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
+        } else if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
             if (dims == Vector3D(1, 1, 1)) {
                 if (getOnlyName() == DT_DATASET) {
-                    return DatasetType::DT;
+                    type = DatasetType::DT;
+                } else if (getOnlyName() == DX_DATASET) {
+                    type = DatasetType::DX;
+                } else if (getOnlyName() == DY_DATASET) {
+                    type = DatasetType::DY;
+                } else if (getOnlyName() == DZ_DATASET) {
+                    type = DatasetType::DZ;
                 }
-                if (getOnlyName() == DX_DATASET) {
-                    return DatasetType::DX;
-                }
-                if (getOnlyName() == DY_DATASET) {
-                    return DatasetType::DY;
-                }
-                if (getOnlyName() == DZ_DATASET) {
-                    return DatasetType::DZ;
-                }
-            }
-            if (getOnlyName() == P_SOURCE_INPUT_DATASET) {
-                return DatasetType::P_SOURCE_INPUT;
-            }
-            if (hasAttribute(POSITION_X_ATTR)
+            } else if (getOnlyName() == P_SOURCE_INPUT_DATASET) {
+                type = DatasetType::P_SOURCE_INPUT;
+            } else if (hasAttribute(POSITION_X_ATTR)
                 && hasAttribute(POSITION_Y_ATTR)
                 && hasAttribute(POSITION_Z_ATTR)
                 && hasAttribute(SRC_POSITION_X_ATTR)
@@ -254,16 +245,14 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 && hasAttribute(SRC_SIZE_Z_ATTR)
                 && hasAttribute(SRC_DATASET_NAME_ATTR)
                 ) {
-                return DatasetType::RESHAPED_3D_DWNSMPL;
-            }
-            if (hasAttribute(POSITION_X_ATTR)
+                type = DatasetType::RESHAPED_3D_DWNSMPL;
+            } else if (hasAttribute(POSITION_X_ATTR)
                 && hasAttribute(POSITION_Y_ATTR)
                 && hasAttribute(POSITION_Z_ATTR)
                 && std::count(name.begin(), name.end(), '/') == 1
                 ) {
-                return DatasetType::RESHAPED_3D;
-            }
-            if (dims.z() < nDims.z()
+                type = DatasetType::RESHAPED_3D;
+            } else if (dims.z() < nDims.z()
                 && dims.y() < nDims.y()
                 && dims.x() < nDims.x()
                 && hasAttribute(SRC_SIZE_X_ATTR)
@@ -271,63 +260,55 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 && hasAttribute(SRC_SIZE_Z_ATTR)
                 && hasAttribute(SRC_DATASET_NAME_ATTR)
                 ) {
-                return DatasetType::BASIC_3D_DWNSMPL;
-            }
-            if (dims.z() == nDims.z()
+                type = DatasetType::BASIC_3D_DWNSMPL;
+            } else if (dims.z() == nDims.z()
                 && dims.y() == nDims.y()
                 && dims.x() == nDims.x()
                 ) {
-                return DatasetType::BASIC_3D;
-            }
-            if (dims.z() <= nDims.z()
+                type = DatasetType::BASIC_3D;
+            } else if (dims.z() <= nDims.z()
                 && dims.y() <= nDims.y()
                 && dims.x() <= nDims.x()
                 && std::count(name.begin(), name.end(), '/') > 1
                 ) {
-                return DatasetType::BASIC_CUBOID;
-            }
-            if (dims.z() == 1
+                type = DatasetType::BASIC_CUBOID;
+            } else if (dims.z() == 1
                 && dims.y() == 1
                 && dims.x() == sensorMaskSize
                 && !hasAttribute(SRC_DATASET_NAME_ATTR)
                 ) {
-                return DatasetType::BASIC_INDEX;
-            }
-            if (dims.z() == 1
+                type = DatasetType::BASIC_INDEX;
+            } else if (dims.z() == 1
                 && dims.y() <= nDims.w()
                 && dims.x() == sensorMaskSize
                 && !hasAttribute(SRC_DATASET_NAME_ATTR)
                 ) {
-                return DatasetType::TIME_STEPS_INDEX;
-            }
-            if (dims.z() == 1
+                type = DatasetType::TIME_STEPS_INDEX;
+            } else if (dims.z() == 1
                 //&& dims.y() <= nDims.w()
                 //&& dims.x() == sensorMaskSize
                 && hasAttribute(C_PERIOD_ATTR)
                 && hasAttribute(C_TYPE_ATTR)
                 && readAttributeS(C_TYPE_ATTR) == "c"
                 ) {
-                return DatasetType::TIME_STEPS_C_INDEX;
-            }
-            if (dims.z() == 1
+                type = DatasetType::TIME_STEPS_C_INDEX;
+            } else if (dims.z() == 1
                 //&& dims.y() <= nDims.w()
                 //&& dims.x() == sensorMaskSize
                 && hasAttribute(C_TYPE_ATTR)
                 && readAttributeS(C_TYPE_ATTR) == "d"
                 ) {
-                return DatasetType::TIME_STEPS_D_INDEX;
-            }
-            if (dims.z() == 1
+                type = DatasetType::TIME_STEPS_D_INDEX;
+            } else if (dims.z() == 1
                 && dims.y() <= nDims.w()
                 && dims.x() == sensorMaskSize
                 && hasAttribute(C_TYPE_ATTR)
                 && readAttributeS(C_TYPE_ATTR) == "s"
                 ) {
-                return DatasetType::TIME_STEPS_S_INDEX;
+                type = DatasetType::TIME_STEPS_S_INDEX;
             }
         }
-    }
-    if (getDims().getLength() == 4) { // 4D type (cuboids)
+    } else if (getDims().getLength() == 4) { // 4D type (cuboids)
         if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
             // Downsampled
             if (hasAttribute(SRC_SIZE_X_ATTR)
@@ -347,34 +328,34 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                         && hasAttribute(C_PERIOD_ATTR)
                         && readAttributeS(C_TYPE_ATTR) == "c"
                         ) {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL_C;
+                        type = DatasetType::CUBOID_ATTR_DWNSMPL_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "d"
                                ) {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL_D;
+                        type = DatasetType::CUBOID_ATTR_DWNSMPL_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "s"
                                ) {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL_S;
+                        type = DatasetType::CUBOID_ATTR_DWNSMPL_S;
                     } else {
-                        return DatasetType::CUBOID_ATTR_DWNSMPL;
+                        type = DatasetType::CUBOID_ATTR_DWNSMPL;
                     }
                 } else { // Without position attributes
                     if (hasAttribute(C_TYPE_ATTR)
                         && hasAttribute(C_PERIOD_ATTR)
                         && readAttributeS(C_TYPE_ATTR) == "c"
                         ) {
-                        return DatasetType::CUBOID_DWNSMPL_C;
+                        type = DatasetType::CUBOID_DWNSMPL_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "d"
                                ) {
-                        return DatasetType::CUBOID_DWNSMPL_D;
+                        type = DatasetType::CUBOID_DWNSMPL_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "s"
                                ) {
-                        return DatasetType::CUBOID_DWNSMPL_S;
+                        type = DatasetType::CUBOID_DWNSMPL_S;
                     } else {
-                        return DatasetType::CUBOID_DWNSMPL;
+                        type = DatasetType::CUBOID_DWNSMPL;
                     }
                 }
             } else { // Original
@@ -387,41 +368,41 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                         && hasAttribute(C_PERIOD_ATTR)
                         && readAttributeS(C_TYPE_ATTR) == "c"
                         ) {
-                        return DatasetType::CUBOID_ATTR_C;
+                        type = DatasetType::CUBOID_ATTR_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "d"
                                ) {
-                        return DatasetType::CUBOID_ATTR_D;
+                        type = DatasetType::CUBOID_ATTR_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "s"
                                ) {
-                        return DatasetType::CUBOID_ATTR_S;
+                        type = DatasetType::CUBOID_ATTR_S;
                     } else {
-                        return DatasetType::CUBOID_ATTR;
+                        type = DatasetType::CUBOID_ATTR;
                     }
                 } else { // Without position attributes
                     if (hasAttribute(C_TYPE_ATTR)
                         && hasAttribute(C_PERIOD_ATTR)
                         && readAttributeS(C_TYPE_ATTR) == "c"
                         ) {
-                        return DatasetType::CUBOID_C;
+                        type = DatasetType::CUBOID_C;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "d"
                                ) {
-                        return DatasetType::CUBOID_D;
+                        type = DatasetType::CUBOID_D;
                     } else if (hasAttribute(C_TYPE_ATTR)
                                && readAttributeS(C_TYPE_ATTR) == "s"
                                ) {
-                        return DatasetType::CUBOID_S;
+                        type = DatasetType::CUBOID_S;
                     } else {
-                        return DatasetType::CUBOID;
+                        type = DatasetType::CUBOID;
                     }
                 }
             }
         }
     }
-
-    return DatasetType::UNKNOWN;
+    Helper::recoverLastDebugFlag();
+    return type;
 }
 
 /**
@@ -1492,14 +1473,10 @@ void Dataset::printsReadingMessage(hsize_t block) const
  */
 void Dataset::printsReadingTimeMessage(double t0, double t1) const
 {
-    unsigned int widthTmp = 5;
-    if (widthTmp <= getName().length())
-        widthTmp = (static_cast<unsigned int>(getName().length()) / 10) * 10 + 10;
-    std::cout << "  " << std::setw(widthTmp) << std::left << getName();
-    std::cout << std::setw(12) << std::right << "read time: ";
-    std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
-    std::cout << std::setw(11) << std::right << "empty block";
-    std::cout << std::endl;
+    std::stringstream ss;
+    ss << std::setw(11) << std::right << "empty block";
+    Helper::printDebugMsg(ss.str());
+    Helper::printDebugMsgEnd(std::to_string(int(t1 - t0)) + " ms");
 }
 
 /**
@@ -1511,17 +1488,13 @@ void Dataset::printsReadingTimeMessage(double t0, double t1) const
  */
 void Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vector count) const
 {
-    unsigned int widthTmp = 15;
-    if (widthTmp <= getName().length())
-        widthTmp = (static_cast<unsigned int>(getName().length()) / 15) * 15 + 15;
-    std::cout << "  " << std::setw(widthTmp) << std::left << getName();
-    std::cout << std::setw(15) << std::right << "read time: ";
-    std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
-    std::cout << std::setw(8) << std::right << "offset: ";
-    std::cout << std::setw(20) << std::left << offset;
-    std::cout << std::setw(7) << std::right << "count: ";
-    std::cout << std::setw(20) << std::left << count;
-    std::cout << std::endl;
+    std::stringstream ss;
+    ss << std::setw(8) << std::right << "  offset: ";
+    ss << std::setw(23) << std::left << offset;
+    ss << std::setw(7) << std::right << "count: ";
+    ss << std::setw(24) << std::left << count;
+    Helper::printDebugMsg(ss.str());
+    Helper::printDebugMsgEnd(std::to_string(int(t1 - t0)) + " ms");
 }
 
 /**
@@ -1546,16 +1519,12 @@ void Dataset::printsWritingMessage(hsize_t block) const
  */
 void Dataset::printsWritingTimeMessage(double t0, double t1, Vector offset, Vector count) const
 {
-    unsigned int widthTmp = 15;
-    if (widthTmp <= getName().length())
-        widthTmp = (static_cast<unsigned int>(getName().length()) / 15) * 15 + 15;
-    std::cout << "  " << std::setw(widthTmp) << std::left << getName();
-    std::cout << std::setw(15) << std::right << "write time: ";
-    std::cout << std::setw(12) << std::left << std::to_string(int(t1 - t0)) + " ms";
-    std::cout << std::setw(8) << std::right << "offset: ";
-    std::cout << std::setw(20) << std::left << offset;
-    std::cout << std::setw(7) << std::right << "count: ";
-    std::cout << std::setw(20) << std::left << count;
-    std::cout << std::endl;
+    std::stringstream ss;
+    ss << std::setw(8) << std::right << "  offset: ";
+    ss << std::setw(23) << std::left << offset;
+    ss << std::setw(7) << std::right << "count: ";
+    ss << std::setw(24) << std::left << count;
+    Helper::printDebugMsg(ss.str());
+    Helper::printDebugMsgEnd(std::to_string(int(t1 - t0)) + " ms");
 }
 }

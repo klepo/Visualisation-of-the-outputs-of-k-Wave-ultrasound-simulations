@@ -57,7 +57,7 @@ File::File(std::string filename, unsigned int flag)
     if (getAvailableSystemPhysicalMemory() > maxCount * 4) {
         setNumberOfElmsToLoad(maxCount);
     } else {*/
-    setNumberOfElmsToLoad(0.8f * (getAvailableSystemPhysicalMemory() / 4));
+    setNumberOfElmsToLoad(size_t(0.8f * (getAvailableSystemPhysicalMemory() / 4)));
     //}
     // setNumberOfElmsToLoad(1024 * 1024 * 1024 * 2); // ca 10 GB
     // setNumberOfElmsToLoad(25 * 55 * 82);
@@ -114,7 +114,7 @@ File::File(std::string filename, unsigned int flag)
         try {
             // Load basic datasets values
             hsize_t data;
-            Helper::enableDebugMsgs = false;
+            Helper::setDebugFlagAndStoreLast(false);
             openDataset(NT_DATASET)->readDataset(data);
             nDims.w(data);
             closeDataset(NT_DATASET);
@@ -127,7 +127,7 @@ File::File(std::string filename, unsigned int flag)
             openDataset(NZ_DATASET)->readDataset(data);
             nDims.z(data);
             closeDataset(NZ_DATASET);
-            Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+            Helper::recoverLastDebugFlag();
         } catch(std::exception) {
             closeFileAndObjects();
             throw std::runtime_error("Wrong File");
@@ -136,7 +136,7 @@ File::File(std::string filename, unsigned int flag)
         try {
             // Load point spacing values
             float dataD;
-            Helper::enableDebugMsgs = false;
+            Helper::setDebugFlagAndStoreLast(false);
             openDataset(DT_DATASET)->readDataset(dataD);
             dValues.w(dataD);
             closeDataset(DT_DATASET);
@@ -149,7 +149,7 @@ File::File(std::string filename, unsigned int flag)
             openDataset(DZ_DATASET)->readDataset(dataD);
             dValues.z(dataD);
             closeDataset(DZ_DATASET);
-            Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+            Helper::recoverLastDebugFlag();
         } catch(std::exception) {
             //closeFileAndObjects();
             //throw std::runtime_error("Wrong File");

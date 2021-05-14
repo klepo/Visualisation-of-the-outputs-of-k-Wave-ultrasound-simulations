@@ -221,8 +221,7 @@ void Settings::loadParams(int argc, const char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    Helper::enableDebugMsgs = flags.at("log").getEnabled();
-    Helper::enableDebugMsgsTmp = Helper::enableDebugMsgs;
+    Helper::setDebugFlagAndStoreLast(flags.at("log").getEnabled());
     Helper::printDebugTitle("k-wave-h5-processing");
     Helper::printDebugTitle("Settings");
 

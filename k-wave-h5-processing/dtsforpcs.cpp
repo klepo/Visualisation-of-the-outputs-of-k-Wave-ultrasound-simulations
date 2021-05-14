@@ -128,20 +128,20 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 
     // Find datasets for processing
     Helper::printDebugTitle("Find datasets for processing");
-    Helper::enableDebugMsgs = false;
+    Helper::setDebugFlagAndStoreLast(false);
     H5Helper::Group *group = filesContext->getSimOutputFile()->openGroup("/");
     findDatasetsForProcessing(group, settings, &datasets);
     filesContext->getSimOutputFile()->closeGroup("/");
-    Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+    Helper::recoverLastDebugFlag();
 
     // Find datasets for processing in HDF5PcsInputFile
     if (filesContext->getPcsInputFile()) {
         Helper::printDebugTitle("Find datasets for processing in processing file");
-        Helper::enableDebugMsgs = false;
+        Helper::setDebugFlagAndStoreLast(false);
         group = filesContext->getPcsInputFile()->openGroup("/");
         findDatasetsForProcessing(group, settings, &datasets2);
         filesContext->getPcsInputFile()->closeGroup("/");
-        Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+        Helper::recoverLastDebugFlag();
     }
 }
 
@@ -288,14 +288,14 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
             if (isFiltered(name, settings))
                 continue;
 
-            Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+            Helper::recoverLastDebugFlag();
             H5Helper::Dataset *dataset = group->openDataset(i);
-            Helper::enableDebugMsgs = false;
+            Helper::setDebugFlagAndStoreLast(false);
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
 
             if (datasetType != H5Helper::DatasetType::UNKNOWN) {
                 if (settings->getFlagInfo()) {
-                    Helper::enableDebugMsgs = true;
+                    Helper::setDebugFlagAndStoreLast(true);
                 }
                 datasets->insert(H5Helper::PairOfDatasets(dataset->getName(), dataset));
                 Helper::printDebugMsg("Dataset:");
@@ -332,7 +332,7 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                         attribute = nullptr;
                     }
                 }
-                Helper::enableDebugMsgs = false;
+                Helper::recoverLastDebugFlag();
             }
             // Unknown type
             else {

@@ -201,12 +201,12 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy nT, nX, nY, nZ
     Helper::printDebugMsgStart("Copy nT, nX, nY, nZ");
     try {
-        Helper::enableDebugMsgs = false;
+        Helper::setDebugFlagAndStoreLast(false);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::NX_DATASET, true);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::NY_DATASET, true);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::NZ_DATASET, true);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::NT_DATASET, true);
-        Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+        Helper::recoverLastDebugFlag();
     } catch (std::exception &e) {
         Helper::printDebugMsgEnd("Failed");
         Helper::printErrorMsg(e.what());
@@ -216,12 +216,12 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy dt, dx, dy, dz
     Helper::printDebugMsgStart("Copy dt, dx, dy, dz");
     try {
-        Helper::enableDebugMsgs = false;
+        Helper::setDebugFlagAndStoreLast(false);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DX_DATASET, true);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DY_DATASET, true);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DZ_DATASET, true);
         H5Helper::copyDataset(simOutputFile, file, H5Helper::DT_DATASET, true);
-        Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+        Helper::recoverLastDebugFlag();
         Helper::printDebugMsgEnd("OK");
     } catch (std::exception &) {
         Helper::printDebugMsgEnd("are not in the file");
@@ -232,7 +232,7 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
     // Copy root (info) attributes to destination h5 file
     Helper::printDebugMsgStart("Copy root (info) attributes");
     try {
-        Helper::enableDebugMsgs = false;
+        Helper::setDebugFlagAndStoreLast(false);
         H5Helper::Group *srcGroup = simOutputFile->openGroup("/");
         H5Helper::Group *dstGroup = file->openGroup("/");
         for (hsize_t i = 0; i < srcGroup->getNumAttrs(); i++) {
@@ -242,7 +242,7 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         }
         simOutputFile->closeGroup(srcGroup);
         file->closeGroup(dstGroup);
-        Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+        Helper::recoverLastDebugFlag();
     } catch (std::exception &e) {
         Helper::printDebugMsgEnd("Failed");
         Helper::printErrorMsg(e.what());

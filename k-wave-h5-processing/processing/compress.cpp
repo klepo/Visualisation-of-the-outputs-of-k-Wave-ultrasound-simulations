@@ -49,7 +49,9 @@ void Compress::execute()
         int count = 0;
         for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             H5Helper::Dataset *dataset = it->second;
+            Helper::setDebugFlagAndStoreLast(false);
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
+            Helper::recoverLastDebugFlag();
             if (checkDatasetType(datasetType, types)) {
                 Helper::printDebugMsg("Compression of dataset " + dataset->getName());
                 //double t00 = H5Helper::getTime();
@@ -77,6 +79,7 @@ void Compress::execute()
 void Compress::compressDataset(H5Helper::Dataset *srcDataset)
 {
     double t0 = H5Helper::getTime();
+    Helper::setDebugFlagAndStoreLast(false);
 
     if (getSettings()->getPeriod() == 0.0f) {
         Helper::printErrorMsg("No known period for compression");
@@ -94,6 +97,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
     int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
     if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET)
         kMaxExp = H5Helper::CompressHelper::kMaxExpP;
+    Helper::recoverLastDebugFlag();
 
     Helper::printDebugMsg("Compression with period "
                               + std::to_string(size_t(compressHelper->getPeriod()))
@@ -325,6 +329,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
     // Copy attributes
     copyAttributes(srcDataset, dstDataset);
 
+    Helper::setDebugFlagAndStoreLast(false);
     // Set attributes
     //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV);
     //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV);
@@ -339,6 +344,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
     dstDataset->setAttribute("c_complex_size", getSettings()->getFlagC40bit() ? H5Helper::CompressHelper::complexSize40bit : 2.0f);
     if (getSettings()->getFlagC40bit())
         dstDataset->setAttribute("c_max_exp", kMaxExp);
+    Helper::recoverLastDebugFlag();
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("dataset compression", t0, t1);

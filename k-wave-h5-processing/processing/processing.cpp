@@ -49,14 +49,14 @@ Processing::~Processing()
  */
 void Processing::copyAttributes(const H5Helper::Dataset *srcDataset, H5Helper::Dataset *dstDataset)
 {
-    Helper::enableDebugMsgs = false;
+    Helper::setDebugFlagAndStoreLast(false);
     for (hsize_t i = 0; i < srcDataset->getNumAttrs(); i++) {
         H5Helper::Attribute *attribute = srcDataset->getAttribute(i);
         dstDataset->setAttribute(attribute);
         delete attribute;
         attribute = nullptr;
     }
-    Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+    Helper::recoverLastDebugFlag();
 }
 
 /**

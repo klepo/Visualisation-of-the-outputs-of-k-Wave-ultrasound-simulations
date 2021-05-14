@@ -73,6 +73,7 @@ void Decompress::execute()
 void Decompress::decompressDataset(H5Helper::Dataset *srcDataset)
 {
     double t0 = H5Helper::getTime();
+    Helper::setDebugFlagAndStoreLast(false);
 
     // First decoding parameter     - period
     // Second decoding parameter    - multiple of overlap size
@@ -93,6 +94,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset)
     } else if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET_C || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET_C) {
         kMaxExp = H5Helper::CompressHelper::kMaxExpP;
     }
+    Helper::recoverLastDebugFlag();
 
     Helper::printDebugMsg("Decompression with period "
                           + std::to_string(size_t(compressHelper->getPeriod()))
@@ -180,7 +182,7 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset)
         H5Helper::floatC *lC = new H5Helper::floatC[outputStepSize * compressHelper->getHarmonics()]();
 
         // Variable for writing multiple steps at once
-        hsize_t stepsToWrite = ceil((0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4)) / outputStepSize);
+        hsize_t stepsToWrite = hsize_t(ceil((0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4)) / outputStepSize));
 
         // Output buffer
         float *data = new float[outputStepSize * stepsToWrite]();
@@ -316,12 +318,14 @@ void Decompress::decompressDataset(H5Helper::Dataset *srcDataset)
     // Copy attributes
     copyAttributes(srcDataset, dstDataset);
 
+    Helper::setDebugFlagAndStoreLast(false);
     // Set attributes
     //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV);
     //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV);
     //dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex);
     //dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex);
     dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "d");
+    Helper::recoverLastDebugFlag();
 
     double t1 = H5Helper::getTime();
     Helper::printDebugTime("datasets decompression", t0, t1);

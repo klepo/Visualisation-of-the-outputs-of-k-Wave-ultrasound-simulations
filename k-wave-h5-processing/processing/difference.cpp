@@ -268,7 +268,7 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     float mse = float(sum2 / double(outputDims.getSize()));
     float meanO2 = float(sumO2 / double(outputDims.getSize()));
 
-    Helper::enableDebugMsgs = false;
+    Helper::setDebugFlagAndStoreLast(false);
     dstDataset->removeAttribute(H5Helper::C_HARMONIC_ATTR);
     // Set min/max values
     dstDataset->setAttribute(H5Helper::MIN_ATTR, minV);
@@ -287,7 +287,7 @@ void Difference::subtractDatasets(H5Helper::Dataset *datasetOriginal, H5Helper::
     dstDataset->setAttribute("mean_squared_error", float(mse));
     dstDataset->setAttribute("snr", 10 * log10(meanO2 / float(mse)));
     dstDataset->setAttribute("psnr", 10 * log10((maxValue * maxValue) / float(mse)));
-    Helper::enableDebugMsgs = Helper::enableDebugMsgsTmp;
+    Helper::recoverLastDebugFlag();
 
     Helper::printDebugTwoColumnsS("Mean error", std::to_string((meanError / maxValue) * 100) + " %");
     Helper::printDebugTwoColumnsS("Max error", std::to_string((maxError / maxValue) * 100) + " %");
