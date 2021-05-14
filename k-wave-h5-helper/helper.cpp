@@ -328,6 +328,10 @@ void setDebugFlagAndStoreLast(bool flag)
  */
 void recoverLastDebugFlag()
 {
+    if (debugFlag.empty()) {
+        printMsg("Empty debugFlag stack!!!");
+        return;
+    }
     enableDebugMsgs = debugFlag.top();
     debugFlag.pop();
 }

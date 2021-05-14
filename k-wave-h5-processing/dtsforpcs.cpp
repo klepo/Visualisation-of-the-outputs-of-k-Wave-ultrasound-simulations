@@ -332,7 +332,9 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                         attribute = nullptr;
                     }
                 }
-                Helper::recoverLastDebugFlag();
+                if (settings->getFlagInfo()) {
+                    Helper::recoverLastDebugFlag();
+                }
             }
             // Unknown type
             else {
