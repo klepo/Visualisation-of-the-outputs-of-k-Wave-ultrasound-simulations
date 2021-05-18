@@ -331,7 +331,9 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                         delete attribute;
                         attribute = nullptr;
                     }
-                }
+                    if (dataset->getNumAttrs() > 0) {
+                        Helper::printDebugMsg("");
+                    }                }
                 if (settings->getFlagInfo()) {
                     Helper::recoverLastDebugFlag();
                 }
