@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5Helper::Group class declaration.
  *
@@ -70,6 +70,6 @@ private:
     hid_t groupId;
 };
 
-}
+} // namespace H5Helper
 
 #endif // GROUP_H

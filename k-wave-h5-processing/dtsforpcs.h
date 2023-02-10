@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with DtsForPcs class declaration.
  *
@@ -46,8 +46,10 @@ private:
     /// \return DtsForPcs
     DtsForPcs &operator=(const DtsForPcs &);
 
-    H5Helper::Dataset *findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile = nullptr);
-    void findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings, H5Helper::MapOfDatasets *datasets);
+    H5Helper::Dataset *findAndGetDataset(const std::string name, H5Helper::File *simOutputFile,
+                                         H5Helper::File *simInputFile = nullptr);
+    void findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings,
+                                   H5Helper::MapOfDatasets *datasets);
     bool isFiltered(std::string name, const Settings *settings);
 
     /// Domain dimensions

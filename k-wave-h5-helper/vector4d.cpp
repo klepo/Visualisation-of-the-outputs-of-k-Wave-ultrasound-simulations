@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector4DT class definition.
  *
@@ -25,7 +25,8 @@
 #ifndef VECTOR4D_CPP
 #define VECTOR4D_CPP
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 template class Vector4DT<hsize_t>;
 template class Vector4DT<float>;
@@ -202,6 +203,6 @@ T Vector4DT<T>::t() const
 {
     return this->vector[0];
 }
-}
+} // namespace H5Helper
 
 #endif // VECTOR4D_CPP

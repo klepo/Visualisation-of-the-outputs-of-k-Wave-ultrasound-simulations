@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@stud.fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::VectorT class definition.
  *
@@ -24,7 +24,8 @@
 #ifndef VECTOR_CPP
 #define VECTOR_CPP
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 template class VectorT<hsize_t>;
 template class VectorT<float>;
@@ -45,7 +46,8 @@ VectorT<T>::VectorT()
  * @param[in] value Fill value
  */
 template <class T>
-VectorT<T>::VectorT(hsize_t length, T value) : length(length)
+VectorT<T>::VectorT(hsize_t length, T value)
+    : length(length)
 {
     vector = new T[length]();
     for (hsize_t i = 0; i < length; i++) {
@@ -64,7 +66,7 @@ VectorT<T>::VectorT(int length, T value)
 {
     if (length >= 0) {
         this->length = static_cast<hsize_t>(length);
-        vector = new T[static_cast<hsize_t>(length)]();
+        vector       = new T[static_cast<hsize_t>(length)]();
         for (int i = 0; i < length; i++) {
             vector[i] = value;
         }
@@ -378,8 +380,8 @@ void VectorT<T>::move(VectorT<T> &vector, bool deleteFlag)
         delete[] this->vector;
         this->vector = nullptr;
     }
-    this->length = vector.length;
-    this->vector = std::move(vector.vector);
+    this->length  = vector.length;
+    this->vector  = std::move(vector.vector);
     vector.vector = nullptr;
     vector.length = 0;
 }
@@ -396,6 +398,6 @@ void VectorT<T>::checkIndex(hsize_t i) const
         throw std::runtime_error("Index to Vector is too big");
     }
 }
-}
+} // namespace H5Helper
 
 #endif // VECTOR_CPP

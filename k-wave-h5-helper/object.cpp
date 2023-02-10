@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::Object class definition.
  *
@@ -22,7 +22,8 @@
 
 #include "object.h"
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 /**
  * @brief Creates Object with given object and name
@@ -32,7 +33,7 @@ namespace H5Helper {
  */
 Object::Object(hid_t objectId, std::string name, File *file)
     : file(file)
-      , objectId(objectId)
+    , objectId(objectId)
 {
     this->name = "/" + trimSlashes(name);
 }
@@ -146,13 +147,12 @@ float Object::readAttributeF(std::string name) const
     float value;
     Helper::printDebugMsgStart("Reading attribute \"" + name + "\"");
     Attribute *attribute = getAttribute(name);
-    //attribute->getStringDatatype();
-    if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT)
-        || H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT)
+    // attribute->getStringDatatype();
+    if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT) || H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT)
         || H5Tequal(attribute->getDatatype(), H5T_NATIVE_INT64)
         || H5Tequal(attribute->getDatatype(), H5T_NATIVE_UINT64)) {
         ssize_t valueI = *static_cast<ssize_t *>(attribute->getData());
-        value = float(valueI);
+        value          = float(valueI);
     } else {
         value = *static_cast<float *>(attribute->getData());
     }
@@ -172,16 +172,16 @@ hsize_t Object::readAttributeI(std::string name) const
     hsize_t value;
     Helper::printDebugMsgStart("Reading attribute \"" + name + "\"");
     Attribute *attribute = getAttribute(name);
-    //attribute->getStringDatatype();
+    // attribute->getStringDatatype();
     if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_FLOAT)) {
         float valueF = *static_cast<float *>(attribute->getData());
-        value = hsize_t(valueF);
+        value        = hsize_t(valueF);
     } else if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_DOUBLE)) {
         double valueD = *static_cast<double *>(attribute->getData());
-        value = hsize_t(valueD);
+        value         = hsize_t(valueD);
     } else if (H5Tequal(attribute->getDatatype(), H5T_NATIVE_LDOUBLE)) {
         long double valueLD = *static_cast<long double *>(attribute->getData());
-        value = hsize_t(valueLD);
+        value               = hsize_t(valueLD);
     } else {
         value = *static_cast<hsize_t *>(attribute->getData());
     }
@@ -201,7 +201,7 @@ std::string Object::readAttributeS(std::string name) const
     std::string value;
     Helper::printDebugMsgStart("Reading attribute \"" + name + "\"");
     Attribute *attribute = getAttribute(name);
-    //attribute->getStringDatatype();
+    // attribute->getStringDatatype();
     value = attribute->getStringValue();
     delete attribute;
     attribute = nullptr;
@@ -314,9 +314,9 @@ std::string Object::getName() const
  */
 std::string Object::getOnlyName() const
 {
-    std::string s = name;
+    std::string s         = name;
     std::string delimiter = "/";
-    std::string token = s.substr(s.rfind(delimiter) + 1);
+    std::string token     = s.substr(s.rfind(delimiter) + 1);
     if (!token.empty())
         return token;
     else
@@ -444,10 +444,9 @@ void Object::creatingAttributeMessage(std::string name, hid_t datatypeId, const 
     std::string valueStr = Attribute::getStringValue(datatypeId, value);
     if (H5Tget_class(datatypeId) == H5Tget_class(H5T_C_S1))
         valueStr = "\"" + valueStr + "\"";
-   // std::string nameStr = "\"" + name + "\" (" + Attribute::getStringDatatype(datatypeId) + ") ";
-    //std::cout << "Creating attribute " << std::left << std::setw(40) << nameStr << valueStr;
+    // std::string nameStr = "\"" + name + "\" (" + Attribute::getStringDatatype(datatypeId) + ") ";
+    // std::cout << "Creating attribute " << std::left << std::setw(40) << nameStr << valueStr;
     Helper::printDebugMsgStart("Creating attribute \"" + name + "\"");
     Helper::printDebugMsgEnd(valueStr);
-
 }
-}
+} // namespace H5Helper

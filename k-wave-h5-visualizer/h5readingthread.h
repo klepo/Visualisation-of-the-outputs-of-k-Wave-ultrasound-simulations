@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5ReadingThread and Request class declaration.
  *
@@ -30,7 +30,8 @@
 class Request
 {
 public:
-    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
+    Request(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data,
+            float *dataLC = nullptr, float *dataCC = nullptr);
     Request(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
     ~Request();
     QString toQString();
@@ -73,8 +74,10 @@ public:
     void setCompressHelper(const H5Helper::CompressHelper *compressHelper);
 
 public slots:
-    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
-    void createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC = nullptr, float *dataCC = nullptr);
+    void createRequest(H5Helper::Dataset *dataset, H5Helper::Vector offset, H5Helper::Vector count, float *data,
+                       float *dataLC = nullptr, float *dataCC = nullptr);
+    void createRequest(H5Helper::Dataset *dataset, hsize_t step, float *data, float *dataLC = nullptr,
+                       float *dataCC = nullptr);
     void stopCurrentBlockReading();
     void clearDoneRequests();
     void clearRequests();
@@ -122,7 +125,6 @@ private:
     double timeSum = 0;
     /// Stop flag
     bool stopFlag = false;
-
 };
 
 #endif // H5READINGTHREAD_H

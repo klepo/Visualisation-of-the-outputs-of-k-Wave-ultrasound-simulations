@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing DtsForPcs class definition.
  *
@@ -27,8 +27,10 @@
 DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
 {
     // Find and get sensor mask dataset
-    sensorMaskIndexDataset = findAndGetDataset(H5Helper::SENSOR_MASK_INDEX_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
-    sensorMaskCornersDataset = findAndGetDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
+    sensorMaskIndexDataset   = findAndGetDataset(H5Helper::SENSOR_MASK_INDEX_DATASET, filesContext->getSimOutputFile(),
+                                                 filesContext->getSimInputFile());
+    sensorMaskCornersDataset = findAndGetDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET,
+                                                 filesContext->getSimOutputFile(), filesContext->getSimInputFile());
 
     if (sensorMaskIndexDataset) {
         // Get sensor mask size
@@ -43,7 +45,7 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     } else if (sensorMaskCornersDataset) {
         // Get sensor mask size
         H5Helper::Vector3D size = sensorMaskCornersDataset->getDims();
-        if ((size.x() % 6) == 0 && size.z() == 1/* && size.y() == 1*/) {
+        if ((size.x() % 6) == 0 && size.z() == 1 /* && size.y() == 1*/) {
             sensorMaskSize = size.x();
             sensorMaskType = 1;
         } else {
@@ -63,7 +65,8 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     // Get period from signal
     if (settings->getFlagComputePeriod()) {
         // Try to open the p_source_input dataset for getting the simulation frequency
-        H5Helper::Dataset *dataset = findAndGetDataset(H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
+        H5Helper::Dataset *dataset = findAndGetDataset(
+            H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
         if (dataset == nullptr) {
             dataset = findAndGetDataset(H5Helper::P_INDEX_DATASET, filesContext->getSimOutputFile());
         }
@@ -71,17 +74,20 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
             dataset = findAndGetDataset(H5Helper::P_CUBOID_DATASET, filesContext->getSimOutputFile());
         }
         if (dataset) {
-            float *data = nullptr;
+            float *data    = nullptr;
             hsize_t length = 0;
-            hsize_t limit = 500;
+            hsize_t limit  = 500;
             if (dataset->getRank() == 3) {
                 H5Helper::Vector3D dims = dataset->getDims();
-                length = dims.y() > limit ? limit : dims.y();
-                dataset->readDataset(H5Helper::Vector3D(0, dims.y() - length, hsize_t(dims.x() / 2)), H5Helper::Vector3D(1, length, 1), data);
+                length                  = dims.y() > limit ? limit : dims.y();
+                dataset->readDataset(H5Helper::Vector3D(0, dims.y() - length, hsize_t(dims.x() / 2)),
+                                     H5Helper::Vector3D(1, length, 1), data);
             } else if (dataset->getRank() == 4) {
                 H5Helper::Vector4D dims = dataset->getDims();
-                length = dims.t() > limit ? limit : dims.t();
-                dataset->readDataset(H5Helper::Vector4D(dims.t() - length, hsize_t(dims.z() / 2), hsize_t(dims.y() / 2), hsize_t(dims.x() / 2)), H5Helper::Vector4D(length, 1, 1, 1), data);
+                length                  = dims.t() > limit ? limit : dims.t();
+                dataset->readDataset(H5Helper::Vector4D(dims.t() - length, hsize_t(dims.z() / 2), hsize_t(dims.y() / 2),
+                                                        hsize_t(dims.x() / 2)),
+                                     H5Helper::Vector4D(length, 1, 1, 1), data);
             }
             settings->setPeriod(Helper::roundf(H5Helper::CompressHelper::findPeriod(data, length), 3));
             dataset->setAttribute(H5Helper::PERIOD_ATTR, settings->getPeriod());
@@ -98,7 +104,8 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     if (settings->getFrequency() > 0) {
         if (filesContext->getSimOutputFile()->getDValues().t() > 0) {
             settings->setPeriod(filesContext->getSimOutputFile()->getPeriod(settings->getFrequency()));
-        } else if (filesContext->getSimInputFile() != nullptr && filesContext->getSimInputFile()->getDValues().t() > 0) {
+        } else if (filesContext->getSimInputFile() != nullptr
+                   && filesContext->getSimInputFile()->getDValues().t() > 0) {
             settings->setPeriod(filesContext->getSimInputFile()->getPeriod(settings->getFrequency()));
         } else {
             Helper::printErrorMsg("Cannot compute period from frequency, missing dt dataset");
@@ -107,7 +114,8 @@ DtsForPcs::DtsForPcs(FilesContext *filesContext, Settings *settings)
     }
 
     if (settings->getPeriod() == 0.0f) {
-        H5Helper::Dataset *dataset = findAndGetDataset(H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
+        H5Helper::Dataset *dataset = findAndGetDataset(
+            H5Helper::P_SOURCE_INPUT_DATASET, filesContext->getSimOutputFile(), filesContext->getSimInputFile());
         if (dataset == nullptr) {
             dataset = findAndGetDataset(H5Helper::P_INDEX_DATASET, filesContext->getSimOutputFile());
         }
@@ -214,7 +222,6 @@ H5Helper::MapOfDatasets DtsForPcs::getDatasets2(H5Helper::DatasetType datasetTyp
     }
 }
 
-
 /**
  * @brief Returns sensor mask size
  * @return Sensor mask size
@@ -240,16 +247,17 @@ hsize_t DtsForPcs::getSensorMaskType() const
  * @param[in] simInputFile Simulation input file (optional)
  * @return Dataset
  */
-H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper::File *simOutputFile, H5Helper::File *simInputFile)
+H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper::File *simOutputFile,
+                                                H5Helper::File *simInputFile)
 {
     H5Helper::Dataset *dataset = nullptr;
-    Helper::printDebugTitle("Find and get "+ name +" dataset");
+    Helper::printDebugTitle("Find and get " + name + " dataset");
 
     if (simOutputFile->objExistsByName(name)) {
         // Try to load dataset from simulation output file
         try {
             dataset = simOutputFile->openDataset(name);
-        } catch(std::exception &e) {
+        } catch (std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
@@ -257,7 +265,7 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
         // Try to load dataset from simulation input file
         try {
             dataset = simInputFile->openDataset(name);
-        } catch(std::exception &e) {
+        } catch (std::exception &e) {
             Helper::printErrorMsg(e.what());
             std::exit(EXIT_FAILURE);
         }
@@ -272,10 +280,11 @@ H5Helper::Dataset *DtsForPcs::findAndGetDataset(const std::string name, H5Helper
  * @param[in] group Group to searching
  * @param[in] settings Settings
  */
-void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings, H5Helper::MapOfDatasets *datasets)
+void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Settings *settings,
+                                          H5Helper::MapOfDatasets *datasets)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
-        H5G_obj_t type = group->getObjTypeByIdx(i);
+        H5G_obj_t type   = group->getObjTypeByIdx(i);
         std::string name = group->getObjNameByIdx(i);
 
         // Datasets
@@ -333,7 +342,8 @@ void DtsForPcs::findDatasetsForProcessing(const H5Helper::Group *group, const Se
                     }
                     if (dataset->getNumAttrs() > 0) {
                         Helper::printDebugMsg("");
-                    }                }
+                    }
+                }
                 if (settings->getFlagInfo()) {
                     Helper::recoverLastDebugFlag();
                 }

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5OpenedFile class definition.
  *
@@ -28,8 +28,8 @@
  * @param[in] filename Path to HDF5 file
  * @param[in] parent Parent (optional)
  */
-H5OpenedFile::H5OpenedFile(QString filename, QObject *parent) :
-    QObject(parent)
+H5OpenedFile::H5OpenedFile(QString filename, QObject *parent)
+    : QObject(parent)
 {
     // Open HDF5 file, operations with file can throw exceptions
     file = new H5Helper::File(filename.toStdString(), H5Helper::File::OPEN);
@@ -43,14 +43,14 @@ H5OpenedFile::H5OpenedFile(QString filename, QObject *parent) :
     H5Helper::Group *group = file->openGroup("/");
     for (hsize_t i = 0; i < group->getNumAttrs(); i++) {
         H5Helper::Attribute *attribute = group->getAttribute(i);
-        QString value = QString::fromStdString(attribute->getStringValue());
+        QString value                  = QString::fromStdString(attribute->getStringValue());
         info.insert(QString::fromStdString(attribute->getName()), value);
         delete attribute;
         attribute = nullptr;
     }
 
-    //qRegisterMetaType<H5ObjectToVisualize *>("H5ObjectToVisualize");
-    //qRegisterMetaType<H5ObjectToVisualize *>("hsize_t");
+    // qRegisterMetaType<H5ObjectToVisualize *>("H5ObjectToVisualize");
+    // qRegisterMetaType<H5ObjectToVisualize *>("hsize_t");
 
     qDebug() << "Find datasets for visualization...";
 
@@ -142,8 +142,8 @@ QString H5OpenedFile::getFilename() const
 QString H5OpenedFile::getRawFilename() const
 {
     std::string filename = file->getFilename();
-    size_t lastindex = filename.find_last_of(".");
-    std::string rawname = filename.substr(0, lastindex);
+    size_t lastindex     = filename.find_last_of(".");
+    std::string rawname  = filename.substr(0, lastindex);
     return QString::fromStdString(rawname);
 }
 
@@ -154,24 +154,22 @@ QString H5OpenedFile::getRawFilename() const
 void H5OpenedFile::findDatasetsForVisualization(const H5Helper::Group *group)
 {
     for (hsize_t i = 0; i < group->getNumObjs(); i++) {
-        H5G_obj_t type = group->getObjTypeByIdx(i);
+        H5G_obj_t type   = group->getObjTypeByIdx(i);
         std::string name = group->getObjNameByIdx(i);
 
         // Datasets
         if (type == H5G_DATASET) {
-            H5Helper::Dataset *dataset = group->openDataset(i);
+            H5Helper::Dataset *dataset        = group->openDataset(i);
             H5Helper::DatasetType datasetType = dataset->getType();
 
-            if (datasetType == H5Helper::DatasetType::BASIC_3D
-                    || datasetType == H5Helper::DatasetType::BASIC_CUBOID
-                    || datasetType == H5Helper::DatasetType::RESHAPED_3D
-                    || datasetType == H5Helper::DatasetType::BASIC_3D_DWNSMPL
-                    || datasetType == H5Helper::DatasetType::RESHAPED_3D_DWNSMPL
-                    ) {
+            if (datasetType == H5Helper::DatasetType::BASIC_3D || datasetType == H5Helper::DatasetType::BASIC_CUBOID
+                || datasetType == H5Helper::DatasetType::RESHAPED_3D
+                || datasetType == H5Helper::DatasetType::BASIC_3D_DWNSMPL
+                || datasetType == H5Helper::DatasetType::RESHAPED_3D_DWNSMPL) {
                 setObject(dataset, DATASET_3D);
-                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
-            } else if (datasetType == H5Helper::DatasetType::CUBOID
-                       || datasetType == H5Helper::DatasetType::CUBOID_C
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name
+                          << ", size: " << dataset->getDims() << std::endl;
+            } else if (datasetType == H5Helper::DatasetType::CUBOID || datasetType == H5Helper::DatasetType::CUBOID_C
                        || datasetType == H5Helper::DatasetType::CUBOID_D
                        || datasetType == H5Helper::DatasetType::CUBOID_S
                        || datasetType == H5Helper::DatasetType::CUBOID_DWNSMPL
@@ -185,10 +183,10 @@ void H5OpenedFile::findDatasetsForVisualization(const H5Helper::Group *group)
                        || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL
                        || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_C
                        || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_D
-                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_S
-                       ) {
+                       || datasetType == H5Helper::DatasetType::CUBOID_ATTR_DWNSMPL_S) {
                 setObject(dataset, DATASET_4D);
-                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name << ", size: " << dataset->getDims() << std::endl;
+                std::cout << "----> " << dataset->getTypeString(datasetType) << ": " << name
+                          << ", size: " << dataset->getDims() << std::endl;
             } else { // Unknown type
                 group->closeDataset(dataset);
             }
@@ -209,9 +207,9 @@ void H5OpenedFile::findDatasetsForVisualization(const H5Helper::Group *group)
  */
 void H5OpenedFile::setObject(H5Helper::Dataset *dataset, ObjectType type)
 {
-    QTime dieTime= QTime::currentTime().addSecs(1);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 5000);
+    QTime dieTime = QTime::currentTime().addSecs(1);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 5000);
     bool objectExists = false;
     foreach (H5ObjectToVisualize *object, objects) {
         if (object->getName() == QString::fromStdString(dataset->getName())) {

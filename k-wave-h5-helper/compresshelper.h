@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        26 September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5Helper::CompressHelper class declaration.
  *
@@ -22,7 +22,7 @@
 
 #include <iostream>
 #include <string>
-#include <algorithm> // std::sort
+#include <algorithm>   // std::sort
 #include <immintrin.h> // _BitScanReverse, __builtin_clz
 
 //#define _USE_MATH_DEFINES // for C++
@@ -51,13 +51,14 @@ typedef long long hssize_t;
 class CompressHelper
 {
 public:
-    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false, float complexSize = 2.0f, int32_t kMaxExp = kMaxExpP);
+    CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize = false, bool shift = false,
+                   float complexSize = 2.0f, int32_t kMaxExp = kMaxExpP);
     ~CompressHelper();
 
     static float findPeriod(const float *dataSrc, hsize_t length);
     float computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const;
-    static void convert40bToFloatC(const uint8_t* iValues, floatC& cValue, const int32_t e);
-    static void convertFloatCTo40b(const floatC cValue, uint8_t* iValues, const int32_t e);
+    static void convert40bToFloatC(const uint8_t *iValues, floatC &cValue, const int32_t e);
+    static void convertFloatCTo40b(const floatC cValue, uint8_t *iValues, const int32_t e);
 
     const floatC *getE() const;
     const floatC *getBE() const;
@@ -81,8 +82,10 @@ private:
     /// \return CompressHelper
     CompressHelper &operator=(const CompressHelper &);
 
-    static void xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
-    static void conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2);
+    static void xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1,
+                      hsize_t lengthSrc2);
+    static void conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1,
+                     hsize_t lengthSrc2);
     static void findPeaks(const float *dataSrc, float *locsDst, float *peaksDst, hsize_t length, hsize_t &lengthDst);
     static void diff(const float *dataSrc, float *dataDst, hsize_t length);
     static void diff(const hsize_t *dataSrc, hsize_t *dataDst, hsize_t length);
@@ -91,11 +94,13 @@ private:
     static float median(const float *dataSrc, hsize_t length);
     static hsize_t median(const hsize_t *dataSrc, hsize_t length);
 
-    void generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize = false, bool shift = false) const;
+    void generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e,
+                           floatC *bE, floatC *bE_1, bool normalize = false, bool shift = false) const;
     void triangular(hsize_t oSize, float *w) const;
     void hann(hsize_t oSize, float *w) const;
     void generateE(float period, hsize_t ih, hsize_t h, hsize_t bSize, floatC *e, bool shift = false) const;
-    void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize = false) const;
+    void generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1,
+                    bool normalize = false) const;
 
     /// Overlap size
     hsize_t oSize = 0;
@@ -124,6 +129,6 @@ private:
     /// Inverted complex exponential window basis
     floatC *bE_1 = nullptr;
 };
-}
+} // namespace H5Helper
 
 #endif // COMPRESSHELPER_H

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing ImageWidget class definition.
  *
@@ -25,11 +25,12 @@
  * @brief Constructor with initialization
  * @param[in] parent Parent (optional)
  */
-ImageWidget::ImageWidget(QWidget *parent) : QWidget(parent)
+ImageWidget::ImageWidget(QWidget *parent)
+    : QWidget(parent)
 {
     adjustFlag = true;
-    point = QPoint(0, 0);
-    hasImage = false;
+    point      = QPoint(0, 0);
+    hasImage   = false;
 }
 
 /**
@@ -67,10 +68,10 @@ void ImageWidget::setAdjust(bool adjust)
 void ImageWidget::clearImage()
 {
     this->filename.clear();
-    point = QPoint(0, 0);
-    hasImage = false;
+    point         = QPoint(0, 0);
+    hasImage      = false;
     originalImage = QImage();
-    scaledImage = QImage();
+    scaledImage   = QImage();
     repaint();
 }
 
@@ -91,17 +92,17 @@ void ImageWidget::refreshImage()
             } else {
                 scaledImage = scaledImage.scaledToHeight(height(), Qt::SmoothTransformation);
             }
-            //emit imageResized(_qimage.width(),_qimage.height());
+            // emit imageResized(_qimage.width(),_qimage.height());
             setMinimumWidth(10);
             setMinimumHeight(10);
-            //adjustSize();
+            // adjustSize();
         } else {
             //  Original image size
-            //if ((originalImage.width() + point.x()) > width()) {
-                setMinimumWidth(originalImage.width() + point.x());
+            // if ((originalImage.width() + point.x()) > width()) {
+            setMinimumWidth(originalImage.width() + point.x());
             //}
-            //if ((originalImage.height() + point.y()) > height()) {
-                setMinimumHeight(originalImage.height() + point.y());
+            // if ((originalImage.height() + point.y()) > height()) {
+            setMinimumHeight(originalImage.height() + point.y());
             //}
             adjustSize();
         }
@@ -126,8 +127,8 @@ void ImageWidget::setFilename(QString filename)
 void ImageWidget::showImage(const QImage &image, QPoint point)
 {
     // Save some info
-    this->point = point;
-    hasImage = true;
+    this->point   = point;
+    hasImage      = true;
     originalImage = image;
     refreshImage();
 }
@@ -173,15 +174,16 @@ void ImageWidget::paintEvent(QPaintEvent *)
 void ImageWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (hasImage) {
-        //qDebug() << "orig:" << event->pos().x() << event->pos().y();
+        // qDebug() << "orig:" << event->pos().x() << event->pos().y();
         QPoint p;
         // Compute mouse position on image
         p.setX((event->pos().x() - point.x()) * originalImage.width() / scaledImage.width());
         p.setY((event->pos().y() - point.y()) * originalImage.height() / scaledImage.height());
-        //qDebug() << p.x() << p.y();
-        // If mouse is not out of image send event
+        // qDebug() << p.x() << p.y();
+        //  If mouse is not out of image send event
         if (p.x() >= 0 && p.x() < originalImage.width() && p.y() >= 0 && p.y() < originalImage.height()) {
-            //QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this, rect());
+            // QToolTip::showText(event->globalPos(), QString::number(p.x()) + " x " + QString::number(p.y()), this,
+            // rect());
             emit hoveredPointInImage(p.x(), p.y());
         }
     }

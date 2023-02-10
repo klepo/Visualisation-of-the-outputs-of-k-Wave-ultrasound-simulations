@@ -43,34 +43,34 @@ void memfree(void *data)
 
 size_t getTotalSystemPhysicalMemory()
 {
-    #ifdef __unix
-        long pages = sysconf(_SC_PHYS_PAGES);
-        long page_size = sysconf(_SC_PAGE_SIZE);
-        return pages * page_size;
-    #endif
+#ifdef __unix
+    long pages     = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+#endif
 
-    #ifdef _WIN32
-        MEMORYSTATUSEX status;
-        status.dwLength = sizeof(status);
-        GlobalMemoryStatusEx(&status);
-        return status.ullTotalPhys;
-    #endif
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx(&status);
+    return status.ullTotalPhys;
+#endif
 }
 
 size_t getAvailableSystemPhysicalMemory()
 {
-    #ifdef __unix
-        long pages = sysconf(_SC_AVPHYS_PAGES);
-        long page_size = sysconf(_SC_PAGE_SIZE);
-        return pages * page_size;
-    #endif
+#ifdef __unix
+    long pages     = sysconf(_SC_AVPHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+#endif
 
-    #ifdef _WIN32
-        MEMORYSTATUSEX status;
-        status.dwLength = sizeof(status);
-        GlobalMemoryStatusEx(&status);
-        return status.ullAvailPhys;
-    #endif
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx(&status);
+    return status.ullAvailPhys;
+#endif
 }
 
 size_t upperPowerOfTwo(size_t x)
@@ -96,7 +96,8 @@ size_t roundUp(size_t numToRound, size_t multiple)
     return numToRound + multiple - remainder;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     float coeff = 0.9999f;
 
     if (argc == 2) {
@@ -111,23 +112,27 @@ int main(int argc, char **argv) {
         }
     }
 
-    //mlockall(MCL_CURRENT | MCL_FUTURE);
+    // mlockall(MCL_CURRENT | MCL_FUTURE);
 
-    //setlocale(LC_NUMERIC, "");
+    // setlocale(LC_NUMERIC, "");
 
-    std::cout << "Total system physical memory:                       " << getTotalSystemPhysicalMemory() << " bytes" << std::endl;
-    std::cout << "Available system physical memory before allocation: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    std::cout << "Total system physical memory:                       " << getTotalSystemPhysicalMemory() << " bytes"
+              << std::endl;
+    std::cout << "Available system physical memory before allocation: " << getAvailableSystemPhysicalMemory()
+              << " bytes" << std::endl;
     size_t size = size_t(float(getAvailableSystemPhysicalMemory()) * coeff);
     std::cout << "Memory to allocate:                                 " << size << " bytes" << std::endl;
     char *mem = static_cast<char *>(memalloc(upperPowerOfTwo(1000000000), size));
     std::cout << "Allocation is running ..." << std::endl;
-    #pragma omp parallel for
+#pragma omp parallel for
     for (long long i = 0; i < static_cast<long long>(size); i++) {
-        mem[i] = 0;//'A' + rand() % 24;
+        mem[i] = 0; //'A' + rand() % 24;
     }
-    std::cout << "Available system physical memory after allocation:  " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    std::cout << "Available system physical memory after allocation:  " << getAvailableSystemPhysicalMemory()
+              << " bytes" << std::endl;
     memfree(mem);
-    std::cout << "Available system physical memory after freeing:     " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    std::cout << "Available system physical memory after freeing:     " << getAvailableSystemPhysicalMemory()
+              << " bytes" << std::endl;
 
     // pripravit soubory, ruzne chunky
     // linearni,
@@ -137,21 +142,18 @@ int main(int argc, char **argv) {
     // bloky 1x64x64x64, 2x64x64x64, 4x64x64x64, 8x64x64x64, 16x64x64x64, 32x64x64x64, 64x64x64x64
     // udelat rozlozeni manualne?
 
-
     /*try {
-        H5Helper::File *file = new H5Helper::File("d:/study/DVI/data/linear/output_kidney_linear_p_cuboid_modified.h5", H5Helper::File::OPEN, true);
-        H5Helper::Dataset *dataset = file->openDataset("p/0", true);
-        float *dataXY = nullptr;
+        H5Helper::File *file = new H5Helper::File("d:/study/DVI/data/linear/output_kidney_linear_p_cuboid_modified.h5",
+    H5Helper::File::OPEN, true); H5Helper::Dataset *dataset = file->openDataset("p/0", true); float *dataXY = nullptr;
         float *dataXZ = nullptr;
         float *dataYZ = nullptr;
         H5Helper::Vector4D dims = dataset->getDims();
         std::cout << "Dimensions \t" << dims << std::endl;
         std::cout << "Chunks     \t" << dataset->getChunkDims() << std::endl;
-        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, dims.z() / 2, 0, 0), H5Helper::Vector4D(1, 1, dims.y(), dims.x()), dataXY, true);
-        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, 0, dims.y() / 2, 0), H5Helper::Vector4D(1, dims.z(), 1, dims.x()), dataXZ, true);
-        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, 0, 0, dims.x() / 2), H5Helper::Vector4D(1, dims.z(), dims.y(), 1), dataYZ, true);
-        delete[] dataXY;
-        delete[] dataXZ;
+        dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, dims.z() / 2, 0, 0), H5Helper::Vector4D(1, 1, dims.y(),
+    dims.x()), dataXY, true); dataset->readDataset(H5Helper::Vector4D(dims.w() / 2, 0, dims.y() / 2, 0),
+    H5Helper::Vector4D(1, dims.z(), 1, dims.x()), dataXZ, true); dataset->readDataset(H5Helper::Vector4D(dims.w() / 2,
+    0, 0, dims.x() / 2), H5Helper::Vector4D(1, dims.z(), dims.y(), 1), dataYZ, true); delete[] dataXY; delete[] dataXZ;
         delete[] dataYZ;
         delete file;
     } catch (std::exception &e) {
@@ -202,7 +204,6 @@ int main(int argc, char **argv) {
 */
     return 0;
 }
-
 
 /*
 int main() {

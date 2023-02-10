@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing ChangeChunks class definition.
  *
@@ -37,10 +37,10 @@ void ChangeChunks::execute()
 {
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
-        hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
-        int count = 0;
+        hsize_t sensorMaskSize      = getDtsForPcs()->getSensorMaskSize();
+        int count                   = 0;
         for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            H5Helper::Dataset *dataset = it->second;
+            H5Helper::Dataset *dataset        = it->second;
             H5Helper::DatasetType datasetType = dataset->getType(sensorMaskSize);
             if (datasetType != H5Helper::DatasetType::UNKNOWN && dataset->isFloatType()) {
                 Helper::printDebugMsg("Change chunks of dataset " + dataset->getName());
@@ -52,7 +52,7 @@ void ChangeChunks::execute()
         if (count == 0) {
             Helper::printErrorMsg("No datasets for changing chunks in simulation output file");
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
@@ -74,7 +74,7 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset)
 
     // Set new chunk dims
     ParamsDefinition::VectorOfULongLongs maxChunkSizes = getSettings()->getMaxChunkSizes();
-    //std::reverse(maxChunkSizes.begin(), maxChunkSizes.end());
+    // std::reverse(maxChunkSizes.begin(), maxChunkSizes.end());
     for (hsize_t i = 0; i < maxChunkSizes.size() && i < chunkDims.getLength(); i++) {
         chunkDims[dims.getLength() - i - 1] = maxChunkSizes.at(i);
         if (chunkDims[dims.getLength() - i - 1] > dims[dims.getLength() - i - 1])
@@ -88,23 +88,21 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset)
     getOutputFile()->createDatasetF(srcDataset->getName(), dims, chunkDims, true);
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(srcDataset->getName());
 
-    float *data = new float[srcDataset->getGeneralBlockDims().getSize()]();
-    float minV = std::numeric_limits<float>::max();
-    float maxV = std::numeric_limits<float>::min();
-    hsize_t minVIndex = 0;
-    hsize_t maxVIndex = 0;
-    float minVG = std::numeric_limits<float>::max();
-    float maxVG = std::numeric_limits<float>::min();
+    float *data        = new float[srcDataset->getGeneralBlockDims().getSize()]();
+    float minV         = std::numeric_limits<float>::max();
+    float maxV         = std::numeric_limits<float>::min();
+    hsize_t minVIndex  = 0;
+    hsize_t maxVIndex  = 0;
+    float minVG        = std::numeric_limits<float>::max();
+    float maxVG        = std::numeric_limits<float>::min();
     hsize_t minVGIndex = 0;
     hsize_t maxVGIndex = 0;
     H5Helper::Vector offset;
     H5Helper::Vector count;
 
-    std::vector<H5Helper::DatasetType> compressTypes = {
-        H5Helper::DatasetType::TIME_STEPS_C_INDEX,
-        H5Helper::DatasetType::CUBOID_C,
-        H5Helper::DatasetType::CUBOID_ATTR_C
-    };
+    std::vector<H5Helper::DatasetType> compressTypes
+        = { H5Helper::DatasetType::TIME_STEPS_C_INDEX, H5Helper::DatasetType::CUBOID_C,
+            H5Helper::DatasetType::CUBOID_ATTR_C };
 
     bool findMinMaxFlag = true;
     if (checkDatasetType(srcDataset->getType(), compressTypes)) {
@@ -119,7 +117,8 @@ void ChangeChunks::changeChunksOfDataset(H5Helper::Dataset *srcDataset)
         hsize_t linearOffset;
         convertMultiDimToLinear(offset, linearOffset, srcDataset->getDims());
         if (findMinMaxFlag) {
-            H5Helper::checkOrSetMinMaxValue(minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex, linearOffset + maxVIndex);
+            H5Helper::checkOrSetMinMaxValue(minVG, maxVG, minV, maxV, minVGIndex, maxVGIndex, linearOffset + minVIndex,
+                                            linearOffset + maxVIndex);
         }
     }
     delete[] data;

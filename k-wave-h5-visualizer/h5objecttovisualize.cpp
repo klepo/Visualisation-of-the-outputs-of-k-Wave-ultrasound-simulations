@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5ObjectToVisualize
  *              class definition.
@@ -58,21 +58,21 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
 {
     threadXY->clearRequests();
     threadXY->wait();
-    //threadXY->terminate();
+    // threadXY->terminate();
     threadXY->deleteLater();
 
     threadXZ->clearRequests();
     threadXZ->wait();
-    //threadXZ->terminate();
+    // threadXZ->terminate();
     threadXZ->deleteLater();
 
     threadYZ->clearRequests();
     threadYZ->wait();
-    //threadYZ->terminate();
+    // threadYZ->terminate();
     threadYZ->deleteLater();
 
     thread3D->clearRequests();
-    //thread3D->terminate();
+    // thread3D->terminate();
     thread3D->wait();
     thread3D->deleteLater();
 
@@ -131,60 +131,60 @@ H5ObjectToVisualize::~H5ObjectToVisualize()
         delete compressHelper;
         compressHelper = nullptr;
     }
-/*
-    QFile *file = new QFile;
-    file->setFileName(QString::fromStdString(getFile()->getFilename()) + QString::fromStdString(dataset->getNameWithUnderscores()) + "_" + QDateTime::currentDateTime().toString("ddMMyyhhmmss") + ".log");
-    file->open(QIODevice::ReadWrite | QIODevice::Text);
-    QTextStream out(file);
-    out.setCodec("UTF-8");
-    //out << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss\n");
-    out << "\"Step\" \"Slice XY\"\n";
-    for (int i = 0; i < timesXY.size(); i++) {
-         out << stepsXY[i] << " " << timesXY[i] << "\n";
-    }
-    out << "\n\n";
-    out << "\"Step\" \"Slice XZ\"\n";
-    for (int i = 0; i < timesXZ.size(); i++) {
-        out << stepsXZ[i] << " " << timesXZ[i] << "\n";
-    }
-    out << "\n\n";
-    out << "\"Step\" \"Slice YZ\"\n";
-    for (int i = 0; i < timesYZ.size(); i++) {
-        out << stepsYZ[i] << " " << timesYZ[i] << "\n";
-    }
-    out << "\n\n";
-    out << "\"Step\" \"3D data\"\n";
-    for (int i = 0; i < times3D.size(); i++) {
-        out << steps3D[i] << " " << times3D[i] << "\n";
-    }
-    out << "\n\n";
-    out << "\"Step\" \"Render\"\n";
-    for (int i = 0; i < renderTimes.size(); i++) {
-        out << renderSteps[i] << " " << renderTimes[i] << "\n";
-    }
-    out << "\n\n";
-    file->close();
+    /*
+        QFile *file = new QFile;
+        file->setFileName(QString::fromStdString(getFile()->getFilename()) +
+       QString::fromStdString(dataset->getNameWithUnderscores()) + "_" +
+       QDateTime::currentDateTime().toString("ddMMyyhhmmss") + ".log"); file->open(QIODevice::ReadWrite |
+       QIODevice::Text); QTextStream out(file); out.setCodec("UTF-8");
+        //out << QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss\n");
+        out << "\"Step\" \"Slice XY\"\n";
+        for (int i = 0; i < timesXY.size(); i++) {
+             out << stepsXY[i] << " " << timesXY[i] << "\n";
+        }
+        out << "\n\n";
+        out << "\"Step\" \"Slice XZ\"\n";
+        for (int i = 0; i < timesXZ.size(); i++) {
+            out << stepsXZ[i] << " " << timesXZ[i] << "\n";
+        }
+        out << "\n\n";
+        out << "\"Step\" \"Slice YZ\"\n";
+        for (int i = 0; i < timesYZ.size(); i++) {
+            out << stepsYZ[i] << " " << timesYZ[i] << "\n";
+        }
+        out << "\n\n";
+        out << "\"Step\" \"3D data\"\n";
+        for (int i = 0; i < times3D.size(); i++) {
+            out << steps3D[i] << " " << times3D[i] << "\n";
+        }
+        out << "\n\n";
+        out << "\"Step\" \"Render\"\n";
+        for (int i = 0; i < renderTimes.size(); i++) {
+            out << renderSteps[i] << " " << renderTimes[i] << "\n";
+        }
+        out << "\n\n";
+        file->close();
 
-    QFileInfo fileInfo(*file);
-    QString program = "gnuplot";
-    QStringList arguments;
-    arguments << "-e";
-    arguments << "set output '" + file->fileName() + ".pdf';input='" + file->fileName() + "';";
-    arguments << fileInfo.path() + "/plot.txt";
+        QFileInfo fileInfo(*file);
+        QString program = "gnuplot";
+        QStringList arguments;
+        arguments << "-e";
+        arguments << "set output '" + file->fileName() + ".pdf';input='" + file->fileName() + "';";
+        arguments << fileInfo.path() + "/plot.txt";
 
-    QProcess *process = new QProcess(this);
-    process->start(program, arguments);
-    process->waitForStarted();
-    if (process->state() == QProcess::NotRunning) {
-        qDebug() << "gnuplot error:" << process->error();
-    } else {
-        process->waitForFinished();
-        qDebug() << "gnuplot exitStatus:" << process->exitStatus();
-        qDebug() << "gnuplot exitCode:" << process->exitCode();
-        qDebug() << "gnuplot stdout:" << process->readAllStandardOutput();
-        qDebug() << "gnuplot stderr:" << process->readAllStandardError();
-    }
-    */
+        QProcess *process = new QProcess(this);
+        process->start(program, arguments);
+        process->waitForStarted();
+        if (process->state() == QProcess::NotRunning) {
+            qDebug() << "gnuplot error:" << process->error();
+        } else {
+            process->waitForFinished();
+            qDebug() << "gnuplot exitStatus:" << process->exitStatus();
+            qDebug() << "gnuplot exitCode:" << process->exitCode();
+            qDebug() << "gnuplot stdout:" << process->readAllStandardOutput();
+            qDebug() << "gnuplot stderr:" << process->readAllStandardError();
+        }
+        */
 }
 
 /**
@@ -303,7 +303,8 @@ QImage H5ObjectToVisualize::getImageXY() const
 {
     QImage qimage = QImage(int(size.x()), int(size.y()), QImage::Format_RGB32);
     ColorMap::applyColorMap(int(size.x() * size.y()), minValue, maxValue, dataXY, qimage.bits(), colormap);
-    return qimage;}
+    return qimage;
+}
 
 /**
  * @brief Returns image XZ
@@ -313,7 +314,8 @@ QImage H5ObjectToVisualize::getImageXZ() const
 {
     QImage qimage = QImage(int(size.x()), int(size.z()), QImage::Format_RGB32);
     ColorMap::applyColorMap(int(size.x() * size.z()), minValue, maxValue, dataXZ, qimage.bits(), colormap);
-    return qimage;}
+    return qimage;
+}
 
 /**
  * @brief Returns image YZ
@@ -321,9 +323,10 @@ QImage H5ObjectToVisualize::getImageXZ() const
  */
 QImage H5ObjectToVisualize::getImageYZ() const
 {
-    QImage qimage  = QImage(int(size.y()), int(size.z()), QImage::Format_RGB32);
+    QImage qimage = QImage(int(size.y()), int(size.z()), QImage::Format_RGB32);
     ColorMap::applyColorMap(int(size.y() * size.z()), minValue, maxValue, dataYZ, qimage.bits(), colormap);
-    return qimage;}
+    return qimage;
+}
 
 /**
  * @brief Returns minimal value
@@ -376,7 +379,7 @@ ColorMap::Type H5ObjectToVisualize::getColormap() const
  */
 QVector<float> H5ObjectToVisualize::getOpacity() const
 {
-  return opacity;
+    return opacity;
 }
 
 /**
@@ -478,25 +481,27 @@ QList<QPair<QString, QString>> H5ObjectToVisualize::getInfo() const
     QList<QPair<QString, QString>> info;
     if (type == H5OpenedFile::DATASET_3D) {
         info.append(QPair<QString, QString>("Name", getName()));
-        info.append(QPair<QString, QString>("Type", "3D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
+        info.append(
+            QPair<QString, QString>("Type", "3D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
         info.append(QPair<QString, QString>("Size", QString::fromStdString(size)));
         if (pointSpacing.getSize() != 0) {
             info.append(QPair<QString, QString>("Real size",
-                                                QString::number(double(size.z() * pointSpacing.z())) + " x " +
-                                                QString::number(double(size.y() * pointSpacing.y())) + " x " +
-                                                QString::number(double(size.x() * pointSpacing.x())) +
-                                                + " [m]"));
+                                                QString::number(double(size.z() * pointSpacing.z())) + " x "
+                                                    + QString::number(double(size.y() * pointSpacing.y())) + " x "
+                                                    + QString::number(double(size.x() * pointSpacing.x())) + +" [m]"));
         }
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z()) {
             info.append(QPair<QString, QString>("Original size", QString::fromStdString(originalSize)));
         }
         if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z()) {
             info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
-            if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z()) {
+            if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y()
+                || frameSize.z() != originalFrameSize.z()) {
                 info.append(QPair<QString, QString>("Original base size", QString::fromStdString(originalFrameSize)));
             }
             info.append(QPair<QString, QString>("Position", QString::fromStdString(position)));
-            if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z()) {
+            if (position.x() != originalPosition.x() || position.y() != originalPosition.y()
+                || position.z() != originalPosition.z()) {
                 info.append(QPair<QString, QString>("Original position", QString::fromStdString(originalPosition)));
             }
         }
@@ -505,32 +510,37 @@ QList<QPair<QString, QString>> H5ObjectToVisualize::getInfo() const
         info.append(QPair<QString, QString>("Max value position", QString::fromStdString(maxValuePosition)));
     } else if (type == H5OpenedFile::DATASET_4D) {
         info.append(QPair<QString, QString>("Name", getName()));
-        info.append(QPair<QString, QString>("Type", "4D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
+        info.append(
+            QPair<QString, QString>("Type", "4D dataset (" + QString::fromStdString(dataset->getTypeString()) + ")"));
         if (compressHelper) {
-            info.append(QPair<QString, QString>("Compression period", QString::number(double(compressHelper->getPeriod()))));
+            info.append(
+                QPair<QString, QString>("Compression period", QString::number(double(compressHelper->getPeriod()))));
             info.append(QPair<QString, QString>("Multiple of overlap size", QString::number(compressHelper->getMos())));
-            info.append(QPair<QString, QString>("Number of harmonics", QString::number(compressHelper->getHarmonics())));
+            info.append(
+                QPair<QString, QString>("Number of harmonics", QString::number(compressHelper->getHarmonics())));
         }
 
         info.append(QPair<QString, QString>("Size", QString::number(steps) + " x " + QString::fromStdString(size)));
         if (pointSpacing.getSize() != 0) {
             info.append(QPair<QString, QString>("Real size",
-                                                QString::number(double(steps * pointSpacing.t())) + " [s] x " +
-                                                QString::number(double(size.z() * pointSpacing.z())) + " x " +
-                                                QString::number(double(size.y() * pointSpacing.y())) + " x " +
-                                                QString::number(double(size.x() * pointSpacing.x())) +
-                                                + " [m]"));
+                                                QString::number(double(steps * pointSpacing.t())) + " [s] x "
+                                                    + QString::number(double(size.z() * pointSpacing.z())) + " x "
+                                                    + QString::number(double(size.y() * pointSpacing.y())) + " x "
+                                                    + QString::number(double(size.x() * pointSpacing.x())) + +" [m]"));
         }
         if (size.x() != originalSize.x() || size.y() != originalSize.y() || size.z() != originalSize.z()) {
-            info.append(QPair<QString, QString>("Original size", QString::number(steps) + " x " + QString::fromStdString(originalSize)));
+            info.append(QPair<QString, QString>("Original size",
+                                                QString::number(steps) + " x " + QString::fromStdString(originalSize)));
         }
         if (frameSize.x() != size.x() || frameSize.y() != size.y() || frameSize.z() != size.z()) {
             info.append(QPair<QString, QString>("Base size", QString::fromStdString(frameSize)));
-            if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y() || frameSize.z() != originalFrameSize.z()) {
+            if (frameSize.x() != originalFrameSize.x() || frameSize.y() != originalFrameSize.y()
+                || frameSize.z() != originalFrameSize.z()) {
                 info.append(QPair<QString, QString>("Original base size", QString::fromStdString(originalFrameSize)));
             }
             info.append(QPair<QString, QString>("Position", QString::fromStdString(position)));
-            if (position.x() != originalPosition.x() || position.y() != originalPosition.y() || position.z() != originalPosition.z()) {
+            if (position.x() != originalPosition.x() || position.y() != originalPosition.y()
+                || position.z() != originalPosition.z()) {
                 info.append(QPair<QString, QString>("Original position", QString::fromStdString(originalPosition)));
             }
         }
@@ -647,7 +657,7 @@ bool H5ObjectToVisualize::isCurrentStepLoaded() const
 {
     if (isCurrentData3DLoaded() && areCurrentSlicesLoaded()) {
         return true;
-    } else   {
+    } else {
         return false;
     }
 }
@@ -667,7 +677,7 @@ const H5Helper::File *H5ObjectToVisualize::getFile() const
  */
 const H5Helper::CompressHelper *H5ObjectToVisualize::getCompressHelper() const
 {
-  return compressHelper;
+    return compressHelper;
 }
 
 /**
@@ -752,9 +762,11 @@ void H5ObjectToVisualize::setXIndex(int value)
         index.x(hsize_t(value));
         emit xIndexChanged(value);
         if (type == H5OpenedFile::DATASET_3D) {
-            threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, hsize_t(value)), H5Helper::Vector3D(size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
+            threadYZ->createRequest(dataset, H5Helper::Vector3D(0, 0, hsize_t(value)),
+                                    H5Helper::Vector3D(size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
         } else {
-            threadYZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, 0, hsize_t(value)), H5Helper::Vector4D(1, size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
+            threadYZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, 0, hsize_t(value)),
+                                    H5Helper::Vector4D(1, size.z(), size.y(), 1), dataYZ, dataYZLC, dataYZCC);
         }
         emit dataYZLoadingStarted();
         threadYZ->start();
@@ -772,9 +784,11 @@ void H5ObjectToVisualize::setYIndex(int value)
         index.y(hsize_t(value));
         emit yIndexChanged(value);
         if (type == H5OpenedFile::DATASET_3D)
-            threadXZ->createRequest(dataset, H5Helper::Vector3D(0, hsize_t(value), 0), H5Helper::Vector3D(size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
+            threadXZ->createRequest(dataset, H5Helper::Vector3D(0, hsize_t(value), 0),
+                                    H5Helper::Vector3D(size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
         else
-            threadXZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, hsize_t(value), 0), H5Helper::Vector4D(1, size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
+            threadXZ->createRequest(dataset, H5Helper::Vector4D(index.t(), 0, hsize_t(value), 0),
+                                    H5Helper::Vector4D(1, size.z(), 1, size.x()), dataXZ, dataXZLC, dataXZCC);
         emit dataXZLoadingStarted();
         threadXZ->start();
     }
@@ -791,9 +805,11 @@ void H5ObjectToVisualize::setZIndex(int value)
         index.z(hsize_t(value));
         emit zIndexChanged(value);
         if (type == H5OpenedFile::DATASET_3D)
-            threadXY->createRequest(dataset, H5Helper::Vector3D(hsize_t(value), 0, 0), H5Helper::Vector3D(1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
+            threadXY->createRequest(dataset, H5Helper::Vector3D(hsize_t(value), 0, 0),
+                                    H5Helper::Vector3D(1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
         else
-            threadXY->createRequest(dataset, H5Helper::Vector4D(index.t(), hsize_t(value), 0, 0), H5Helper::Vector4D(1, 1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
+            threadXY->createRequest(dataset, H5Helper::Vector4D(index.t(), hsize_t(value), 0, 0),
+                                    H5Helper::Vector4D(1, 1, size.y(), size.x()), dataXY, dataXYLC, dataXYCC);
         emit dataXYLoadingStarted();
         threadXY->start();
     }
@@ -835,7 +851,7 @@ void H5ObjectToVisualize::setCurrentStep(int step)
                 load3Ddata();
                 reloadSlices();
             }
-        } catch(std::exception &) {
+        } catch (std::exception &) {
             std::cerr << "Wrong step" << std::endl;
         }
     }
@@ -1183,7 +1199,7 @@ void H5ObjectToVisualize::initialize()
     dataXY = new float[size.y() * size.x()]();
     dataXZ = new float[size.z() * size.x()]();
     dataYZ = new float[size.z() * size.y()]();
-    //data3D = new float[size.getSize()]();
+    // data3D = new float[size.getSize()]();
 
     if (compressHelper) {
         dataXYCC = new float[size.y() * size.x() * compressHelper->getStride()]();
@@ -1224,24 +1240,28 @@ void H5ObjectToVisualize::loadObjectData()
     H5Helper::convertlinearToMultiDim(maxValueIndex, maxValuePosition, dataset->getDims());
 
     // Size of dataset (can be downsampled)
-    size = H5Helper::Vector3D(dataset->getDims());
+    size         = H5Helper::Vector3D(dataset->getDims());
     pointSpacing = dataset->getFile()->getDValues();
     originalSize = size;
 
     // Set 3D frame size
-    frameSize = H5Helper::Vector3D(dataset->getFile()->getNDims());
+    frameSize         = H5Helper::Vector3D(dataset->getFile()->getNDims());
     originalFrameSize = frameSize;
 
     // If masked
-    if (dataset->hasAttribute(H5Helper::POSITION_X_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Y_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Z_ATTR)) {
+    if (dataset->hasAttribute(H5Helper::POSITION_X_ATTR) && dataset->hasAttribute(H5Helper::POSITION_Y_ATTR)
+        && dataset->hasAttribute(H5Helper::POSITION_Z_ATTR)) {
         position.z(dataset->readAttributeI(H5Helper::POSITION_Z_ATTR));
         position.y(dataset->readAttributeI(H5Helper::POSITION_Y_ATTR));
         position.x(dataset->readAttributeI(H5Helper::POSITION_X_ATTR));
         originalPosition = position;
-    } else if (dataset->getFile()->objExistsByName(H5Helper::SENSOR_MASK_CORNERS_DATASET)) {// if (dataset->getType(0, ) == H5Helper::DatasetType::BASIC_CUBOID) {
+    } else if (dataset->getFile()->objExistsByName(
+                   H5Helper::SENSOR_MASK_CORNERS_DATASET)) { // if (dataset->getType(0, ) ==
+                                                             // H5Helper::DatasetType::BASIC_CUBOID) {
         // Try to get position from sensor_mask_corners dataset
         if (type == H5OpenedFile::DATASET_4D || dataset->getType() == H5Helper::DatasetType::BASIC_CUBOID) {
-            H5Helper::Dataset *sensorMaskCornersDataset = dataset->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
+            H5Helper::Dataset *sensorMaskCornersDataset
+                = dataset->getFile()->openDataset(H5Helper::SENSOR_MASK_CORNERS_DATASET);
             hsize_t *sensorMaskCornersData = nullptr;
             sensorMaskCornersDataset->readDataset(sensorMaskCornersData);
             // Name of the dataset to index
@@ -1262,25 +1282,21 @@ void H5ObjectToVisualize::loadObjectData()
     }
 
     // If downsampled
-    if (dataset->hasAttribute(H5Helper::SRC_SIZE_X_ATTR)
-            && dataset->hasAttribute(H5Helper::SRC_SIZE_Y_ATTR)
-            && dataset->hasAttribute(H5Helper::SRC_SIZE_Z_ATTR)
-            && dataset->hasAttribute(H5Helper::SRC_DATASET_NAME_ATTR)
-            ) {
+    if (dataset->hasAttribute(H5Helper::SRC_SIZE_X_ATTR) && dataset->hasAttribute(H5Helper::SRC_SIZE_Y_ATTR)
+        && dataset->hasAttribute(H5Helper::SRC_SIZE_Z_ATTR) && dataset->hasAttribute(H5Helper::SRC_DATASET_NAME_ATTR)) {
         originalSize.x(dataset->readAttributeI(H5Helper::SRC_SIZE_X_ATTR));
         originalSize.y(dataset->readAttributeI(H5Helper::SRC_SIZE_Y_ATTR));
         originalSize.z(dataset->readAttributeI(H5Helper::SRC_SIZE_Z_ATTR));
 
-        if (dataset->hasAttribute(H5Helper::SRC_POSITION_Z_ATTR)
-                    && dataset->hasAttribute(H5Helper::SRC_POSITION_Y_ATTR)
-                    && dataset->hasAttribute(H5Helper::SRC_POSITION_X_ATTR)
-                ) {
+        if (dataset->hasAttribute(H5Helper::SRC_POSITION_Z_ATTR) && dataset->hasAttribute(H5Helper::SRC_POSITION_Y_ATTR)
+            && dataset->hasAttribute(H5Helper::SRC_POSITION_X_ATTR)) {
             originalPosition.x(dataset->readAttributeI(H5Helper::SRC_POSITION_X_ATTR));
             originalPosition.y(dataset->readAttributeI(H5Helper::SRC_POSITION_Y_ATTR));
             originalPosition.z(dataset->readAttributeI(H5Helper::SRC_POSITION_Z_ATTR));
         }
 
-        float ratio = float(qMax(size.x(), qMax(size.y(), size.z()))) / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));
+        float ratio = float(qMax(size.x(), qMax(size.y(), size.z())))
+                      / qMax(originalSize.x(), qMax(originalSize.y(), originalSize.z()));
         frameSize.x(hsize_t(qRound(frameSize.x() * ratio)));
         frameSize.y(hsize_t(qRound(frameSize.y() * ratio)));
         frameSize.z(hsize_t(qRound(frameSize.z() * ratio)));
@@ -1291,10 +1307,13 @@ void H5ObjectToVisualize::loadObjectData()
         steps = H5Helper::Vector4D(dataset->getDims()).w();
     }
 
-    if (dataset->getType() == H5Helper::DatasetType::CUBOID_ATTR_C || dataset->getType() == H5Helper::DatasetType::CUBOID_C) {
+    if (dataset->getType() == H5Helper::DatasetType::CUBOID_ATTR_C
+        || dataset->getType() == H5Helper::DatasetType::CUBOID_C) {
         hsize_t mos = dataset->hasAttribute(H5Helper::C_MOS_ATTR) ? dataset->readAttributeI(H5Helper::C_MOS_ATTR) : 1;
-        hsize_t harmonics = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
-        bool shift = dataset->hasAttribute("c_shift") ? dataset->readAttributeI("c_shift") > 0 : false;
+        hsize_t harmonics = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR)
+                                ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR)
+                                : 1;
+        bool shift        = dataset->hasAttribute("c_shift") ? dataset->readAttributeI("c_shift") > 0 : false;
         float complexSize = 2.0f;
         // TODO complexSize40bit
         if (dataset->hasAttribute("c_complex_size")) {
@@ -1303,10 +1322,12 @@ void H5ObjectToVisualize::loadObjectData()
             }
         }
         int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
-        if (dataset->getName() == "/" + H5Helper::P_INDEX_DATASET || dataset->getName() == "/" + H5Helper::P_CUBOID_DATASET) {
+        if (dataset->getName() == "/" + H5Helper::P_INDEX_DATASET
+            || dataset->getName() == "/" + H5Helper::P_CUBOID_DATASET) {
             kMaxExp = H5Helper::CompressHelper::kMaxExpP;
         }
-        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics, false, shift, complexSize, kMaxExp);
+        compressHelper = new H5Helper::CompressHelper(dataset->readAttributeF(H5Helper::C_PERIOD_ATTR), mos, harmonics,
+                                                      false, shift, complexSize, kMaxExp);
 
         size.x(hsize_t(floorf(size.x() / compressHelper->getStride())));
         originalSize.x(hsize_t(floorf(originalSize.x() / compressHelper->getStride())));

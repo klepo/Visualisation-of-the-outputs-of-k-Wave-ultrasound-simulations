@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with SliceDockWidget class declaration.
  *
@@ -28,7 +28,8 @@
 #include "abstractwidget.h"
 #include "h5objecttovisualize.h"
 
-namespace Ui {
+namespace Ui
+{
 class SliceDockWidget;
 }
 
@@ -41,7 +42,8 @@ class SliceDockWidget : public QDockWidget, public AbstractWidget
 
 public:
     /// XY, XZ, YZ slice type
-    typedef enum SliceType {
+    typedef enum SliceType
+    {
         XY,
         XZ,
         YZ

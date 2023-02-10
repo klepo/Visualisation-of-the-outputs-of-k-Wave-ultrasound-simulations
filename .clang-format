@@ -1,0 +1,58 @@
+# Format Style Options - Created with Clang Power Tools
+---
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
+AlignOperands: Align
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: true
+BasedOnStyle: WebKit
+BinPackArguments: true
+BinPackParameters: true
+BraceWrapping: 
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: false
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+  BeforeLambdaBody: false
+  BeforeWhile: false
+BreakBeforeBraces: Custom
+BreakBeforeBinaryOperators: All
+BreakBeforeTernaryOperators: true
+ColumnLimit: 120
+#Cpp11BracedListStyle: true
+#ExperimentalAutoDetectBinPacking: true
+FixNamespaceComments: true
+IndentCaseLabels: true
+IndentWidth: 4
+Language: Cpp
+MaxEmptyLinesToKeep: 1
+ObjCBlockIndentWidth: 4
+PointerAlignment: Right
+ReflowComments: true
+SortIncludes: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: false
+Standard: c++11
+TabWidth: 4
+UseTab: Never
+...

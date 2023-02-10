@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing SliceDockWidget class definition.
  *
@@ -19,28 +19,25 @@
 
 #include "slicedockwidget.h"
 
-const std::map<SliceDockWidget::SliceType, std::string> SliceDockWidget::sliceTypeStr = {
-    {XY, "XY"},
-    {XZ, "XZ"},
-    {YZ, "YZ"}
-};
+const std::map<SliceDockWidget::SliceType, std::string> SliceDockWidget::sliceTypeStr
+    = { { XY, "XY" }, { XZ, "XZ" }, { YZ, "YZ" } };
 
 /**
  * @brief Creates SliceDockWidget object
  * @param[in] parent Parent (optional)
  */
-SliceDockWidget::SliceDockWidget(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::SliceDockWidget)
+SliceDockWidget::SliceDockWidget(QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::SliceDockWidget)
 {
     ui->setupUi(this);
 
     // Create loading animation
-    //ui->labelLoading->setVisible(false);
+    // ui->labelLoading->setVisible(false);
     movie = new QMovie(":/icons/icons/loading.gif");
     movie->setCacheMode(QMovie::CacheAll);
     movie->start();
-    //ui->labelLoading->setMovie(movie);
+    // ui->labelLoading->setMovie(movie);
 
     QFont newFont = font();
     newFont.setBold(true);
@@ -106,7 +103,8 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(zIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageXYChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentXYLoaded()), this, SLOT(hideLabelLoading()));
-        connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXY(int, int)));
+        connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object,
+                SLOT(setHoveredPointInImageXY(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setZIndex(int)));
         connect(this, SIGNAL(visibilityChanged(bool)), object, SLOT(setDataXYLoadingFlag(bool)));
         object->setDataXYLoadingFlag(isVisible());
@@ -122,7 +120,8 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(yIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageXZChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentXZLoaded()), this, SLOT(hideLabelLoading()));
-        connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageXZ(int, int)));
+        connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object,
+                SLOT(setHoveredPointInImageXZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setYIndex(int)));
         connect(this, SIGNAL(visibilityChanged(bool)), object, SLOT(setDataXZLoadingFlag(bool)));
         object->setDataXZLoadingFlag(isVisible());
@@ -138,7 +137,8 @@ void SliceDockWidget::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(xIndexChanged(int)), this, SLOT(setSliceIndex(int)));
         connect(object, SIGNAL(imageYZChanged(QImage)), ui->imageWidget, SLOT(showImage(QImage)));
         connect(object, SIGNAL(currentYZLoaded()), this, SLOT(hideLabelLoading()));
-        connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object, SLOT(setHoveredPointInImageYZ(int, int)));
+        connect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), object,
+                SLOT(setHoveredPointInImageYZ(int, int)));
         connect(this, SIGNAL(sliceIndexChanged(int)), object, SLOT(setXIndex(int)));
         connect(this, SIGNAL(visibilityChanged(bool)), object, SLOT(setDataYZLoadingFlag(bool)));
         object->setDataYZLoadingFlag(isVisible());
@@ -164,7 +164,7 @@ void SliceDockWidget::clear()
 {
     disconnect(ui->imageWidget, SIGNAL(hoveredPointInImage(int, int)), nullptr, nullptr);
     disconnect(this, SIGNAL(sliceIndexChanged(int)), nullptr, nullptr);
-    //disconnect(this, SIGNAL(visibilityChanged(bool)), nullptr, nullptr);
+    // disconnect(this, SIGNAL(visibilityChanged(bool)), nullptr, nullptr);
     ui->horizontalSlider->setMaximum(0);
     ui->spinBox->setMaximum(0);
     ui->spinBox->setValue(0);
@@ -241,7 +241,8 @@ void SliceDockWidget::showReadingTime(qint64 value)
  */
 void SliceDockWidget::setColor(QColor color)
 {
-    QString colorString = "color: rgb(" + QString::number(color.red()) + ", " + QString::number(color.green()) + ", " + QString::number(color.blue()) + ");";
+    QString colorString = "color: rgb(" + QString::number(color.red()) + ", " + QString::number(color.green()) + ", "
+                          + QString::number(color.blue()) + ");";
     ui->spinBox->setStyleSheet(colorString);
 }
 
@@ -251,5 +252,6 @@ void SliceDockWidget::setColor(QColor color)
  */
 QString SliceDockWidget::getImageFilename()
 {
-    return imageName + "_-_" + QString::fromStdString(sliceTypeStr.at(sliceType)) + "_" + QString::number(ui->spinBox->value());
+    return imageName + "_-_" + QString::fromStdString(sliceTypeStr.at(sliceType)) + "_"
+           + QString::number(ui->spinBox->value());
 }

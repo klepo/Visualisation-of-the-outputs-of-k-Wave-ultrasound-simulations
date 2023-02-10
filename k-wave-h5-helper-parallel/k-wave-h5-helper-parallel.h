@@ -5,7 +5,8 @@
  * @date        30 July      2014 (created) <br>
  *              27 March     2019 (updated)
  *
- * @brief       Old not updated nonfunctional! The header file including important HDF5Helper classes with defined PARALLEL_HDF5 macro.
+ * @brief       Old not updated nonfunctional! The header file including important HDF5Helper classes with defined
+ * PARALLEL_HDF5 macro.
  *
  * @license     This file is part of the k-wave-h5-helper library for processing the HDF5 data
  *              created by the k-Wave toolbox - http://www.k-wave.org. This file may be used,
@@ -21,7 +22,7 @@
 #define HDF5HELPERPARALLEL_H
 
 #ifndef PARALLEL_HDF5
-    #define PARALLEL_HDF5
+#define PARALLEL_HDF5
 #endif
 
 #include <HDF5File.h>

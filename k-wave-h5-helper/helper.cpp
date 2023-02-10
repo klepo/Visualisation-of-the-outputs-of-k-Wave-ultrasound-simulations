@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Helper class definition.
  *
@@ -19,7 +19,8 @@
 
 #include "helper.h"
 
-namespace Helper {
+namespace Helper
+{
 
 /// Enable debug messages flag
 bool enableDebugMsgs = true;
@@ -119,7 +120,8 @@ void printMsgEnd(std::string str)
  * @param[in] second Second string
  * @param[in] width Column width (optional)
  */
-void printDebugTwoColumnsS(std::string first, std::string second, size_t indentation, size_t firstWidth, size_t secondWidth, bool rightAlign)
+void printDebugTwoColumnsS(std::string first, std::string second, size_t indentation, size_t firstWidth,
+                           size_t secondWidth, bool rightAlign)
 {
     if (!enableDebugMsgs)
         return;
@@ -145,7 +147,8 @@ void printDebugTwoColumnsS(std::string first, std::string second, size_t indenta
  * @param[in] second Second string
  * @param[in] width Column width (optional)
  */
-void printDebugTwoColumnsS(std::string first, int second, size_t indentation, size_t firstWidth, size_t secondWidth, bool rightAlign)
+void printDebugTwoColumnsS(std::string first, int second, size_t indentation, size_t firstWidth, size_t secondWidth,
+                           bool rightAlign)
 {
     printDebugTwoColumnsS(first, std::to_string(second), indentation, firstWidth, secondWidth, rightAlign);
 }
@@ -156,7 +159,8 @@ void printDebugTwoColumnsS(std::string first, int second, size_t indentation, si
  * @param[in] second Second string
  * @param[in] width Column width (optional)
  */
-void printDebugTwoColumnsS(std::string first, unsigned long long second, size_t indentation, size_t firstWidth, size_t secondWidth, bool rightAlign)
+void printDebugTwoColumnsS(std::string first, unsigned long long second, size_t indentation, size_t firstWidth,
+                           size_t secondWidth, bool rightAlign)
 {
     printDebugTwoColumnsS(first, std::to_string(second), indentation, firstWidth, secondWidth, rightAlign);
 }
@@ -167,7 +171,8 @@ void printDebugTwoColumnsS(std::string first, unsigned long long second, size_t 
  * @param[in] second Second string
  * @param[in] width Column width (optional)
  */
-void printDebugTwoColumnsS(std::string first, float second, size_t indentation, size_t firstWidth, size_t secondWidth, bool rightAlign)
+void printDebugTwoColumnsS(std::string first, float second, size_t indentation, size_t firstWidth, size_t secondWidth,
+                           bool rightAlign)
 {
     std::ostringstream out;
     out.precision(4);
@@ -181,7 +186,8 @@ void printDebugTwoColumnsS(std::string first, float second, size_t indentation, 
  * @param[in] second Second string
  * @param[in] width Column width (optional)
  */
-void printDebugTwoColumnsS(std::string first, double second, size_t indentation, size_t firstWidth, size_t secondWidth, bool rightAlign)
+void printDebugTwoColumnsS(std::string first, double second, size_t indentation, size_t firstWidth, size_t secondWidth,
+                           bool rightAlign)
 {
     printDebugTwoColumnsS(first, std::to_string(second), indentation, firstWidth, secondWidth, rightAlign);
 }
@@ -226,7 +232,6 @@ void printDebugLine()
     std::cout << "+" << std::string(63, '-') << "+" << std::endl;
 }
 
-
 void printLine()
 {
     std::cout << "+" << std::string(63, '-') << "+" << std::endl;
@@ -239,37 +244,41 @@ void printLineErr()
 
 std::string wrapMsg(std::string str, size_t indentation, size_t firstIndentation, bool rightAlign)
 {
-    size_t s = 61;
-    std::string strIn = str.substr(0, (str.find_last_not_of(' ') + 1));
-    std::string strOut = "";
+    size_t s                  = 61;
+    std::string strIn         = str.substr(0, (str.find_last_not_of(' ') + 1));
+    std::string strOut        = "";
     size_t currentIndentation = firstIndentation;
     while (strIn.length() + currentIndentation > s) {
         size_t pos = strIn.substr(0, s - currentIndentation).find_last_of(" ");
-        size_t c = 0;
+        size_t c   = 0;
         if (pos == std::string::npos) {
-            c = 1;
+            c   = 1;
             pos = strIn.substr(0, s - currentIndentation - c).find_last_of(",.-?:_\"!'/()=%;~^\\|");
             if (pos == std::string::npos) {
                 pos = s - currentIndentation - c;
             }
         }
         std::string strCurrent = strIn.substr(0, pos + c);
-        size_t first = strCurrent.find_first_not_of(' ');
-        size_t last = strCurrent.find_last_not_of(' ');
-        strCurrent = strCurrent.substr(first, (last - first + 1));
+        size_t first           = strCurrent.find_first_not_of(' ');
+        size_t last            = strCurrent.find_last_not_of(' ');
+        strCurrent             = strCurrent.substr(first, (last - first + 1));
 
         if (rightAlign)
-            strOut += "| " + std::string(s - strCurrent.length() - currentIndentation, ' ') + strCurrent + std::string(currentIndentation, ' ') + " |\n";
+            strOut += "| " + std::string(s - strCurrent.length() - currentIndentation, ' ') + strCurrent
+                      + std::string(currentIndentation, ' ') + " |\n";
         else
-            strOut += "| " + std::string(currentIndentation, ' ') + strCurrent + std::string(s - strCurrent.length() - currentIndentation, ' ') + " |\n";
-        strIn = strIn.substr(pos + 1);
+            strOut += "| " + std::string(currentIndentation, ' ') + strCurrent
+                      + std::string(s - strCurrent.length() - currentIndentation, ' ') + " |\n";
+        strIn              = strIn.substr(pos + 1);
         currentIndentation = indentation;
     }
-    //strOut += strIn + std::string(s - strIn.length() - currentIndentation, ' ') + " |\n";
+    // strOut += strIn + std::string(s - strIn.length() - currentIndentation, ' ') + " |\n";
     if (rightAlign)
-        strOut += "| " + std::string(s - strIn.length() - currentIndentation, ' ') + strIn + std::string(currentIndentation, ' ') + " |\n";
+        strOut += "| " + std::string(s - strIn.length() - currentIndentation, ' ') + strIn
+                  + std::string(currentIndentation, ' ') + " |\n";
     else
-        strOut += "| " + std::string(currentIndentation, ' ') + strIn + std::string(s - strIn.length() - currentIndentation, ' ') + " |\n";
+        strOut += "| " + std::string(currentIndentation, ' ') + strIn
+                  + std::string(s - strIn.length() - currentIndentation, ' ') + " |\n";
     return strOut;
 }
 
@@ -282,7 +291,7 @@ std::string wrapMsg(std::string str, size_t indentation, size_t firstIndentation
 float roundf(float number, int n)
 {
     if (n != 0) {
-        float c = powf(10.0, float(n));
+        float c  = powf(10.0, float(n));
         float c1 = roundf(number * c);
         return c1 / c;
     } else {
@@ -335,4 +344,4 @@ void recoverLastDebugFlag()
     enableDebugMsgs = debugFlag.top();
     debugFlag.pop();
 }
-}
+} // namespace Helper

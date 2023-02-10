@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The main implementation file containing k-Wave HDF5 processing application.
  *
@@ -49,25 +49,20 @@ int main(int argc, const char **argv)
     H5Helper::CompressHelper::convert40bToFloatC(in, number, kMaxExpP);
     std::cout << float(number.imag()) << std::endl;
     return 0;*/
-    //std::exit(EXIT_SUCCESS);
+    // std::exit(EXIT_SUCCESS);
 
     Settings *settings = new Settings(argc, argv);
 
     FilesContext *filesContext = new FilesContext(settings);
-    DtsForPcs *dtsForPcs = new DtsForPcs(filesContext, settings);
+    DtsForPcs *dtsForPcs       = new DtsForPcs(filesContext, settings);
 
-    //Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
+    // Helper::printDebugTwoColumns2S("omp_get_max_threads", omp_get_max_threads());
 
     // TODO:
     // - kolize souborů?
 
-    if (settings->getFlagReshape()
-            || settings->getFlagDwnsmpl()
-            || settings->getFlagChangeChunks()
-            || settings->getFlagCompress()
-            || settings->getFlagDecompress()
-            || settings->getFlagDifference()
-            ) {
+    if (settings->getFlagReshape() || settings->getFlagDwnsmpl() || settings->getFlagChangeChunks()
+        || settings->getFlagCompress() || settings->getFlagDecompress() || settings->getFlagDifference()) {
         // Processing of sensor mask
         if (settings->getFlagReshape()) {
             Helper::printDebugTitle("Reshaping");

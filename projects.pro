@@ -18,7 +18,7 @@ SUBDIRS +=  \
     rewrite-ram \
     \ #tests \
 
-if(isEqual(QT_MAJOR_VERSION, 5) : greaterThan(QT_MINOR_VERSION, 2)) | greaterThan(QT_MAJOR_VERSION, 5) {
+if (isEqual(QT_MAJOR_VERSION, 5) : greaterThan(QT_MINOR_VERSION, 2)) | greaterThan(QT_MAJOR_VERSION, 5) {
     SUBDIRS += \
         k-wave-h5-visualizer \
         \ #k-wave-h5-processing-gui

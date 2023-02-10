@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with Settings3DDockWidget class declaration.
  *
@@ -24,7 +24,8 @@
 
 #include "ui_settings3ddockwidget.h"
 
-namespace Ui {
+namespace Ui
+{
 class Settings3DDockWidget;
 }
 

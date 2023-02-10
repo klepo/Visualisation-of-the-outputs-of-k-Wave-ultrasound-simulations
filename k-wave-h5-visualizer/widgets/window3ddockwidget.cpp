@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Window3DDockWidget class definition.
  *
@@ -23,9 +23,9 @@
  * @brief Creates Window3DDockWidget object
  * @param[in] parent Parent (optional)
  */
-Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::Window3DDockWidget)
+Window3DDockWidget::Window3DDockWidget(QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::Window3DDockWidget)
 {
     ui->setupUi(this);
 
@@ -38,11 +38,11 @@ Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
     qVBoxLayout->insertWidget(0, widget);
 
     // Create loading animation
-    //ui->label3DLoading->setVisible(false);
+    // ui->label3DLoading->setVisible(false);
     movie = new QMovie(":/icons/icons/loading.gif");
     movie->setCacheMode(QMovie::CacheAll);
     movie->start();
-    //ui->label3DLoading->setMovie(movie);
+    // ui->label3DLoading->setMovie(movie);
 }
 
 /**
@@ -52,7 +52,7 @@ Window3DDockWidget::Window3DDockWidget(QWidget *parent) :
  */
 Window3DDockWidget::~Window3DDockWidget()
 {
-    //clear();
+    // clear();
     delete ui;
     delete gWindow;
     gWindow = nullptr;
@@ -78,7 +78,6 @@ void Window3DDockWidget::setObject(H5ObjectToVisualize *object)
     connect(object, SIGNAL(data3DLoadingStarted()), this, SLOT(showLabel3DLoading()));
     connect(object, SIGNAL(currentData3DLoaded()), this, SLOT(hideLabel3DLoading()));
     connect(object, SIGNAL(last3DReadingTimeNs(qint64)), this, SLOT(showReadingTime(qint64)));
-
 }
 
 /**
@@ -127,4 +126,3 @@ void Window3DDockWidget::showReadingTime(qint64 value)
 {
     ui->labelInfo->setText("Last 3D read time: " + QString::number(double(value) / 1000000, 'f', 3) + " ms");
 }
-

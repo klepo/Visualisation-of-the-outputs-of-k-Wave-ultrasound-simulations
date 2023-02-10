@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing OpenGLWindow class definition.
  *
@@ -67,12 +67,12 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     // Smoother lines
     surfaceFormat.setSamples(4);
 
-    //surfaceFormat.setSwapBehavior(QSurfaceFormat::SingleBuffer);
-    //surfaceFormat.setSwapInterval(0);
+    // surfaceFormat.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+    // surfaceFormat.setSwapInterval(0);
 
     setFormat(surfaceFormat);
 
-    //qDebug() << this->requestedFormat().swapBehavior() << this->requestedFormat().swapInterval();
+    // qDebug() << this->requestedFormat().swapBehavior() << this->requestedFormat().swapInterval();
 }
 
 /**
@@ -80,10 +80,10 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
  */
 OpenGLWindow::~OpenGLWindow()
 {
-    //moveTimer->stop();
-    //delete moveTimer;
-    //delete context; // Some BUG - deletion causes wrong freeing memory
-    //thread->deleteLater();
+    // moveTimer->stop();
+    // delete moveTimer;
+    // delete context; // Some BUG - deletion causes wrong freeing memory
+    // thread->deleteLater();
 }
 
 /**
@@ -93,7 +93,7 @@ OpenGLWindow::~OpenGLWindow()
  */
 bool OpenGLWindow::event(QEvent *event)
 {
-    //qDebug() << event->type();
+    // qDebug() << event->type();
     switch (event->type()) {
         case QEvent::UpdateRequest:
             updatePending = false;
@@ -166,14 +166,14 @@ void OpenGLWindow::renderLater()
  */
 void OpenGLWindow::renderNow()
 {
-    //timer.start();
+    // timer.start();
 
     if (!isExposed())
         return;
 
     checkInitAndMakeCurrentContext();
 
-    //glFinish();
+    // glFinish();
 
     // timer
     QElapsedTimer timer;
@@ -182,27 +182,27 @@ void OpenGLWindow::renderNow()
     render();
 
     glFinish();
-    //glFlush();
+    // glFlush();
     context->swapBuffers(this);
-    //context->makeCurrent(this);
-    //context->makeCurrent(this);
-    //context->swapBuffers(this);
+    // context->makeCurrent(this);
+    // context->makeCurrent(this);
+    // context->swapBuffers(this);
 
-    //QTest::qSleep(17); // max ca 60 fps
+    // QTest::qSleep(17); // max ca 60 fps
 
     elapsedNs = timer.nsecsElapsed();
-    //elapsedMs = double(elapsed / 1000000.0);
+    // elapsedMs = double(elapsed / 1000000.0);
     emit rendered(elapsedNs);
 
-    //QString framesPerSecond;
-    //framesPerSecond.setNum(1000.0 / elapsedNs, 'f', 2);
+    // QString framesPerSecond;
+    // framesPerSecond.setNum(1000.0 / elapsedNs, 'f', 2);
 
-    //qDebug() << "render time:" << elapsedNs << "ms";
-    //qDebug() << framesPerSecond.toDouble() << "fps";
+    // qDebug() << "render time:" << elapsedNs << "ms";
+    // qDebug() << framesPerSecond.toDouble() << "fps";
 
     // Change last position
     lastPositionPressed = currentPositionPressed;
-    wheelDelta = 0;
+    wheelDelta          = 0;
 }
 
 /**
@@ -230,7 +230,7 @@ void OpenGLWindow::mousePressEvent(QMouseEvent *event)
     mouseDown = true;
     // Save mouse position
     currentPositionPressed = event->pos();
-    lastPositionPressed = currentPositionPressed;
+    lastPositionPressed    = currentPositionPressed;
     renderLater();
 }
 
@@ -255,8 +255,8 @@ void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
 {
     rightButtonPressed = false;
-    leftButtonPressed = false;
-    mouseDown = false;
+    leftButtonPressed  = false;
+    mouseDown          = false;
     renderLater();
 }
 
@@ -283,7 +283,8 @@ GLenum OpenGLWindow::checkGlError()
         ret = err;
         QMessageBox messageBox;
         qWarning() << "OpenGL error:" << getGLErrorString(err) << err;
-        messageBox.critical(nullptr, "OpenGL error", (getGLErrorString(err) + " " + QString::number(err)).toStdString().c_str());
+        messageBox.critical(nullptr, "OpenGL error",
+                            (getGLErrorString(err) + " " + QString::number(err)).toStdString().c_str());
     }
     return ret;
 }
@@ -298,7 +299,8 @@ GLenum OpenGLWindow::checkFramebufferStatus()
     if (err != GL_FRAMEBUFFER_COMPLETE) {
         QMessageBox messageBox;
         qWarning() << "OpenGL framebuffer error:" << getGLFramebufferStatusString(err) << err;
-        messageBox.critical(nullptr, "OpenGL error", (getGLFramebufferStatusString(err) + " " + QString::number(err)).toStdString().c_str());
+        messageBox.critical(nullptr, "OpenGL error",
+                            (getGLFramebufferStatusString(err) + " " + QString::number(err)).toStdString().c_str());
     }
     return err;
 }
@@ -312,32 +314,32 @@ QString OpenGLWindow::getGLErrorString(GLenum errorCode) const
 {
     QString ret = "UNKNOWN ERROR";
     switch (errorCode) {
-    case GL_INVALID_ENUM:
-        ret = "GL_INVALID_ENUM";
-        break;
-    case GL_INVALID_VALUE:
-        ret = "GL_INVALID_VALUE";
-        break;
-    case GL_INVALID_OPERATION:
-        ret = "GL_INVALID_OPERATION";
-        break;
-    case GL_STACK_OVERFLOW:
-        ret = "GL_STACK_OVERFLOW";
-        break;
-    case GL_STACK_UNDERFLOW:
-        ret = "GL_STACK_UNDERFLOW";
-        break;
-    case GL_OUT_OF_MEMORY:
-        ret = "GL_OUT_OF_MEMORY";
-        break;
-    case GL_TABLE_TOO_LARGE:
-        ret = "GL_TABLE_TOO_LARGE";
-        break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-        ret = "GL_INVALID_FRAMEBUFFER_OPERATION";
-        break;
-    default:
-        break;
+        case GL_INVALID_ENUM:
+            ret = "GL_INVALID_ENUM";
+            break;
+        case GL_INVALID_VALUE:
+            ret = "GL_INVALID_VALUE";
+            break;
+        case GL_INVALID_OPERATION:
+            ret = "GL_INVALID_OPERATION";
+            break;
+        case GL_STACK_OVERFLOW:
+            ret = "GL_STACK_OVERFLOW";
+            break;
+        case GL_STACK_UNDERFLOW:
+            ret = "GL_STACK_UNDERFLOW";
+            break;
+        case GL_OUT_OF_MEMORY:
+            ret = "GL_OUT_OF_MEMORY";
+            break;
+        case GL_TABLE_TOO_LARGE:
+            ret = "GL_TABLE_TOO_LARGE";
+            break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            ret = "GL_INVALID_FRAMEBUFFER_OPERATION";
+            break;
+        default:
+            break;
     }
     return ret;
 }
@@ -351,35 +353,35 @@ QString OpenGLWindow::getGLFramebufferStatusString(GLenum errorCode) const
 {
     QString ret = "UNKNOWN ERROR";
     switch (errorCode) {
-    case GL_FRAMEBUFFER_COMPLETE:
-        ret = "GL_FRAMEBUFFER_COMPLETE";
-        break;
-    case GL_FRAMEBUFFER_UNDEFINED:
-        ret = "GL_FRAMEBUFFER_UNDEFINED";
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-        ret = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-        ret = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-        ret = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-        ret = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-        break;
-    case GL_FRAMEBUFFER_UNSUPPORTED:
-        ret = "GL_FRAMEBUFFER_UNSUPPORTED";
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-        ret = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-        ret = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
-        break;
-    default:
-        break;
+        case GL_FRAMEBUFFER_COMPLETE:
+            ret = "GL_FRAMEBUFFER_COMPLETE";
+            break;
+        case GL_FRAMEBUFFER_UNDEFINED:
+            ret = "GL_FRAMEBUFFER_UNDEFINED";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            ret = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            ret = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            ret = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            ret = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+            break;
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+            ret = "GL_FRAMEBUFFER_UNSUPPORTED";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            ret = "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+            ret = "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+            break;
+        default:
+            break;
     }
     return ret;
 }
@@ -439,8 +441,8 @@ bool OpenGLWindow::hasDebugExtension() const
  */
 bool OpenGLWindow::isOpenGLVersionSupported() const
 {
-    OPENGL_FUNCTIONS* funcs = nullptr;
-    funcs = context->versionFunctions<OPENGL_FUNCTIONS>();
+    OPENGL_FUNCTIONS *funcs = nullptr;
+    funcs                   = context->versionFunctions<OPENGL_FUNCTIONS>();
     return funcs;
 }
 

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing FilesContext class definition.
  *
@@ -152,17 +152,17 @@ void FilesContext::resolveOutputFilename(const Settings *settings)
 {
     if (settings->getProcessingOutputFilename().empty()) {
         // Create auto filename
-        size_t lastindex = settings->getSimulationOutputFilename().find_last_of(".");
+        size_t lastindex    = settings->getSimulationOutputFilename().find_last_of(".");
         std::string rawname = settings->getSimulationOutputFilename().substr(0, lastindex);
-        outputFilename = rawname + "_modified.h5";
+        outputFilename      = rawname + "_modified.h5";
     } else {
         outputFilename = settings->getProcessingOutputFilename();
     }
 
     if (outputFilename == settings->getSimulationOutputFilename()) {
         Helper::printDebugMsg("Simulation output file == processing output file");
-        //file = simOutputFile;
-        //return simOutputFile;
+        // file = simOutputFile;
+        // return simOutputFile;
     }
 }
 
@@ -178,7 +178,7 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         try {
             // Try create file
             if (newEmptyOutputFileFlag) {
-                file = new H5Helper::File(filename, H5Helper::File::CREATE);
+                file                   = new H5Helper::File(filename, H5Helper::File::CREATE);
                 newEmptyOutputFileFlag = false;
             } else {
                 Helper::printDebugMsg("File \"" + filename + "\" will be created for the processing output");
@@ -196,7 +196,7 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
 
     file->setNumberOfElmsToLoad(simOutputFile->getNumberOfElmsToLoad());
 
-    //Helper::printDebugTitle("Copy dimensions and root attributes to output file");
+    // Helper::printDebugTitle("Copy dimensions and root attributes to output file");
 
     // Copy nT, nX, nY, nZ
     Helper::printDebugMsgStart("Copy nT, nX, nY, nZ");
@@ -225,8 +225,8 @@ H5Helper::File *FilesContext::createOrOpenOutputFile(std::string filename)
         Helper::printDebugMsgEnd("OK");
     } catch (std::exception &) {
         Helper::printDebugMsgEnd("are not in the file");
-        //std::cerr << e.what() << std::endl;
-        //std::exit(EXIT_FAILURE);
+        // std::cerr << e.what() << std::endl;
+        // std::exit(EXIT_FAILURE);
     }
 
     // Copy root (info) attributes to destination h5 file

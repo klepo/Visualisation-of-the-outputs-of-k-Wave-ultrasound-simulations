@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::File class definition.
  *
@@ -24,7 +24,8 @@
 #include "dataset.h"
 #include "group.h"
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 /**
  * @brief Creates File object with given filename
@@ -35,7 +36,8 @@ namespace H5Helper {
  * For PARALLEL_HDF5 MPI_Comm and MPI_Info are passed into this constructor.
  */
 #ifdef PARALLEL_HDF5
-File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info) : filename(filename)
+File::File(std::string filename, unsigned int flag, MPI_Comm comm, MPI_Info info)
+    : filename(filename)
 #else
 File::File(std::string filename, unsigned int flag)
     : filename(filename)
@@ -49,7 +51,7 @@ File::File(std::string filename, unsigned int flag)
         throw std::runtime_error("MPI is not initialized");
 #endif
     // Set size of memory
-    //std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
+    // std::cout << "Available system physical memory: " << getAvailableSystemPhysicalMemory() << " bytes" << std::endl;
     // 1 x 32-bit float == 4 x bytes
 
     // max ca 4 GB
@@ -66,8 +68,8 @@ File::File(std::string filename, unsigned int flag)
     H5Eset_auto(0, nullptr, nullptr);
 
     // Create log file
-    //logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
-    //logFileStream << filename << std::endl;
+    // logFileStream.open(filename + "_" + std::to_string(time(0)) + ".log");
+    // logFileStream << filename << std::endl;
 
     // Create File access property list
     pListFileAccessId = H5Pcreate(H5P_FILE_ACCESS);
@@ -86,13 +88,13 @@ File::File(std::string filename, unsigned int flag)
 
     // Set cache
     hsize_t chunkBytes = 64 * 64 * 64 * 4;
-    //521
+    // 521
     err = H5Pset_cache(pListFileAccessId, 0, 521, 521 * chunkBytes, 0.75);
     if (err < 0) {
         throw std::runtime_error("H5Pset_cache error");
     }
 
-    //herr_t H5Pset_alignment(hid_t plist, hsize_t threshold, hsize_t alignment )
+    // herr_t H5Pset_alignment(hid_t plist, hsize_t threshold, hsize_t alignment )
     hsize_t threshold = 0;
     hsize_t alignment = 64 * 64 * 64 * 4;
     // Set alignment
@@ -128,7 +130,7 @@ File::File(std::string filename, unsigned int flag)
             nDims.z(data);
             closeDataset(NZ_DATASET);
             Helper::recoverLastDebugFlag();
-        } catch(std::exception) {
+        } catch (std::exception) {
             closeFileAndObjects();
             throw std::runtime_error("Wrong File");
         }
@@ -150,9 +152,9 @@ File::File(std::string filename, unsigned int flag)
             dValues.z(dataD);
             closeDataset(DZ_DATASET);
             Helper::recoverLastDebugFlag();
-        } catch(std::exception) {
-            //closeFileAndObjects();
-            //throw std::runtime_error("Wrong File");
+        } catch (std::exception) {
+            // closeFileAndObjects();
+            // throw std::runtime_error("Wrong File");
             Helper::printDebugMsg("Point spacing values are not in the file \"" + filename + "\"");
         }
     } else if (flag == CREATE) {
@@ -243,7 +245,7 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
     }
 
     // Create groups
-    std::string s = name;
+    std::string s         = name;
     std::string delimiter = "/";
 
     size_t pos = 0;
@@ -261,7 +263,8 @@ void File::createDataset(std::string name, hid_t datatypeId, Vector size, Vector
     if (rewrite) {
         if (objExistsByName(name, fileId)) {
             Dataset *dataset = openDataset(name);
-            if (H5Tequal(dataset->getDataType(), datatypeId) && dataset->getDims() == size && dataset->getChunkDims() == chunkSize) {
+            if (H5Tequal(dataset->getDataType(), datatypeId) && dataset->getDims() == size
+                && dataset->getChunkDims() == chunkSize) {
                 Helper::printDebugMsgStart("  rewriting original space");
                 Helper::printDebugMsgEnd("OK");
                 err = H5Sclose(dataspaceId);
@@ -595,10 +598,10 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
     if (groupId <= 0)
         groupIdTmp = fileId;
 
-    char *nameC = nullptr;
-    size_t size = 0;
+    char *nameC   = nullptr;
+    size_t size   = 0;
     ssize_t sizeR = 0;
-    sizeR = H5Gget_objname_by_idx(groupIdTmp, idx, nameC, size);
+    sizeR         = H5Gget_objname_by_idx(groupIdTmp, idx, nameC, size);
     if (sizeR <= 0) {
         throw std::runtime_error("H5Gget_objname_by_idx error");
     }
@@ -606,7 +609,7 @@ std::string File::getObjNameByIdx(hsize_t idx, hid_t groupId) const
     H5Gget_objname_by_idx(groupIdTmp, idx, nameC, size_t(sizeR) + 1);
     std::string name(nameC);
     if (nameC) {
-        delete [] nameC;
+        delete[] nameC;
         nameC = nullptr;
     }
     return name;
@@ -626,7 +629,7 @@ H5G_obj_t File::getObjTypeByIdx(hsize_t idx, hid_t groupId) const
         groupIdTmp = fileId;
 
     int type = 0;
-    type = H5Gget_objtype_by_idx(groupIdTmp, idx);
+    type     = H5Gget_objtype_by_idx(groupIdTmp, idx);
     if (type < 0) {
         throw std::runtime_error("H5Gget_objtype_by_idx error");
     }
@@ -667,9 +670,9 @@ bool File::objExistsByName(std::string name, hid_t groupId) const
         groupIdTmp = fileId;
 
     // Check every group
-    std::string s = name;
+    std::string s         = name;
     std::string delimiter = "/";
-    size_t pos = 0;
+    size_t pos            = 0;
     std::string token;
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token += s.substr(0, pos);
@@ -764,7 +767,7 @@ std::string File::getFilename() const
 std::string File::getRawFilename() const
 {
     std::string filename = getFilename();
-    size_t lastindex = filename.find_last_of(".");
+    size_t lastindex     = filename.find_last_of(".");
     return filename.substr(0, lastindex);
 }
 
@@ -779,7 +782,8 @@ void File::setNumberOfElmsToLoad(hsize_t size)
     if (mPISize > 1 && size > std::numeric_limits<int>::max())
         throw std::runtime_error("setNumberOfElmsToLoad error");
 #endif
-    //std::cout << "Number of elements to load: " << size << " (floats: " << size * 4 << " bytes, unsigned 64-bit integers: " << size * 8 << " bytes)" << std::endl;
+    // std::cout << "Number of elements to load: " << size << " (floats: " << size * 4 << " bytes, unsigned 64-bit
+    // integers: " << size * 8 << " bytes)" << std::endl;
     numberOfElementsToLoad = size;
 }
 
@@ -896,11 +900,11 @@ void File::closeFileAndObjects()
     Helper::printDebugMsgStart("Closing file \"" + filename + "\"");
     err = H5Pclose(pListFileAccessId);
     if (err < 0) {
-        //throw std::runtime_error("H5Pclose error");
+        // throw std::runtime_error("H5Pclose error");
     }
     err = H5Fclose(fileId);
     if (err < 0) {
-        //throw std::runtime_error("H5Fclose error");
+        // throw std::runtime_error("H5Fclose error");
     }
     Helper::printDebugMsgEnd("OK");
 }
@@ -957,8 +961,8 @@ double getTime()
 #endif
 #ifdef __unix
     timeval tv;
-    gettimeofday (&tv, 0);
-    return double (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+    gettimeofday(&tv, 0);
+    return double(tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 #endif
 
 #ifdef _WIN32
@@ -973,7 +977,7 @@ double getTime()
 size_t getTotalSystemPhysicalMemory()
 {
 #ifdef __unix
-    long pages = sysconf(_SC_PHYS_PAGES);
+    long pages     = sysconf(_SC_PHYS_PAGES);
     long page_size = sysconf(_SC_PAGE_SIZE);
     return pages * page_size;
 #endif
@@ -1024,7 +1028,7 @@ size_t getSystemPhysicalMemoryCurrentlyUsedByProc()
 {
 #ifdef __unix
     // linux file contains this-process info
-    FILE* file = fopen("/proc/self/status", "r");
+    FILE *file        = fopen("/proc/self/status", "r");
     char buffer[1024] = "";
     int currRealMem;
     // read the entire file
@@ -1051,7 +1055,7 @@ size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc()
 {
 #ifdef __unix
     // linux file contains this-process info
-    FILE* file = fopen("/proc/self/status", "r");
+    FILE *file        = fopen("/proc/self/status", "r");
     char buffer[1024] = "";
     int peakRealMem;
     // read the entire file
@@ -1087,7 +1091,7 @@ void convertlinearToMultiDim(hsize_t index, Vector &position, Vector dims)
             prod *= dims[j];
         }
         position[i] = indexTemp / prod;
-        indexTemp = indexTemp - position[i] * prod;
+        indexTemp   = indexTemp - position[i] * prod;
     }
 }
 
@@ -1128,7 +1132,7 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVI
 #pragma omp critical
         {
             if (minV > value) {
-                minV = value;
+                minV      = value;
                 minVIndex = index;
             }
         }
@@ -1137,7 +1141,7 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVI
 #pragma omp critical
         {
             if (maxV < value) {
-                maxV = value;
+                maxV      = value;
                 maxVIndex = index;
             }
         }
@@ -1157,13 +1161,14 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVI
  *
  * TODO use templates
  */
-void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index)
+void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex,
+                           hsize_t index)
 {
     if (minV > value) {
 #pragma omp critical
         {
             if (minV > value) {
-                minV = value;
+                minV      = value;
                 minVIndex = index;
             }
         }
@@ -1172,7 +1177,7 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t 
 #pragma omp critical
         {
             if (maxV < value) {
-                maxV = value;
+                maxV      = value;
                 maxVIndex = index;
             }
         }
@@ -1194,13 +1199,14 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t 
  *
  * TODO use templates
  */
-void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
+void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex,
+                           hsize_t minVIIndex, hsize_t maxVIIndex)
 {
     if (minV > minVI) {
 #pragma omp critical
         {
             if (minV > minVI) {
-                minV = minVI;
+                minV      = minVI;
                 minVIndex = minVIIndex;
             }
         }
@@ -1209,7 +1215,7 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, h
 #pragma omp critical
         {
             if (maxV < maxVI) {
-                maxV = maxVI;
+                maxV      = maxVI;
                 maxVIndex = maxVIIndex;
             }
         }
@@ -1231,13 +1237,14 @@ void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, h
  *
  * TODO use templates
  */
-void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
+void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex,
+                           hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex)
 {
     if (minV > minVI) {
 #pragma omp critical
         {
             if (minV > minVI) {
-                minV = minVI;
+                minV      = minVI;
                 minVIndex = minVIIndex;
             }
         }
@@ -1246,7 +1253,7 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t 
 #pragma omp critical
         {
             if (maxV < maxVI) {
-                maxV = maxVI;
+                maxV      = maxVI;
                 maxVIndex = maxVIIndex;
             }
         }
@@ -1258,7 +1265,7 @@ void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t 
  * @param[in] name File name
  * @return True/False
  */
-bool fileExists(const std::string& name)
+bool fileExists(const std::string &name)
 {
     std::ifstream infile(name);
     return infile.good();
@@ -1330,4 +1337,4 @@ void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite)
         Helper::printDebugMsg("Source file == destination file -> cannot copy datasets");
     }
 }
-}
+} // namespace H5Helper

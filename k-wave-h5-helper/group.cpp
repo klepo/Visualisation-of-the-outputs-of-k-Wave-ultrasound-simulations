@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::Group class definition.
  *
@@ -21,7 +21,8 @@
 
 #include "group.h"
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 /**
  * @brief Creates Group object with given file, name and group
@@ -31,7 +32,7 @@ namespace H5Helper {
  */
 Group::Group(hid_t groupId, std::string name, File *file)
     : Object(groupId, name, file)
-      , groupId(groupId)
+    , groupId(groupId)
 {
 }
 
@@ -45,10 +46,9 @@ Group::~Group()
     Helper::printDebugMsgStart("Closing group \"" + getName() + "\"");
     err = H5Gclose(groupId);
     if (err < 0) {
-        //throw std::runtime_error("H5Gclose error");
+        // throw std::runtime_error("H5Gclose error");
     }
     Helper::printDebugMsgEnd("OK");
-
 }
 
 /**
@@ -216,4 +216,4 @@ H5G_obj_t Group::getObjTypeByIdx(hsize_t idx) const
 {
     return getFile()->getObjTypeByIdx(idx, groupId);
 }
-}
+} // namespace H5Helper

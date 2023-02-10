@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5Helper::Dataset class declaration.
  *
@@ -27,9 +27,7 @@
 #include <complex>
 #include <algorithm>
 
-#include "helper.h"
 #include "object.h"
-#include "vector3d.h"
 #include "vector3d.cpp"
 
 namespace H5Helper
@@ -117,8 +115,10 @@ public:
 
     void setMPIOAccess(H5FD_mpio_xfer_t type);
 
-    void readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, hsize_t block = 0);
-    void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, hsize_t block = 0);
+    void readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex,
+                     hsize_t &maxIndex, hsize_t block = 0);
+    void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex,
+                     hsize_t &maxIndex, hsize_t block = 0);
     void readDataset(Vector offset, Vector count, float *&data, hsize_t block = 0);
     void readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t block = 0);
     void readDataset(float *&data);
@@ -133,8 +133,10 @@ public:
     void writeDataset(const float *data);
     void writeDataset(const hsize_t *data);
 
-    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex);
-    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max,
+                   hsize_t &minIndex, hsize_t &maxIndex);
+    void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max,
+                   hsize_t &minIndex, hsize_t &maxIndex);
     void readBlock(hsize_t index, Vector &offset, Vector &count, float *&data);
     void readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data);
 
@@ -152,8 +154,10 @@ private:
 
     void checkOffsetAndCountParams(Vector offset, Vector count) const;
 
-    void findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const;
-    void findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const;
+    void findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex,
+                            hsize_t &maxVFIndex) const;
+    void findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex,
+                            hsize_t &maxVIIndex) const;
 
     void findGlobalMinAndMaxValue(bool reset = false);
     void findGlobalMinAndMaxValueF();
@@ -243,6 +247,6 @@ typedef std::map<std::string, Dataset *> MapOfDatasets;
 typedef MapOfDatasets::iterator MapOfDatasetsIt;
 /// Pair of datasets datatype
 typedef std::pair<std::string, Dataset *> PairOfDatasets;
-}
+} // namespace H5Helper
 
 #endif // DATASET_H

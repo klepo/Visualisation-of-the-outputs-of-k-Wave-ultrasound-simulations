@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing GWindow class definition.
  *
@@ -63,7 +63,7 @@ GWindow::~GWindow()
     glDeleteFramebuffers(1, &fbo);
     glDeleteRenderbuffers(1, &rbo);
 
-    //program->release();
+    // program->release();
     delete program;
     program = nullptr;
 }
@@ -305,7 +305,8 @@ void GWindow::setInterpolationMode(int mode)
 void GWindow::setObject(H5ObjectToVisualize *object)
 {
     if (initialized) {
-        sceneName = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getOnlyName() + "_3DScene";
+        sceneName
+            = QString::fromStdString(object->getFile()->getRawFilename()) + "_-_" + object->getOnlyName() + "_3DScene";
 
         connect(object, SIGNAL(minValueChanged(float)), this, SLOT(setMinValue(float)));
         connect(object, SIGNAL(maxValueChanged(float)), this, SLOT(setMaxValue(float)));
@@ -314,11 +315,16 @@ void GWindow::setObject(H5ObjectToVisualize *object)
         connect(object, SIGNAL(minMaxValuesTrimChanged(bool)), this, SLOT(setTrim(bool)));
 
         connect(object, SIGNAL(data3DChanged(hsize_t, const float *)), this, SLOT(set3DData(hsize_t, const float *)));
-        connect(object, SIGNAL(data3DCompressChanged(hsize_t, const float *, const float *)), this, SLOT(set3DCompressData(hsize_t, const float *, const float *)));
-        connect(object, SIGNAL(localStep3DCompressChanged(hsize_t, hsize_t)), this, SLOT(set3DCompressLocalStep(hsize_t, hsize_t)));
-        connect(object, SIGNAL(dataXYChanged(hsize_t, const float *, hsize_t)), this, SLOT(setXYSlice(hsize_t, const float *, hsize_t)));
-        connect(object, SIGNAL(dataXZChanged(hsize_t, const float *, hsize_t)), this, SLOT(setXZSlice(hsize_t, const float *, hsize_t)));
-        connect(object, SIGNAL(dataYZChanged(hsize_t, const float *, hsize_t)), this, SLOT(setYZSlice(hsize_t, const float *, hsize_t)));
+        connect(object, SIGNAL(data3DCompressChanged(hsize_t, const float *, const float *)), this,
+                SLOT(set3DCompressData(hsize_t, const float *, const float *)));
+        connect(object, SIGNAL(localStep3DCompressChanged(hsize_t, hsize_t)), this,
+                SLOT(set3DCompressLocalStep(hsize_t, hsize_t)));
+        connect(object, SIGNAL(dataXYChanged(hsize_t, const float *, hsize_t)), this,
+                SLOT(setXYSlice(hsize_t, const float *, hsize_t)));
+        connect(object, SIGNAL(dataXZChanged(hsize_t, const float *, hsize_t)), this,
+                SLOT(setXZSlice(hsize_t, const float *, hsize_t)));
+        connect(object, SIGNAL(dataYZChanged(hsize_t, const float *, hsize_t)), this,
+                SLOT(setYZSlice(hsize_t, const float *, hsize_t)));
 
         connect(this, SIGNAL(viewVolumeRenderingChanged(bool)), object, SLOT(setData3DLoadingFlag(bool)));
         connect(this, SIGNAL(viewXYSliceChanged(bool)), object, SLOT(checkXY()));
@@ -354,8 +360,7 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE);
             glBufferData(GL_TEXTURE_BUFFER,
                          sizeof(GLfloat) * GLuint(compressHelper->getStride() * compressHelper->getBSize()),
-                         reinterpret_cast<const float *>(compressHelper->getBE()),
-                         GL_STATIC_DRAW);
+                         reinterpret_cast<const float *>(compressHelper->getBE()), GL_STATIC_DRAW);
             glBindBuffer(GL_TEXTURE_BUFFER, 0);
             glBindTexture(GL_TEXTURE_BUFFER, textureBE);
             glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, textureBufferBE);
@@ -364,8 +369,7 @@ void GWindow::setObject(H5ObjectToVisualize *object)
             glBindBuffer(GL_TEXTURE_BUFFER, textureBufferBE_1);
             glBufferData(GL_TEXTURE_BUFFER,
                          sizeof(GLfloat) * GLuint(compressHelper->getStride() * compressHelper->getBSize()),
-                         reinterpret_cast<const float *>(compressHelper->getBE_1()),
-                         GL_STATIC_DRAW);
+                         reinterpret_cast<const float *>(compressHelper->getBE_1()), GL_STATIC_DRAW);
             glBindBuffer(GL_TEXTURE_BUFFER, 0);
             glBindTexture(GL_TEXTURE_BUFFER, textureBE_1);
             glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, textureBufferBE_1);
@@ -458,40 +462,40 @@ void GWindow::initialize()
     aPosition = program->attributeLocation("aPosition");
 
     // Init uniform variables
-    uMatrix = program->uniformLocation("uMatrix");
+    uMatrix      = program->uniformLocation("uMatrix");
     uSliceMatrix = program->uniformLocation("uSliceMatrix");
 
-    uVolumeTexture = program->uniformLocation("uVolume");
+    uVolumeTexture   = program->uniformLocation("uVolume");
     uVolumeTextureLC = program->uniformLocation("uVolumeLC");
     uVolumeTextureCC = program->uniformLocation("uVolumeCC");
-    uTextureBE = program->uniformLocation("uTextureBE");
-    uTextureBE_1 = program->uniformLocation("uTextureBE_1");
+    uTextureBE       = program->uniformLocation("uTextureBE");
+    uTextureBE_1     = program->uniformLocation("uTextureBE_1");
     uColormapTexture = program->uniformLocation("uColormap");
-    uOpacityTexture = program->uniformLocation("uOpacity");
-    uSliceTexture = program->uniformLocation("uSlice");
-    uBoxBackSampler = program->uniformLocation("uBoxBackSampler");
+    uOpacityTexture  = program->uniformLocation("uOpacity");
+    uSliceTexture    = program->uniformLocation("uSlice");
+    uBoxBackSampler  = program->uniformLocation("uBoxBackSampler");
     uBoxFrontSampler = program->uniformLocation("uBoxFrontSampler");
 
     uStepLocal2 = program->uniformLocation("uStepLocal2");
-    uHarmonics = program->uniformLocation("uHarmonics");
-    uBSize2 = program->uniformLocation("uBSize2");
+    uHarmonics  = program->uniformLocation("uHarmonics");
+    uBSize2     = program->uniformLocation("uBSize2");
 
-    uFrame = program->uniformLocation("uFrame");
-    uSlices = program->uniformLocation("uSlices");
-    uXYBorder = program->uniformLocation("uXYBorder");
-    uXZBorder = program->uniformLocation("uXZBorder");
-    uYZBorder = program->uniformLocation("uYZBorder");
-    uVolumeRenderingBox = program->uniformLocation("uVolumeRenderingBox");
-    uVolumeRendering = program->uniformLocation("uVolumeRendering");
+    uFrame                   = program->uniformLocation("uFrame");
+    uSlices                  = program->uniformLocation("uSlices");
+    uXYBorder                = program->uniformLocation("uXYBorder");
+    uXZBorder                = program->uniformLocation("uXZBorder");
+    uYZBorder                = program->uniformLocation("uYZBorder");
+    uVolumeRenderingBox      = program->uniformLocation("uVolumeRenderingBox");
+    uVolumeRendering         = program->uniformLocation("uVolumeRendering");
     uVolumeCompressRendering = program->uniformLocation("uVolumeCompressRendering");
-    uTrim = program->uniformLocation("uTrim");
-    uSteps = program->uniformLocation("uSteps");
-    uFrameColor = program->uniformLocation("uFrameColor");
-    uWidth = program->uniformLocation("uWidth");
-    uHeight = program->uniformLocation("uHeight");
-    uMin = program->uniformLocation("uMin");
-    uMax = program->uniformLocation("uMax");
-    uMode = program->uniformLocation("uMode");
+    uTrim                    = program->uniformLocation("uTrim");
+    uSteps                   = program->uniformLocation("uSteps");
+    uFrameColor              = program->uniformLocation("uFrameColor");
+    uWidth                   = program->uniformLocation("uWidth");
+    uHeight                  = program->uniformLocation("uHeight");
+    uMin                     = program->uniformLocation("uMin");
+    uMax                     = program->uniformLocation("uMax");
+    uMode                    = program->uniformLocation("uMode");
 
     uInt = program->uniformLocation("uInt");
 
@@ -658,23 +662,23 @@ void GWindow::initialize()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Settings
-    //glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
     QColor colorW = parent->palette().color(QPalette::Window);
-    glClearColor(float(colorW.redF()), float(colorW.greenF()), float(colorW.blueF()), 0.0f/*float(colorW.alphaF())*/);
-    //glClearColor(1,0,0,0);
+    glClearColor(float(colorW.redF()), float(colorW.greenF()), float(colorW.blueF()), 0.0f /*float(colorW.alphaF())*/);
+    // glClearColor(1,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendEquation(GL_FUNC_ADD);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    // glBlendEquation(GL_FUNC_ADD);
 
     // Default scene rotation
-    //rotateXMatrix.rotate(-20, -1, 0, 0);
-    //rotateXMatrix.rotate(-45, 0, 1, 0);
-    //rotateYMatrix.rotate(-45, 1, 0, 0);
+    // rotateXMatrix.rotate(-20, -1, 0, 0);
+    // rotateXMatrix.rotate(-45, 0, 1, 0);
+    // rotateYMatrix.rotate(-45, 1, 0, 0);
 
     setColormap();
     setOpacity();
@@ -707,7 +711,8 @@ void GWindow::initialize()
 
     program->setUniformValue(uTrim, trim);
     program->setUniformValue(uSteps, slicesCount);
-    program->setUniformValue(uFrameColor, 1.0f - float(colorW.redF()), 1.0f - float(colorW.greenF()), 1.0f - float(colorW.blueF()), 1.0f);
+    program->setUniformValue(uFrameColor, 1.0f - float(colorW.redF()), 1.0f - float(colorW.greenF()),
+                             1.0f - float(colorW.blueF()), 1.0f);
     program->setUniformValue(uWidth, float(width()));
     program->setUniformValue(uHeight, float(height()));
     program->setUniformValue(uMin, 0.0f);
@@ -718,9 +723,9 @@ void GWindow::initialize()
 
     program->release();
 
-    //int i;
-    //glGetIntegerv(GL_MAX_PROGRAM_TEXEL_OFFSET, &i);
-    //qDebug() << i;
+    // int i;
+    // glGetIntegerv(GL_MAX_PROGRAM_TEXEL_OFFSET, &i);
+    // qDebug() << i;
 
     initialized = true;
     renderLater();
@@ -739,18 +744,20 @@ void GWindow::render()
     // Rotation of scene by left mouse click
     if (this->getLeftButtonPressed()) {
         // TODO
-        rotateXMatrix.rotate(float(this->getLastPositionPressed().y() - this->getCurrentPositionPressed().y()) / 2.0f, -1, 0, 0);
-        rotateYMatrix.rotate(float(this->getLastPositionPressed().x() - this->getCurrentPositionPressed().x()) / 2.0f, 0, -1, 0);
-        //actualCount = 30;
+        rotateXMatrix.rotate(float(this->getLastPositionPressed().y() - this->getCurrentPositionPressed().y()) / 2.0f,
+                             -1, 0, 0);
+        rotateYMatrix.rotate(float(this->getLastPositionPressed().x() - this->getCurrentPositionPressed().x()) / 2.0f,
+                             0, -1, 0);
+        // actualCount = 30;
     }
 
     // Move of scene by right mouse click
     if (this->getRightButtonPressed()) {
-        QPointF lastPosRl = convertPointToOpenGLRelative(this->getLastPositionPressed());
+        QPointF lastPosRl    = convertPointToOpenGLRelative(this->getLastPositionPressed());
         QPointF currentPosRl = convertPointToOpenGLRelative(this->getCurrentPositionPressed());
         position.setX(position.x() - float(lastPosRl.x() - currentPosRl.x()));
         position.setY(position.y() + float(lastPosRl.y() - currentPosRl.y()));
-        //actualCount = 30;
+        // actualCount = 30;
     }
 
     // Zoom
@@ -777,11 +784,11 @@ void GWindow::render()
         float angle = zoom * 45.0f;
         if (angle > 179.9999f) {
             angle = 179.9999f;
-            zoom = 179.9999f / 45.0f;
+            zoom  = 179.9999f / 45.0f;
         }
         if (angle < 0.00001f) {
             angle = 0.00001f;
-            zoom = 0.00001f / 45.0f;
+            zoom  = 0.00001f / 45.0f;
         }
         projectionMatrix.translate(position.x(), position.y(), 0);
         projectionMatrix.perspective(angle, ratio, 0.1f, 100.0f);
@@ -792,14 +799,14 @@ void GWindow::render()
     QMatrix4x4 matrix;
     matrix = projectionMatrix * rotateXMatrix * rotateYMatrix;
 
-    QVector3DI size = fillSpace ? datasetSize : frameSize;
+    QVector3DI size     = fillSpace ? datasetSize : frameSize;
     QVector3DI position = fillSpace ? QVector3DI(0, 0, 0) : datasetPosition;
 
     // Create vectors for scale 3D frame to the longest size = 1.0f
     float maxSize = qMax(size.x(), qMax(size.y(), size.z()));
 
-    QVector3D maxSizeScaled = size / maxSize; // the longest size is 1.0f
-    QVector3D imageSizeScaled = datasetSize / maxSize;
+    QVector3D maxSizeScaled       = size / maxSize; // the longest size is 1.0f
+    QVector3D imageSizeScaled     = datasetSize / maxSize;
     QVector3D imagePositionScaled = position / maxSize;
 
     // Translate to the middle of 3D frame
@@ -895,7 +902,7 @@ void GWindow::render()
             glDrawElements(GL_TRIANGLES, sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
 
             program->setUniformValue(uVolumeRenderingBox, true);
-            //program->setUniformValue(uMatrix, matrix * imageMatrix * translateXYMatrix * offsetMatrix);
+            // program->setUniformValue(uMatrix, matrix * imageMatrix * translateXYMatrix * offsetMatrix);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             glDrawElements(GL_TRIANGLES, sizeof(sliceElements) / sizeof(GLint), GL_UNSIGNED_INT, nullptr);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -967,7 +974,7 @@ void GWindow::render()
 
     // Volume rendering
     if (volumeRendering) {
-        //glEnable(GL_BLEND);
+        // glEnable(GL_BLEND);
 
         QMatrix4x4 sMatrix;
         sMatrix.translate(imagePositionScaled);
@@ -1014,7 +1021,7 @@ void GWindow::render()
         glActiveTexture(GL_TEXTURE9);
         glBindTexture(GL_TEXTURE_BUFFER, textureBE_1);
 
-        //glCullFace(GL_BACK);
+        // glCullFace(GL_BACK);
 
         renderBox();
 
@@ -1026,7 +1033,7 @@ void GWindow::render()
         program->setUniformValue(uVolumeRendering, false);
 
         glDisable(GL_CULL_FACE);
-        //glDisable(GL_BLEND);
+        // glDisable(GL_BLEND);
     }
 
     program->release();
@@ -1277,14 +1284,14 @@ void GWindow::setDatasetPosition(QVector3DI position)
 void GWindow::setXYSlice(hsize_t step, const float *data, hsize_t index)
 {
     if (sliceXY) {
-        currentStep = step;
+        currentStep    = step;
         float indexTmp = index;
         if (datasetSize.z() == 1) // Index -> 0
             indexTmp = 0;
         else
             indexTmp = float(index) / (datasetSize.z() - 1);
 
-        //qDebug() << "setXYSlice";
+        // qDebug() << "setXYSlice";
         glBindTexture(GL_TEXTURE_2D, textureXY);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), 0, GL_RED, GL_FLOAT, data);
@@ -1303,14 +1310,14 @@ void GWindow::setXYSlice(hsize_t step, const float *data, hsize_t index)
 void GWindow::setXZSlice(hsize_t step, const float *data, hsize_t index)
 {
     if (sliceXZ) {
-        currentStep = step;
+        currentStep    = step;
         float indexTmp = index;
         if (datasetSize.y() == 1) // Index -> 0
             indexTmp = float(0);
         else
             indexTmp = float(index) / (datasetSize.y() - 1);
 
-        //qDebug() << "setXZSlice";
+        // qDebug() << "setXZSlice";
         glBindTexture(GL_TEXTURE_2D, textureXZ);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.x(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
@@ -1329,14 +1336,14 @@ void GWindow::setXZSlice(hsize_t step, const float *data, hsize_t index)
 void GWindow::setYZSlice(hsize_t step, const float *data, hsize_t index)
 {
     if (sliceYZ) {
-        currentStep = step;
+        currentStep    = step;
         float indexTmp = index;
         if (datasetSize.x() == 1) // Index -> 0
             indexTmp = float(0);
         else
             indexTmp = float(index) / (datasetSize.x() - 1);
 
-        //qDebug() << "setYZSlice";
+        // qDebug() << "setYZSlice";
         glBindTexture(GL_TEXTURE_2D, textureYZ);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
@@ -1357,7 +1364,8 @@ void GWindow::set3DData(hsize_t step, const float *data)
     currentStep = step;
     glBindTexture(GL_TEXTURE_3D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, data);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x(), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT,
+                 data);
     glBindTexture(GL_TEXTURE_3D, 0);
 
     // Check OUT_OF_MEMORY, dataset is too big
@@ -1382,7 +1390,8 @@ void GWindow::set3DCompressData(hsize_t step, const float *dataLC, const float *
         currentStep = step;
         glBindTexture(GL_TEXTURE_3D, textureLC);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(compressHelper->getStride()), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, dataLC);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(compressHelper->getStride()), datasetSize.y(),
+                     datasetSize.z(), 0, GL_RED, GL_FLOAT, dataLC);
         glBindTexture(GL_TEXTURE_3D, 0);
 
         // Check OUT_OF_MEMORY, dataset is too big
@@ -1393,7 +1402,8 @@ void GWindow::set3DCompressData(hsize_t step, const float *dataLC, const float *
 
         glBindTexture(GL_TEXTURE_3D, textureCC);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(compressHelper->getStride()), datasetSize.y(), datasetSize.z(), 0, GL_RED, GL_FLOAT, dataCC);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, datasetSize.x() * GLint(compressHelper->getStride()), datasetSize.y(),
+                     datasetSize.z(), 0, GL_RED, GL_FLOAT, dataCC);
         glBindTexture(GL_TEXTURE_3D, 0);
 
         // Check OUT_OF_MEMORY, dataset is too big

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        3  November  2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with ColorMap class declaration.
  *
@@ -31,24 +31,25 @@ public:
     /// Colormap types
     typedef enum Type
     {
-        AUTUMN = 0,
-        BONE = 1,
-        JET = 2,
-        WINTER = 3,
+        AUTUMN  = 0,
+        BONE    = 1,
+        JET     = 2,
+        WINTER  = 3,
         RAINBOW = 4,
-        OCEAN = 5,
-        SUMMER = 6,
-        SPRING = 7,
-        COOL = 8,
-        HSV = 9,
-        PINK = 10,
-        HOT = 11
+        OCEAN   = 5,
+        SUMMER  = 6,
+        SPRING  = 7,
+        COOL    = 8,
+        HSV     = 9,
+        PINK    = 10,
+        HOT     = 11
     } Type;
 
     /// Colormap data
     const static unsigned char data[][768];
 
-    static void applyColorMap(int length, float minValue, float maxValue, const float *srcData, unsigned char *dstData, ColorMap::Type type);
+    static void applyColorMap(int length, float minValue, float maxValue, const float *srcData, unsigned char *dstData,
+                              ColorMap::Type type);
 
 private:
     /// Disable instantiation

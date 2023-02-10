@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::Vector3DT class definition.
  *
@@ -25,7 +25,8 @@
 #ifndef VECTOR3D_CPP
 #define VECTOR3D_CPP
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 template class Vector3DT<hsize_t>;
 template class Vector3DT<float>;
@@ -57,7 +58,7 @@ Vector3DT<T>::Vector3DT(const VectorT<T> &vector)
  */
 template <class T>
 Vector3DT<T>::Vector3DT(T value)
-    : VectorT<T>(3 , value)
+    : VectorT<T>(3, value)
 {
 }
 
@@ -147,6 +148,6 @@ T Vector3DT<T>::z() const
 {
     return this->vector[0];
 }
-}
+} // namespace H5Helper
 
 #endif // VECTOR3D_CPP

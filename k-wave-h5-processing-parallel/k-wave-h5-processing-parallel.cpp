@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     0.0
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       Old not updated nonfunctional! The implementation file containing k-Wave HDF5 processing application.
  *
@@ -41,7 +41,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #ifdef HAVE_OPENCV_CONTRIB
-    #include <opencv2/contrib/contrib.hpp>
+#include <opencv2/contrib/contrib.hpp>
 #endif
 
 const std::string SENSOR_MASK_TYPE_DATASET("sensor_mask_type");
@@ -58,13 +58,13 @@ const std::string NZ_DATASET("Nz");
 
 // Filenames
 std::string simulationOutputFilename = "";
-std::string simulationInputFilename = "";
-std::string outputFilename = "";
+std::string simulationInputFilename  = "";
+std::string outputFilename           = "";
 
 // Size vars
-hsize_t maxSize = MAX_SIZE;
+hsize_t maxSize      = MAX_SIZE;
 hsize_t maxChunkSize = MAX_CHUNK_SIZE;
-hsize_t blockSize = HDF5Helper::NUMBER_OF_ELEMENTS_TO_LOAD; // From HDF5File.h
+hsize_t blockSize    = HDF5Helper::NUMBER_OF_ELEMENTS_TO_LOAD; // From HDF5File.h
 
 // Filter by names
 std::list<std::string> names;
@@ -72,14 +72,14 @@ bool flagNames = false;
 
 // Params for visualization
 std::string datasetName = "";
-std::string cutType = "YX";
-hsize_t cutIndex = 0;
+std::string cutType     = "YX";
+hsize_t cutIndex        = 0;
 
 // Application modes
-bool flagTest = false;
+bool flagTest    = false;
 bool flagReshape = false;
 bool flagRechunk = false;
-bool flagView = false;
+bool flagView    = false;
 bool flagDwnsmpl = false;
 
 bool flagCollective = false;
@@ -96,50 +96,50 @@ MPI_Info info = MPI_INFO_NULL;
 std::string help()
 {
     return "\n"
-    "Usage: k-wave-h5-processing-parallel [options]\n"
-    "where options include:\n\n"
-    "  -f HDF5SimulationOutputFilename ...... Required parameter.\n"
-    "                                         HDF5 file with simulation results.\n"
-    "\n"
-    "  -m HDF5SimulationInputFilename ....... Optional parameter. Simulation HDF5 input file\n"
-    "                                         with sensor_mask_index dataset.\n"
-    "\n"
-    "  -o HDF5OutputFilename ................ Optional parameter - output filename. Default value is\n"
-    "                                         HDF5SimulationOutputFilename + \"_modified.h5\".\n"
-    "\n"
-    "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
-    "                                         type datasets to group with series of 3D datasets\n"
-    "                                         and saves datasets to a new file.\n"
-    "                                         In hDF5SimOutputFile or hDF5SimInputFile\n"
-    "                                         must be sensor_mask_index dataset.\n"
-    "\n"
-    "  -changeChunks ........................ Optional parameter. Sets a new size chunks of 3D type\n"
-    "                                         datasets and saves datasets to a new file.\n"
-    "\n"
-    "  -view datasetName cutType cutIndex ... Optional parameter. Visualizes the selected slice of\n"
-    "                                         dataset. Required is datasetName, cutType values YX,\n"
-    "                                         ZX or ZY and cutIndex values from 0 to max size-1 of\n"
-    "                                         the selected dimension.\n"
-    "\n"
-    "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
-    "                                         and saves them to new file.\n"
-    "\n"
-    "  -collective .......................... Optional parameter. Enable collective parallel reading\n"
-    "\n"
-    "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
-    "\n"
-    "  -ch chunkSize ........................ Optional parameter. Size for new chunks from 1 to\n"
-    "                                         maximal appropriately value.\n"
-    "\n"
-    "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
-    "                                         groups for processing.\n"
-    "\n"
-    "  -test ................................ Optional parameter. Test mode. Reading test \n"
-    "                                         of 3D type datasets is performed.\n"
+           "Usage: k-wave-h5-processing-parallel [options]\n"
+           "where options include:\n\n"
+           "  -f HDF5SimulationOutputFilename ...... Required parameter.\n"
+           "                                         HDF5 file with simulation results.\n"
+           "\n"
+           "  -m HDF5SimulationInputFilename ....... Optional parameter. Simulation HDF5 input file\n"
+           "                                         with sensor_mask_index dataset.\n"
+           "\n"
+           "  -o HDF5OutputFilename ................ Optional parameter - output filename. Default value is\n"
+           "                                         HDF5SimulationOutputFilename + \"_modified.h5\".\n"
+           "\n"
+           "  -reshape ............................. Optional parameter. Performs processing sensor mask\n"
+           "                                         type datasets to group with series of 3D datasets\n"
+           "                                         and saves datasets to a new file.\n"
+           "                                         In hDF5SimOutputFile or hDF5SimInputFile\n"
+           "                                         must be sensor_mask_index dataset.\n"
+           "\n"
+           "  -changeChunks ........................ Optional parameter. Sets a new size chunks of 3D type\n"
+           "                                         datasets and saves datasets to a new file.\n"
+           "\n"
+           "  -view datasetName cutType cutIndex ... Optional parameter. Visualizes the selected slice of\n"
+           "                                         dataset. Required is datasetName, cutType values YX,\n"
+           "                                         ZX or ZY and cutIndex values from 0 to max size-1 of\n"
+           "                                         the selected dimension.\n"
+           "\n"
+           "  -dwnsmpl ............................. Optional parameter. Performs downsampling of datasets\n"
+           "                                         and saves them to new file.\n"
+           "\n"
+           "  -collective .......................... Optional parameter. Enable collective parallel reading\n"
+           "\n"
+           "  -s size .............................. Optional parameter. Max size for donwsampling.\n"
+           "\n"
+           "  -ch chunkSize ........................ Optional parameter. Size for new chunks from 1 to\n"
+           "                                         maximal appropriately value.\n"
+           "\n"
+           "  -names name1;name2; .................. Optional parameter. Names of selected datasets or\n"
+           "                                         groups for processing.\n"
+           "\n"
+           "  -test ................................ Optional parameter. Test mode. Reading test \n"
+           "                                         of 3D type datasets is performed.\n"
 
-    "\n"
-    "  -help ................................ Prints this help message.\n"
-    "\n";
+           "\n"
+           "  -help ................................ Prints this help message.\n"
+           "\n";
 }
 
 /**
@@ -296,7 +296,7 @@ void getParams(int argc, char **argv)
             std::string myText(argv[i]);
             std::istringstream iss(myText);
             std::string token;
-            while(getline(iss, token, ';')) {
+            while (getline(iss, token, ';')) {
                 names.insert(names.begin(), token);
                 std::cout << "    " << token << std::endl;
                 flagNames = true;
@@ -311,7 +311,7 @@ void getParams(int argc, char **argv)
 
 hsize_t myRound(double number)
 {
-    return (hsize_t) floor(number + 0.5);
+    return (hsize_t)floor(number + 0.5);
 }
 
 /**
@@ -339,7 +339,7 @@ HDF5Helper::File *loadSimulationFile(std::string simulationFilename)
     HDF5Helper::File *hDF5SimulationFile = NULL;
     try {
         hDF5SimulationFile = new HDF5Helper::File(simulationFilename, HDF5Helper::File::OPEN, comm, info);
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -352,24 +352,29 @@ HDF5Helper::File *loadSimulationFile(std::string simulationFilename)
  * @param hDF5SimInputFile
  * @return sensor_mask_index dataset
  */
-HDF5Helper::HDF5Dataset *findAndGetSensorMaskIndexDataset(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5SimInputFile)
+HDF5Helper::HDF5Dataset *findAndGetSensorMaskIndexDataset(HDF5Helper::File *hDF5SimOutputFile,
+                                                          HDF5Helper::File *hDF5SimInputFile)
 {
     HDF5Helper::HDF5Dataset *sensorMaskIndexDataset = NULL;
-    std::cout << std::endl << std::endl << "---- Find and get sensor mask dataset ----" << std::endl << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl
+              << "---- Find and get sensor mask dataset ----" << std::endl
+              << std::endl
+              << std::endl;
 
     if (hDF5SimOutputFile->objExistsByName(SENSOR_MASK_INDEX_DATASET)) {
         // Try to load sensor mask from simulation output file
         try {
             sensorMaskIndexDataset = hDF5SimOutputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
-        } catch(std::exception &e) {
+        } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);
         }
-    } else if (hDF5SimInputFile != NULL && hDF5SimInputFile->objExistsByName(SENSOR_MASK_INDEX_DATASET)){
+    } else if (hDF5SimInputFile != NULL && hDF5SimInputFile->objExistsByName(SENSOR_MASK_INDEX_DATASET)) {
         // Try to load sensor mask from simulation input file
         try {
             sensorMaskIndexDataset = hDF5SimInputFile->openDataset(SENSOR_MASK_INDEX_DATASET);
-        } catch(std::exception &e) {
+        } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);
         }
@@ -383,14 +388,15 @@ HDF5Helper::HDF5Dataset *findAndGetSensorMaskIndexDataset(HDF5Helper::File *hDF5
  * @brief createOrOpenOutputFile
  * @param outputFilename
  */
-HDF5Helper::File *createOrOpenOutputFile(std::string outputFilename) {
-    std::string filename = "";
+HDF5Helper::File *createOrOpenOutputFile(std::string outputFilename)
+{
+    std::string filename   = "";
     HDF5Helper::File *file = NULL;
     if (outputFilename.empty()) {
         // Create auto filename
-        size_t lastindex = simulationOutputFilename.find_last_of(".");
+        size_t lastindex    = simulationOutputFilename.find_last_of(".");
         std::string rawname = simulationOutputFilename.substr(0, lastindex);
-        filename = rawname + "_modified.h5";
+        filename            = rawname + "_modified.h5";
     } else {
         filename = outputFilename;
     }
@@ -398,11 +404,11 @@ HDF5Helper::File *createOrOpenOutputFile(std::string outputFilename) {
     try {
         // Try open file
         file = new HDF5Helper::File(filename, HDF5Helper::File::OPEN, comm, info);
-    } catch(std::exception) {
+    } catch (std::exception) {
         try {
             // Try create file
             file = new HDF5Helper::File(filename, HDF5Helper::File::CREATE, comm, info);
-        } catch(std::exception &e) {
+        } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);
         }
@@ -432,34 +438,35 @@ void findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, DtsForPcs *d
 
             // 3D type
             if (dataset->getDims().getLength() == 3) {
-                HDF5Helper::HDF5Vector3D size = (HDF5Helper::HDF5Vector3D) dataset->getDims();
-                if (dataset->getDataTypeClass() == H5T_FLOAT
-                        && dataset->getRank() == 3
-                        && size.z() == hDF5SimOutputFile->getNZ()
-                        && size.y() == hDF5SimOutputFile->getNY()
-                        && size.x() == hDF5SimOutputFile->getNX()) {
-                    dtsForPcs->dts3DType.insert(std::pair<const std::string, HDF5Helper::HDF5Dataset*>(dataset->getName(), dataset));
-                    std::cout << "----> 3D type dataset: "<< dataset->getName() << "; size: " << size.z() << " x " << size.y() << " x " << size.x() << std::endl << std::endl;
+                HDF5Helper::HDF5Vector3D size = (HDF5Helper::HDF5Vector3D)dataset->getDims();
+                if (dataset->getDataTypeClass() == H5T_FLOAT && dataset->getRank() == 3
+                    && size.z() == hDF5SimOutputFile->getNZ() && size.y() == hDF5SimOutputFile->getNY()
+                    && size.x() == hDF5SimOutputFile->getNX()) {
+                    dtsForPcs->dts3DType.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Dataset *>(dataset->getName(), dataset));
+                    std::cout << "----> 3D type dataset: " << dataset->getName() << "; size: " << size.z() << " x "
+                              << size.y() << " x " << size.x() << std::endl
+                              << std::endl;
                 }
                 // Downsampled 3D type
-                else if (dataset->hasAttribute("dwnsmpl")
-                         && dataset->getDataTypeClass() == H5T_FLOAT
-                         && dataset->getRank() == 3
-                         && size.z() < hDF5SimOutputFile->getNZ()
-                         && size.y() < hDF5SimOutputFile->getNY()
-                         && size.x() < hDF5SimOutputFile->getNX()) {
-                    dtsForPcs->dts3DTypeDsp.insert(std::pair<const std::string, HDF5Helper::HDF5Dataset*>(dataset->getName(), dataset));
-                    std::cout << "----> 3D type downsampled dataset: "<< dataset->getName() << "; size: " << size.z() << " x " << size.y() << " x " << size.x() << std::endl << std::endl;
+                else if (dataset->hasAttribute("dwnsmpl") && dataset->getDataTypeClass() == H5T_FLOAT
+                         && dataset->getRank() == 3 && size.z() < hDF5SimOutputFile->getNZ()
+                         && size.y() < hDF5SimOutputFile->getNY() && size.x() < hDF5SimOutputFile->getNX()) {
+                    dtsForPcs->dts3DTypeDsp.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Dataset *>(dataset->getName(), dataset));
+                    std::cout << "----> 3D type downsampled dataset: " << dataset->getName() << "; size: " << size.z()
+                              << " x " << size.y() << " x " << size.x() << std::endl
+                              << std::endl;
                 }
                 // Sensor mask type
-                else if (dataset->getDataTypeClass() == H5T_FLOAT
-                         && dtsForPcs->sensorMaskIndexDataset != NULL
-                         && dataset->getRank() == 3
-                         && size.z() == 1
-                         && size.y() <= hDF5SimOutputFile->getNT()
+                else if (dataset->getDataTypeClass() == H5T_FLOAT && dtsForPcs->sensorMaskIndexDataset != NULL
+                         && dataset->getRank() == 3 && size.z() == 1 && size.y() <= hDF5SimOutputFile->getNT()
                          && size.x() == dtsForPcs->sensorMaskSize) {
-                    dtsForPcs->dtsMaskType.insert(std::pair<const std::string, HDF5Helper::HDF5Dataset *>(dataset->getName(), dataset));
-                    std::cout << "----> Mask type dataset: "<< dataset->getName() << "; size: " << size.z() << " x " << size.y() << " x " << size.x() << std::endl << std::endl;
+                    dtsForPcs->dtsMaskType.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Dataset *>(dataset->getName(), dataset));
+                    std::cout << "----> Mask type dataset: " << dataset->getName() << "; size: " << size.z() << " x "
+                              << size.y() << " x " << size.x() << std::endl
+                              << std::endl;
                 }
             }
             // Unknown type
@@ -482,28 +489,36 @@ void findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, DtsForPcs *d
                 // Reshaped mask type group downsampled
                 if (group->hasAttribute("src_group_id")) {
                     hsize_t count = group->readAttributeI("count");
-                    hsize_t posX = group->readAttributeI("positionX");
-                    hsize_t posY = group->readAttributeI("positionY");
-                    hsize_t posZ = group->readAttributeI("positionZ");
-                    dtsForPcs->dtsGroupTypeDsp.insert(std::pair<const std::string, HDF5Helper::HDF5Group *>(group->getName(), group));
-                    std::cout << "----> Reshaped mask type group downsampled: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl << std::endl;
+                    hsize_t posX  = group->readAttributeI("positionX");
+                    hsize_t posY  = group->readAttributeI("positionY");
+                    hsize_t posZ  = group->readAttributeI("positionZ");
+                    dtsForPcs->dtsGroupTypeDsp.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Group *>(group->getName(), group));
+                    std::cout << "----> Reshaped mask type group downsampled: " << group->getName()
+                              << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ
+                              << std::endl
+                              << std::endl;
                 }
                 // Reshaped mask type group
                 else if (group->hasAttribute("count")) {
                     hsize_t count = group->readAttributeI("count");
-                    hsize_t posX = group->readAttributeI("positionX");
-                    hsize_t posY = group->readAttributeI("positionY");
-                    hsize_t posZ = group->readAttributeI("positionZ");
-                    dtsForPcs->dtsGroupType.insert(std::pair<const std::string, HDF5Helper::HDF5Group *>(group->getName(), group));
-                    std::cout << "----> Reshaped mask type group: "<< group->getName() << "; count: " << count << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl << std::endl;
+                    hsize_t posX  = group->readAttributeI("positionX");
+                    hsize_t posY  = group->readAttributeI("positionY");
+                    hsize_t posZ  = group->readAttributeI("positionZ");
+                    dtsForPcs->dtsGroupType.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Group *>(group->getName(), group));
+                    std::cout << "----> Reshaped mask type group: " << group->getName() << "; count: " << count
+                              << "; posX: " << posX << " posY: " << posY << " posZ: " << posZ << std::endl
+                              << std::endl;
                 }
                 // Unknown type
                 else {
                     hDF5SimOutputFile->closeGroup(group->getName());
                 }
 
-            } catch(std::exception) {
-                std::cout << "Object " << hDF5SimOutputFile->getObjNameByIdx(i) << " is not reshaped group" << std::endl;
+            } catch (std::exception) {
+                std::cout << "Object " << hDF5SimOutputFile->getObjNameByIdx(i) << " is not reshaped group"
+                          << std::endl;
             }
         }
     }
@@ -512,11 +527,12 @@ void findDatasetsForProcessing(HDF5Helper::File *hDF5SimOutputFile, DtsForPcs *d
 void testOfReading(DtsForPcs *dtsForPcs)
 {
     // Check number of datasets
-    if (dtsForPcs->dts3DType.empty()/* && dtsForPcs->dtsGroupType.empty()*/) {
+    if (dtsForPcs->dts3DType.empty() /* && dtsForPcs->dtsGroupType.empty()*/) {
         std::cout << "No dataset for test in simulation output file" << std::endl;
     } else {
         // For every 3D type dataset
-        for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DType.begin(); it != dtsForPcs->dts3DType.end(); ++it) {
+        for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DType.begin(); it != dtsForPcs->dts3DType.end();
+             ++it) {
             try {
                 HDF5Helper::HDF5Dataset *dataset = it->second;
 
@@ -527,7 +543,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
 
                 float minValue = 0;
                 float maxValue = 0;
-                float *data = 0;
+                float *data    = 0;
                 HDF5Helper::HDF5Vector3D offset;
                 HDF5Helper::HDF5Vector3D count;
 
@@ -537,14 +553,14 @@ void testOfReading(DtsForPcs *dtsForPcs)
                 HDF5Helper::HDF5Vector3D size = dataset->getDims();
                 std::cout << "Dataset size:       " << size.z() << " x " << size.y() << " x " << size.x() << std::endl;
                 HDF5Helper::HDF5Vector3D chunkSize = dataset->getChunkDims();
-                std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
-
-
+                std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x()
+                          << std::endl;
 
                 dataset->setNumberOfElmsToLoad(dataset->getSize() / mPISize);
 
                 std::cout << "Block reading test..." << std::endl;
-                std::cout << "   reading block size (number of elements): " << dataset->getNumberOfElmsToLoad() << std::endl;
+                std::cout << "   reading block size (number of elements): " << dataset->getNumberOfElmsToLoad()
+                          << std::endl;
                 std::cout << std::endl;
 
                 MPI_Barrier(comm);
@@ -556,16 +572,16 @@ void testOfReading(DtsForPcs *dtsForPcs)
                     double ts1 = HDF5Helper::getTime();
                     dataset->read3DBlock(mPISize * i + mPIRank, offset, count, data, minValue, maxValue);
                     double tf1 = HDF5Helper::getTime();
-                    std::cout << "p: " << mPIRank << " readBlock time: " << (tf1-ts1) << " ms; \t" << std::endl;
-                    delete [] data; // !!
+                    std::cout << "p: " << mPIRank << " readBlock time: " << (tf1 - ts1) << " ms; \t" << std::endl;
+                    delete[] data; // !!
                 }
                 if (dataset->getNumberOfBlocks() % mPISize > 0) {
-                    if (mPIRank < (int) dataset->getNumberOfBlocks() % mPISize) {
+                    if (mPIRank < (int)dataset->getNumberOfBlocks() % mPISize) {
                         double ts3 = HDF5Helper::getTime();
                         dataset->read3DBlock(steps * mPISize + mPIRank, offset, count, data, minValue, maxValue);
                         double tf3 = HDF5Helper::getTime();
-                        std::cout << "p: " << mPIRank << "readBlock time: " << (tf3-ts3) << " ms; \t" << std::endl;
-                        delete [] data; // !!
+                        std::cout << "p: " << mPIRank << "readBlock time: " << (tf3 - ts3) << " ms; \t" << std::endl;
+                        delete[] data; // !!
                     } else {
                         dataset->readEmptyBlock();
                     }
@@ -576,7 +592,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
                 double tf = HDF5Helper::getTime();
 
                 std::cout << std::endl;
-                std::cout << "Time of the block reading test: " << (tf-ts) << " ms; \t" << std::endl;
+                std::cout << "Time of the block reading test: " << (tf - ts) << " ms; \t" << std::endl;
                 std::cout << std::endl;
 
                 /*std::cout << "Slices reading test..." << std::endl;
@@ -640,7 +656,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
 
                 std::cout << std::endl;*/
 
-            } catch(std::exception &e) {
+            } catch (std::exception &e) {
                 std::cerr << e.what() << std::endl;
                 std::exit(EXIT_FAILURE);
             }
@@ -654,7 +670,7 @@ void testOfReading(DtsForPcs *dtsForPcs)
  * @param hDF5OutputFile
  * @param dtsForPcs
  */
-void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputFile, DtsForPcs *dtsForPcs)
+void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs)
 {
     // Check number of datasets
     if (dtsForPcs->dtsMaskType.empty()) {
@@ -681,17 +697,25 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                             // [x + y * count.x() + z * count.x() * count.y()] is from 0, but value of index is from 1
                             index = data[x + y * count.x() + z * count.x() * count.y()];
                             HDF5Helper::convertlinearTo3D(index, dstPos, hDF5SimOutputFile->getNdims());
-                            if (dstPos.x() < minX) minX = dstPos.x();
-                            if (dstPos.y() < minY) minY = dstPos.y();
-                            if (dstPos.z() < minZ) minZ = dstPos.z();
-                            if (dstPos.x() > maxX) maxX = dstPos.x();
-                            if (dstPos.y() > maxY) maxY = dstPos.y();
-                            if (dstPos.z() > maxZ) maxZ = dstPos.z();
+                            if (dstPos.x() < minX)
+                                minX = dstPos.x();
+                            if (dstPos.y() < minY)
+                                minY = dstPos.y();
+                            if (dstPos.z() < minZ)
+                                minZ = dstPos.z();
+                            if (dstPos.x() > maxX)
+                                maxX = dstPos.x();
+                            if (dstPos.y() > maxY)
+                                maxY = dstPos.y();
+                            if (dstPos.z() > maxZ)
+                                maxZ = dstPos.z();
                         }
                 delete[] data; // !!
             }
-            std::cout << "   min point:\t" << " z: " << minZ << "\ty: " << minY << "\tx: " << minX << std::endl;
-            std::cout << "   max point:\t" << " z: " << maxZ << "\ty: " << maxY << "\tx: " << maxX << std::endl;
+            std::cout << "   min point:\t"
+                      << " z: " << minZ << "\ty: " << minY << "\tx: " << minX << std::endl;
+            std::cout << "   max point:\t"
+                      << " z: " << maxZ << "\ty: " << maxY << "\tx: " << maxX << std::endl;
 
             // TODO --> unused
             // Find first and last point
@@ -702,9 +726,8 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
             hDF5SimOutputFile->convertlinearTo3D(data[0], firstZ, firstY, firstX);
             delete[] data; // !!
             // Get data for last point
-            dtsForPcs->sensorMaskIndexDataset->read3DDataset(size.z() - 1, size.y() - 1, size.x() - 1, 1, 1, 1, data, minV, maxV);
-            hDF5SimOutputFile->convertlinearTo3D(data[0], lastZ, lastY, lastX);
-            delete[] data; // !!
+            dtsForPcs->sensorMaskIndexDataset->read3DDataset(size.z() - 1, size.y() - 1, size.x() - 1, 1, 1, 1, data,
+            minV, maxV); hDF5SimOutputFile->convertlinearTo3D(data[0], lastZ, lastY, lastX); delete[] data; // !!
             std::cout << "   first point:\t" << " z: " << firstZ << "\ty: " << firstY << "\tx: " << firstX << std::endl;
             std::cout << "   last point:\t" << " z: " << lastZ << "\ty: " << lastY << "\tx: " << lastX << std::endl;*/
             // unused
@@ -716,11 +739,14 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
             chunkSize.x(std::min(maxChunkSize, maxX - minX + 1));
             // and dataset size
             HDF5Helper::HDF5Vector3D datasetSize(maxZ - minZ + 1, maxY - minY + 1, maxX - minX + 1);
-            std::cout << "   new dataset size:\t" << datasetSize.z() << " x " << datasetSize.y() << " x " << datasetSize.x() << std::endl;
-            std::cout << "   new chunk size:\t" << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
+            std::cout << "   new dataset size:\t" << datasetSize.z() << " x " << datasetSize.y() << " x "
+                      << datasetSize.x() << std::endl;
+            std::cout << "   new chunk size:\t" << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x()
+                      << std::endl;
 
             // For every mask type dataset
-            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dtsMaskType.begin(); it != dtsForPcs->dtsMaskType.end(); ++it) {
+            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dtsMaskType.begin();
+                 it != dtsForPcs->dtsMaskType.end(); ++it) {
                 HDF5Helper::HDF5Dataset *dataset = it->second;
 
                 hsize_t *sensorMaskData;
@@ -730,7 +756,7 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 float minVFL = std::numeric_limits<float>::infinity(), maxVFL = -std::numeric_limits<float>::infinity();
                 float minVFG = std::numeric_limits<float>::infinity(), maxVFG = -std::numeric_limits<float>::infinity();
                 HDF5Helper::HDF5Vector3D offset; // Offset
-                HDF5Helper::HDF5Vector3D count; // Count
+                HDF5Helper::HDF5Vector3D count;  // Count
 
                 // Set same block size as sensorMaskIndexDataset
                 dataset->setNumberOfElmsToLoad(dtsForPcs->sensorMaskIndexDataset->getRealNumberOfElmsToLoad());
@@ -738,25 +764,29 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 // Save attributes to new group
                 hDF5OutputFile->createGroup(dataset->getName(), true);
                 HDF5Helper::HDF5Group *group = hDF5OutputFile->openGroup(dataset->getName());
-                group->setAttribute("positionZ", (hsize_t) minZ);
-                group->setAttribute("positionY", (hsize_t) minY);
-                group->setAttribute("positionX", (hsize_t) minX);
-                group->setAttribute("sizeZ", (hsize_t) datasetSize.z());
-                group->setAttribute("sizeY", (hsize_t) datasetSize.y());
-                group->setAttribute("sizeX", (hsize_t) datasetSize.x());
+                group->setAttribute("positionZ", (hsize_t)minZ);
+                group->setAttribute("positionY", (hsize_t)minY);
+                group->setAttribute("positionX", (hsize_t)minX);
+                group->setAttribute("sizeZ", (hsize_t)datasetSize.z());
+                group->setAttribute("sizeY", (hsize_t)datasetSize.y());
+                group->setAttribute("sizeX", (hsize_t)datasetSize.x());
 
-                hsize_t number_of_frames = MAX_NUMBER_OF_FRAMES < ((HDF5Helper::HDF5Vector3D) dataset->getDims()).y() ? MAX_NUMBER_OF_FRAMES : ((HDF5Helper::HDF5Vector3D) dataset->getDims()).y();
+                hsize_t number_of_frames = MAX_NUMBER_OF_FRAMES < ((HDF5Helper::HDF5Vector3D)dataset->getDims()).y()
+                                               ? MAX_NUMBER_OF_FRAMES
+                                               : ((HDF5Helper::HDF5Vector3D)dataset->getDims()).y();
                 if (MAX_NUMBER_OF_FRAMES == 0)
-                    number_of_frames = ((HDF5Helper::HDF5Vector3D) dataset->getDims()).y();
+                    number_of_frames = ((HDF5Helper::HDF5Vector3D)dataset->getDims()).y();
                 std::cout << "number_of_frames: " << number_of_frames << std::endl;
 
                 // First datasets in group
-                if (number_of_frames < (hsize_t) mPISize) {
-                    for (int i = 0; i < (int) number_of_frames; i++)
-                        hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(i), datasetSize, chunkSize, true);
+                if (number_of_frames < (hsize_t)mPISize) {
+                    for (int i = 0; i < (int)number_of_frames; i++)
+                        hDF5OutputFile->createDatasetF(dataset->getName() + "/" + std::to_string(i), datasetSize,
+                                                       chunkSize, true);
                 } else {
                     for (int i = 0; i < mPISize; i++)
-                        hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(i), datasetSize, chunkSize, true);
+                        hDF5OutputFile->createDatasetF(dataset->getName() + "/" + std::to_string(i), datasetSize,
+                                                       chunkSize, true);
                 }
 
                 MPI_Barrier(comm);
@@ -764,24 +794,30 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 hsize_t index = 0;
                 HDF5Helper::HDF5Vector3D dstPos;
                 float data[1];
-                hsize_t frame = 0;
+                hsize_t frame                          = 0;
                 HDF5Helper::HDF5Dataset *actualDataset = NULL;
 
                 // Set as actual
-                if (number_of_frames >= (hsize_t) mPIRank + 1) {
-                    actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(mPIRank));
+                if (number_of_frames >= (hsize_t)mPIRank + 1) {
+                    actualDataset = hDF5OutputFile->openDataset(dataset->getName() + "/" + std::to_string(mPIRank));
                 }
 
                 MPI_Barrier(comm);
 
-                for (hsize_t i = 0; i < dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks() * number_of_frames; i++) {
+                for (hsize_t i = 0; i < dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks() * number_of_frames;
+                     i++) {
                     // Load data
                     if (number_of_frames >= frame + mPIRank + 1) {
-                        dtsForPcs->sensorMaskIndexDataset->read3DBlock(i % dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks(), offset, count, sensorMaskData, minVI, maxVI);
-                        dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, frame + mPIRank, offset.x()), count, datasetData, minVF, maxVF);
+                        dtsForPcs->sensorMaskIndexDataset->read3DBlock(
+                            i % dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks(), offset, count, sensorMaskData,
+                            minVI, maxVI);
+                        dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, frame + mPIRank, offset.x()), count,
+                                               datasetData, minVF, maxVF);
 
-                        if (minVFL > minVF) minVFL = minVF;
-                        if (maxVFL < maxVF) maxVFL = maxVF;
+                        if (minVFL > minVF)
+                            minVFL = minVF;
+                        if (maxVFL < maxVF)
+                            maxVFL = maxVF;
 
                         double t4 = HDF5Helper::getTime();
                         // For the entire block write "voxels"
@@ -789,30 +825,36 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                             for (hsize_t y = 0; y < count.y(); y++)
                                 for (hsize_t x = 0; x < count.x(); x++) {
                                     hsize_t srcIndex = x + y * count.x() + z * count.x() * count.y();
-                                    index = sensorMaskData[srcIndex];
+                                    index            = sensorMaskData[srcIndex];
                                     HDF5Helper::convertlinearTo3D(index, dstPos, hDF5SimOutputFile->getNdims());
                                     data[0] = datasetData[srcIndex];
-                                    actualDataset->write3DDataset(HDF5Helper::HDF5Vector3D(dstPos.z() - minZ, dstPos.y() - minY, dstPos.x() - minX), HDF5Helper::HDF5Vector3D(1, 1, 1), data, false);
+                                    actualDataset->write3DDataset(HDF5Helper::HDF5Vector3D(dstPos.z() - minZ,
+                                                                                           dstPos.y() - minY,
+                                                                                           dstPos.x() - minX),
+                                                                  HDF5Helper::HDF5Vector3D(1, 1, 1), data, false);
                                 }
 
                         double t5 = HDF5Helper::getTime();
 
-                        std::cout << actualDataset->getName() << " write time: " << (t5-t4) << " ms; \t" << std::endl;
+                        std::cout << actualDataset->getName() << " write time: " << (t5 - t4) << " ms; \t" << std::endl;
 
-                        delete [] sensorMaskData;
-                        delete [] datasetData;
+                        delete[] sensorMaskData;
+                        delete[] datasetData;
                     }
 
                     // Next time step for group of datasets (yDO)
-                    if (i % dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks() + 1 == dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks()) {
+                    if (i % dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks() + 1
+                        == dtsForPcs->sensorMaskIndexDataset->getNumberOfBlocks()) {
 
                         if (number_of_frames >= frame + mPIRank + 1) {
                             // setAttribute attribute must be collective!! PROBLEM !!!!
-                            //actualDataset->setAttribute("min", minVFL);
-                            //actualDataset->setAttribute("max", maxVFL);
+                            // actualDataset->setAttribute("min", minVFL);
+                            // actualDataset->setAttribute("max", maxVFL);
 
-                            if (minVFG > minVFL) minVFG = minVFL;
-                            if (maxVFG < maxVFL) maxVFG = maxVFL;
+                            if (minVFG > minVFL)
+                                minVFG = minVFL;
+                            if (maxVFG < maxVFL)
+                                maxVFG = maxVFL;
 
                             // Shift to next dataset -> step
                             hDF5OutputFile->closeDataset(actualDataset->getName());
@@ -823,22 +865,26 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                         if (number_of_frames < frame + mPISize) {
                             if (number_of_frames > frame)
                                 for (hsize_t i = 0; i < number_of_frames - frame; i++)
-                                    hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(frame + i), datasetSize, chunkSize, true);
+                                    hDF5OutputFile->createDatasetF(dataset->getName() + "/" + std::to_string(frame + i),
+                                                                   datasetSize, chunkSize, true);
                         } else {
                             for (int i = 0; i < mPISize; i++)
-                                hDF5OutputFile->createDatasetF(dataset->getName()  + "/" + std::to_string(frame + i), datasetSize, chunkSize, true);
+                                hDF5OutputFile->createDatasetF(dataset->getName() + "/" + std::to_string(frame + i),
+                                                               datasetSize, chunkSize, true);
                         }
 
                         if (number_of_frames < frame + mPIRank + 1)
                             break;
 
-                        actualDataset = hDF5OutputFile->openDataset(dataset->getName()  + "/" + std::to_string(frame + mPIRank));
+                        actualDataset
+                            = hDF5OutputFile->openDataset(dataset->getName() + "/" + std::to_string(frame + mPIRank));
                     }
                 }
 
                 MPI_Barrier(comm);
 
-                float minVFGG = std::numeric_limits<float>::infinity(), maxVFGG = -std::numeric_limits<float>::infinity();
+                float minVFGG = std::numeric_limits<float>::infinity(),
+                      maxVFGG = -std::numeric_limits<float>::infinity();
 
                 MPI_Allreduce(&minVFG, &minVFGG, 1, MPI_FLOAT, MPI_MIN, comm);
                 MPI_Allreduce(&maxVFG, &maxVFGG, 1, MPI_FLOAT, MPI_MAX, comm);
@@ -846,45 +892,54 @@ void reshape(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File * hDF5OutputF
                 // Save some attributes
                 group->setAttribute("min", minVFGG);
                 group->setAttribute("max", maxVFGG);
-                group->setAttribute("count", (hsize_t) number_of_frames);
+                group->setAttribute("count", (hsize_t)number_of_frames);
 
                 MPI_Barrier(comm);
 
                 // Filter or add to map for next processing
                 if (!flagNames || std::find(names.begin(), names.end(), group->getName()) != names.end())
-                    dtsForPcs->dtsGroupType.insert(std::pair<const std::string, HDF5Helper::HDF5Group *>(group->getName(), group));
-
+                    dtsForPcs->dtsGroupType.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Group *>(group->getName(), group));
             }
-        } catch(std::exception &e) {
+        } catch (std::exception &e) {
             std::cerr << e.what() << std::endl;
             std::exit(EXIT_FAILURE);
         }
     }
 }
 
-void computeDstDims(HDF5Helper::HDF5Vector3D nDims, HDF5Helper::HDF5Vector3D &nDimsDst, double &ratio, HDF5Helper::HDF5Vector3D &chunkSize)
+void computeDstDims(HDF5Helper::HDF5Vector3D nDims, HDF5Helper::HDF5Vector3D &nDimsDst, double &ratio,
+                    HDF5Helper::HDF5Vector3D &chunkSize)
 {
     // Get max dimension
     hsize_t nMax = std::max(std::max(nDims.z(), nDims.y()), nDims.x());
-    ratio = (double) maxSize / nMax;
+    ratio        = (double)maxSize / nMax;
     nDimsDst.z(myRound(nDims.z() * ratio));
     nDimsDst.y(myRound(nDims.y() * ratio));
     nDimsDst.x(myRound(nDims.x() * ratio));
     // Check < 1
-    if (nDimsDst.z() < 1) nDimsDst.z(1);
-    if (nDimsDst.y() < 1) nDimsDst.y(1);
-    if (nDimsDst.x() < 1) nDimsDst.x(1);
+    if (nDimsDst.z() < 1)
+        nDimsDst.z(1);
+    if (nDimsDst.y() < 1)
+        nDimsDst.y(1);
+    if (nDimsDst.x() < 1)
+        nDimsDst.x(1);
     // Chunk size
     chunkSize.z(maxChunkSize);
     chunkSize.y(maxChunkSize);
     chunkSize.x(maxChunkSize);
-    if (chunkSize.z() > nDimsDst.z()) chunkSize.z(nDimsDst.z());
-    if (chunkSize.y() > nDimsDst.y()) chunkSize.y(nDimsDst.y());
-    if (chunkSize.x() > nDimsDst.x()) chunkSize.x(nDimsDst.x());
+    if (chunkSize.z() > nDimsDst.z())
+        chunkSize.z(nDimsDst.z());
+    if (chunkSize.y() > nDimsDst.y())
+        chunkSize.y(nDimsDst.y());
+    if (chunkSize.x() > nDimsDst.x())
+        chunkSize.x(nDimsDst.x());
     std::cout << "   new size:\t" << nDimsDst.z() << " x " << nDimsDst.y() << " x " << nDimsDst.x() << std::endl;
 }
 
-void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D nDims, HDF5Helper::HDF5Vector3D nDimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal, float &minVG, float &maxVG)
+void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D nDims,
+                         HDF5Helper::HDF5Vector3D nDimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal, float &minVG,
+                         float &maxVG)
 {
     // Interpolation method:
     //  INTER_NEAREST   - a nearest-neighbor interpolation
@@ -898,7 +953,7 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
 
     double t0 = HDF5Helper::getTime();
 
-    hsize_t nCount = 1;  // Number of slabs along Z axis to get from neighbours
+    hsize_t nCount = 1; // Number of slabs along Z axis to get from neighbours
 
     if (interpolation == cv::INTER_CUBIC)
         nCount = 2;
@@ -919,9 +974,9 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
         srcDataset->setNumberOfElmsToLoad(nDims.z() * nDims.y() * nDims.x());
         smallZCountFlag = true;
     } else {
-        srcDataset->setNumberOfElmsToLoad((hsize_t) ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
+        srcDataset->setNumberOfElmsToLoad((hsize_t)ceil(double(nDims.z()) / mPISize) * nDims.y() * nDims.x());
     }
-    //throw std::runtime_error("Too many processes for resampling");
+    // throw std::runtime_error("Too many processes for resampling");
 
     float *srcData = 0;
     HDF5Helper::HDF5Vector3D offset;
@@ -944,16 +999,18 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
 
         // First resize 2D slices in XY plane
         for (hsize_t z = 0; z < count.z(); z++) {
-            cv::Mat image = cv::Mat((int) nDims.y(), (int) nDims.x(), CV_32FC1, &srcData[nDims.x() * nDims.y() * z]); // rows, cols (height, width)
-            cv::Mat imageDst = cv::Mat((int) nDimsDst.y(), (int) nDimsDst.x(), CV_32FC1, &dataDst1[nDimsDst.x() * nDimsDst.y() * (z + nCount)]);
-            cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.y()), 0, 0, interpolation);
+            cv::Mat image    = cv::Mat((int)nDims.y(), (int)nDims.x(), CV_32FC1,
+                                       &srcData[nDims.x() * nDims.y() * z]); // rows, cols (height, width)
+            cv::Mat imageDst = cv::Mat((int)nDimsDst.y(), (int)nDimsDst.x(), CV_32FC1,
+                                       &dataDst1[nDimsDst.x() * nDimsDst.y() * (z + nCount)]);
+            cv::resize(image, imageDst, cv::Size((int)nDimsDst.x(), (int)nDimsDst.y()), 0, 0, interpolation);
             image.release();
         }
 
         double tRXY1 = HDF5Helper::getTime();
 
         // Delete srcData
-        delete [] srcData;
+        delete[] srcData;
 
         if (!smallZCountFlag)
             MPI_Barrier(comm);
@@ -963,44 +1020,51 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
         if (mPISize > 1 && !smallZCountFlag) {
             MPI_Status statuses[4];
             MPI_Request requests[4];
-            int dataSize = (int) (nCount * nDimsDst.y() * nDimsDst.x());
+            int dataSize          = (int)(nCount * nDimsDst.y() * nDimsDst.x());
             hsize_t slabSizeXYDst = nDimsDst.y() * nDimsDst.x();
             // Get neighbours' data
             // From left to right and back
             if (mPIRank == 0) {
                 // to right
-                MPI_Isend(&dataDst1[count.z() * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank, comm, &requests[0]);
-                //MPI_Barrier(comm);
+                MPI_Isend(&dataDst1[count.z() * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank, comm,
+                          &requests[0]);
+                // MPI_Barrier(comm);
 
                 // from right
-                MPI_Irecv(&dataDst1[(count.z() + nCount) * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank + 1, comm, &requests[1]);
-                //MPI_Barrier(comm);
+                MPI_Irecv(&dataDst1[(count.z() + nCount) * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1,
+                          mPIRank + 1, comm, &requests[1]);
+                // MPI_Barrier(comm);
                 MPI_Waitall(2, requests, statuses);
                 memcpy(&dataDst1[0], &dataDst1[nCount * slabSizeXYDst], sizeof(float) * dataSize);
 
             } else if (mPIRank == mPISize - 1) {
                 // from left
                 MPI_Irecv(&dataDst1[0], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank - 1, comm, &requests[0]);
-                //MPI_Barrier(comm);
+                // MPI_Barrier(comm);
 
                 // to left
-                MPI_Isend(&dataDst1[nCount * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank, comm, &requests[1]);
-                //MPI_Barrier(comm);
+                MPI_Isend(&dataDst1[nCount * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank, comm,
+                          &requests[1]);
+                // MPI_Barrier(comm);
                 MPI_Waitall(2, requests, statuses);
-                memcpy(&dataDst1[(count.z() + nCount) * slabSizeXYDst], &dataDst1[count.z() * slabSizeXYDst], sizeof(float) * dataSize);
+                memcpy(&dataDst1[(count.z() + nCount) * slabSizeXYDst], &dataDst1[count.z() * slabSizeXYDst],
+                       sizeof(float) * dataSize);
 
             } else {
                 // from left
                 MPI_Irecv(&dataDst1[0], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank - 1, comm, &requests[0]);
                 // to right
-                MPI_Isend(&dataDst1[count.z() * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank, comm, &requests[1]);
-                //MPI_Barrier(comm);
+                MPI_Isend(&dataDst1[count.z() * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank, comm,
+                          &requests[1]);
+                // MPI_Barrier(comm);
 
                 // form right
-                MPI_Irecv(&dataDst1[(count.z() + nCount) * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1, mPIRank + 1, comm, &requests[2]);
+                MPI_Irecv(&dataDst1[(count.z() + nCount) * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank + 1,
+                          mPIRank + 1, comm, &requests[2]);
                 // to left
-                MPI_Isend(&dataDst1[nCount * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank, comm, &requests[3]);
-                //MPI_Barrier(comm);
+                MPI_Isend(&dataDst1[nCount * slabSizeXYDst], dataSize, MPI_FLOAT, mPIRank - 1, mPIRank, comm,
+                          &requests[3]);
+                // MPI_Barrier(comm);
                 MPI_Waitall(4, requests, statuses);
             }
         }
@@ -1015,18 +1079,19 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
         float *dataDst1T = new float[(count.z() + nCount * 2) * nDimsDst.y() * nDimsDst.x()]();
         for (hsize_t z = 0; z < (count.z() + nCount * 2); z++) {
             for (hsize_t y = 0; y < nDimsDst.y(); y++) {
-                memcpy(&dataDst1T[nDimsDst.x() * z + y * ((count.z() + nCount * 2) * nDimsDst.x())], &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+                memcpy(&dataDst1T[nDimsDst.x() * z + y * ((count.z() + nCount * 2) * nDimsDst.x())],
+                       &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
             }
         }
 
         double tTYZ1 = HDF5Helper::getTime();
 
         // Delete dataDst1
-        delete [] dataDst1;
+        delete[] dataDst1;
 
-        double countZDst = smallZCountFlag ?  double (nDimsDst.z()): (double (nDimsDst.z()) / mPISize);
-        hsize_t countZDstR = myRound(double (mPIRank + 1) * countZDst) - myRound(double (mPIRank) * countZDst);
-        hsize_t nCountDst = myRound((double) nCount * countZDstR / count.z());
+        double countZDst   = smallZCountFlag ? double(nDimsDst.z()) : (double(nDimsDst.z()) / mPISize);
+        hsize_t countZDstR = myRound(double(mPIRank + 1) * countZDst) - myRound(double(mPIRank) * countZDst);
+        hsize_t nCountDst  = myRound((double)nCount * countZDstR / count.z());
 
         float *dataDst2 = new float[(countZDstR + nCountDst * 2) * nDimsDst.y() * nDimsDst.x()]();
 
@@ -1034,55 +1099,67 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
 
         // And resize 2D slices in XZ plane
         for (hsize_t y = 0; y < nDimsDst.y(); y++) {
-            cv::Mat image = cv::Mat((int) (count.z() + nCount * 2), (int) nDimsDst.x(), CV_32FC1, &dataDst1T[(count.z() + nCount * 2) * y * nDimsDst.x()]); // rows, cols (height, width)
-            //cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv2[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
-            cv::Mat imageDst = cv::Mat((int) (countZDstR + nCountDst * 2), (int) nDimsDst.x(), CV_32FC1, &dataDst2[(countZDstR + nCountDst * 2) * y * nDimsDst.x()]);
-            //cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
-            cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) (countZDstR + nCountDst * 2)), 0, 0, interpolation);
-            //cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
+            cv::Mat image
+                = cv::Mat((int)(count.z() + nCount * 2), (int)nDimsDst.x(), CV_32FC1,
+                          &dataDst1T[(count.z() + nCount * 2) * y * nDimsDst.x()]); // rows, cols (height, width)
+            // cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv2[nDims.z() * y *
+            // nDimsDst.x()]); // rows, cols (height, width)
+            cv::Mat imageDst = cv::Mat((int)(countZDstR + nCountDst * 2), (int)nDimsDst.x(), CV_32FC1,
+                                       &dataDst2[(countZDstR + nCountDst * 2) * y * nDimsDst.x()]);
+            // cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y *
+            // nDimsDst.x()]);
+            cv::resize(image, imageDst, cv::Size((int)nDimsDst.x(), (int)(countZDstR + nCountDst * 2)), 0, 0,
+                       interpolation);
+            // cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
             image.release();
         }
 
         double tRXZ1 = HDF5Helper::getTime();
 
         // Delete dataDst1TRecv2
-        //delete [] dataDst1TRecv2;
+        // delete [] dataDst1TRecv2;
 
         double tTZY0 = HDF5Helper::getTime();
 
         // Transpose back
         float *dataDst2T = new float[countZDstR * nDimsDst.y() * nDimsDst.x()]();
-        //float *dataDst2T = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
+        // float *dataDst2T = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
         for (hsize_t z = 0; z < countZDstR; z++) {
             for (hsize_t y = 0; y < nDimsDst.y(); y++) {
-                memcpy(&dataDst2T[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], &dataDst2[nDimsDst.x() * (z + nCountDst) + y * ((countZDstR + nCountDst * 2) * nDimsDst.x())], sizeof(float) * nDimsDst.x());
-                //memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+                memcpy(&dataDst2T[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())],
+                       &dataDst2[nDimsDst.x() * (z + nCountDst) + y * ((countZDstR + nCountDst * 2) * nDimsDst.x())],
+                       sizeof(float) * nDimsDst.x());
+                // memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y
+                // * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
             }
         }
 
         double tTZY1 = HDF5Helper::getTime();
 
         // Delete dataDst2
-        delete [] dataDst2;
+        delete[] dataDst2;
 
         if (mPISize > 1 && !smallZCountFlag)
             dstDatasetFinal->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
-        dstDatasetFinal->write3DDataset(HDF5Helper::HDF5Vector3D(myRound(double (mPIRank) * countZDst), 0, 0), HDF5Helper::HDF5Vector3D(countZDstR, nDimsDst.y(), nDimsDst.x()), dataDst2T, true);
-        //dstDatasetFinal->write3DDataset(HDF5HDF5Vector3D(0, mPIRank * blockDepthG, 0), HDF5HDF5Vector3D(nDimsDst.z(), blockDepth, nDimsDst.x()), dataDst2T, true);
+        dstDatasetFinal->write3DDataset(HDF5Helper::HDF5Vector3D(myRound(double(mPIRank) * countZDst), 0, 0),
+                                        HDF5Helper::HDF5Vector3D(countZDstR, nDimsDst.y(), nDimsDst.x()), dataDst2T,
+                                        true);
+        // dstDatasetFinal->write3DDataset(HDF5HDF5Vector3D(0, mPIRank * blockDepthG, 0), HDF5HDF5Vector3D(nDimsDst.z(),
+        // blockDepth, nDimsDst.x()), dataDst2T, true);
 
         // Get min/max values
         dstDatasetFinal->getMinAndMaxValue(dataDst2T, countZDstR * nDimsDst.y() * nDimsDst.x(), minV, maxV);
-        //dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockDepth * nDimsDst.x(), minV, maxV);
+        // dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockDepth * nDimsDst.x(), minV, maxV);
 
         // Delete dataDst2T
-        delete [] dataDst2T;
+        delete[] dataDst2T;
 
         std::cout << "Times: ";
-        std::cout << "resample XY " << (tRXY1-tRXY0) << ", ";
-        std::cout << "transpoze YZ " << (tTYZ1-tTYZ0) << ", ";
-        std::cout << "send and receive (neighbours data) " << (tSN1-tSN0) << ", ";
-        std::cout << "resample XZ " << (tRXZ1-tRXZ0) << ", ";
-        std::cout << "transpoze ZY " << (tTZY1-tTZY0) << " ";
+        std::cout << "resample XY " << (tRXY1 - tRXY0) << ", ";
+        std::cout << "transpoze YZ " << (tTYZ1 - tTYZ0) << ", ";
+        std::cout << "send and receive (neighbours data) " << (tSN1 - tSN0) << ", ";
+        std::cout << "resample XZ " << (tRXZ1 - tRXZ0) << ", ";
+        std::cout << "transpoze ZY " << (tTZY1 - tTZY0) << " ";
         std::cout << "ms; \t" << std::endl;
     }
 
@@ -1092,26 +1169,29 @@ void resamplingOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Ve
     MPI_Allreduce(&maxV, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
 
     double t1 = HDF5Helper::getTime();
-    std::cout << "Time of resampling of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
+    std::cout << "Time of resampling of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
-void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D nDims, HDF5Helper::HDF5Vector3D nDimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal, float &minVG, float &maxVG)
+void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::HDF5Vector3D nDims,
+                                  HDF5Helper::HDF5Vector3D nDimsDst, HDF5Helper::HDF5Dataset *dstDatasetFinal,
+                                  float &minVG, float &maxVG)
 {
     double t0 = HDF5Helper::getTime();
 
-    if ((int) nDims.z() < mPISize)
+    if ((int)nDims.z() < mPISize)
         throw std::runtime_error("Too many processes for resampling");
     // TODO add check for small otuput sizes
 
     // Divide dataset to every process
-    srcDataset->setNumberOfElmsToLoad((hsize_t) ceil(double (nDims.z()) / mPISize) * nDims.y() * nDims.x());
+    srcDataset->setNumberOfElmsToLoad((hsize_t)ceil(double(nDims.z()) / mPISize) * nDims.y() * nDims.x());
 
     // Interpolation method:
     //  INTER_NEAREST - a nearest-neighbor interpolation
     //  INTER_LINEAR - a bilinear interpolation (used by default)
-    //  INTER_AREA - resampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire’-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
-    //  INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
-    //  INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
+    //  INTER_AREA - resampling using pixel area relation. It may be a preferred method for image decimation, as it
+    //  gives moire’-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method. INTER_CUBIC
+    //  - a bicubic interpolation over 4x4 pixel neighborhood INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel
+    //  neighborhood
     int interpolation = cv::INTER_NEAREST;
 
     float *srcData = 0;
@@ -1129,16 +1209,18 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
 
     // First resize 2D slices in XY plane
     for (hsize_t z = 0; z < count.z(); z++) {
-        cv::Mat image = cv::Mat((int) nDims.y(), (int) nDims.x(), CV_32FC1, &srcData[nDims.x() * nDims.y() * z]); // rows, cols (height, width)
-        cv::Mat imageDst = cv::Mat((int) nDimsDst.y(), (int) nDimsDst.x(), CV_32FC1, &dataDst1[nDimsDst.x() * nDimsDst.y() * z]);
-        cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.y()), 0, 0, interpolation);
+        cv::Mat image = cv::Mat((int)nDims.y(), (int)nDims.x(), CV_32FC1,
+                                &srcData[nDims.x() * nDims.y() * z]); // rows, cols (height, width)
+        cv::Mat imageDst
+            = cv::Mat((int)nDimsDst.y(), (int)nDimsDst.x(), CV_32FC1, &dataDst1[nDimsDst.x() * nDimsDst.y() * z]);
+        cv::resize(image, imageDst, cv::Size((int)nDimsDst.x(), (int)nDimsDst.y()), 0, 0, interpolation);
         image.release();
     }
 
     double tRXY1 = HDF5Helper::getTime();
 
     // Delete srcData
-    delete [] srcData;
+    delete[] srcData;
 
     double tTYZ0 = HDF5Helper::getTime();
 
@@ -1146,29 +1228,30 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
     float *dataDst1T = new float[count.z() * nDimsDst.y() * nDimsDst.x()]();
     for (hsize_t z = 0; z < count.z(); z++) {
         for (hsize_t y = 0; y < nDimsDst.y(); y++) {
-            memcpy(&dataDst1T[nDimsDst.x() * z + y * (count.z() * nDimsDst.x())], &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+            memcpy(&dataDst1T[nDimsDst.x() * z + y * (count.z() * nDimsDst.x())],
+                   &dataDst1[nDimsDst.x() * y + z * (nDimsDst.y() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
         }
     }
 
     double tTYZ1 = HDF5Helper::getTime();
 
     // Delete dataDst1
-    delete [] dataDst1;
+    delete[] dataDst1;
 
     // Sending by ZX slice
 
     // Number of floats in ZX slab in non-last block
-    hsize_t dataCountG = srcDataset->getGeneralBlockDims()[0]/*.z()*/ * nDimsDst.x();
+    hsize_t dataCountG = srcDataset->getGeneralBlockDims()[0] /*.z()*/ * nDimsDst.x();
     // Number of floats in ZX slab in last block
     hsize_t dataCountL = nDims.z() * nDimsDst.x() - (mPISize - 1) * dataCountG;
     // Number of floats in ZX slab in current block
     hsize_t dataCount = count.z() * nDimsDst.x();
 
     // Number of floats in stitched ZX slice
-    //hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
+    // hsize_t dstZXSlabOffset = nDims.z() * nDimsDst.x();
 
     // Number of slabs for every non-last process
-    hsize_t blockDepthG = (hsize_t) ceil(double (nDimsDst.y()) / mPISize);
+    hsize_t blockDepthG = (hsize_t)ceil(double(nDimsDst.y()) / mPISize);
     // Last process can have different (smaller) block size
     hsize_t blockDepthL = nDimsDst.y() - blockDepthG * (mPISize - 1);
     // Number of slabs for every actual process
@@ -1195,11 +1278,13 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
     /*for (int r = 0; r < mPISize; r++) {
         if (r == mPISize - 1) { // Last process can have different number of slices
             for (hsize_t c = 0; c < blockDepthL; c++) {
-                MPI_Gatherv(&dataDst1T[dataCount * (c + r * blockDepthG)], dataCount, MPI_FLOAT, &dataDst1TRecv[dstZXSlabOffset * c], recvCounts, recvDispls, MPI_FLOAT, r, comm);
+                MPI_Gatherv(&dataDst1T[dataCount * (c + r * blockDepthG)], dataCount, MPI_FLOAT,
+    &dataDst1TRecv[dstZXSlabOffset * c], recvCounts, recvDispls, MPI_FLOAT, r, comm);
             }
         } else {
             for (hsize_t c = 0; c < blockDepthG; c++) {
-                MPI_Gatherv(&dataDst1T[dataCount * (c + r * blockDepthG)], dataCount, MPI_FLOAT, &dataDst1TRecv[dstZXSlabOffset * c], recvCounts, recvDispls, MPI_FLOAT, r, comm);
+                MPI_Gatherv(&dataDst1T[dataCount * (c + r * blockDepthG)], dataCount, MPI_FLOAT,
+    &dataDst1TRecv[dstZXSlabOffset * c], recvCounts, recvDispls, MPI_FLOAT, r, comm);
             }
         }
     }*/
@@ -1208,14 +1293,14 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
     int sSize = 0;
 
     for (int i = 0; i < mPISize; i++) {
-        recvDispls[i] = (int) (i * dataCountG * blockDepth); // offset
-        sendDispls[i] = (int) (i * dataCount * blockDepthG); // offset
-        if (i == mPISize - 1) { // Last data count
-            recvCounts[i] = (int) (dataCountL * blockDepth);
-            sendCounts[i] = (int) (dataCount * blockDepthL);
+        recvDispls[i] = (int)(i * dataCountG * blockDepth); // offset
+        sendDispls[i] = (int)(i * dataCount * blockDepthG); // offset
+        if (i == mPISize - 1) {                             // Last data count
+            recvCounts[i] = (int)(dataCountL * blockDepth);
+            sendCounts[i] = (int)(dataCount * blockDepthL);
         } else {
-            recvCounts[i] = (int) (dataCountG * blockDepth);
-            sendCounts[i] = (int) (dataCount * blockDepthG);
+            recvCounts[i] = (int)(dataCountG * blockDepth);
+            sendCounts[i] = (int)(dataCount * blockDepthG);
         }
         rSize += recvCounts[i];
         sSize += sendCounts[i];
@@ -1230,28 +1315,30 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
     double tSZX1 = HDF5Helper::getTime();
 
     float *dataDst1TRecv2 = new float[nDims.z() * blockDepthG * nDimsDst.x()]();
-    //memcpy(dataDst1TRecv2, dataDst1TRecv, sizeof(float) * nDims.z() * blockDepth * nDimsDst.x());
+    // memcpy(dataDst1TRecv2, dataDst1TRecv, sizeof(float) * nDims.z() * blockDepth * nDimsDst.x());
 
     int dstOffset = 0;
     for (hsize_t y = 0; y < blockDepth; y++) {
         for (int i = 0; i < mPISize; i++) {
-            if (i == mPISize - 1) {// Last block can have different size of slices
-                memcpy(&dataDst1TRecv2[dstOffset], &dataDst1TRecv[i * dataCountG * blockDepth + y * dataCountL], sizeof(float) * dataCountL);
-                dstOffset += (int) dataCountL;
+            if (i == mPISize - 1) { // Last block can have different size of slices
+                memcpy(&dataDst1TRecv2[dstOffset], &dataDst1TRecv[i * dataCountG * blockDepth + y * dataCountL],
+                       sizeof(float) * dataCountL);
+                dstOffset += (int)dataCountL;
             } else {
-                memcpy(&dataDst1TRecv2[dstOffset], &dataDst1TRecv[i * dataCountG * blockDepth + y * dataCountG], sizeof(float) * dataCountG);
-                dstOffset += (int) dataCountG;
+                memcpy(&dataDst1TRecv2[dstOffset], &dataDst1TRecv[i * dataCountG * blockDepth + y * dataCountG],
+                       sizeof(float) * dataCountG);
+                dstOffset += (int)dataCountG;
             }
         }
     }
 
-    delete [] recvDispls;
-    delete [] recvCounts;
-    delete [] sendDispls;
-    delete [] sendCounts;
+    delete[] recvDispls;
+    delete[] recvCounts;
+    delete[] sendDispls;
+    delete[] sendCounts;
 
     // Delete dataDst1T
-    delete [] dataDst1T;
+    delete[] dataDst1T;
 
     // Memory for resized data
     float *dataDst2 = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
@@ -1260,18 +1347,20 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
 
     // After resize 2D slices in XZ plane
     for (hsize_t y = 0; y < blockDepth; y++) {
-        cv::Mat image = cv::Mat((int) nDims.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst1TRecv2[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
-        cv::Mat imageDst = cv::Mat((int) nDimsDst.z(), (int) nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
-        cv::resize(image, imageDst, cv::Size((int) nDimsDst.x(), (int) nDimsDst.z()), 0, 0, interpolation);
+        cv::Mat image = cv::Mat((int)nDims.z(), (int)nDimsDst.x(), CV_32FC1,
+                                &dataDst1TRecv2[nDims.z() * y * nDimsDst.x()]); // rows, cols (height, width)
+        cv::Mat imageDst
+            = cv::Mat((int)nDimsDst.z(), (int)nDimsDst.x(), CV_32FC1, &dataDst2[nDimsDst.z() * y * nDimsDst.x()]);
+        cv::resize(image, imageDst, cv::Size((int)nDimsDst.x(), (int)nDimsDst.z()), 0, 0, interpolation);
         image.release();
     }
 
     double tRXZ1 = HDF5Helper::getTime();
 
     // Delete dataDst1TRecv
-    delete [] dataDst1TRecv;
+    delete[] dataDst1TRecv;
     // Delete dataDst1TRecv2
-    delete [] dataDst1TRecv2;
+    delete[] dataDst1TRecv2;
 
     double tTZY0 = HDF5Helper::getTime();
 
@@ -1279,16 +1368,18 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
     float *dataDst2T = new float[nDimsDst.z() * blockDepth * nDimsDst.x()]();
     for (hsize_t z = 0; z < nDimsDst.z(); z++) {
         for (hsize_t y = 0; y < blockDepth; y++) {
-            memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())], &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
+            memcpy(&dataDst2T[nDimsDst.x() * y + z * (blockDepth * nDimsDst.x())],
+                   &dataDst2[nDimsDst.x() * z + y * (nDimsDst.z() * nDimsDst.x())], sizeof(float) * nDimsDst.x());
         }
     }
 
     double tTZY1 = HDF5Helper::getTime();
 
     // Delete dataDst2
-    delete [] dataDst2;
+    delete[] dataDst2;
 
-    dstDatasetFinal->write3DDataset(HDF5Helper::HDF5Vector3D(0, mPIRank * blockDepthG, 0), HDF5Helper::HDF5Vector3D(nDimsDst.z(), blockDepth, nDimsDst.x()), dataDst2T, true);
+    dstDatasetFinal->write3DDataset(HDF5Helper::HDF5Vector3D(0, mPIRank * blockDepthG, 0),
+                                    HDF5Helper::HDF5Vector3D(nDimsDst.z(), blockDepth, nDimsDst.x()), dataDst2T, true);
 
     // Get min/max values
     dstDatasetFinal->getMinAndMaxValue(dataDst2T, nDimsDst.z() * blockDepth * nDimsDst.x(), minV, maxV);
@@ -1296,17 +1387,17 @@ void resamplingOfDatasetAlltoallv(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helpe
     MPI_Allreduce(&maxV, &maxVG, 1, MPI_FLOAT, MPI_MAX, comm);
 
     // Delete dataDst2T
-    delete [] dataDst2T;
+    delete[] dataDst2T;
 
     double t1 = HDF5Helper::getTime();
     std::cout << "Times: ";
-    std::cout << "resample XY " << (tRXY1-tRXY0) << ", ";
-    std::cout << "transpoze YZ " << (tTYZ1-tTYZ0) << ", ";
-    std::cout << "send ZX " << (tSZX1-tSZX0) << ", ";
-    std::cout << "resample XZ " << (tRXZ1-tRXZ0) << ", ";
-    std::cout << "transpoze ZY " << (tTZY1-tTZY0) << " ";
+    std::cout << "resample XY " << (tRXY1 - tRXY0) << ", ";
+    std::cout << "transpoze YZ " << (tTYZ1 - tTYZ0) << ", ";
+    std::cout << "send ZX " << (tSZX1 - tSZX0) << ", ";
+    std::cout << "resample XZ " << (tRXZ1 - tRXZ0) << ", ";
+    std::cout << "transpoze ZY " << (tTZY1 - tTZY0) << " ";
     std::cout << "ms; \t" << std::endl;
-    std::cout << "Time of resampling of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
+    std::cout << "Time of resampling of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 }
 
 /**
@@ -1321,9 +1412,15 @@ void downsampling(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5Out
         // Check number of datasets for downsamling
         if (dtsForPcs->dts3DType.empty() && dtsForPcs->dtsGroupType.empty()) {
             std::cout << "No dataset for downsampling in simulation output file" << std::endl;
-        // Check current size -> is greater?
-        } else if (std::max(std::max(hDF5SimOutputFile->getNZ(), hDF5SimOutputFile->getNY()), hDF5SimOutputFile->getNX()) <= maxSize) {
-            std::cout << "No dataset for downsampling - max(nZ, nY, nX) == " + std::to_string(std::max(std::max(hDF5SimOutputFile->getNZ(), hDF5SimOutputFile->getNY()), hDF5SimOutputFile->getNX())) + " <= " + std::to_string(maxSize) << std::endl;
+            // Check current size -> is greater?
+        } else if (std::max(std::max(hDF5SimOutputFile->getNZ(), hDF5SimOutputFile->getNY()),
+                            hDF5SimOutputFile->getNX())
+                   <= maxSize) {
+            std::cout << "No dataset for downsampling - max(nZ, nY, nX) == "
+                             + std::to_string(std::max(std::max(hDF5SimOutputFile->getNZ(), hDF5SimOutputFile->getNY()),
+                                                       hDF5SimOutputFile->getNX()))
+                             + " <= " + std::to_string(maxSize)
+                      << std::endl;
         } else {
             HDF5Helper::HDF5Vector3D nDims = hDF5SimOutputFile->getNdims();
             HDF5Helper::HDF5Vector3D chunkSize;
@@ -1334,11 +1431,14 @@ void downsampling(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5Out
             computeDstDims(nDims, nDimsDst, ratio, chunkSize);
 
             // For every 3D type dataset
-            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DType.begin(); it != dtsForPcs->dts3DType.end(); ++it) {
+            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DType.begin();
+                 it != dtsForPcs->dts3DType.end(); ++it) {
                 HDF5Helper::HDF5Dataset *srcDataset = it->second;
 
-                hDF5OutputFile->createDatasetF(srcDataset->getName() + "_" + std::to_string(maxSize), nDimsDst, chunkSize, true);
-                HDF5Helper::HDF5Dataset *dstDatasetFinal = hDF5OutputFile->openDataset(srcDataset->getName() + "_" + std::to_string(maxSize));
+                hDF5OutputFile->createDatasetF(srcDataset->getName() + "_" + std::to_string(maxSize), nDimsDst,
+                                               chunkSize, true);
+                HDF5Helper::HDF5Dataset *dstDatasetFinal
+                    = hDF5OutputFile->openDataset(srcDataset->getName() + "_" + std::to_string(maxSize));
 
                 // Downsampling
                 resamplingOfDataset(srcDataset, nDims, nDimsDst, dstDatasetFinal, minV, maxV);
@@ -1352,31 +1452,38 @@ void downsampling(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5Out
 
                 // Filter or add to map
                 if (!flagNames || std::find(names.begin(), names.end(), dstDatasetFinal->getName()) != names.end())
-                    dtsForPcs->dts3DTypeDsp.insert(std::pair<const std::string, HDF5Helper::HDF5Dataset*>(dstDatasetFinal->getName(), dstDatasetFinal));
+                    dtsForPcs->dts3DTypeDsp.insert(std::pair<const std::string, HDF5Helper::HDF5Dataset *>(
+                        dstDatasetFinal->getName(), dstDatasetFinal));
             }
 
             // For every reshaped mask type
-            for (HDF5Helper::MapOfGroups::iterator it = dtsForPcs->dtsGroupType.begin(); it != dtsForPcs->dtsGroupType.end(); ++it) {
+            for (HDF5Helper::MapOfGroups::iterator it = dtsForPcs->dtsGroupType.begin();
+                 it != dtsForPcs->dtsGroupType.end(); ++it) {
                 HDF5Helper::HDF5Group *srcGroup = it->second;
 
                 // Create group (dstGroupFinal) in hDF5OutputFile
                 hDF5OutputFile->createGroup(srcGroup->getName() + "_" + std::to_string(maxSize), true);
-                HDF5Helper::HDF5Group *dstGroupFinal = hDF5OutputFile->openGroup(srcGroup->getName() + "_" + std::to_string(maxSize));
+                HDF5Helper::HDF5Group *dstGroupFinal
+                    = hDF5OutputFile->openGroup(srcGroup->getName() + "_" + std::to_string(maxSize));
 
                 // Get datasets count
                 hsize_t count = srcGroup->getNumObjs();
 
                 // Get dimensions and min/max values
-                float minVG = srcGroup->readAttributeF("min");
-                float maxVG = srcGroup->readAttributeF("max");
-                float minV = 0; maxV = 0;
-                HDF5Helper::HDF5Dataset *tmp = srcGroup->getFile()->openDataset(srcGroup->getName() + "/0");
+                float minVG                    = srcGroup->readAttributeF("min");
+                float maxVG                    = srcGroup->readAttributeF("max");
+                float minV                     = 0;
+                maxV                           = 0;
+                HDF5Helper::HDF5Dataset *tmp   = srcGroup->getFile()->openDataset(srcGroup->getName() + "/0");
                 HDF5Helper::HDF5Vector3D nDims = tmp->getDims();
                 srcGroup->getFile()->closeDataset(tmp->getName());
 
                 // Check current size
                 if (std::max(std::max(nDims.z(), nDims.y()), nDims.x()) <= maxSize) {
-                    std::cout << "No dataset for downsampling - " + std::to_string(std::max(std::max(nDims.z(), nDims.y()), nDims.x())) + " <= " + std::to_string(maxSize) << std::endl;
+                    std::cout << "No dataset for downsampling - "
+                                     + std::to_string(std::max(std::max(nDims.z(), nDims.y()), nDims.x()))
+                                     + " <= " + std::to_string(maxSize)
+                              << std::endl;
                     break;
                 }
 
@@ -1388,61 +1495,72 @@ void downsampling(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5Out
 
                 // For every 3D type dataset in group
                 for (unsigned int i = 0; i < count; i++) {
-                    HDF5Helper::HDF5Dataset *srcDataset = srcGroup->getFile()->openDataset(srcGroup->getName() + "/" + std::to_string(i));
+                    HDF5Helper::HDF5Dataset *srcDataset
+                        = srcGroup->getFile()->openDataset(srcGroup->getName() + "/" + std::to_string(i));
 
-                    hDF5OutputFile->createDatasetF(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i), nDimsDst, chunkSize, true);
-                    HDF5Helper::HDF5Dataset *dstDatasetFinal = hDF5OutputFile->openDataset(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i));
+                    hDF5OutputFile->createDatasetF(srcGroup->getName() + "_" + std::to_string(maxSize) + "/"
+                                                       + std::to_string(i),
+                                                   nDimsDst, chunkSize, true);
+                    HDF5Helper::HDF5Dataset *dstDatasetFinal = hDF5OutputFile->openDataset(
+                        srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i));
 
                     // Downsampling
                     resamplingOfDataset(srcDataset, nDims, nDimsDst, dstDatasetFinal, minV, maxV);
 
-                    if (minVG > minV) minVG = minV;
-                    if (maxVG < maxV) maxVG = maxV;
+                    if (minVG > minV)
+                        minVG = minV;
+                    if (maxVG < maxV)
+                        maxVG = maxV;
 
-                    hDF5OutputFile->closeDataset(srcGroup->getName() + "_" + std::to_string(maxSize) + "/" + std::to_string(i));
+                    hDF5OutputFile->closeDataset(srcGroup->getName() + "_" + std::to_string(maxSize) + "/"
+                                                 + std::to_string(i));
                     srcGroup->getFile()->closeDataset(srcDataset->getName());
                 }
 
                 // Save attributes
-                hsize_t positionZ = srcGroup->readAttributeI("positionZ");
-                hsize_t positionY = srcGroup->readAttributeI("positionY");
-                hsize_t positionX = srcGroup->readAttributeI("positionX");
+                hsize_t positionZ    = srcGroup->readAttributeI("positionZ");
+                hsize_t positionY    = srcGroup->readAttributeI("positionY");
+                hsize_t positionX    = srcGroup->readAttributeI("positionX");
                 hsize_t newPositionZ = 0;
                 hsize_t newPositionY = 0;
                 hsize_t newPositionX = 0;
                 if (positionZ > 0)
-                    newPositionZ = myRound((double) (positionZ + 1) * ratio) - 1;
+                    newPositionZ = myRound((double)(positionZ + 1) * ratio) - 1;
                 if (positionY > 0)
-                    newPositionY = myRound((double) (positionY + 1) * ratio) - 1;
+                    newPositionY = myRound((double)(positionY + 1) * ratio) - 1;
                 if (positionX > 0)
-                    newPositionX = myRound((double) (positionX + 1) * ratio) - 1;
-                hsize_t newSizeZ = myRound((double) (srcGroup->readAttributeI("sizeZ") + 1) * ratio) - 1;
-                hsize_t newSizeY = myRound((double) (srcGroup->readAttributeI("sizeY") + 1) * ratio) - 1;
-                hsize_t newSizeX = myRound((double) (srcGroup->readAttributeI("sizeX") + 1) * ratio) - 1;
-                if (newSizeZ < 1) newSizeZ = 1;
-                if (newSizeY < 1) newSizeY = 1;
-                if (newSizeX < 1) newSizeX = 1;
-                dstGroupFinal->setAttribute("positionZ", (hsize_t) newPositionZ);
-                dstGroupFinal->setAttribute("positionY", (hsize_t) newPositionY);
-                dstGroupFinal->setAttribute("positionX", (hsize_t) newPositionX);
-                dstGroupFinal->setAttribute("sizeZ", (hsize_t) newSizeZ);
-                dstGroupFinal->setAttribute("sizeY", (hsize_t) newSizeY);
-                dstGroupFinal->setAttribute("sizeX", (hsize_t) newSizeX);
-                dstGroupFinal->setAttribute("count", (hsize_t) count);
-                dstGroupFinal->setAttribute("dwnsmpl", (hsize_t) maxSize);
+                    newPositionX = myRound((double)(positionX + 1) * ratio) - 1;
+                hsize_t newSizeZ = myRound((double)(srcGroup->readAttributeI("sizeZ") + 1) * ratio) - 1;
+                hsize_t newSizeY = myRound((double)(srcGroup->readAttributeI("sizeY") + 1) * ratio) - 1;
+                hsize_t newSizeX = myRound((double)(srcGroup->readAttributeI("sizeX") + 1) * ratio) - 1;
+                if (newSizeZ < 1)
+                    newSizeZ = 1;
+                if (newSizeY < 1)
+                    newSizeY = 1;
+                if (newSizeX < 1)
+                    newSizeX = 1;
+                dstGroupFinal->setAttribute("positionZ", (hsize_t)newPositionZ);
+                dstGroupFinal->setAttribute("positionY", (hsize_t)newPositionY);
+                dstGroupFinal->setAttribute("positionX", (hsize_t)newPositionX);
+                dstGroupFinal->setAttribute("sizeZ", (hsize_t)newSizeZ);
+                dstGroupFinal->setAttribute("sizeY", (hsize_t)newSizeY);
+                dstGroupFinal->setAttribute("sizeX", (hsize_t)newSizeX);
+                dstGroupFinal->setAttribute("count", (hsize_t)count);
+                dstGroupFinal->setAttribute("dwnsmpl", (hsize_t)maxSize);
                 dstGroupFinal->setAttribute("min", minVG);
                 dstGroupFinal->setAttribute("max", maxVG);
                 dstGroupFinal->setAttribute("src_group_name", srcGroup->getName());
-                dstGroupFinal->setAttribute("src_group_id", (hsize_t) srcGroup->getId());
+                dstGroupFinal->setAttribute("src_group_id", (hsize_t)srcGroup->getId());
 
                 // Filter or add to map
                 if (!flagNames || std::find(names.begin(), names.end(), dstGroupFinal->getName()) != names.end())
-                    dtsForPcs->dtsGroupTypeDsp.insert(std::pair<const std::string, HDF5Helper::HDF5Group*>(dstGroupFinal->getName(), dstGroupFinal));
+                    dtsForPcs->dtsGroupTypeDsp.insert(
+                        std::pair<const std::string, HDF5Helper::HDF5Group *>(dstGroupFinal->getName(), dstGroupFinal));
                 else
                     hDF5OutputFile->closeGroup(dstGroupFinal->getName());
             }
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -1454,14 +1572,18 @@ void downsampling(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper::File *hDF5Out
  * @param hDF5OutputFile output file
  * @param maxChunkSize chunk size
  */
-void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::File *hDF5OutputFile, hsize_t maxChunkSize) {
+void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::File *hDF5OutputFile, hsize_t maxChunkSize)
+{
     HDF5Helper::HDF5Vector3D dims = srcDataset->getDims();
 
     // Chunk size
     HDF5Helper::HDF5Vector3D chunkSize(maxChunkSize, maxChunkSize, maxChunkSize);
-    if (chunkSize.z() > dims.z()) chunkSize.z(dims.z());
-    if (chunkSize.y() > dims.y()) chunkSize.y(dims.y());
-    if (chunkSize.x() > dims.x()) chunkSize.x(dims.x());
+    if (chunkSize.z() > dims.z())
+        chunkSize.z(dims.z());
+    if (chunkSize.y() > dims.y())
+        chunkSize.y(dims.y());
+    if (chunkSize.x() > dims.x())
+        chunkSize.x(dims.x());
     hDF5OutputFile->createDatasetF(srcDataset->getName(), dims, chunkSize, true);
     HDF5Helper::HDF5Dataset *dstDataset = hDF5OutputFile->openDataset(srcDataset->getName());
 
@@ -1476,7 +1598,7 @@ void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::File
     HDF5Helper::HDF5Vector3D count;
 
     // Divide dataset to every process
-    srcDataset->setNumberOfElmsToLoad((hsize_t) ceil(double (dims.z()) / mPISize) * dims.y() * dims.x());
+    srcDataset->setNumberOfElmsToLoad((hsize_t)ceil(double(dims.z()) / mPISize) * dims.y() * dims.x());
 
     if (mPISize > 1 && flagCollective)
         srcDataset->setMPIOAccess(H5FD_MPIO_COLLECTIVE);
@@ -1506,7 +1628,7 @@ void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::File
     MPI_Barrier(comm);
     double t1 = HDF5Helper::getTime();
 
-    std::cout << "Time of changing chunks of the whole dataset: " << (t1-t0) << " ms; \t" << std::endl;
+    std::cout << "Time of changing chunks of the whole dataset: " << (t1 - t0) << " ms; \t" << std::endl;
 
     hDF5OutputFile->closeDataset(dstDataset->getName());
 }
@@ -1520,29 +1642,33 @@ void changeChunksOfDataset(HDF5Helper::HDF5Dataset *srcDataset, HDF5Helper::File
 void changeChunks(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs)
 {
     try {
-        if (dtsForPcs->dts3DType.empty() && dtsForPcs->dts3DTypeDsp.empty() && dtsForPcs->dtsGroupType.empty() && dtsForPcs->dtsGroupTypeDsp.empty()) {
+        if (dtsForPcs->dts3DType.empty() && dtsForPcs->dts3DTypeDsp.empty() && dtsForPcs->dtsGroupType.empty()
+            && dtsForPcs->dtsGroupTypeDsp.empty()) {
             std::cout << "No dataset for change chunks in simulation output file" << std::endl;
         } else {
             // For every 3D type dataset
-            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DType.begin(); it != dtsForPcs->dts3DType.end(); ++it) {
+            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DType.begin();
+                 it != dtsForPcs->dts3DType.end(); ++it) {
                 HDF5Helper::HDF5Dataset *srcDataset = it->second;
                 changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
             }
 
             // For every 3D type downsampled dataset
-            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DTypeDsp.begin(); it != dtsForPcs->dts3DTypeDsp.end(); ++it) {
+            for (HDF5Helper::MapOfDatasets::iterator it = dtsForPcs->dts3DTypeDsp.begin();
+                 it != dtsForPcs->dts3DTypeDsp.end(); ++it) {
                 HDF5Helper::HDF5Dataset *srcDataset = it->second;
                 changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
             }
 
             // For every reshaped mask type
-            for (HDF5Helper::MapOfGroups::iterator it = dtsForPcs->dtsGroupType.begin(); it != dtsForPcs->dtsGroupType.end(); ++it) {
+            for (HDF5Helper::MapOfGroups::iterator it = dtsForPcs->dtsGroupType.begin();
+                 it != dtsForPcs->dtsGroupType.end(); ++it) {
                 HDF5Helper::HDF5Group *srcGroup = it->second;
-                hsize_t count = srcGroup->getNumObjs();
+                hsize_t count                   = srcGroup->getNumObjs();
                 // Try create group, if it already exists, then do not rewrite it
                 try {
                     hDF5OutputFile->createGroup(srcGroup->getName());
-                } catch(std::exception) {
+                } catch (std::exception) {
                 }
                 HDF5Helper::HDF5Group *dstGroup = hDF5OutputFile->openGroup(srcGroup->getName());
 
@@ -1555,20 +1681,22 @@ void changeChunks(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs)
 
                 // For every 3D type dataset in group
                 for (unsigned int i = 0; i < count; i++) {
-                    HDF5Helper::HDF5Dataset *srcDataset = srcGroup->getFile()->openDataset(srcGroup->getName() + "/" + std::to_string(i));
+                    HDF5Helper::HDF5Dataset *srcDataset
+                        = srcGroup->getFile()->openDataset(srcGroup->getName() + "/" + std::to_string(i));
                     changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
                     srcGroup->getFile()->closeDataset(srcGroup->getName() + "/" + std::to_string(i));
                 }
             }
 
             // For every reshaped mask type downsampled
-            for (HDF5Helper::MapOfGroups::iterator it = dtsForPcs->dtsGroupTypeDsp.begin(); it != dtsForPcs->dtsGroupTypeDsp.end(); ++it) {
+            for (HDF5Helper::MapOfGroups::iterator it = dtsForPcs->dtsGroupTypeDsp.begin();
+                 it != dtsForPcs->dtsGroupTypeDsp.end(); ++it) {
                 HDF5Helper::HDF5Group *srcGroup = it->second;
-                hsize_t count = srcGroup->getNumObjs();
+                hsize_t count                   = srcGroup->getNumObjs();
                 // Try create group, if it already exists, then do not rewrite it
                 try {
                     hDF5OutputFile->createGroup(srcGroup->getName());
-                } catch(std::exception) {
+                } catch (std::exception) {
                 }
                 HDF5Helper::HDF5Group *dstGroup = hDF5OutputFile->openGroup(srcGroup->getName());
 
@@ -1581,13 +1709,14 @@ void changeChunks(HDF5Helper::File *hDF5OutputFile, DtsForPcs *dtsForPcs)
 
                 // For every 3D type dataset in group
                 for (unsigned int i = 0; i < count; i++) {
-                    HDF5Helper::HDF5Dataset *srcDataset = srcGroup->getFile()->openDataset(srcGroup->getName() + "/" + std::to_string(i));
+                    HDF5Helper::HDF5Dataset *srcDataset
+                        = srcGroup->getFile()->openDataset(srcGroup->getName() + "/" + std::to_string(i));
                     changeChunksOfDataset(srcDataset, hDF5OutputFile, maxChunkSize);
                     srcGroup->getFile()->closeDataset(srcGroup->getName() + "/" + std::to_string(i));
                 }
             }
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -1602,18 +1731,19 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
     try {
         HDF5Helper::HDF5Dataset *dataset;
         HDF5Helper::HDF5Group *group;
-        bool flagGroup = false;
+        bool flagGroup   = false;
         bool flagDataset = false;
 
         try {
-            group = hDF5ViewFile->openGroup(datasetName);
+            group     = hDF5ViewFile->openGroup(datasetName);
             flagGroup = true;
-        } catch(std::exception) {
-            //std::cerr << e.what() << std::endl;
+        } catch (std::exception) {
+            // std::cerr << e.what() << std::endl;
             std::cout << "Dataset is not a time series" << std::endl;
-            dataset = hDF5ViewFile->openDataset(datasetName);
+            dataset                       = hDF5ViewFile->openDataset(datasetName);
             HDF5Helper::HDF5Vector3D size = dataset->getDims();
-            if (size.z() > hDF5ViewFile->getNZ() || size.y() > hDF5ViewFile->getNY() || size.y() > hDF5ViewFile->getNX())
+            if (size.z() > hDF5ViewFile->getNZ() || size.y() > hDF5ViewFile->getNY()
+                || size.y() > hDF5ViewFile->getNX())
                 std::cout << "Dataset is too large" << std::endl;
             else
                 flagDataset = true;
@@ -1622,7 +1752,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
         if (flagGroup) {
             float minValueSeriesGlobal = group->readAttributeF("min");
             float maxValueSeriesGlobal = group->readAttributeF("max");
-            hsize_t count = group->readAttributeI("count");
+            hsize_t count              = group->readAttributeI("count");
 
             cv::namedWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex));
             cv::namedWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex));
@@ -1640,50 +1770,65 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
                 HDF5Helper::HDF5Vector3D size = dataset->getDims();
                 std::cout << "Dataset size:       " << size.z() << " x " << size.y() << " x " << size.x() << std::endl;
                 HDF5Helper::HDF5Vector3D chunkSize = dataset->getChunkDims();
-                std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
+                std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x()
+                          << std::endl;
 
-
-                float *data = 0;
+                float *data    = 0;
                 hsize_t height = 0;
-                hsize_t width = 0;
+                hsize_t width  = 0;
 
                 if (cutType == "YX") {
                     if (cutIndex >= size.z())
-                        throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex) + " >= " + std::to_string(size.z()));
-                    dataset->read3DDataset(HDF5Helper::HDF5Vector3D(cutIndex, 0, 0), HDF5Helper::HDF5Vector3D(1, size.y(), size.x()), data, minValue, maxValue); // YX
+                        throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex)
+                                                 + " >= " + std::to_string(size.z()));
+                    dataset->read3DDataset(HDF5Helper::HDF5Vector3D(cutIndex, 0, 0),
+                                           HDF5Helper::HDF5Vector3D(1, size.y(), size.x()), data, minValue,
+                                           maxValue); // YX
                     height = size.y();
-                    width = size.x();
+                    width  = size.x();
                 } else if (cutType == "ZX") {
                     if (cutIndex >= size.y())
-                        throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex) + " >= " + std::to_string(size.y()));
-                    dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, cutIndex, 0), HDF5Helper::HDF5Vector3D(size.z(), 1, size.x()), data, minValue, maxValue); // ZX
+                        throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex)
+                                                 + " >= " + std::to_string(size.y()));
+                    dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, cutIndex, 0),
+                                           HDF5Helper::HDF5Vector3D(size.z(), 1, size.x()), data, minValue,
+                                           maxValue); // ZX
                     height = size.z();
-                    width = size.x();
+                    width  = size.x();
                 } else if (cutType == "ZY") {
                     if (cutIndex >= size.x())
-                        throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex) + " >= " + std::to_string(size.x()));
-                    dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, 0, cutIndex), HDF5Helper::HDF5Vector3D(size.z(), size.y(), 1), data, minValue, maxValue); // ZY
+                        throw std::runtime_error("Wrong cutIndex - " + std::to_string(cutIndex)
+                                                 + " >= " + std::to_string(size.x()));
+                    dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, 0, cutIndex),
+                                           HDF5Helper::HDF5Vector3D(size.z(), size.y(), 1), data, minValue,
+                                           maxValue); // ZY
                     height = size.z();
-                    width = size.y();
+                    width  = size.y();
                 } else
                     throw std::runtime_error("Wrong cutType (cutType must be YX, ZX or ZY)");
 
-                std::cout << "   minValueSeriesGlobal: " << minValueSeriesGlobal << "\tmaxValueSeriesGlobal: " << maxValueSeriesGlobal << std::endl;
-                std::cout << "   minValueGlobal:       " << minValueGlobal <<       "\tmaxValueGlobal:      " << maxValueGlobal << std::endl;
-                std::cout << "   minValue:             " << minValue <<             "\tmaxValue:            " << maxValue << std::endl;
-                std::cout << "   width:                " << width <<                "\theight:              " << height << std::endl;
+                std::cout << "   minValueSeriesGlobal: " << minValueSeriesGlobal
+                          << "\tmaxValueSeriesGlobal: " << maxValueSeriesGlobal << std::endl;
+                std::cout << "   minValueGlobal:       " << minValueGlobal
+                          << "\tmaxValueGlobal:      " << maxValueGlobal << std::endl;
+                std::cout << "   minValue:             " << minValue << "\tmaxValue:            " << maxValue
+                          << std::endl;
+                std::cout << "   width:                " << width << "\theight:              " << height << std::endl;
 
-                cv::Mat imageL = cv::Mat((int) height, (int) width, CV_32FC1, data); // rows, cols (height, width)
+                cv::Mat imageL = cv::Mat((int)height, (int)width, CV_32FC1, data); // rows, cols (height, width)
                 cv::Mat imageG;
                 cv::Mat imageGG;
 
-                imageL.convertTo(imageG, CV_8UC1, 255.0 / (maxValueGlobal - minValueGlobal), - minValueGlobal * 255.0 /(maxValueGlobal - minValueGlobal));
-                imageL.convertTo(imageGG, CV_8UC1, 255.0 / (maxValueSeriesGlobal - minValueSeriesGlobal), - minValueSeriesGlobal * 255.0 /(maxValueSeriesGlobal - minValueSeriesGlobal));
-                imageL.convertTo(imageL, CV_8UC1, 255.0 / (maxValue - minValue), - minValue * 255.0 /(maxValue - minValue));
+                imageL.convertTo(imageG, CV_8UC1, 255.0 / (maxValueGlobal - minValueGlobal),
+                                 -minValueGlobal * 255.0 / (maxValueGlobal - minValueGlobal));
+                imageL.convertTo(imageGG, CV_8UC1, 255.0 / (maxValueSeriesGlobal - minValueSeriesGlobal),
+                                 -minValueSeriesGlobal * 255.0 / (maxValueSeriesGlobal - minValueSeriesGlobal));
+                imageL.convertTo(imageL, CV_8UC1, 255.0 / (maxValue - minValue),
+                                 -minValue * 255.0 / (maxValue - minValue));
 
                 if (width > height) {
                     int dstWidth = 300;
-                    cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                    cv::Size size(dstWidth, (int)ceil((double)imageL.size().height * dstWidth / imageL.size().width));
                     // Set original size
                     size = imageL.size();
                     cv::resize(imageL, imageL, size);
@@ -1691,7 +1836,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
                     cv::resize(imageGG, imageGG, size);
                 } else {
                     int dstHeight = 300;
-                    cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                    cv::Size size((int)ceil((double)imageL.size().width * dstHeight / imageL.size().height), dstHeight);
                     // Set original size
                     size = imageL.size();
                     cv::resize(imageL, imageL, size);
@@ -1699,9 +1844,10 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
                     cv::resize(imageGG, imageGG, size);
                 }
 
-                //cv::moveWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), 100, 50);
-                //cv::moveWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex), imageL.size().width + 50 + 100, 50);
-                //cv::moveWindow(datasetName + " series global " + cutType + " " + std::to_string(cutIndex), 2 * imageL.size().width  + 100 + 100, 50);
+                // cv::moveWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), 100, 50);
+                // cv::moveWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex),
+                // imageL.size().width + 50 + 100, 50); cv::moveWindow(datasetName + " series global " + cutType + " " +
+                // std::to_string(cutIndex), 2 * imageL.size().width  + 100 + 100, 50);
 
                 cv::applyColorMap(imageL, imageL, cv::COLORMAP_JET);
                 cv::applyColorMap(imageG, imageG, cv::COLORMAP_JET);
@@ -1721,61 +1867,66 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
             float minValueGlobal = dataset->getGlobalMinValueF();
             float maxValueGlobal = dataset->getGlobalMaxValueF();
 
-            float minValue = 0;
-            float maxValue = 0;
+            float minValue                = 0;
+            float maxValue                = 0;
             HDF5Helper::HDF5Vector3D size = dataset->getDims();
             std::cout << "Dataset size:       " << size.z() << " x " << size.y() << " x " << size.x() << std::endl;
             HDF5Helper::HDF5Vector3D chunkSize = dataset->getChunkDims();
-            std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x() << std::endl;
+            std::cout << "Dataset chunk size: " << chunkSize.z() << " x " << chunkSize.y() << " x " << chunkSize.x()
+                      << std::endl;
 
-            float *data = 0;
+            float *data    = 0;
             hsize_t height = 0;
-            hsize_t width = 0;
+            hsize_t width  = 0;
 
             if (cutType == "YX") {
                 if (cutIndex >= size.z())
                     throw std::runtime_error("Wrong cutIndex - is too big");
-                dataset->read3DDataset(HDF5Helper::HDF5Vector3D(cutIndex, 0, 0), HDF5Helper::HDF5Vector3D(1, size.y(), size.x()), data, minValue, maxValue); // YX
+                dataset->read3DDataset(HDF5Helper::HDF5Vector3D(cutIndex, 0, 0),
+                                       HDF5Helper::HDF5Vector3D(1, size.y(), size.x()), data, minValue, maxValue); // YX
                 height = size.y();
-                width = size.x();
+                width  = size.x();
             } else if (cutType == "ZX") {
                 if (cutIndex >= size.y())
                     throw std::runtime_error("Wrong cutIndex - is too big");
-                dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, cutIndex, 0), HDF5Helper::HDF5Vector3D(size.z(), 1, size.x()), data, minValue, maxValue); // ZX
+                dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, cutIndex, 0),
+                                       HDF5Helper::HDF5Vector3D(size.z(), 1, size.x()), data, minValue, maxValue); // ZX
                 height = size.z();
-                width = size.x();
+                width  = size.x();
             } else if (cutType == "ZY") {
                 if (cutIndex >= size.x())
                     throw std::runtime_error("Wrong cutIndex - is too big");
-                dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, 0, cutIndex), HDF5Helper::HDF5Vector3D(size.z(), size.y(), 1), data, minValue, maxValue); // ZY
+                dataset->read3DDataset(HDF5Helper::HDF5Vector3D(0, 0, cutIndex),
+                                       HDF5Helper::HDF5Vector3D(size.z(), size.y(), 1), data, minValue, maxValue); // ZY
                 height = size.z();
-                width = size.y();
+                width  = size.y();
             } else
                 throw std::runtime_error("Wrong cutType (cutType must be YX, ZX or ZY)");
 
             std::cout << "   minValueGlobal: " << minValueGlobal << "\tmaxValueGlobal: " << maxValueGlobal << std::endl;
-            std::cout << "   minValue:       " << minValue <<       "\tmaxValue:       " << maxValue << std::endl;
-            std::cout << "   width:          " << width <<          "\theight:         " << height << std::endl;
+            std::cout << "   minValue:       " << minValue << "\tmaxValue:       " << maxValue << std::endl;
+            std::cout << "   width:          " << width << "\theight:         " << height << std::endl;
 
-            cv::Mat imageL = cv::Mat((int) height, (int) width, CV_32FC1, data); // rows, cols (height, width)
+            cv::Mat imageL = cv::Mat((int)height, (int)width, CV_32FC1, data); // rows, cols (height, width)
             cv::Mat imageG;
             // cv::Size(width, height)
-            imageL.convertTo(imageG, CV_8UC1, 255.0 / (maxValueGlobal - minValueGlobal), - minValueGlobal * 255.0 /(maxValueGlobal - minValueGlobal));
-            imageL.convertTo(imageL, CV_8UC1, 255.0 / (maxValue - minValue), - minValue * 255.0 /(maxValue - minValue));
+            imageL.convertTo(imageG, CV_8UC1, 255.0 / (maxValueGlobal - minValueGlobal),
+                             -minValueGlobal * 255.0 / (maxValueGlobal - minValueGlobal));
+            imageL.convertTo(imageL, CV_8UC1, 255.0 / (maxValue - minValue), -minValue * 255.0 / (maxValue - minValue));
 
             cv::Mat imageLUP;
             cv::Mat imageGUP;
 
             if (width > height) {
                 int dstWidth = 300;
-                cv::Size size(dstWidth, (int) ceil((double) imageL.size().height * dstWidth / imageL.size().width));
+                cv::Size size(dstWidth, (int)ceil((double)imageL.size().height * dstWidth / imageL.size().width));
                 // Set original size
                 size = imageL.size();
                 cv::resize(imageL, imageLUP, size);
                 cv::resize(imageG, imageGUP, size);
             } else {
                 int dstHeight = 300;
-                cv::Size size((int) ceil((double) imageL.size().width * dstHeight / imageL.size().height), dstHeight);
+                cv::Size size((int)ceil((double)imageL.size().width * dstHeight / imageL.size().height), dstHeight);
                 // Set original size
                 size = imageL.size();
                 cv::resize(imageL, imageLUP, size);
@@ -1791,11 +1942,12 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
             cv::imshow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), imageLUP);
             cv::imshow(datasetName + " global " + cutType + " " + std::to_string(cutIndex), imageGUP);
 
-            //cv::moveWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), 100, 50);
-            //cv::moveWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex), imageL.size().width + 50 + 100, 50);
+            // cv::moveWindow(datasetName + " local " + cutType + " " + std::to_string(cutIndex), 100, 50);
+            // cv::moveWindow(datasetName + " global " + cutType + " " + std::to_string(cutIndex), imageL.size().width +
+            // 50 + 100, 50);
 
-            //cv::imwrite(datasetName + " local " + cutType + " " + std::to_string(cutIndex) + ".png", imageL);
-            //cv::imwrite(datasetName + " global " + cutType + " " + std::to_string(cutIndex) + ".png", imageG);
+            // cv::imwrite(datasetName + " local " + cutType + " " + std::to_string(cutIndex) + ".png", imageL);
+            // cv::imwrite(datasetName + " global " + cutType + " " + std::to_string(cutIndex) + ".png", imageG);
 
             imageLUP.release();
             imageGUP.release();
@@ -1805,7 +1957,7 @@ void visualization(HDF5Helper::File *hDF5ViewFile)
         } else {
             std::cout << "Dataset is not displayable" << std::endl;
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -1827,17 +1979,21 @@ void copyDimensionsAndAttributes(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper
         hsize_t data[1];
         data[0] = hDF5SimOutputFile->getNT();
         hDF5OutputFile->createDatasetI(NT_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        hDF5OutputFile->openDataset(NT_DATASET)->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
+        hDF5OutputFile->openDataset(NT_DATASET)
+            ->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
         data[0] = hDF5SimOutputFile->getNX();
         hDF5OutputFile->createDatasetI(NX_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        hDF5OutputFile->openDataset(NX_DATASET)->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
+        hDF5OutputFile->openDataset(NX_DATASET)
+            ->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
         data[0] = hDF5SimOutputFile->getNY();
         hDF5OutputFile->createDatasetI(NY_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        hDF5OutputFile->openDataset(NY_DATASET)->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
+        hDF5OutputFile->openDataset(NY_DATASET)
+            ->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
         data[0] = hDF5SimOutputFile->getNZ();
         hDF5OutputFile->createDatasetI(NZ_DATASET, size, HDF5Helper::HDF5Vector3D(), true);
-        hDF5OutputFile->openDataset(NZ_DATASET)->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
-    } catch(std::exception &e) {
+        hDF5OutputFile->openDataset(NZ_DATASET)
+            ->write3DDataset(HDF5Helper::HDF5Vector3D(), HDF5Helper::HDF5Vector3D(1, 1, 1), data);
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -1848,10 +2004,10 @@ void copyDimensionsAndAttributes(HDF5Helper::File *hDF5SimOutputFile, HDF5Helper
         HDF5Helper::HDF5Group *dstGroup = hDF5OutputFile->openGroup("/");
         for (unsigned int i = 0; i < srcGroup->getNumAttrs(); i++) {
             HDF5Helper::HDF5Attribute *attr = srcGroup->getAttribute(i);
-            dstGroup->setAttribute(attr,  false);
+            dstGroup->setAttribute(attr, false);
             delete attr;
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::exit(EXIT_FAILURE);
     }
@@ -1873,7 +2029,7 @@ int main(int argc, char **argv)
     MPI_Comm_rank(comm, &mPIRank);
 
     MPI_Info_create(&info);
-    MPI_Info_set(info, ((char *) "ibm_largeblock_io"), ((char *) "true"));
+    MPI_Info_set(info, ((char *)"ibm_largeblock_io"), ((char *)"true"));
 
     std::cout << "process rank " << mPIRank << " of " << mPISize << " on host " << hostname << std::endl;
 
@@ -1887,14 +2043,14 @@ int main(int argc, char **argv)
     double t0 = HDF5Helper::getTime();
 
     HDF5Helper::File *hDF5SimOutputFile = NULL;
-    HDF5Helper::File *hDF5SimInputFile = NULL;
-    HDF5Helper::File *hDF5OutputFile = NULL;
-    HDF5Helper::File *hDF5ViewFile = NULL;
+    HDF5Helper::File *hDF5SimInputFile  = NULL;
+    HDF5Helper::File *hDF5OutputFile    = NULL;
+    HDF5Helper::File *hDF5ViewFile      = NULL;
 
     // Create helper class for datasets of various types
-    DtsForPcs *dtsForPcs = new DtsForPcs();
+    DtsForPcs *dtsForPcs              = new DtsForPcs();
     dtsForPcs->sensorMaskIndexDataset = NULL;
-    dtsForPcs->sensorMaskSize = 0;
+    dtsForPcs->sensorMaskSize         = 0;
 
     // Load parameters
     getParams(argc, argv);
@@ -1928,7 +2084,7 @@ int main(int argc, char **argv)
                 exit(EXIT_FAILURE);
         }
     } else {
-        //std::cerr << "Sensor mask is not in simulation output or input file" << std::endl;
+        // std::cerr << "Sensor mask is not in simulation output or input file" << std::endl;
         if (flagReshape)
             exit(EXIT_FAILURE);
     }
@@ -1998,7 +2154,11 @@ int main(int argc, char **argv)
 
     double t2 = HDF5Helper::getTime();
 
-    std::cout << std::endl << std::endl << "Time of the entire process: " << (t2-t0) << " ms; \t" << std::endl << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl
+              << "Time of the entire process: " << (t2 - t0) << " ms; \t" << std::endl
+              << std::endl
+              << std::endl;
 
     MPI_Finalize();
 

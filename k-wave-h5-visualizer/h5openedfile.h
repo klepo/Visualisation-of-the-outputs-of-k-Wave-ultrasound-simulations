@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5OpenedFile class declaration.
  *
@@ -33,9 +33,9 @@ class H5OpenedFile : public QObject
 {
     Q_OBJECT
 public:
-
     /// 3D and 4D object type
-    typedef enum ObjectType {
+    typedef enum ObjectType
+    {
         DATASET_3D,
         DATASET_4D
     } ObjectType;
@@ -50,7 +50,6 @@ public:
     const H5Helper::File *getFile() const;
     QString getFilename() const;
     QString getRawFilename() const;
-
 
 signals:
 

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with Settings class declaration.
  *
@@ -88,7 +88,6 @@ public:
     bool getFlagNoOverlap() const;
     void setFlagNoOverlap(bool value);
 
-
     // Selected names
     ParamsDefinition::ListOfStrings getNames() const;
     void setNames(const ParamsDefinition::ListOfStrings &value);
@@ -151,7 +150,7 @@ private:
     bool noOverlap = false;
 
     /// Maximal chunk sizes
-    ParamsDefinition::VectorOfULongLongs maxChunkSizes = ParamsDefinition::VectorOfULongLongs{64, 64, 64, 1};
+    ParamsDefinition::VectorOfULongLongs maxChunkSizes = ParamsDefinition::VectorOfULongLongs { 64, 64, 64, 1 };
     /// Maximal chunk sizes flag
     bool flagMaxChunkSizes = false;
 

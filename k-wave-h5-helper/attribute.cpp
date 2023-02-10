@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::Attribute class definition.
  *
@@ -21,7 +21,8 @@
 
 #include "attribute.h"
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 /**
  * @brief Creates Attribute object with given name and object
@@ -72,13 +73,13 @@ Attribute::~Attribute()
 {
     free(value);
     value = nullptr;
-    err = H5Tclose(datatypeId);
+    err   = H5Tclose(datatypeId);
     if (err < 0) {
-        //throw std::runtime_error("H5Tclose error");
+        // throw std::runtime_error("H5Tclose error");
     }
     err = H5Sclose(dataspaceId);
     if (err < 0) {
-        //throw std::runtime_error("H5Sclose error");
+        // throw std::runtime_error("H5Sclose error");
     }
 }
 
@@ -232,7 +233,7 @@ void Attribute::loadAttribute(hid_t attributeId)
     if (datatypeId < 0) {
         throw std::runtime_error("H5Aget_type error");
     }
-    size = H5Aget_storage_size(attributeId);
+    size             = H5Aget_storage_size(attributeId);
     ssize_t nameSize = H5Aget_name(attributeId, 0, nullptr);
     if (nameSize < 0) {
         throw std::runtime_error("H5Aget_name error");
@@ -241,15 +242,15 @@ void Attribute::loadAttribute(hid_t attributeId)
     H5Aget_name(attributeId, size_t(nameSize + 1), nameC);
     name = std::string(nameC);
     delete[] nameC;
-    nameC = nullptr;
+    nameC       = nullptr;
     dataspaceId = H5Aget_space(attributeId);
     if (dataspaceId < 0) {
         throw std::runtime_error("H5Aget_space error");
     }
     value = malloc(size_t(size));
-    err = H5Aread(attributeId, datatypeId, value);
+    err   = H5Aread(attributeId, datatypeId, value);
     if (err < 0) {
         throw std::runtime_error("H5Aread error");
     }
 }
-}
+} // namespace H5Helper

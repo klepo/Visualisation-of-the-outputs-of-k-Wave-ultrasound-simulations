@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Settings3DDockWidget class definition.
  *
@@ -23,9 +23,9 @@
  * @brief Creates Settings3DDockWidget object
  * @param[in] parent Parent (optional)
  */
-Settings3DDockWidget::Settings3DDockWidget(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::Settings3DDockWidget)
+Settings3DDockWidget::Settings3DDockWidget(QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::Settings3DDockWidget)
 {
     ui->setupUi(this);
 

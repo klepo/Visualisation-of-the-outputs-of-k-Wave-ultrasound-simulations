@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing QDoubleSpinBoxTS class definition.
  *
@@ -25,8 +25,8 @@
  * @brief Creates QDoubleSpinBoxTS object
  * @param[in] parent Parent (optional)
  */
-QDoubleSpinBoxTS::QDoubleSpinBoxTS(QWidget *parent) :
-    QDoubleSpinBox(parent)
+QDoubleSpinBoxTS::QDoubleSpinBoxTS(QWidget *parent)
+    : QDoubleSpinBox(parent)
 {
 }
 
@@ -48,8 +48,8 @@ QString QDoubleSpinBoxTS::textFromValue(double value) const
 double QDoubleSpinBoxTS::valueFromText(const QString &text) const
 {
     QString str = text;
-    str = str.remove(QWidget::locale().groupSeparator());
-    //str = str.remove(" ");
+    str         = str.remove(QWidget::locale().groupSeparator());
+    // str = str.remove(" ");
     double d = QWidget::locale().toDouble(str);
     return d;
 }

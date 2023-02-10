@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file including all important H5Helper classes.
  *
@@ -34,7 +34,9 @@
  * @namespace H5Helper
  * @brief Namespace for the %H5Helper library
  */
-namespace H5Helper {}
+namespace H5Helper
+{
+}
 
 /**
  * TODO:

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        3  November  2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing QVector3DI class definition.
  *
@@ -22,7 +22,8 @@
 /**
  * @brief Creates QVector3DI object
  */
-QVector3DI::QVector3DI() : QVector3D()
+QVector3DI::QVector3DI()
+    : QVector3D()
 {
 }
 
@@ -32,7 +33,8 @@ QVector3DI::QVector3DI() : QVector3D()
  * @param[in] y Y position
  * @param[in] z Z position
  */
-QVector3DI::QVector3DI(int x, int y, int z) : QVector3D(float(x), float(y), float(z))
+QVector3DI::QVector3DI(int x, int y, int z)
+    : QVector3D(float(x), float(y), float(z))
 {
 }
 
@@ -42,7 +44,8 @@ QVector3DI::QVector3DI(int x, int y, int z) : QVector3D(float(x), float(y), floa
  * @param[in] y Y position
  * @param[in] z Z position
  */
-QVector3DI::QVector3DI(unsigned long long x, unsigned long long y, unsigned long long z) : QVector3D(float(x), float(y), float(z))
+QVector3DI::QVector3DI(unsigned long long x, unsigned long long y, unsigned long long z)
+    : QVector3D(float(x), float(y), float(z))
 {
 }
 
@@ -99,5 +102,3 @@ int QVector3DI::z() const
 {
     return int(QVector3D::z());
 }
-
-

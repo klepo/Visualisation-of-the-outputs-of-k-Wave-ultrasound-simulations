@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with MinMaxGroupBox class declaration.
  *
@@ -26,7 +26,8 @@
 
 #include "abstractwidget.h"
 
-namespace Ui {
+namespace Ui
+{
 class MinMaxGroupBox;
 }
 

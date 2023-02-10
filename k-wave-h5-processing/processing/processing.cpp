@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Processing class definition.
  *
@@ -28,8 +28,8 @@
 Processing::Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
 {
     this->outputFile = outputFile;
-    this->dtsForPcs = dtsForPcs;
-    this->settings = settings;
+    this->dtsForPcs  = dtsForPcs;
+    this->settings   = settings;
 }
 
 /**
@@ -39,7 +39,6 @@ Processing::Processing(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const S
  */
 Processing::~Processing()
 {
-
 }
 
 /**
@@ -67,7 +66,7 @@ void Processing::copyAttributes(const H5Helper::Dataset *srcDataset, H5Helper::D
  */
 bool Processing::checkDatasetType(H5Helper::DatasetType datasetType, std::vector<H5Helper::DatasetType> types)
 {
-    for(std::vector<H5Helper::DatasetType>::iterator it = types.begin(); it != types.end(); ++it) {
+    for (std::vector<H5Helper::DatasetType>::iterator it = types.begin(); it != types.end(); ++it) {
         if (*it == datasetType)
             return true;
     }

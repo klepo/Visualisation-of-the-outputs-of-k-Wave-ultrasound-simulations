@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Compress class definition.
  *
@@ -28,7 +28,6 @@
 Compress::Compress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Settings *settings)
     : Processing(outputFile, dtsForPcs, settings)
 {
-
 }
 
 /**
@@ -36,17 +35,14 @@ Compress::Compress(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Setti
  */
 void Compress::execute()
 {
-    std::vector<H5Helper::DatasetType> types = {
-        H5Helper::DatasetType::TIME_STEPS_INDEX,
-        H5Helper::DatasetType::CUBOID,
-        H5Helper::DatasetType::CUBOID_ATTR
-    };
+    std::vector<H5Helper::DatasetType> types = { H5Helper::DatasetType::TIME_STEPS_INDEX, H5Helper::DatasetType::CUBOID,
+                                                 H5Helper::DatasetType::CUBOID_ATTR };
     // TODO downsampled datasets
 
     try {
         H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
-        hsize_t sensorMaskSize = getDtsForPcs()->getSensorMaskSize();
-        int count = 0;
+        hsize_t sensorMaskSize      = getDtsForPcs()->getSensorMaskSize();
+        int count                   = 0;
         for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
             H5Helper::Dataset *dataset = it->second;
             Helper::setDebugFlagAndStoreLast(false);
@@ -54,11 +50,11 @@ void Compress::execute()
             Helper::recoverLastDebugFlag();
             if (checkDatasetType(datasetType, types)) {
                 Helper::printDebugMsg("Compression of dataset " + dataset->getName());
-                //double t00 = H5Helper::getTime();
+                // double t00 = H5Helper::getTime();
                 compressDataset(dataset);
-                //double t11 = H5Helper::getTime();
-                //addTime(t11 - t00);
-                //addSize(dataset->getSize() * 4);
+                // double t11 = H5Helper::getTime();
+                // addTime(t11 - t00);
+                // addSize(dataset->getSize() * 4);
                 count++;
                 Helper::printDebugMsg("Compression of dataset " + dataset->getName() + " done");
             }
@@ -66,7 +62,7 @@ void Compress::execute()
         if (count == 0) {
             Helper::printErrorMsg("No datasets for compression in simulation output file");
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
@@ -90,47 +86,50 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
     // Second encoding parameter    - multiple of overlap size
     // Third encoding parameter     - number of harmonic frequencies
     // Fourth encoding parameter    - shift flag
-    H5Helper::CompressHelper *compressHelper = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(), getSettings()->getHarmonics(), true, getSettings()->getFlagShift());
+    H5Helper::CompressHelper *compressHelper
+        = new H5Helper::CompressHelper(getSettings()->getPeriod(), getSettings()->getMOS(),
+                                       getSettings()->getHarmonics(), true, getSettings()->getFlagShift());
 
-    float sizeMultiplier = getSettings()->getFlagC40bit() ? compressHelper->getHarmonics() * H5Helper::CompressHelper::complexSize40bit : compressHelper->getHarmonics() * 2.0f;
+    float sizeMultiplier = getSettings()->getFlagC40bit()
+                               ? compressHelper->getHarmonics() * H5Helper::CompressHelper::complexSize40bit
+                               : compressHelper->getHarmonics() * 2.0f;
 
     int kMaxExp = H5Helper::CompressHelper::kMaxExpU;
-    if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET)
+    if (srcDataset->getName() == "/" + H5Helper::P_INDEX_DATASET
+        || srcDataset->getName() == "/" + H5Helper::P_CUBOID_DATASET)
         kMaxExp = H5Helper::CompressHelper::kMaxExpP;
     Helper::recoverLastDebugFlag();
 
-    Helper::printDebugMsg("Compression with period "
-                              + std::to_string(size_t(compressHelper->getPeriod()))
-                              + " steps (" + Helper::floatToString(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
-                              + " Hz) and " + std::to_string(compressHelper->getHarmonics())
-                              + " harmonic frequencies");
+    Helper::printDebugMsg("Compression with period " + std::to_string(size_t(compressHelper->getPeriod())) + " steps ("
+                          + Helper::floatToString(srcDataset->getFile()->getFrequency(compressHelper->getPeriod()))
+                          + " Hz) and " + std::to_string(compressHelper->getHarmonics()) + " harmonic frequencies");
 
     // Overlap size and base size
     hsize_t oSize = compressHelper->getOSize();
     hsize_t bSize = compressHelper->getBSize();
 
     // Get dims
-    H5Helper::Vector dims = srcDataset->getDims();
+    H5Helper::Vector dims       = srcDataset->getDims();
     H5Helper::Vector outputDims = dims;
 
     // Compute steps, output steps, step size, output step size and output dims
-    hsize_t steps = 0;
-    hsize_t outputSteps = 0;
-    hsize_t stepSize = 0;
+    hsize_t steps          = 0;
+    hsize_t outputSteps    = 0;
+    hsize_t stepSize       = 0;
     hsize_t outputStepSize = 0;
     if (dims.getLength() == 4) { // 4D dataset
-        steps = H5Helper::Vector4D(dims).w();
-        outputSteps = hsize_t(floor(float(steps) / oSize));
-        outputDims[0] = outputSteps;
-        outputDims[3] = hsize_t(ceilf(outputDims[3] * sizeMultiplier));
-        stepSize = dims[1] * dims[2] * dims[3];
+        steps          = H5Helper::Vector4D(dims).w();
+        outputSteps    = hsize_t(floor(float(steps) / oSize));
+        outputDims[0]  = outputSteps;
+        outputDims[3]  = hsize_t(ceilf(outputDims[3] * sizeMultiplier));
+        stepSize       = dims[1] * dims[2] * dims[3];
         outputStepSize = outputDims[1] * outputDims[2] * outputDims[3];
     } else if (dims.getLength() == 3) { // 3D dataset (defined by sensor mask)
-        steps = H5Helper::Vector3D(dims).y();
-        outputSteps = hsize_t(floor(float(steps) / oSize));
-        outputDims[1] = outputSteps;
-        outputDims[2] = hsize_t(ceilf(outputDims[2] * sizeMultiplier));
-        stepSize = dims[2];
+        steps          = H5Helper::Vector3D(dims).y();
+        outputSteps    = hsize_t(floor(float(steps) / oSize));
+        outputDims[1]  = outputSteps;
+        outputDims[2]  = hsize_t(ceilf(outputDims[2] * sizeMultiplier));
+        stepSize       = dims[2];
         outputStepSize = outputDims[2];
     } else { // Something wrong.
         Helper::printErrorMsg("Something wrong with dataset dims");
@@ -169,33 +168,33 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
     H5Helper::Dataset *dstDataset = getOutputFile()->openDataset(dstName);
 
     // Variables for block reading
-    float *data = (float*) _mm_malloc(srcDataset->getGeneralBlockDims().getSize() * sizeof(float), 16);
+    float *data = (float *)_mm_malloc(srcDataset->getGeneralBlockDims().getSize() * sizeof(float), 16);
     H5Helper::Vector offset;
     H5Helper::Vector count;
-    float maxV = std::numeric_limits<float>::min();
-    float minV = std::numeric_limits<float>::max();
+    float maxV        = std::numeric_limits<float>::min();
+    float minV        = std::numeric_limits<float>::max();
     hsize_t maxVIndex = 0;
     hsize_t minVIndex = 0;
 
     // If we have enough memory - minimal for one full step in 3D space
     if (0.8f * (H5Helper::getAvailableSystemPhysicalMemory() / 4) >= outputStepSize * 3) {
         // Complex buffers for accumulation
-        float *sCTmp1 = (float*) _mm_malloc(outputStepSize * sizeof(float), 16);
+        float *sCTmp1 = (float *)_mm_malloc(outputStepSize * sizeof(float), 16);
         float *sCTmp2 = nullptr;
         if (flagNoOverlap) {
             sCTmp2 = sCTmp1;
         } else {
-            sCTmp2 = (float*) _mm_malloc(outputStepSize * sizeof(float), 16);
+            sCTmp2 = (float *)_mm_malloc(outputStepSize * sizeof(float), 16);
         }
-        #pragma omp parallel for
+#pragma omp parallel for
         for (ssize_t i = 0; i < ssize_t(outputStepSize); i++) {
             sCTmp1[i] = 0.0f;
             sCTmp2[i] = 0.0f;
         }
-        H5Helper::floatC *sCTmp1FloatC = reinterpret_cast<H5Helper::floatC*>(sCTmp1);
-        H5Helper::floatC *sCTmp2FloatC = reinterpret_cast<H5Helper::floatC*>(sCTmp2);
-        uint8_t *sCTmp1Int8 = reinterpret_cast<uint8_t*>(sCTmp1);
-        uint8_t *sCTmp2Int8 = reinterpret_cast<uint8_t*>(sCTmp2);
+        H5Helper::floatC *sCTmp1FloatC = reinterpret_cast<H5Helper::floatC *>(sCTmp1);
+        H5Helper::floatC *sCTmp2FloatC = reinterpret_cast<H5Helper::floatC *>(sCTmp2);
+        uint8_t *sCTmp1Int8            = reinterpret_cast<uint8_t *>(sCTmp1);
+        uint8_t *sCTmp2Int8            = reinterpret_cast<uint8_t *>(sCTmp2);
 
         hsize_t frame = 0;
 
@@ -207,33 +206,35 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
             hsize_t stepsOffset;
 
             if (dims.getLength() == 4) { // 4D dataset
-                stepsCount = count[0];
+                stepsCount  = count[0];
                 stepsOffset = offset[0];
             } else { // 3D dataset
-                stepsCount = count[1];
+                stepsCount  = count[1];
                 stepsOffset = offset[1];
             }
 
             // For every step
             for (hsize_t step = 0; step < stepsCount; step++) {
-                    Helper::printDebugMsg("Encoding step " + std::to_string(stepsOffset + step + 1) + "/" + std::to_string(steps));
+                Helper::printDebugMsg("Encoding step " + std::to_string(stepsOffset + step + 1) + "/"
+                                      + std::to_string(steps));
                 // Compute local index
-                const hsize_t stepLocal = (stepsOffset + step) % (bSize - 1);
-                const bool savingFlag = ((stepLocal + 1) % oSize == 0) ? true : false;
-                const bool oddFrameFlag = ((frame + 1) % 2 == 0) ? true : false;
+                const hsize_t stepLocal             = (stepsOffset + step) % (bSize - 1);
+                const bool savingFlag               = ((stepLocal + 1) % oSize == 0) ? true : false;
+                const bool oddFrameFlag             = ((frame + 1) % 2 == 0) ? true : false;
                 const bool mirrorFirstHalfFrameFlag = (frame == 0 && savingFlag && !flagNoOverlap) ? true : false;
 
-                // For every point
-                #pragma omp parallel for
+// For every point
+#pragma omp parallel for
                 for (hssize_t p = 0; p < hssize_t(stepSize); p++) {
-                    const hsize_t sP = step * stepSize + hsize_t(p);
+                    const hsize_t sP      = step * stepSize + hsize_t(p);
                     const hsize_t pOffset = compressHelper->getHarmonics() * hsize_t(p);
                     // TODO Min/max values
-                    //H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepsOffset * stepSize + sP);
+                    // H5Helper::checkOrSetMinMaxValue(minV, maxV, data[sP], minVIndex, maxVIndex, stepsOffset *
+                    // stepSize + sP);
 
-                    //For every harmonics
+                    // For every harmonics
                     for (hsize_t ih = 0; ih < hsize_t(compressHelper->getHarmonics()); ih++) {
-                        hsize_t pH = pOffset + ih;
+                        hsize_t pH          = pOffset + ih;
                         const size_t bIndex = ih * bSize + stepLocal;
 
                         if (getSettings()->getFlagC40bit()) {
@@ -242,7 +243,8 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
                             H5Helper::floatC cc2;
                             if (flagNoOverlap) {
                                 H5Helper::CompressHelper::convert40bToFloatC(&sCTmp1Int8[pH], cc1, kMaxExp);
-                                cc1 += compressHelper->getBE()[bIndex] * data[sP] + compressHelper->getBE_1()[bIndex] * data[sP];
+                                cc1 += compressHelper->getBE()[bIndex] * data[sP]
+                                       + compressHelper->getBE_1()[bIndex] * data[sP];
                                 H5Helper::CompressHelper::convertFloatCTo40b(cc1, &sCTmp1Int8[pH], kMaxExp);
                             } else {
                                 H5Helper::CompressHelper::convert40bToFloatC(&sCTmp1Int8[pH], cc1, kMaxExp);
@@ -264,7 +266,7 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
 
                             // Mirror first "half" frame
                             if (mirrorFirstHalfFrameFlag) {
-                              sCTmp2FloatC[pH] += sCTmp1FloatC[pH];
+                                sCTmp2FloatC[pH] += sCTmp1FloatC[pH];
                             }
                         }
                     }
@@ -282,17 +284,21 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
                     }
 
                     // Drop first "half" frame
-                        Helper::printDebugMsg("Saving frame " + std::to_string(frame + 1) + "/" + std::to_string(outputSteps));
+                    Helper::printDebugMsg("Saving frame " + std::to_string(frame + 1) + "/"
+                                          + std::to_string(outputSteps));
 
                     if (dims.getLength() == 4) // 4D dataset
-                        dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0), H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]), dataC);
+                        dstDataset->writeDataset(H5Helper::Vector4D(frame, 0, 0, 0),
+                                                 H5Helper::Vector4D(1, outputDims[1], outputDims[2], outputDims[3]),
+                                                 dataC);
                     else if (dims.getLength() == 3) // 3D dataset
-                        dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0), H5Helper::Vector3D(1, 1, outputDims[2]), dataC);
+                        dstDataset->writeDataset(H5Helper::Vector3D(0, frame, 0),
+                                                 H5Helper::Vector3D(1, 1, outputDims[2]), dataC);
 
-                    //Helper::printDebugMsgEnd("saved");*/
+// Helper::printDebugMsgEnd("saved");*/
 
-                    // Set zeros for next accumulation
-                    #pragma omp parallel for
+// Set zeros for next accumulation
+#pragma omp parallel for
                     for (ssize_t i = 0; i < ssize_t(outputStepSize); i++) {
                         dataC[i] = 0.0f;
                     }
@@ -331,17 +337,18 @@ void Compress::compressDataset(H5Helper::Dataset *srcDataset)
 
     Helper::setDebugFlagAndStoreLast(false);
     // Set attributes
-    //dstDataset->setAttribute(H5Helper::MIN_ATTR, minV);
-    //dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV);
-    //dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex);
-    //dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex);
+    // dstDataset->setAttribute(H5Helper::MIN_ATTR, minV);
+    // dstDataset->setAttribute(H5Helper::MAX_ATTR, maxV);
+    // dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVIndex);
+    // dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVIndex);
     dstDataset->setAttribute(H5Helper::C_HARMONICS_ATTR, getSettings()->getHarmonics());
     dstDataset->setAttribute(H5Helper::C_TYPE_ATTR, "c");
     dstDataset->setAttribute(H5Helper::C_PERIOD_ATTR, getSettings()->getPeriod());
     dstDataset->setAttribute(H5Helper::C_MOS_ATTR, getSettings()->getMOS());
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
     dstDataset->setAttribute("c_shift", hsize_t(getSettings()->getFlagShift()));
-    dstDataset->setAttribute("c_complex_size", getSettings()->getFlagC40bit() ? H5Helper::CompressHelper::complexSize40bit : 2.0f);
+    dstDataset->setAttribute("c_complex_size",
+                             getSettings()->getFlagC40bit() ? H5Helper::CompressHelper::complexSize40bit : 2.0f);
     if (getSettings()->getFlagC40bit())
         dstDataset->setAttribute("c_max_exp", kMaxExp);
     Helper::recoverLastDebugFlag();

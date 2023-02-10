@@ -2,8 +2,8 @@
  * @file        compresshelper.cpp
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
- * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ * @date        08 September 2016 (created) <br>
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::CompressHelper class definition.
  *
@@ -19,7 +19,8 @@
 
 #include "compresshelper.h"
 
-namespace H5Helper {
+namespace H5Helper
+{
 
 const float CompressHelper::complexSize40bit = 1.25f;
 
@@ -31,22 +32,23 @@ const float CompressHelper::complexSize40bit = 1.25f;
  * @param[in] normalize Normalizes basis functions for compression (optional)
  * @param[in] shift Shifts phases of complex exponential basis function (velocity time shift) (optional)
  */
-CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift, float complexSize, int32_t kMaxExp)
+CompressHelper::CompressHelper(float period, hsize_t mos, hsize_t harmonics, bool normalize, bool shift,
+                               float complexSize, int32_t kMaxExp)
 {
-    this->period = period;
-    this->mos = mos;
-    this->harmonics = harmonics;
+    this->period      = period;
+    this->mos         = mos;
+    this->harmonics   = harmonics;
     this->complexSize = complexSize;
-    this->kMaxExp = kMaxExp;
+    this->kMaxExp     = kMaxExp;
 
     oSize = hsize_t(period * mos);
     bSize = oSize * 2 + 1;
     // TODO
     stride = float(this->harmonics) * this->complexSize;
-    b = new float[bSize]();
-    e = new floatC[this->harmonics * bSize]();
-    bE = new floatC[this->harmonics * bSize]();
-    bE_1 = new floatC[this->harmonics * bSize]();
+    b      = new float[bSize]();
+    e      = new floatC[this->harmonics * bSize]();
+    bE     = new floatC[this->harmonics * bSize]();
+    bE_1   = new floatC[this->harmonics * bSize]();
 
     generateFunctions(bSize, oSize, this->period, this->harmonics, b, e, bE, bE_1, normalize, shift);
 }
@@ -84,39 +86,44 @@ CompressHelper::~CompressHelper()
  */
 float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
 {
-    float *dataTmp = new float[length]();
-    float *peaksTmp = new float[length]();
-    float *locsTmp = new float[length]();
-    hsize_t peaksCount;
-    float period;
+    float *dataTmp     = new float[length]();
+    float *peaksTmp    = new float[length]();
+    float *locsTmp     = new float[length]();
+    hsize_t peaksCount = 0;
+    float period       = 0;
+    float *newLocsTmp  = nullptr;
+    float *newLocs     = nullptr;
+    float *locs        = nullptr;
 
-    //xcorr(dataSrc, dataSrc, dataTmp, length, length);
+    // xcorr(dataSrc, dataSrc, dataTmp, length, length);
     findPeaks(dataSrc, locsTmp, peaksTmp, length, peaksCount);
 
-    float *newLocsTmp = new float[peaksCount]();
-    float *newLocs = new float[peaksCount]();
+    if (peaksCount > 0) {
+        newLocsTmp = new float[peaksCount]();
+        newLocs    = new float[peaksCount]();
 
-    // Find max peak
-    float m = std::numeric_limits<float>::min();
-    for (hsize_t i = 0; i < peaksCount; i++) {
-        if (peaksTmp[i] > m) {
-            m = peaksTmp[i];
+        // Find max peak
+        float m = std::numeric_limits<float>::min();
+        for (hsize_t i = 0; i < peaksCount; i++) {
+            if (peaksTmp[i] > m) {
+                m = peaksTmp[i];
+            }
         }
-    }
 
-    // Filter peaks under 0.5 * max
-    hsize_t j = 0;
-    for (hsize_t i = 0; i < peaksCount; i++) {
-        if (peaksTmp[i] > 0.5f * m) {
-            newLocsTmp[j] = locsTmp[i];
-            j++;
+        // Filter peaks under 0.5 * max
+        hsize_t j = 0;
+        for (hsize_t i = 0; i < peaksCount; i++) {
+            if (peaksTmp[i] > 0.5f * m) {
+                newLocsTmp[j] = locsTmp[i];
+                j++;
+            }
         }
-    }
 
-    // TODO check minimal peaksCount, j
-    float *locs = new float[j - 1]();
-    diff(newLocsTmp, locs, j);
-    period = median(locs, j - 1);
+        // TODO check minimal peaksCount, j
+        locs = new float[peaksCount]();
+        diff(newLocsTmp, locs, j);
+        period = median(locs, j - 1);
+    }
 
     if (dataTmp) {
         delete[] dataTmp;
@@ -155,7 +162,7 @@ float CompressHelper::findPeriod(const float *dataSrc, hsize_t length)
 float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t stepLocal) const
 {
     float stepValue = 0;
-    hsize_t sH = stepLocal;
+    hsize_t sH      = stepLocal;
     for (hsize_t h = 0; h < harmonics; h++) {
         floatC sC1;
         floatC sC2;
@@ -172,14 +179,22 @@ float CompressHelper::computeTimeStep(const float *cC, const float *lC, hsize_t 
     return stepValue;
 }
 
-void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, const int32_t e)
+/**
+ * @brief Convert 40-bit coded complex number to float complex number
+ * @param[in] iValues 40-bit coded complex number
+ * @param[out] cValue float complex number
+ * @param[in] e Exponent constant, usually 138 for acoustic pressure and 114 for particle velocity
+ */
+void CompressHelper::convert40bToFloatC(const uint8_t *iValues, floatC &cValue, const int32_t e)
 {
     // Get mantissas, signs and exponent
-    uint32_t mR = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x20U) << 11 | *reinterpret_cast<const uint16_t*>(&iValues[1]);
-    uint32_t mI = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x10U) << 12 | *reinterpret_cast<const uint16_t*>(&iValues[3]);
-    uint32_t sR = *reinterpret_cast<const uint8_t*>(&iValues[0]) >> 7;
-    uint32_t sI = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0x40) >> 6;
-    uint8_t eS = (*reinterpret_cast<const uint8_t*>(&iValues[0]) & 0xF);
+    uint32_t mR = (*reinterpret_cast<const uint8_t *>(&iValues[0]) & 0x20U) << 11
+                  | *reinterpret_cast<const uint16_t *>(&iValues[1]);
+    uint32_t mI = (*reinterpret_cast<const uint8_t *>(&iValues[0]) & 0x10U) << 12
+                  | *reinterpret_cast<const uint16_t *>(&iValues[3]);
+    uint32_t sR = *reinterpret_cast<const uint8_t *>(&iValues[0]) >> 7;
+    uint32_t sI = (*reinterpret_cast<const uint8_t *>(&iValues[0]) & 0x40) >> 6;
+    uint8_t eS  = (*reinterpret_cast<const uint8_t *>(&iValues[0]) & 0xF);
     // Add 6 bits, now we have 23 bit mantissas
     mR <<= 6;
     mI <<= 6;
@@ -188,18 +203,18 @@ void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, 
     int32_t eI = eS + e;
     // Zero mantissa means zero float number
     if (mR != 0) {
-        // Find index of most left one bit
-        #if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
-            int index = 0;
-            index = 31 ^__builtin_clz (mR);
-        #elif defined _WIN32
-            unsigned long index = 0;
-            _BitScanReverse(&index, mR);
-        #else
-            uint32_t index = 0;
-            _BitScanReverse(&index, mR);
-        #endif
-            // Shift left by the index
+// Find index of most left one bit
+#if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
+        int index = 0;
+        index     = 31 ^ __builtin_clz(mR);
+#elif defined _WIN32
+        unsigned long index = 0;
+        _BitScanReverse(&index, mR);
+#else
+        uint32_t index = 0;
+        _BitScanReverse(&index, mR);
+#endif
+        // Shift left by the index
         mR <<= 23 - index;
         // Recompute final exponent by the index
         eR -= 22 - index;
@@ -207,16 +222,16 @@ void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, 
         eR = 0;
     }
     if (mI != 0) {
-        #if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
-            int index = 0;
-            index = 31 ^__builtin_clz (mI);
-        #elif defined _WIN32
-            unsigned long index = 0;
-            _BitScanReverse(&index, mI);
-        #else
-            uint32_t index = 0;
-            _BitScanReverse(&index, mI);
-        #endif
+#if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
+        int index = 0;
+        index     = 31 ^ __builtin_clz(mI);
+#elif defined _WIN32
+        unsigned long index = 0;
+        _BitScanReverse(&index, mI);
+#else
+        uint32_t index = 0;
+        _BitScanReverse(&index, mI);
+#endif
         mI <<= 23 - index;
         eI -= 22 - index;
     } else {
@@ -224,29 +239,35 @@ void CompressHelper::convert40bToFloatC(const uint8_t* iValues, floatC& cValue, 
     }
     uint32_t ccR = (sR << 31) | (eR << 23) | (mR & 0x007fffff);
     uint32_t ccI = (sI << 31) | (eI << 23) | (mI & 0x007fffff);
-    cValue = floatC(*reinterpret_cast<float*>(&ccR), *reinterpret_cast<float*>(&ccI));
+    cValue       = floatC(*reinterpret_cast<float *>(&ccR), *reinterpret_cast<float *>(&ccI));
 }
 
-void CompressHelper::convertFloatCTo40b(const floatC cValue, uint8_t* iValues, const int32_t e)
+/**
+ * @brief Convert float complex number to 40-bit coded complex number
+ * @param[in] cValue float complex number
+ * @param[out] iValues 40-bit coded complex number
+ * @param[in] e Exponent constant, usually 138 for acoustic pressure and 114 for particle velocity
+ */
+void CompressHelper::convertFloatCTo40b(const floatC cValue, uint8_t *iValues, const int32_t e)
 {
     // Get real and imaginary part
-    float cR = cValue.real();
-    float cI = cValue.imag();
-    uint32_t mR = *reinterpret_cast<uint32_t*>(&cR);
-    uint32_t mI = *reinterpret_cast<uint32_t*>(&cI);
+    float cR    = cValue.real();
+    float cI    = cValue.imag();
+    uint32_t mR = *reinterpret_cast<uint32_t *>(&cR);
+    uint32_t mI = *reinterpret_cast<uint32_t *>(&cI);
     // Get 1-bit signs
     uint8_t sR = mR >> 31;
     uint8_t sI = mI >> 31;
-    //e = 138 p, max exponent is 2^26 (15 + 138 = 153, 153 - 127 = 26)
-    //p max value is pow(2, 26 - 16) * 0x1FFFF = 134216704
-    //p min value is pow(2, 26 - 16 - 15) * 0x1 = 0.0312500000
-    //e = 114 u, max exponent is 2^2  (15 + 114 = 129, 129 - 127 = 2)
-    //u max value is pow(2, 2 - 16) * 0x1FFFF = 7.99993896484375
-    //u max value is pow(2, 2 - 16 - 15) * 0x1 = 0.000000001862645149230957031250
-    // Get 8-bit exponents, subtracts e, (exponent will have 4 bits, values from 0 to 15)
+    // e = 138 p, max exponent is 2^26 (15 + 138 = 153, 153 - 127 = 26)
+    // p max value is pow(2, 26 - 16) * 0x1FFFF = 134216704
+    // p min value is pow(2, 26 - 16 - 15) * 0x1 = 0.0312500000
+    // e = 114 u, max exponent is 2^2  (15 + 114 = 129, 129 - 127 = 2)
+    // u max value is pow(2, 2 - 16) * 0x1FFFF = 7.99993896484375
+    // u max value is pow(2, 2 - 16 - 15) * 0x1 = 0.000000001862645149230957031250
+    //  Get 8-bit exponents, subtracts e, (exponent will have 4 bits, values from 0 to 15)
     int32_t eRS = ((mR & 0x7f800000) >> 23) - e;
     int32_t eIS = ((mI & 0x7f800000) >> 23) - e;
-    int32_t eS = eRS;
+    int32_t eS  = eRS;
     // Get 23-bit mantissas
     mR = (mR & 0x007fffff);
     mI = (mI & 0x007fffff);
@@ -311,8 +332,8 @@ void CompressHelper::convertFloatCTo40b(const floatC cValue, uint8_t* iValues, c
     // Mantissa is composed from: 0-16 zero bits, 1 flag bit, 0-16 data (mantissa or fraction) bits
     // Number of zero bits means exponent shift from the stored exponent eS
     iValues[0] = (sR << 7) | (sI << 6) | ((mR & 0x10000) >> 11) | ((mI & 0x10000) >> 12) | (eS & 0xF);
-    *reinterpret_cast<uint16_t*>(&iValues[1]) = mR;
-    *reinterpret_cast<uint16_t*>(&iValues[3]) = mI;
+    *reinterpret_cast<uint16_t *>(&iValues[1]) = mR;
+    *reinterpret_cast<uint16_t *>(&iValues[3]) = mI;
 }
 
 /**
@@ -413,7 +434,8 @@ float CompressHelper::getComplexSize() const
  * @param[in] lengthSrc1 Source length 1
  * @param[in] lengthSrc2 Source length 2
  */
-void CompressHelper::xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2)
+void CompressHelper::xcorr(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1,
+                           hsize_t lengthSrc2)
 {
     hsize_t i, j;
     hssize_t i1;
@@ -421,13 +443,13 @@ void CompressHelper::xcorr(const float *dataSrc1, const float *dataSrc2, float *
 
     for (i = 0; i < lengthSrc1 + lengthSrc2 - 1; i++) {
         dataDst[i] = 0;
-        i1 = hssize_t(i);
-        tmp = 0.0;
+        i1         = hssize_t(i);
+        tmp        = 0.0;
         for (j = 0; j < lengthSrc2; j++) {
             if (i1 >= 0 && i1 < hssize_t(lengthSrc1)) {
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[lengthSrc2 - 1 - j]);
             }
-            i1 = i1 - 1;
+            i1         = i1 - 1;
             dataDst[i] = tmp;
         }
     }
@@ -441,7 +463,8 @@ void CompressHelper::xcorr(const float *dataSrc1, const float *dataSrc2, float *
  * @param[in] lengthSrc1 Source length 1
  * @param[in] lengthSrc2 Source length 2
  */
-void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1, hsize_t lengthSrc2)
+void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *dataDst, hsize_t lengthSrc1,
+                          hsize_t lengthSrc2)
 {
     hsize_t i, j;
     hssize_t i1;
@@ -449,13 +472,13 @@ void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *d
 
     for (i = 0; i < lengthSrc1 + lengthSrc2 - 1; i++) {
         dataDst[i] = 0;
-        i1 = hssize_t(i);
-        tmp = 0.0;
+        i1         = hssize_t(i);
+        tmp        = 0.0;
         for (j = 0; j < lengthSrc2; j++) {
             if (i1 >= 0 && i1 < hssize_t(lengthSrc1)) {
                 tmp = tmp + (dataSrc1[i1] * dataSrc2[j]);
             }
-            i1 = i1 - 1;
+            i1         = i1 - 1;
             dataDst[i] = tmp;
         }
     }
@@ -469,10 +492,11 @@ void CompressHelper::conv(const float *dataSrc1, const float *dataSrc2, float *d
  * @param[in] lengthSrc Source length
  * @param[out] lengthDst Destination length
  */
-void CompressHelper::findPeaks(const float *dataSrc, float *locsDst, float *peaksDst, hsize_t lengthSrc, hsize_t &lengthDst)
+void CompressHelper::findPeaks(const float *dataSrc, float *locsDst, float *peaksDst, hsize_t lengthSrc,
+                               hsize_t &lengthDst)
 {
     for (hsize_t i = 0; i < lengthSrc; i++) {
-        locsDst[i] = 0.0f;
+        locsDst[i]  = 0.0f;
         peaksDst[i] = 0.0f;
     }
 
@@ -480,10 +504,11 @@ void CompressHelper::findPeaks(const float *dataSrc, float *locsDst, float *peak
 
     for (hsize_t i = 0; i < lengthSrc; i++) {
         // Peaks between
-        if (i > 0 && i < lengthSrc - 1 && lengthSrc > 2 && dataSrc[i] > dataSrc[i - 1] && dataSrc[i] >= dataSrc[i + 1]) {
-            float d1 = dataSrc[i] - dataSrc[i - 1];
-            float d2 = dataSrc[i] - dataSrc[i + 1];
-            locsDst[lengthDst] = i + d1 / (d1 + d2) - 0.5f;
+        if (i > 0 && (i < lengthSrc - 1) && lengthSrc > 2 && dataSrc[i] > dataSrc[i - 1]
+            && dataSrc[i] >= dataSrc[i + 1]) {
+            float d1            = dataSrc[i] - dataSrc[i - 1];
+            float d2            = dataSrc[i] - dataSrc[i + 1];
+            locsDst[lengthDst]  = i + d1 / (d1 + d2) - 0.5f;
             peaksDst[lengthDst] = dataSrc[i];
             lengthDst++;
         }
@@ -584,11 +609,12 @@ hsize_t CompressHelper::median(const hsize_t *dataSrc, hsize_t length)
  * @param[out] bE_1 Inverted complex exponential window basis
  * @param[in] normalize Normalization flag (optional)
  */
-void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b, floatC *e, floatC *bE, floatC *bE_1, bool normalize, bool shift) const
+void CompressHelper::generateFunctions(hsize_t bSize, hsize_t oSize, float period, hsize_t harmonics, float *b,
+                                       floatC *e, floatC *bE, floatC *bE_1, bool normalize, bool shift) const
 {
     // Generate basis function (window)
-    triangular(oSize, b);  // Triangular window
-    //hann(oSize, b);        // Hann window
+    triangular(oSize, b); // Triangular window
+    // hann(oSize, b);        // Hann window
 
     // Generate complex exponential window basis functions
     for (hsize_t ih = 0; ih < harmonics; ih++) {
@@ -637,7 +663,7 @@ void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSiz
     floatC i(0.0f, -1.0f);
     for (hsize_t x = 0; x < bSize; x++) {
         hsize_t hx = ih * bSize + x;
-        e[hx] = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
+        e[hx]      = std::exp(i * (2.0f * float(M_PI) / (period / float(h))) * float(x));
         if (shift) {
             e[hx] *= std::exp(-i * float(M_PI) / (period / float(h)));
         }
@@ -655,16 +681,17 @@ void CompressHelper::generateE(float period, hsize_t ih, hsize_t h, hsize_t bSiz
  * @param[out] bE_1 Inverted complex exponential window basis
  * @param[in] normalize Normalization flag (optional)
  */
-void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE, floatC *bE_1, bool normalize) const
+void CompressHelper::generateBE(hsize_t ih, hsize_t bSize, hsize_t oSize, const float *b, const floatC *e, floatC *bE,
+                                floatC *bE_1, bool normalize) const
 {
     for (hsize_t x = 0; x < hsize_t(bSize); x++) {
         hsize_t hx = ih * bSize + x;
-        bE[hx] = b[x] * e[hx];
-        bE_1[hx] = b[(x + oSize) % (bSize - 1)] * e[ih * bSize + ((x + oSize) % (bSize - 1))];
+        bE[hx]     = b[x] * e[hx];
+        bE_1[hx]   = b[(x + oSize) % (bSize - 1)] * e[ih * bSize + ((x + oSize) % (bSize - 1))];
         if (normalize) {
             bE[hx] *= (2.0f / float(oSize));
             bE_1[hx] *= (2.0f / float(oSize));
         }
     }
 }
-}
+} // namespace H5Helper

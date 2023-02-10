@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        9  October   2018 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing DatasetInfoGroupBox class definition.
  *
@@ -23,9 +23,9 @@
  * @brief Creates DatasetInfoGroupBox object
  * @param[in] parent Parent (optional)
  */
-DatasetInfoGroupBox::DatasetInfoGroupBox(QWidget *parent) :
-    QGroupBox(parent),
-    ui(new Ui::DatasetInfoGroupBox)
+DatasetInfoGroupBox::DatasetInfoGroupBox(QWidget *parent)
+    : QGroupBox(parent)
+    , ui(new Ui::DatasetInfoGroupBox)
 {
     ui->setupUi(this);
 }
@@ -45,7 +45,7 @@ DatasetInfoGroupBox::~DatasetInfoGroupBox()
  * @brief Returns dataset info list
  * @return Dataset info list
  */
-QList<QPair<QString, QString> > DatasetInfoGroupBox::getInfo() const
+QList<QPair<QString, QString>> DatasetInfoGroupBox::getInfo() const
 {
     return info;
 }
@@ -70,4 +70,3 @@ void DatasetInfoGroupBox::clear()
     info = QList<QPair<QString, QString>>();
     clearLayout(ui->formLayoutSelectedDatasetInfo);
 }
-

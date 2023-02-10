@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Reshape class definition.
  *
@@ -35,13 +35,10 @@ Reshape::Reshape(H5Helper::File *outputFile, DtsForPcs *dtsForPcs, const Setting
  */
 void Reshape::execute()
 {
-    std::vector<H5Helper::DatasetType> types = {
-        H5Helper::DatasetType::TIME_STEPS_INDEX,
-        H5Helper::DatasetType::TIME_STEPS_C_INDEX,
-        H5Helper::DatasetType::TIME_STEPS_D_INDEX,
-        H5Helper::DatasetType::TIME_STEPS_S_INDEX,
-        H5Helper::DatasetType::BASIC_INDEX
-    };
+    std::vector<H5Helper::DatasetType> types
+        = { H5Helper::DatasetType::TIME_STEPS_INDEX, H5Helper::DatasetType::TIME_STEPS_C_INDEX,
+            H5Helper::DatasetType::TIME_STEPS_D_INDEX, H5Helper::DatasetType::TIME_STEPS_S_INDEX,
+            H5Helper::DatasetType::BASIC_INDEX };
 
     try {
         if ((!getDtsForPcs()->getDatasets(H5Helper::DatasetType::TIME_STEPS_INDEX).empty()
@@ -68,7 +65,7 @@ void Reshape::execute()
 
             H5Helper::MapOfDatasets map = getDtsForPcs()->getDatasets();
             for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-                H5Helper::Dataset *dataset = it->second;
+                H5Helper::Dataset *dataset        = it->second;
                 H5Helper::DatasetType datasetType = dataset->getType(getDtsForPcs()->getSensorMaskSize());
                 if (checkDatasetType(datasetType, types)) {
                     Helper::printDebugMsg("Reshaping of dataset " + dataset->getName());
@@ -76,7 +73,8 @@ void Reshape::execute()
                     Helper::printDebugMsg("Reshaping of dataset " + dataset->getName() + " done");
                 }
             }
-        } else if (!getDtsForPcs()->getDatasets(H5Helper::DatasetType::CUBOID).empty() && getDtsForPcs()->getSensorMaskCornersDataset()) {
+        } else if (!getDtsForPcs()->getDatasets(H5Helper::DatasetType::CUBOID).empty()
+                   && getDtsForPcs()->getSensorMaskCornersDataset()) {
             // For cuboid type datasets
             // Prepare something
             hsize_t *sensorMaskCornersData = nullptr;
@@ -94,7 +92,7 @@ void Reshape::execute()
         } else {
             Helper::printErrorMsg("No datasets for reshaping in simulation output file");
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
@@ -106,7 +104,8 @@ void Reshape::execute()
  * @param[out] min Min position
  * @param[out] max Max position
  */
-void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max)
+void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min,
+                                                  H5Helper::Vector3D &max)
 {
     // Find min and max position from linear saved values
     hsize_t *data = new hsize_t[sensorMaskIndexDataset->getGeneralBlockDims().getSize()]();
@@ -123,12 +122,18 @@ void Reshape::findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskI
             H5Helper::Vector3D dstPos;
             // i is indexed from 0, but value of index is from 1
             H5Helper::convertlinearToMultiDim(data[idx] - 1, dstPos, H5Helper::Vector3D(nDims));
-            if (dstPos.x() < min.x()) min.x(dstPos.x());
-            if (dstPos.y() < min.y()) min.y(dstPos.y());
-            if (dstPos.z() < min.z()) min.z(dstPos.z());
-            if (dstPos.x() > max.x()) max.x(dstPos.x());
-            if (dstPos.y() > max.y()) max.y(dstPos.y());
-            if (dstPos.z() > max.z()) max.z(dstPos.z());
+            if (dstPos.x() < min.x())
+                min.x(dstPos.x());
+            if (dstPos.y() < min.y())
+                min.y(dstPos.y());
+            if (dstPos.z() < min.z())
+                min.z(dstPos.z());
+            if (dstPos.x() > max.x())
+                max.x(dstPos.x());
+            if (dstPos.y() > max.y())
+                max.y(dstPos.y());
+            if (dstPos.z() > max.z())
+                max.z(dstPos.z());
         }
     }
     delete[] data; // !!
@@ -177,20 +182,22 @@ void Reshape::reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMas
  * @param[in] dimsTmp Dimensions
  * @param[in] chunkDimsTmp Chunk dimensions
  */
-void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp)
+void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp,
+                                     H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp)
 {
     double t0 = H5Helper::getTime();
 
     H5Helper::Dataset *sensorMaskIndexDataset = getDtsForPcs()->getSensorMaskIndexDataset();
-    H5Helper::DatasetType datasetType = dataset->getType(getDtsForPcs()->getSensorMaskSize());
+    H5Helper::DatasetType datasetType         = dataset->getType(getDtsForPcs()->getSensorMaskSize());
 
     H5Helper::Vector3D globalPos = globalPosTmp;
-    H5Helper::Vector3D dims = dimsTmp;
+    H5Helper::Vector3D dims      = dimsTmp;
     H5Helper::Vector4D chunkDims = chunkDimsTmp;
     hsize_t mos = dataset->hasAttribute(H5Helper::C_MOS_ATTR) ? dataset->readAttributeI(H5Helper::C_MOS_ATTR) : 1;
-    hsize_t harmonics = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
+    hsize_t harmonics
+        = dataset->hasAttribute(H5Helper::C_HARMONICS_ATTR) ? dataset->readAttributeI(H5Helper::C_HARMONICS_ATTR) : 1;
     hsize_t xStride = datasetType == H5Helper::DatasetType::TIME_STEPS_C_INDEX ? mos * harmonics * 2 : 1;
-    //globalPos.x(globalPos.x() * xStride);
+    // globalPos.x(globalPos.x() * xStride);
     dims.x(dims.x() * xStride);
     chunkDims.x(std::min(getSettings()->getMaxChunkSizeX(), chunkDims.x() * xStride));
 
@@ -206,15 +213,15 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
 
     // Helper variables
     H5Helper::Dataset *dstDataset = nullptr;
-    hsize_t *sensorMaskData = nullptr;
-    float *datasetData = nullptr;
-    hsize_t step = 0;
+    hsize_t *sensorMaskData       = nullptr;
+    float *datasetData            = nullptr;
+    hsize_t step                  = 0;
     H5Helper::Vector3D offset; // Offset
     H5Helper::Vector3D count;  // Count
 
     // Min/max values vars
-    float minVFG = std::numeric_limits<float>::max();
-    float maxVFG = -std::numeric_limits<float>::min();
+    float minVFG        = std::numeric_limits<float>::max();
+    float maxVFG        = -std::numeric_limits<float>::min();
     hsize_t minVFGIndex = 0;
     hsize_t maxVFGIndex = 0;
 
@@ -223,18 +230,18 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
 
     // Flag and temp data for faster reading
     bool useTmpFlag = false;
-    float *tmpData = nullptr;
+    float *tmpData  = nullptr;
     bool cuboidFlag = false;
 
     // Check whether is possible to write whole one step (3D dataset)
     if (datasetDims.z() * datasetDims.y() * datasetDims.x() <= dataset->getNumberOfElmsToLoad()) {
         useTmpFlag = true;
-        tmpData = new float[datasetDims.z() * datasetDims.y() * datasetDims.x()]();
+        tmpData    = new float[datasetDims.z() * datasetDims.y() * datasetDims.x()]();
         // Read sensorMaskIndexDataset only once
         sensorMaskIndexDataset->readBlock(0, offset, count, sensorMaskData);
 
         hsize_t last = 0;
-        cuboidFlag = true;
+        cuboidFlag   = true;
         Helper::printDebugMsgStart("Checking of \"cuboid\" sensor mask ... ");
         if (dimsTmp.getSize() == sensorMaskIndexDataset->getSize()) {
             for (hssize_t i = 0; i < hssize_t(sensorMaskIndexDataset->getSize()); i++) {
@@ -275,7 +282,8 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         dstDataset = group->openDataset("1" + type);
     } else if (datasetType == H5Helper::DatasetType::BASIC_INDEX) {
         // 3D dataset
-        getOutputFile()->createDatasetF(dataset->getName(), H5Helper::Vector3D(datasetDims), H5Helper::Vector3D(chunkDims), true);
+        getOutputFile()->createDatasetF(dataset->getName(), H5Helper::Vector3D(datasetDims),
+                                        H5Helper::Vector3D(chunkDims), true);
         dstDataset = getOutputFile()->openDataset(dataset->getName());
     } else { // Something wrong.
         Helper::printErrorMsg("Something wrong with dataset type");
@@ -288,11 +296,12 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
     for (hsize_t i = 0; i < dataset->getNumberOfBlocks(); i++) {
         // Load data
         if (!useTmpFlag) {
-            sensorMaskIndexDataset->readBlock(i % sensorMaskIndexDataset->getNumberOfBlocks(), offset, count, sensorMaskData);
+            sensorMaskIndexDataset->readBlock(i % sensorMaskIndexDataset->getNumberOfBlocks(), offset, count,
+                                              sensorMaskData);
         }
 
-        float minVF = std::numeric_limits<float>::max();
-        float maxVF = std::numeric_limits<float>::min();
+        float minVF        = std::numeric_limits<float>::max();
+        float maxVF        = std::numeric_limits<float>::min();
         hsize_t minVFIndex = 0;
         hsize_t maxVFIndex = 0;
         dataset->readBlock(i, offset, count, datasetData, minVF, maxVF, minVFIndex, maxVFIndex);
@@ -303,11 +312,11 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
             convertMultiDimToLinear(offset, linearOffset, dataset->getDims());
 
             if (minVFG > minVF) {
-                minVFG = minVF;
+                minVFG      = minVF;
                 minVFGIndex = linearOffset + minVFIndex;
             }
             if (maxVFG < maxVF) {
-                maxVFG = maxVF;
+                maxVFG      = maxVF;
                 maxVFGIndex = linearOffset + maxVFIndex;
             }
         }
@@ -317,34 +326,38 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         // For the entire block write "voxels"
         if (!useTmpFlag) {
             for (hssize_t i = 0; i < hssize_t(count.x() / xStride); i++) {
-                    H5Helper::Vector3D dstPos;
-                    H5Helper::convertlinearToMultiDim(sensorMaskData[i] - 1, dstPos, nDims);
-                    if (datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX
-                        || datasetType == H5Helper::DatasetType::TIME_STEPS_C_INDEX
-                        || datasetType == H5Helper::DatasetType::TIME_STEPS_D_INDEX
-                        || datasetType == H5Helper::DatasetType::TIME_STEPS_S_INDEX) {
-                        dstDataset->writeDataset(H5Helper::Vector4D(step, dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(), (dstPos.x() - globalPos.x()) * xStride),
-                                                 H5Helper::Vector4D(1, 1, 1, xStride),
-                                                 &datasetData[hsize_t(i) * xStride], false);
-                    } else if (datasetType == H5Helper::DatasetType::BASIC_INDEX) {
-                        dstDataset->writeDataset(H5Helper::Vector3D(dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(), (dstPos.x() - globalPos.x())),
-                                                 H5Helper::Vector3D(1, 1, 1),
-                                                 &datasetData[i], false);
-                    } else { // Something wrong.
-                        Helper::printErrorMsg("Something wrong with dataset type");
-                        return;
-                    }
+                H5Helper::Vector3D dstPos;
+                H5Helper::convertlinearToMultiDim(sensorMaskData[i] - 1, dstPos, nDims);
+                if (datasetType == H5Helper::DatasetType::TIME_STEPS_INDEX
+                    || datasetType == H5Helper::DatasetType::TIME_STEPS_C_INDEX
+                    || datasetType == H5Helper::DatasetType::TIME_STEPS_D_INDEX
+                    || datasetType == H5Helper::DatasetType::TIME_STEPS_S_INDEX) {
+                    dstDataset->writeDataset(
+                        H5Helper::Vector4D(step, dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(),
+                                           (dstPos.x() - globalPos.x()) * xStride),
+                        H5Helper::Vector4D(1, 1, 1, xStride), &datasetData[hsize_t(i) * xStride], false);
+                } else if (datasetType == H5Helper::DatasetType::BASIC_INDEX) {
+                    dstDataset->writeDataset(H5Helper::Vector3D(dstPos.z() - globalPos.z(), dstPos.y() - globalPos.y(),
+                                                                (dstPos.x() - globalPos.x())),
+                                             H5Helper::Vector3D(1, 1, 1), &datasetData[i], false);
+                } else { // Something wrong.
+                    Helper::printErrorMsg("Something wrong with dataset type");
+                    return;
+                }
             }
         } else {
             if (cuboidFlag) {
                 tmpData = datasetData;
             } else {
-                #pragma omp parallel for
+#pragma omp parallel for
                 for (hssize_t i = 0; i < hssize_t(count.x() / xStride); i++) {
                     H5Helper::Vector3D dstPos;
                     H5Helper::convertlinearToMultiDim(sensorMaskData[i] - 1, dstPos, nDims);
                     for (hssize_t j = 0; j < hssize_t(xStride); j++) {
-                        tmpData[(dstPos.z() - globalPos.z()) * datasetDims.y() * datasetDims.x() + (dstPos.y() - globalPos.y()) * datasetDims.x() + (dstPos.x() - globalPos.x()) * xStride + hsize_t(j)] = datasetData[hsize_t(i) * xStride + hsize_t(j)];
+                        tmpData[(dstPos.z() - globalPos.z()) * datasetDims.y() * datasetDims.x()
+                                + (dstPos.y() - globalPos.y()) * datasetDims.x()
+                                + (dstPos.x() - globalPos.x()) * xStride + hsize_t(j)]
+                            = datasetData[hsize_t(i) * xStride + hsize_t(j)];
                     }
                 }
             }
@@ -393,7 +406,8 @@ void Reshape::reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vecto
         dstDataset->setAttribute(H5Helper::MIN_ATTR, minVFG);
         dstDataset->setAttribute(H5Helper::MAX_ATTR, maxVFG);
         dstDataset->setAttribute(H5Helper::MIN_INDEX_ATTR, minVFGIndex);
-        dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVFGIndex);    }
+        dstDataset->setAttribute(H5Helper::MAX_INDEX_ATTR, maxVFGIndex);
+    }
 
     if (useTmpFlag) {
         delete[] tmpData;

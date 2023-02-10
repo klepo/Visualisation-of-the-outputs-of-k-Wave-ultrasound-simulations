@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with Reshape class declaration.
  *
@@ -32,9 +32,11 @@ public:
     virtual void execute();
 
 private:
-    virtual void findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min, H5Helper::Vector3D &max) final;
+    virtual void findMinAndMaxPositionFromSensorMask(H5Helper::Dataset *sensorMaskIndexDataset, H5Helper::Vector3D &min,
+                                                     H5Helper::Vector3D &max) final;
     void reshapeCuboid(H5Helper::Dataset *dataset, const hsize_t *sensorMaskCornersData);
-    void reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp, H5Helper::Vector4D chunkDimsTmp);
+    void reshapeMaskTypeDataset(H5Helper::Dataset *dataset, H5Helper::Vector3D globalPosTmp, H5Helper::Vector3D dimsTmp,
+                                H5Helper::Vector4D chunkDimsTmp);
 };
 
 #endif // RESHAPE_H

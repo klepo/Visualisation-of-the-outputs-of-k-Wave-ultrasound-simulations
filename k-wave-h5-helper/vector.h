@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        16 June      2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5Helper::VectorT class declaration.
  *
@@ -26,7 +26,7 @@
 #include <cstdint>
 #include <cstring>
 
-#pragma warning(disable:4068)
+#pragma warning(disable : 4068)
 #pragma clang diagnostic ignored "-Wfloat-equal"
 
 namespace H5Helper
@@ -72,7 +72,8 @@ public:
      * @param[in] vector Vector
      * @return std::ostream
      */
-    friend std::ostream &operator<<(std::ostream &os, const VectorT<T> &vector) {
+    friend std::ostream &operator<<(std::ostream &os, const VectorT<T> &vector)
+    {
         os << std::string(vector);
         return os;
     }
@@ -97,6 +98,6 @@ typedef VectorT<hsize_t> Vector;
 /// Float vector datatype
 typedef VectorT<float> VectorF;
 
-}
+} // namespace H5Helper
 
 #endif // VECTOR_H

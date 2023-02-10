@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with Helper namespace declaration.
  *
@@ -39,11 +39,16 @@ void printDebugMsg(std::string str);
 void printDebugMsgStart(std::string str);
 void printDebugMsgEnd(std::string str);
 void printMsgEnd(std::string str);
-void printDebugTwoColumnsS(std::string first, std::string second, size_t indentation = 0, size_t firstWidth = 20, size_t secondWidth = 20, bool rightAlign = false);
-void printDebugTwoColumnsS(std::string first, int second, size_t indentation = 0, size_t firstWidth = 20, size_t secondWidth = 20, bool rightAlign = false);
-void printDebugTwoColumnsS(std::string first, unsigned long long second, size_t indentation = 0, size_t firstWidth = 20, size_t secondWidth = 20, bool rightAlign = false);
-void printDebugTwoColumnsS(std::string first, float second, size_t indentation = 0, size_t firstWidth = 20, size_t secondWidth = 20, bool rightAlign = false);
-void printDebugTwoColumnsS(std::string first, double second, size_t indentation = 0, size_t firstWidth = 20, size_t secondWidth = 20, bool rightAlign = false);
+void printDebugTwoColumnsS(std::string first, std::string second, size_t indentation = 0, size_t firstWidth = 20,
+                           size_t secondWidth = 20, bool rightAlign = false);
+void printDebugTwoColumnsS(std::string first, int second, size_t indentation = 0, size_t firstWidth = 20,
+                           size_t secondWidth = 20, bool rightAlign = false);
+void printDebugTwoColumnsS(std::string first, unsigned long long second, size_t indentation = 0, size_t firstWidth = 20,
+                           size_t secondWidth = 20, bool rightAlign = false);
+void printDebugTwoColumnsS(std::string first, float second, size_t indentation = 0, size_t firstWidth = 20,
+                           size_t secondWidth = 20, bool rightAlign = false);
+void printDebugTwoColumnsS(std::string first, double second, size_t indentation = 0, size_t firstWidth = 20,
+                           size_t secondWidth = 20, bool rightAlign = false);
 void printMsg(std::string str);
 void printUnformattedMsg(std::string str);
 void printErrorMsg(std::string str);
@@ -58,6 +63,6 @@ void recoverLastDebugFlag();
 
 float roundf(float number, int n = 0);
 unsigned long long round(float number);
-}
+} // namespace Helper
 
 #endif // HELPER_H

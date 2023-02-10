@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing H5Helper::Dataset class definition.
  *
@@ -21,8 +21,8 @@
 
 #include "dataset.h"
 
-namespace H5Helper {
-
+namespace H5Helper
+{
 /**
  * @brief Creates Dataset object with given file, name and dataset
  * @param[in] datasetId Dataset id
@@ -32,7 +32,7 @@ namespace H5Helper {
  */
 Dataset::Dataset(hid_t datasetId, std::string name, File *file)
     : Object(datasetId, name, file)
-      , datasetId(datasetId)
+    , datasetId(datasetId)
 {
     // Init space
     dataspaceId = H5Dget_space(datasetId);
@@ -57,7 +57,7 @@ Dataset::Dataset(hid_t datasetId, std::string name, File *file)
         throw std::runtime_error("H5Sget_simple_extent_ndims error");
     }
 
-    dims = Vector(rank);
+    dims      = Vector(rank);
     chunkDims = Vector(rank);
 
     int dimsCount = H5Sget_simple_extent_dims(dataspaceId, dims.getVectorPtr(), nullptr);
@@ -94,8 +94,8 @@ Dataset::Dataset(hid_t datasetId, std::string name, File *file)
     minVI = std::numeric_limits<hsize_t>::max();
 
     // Init some flags for block reading
-    //offsets = 0;
-    //counts = 0;
+    // offsets = 0;
+    // counts = 0;
     setNumberOfElmsToLoad(file->getNumberOfElmsToLoad());
 
     // Min/max flag
@@ -112,19 +112,19 @@ Dataset::~Dataset()
     Helper::printDebugMsgStart("Closing dataset \"" + getName() + "\"");
     err = H5Pclose(pListDatasetXferId);
     if (err < 0) {
-        //throw std::runtime_error("H5Pclose error");
+        // throw std::runtime_error("H5Pclose error");
     }
     err = H5Sclose(dataspaceId);
     if (err < 0) {
-        //throw std::runtime_error("H5Sclose error");
+        // throw std::runtime_error("H5Sclose error");
     }
     err = H5Tclose(datatypeId);
     if (err < 0) {
-        //throw std::runtime_error("H5Tclose error");
+        // throw std::runtime_error("H5Tclose error");
     }
     err = H5Dclose(datasetId);
     if (err < 0) {
-        //throw std::runtime_error("H5Dclose error");
+        // throw std::runtime_error("H5Dclose error");
     }
     Helper::printDebugMsgEnd("OK");
 }
@@ -200,7 +200,7 @@ hid_t Dataset::getDataType() const
 DatasetType Dataset::getType(hsize_t sensorMaskSize) const
 {
     Helper::setDebugFlagAndStoreLast(false);
-    Vector4D nDims = getFile()->getNDims();
+    Vector4D nDims   = getFile()->getNDims();
     std::string name = getName();
     DatasetType type = DatasetType::UNKNOWN;
     if (getDims().getLength() == 3) { // 3D type
@@ -234,125 +234,72 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 }
             } else if (getOnlyName() == P_SOURCE_INPUT_DATASET) {
                 type = DatasetType::P_SOURCE_INPUT;
-            } else if (hasAttribute(POSITION_X_ATTR)
-                && hasAttribute(POSITION_Y_ATTR)
-                && hasAttribute(POSITION_Z_ATTR)
-                && hasAttribute(SRC_POSITION_X_ATTR)
-                && hasAttribute(SRC_POSITION_Y_ATTR)
-                && hasAttribute(SRC_POSITION_Z_ATTR)
-                && hasAttribute(SRC_SIZE_X_ATTR)
-                && hasAttribute(SRC_SIZE_Y_ATTR)
-                && hasAttribute(SRC_SIZE_Z_ATTR)
-                && hasAttribute(SRC_DATASET_NAME_ATTR)
-                ) {
+            } else if (hasAttribute(POSITION_X_ATTR) && hasAttribute(POSITION_Y_ATTR) && hasAttribute(POSITION_Z_ATTR)
+                       && hasAttribute(SRC_POSITION_X_ATTR) && hasAttribute(SRC_POSITION_Y_ATTR)
+                       && hasAttribute(SRC_POSITION_Z_ATTR) && hasAttribute(SRC_SIZE_X_ATTR)
+                       && hasAttribute(SRC_SIZE_Y_ATTR) && hasAttribute(SRC_SIZE_Z_ATTR)
+                       && hasAttribute(SRC_DATASET_NAME_ATTR)) {
                 type = DatasetType::RESHAPED_3D_DWNSMPL;
-            } else if (hasAttribute(POSITION_X_ATTR)
-                && hasAttribute(POSITION_Y_ATTR)
-                && hasAttribute(POSITION_Z_ATTR)
-                && std::count(name.begin(), name.end(), '/') == 1
-                ) {
+            } else if (hasAttribute(POSITION_X_ATTR) && hasAttribute(POSITION_Y_ATTR) && hasAttribute(POSITION_Z_ATTR)
+                       && std::count(name.begin(), name.end(), '/') == 1) {
                 type = DatasetType::RESHAPED_3D;
-            } else if (dims.z() < nDims.z()
-                && dims.y() < nDims.y()
-                && dims.x() < nDims.x()
-                && hasAttribute(SRC_SIZE_X_ATTR)
-                && hasAttribute(SRC_SIZE_Y_ATTR)
-                && hasAttribute(SRC_SIZE_Z_ATTR)
-                && hasAttribute(SRC_DATASET_NAME_ATTR)
-                ) {
+            } else if (dims.z() < nDims.z() && dims.y() < nDims.y() && dims.x() < nDims.x()
+                       && hasAttribute(SRC_SIZE_X_ATTR) && hasAttribute(SRC_SIZE_Y_ATTR)
+                       && hasAttribute(SRC_SIZE_Z_ATTR) && hasAttribute(SRC_DATASET_NAME_ATTR)) {
                 type = DatasetType::BASIC_3D_DWNSMPL;
-            } else if (dims.z() == nDims.z()
-                && dims.y() == nDims.y()
-                && dims.x() == nDims.x()
-                ) {
+            } else if (dims.z() == nDims.z() && dims.y() == nDims.y() && dims.x() == nDims.x()) {
                 type = DatasetType::BASIC_3D;
-            } else if (dims.z() <= nDims.z()
-                && dims.y() <= nDims.y()
-                && dims.x() <= nDims.x()
-                && std::count(name.begin(), name.end(), '/') > 1
-                ) {
+            } else if (dims.z() <= nDims.z() && dims.y() <= nDims.y() && dims.x() <= nDims.x()
+                       && std::count(name.begin(), name.end(), '/') > 1) {
                 type = DatasetType::BASIC_CUBOID;
-            } else if (dims.z() == 1
-                && dims.y() == 1
-                && dims.x() == sensorMaskSize
-                && !hasAttribute(SRC_DATASET_NAME_ATTR)
-                ) {
+            } else if (dims.z() == 1 && dims.y() == 1 && dims.x() == sensorMaskSize
+                       && !hasAttribute(SRC_DATASET_NAME_ATTR)) {
                 type = DatasetType::BASIC_INDEX;
-            } else if (dims.z() == 1
-                && dims.y() <= nDims.w()
-                && dims.x() == sensorMaskSize
-                && !hasAttribute(SRC_DATASET_NAME_ATTR)
-                ) {
+            } else if (dims.z() == 1 && dims.y() <= nDims.w() && dims.x() == sensorMaskSize
+                       && !hasAttribute(SRC_DATASET_NAME_ATTR)) {
                 type = DatasetType::TIME_STEPS_INDEX;
             } else if (dims.z() == 1
-                //&& dims.y() <= nDims.w()
-                //&& dims.x() == sensorMaskSize
-                && hasAttribute(C_PERIOD_ATTR)
-                && hasAttribute(C_TYPE_ATTR)
-                && readAttributeS(C_TYPE_ATTR) == "c"
-                ) {
+                       //&& dims.y() <= nDims.w()
+                       //&& dims.x() == sensorMaskSize
+                       && hasAttribute(C_PERIOD_ATTR) && hasAttribute(C_TYPE_ATTR)
+                       && readAttributeS(C_TYPE_ATTR) == "c") {
                 type = DatasetType::TIME_STEPS_C_INDEX;
             } else if (dims.z() == 1
-                //&& dims.y() <= nDims.w()
-                //&& dims.x() == sensorMaskSize
-                && hasAttribute(C_TYPE_ATTR)
-                && readAttributeS(C_TYPE_ATTR) == "d"
-                ) {
+                       //&& dims.y() <= nDims.w()
+                       //&& dims.x() == sensorMaskSize
+                       && hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "d") {
                 type = DatasetType::TIME_STEPS_D_INDEX;
-            } else if (dims.z() == 1
-                && dims.y() <= nDims.w()
-                && dims.x() == sensorMaskSize
-                && hasAttribute(C_TYPE_ATTR)
-                && readAttributeS(C_TYPE_ATTR) == "s"
-                ) {
+            } else if (dims.z() == 1 && dims.y() <= nDims.w() && dims.x() == sensorMaskSize && hasAttribute(C_TYPE_ATTR)
+                       && readAttributeS(C_TYPE_ATTR) == "s") {
                 type = DatasetType::TIME_STEPS_S_INDEX;
             }
         }
     } else if (getDims().getLength() == 4) { // 4D type (cuboids)
         if (H5Tequal(datatypeId, H5T_NATIVE_FLOAT)) {
             // Downsampled
-            if (hasAttribute(SRC_SIZE_X_ATTR)
-                && hasAttribute(SRC_SIZE_Y_ATTR)
-                && hasAttribute(SRC_SIZE_Z_ATTR)
-                && hasAttribute(SRC_DATASET_NAME_ATTR)
-                ) {
+            if (hasAttribute(SRC_SIZE_X_ATTR) && hasAttribute(SRC_SIZE_Y_ATTR) && hasAttribute(SRC_SIZE_Z_ATTR)
+                && hasAttribute(SRC_DATASET_NAME_ATTR)) {
                 // With position attributes
-                if (hasAttribute(POSITION_X_ATTR)
-                    && hasAttribute(POSITION_Y_ATTR)
-                    && hasAttribute(POSITION_Z_ATTR)
-                    && hasAttribute(SRC_POSITION_X_ATTR)
-                    && hasAttribute(SRC_POSITION_Y_ATTR)
-                    && hasAttribute(SRC_POSITION_Z_ATTR)
-                    ) {
-                    if (hasAttribute(C_TYPE_ATTR)
-                        && hasAttribute(C_PERIOD_ATTR)
-                        && readAttributeS(C_TYPE_ATTR) == "c"
-                        ) {
+                if (hasAttribute(POSITION_X_ATTR) && hasAttribute(POSITION_Y_ATTR) && hasAttribute(POSITION_Z_ATTR)
+                    && hasAttribute(SRC_POSITION_X_ATTR) && hasAttribute(SRC_POSITION_Y_ATTR)
+                    && hasAttribute(SRC_POSITION_Z_ATTR)) {
+                    if (hasAttribute(C_TYPE_ATTR) && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR) == "c") {
                         type = DatasetType::CUBOID_ATTR_DWNSMPL_C;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "d"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "d") {
                         type = DatasetType::CUBOID_ATTR_DWNSMPL_D;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "s"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "s") {
                         type = DatasetType::CUBOID_ATTR_DWNSMPL_S;
                     } else {
                         type = DatasetType::CUBOID_ATTR_DWNSMPL;
                     }
                 } else { // Without position attributes
-                    if (hasAttribute(C_TYPE_ATTR)
-                        && hasAttribute(C_PERIOD_ATTR)
-                        && readAttributeS(C_TYPE_ATTR) == "c"
-                        ) {
+                    if (hasAttribute(C_TYPE_ATTR) && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR) == "c") {
                         type = DatasetType::CUBOID_DWNSMPL_C;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "d"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "d") {
                         type = DatasetType::CUBOID_DWNSMPL_D;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "s"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "s") {
                         type = DatasetType::CUBOID_DWNSMPL_S;
                     } else {
                         type = DatasetType::CUBOID_DWNSMPL;
@@ -360,39 +307,24 @@ DatasetType Dataset::getType(hsize_t sensorMaskSize) const
                 }
             } else { // Original
                 // With position attributes
-                if (hasAttribute(POSITION_X_ATTR)
-                    && hasAttribute(POSITION_Y_ATTR)
-                    && hasAttribute(POSITION_Z_ATTR)
-                    ) {
-                    if (hasAttribute(C_TYPE_ATTR)
-                        && hasAttribute(C_PERIOD_ATTR)
-                        && readAttributeS(C_TYPE_ATTR) == "c"
-                        ) {
+                if (hasAttribute(POSITION_X_ATTR) && hasAttribute(POSITION_Y_ATTR) && hasAttribute(POSITION_Z_ATTR)) {
+                    if (hasAttribute(C_TYPE_ATTR) && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR) == "c") {
                         type = DatasetType::CUBOID_ATTR_C;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "d"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "d") {
                         type = DatasetType::CUBOID_ATTR_D;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "s"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "s") {
                         type = DatasetType::CUBOID_ATTR_S;
                     } else {
                         type = DatasetType::CUBOID_ATTR;
                     }
                 } else { // Without position attributes
-                    if (hasAttribute(C_TYPE_ATTR)
-                        && hasAttribute(C_PERIOD_ATTR)
-                        && readAttributeS(C_TYPE_ATTR) == "c"
-                        ) {
+                    if (hasAttribute(C_TYPE_ATTR) && hasAttribute(C_PERIOD_ATTR)
+                        && readAttributeS(C_TYPE_ATTR) == "c") {
                         type = DatasetType::CUBOID_C;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "d"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "d") {
                         type = DatasetType::CUBOID_D;
-                    } else if (hasAttribute(C_TYPE_ATTR)
-                               && readAttributeS(C_TYPE_ATTR) == "s"
-                               ) {
+                    } else if (hasAttribute(C_TYPE_ATTR) && readAttributeS(C_TYPE_ATTR) == "s") {
                         type = DatasetType::CUBOID_S;
                     } else {
                         type = DatasetType::CUBOID;
@@ -533,7 +465,7 @@ void Dataset::getGlobalMaxValue(hsize_t &value, hsize_t &maxVIndex, bool reset)
     checkIntegerType();
     if (issetGlobalMinAndMaxValue != true)
         findGlobalMinAndMaxValue(reset);
-    value = maxVI;
+    value     = maxVI;
     maxVIndex = this->maxVIndex;
 }
 
@@ -548,7 +480,7 @@ void Dataset::getGlobalMinValue(hsize_t &value, hsize_t &minVIndex, bool reset)
     checkIntegerType();
     if (issetGlobalMinAndMaxValue != true)
         findGlobalMinAndMaxValue(reset);
-    value = minVI;
+    value     = minVI;
     minVIndex = this->minVIndex;
 }
 
@@ -563,7 +495,7 @@ void Dataset::getGlobalMaxValue(float &value, hsize_t &maxVIndex, bool reset)
     checkFloatType();
     if (issetGlobalMinAndMaxValue != true)
         findGlobalMinAndMaxValue(reset);
-    value = maxVF;
+    value     = maxVF;
     maxVIndex = this->maxVIndex;
 }
 
@@ -578,7 +510,7 @@ void Dataset::getGlobalMinValue(float &value, hsize_t &minVIndex, bool reset)
     checkFloatType();
     if (issetGlobalMinAndMaxValue != true)
         findGlobalMinAndMaxValue(reset);
-    value = minVF;
+    value     = minVF;
     minVIndex = this->minVIndex;
 }
 
@@ -592,11 +524,9 @@ void Dataset::getGlobalMinValue(float &value, hsize_t &minVIndex, bool reset)
 void Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
 {
     if (isFloatType()) {
-        if (reset || (!this->hasAttribute(MIN_ATTR)
-                      || !this->hasAttribute(MAX_ATTR)
-                      || !this->hasAttribute(MIN_INDEX_ATTR)
-                      || !this->hasAttribute(MAX_INDEX_ATTR))
-            ) {
+        if (reset
+            || (!this->hasAttribute(MIN_ATTR) || !this->hasAttribute(MAX_ATTR) || !this->hasAttribute(MIN_INDEX_ATTR)
+                || !this->hasAttribute(MAX_INDEX_ATTR))) {
             Helper::printDebugMsg("Finding min/max value");
             Dataset::findGlobalMinAndMaxValueF();
             Dataset::setAttribute(MIN_ATTR, minVF);
@@ -607,20 +537,18 @@ void Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
             Helper::printDebugMsgEnd("OK");
         } else {
             Helper::printDebugMsg("Reading min/max value");
-            minVF = Dataset::readAttributeF(MIN_ATTR);
-            maxVF = Dataset::readAttributeF(MAX_ATTR);
-            minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR);
-            maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR);
+            minVF                     = Dataset::readAttributeF(MIN_ATTR);
+            maxVF                     = Dataset::readAttributeF(MAX_ATTR);
+            minVIndex                 = Dataset::readAttributeI(MIN_INDEX_ATTR);
+            maxVIndex                 = Dataset::readAttributeI(MAX_INDEX_ATTR);
             issetGlobalMinAndMaxValue = true;
             Helper::printDebugMsgStart("Finding min/max value");
             Helper::printDebugMsgEnd("OK");
         }
     } else {
-        if (reset || (!this->hasAttribute(MIN_ATTR)
-                      || !this->hasAttribute(MAX_ATTR)
-                      || !this->hasAttribute(MIN_INDEX_ATTR)
-                      || !this->hasAttribute(MAX_INDEX_ATTR))
-            ) {
+        if (reset
+            || (!this->hasAttribute(MIN_ATTR) || !this->hasAttribute(MAX_ATTR) || !this->hasAttribute(MIN_INDEX_ATTR)
+                || !this->hasAttribute(MAX_INDEX_ATTR))) {
             Helper::printDebugMsg("Finding min/max value");
             Dataset::findGlobalMinAndMaxValueI();
             Dataset::setAttribute(MIN_ATTR, minVI);
@@ -631,10 +559,10 @@ void Dataset::findAndSetGlobalMinAndMaxValue(bool reset)
             Helper::printDebugMsgEnd("OK");
         } else {
             Helper::printDebugMsg("Reading min/max value");
-            minVI = Dataset::readAttributeI(MIN_ATTR);
-            maxVI = Dataset::readAttributeI(MAX_ATTR);
-            minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR);
-            maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR);
+            minVI                     = Dataset::readAttributeI(MIN_ATTR);
+            maxVI                     = Dataset::readAttributeI(MAX_ATTR);
+            minVIndex                 = Dataset::readAttributeI(MIN_INDEX_ATTR);
+            maxVIndex                 = Dataset::readAttributeI(MAX_INDEX_ATTR);
             issetGlobalMinAndMaxValue = true;
             Helper::printDebugMsgStart("Finding min/max value");
             Helper::printDebugMsgEnd("OK");
@@ -740,7 +668,8 @@ void Dataset::setMPIOAccess(H5FD_mpio_xfer_t type)
  * @param[out] maxIndex Index of maximal value
  * @param[in] block Index of block for block reading (optional)
  */
-void Dataset::readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex, hsize_t block)
+void Dataset::readDataset(Vector offset, Vector count, float *&data, float &min, float &max, hsize_t &minIndex,
+                          hsize_t &maxIndex, hsize_t block)
 {
     printsReadingMessage(block);
     checkDataTypeAndAllocation(data, H5T_NATIVE_FLOAT, count.getSize());
@@ -759,7 +688,8 @@ void Dataset::readDataset(Vector offset, Vector count, float *&data, float &min,
  * @param[out] maxIndex Index of maximal value
  * @param[in] block Index of block for block reading (optional)
  */
-void Dataset::readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex, hsize_t block)
+void Dataset::readDataset(Vector offset, Vector count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex,
+                          hsize_t &maxIndex, hsize_t block)
 {
     printsReadingMessage(block);
     checkDataTypeAndAllocation(data, H5T_NATIVE_UINT64, count.getSize());
@@ -934,11 +864,12 @@ void Dataset::writeDataset(const hsize_t *data)
  * @param[out] minIndex Index of minimal value
  * @param[out] maxIndex Index of maximal value
  */
-void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max, hsize_t &minIndex, hsize_t &maxIndex)
+void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&data, float &min, float &max,
+                        hsize_t &minIndex, hsize_t &maxIndex)
 {
     readDataset(getBlockOffset(index), getBlockDims(index), data, min, max, minIndex, maxIndex, index + 1);
     offset = getBlockOffset(index);
-    count = getBlockDims(index);
+    count  = getBlockDims(index);
 }
 
 /**
@@ -952,11 +883,12 @@ void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&da
  * @param[out] minIndex Index of minimal value
  * @param[out] maxIndex Index of maximal value
  */
-void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max, hsize_t &minIndex, hsize_t &maxIndex)
+void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&data, hsize_t &min, hsize_t &max,
+                        hsize_t &minIndex, hsize_t &maxIndex)
 {
     readDataset(getBlockOffset(index), getBlockDims(index), data, min, max, minIndex, maxIndex, index + 1);
     offset = getBlockOffset(index);
-    count = getBlockDims(index);
+    count  = getBlockDims(index);
 }
 
 /**
@@ -970,7 +902,7 @@ void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, float *&da
 {
     readDataset(getBlockOffset(index), getBlockDims(index), data, index + 1);
     offset = getBlockOffset(index);
-    count = getBlockDims(index);
+    count  = getBlockDims(index);
 }
 
 /**
@@ -984,7 +916,7 @@ void Dataset::readBlock(hsize_t index, Vector &offset, Vector &count, hsize_t *&
 {
     readDataset(getBlockOffset(index), getBlockDims(index), data, index + 1);
     offset = getBlockOffset(index);
-    count = getBlockDims(index);
+    count  = getBlockDims(index);
 }
 
 /**
@@ -1002,7 +934,7 @@ void Dataset::readEmptyBlock()
     t0 = getTime();
     Helper::printDebugMsg("Reading dataset \"" + getName() + "\"");
     err = H5Dread(datasetId, datatypeId, memspaceId, dataspaceId, pListDatasetXferId, nullptr);
-    t1 = getTime();
+    t1  = getTime();
     if (err < 0) {
         throw std::runtime_error("H5Dread error");
     }
@@ -1022,7 +954,8 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data)
     Vector mem_offset(offset.getLength());
 
     hid_t dataspaceId = H5Dget_space(datasetId);
-    err = H5Sselect_hyperslab(dataspaceId, H5S_SELECT_SET, offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
+    err = H5Sselect_hyperslab(dataspaceId, H5S_SELECT_SET, offset.getVectorPtr(), nullptr, count.getVectorPtr(),
+                              nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -1031,7 +964,8 @@ void Dataset::readDatasetGeneral(Vector offset, Vector count, void *data)
         throw std::runtime_error("H5Screate_simple error");
     }
 
-    err = H5Sselect_hyperslab(memspaceId, H5S_SELECT_SET, mem_offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
+    err = H5Sselect_hyperslab(memspaceId, H5S_SELECT_SET, mem_offset.getVectorPtr(), nullptr, count.getVectorPtr(),
+                              nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -1073,7 +1007,8 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, const void *data)
     Vector mem_offset(offset.getLength());
 
     hid_t dataspaceId = H5Dget_space(datasetId);
-    err = H5Sselect_hyperslab(dataspaceId, H5S_SELECT_SET, offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
+    err = H5Sselect_hyperslab(dataspaceId, H5S_SELECT_SET, offset.getVectorPtr(), nullptr, count.getVectorPtr(),
+                              nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -1083,7 +1018,8 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, const void *data)
         throw std::runtime_error("H5Screate_simple error");
     }
 
-    err = H5Sselect_hyperslab(memspaceId, H5S_SELECT_SET, mem_offset.getVectorPtr(), nullptr, count.getVectorPtr(), nullptr);
+    err = H5Sselect_hyperslab(memspaceId, H5S_SELECT_SET, mem_offset.getVectorPtr(), nullptr, count.getVectorPtr(),
+                              nullptr);
     if (err < 0) {
         throw std::runtime_error("H5Sselect_hyperslab error");
     }
@@ -1120,18 +1056,23 @@ void Dataset::writeDatasetGeneral(Vector offset, Vector count, const void *data)
  */
 void Dataset::checkOffsetAndCountParams(Vector offset, Vector count) const
 {
-    if ((dims.getLength() != offset.getLength()) || (dims.getLength() != count.getLength()) || count.getLength() != getRank()) {
-        //std::cout << dims << " " << offset << " " << count;
+    if ((dims.getLength() != offset.getLength()) || (dims.getLength() != count.getLength())
+        || count.getLength() != getRank()) {
+        // std::cout << dims << " " << offset << " " << count;
         throw std::runtime_error("Wrong offset or count");
     }
 
     for (unsigned int i = 0; i < offset.getLength(); i++) {
         if (offset.at(i) >= dims.at(i))
-            throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i) + " (" + std::to_string(offset.at(i)) + " >= " + std::to_string(dims.at(i)) + ")");
+            throw std::runtime_error("Wrong offset - too big offset of dimension " + std::to_string(i) + " ("
+                                     + std::to_string(offset.at(i)) + " >= " + std::to_string(dims.at(i)) + ")");
         if (count.at(i) <= 0)
-            throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i) + " (" + std::to_string(count.at(i)) + " <= 0)");
+            throw std::runtime_error("Wrong count - too small count of dimension " + std::to_string(i) + " ("
+                                     + std::to_string(count.at(i)) + " <= 0)");
         if (offset.at(i) + count.at(i) > dims.at(i))
-            throw std::runtime_error("Wrong count - sum of offset and count of dimension " + std::to_string(i) + " is too big (" + std::to_string(offset.at(i)) + " + " + std::to_string(count.at(i)) + " > " + std::to_string(dims.at(i)) + ")");
+            throw std::runtime_error("Wrong count - sum of offset and count of dimension " + std::to_string(i)
+                                     + " is too big (" + std::to_string(offset.at(i)) + " + "
+                                     + std::to_string(count.at(i)) + " > " + std::to_string(dims.at(i)) + ")");
     }
 }
 
@@ -1144,7 +1085,8 @@ void Dataset::checkOffsetAndCountParams(Vector offset, Vector count) const
  * @param[out] minVFIndex Index of minimal value
  * @param[out] maxVFIndex Index of maximal value
  */
-void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex, hsize_t &maxVFIndex) const
+void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, float &maxVF, hsize_t &minVFIndex,
+                                 hsize_t &maxVFIndex) const
 {
     minVF = std::numeric_limits<float>::max();
     maxVF = std::numeric_limits<float>::min();
@@ -1162,7 +1104,8 @@ void Dataset::findMinAndMaxValue(const float *data, hsize_t size, float &minVF, 
  * @param[out] minVIIndex Index of minimal value
  * @param[out] maxVIIndex Index of maximal value
  */
-void Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex, hsize_t &maxVIIndex) const
+void Dataset::findMinAndMaxValue(const hsize_t *data, hsize_t size, hsize_t &minVI, hsize_t &maxVI, hsize_t &minVIIndex,
+                                 hsize_t &maxVIIndex) const
 {
     minVI = std::numeric_limits<hsize_t>::max();
     maxVI = std::numeric_limits<hsize_t>::min();
@@ -1181,11 +1124,12 @@ void Dataset::findGlobalMinAndMaxValue(bool reset)
         if (reset) {
             Dataset::findGlobalMinAndMaxValueF();
         } else {
-            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR) && this->hasAttribute(MAX_INDEX_ATTR)) {
-                minVF = Dataset::readAttributeF(MIN_ATTR);
-                maxVF = Dataset::readAttributeF(MAX_ATTR);
-                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR);
-                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR);
+            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR)
+                && this->hasAttribute(MAX_INDEX_ATTR)) {
+                minVF                     = Dataset::readAttributeF(MIN_ATTR);
+                maxVF                     = Dataset::readAttributeF(MAX_ATTR);
+                minVIndex                 = Dataset::readAttributeI(MIN_INDEX_ATTR);
+                maxVIndex                 = Dataset::readAttributeI(MAX_INDEX_ATTR);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 Dataset::findGlobalMinAndMaxValueF();
@@ -1195,11 +1139,12 @@ void Dataset::findGlobalMinAndMaxValue(bool reset)
         if (reset) {
             Dataset::findGlobalMinAndMaxValueI();
         } else {
-            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR) && this->hasAttribute(MAX_INDEX_ATTR)) {
-                minVI = Dataset::readAttributeI(MIN_ATTR);
-                maxVI = Dataset::readAttributeI(MAX_ATTR);
-                minVIndex = Dataset::readAttributeI(MIN_INDEX_ATTR);
-                maxVIndex = Dataset::readAttributeI(MAX_INDEX_ATTR);
+            if (this->hasAttribute(MIN_ATTR) && this->hasAttribute(MAX_ATTR) && this->hasAttribute(MIN_INDEX_ATTR)
+                && this->hasAttribute(MAX_INDEX_ATTR)) {
+                minVI                     = Dataset::readAttributeI(MIN_ATTR);
+                maxVI                     = Dataset::readAttributeI(MAX_ATTR);
+                minVIndex                 = Dataset::readAttributeI(MIN_INDEX_ATTR);
+                maxVIndex                 = Dataset::readAttributeI(MAX_INDEX_ATTR);
                 issetGlobalMinAndMaxValue = true;
             } else {
                 Dataset::findGlobalMinAndMaxValueI();
@@ -1215,16 +1160,17 @@ void Dataset::findGlobalMinAndMaxValueF()
 {
     Vector offset;
     Vector count;
-    float minVFTmp = std::numeric_limits<float>::max();
-    float maxVFTmp = std::numeric_limits<float>::min();
+    float minVFTmp       = std::numeric_limits<float>::max();
+    float maxVFTmp       = std::numeric_limits<float>::min();
     hsize_t minVIndexTmp = 0;
     hsize_t maxVIndexTmp = 0;
     hsize_t linearOffset = 0;
-    float *data = new float[blockDims.getSize()]();
+    float *data          = new float[blockDims.getSize()]();
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
         readBlock(i, offset, count, data, minVFTmp, maxVFTmp, minVIndexTmp, maxVIndexTmp);
         convertMultiDimToLinear(offset, linearOffset, dims);
-        H5Helper::checkOrSetMinMaxValue(minVF, maxVF, minVFTmp, maxVFTmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
+        H5Helper::checkOrSetMinMaxValue(minVF, maxVF, minVFTmp, maxVFTmp, minVIndex, maxVIndex,
+                                        linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
     }
     issetGlobalMinAndMaxValue = true;
     if (data) {
@@ -1240,16 +1186,17 @@ void Dataset::findGlobalMinAndMaxValueI()
 {
     Vector offset;
     Vector count;
-    hsize_t minVITmp = std::numeric_limits<hsize_t>::min();
-    hsize_t maxVITmp = std::numeric_limits<hsize_t>::max();
+    hsize_t minVITmp     = std::numeric_limits<hsize_t>::min();
+    hsize_t maxVITmp     = std::numeric_limits<hsize_t>::max();
     hsize_t minVIndexTmp = 0;
     hsize_t maxVIndexTmp = 0;
     hsize_t linearOffset = 0;
-    hsize_t *data = new hsize_t[blockDims.getSize()]();
+    hsize_t *data        = new hsize_t[blockDims.getSize()]();
     for (hsize_t i = 0; i < numberOfBlocks; i++) {
         readBlock(i, offset, count, data, minVITmp, maxVITmp, minVIndexTmp, maxVIndexTmp);
         convertMultiDimToLinear(offset, linearOffset, dims);
-        H5Helper::checkOrSetMinMaxValue(minVI, maxVI, minVITmp, maxVITmp, minVIndex, maxVIndex, linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
+        H5Helper::checkOrSetMinMaxValue(minVI, maxVI, minVITmp, maxVITmp, minVIndex, maxVIndex,
+                                        linearOffset + minVIndexTmp, linearOffset + maxVIndexTmp);
     }
     issetGlobalMinAndMaxValue = true;
     if (data) {
@@ -1263,37 +1210,37 @@ void Dataset::findGlobalMinAndMaxValueI()
  */
 void Dataset::initBlockReading()
 {
-    hsize_t prod = 1;
-    blockDims = Vector(dims.getLength(), 1);
-    lastBlockDims = Vector(dims.getLength(), 1);
+    hsize_t prod         = 1;
+    blockDims            = Vector(dims.getLength(), 1);
+    lastBlockDims        = Vector(dims.getLength(), 1);
     numberOfBlocksInDims = dims;
 
-    lastBlockCount = 1;
-    bool diffSizeFlag = false;
+    lastBlockCount             = 1;
+    bool diffSizeFlag          = false;
     realNumberOfElementsToLoad = getNumberOfElmsToLoad();
 
     for (hsize_t i = dims.getLength(); i > 0; i--) {
-        hsize_t j = i - 1;
+        hsize_t j       = i - 1;
         hsize_t newProd = prod * dims[j];
         if (newProd > getNumberOfElmsToLoad()) {
-            blockDims[j] = getNumberOfElmsToLoad() / prod;
-            lastBlockDims[j] = blockDims[j];
+            blockDims[j]            = getNumberOfElmsToLoad() / prod;
+            lastBlockDims[j]        = blockDims[j];
             numberOfBlocksInDims[j] = dims[j] / blockDims[j];
-            lastBlockCount = numberOfBlocksInDims[j];
+            lastBlockCount          = numberOfBlocksInDims[j];
 
             if (dims[j] % blockDims[j]) {
                 lastBlockDims[j] = dims[j] % blockDims[j];
-                diffSizeFlag = true;
+                diffSizeFlag     = true;
                 lastBlockCount++;
             }
             realNumberOfElementsToLoad = prod * blockDims[j];
-            numberOfBlocksInDims[j] = lastBlockCount;
+            numberOfBlocksInDims[j]    = lastBlockCount;
 
             break;
         }
-        prod = newProd;
-        blockDims[j] = dims[j];
-        lastBlockDims[j] = dims[j];
+        prod                    = newProd;
+        blockDims[j]            = dims[j];
+        lastBlockDims[j]        = dims[j];
         numberOfBlocksInDims[j] = 1;
     }
 
@@ -1329,8 +1276,8 @@ Vector Dataset::getBlockOffset(hsize_t index) const
 {
     Vector offset2;
     hsize_t lastBlockDimsCount = (index) / lastBlockCount;
-    hsize_t lastBlockDimsSize = lastBlockDimsCount * lastBlockDims.getSize();
-    hsize_t sum2 = lastBlockDimsSize + (index - lastBlockDimsCount) * blockDims.getSize();
+    hsize_t lastBlockDimsSize  = lastBlockDimsCount * lastBlockDims.getSize();
+    hsize_t sum2               = lastBlockDimsSize + (index - lastBlockDimsCount) * blockDims.getSize();
     convertlinearToMultiDim(sum2, offset2, dims);
     return offset2;
 }
@@ -1439,7 +1386,8 @@ std::string Dataset::dataTypeString(hid_t type) const
  */
 std::string Dataset::memoryErrorMessage(hsize_t size, hid_t type) const
 {
-    return "There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " " + dataTypeString(type) + ")";
+    return "There is not enough memory to allocate dataset (dataset size: " + std::to_string(size) + " "
+           + dataTypeString(type) + ")";
 }
 
 /**
@@ -1450,7 +1398,8 @@ std::string Dataset::memoryErrorMessage(hsize_t size, hid_t type) const
  */
 std::string Dataset::readErrorMessage(hsize_t size, hid_t type) const
 {
-    return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type) + " (max size: " + std::to_string(getNumberOfElmsToLoad()) + " " + dataTypeString(type) + ")";
+    return "Can not read the entire dataset, size: " + std::to_string(size) + " " + dataTypeString(type)
+           + " (max size: " + std::to_string(getNumberOfElmsToLoad()) + " " + dataTypeString(type) + ")";
 }
 
 /**
@@ -1460,7 +1409,8 @@ std::string Dataset::readErrorMessage(hsize_t size, hid_t type) const
 void Dataset::printsReadingMessage(hsize_t block) const
 {
     if (block) {
-        Helper::printDebugMsg("Reading dataset \"" + getName() + "\", block " + std::to_string(block) + "/" +  std::to_string(numberOfBlocks));
+        Helper::printDebugMsg("Reading dataset \"" + getName() + "\", block " + std::to_string(block) + "/"
+                              + std::to_string(numberOfBlocks));
     } else {
         Helper::printDebugMsg("Reading dataset \"" + getName() + "\"");
     }
@@ -1504,7 +1454,8 @@ void Dataset::printsReadingTimeMessage(double t0, double t1, Vector offset, Vect
 void Dataset::printsWritingMessage(hsize_t block) const
 {
     if (block) {
-        Helper::printDebugMsg("Writing dataset \"" + getName() + "\", block " + std::to_string(block) + "/" +  std::to_string(numberOfBlocks));
+        Helper::printDebugMsg("Writing dataset \"" + getName() + "\", block " + std::to_string(block) + "/"
+                              + std::to_string(numberOfBlocks));
     } else {
         Helper::printDebugMsg("Writing dataset \"" + getName() + "\"");
     }
@@ -1527,4 +1478,4 @@ void Dataset::printsWritingTimeMessage(double t0, double t1, Vector offset, Vect
     Helper::printDebugMsg(ss.str());
     Helper::printDebugMsgEnd(std::to_string(int(t1 - t0)) + " ms");
 }
-}
+} // namespace H5Helper

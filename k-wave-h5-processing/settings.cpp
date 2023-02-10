@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Settings class definition.
  *
@@ -97,114 +97,113 @@ void Settings::loadParams(int argc, const char **argv)
     paramsDefinition.defineParamsFlag("d", ParamsDefinition::STRING);
 
     // Help message
-    paramsDefinition.setHelp(
-        "+---------------------------------------------------------------+\n"
-        "|   Usage: k-wave-h5-processing [parameters]                    |\n"
-        "+---------------------------------------------------------------+\n"
-        "|   Mandatory parameters:                                       |\n"
-        "+-------------------------------+-------------------------------+\n"
-        "| -f <file_name>                | HDF5 output or input file     |\n"
-        "+-------------------------------+-------------------------------+\n"
-        "|   Optional parameters:                                        |\n"
-        "+-------------------------------+-------------------------------+\n"
-        "| -m <file_name>                | HDF5 input file with          |\n"
-        "|                               |   sensor_mask_index or        |\n"
-        "|                               |   sensor_mask_corners or      |\n"
-        "|                               |   p_source_input dataset.     |\n"
-        "| -o <file_name>                | HDF5 processing output file   |\n"
-        "|                               |   Default is HDF5 output or   |\n"
-        "|                               |   input file name + .         |\n"
-        "|                               |   \"_modified.h5\"              |\n"
-        "| -d <file_name>                | HDF5 processing input file    |\n"
-        "|                               |   for reading other datasets  |\n"
-        "|                               |   from a separate file.       |\n"
-        "| -reshape                      | Performs processing sensor    |\n"
-        "|                               |   mask type datasets to group |\n"
-        "|                               |   with 4D datasets and saves  |\n"
-        "|                               |   datasets to the output      |\n"
-        "|                               |   file. The sensor_mask_index |\n"
-        "|                               |   or sensor_mask_corners      |\n"
-        "|                               |   dataset must be in          |\n"
-        "|                               |   simulation output or        |\n"
-        "|                               |   simulation input file.      |\n"
-        "| -changeChunks                 | Sets a new chunks size of     |\n"
-        "|                               |   float datasets and saves    |\n"
-        "|                               |   datasets to the output      |\n"
-        "|                               |   file.                       |\n"
-        "| -dwnsmpl                      | Performs downsampling of      |\n"
-        "|                               |   datasets and saves them to  |\n"
-        "|                               |   the output file.            |\n"
-        "| -compress                     | Performs compression of time  |\n"
-        "|                               |   series dataset data,        |\n"
-        "|                               |   creates new dataset in the  |\n"
-        "|                               |   output file with            |\n"
-        "|                               |   coefficients, e.g p_c.      |\n"
-        "| -decompress                   | Performs decompression of     |\n"
-        "|                               |   time series dataset data,   |\n"
-        "|                               |   needs dataset with          |\n"
-        "|                               |   coefficients, e.g p_c.      |\n"
-        "| -difference                   | Performs subtraction of       |\n"
-        "|                               |   datasets data. Needs        |\n"
-        "|                               |   original dataset end        |\n"
-        "|                               |   decoded (name_d) dataset    |\n"
-        "|                               |   with src_dataset_name       |\n"
-        "|                               |   attribute or two dataset    |\n"
-        "|                               |   names - the first name from |\n"
-        "|                               |   HDF5 output or input file   |\n"
-        "|                               |   and the second name from    |\n"
-        "|                               |   HDF5 processing input file. |\n"
-        "| -s <size>                     | Max size for downsampling.    |\n"
-        "|                               |   Default size is 512.        |\n"
-        "| -ch <chunkSize;chunkSize;>    | The sizes for new chunks      |\n"
-        "|                               |   (x;y;z;t;) from 1 to        |\n"
-        "|                               |   maximal appropriately       |\n"
-        "|                               |   value. Default sizes are    |\n"
-        "|                               |   64;64;64;1.                 |\n"
-        "| -c <blockSize>                | Sets number of data elements  |\n"
-        "|                               |   for block reading. Default  |\n"
-        "|                               |   value is based on available |\n"
-        "|                               |   system physical memory.     |\n"
-        "| -p <period>                   | Sets period of input signal   |\n"
-        "|                               |   for compression of time     |\n"
-        "|                               |   series HIFU data (float).   |\n"
-        "| -fq <frequency>               | Sets frequency of input       |\n"
-        "|                               |   signal for compression      |\n"
-        "|                               |   of time series HIFU data    |\n"
-        "|                               |   (float).                    |\n"
-        "| -h <harmonics>                | Sets multiple of harmonic     |\n"
-        "|                               |   frequency for compression   |\n"
-        "|                               |   of time series HIFU data.   |\n"
-        "| -mos <size>                   | Sets multiple of overlap size |\n"
-        "|                               |   for compression of time     |\n"
-        "|                               |   series HIFU data.           |\n"
-        "| -shift                        | Enables time shift for        |\n"
-        "|                               |   compression of time series  |\n"
-        "|                               |   HIFU data.                  |\n"
-        "| -c40bit                       | Enables 40-bit for            |\n"
-        "|                               |   compression of time series  |\n"
-        "|                               |   HIFU data.                  |\n"
-        "| -noOverlap                    | Enables no overlap for        |\n"
-        "|                               |   compression of time series  |\n"
-        "|                               |   HIFU data.                  |\n"
-        "| -names <name1;name2;>         | Names of selected datasets or |\n"
-        "|                               |   groups to processing.       |\n"
-        "| -info                         | Prints the values of          |\n"
-        "|                               |   attributes of selected      |\n"
-        "|                               |   datasets.                   |\n"
-        "| -computePeriod                | Computes period from          |\n"
-        "|                               |   p_source_input. Store it to |\n"
-        "|                               |   the simulation input file   |\n"
-        "|                               |   if the file is set.         |\n"
-        "| -findMinMax                   | Finds and stores minimal and  |\n"
-        "|                               |   maximal values and their    |\n"
-        "|                               |   indices of known datasets   |\n"
-        "|                               |   from simulation output file |\n"
-        "|                               |   and processing input file.  |\n"
-        "| -help                         | Prints this help message.     |\n"
-        "+-------------------------------+-------------------------------+\n");
+    paramsDefinition.setHelp("+---------------------------------------------------------------+\n"
+                             "|   Usage: k-wave-h5-processing [parameters]                    |\n"
+                             "+---------------------------------------------------------------+\n"
+                             "|   Mandatory parameters:                                       |\n"
+                             "+-------------------------------+-------------------------------+\n"
+                             "| -f <file_name>                | HDF5 output or input file     |\n"
+                             "+-------------------------------+-------------------------------+\n"
+                             "|   Optional parameters:                                        |\n"
+                             "+-------------------------------+-------------------------------+\n"
+                             "| -m <file_name>                | HDF5 input file with          |\n"
+                             "|                               |   sensor_mask_index or        |\n"
+                             "|                               |   sensor_mask_corners or      |\n"
+                             "|                               |   p_source_input dataset.     |\n"
+                             "| -o <file_name>                | HDF5 processing output file   |\n"
+                             "|                               |   Default is HDF5 output or   |\n"
+                             "|                               |   input file name + .         |\n"
+                             "|                               |   \"_modified.h5\"              |\n"
+                             "| -d <file_name>                | HDF5 processing input file    |\n"
+                             "|                               |   for reading other datasets  |\n"
+                             "|                               |   from a separate file.       |\n"
+                             "| -reshape                      | Performs processing sensor    |\n"
+                             "|                               |   mask type datasets to group |\n"
+                             "|                               |   with 4D datasets and saves  |\n"
+                             "|                               |   datasets to the output      |\n"
+                             "|                               |   file. The sensor_mask_index |\n"
+                             "|                               |   or sensor_mask_corners      |\n"
+                             "|                               |   dataset must be in          |\n"
+                             "|                               |   simulation output or        |\n"
+                             "|                               |   simulation input file.      |\n"
+                             "| -changeChunks                 | Sets a new chunks size of     |\n"
+                             "|                               |   float datasets and saves    |\n"
+                             "|                               |   datasets to the output      |\n"
+                             "|                               |   file.                       |\n"
+                             "| -dwnsmpl                      | Performs downsampling of      |\n"
+                             "|                               |   datasets and saves them to  |\n"
+                             "|                               |   the output file.            |\n"
+                             "| -compress                     | Performs compression of time  |\n"
+                             "|                               |   series dataset data,        |\n"
+                             "|                               |   creates new dataset in the  |\n"
+                             "|                               |   output file with            |\n"
+                             "|                               |   coefficients, e.g p_c.      |\n"
+                             "| -decompress                   | Performs decompression of     |\n"
+                             "|                               |   time series dataset data,   |\n"
+                             "|                               |   needs dataset with          |\n"
+                             "|                               |   coefficients, e.g p_c.      |\n"
+                             "| -difference                   | Performs subtraction of       |\n"
+                             "|                               |   datasets data. Needs        |\n"
+                             "|                               |   original dataset end        |\n"
+                             "|                               |   decoded (name_d) dataset    |\n"
+                             "|                               |   with src_dataset_name       |\n"
+                             "|                               |   attribute or two dataset    |\n"
+                             "|                               |   names - the first name from |\n"
+                             "|                               |   HDF5 output or input file   |\n"
+                             "|                               |   and the second name from    |\n"
+                             "|                               |   HDF5 processing input file. |\n"
+                             "| -s <size>                     | Max size for downsampling.    |\n"
+                             "|                               |   Default size is 512.        |\n"
+                             "| -ch <chunkSize;chunkSize;>    | The sizes for new chunks      |\n"
+                             "|                               |   (x;y;z;t;) from 1 to        |\n"
+                             "|                               |   maximal appropriately       |\n"
+                             "|                               |   value. Default sizes are    |\n"
+                             "|                               |   64;64;64;1.                 |\n"
+                             "| -c <blockSize>                | Sets number of data elements  |\n"
+                             "|                               |   for block reading. Default  |\n"
+                             "|                               |   value is based on available |\n"
+                             "|                               |   system physical memory.     |\n"
+                             "| -p <period>                   | Sets period of input signal   |\n"
+                             "|                               |   for compression of time     |\n"
+                             "|                               |   series HIFU data (float).   |\n"
+                             "| -fq <frequency>               | Sets frequency of input       |\n"
+                             "|                               |   signal for compression      |\n"
+                             "|                               |   of time series HIFU data    |\n"
+                             "|                               |   (float).                    |\n"
+                             "| -h <harmonics>                | Sets multiple of harmonic     |\n"
+                             "|                               |   frequency for compression   |\n"
+                             "|                               |   of time series HIFU data.   |\n"
+                             "| -mos <size>                   | Sets multiple of overlap size |\n"
+                             "|                               |   for compression of time     |\n"
+                             "|                               |   series HIFU data.           |\n"
+                             "| -shift                        | Enables time shift for        |\n"
+                             "|                               |   compression of time series  |\n"
+                             "|                               |   HIFU data.                  |\n"
+                             "| -c40bit                       | Enables 40-bit for            |\n"
+                             "|                               |   compression of time series  |\n"
+                             "|                               |   HIFU data.                  |\n"
+                             "| -noOverlap                    | Enables no overlap for        |\n"
+                             "|                               |   compression of time series  |\n"
+                             "|                               |   HIFU data.                  |\n"
+                             "| -names <name1;name2;>         | Names of selected datasets or |\n"
+                             "|                               |   groups to processing.       |\n"
+                             "| -info                         | Prints the values of          |\n"
+                             "|                               |   attributes of selected      |\n"
+                             "|                               |   datasets.                   |\n"
+                             "| -computePeriod                | Computes period from          |\n"
+                             "|                               |   p_source_input. Store it to |\n"
+                             "|                               |   the simulation input file   |\n"
+                             "|                               |   if the file is set.         |\n"
+                             "| -findMinMax                   | Finds and stores minimal and  |\n"
+                             "|                               |   maximal values and their    |\n"
+                             "|                               |   indices of known datasets   |\n"
+                             "|                               |   from simulation output file |\n"
+                             "|                               |   and processing input file.  |\n"
+                             "| -help                         | Prints this help message.     |\n"
+                             "+-------------------------------+-------------------------------+\n");
 
     // Parse params from command line
-    //Helper::printDebugMsg("");
+    // Helper::printDebugMsg("");
     try {
         paramsDefinition.commandLineParse(argc, argv);
     } catch (std::exception &e) {
@@ -428,15 +427,16 @@ ParamsDefinition::VectorOfULongLongs Settings::getMaxChunkSizes() const
  */
 void Settings::setMaxChunkSizes(const ParamsDefinition::VectorOfULongLongs &value)
 {
-    //maxChunkSizes = value;
+    // maxChunkSizes = value;
     for (size_t i = 0; i < value.size(); i++) {
         maxChunkSizes[i] = value[i];
     }
     std::string sizesString;
     ParamsDefinition::VectorOfULongLongs maxChunkSizesR = maxChunkSizes;
     std::reverse(maxChunkSizesR.begin(), maxChunkSizesR.end());
-    for (ParamsDefinition::VectorOfULongLongs::const_iterator ci = maxChunkSizesR.begin(); ci != maxChunkSizesR.end(); ++ci) {
-        sizesString +=  std::to_string(*ci);
+    for (ParamsDefinition::VectorOfULongLongs::const_iterator ci = maxChunkSizesR.begin(); ci != maxChunkSizesR.end();
+         ++ci) {
+        sizesString += std::to_string(*ci);
         if (std::next(ci) != maxChunkSizesR.end())
             sizesString += " x ";
     }
@@ -672,7 +672,7 @@ void Settings::setNames(const ParamsDefinition::ListOfStrings &value)
     bool first = true;
     for (ParamsDefinition::ListOfStrings::const_iterator ci = value.begin(); ci != value.end(); ++ci) {
         if (first)
-            namesString +=  *ci;
+            namesString += *ci;
         else
             namesString += ", " + *ci;
     }

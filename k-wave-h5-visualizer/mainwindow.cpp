@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing MainWindow class definition.
  *
@@ -43,7 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->dockWidgetSliceYZ->setSliceType(SliceDockWidget::SliceType::YZ);
 
     // Action on dataset selection
-    connect(ui->dockWidgetDatasets, SIGNAL(datasetSelectionChanged(int, bool)), this, SLOT(datasetSelectionChanged(int, bool)));
+    connect(ui->dockWidgetDatasets, SIGNAL(datasetSelectionChanged(int, bool)), this,
+            SLOT(datasetSelectionChanged(int, bool)));
 
     // Connect gWindow with actions
     connectGWindowActions(ui->dockWidgetWindow3D->getGWindow());
@@ -71,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     // Close file
-    //on_actionCloseHDF5File_triggered();
+    // on_actionCloseHDF5File_triggered();
     if (openedH5File) {
         delete openedH5File;
         openedH5File = nullptr;
@@ -88,7 +89,8 @@ void MainWindow::on_actionLoadHDF5File_triggered()
     showOpeningFile();
     // Create a dialog for opening a file
     QSettings settings(QApplication::organizationName(), QApplication::applicationName());
-    QString filename = QFileDialog::getOpenFileName(nullptr, "Open File", settings.value("hdf5datafile", QDir::homePath()).toString(), "HDF5 Files (*.h5)");
+    QString filename = QFileDialog::getOpenFileName(
+        nullptr, "Open File", settings.value("hdf5datafile", QDir::homePath()).toString(), "HDF5 Files (*.h5)");
     settings.setValue("hdf5datafile", QFileInfo(filename).absolutePath());
 
     if (!filename.isEmpty()) {
@@ -139,7 +141,7 @@ void MainWindow::on_actionCloseHDF5File_triggered()
     // Delete H5OpenedFile and H5ObjectToVisualize objects
     // Because of the missing smart pointers it must be done after clearing widgets
     if (openedH5File) {
-        //delete openedH5File;
+        // delete openedH5File;
         openedH5File->deleteLater();
         openedH5File = nullptr;
     }
@@ -228,8 +230,8 @@ void MainWindow::datasetSelectionChanged(int id, bool selected)
  */
 void MainWindow::on_actionAbout_triggered()
 {
-    QTextEdit* help = new QTextEdit();
-    help->setWindowFlags(Qt::Window); //or Qt::Tool, Qt::Dialog if you like
+    QTextEdit *help = new QTextEdit();
+    help->setWindowFlags(Qt::Window); // or Qt::Tool, Qt::Dialog if you like
     help->setReadOnly(true);
     help->setWindowModality(Qt::ApplicationModal);
     help->setFixedSize(400, 200);
@@ -296,7 +298,8 @@ void MainWindow::connectGWindowActions(GWindow *gWindow)
     connect(ui->dockWidgetSettings3D, SIGNAL(interpolationModeChanged(int)), gWindow, SLOT(setInterpolationMode(int)));
     // VR mode
     gWindow->setVolumeRenderingMode(ui->dockWidgetSettings3D->getVolumeRenderingMode());
-    connect(ui->dockWidgetSettings3D, SIGNAL(volumeRenderingModeChanged(int)), gWindow, SLOT(setVolumeRenderingMode(int)));
+    connect(ui->dockWidgetSettings3D, SIGNAL(volumeRenderingModeChanged(int)), gWindow,
+            SLOT(setVolumeRenderingMode(int)));
     // VR slices count
     gWindow->setSlicesCount(ui->dockWidgetSettings3D->getVolumeRenderingSlices());
     connect(ui->dockWidgetSettings3D, SIGNAL(volumeRenderingSlicesChanged(int)), gWindow, SLOT(setSlicesCount(int)));
@@ -305,7 +308,8 @@ void MainWindow::connectGWindowActions(GWindow *gWindow)
 /**
  * @brief Sets GUI for selected dataset to default values
  */
-void MainWindow::clearGUIForDataset() {
+void MainWindow::clearGUIForDataset()
+{
     // Clear selected dataset widget
     ui->dockWidgetSelectedDataset->clear();
 

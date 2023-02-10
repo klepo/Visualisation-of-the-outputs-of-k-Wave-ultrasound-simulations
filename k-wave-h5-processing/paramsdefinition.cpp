@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing ParamsDefinition class definition.
  *
@@ -19,24 +19,22 @@
 
 #include "paramsdefinition.h"
 
-const std::map<ParamsDefinition::Type, std::string> ParamsDefinition::typeStrings = {
-    {INT, "INT"},
-    {LONGLONG, "LONGLONG"},
-    {UINT, "UINT"},
-    {ULONGLONG, "ULONGLONG"},
-    {FLOAT, "FLOAT"},
-    {DOUBLE, "DOUBLE"},
-    {LONGDOUBLE, "LONGDOUBLE"},
-    {STRING, "STRING"},
-    {STRINGS_SEPARATED, "STRINGS_SEPARATED"}
-};
+const std::map<ParamsDefinition::Type, std::string> ParamsDefinition::typeStrings
+    = { { INT, "INT" },
+        { LONGLONG, "LONGLONG" },
+        { UINT, "UINT" },
+        { ULONGLONG, "ULONGLONG" },
+        { FLOAT, "FLOAT" },
+        { DOUBLE, "DOUBLE" },
+        { LONGDOUBLE, "LONGDOUBLE" },
+        { STRING, "STRING" },
+        { STRINGS_SEPARATED, "STRINGS_SEPARATED" } };
 
 /**
  * @brief Creates Params object
  */
 ParamsDefinition::Flag::Params::Params()
 {
-
 }
 
 /**
@@ -119,7 +117,7 @@ void ParamsDefinition::Flag::Params::defineParam(ParamsDefinition::Type type)
  */
 void ParamsDefinition::Flag::Params::setParam(unsigned int index, const void *value)
 {
-    Type type = types[index];
+    Type type         = types[index];
     size_t localIndex = indices[index];
 
     switch (type) {
@@ -163,7 +161,7 @@ void ParamsDefinition::Flag::Params::setParam(unsigned int index, const void *va
  */
 void ParamsDefinition::Flag::Params::readParam(unsigned int index, void *value)
 {
-    Type type = types[index];
+    Type type         = types[index];
     size_t localIndex = indices[index];
 
     switch (type) {
@@ -207,7 +205,7 @@ void ParamsDefinition::Flag::Params::readParam(unsigned int index, void *value)
  */
 std::string ParamsDefinition::Flag::Params::getParamString(unsigned int index)
 {
-    Type type = types[index];
+    Type type         = types[index];
     size_t localIndex = indices[index];
     std::string str;
 
@@ -226,8 +224,9 @@ std::string ParamsDefinition::Flag::Params::getParamString(unsigned int index)
             break;
         case ParamsDefinition::ULONGLONG_SEPARATED: {
             ParamsDefinition::VectorOfULongLongs::const_iterator ci;
-            for (ci = valuesULongLongSeparated[localIndex].begin(); ci != valuesULongLongSeparated[localIndex].end(); ++ci)
-                 str.append(std::to_string(*ci) + " ");
+            for (ci = valuesULongLongSeparated[localIndex].begin(); ci != valuesULongLongSeparated[localIndex].end();
+                 ++ci)
+                str.append(std::to_string(*ci) + " ");
             break;
         }
         case ParamsDefinition::FLOAT:
@@ -245,7 +244,7 @@ std::string ParamsDefinition::Flag::Params::getParamString(unsigned int index)
         case ParamsDefinition::STRINGS_SEPARATED: {
             ParamsDefinition::ListOfStrings::const_iterator ci;
             for (ci = valuesStringSeparated[localIndex].begin(); ci != valuesStringSeparated[localIndex].end(); ++ci)
-                 str.append(*ci + " ");
+                str.append(*ci + " ");
             break;
         }
     }
@@ -287,7 +286,7 @@ ParamsDefinition::Flag::Flag(std::string name)
  */
 ParamsDefinition::Flag::Flag(std::string name, ParamsDefinition::Flag::Params params)
 {
-    this->name = name;
+    this->name   = name;
     this->params = params;
 }
 
@@ -540,7 +539,7 @@ void ParamsDefinition::commandLineParse(int argc, const char **argv)
             throw std::invalid_argument(argv[i]);
         } else {
             // Found
-            //std::string name = search->first;
+            // std::string name = search->first;
             ParamsDefinition::Flag *flag = &search->second;
             flag->setEnabled(true);
             size_t c = flag->getParams().getCount();

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with Downsampling class declaration.
  *
@@ -16,7 +16,6 @@
  * @copyright   Copyright © 2019, Petr Kleparnik, VUT FIT Brno. All Rights Reserved.
  *
  */
-
 
 #ifndef DOWNSAMPLING_H
 #define DOWNSAMPLING_H
@@ -34,9 +33,12 @@ public:
 
 private:
     void resampleDataset(H5Helper::Dataset *srcDataset);
-    void computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D maxChunkDims, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkSize);
-    void resize2D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight);
-    void resize3D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth);
+    void computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D maxChunkDims, float ratio,
+                        H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkSize);
+    void resize2D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth,
+                  hsize_t dstHeight);
+    void resize3D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth,
+                  hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth);
 };
 
 #endif // DOWNSAMPLING_H

@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The implementation file containing Downsampling class definition.
  *
@@ -39,11 +39,11 @@ void Downsampling::execute()
         H5Helper::DatasetType::BASIC_3D,
         H5Helper::DatasetType::RESHAPED_3D,
         H5Helper::DatasetType::CUBOID,
-        //H5Helper::DatasetType::CUBOID_C,
+        // H5Helper::DatasetType::CUBOID_C,
         H5Helper::DatasetType::CUBOID_D,
         H5Helper::DatasetType::CUBOID_S,
         H5Helper::DatasetType::CUBOID_ATTR,
-        //H5Helper::DatasetType::CUBOID_ATTR_C,
+        // H5Helper::DatasetType::CUBOID_ATTR_C,
         H5Helper::DatasetType::CUBOID_ATTR_D,
         H5Helper::DatasetType::CUBOID_ATTR_S,
     };
@@ -53,7 +53,7 @@ void Downsampling::execute()
 
         int count = 0;
         for (H5Helper::MapOfDatasetsIt it = map.begin(); it != map.end(); ++it) {
-            H5Helper::Dataset *dataset = it->second;
+            H5Helper::Dataset *dataset        = it->second;
             H5Helper::DatasetType datasetType = dataset->getType();
 
             if (checkDatasetType(datasetType, types)) {
@@ -66,7 +66,7 @@ void Downsampling::execute()
         if (count == 0) {
             Helper::printErrorMsg("No datasets for downsampling in simulation output file");
         }
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
         Helper::printErrorMsg(e.what());
         std::exit(EXIT_FAILURE);
     }
@@ -79,7 +79,7 @@ void Downsampling::execute()
 void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
 {
     // Dims
-    H5Helper::Vector dimsSrc = srcDataset->getDims();
+    H5Helper::Vector dimsSrc     = srcDataset->getDims();
     H5Helper::Vector3D dimsSrc3D = dimsSrc;
     H5Helper::Vector dimsDst;
     H5Helper::Vector3D dimsDst3D;
@@ -90,10 +90,11 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
 
     // Compute ratio
     hsize_t maxDim = std::max(std::max(dimsSrc3D.z(), dimsSrc3D.y()), dimsSrc3D.x());
-    float ratio = float(getSettings()->getMaxSize()) / maxDim;
+    float ratio    = float(getSettings()->getMaxSize()) / maxDim;
     // Check downsampling size
     if (ratio >= 1) {
-        Helper::printErrorMsg("Bad output size for downsampling (" + std::to_string(getSettings()->getMaxSize()) + " >= " + std::to_string(maxDim) + ")");
+        Helper::printErrorMsg("Bad output size for downsampling (" + std::to_string(getSettings()->getMaxSize())
+                              + " >= " + std::to_string(maxDim) + ")");
         return;
     }
 
@@ -106,11 +107,12 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
 
     // For 4D datasets
     if (dimsSrc.getLength() == 4) {
-        chunkDimsDst = H5Helper::Vector4D(std::min(getSettings()->getMaxChunkSizeW(), H5Helper::Vector4D(dimsSrc).w()), chunkDimsDst3D); // or (getSettings()->getMaxChunkSize(), chunkSizeDst3D)?
-        dimsDst = H5Helper::Vector4D(H5Helper::Vector4D(dimsSrc).w(), dimsDst3D);
+        chunkDimsDst = H5Helper::Vector4D(std::min(getSettings()->getMaxChunkSizeW(), H5Helper::Vector4D(dimsSrc).w()),
+                                          chunkDimsDst3D); // or (getSettings()->getMaxChunkSize(), chunkSizeDst3D)?
+        dimsDst      = H5Helper::Vector4D(H5Helper::Vector4D(dimsSrc).w(), dimsDst3D);
     } else { // 3D datasets
         chunkDimsDst = chunkDimsDst3D;
-        dimsDst = dimsDst3D;
+        dimsDst      = dimsDst3D;
     }
 
     Helper::printDebugTwoColumnsS("New size", dimsDst);
@@ -136,13 +138,16 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
         dstData = new float[dimsDst3D.getSize()]();
         for (hsize_t t = 0; t < steps; t++) {
             if (dimsSrc.getLength() == 4) {
-                srcDataset->readDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData);
+                srcDataset->readDataset(H5Helper::Vector4D(t, 0, 0, 0),
+                                        H5Helper::Vector4D(1, dimsSrc3D.z(), dimsSrc3D.y(), dimsSrc3D.x()), srcData);
             } else {
                 srcDataset->readDataset(srcData);
             }
-            resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(), dimsDst3D.z());
+            resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(),
+                     dimsDst3D.z());
             if (dimsSrc.getLength() == 4) {
-                dstDataset->writeDataset(H5Helper::Vector4D(t, 0, 0, 0), H5Helper::Vector4D(1, dimsDst3D.z(), dimsDst3D.y(), dimsDst3D.x()), dstData);
+                dstDataset->writeDataset(H5Helper::Vector4D(t, 0, 0, 0),
+                                         H5Helper::Vector4D(1, dimsDst3D.z(), dimsDst3D.y(), dimsDst3D.x()), dstData);
             } else {
                 dstDataset->writeDataset(dstData);
             }
@@ -173,9 +178,13 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
         for (hsize_t t = 0; t < steps; t++) {
             for (hsize_t i = 0; i < H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z(); i++) {
                 // Offset for x and y should be always 0
-                srcDataset->readBlock(t * H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z() + i, offset, count, srcData);
-                resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(), dimsSrc3D.z());
-                tmpDataset->writeDataset(H5Helper::Vector3D(offset), H5Helper::Vector3D(H5Helper::Vector3D(count).z(), dimsDst3D.y(), dimsDst3D.x()), dstData);
+                srcDataset->readBlock(t * H5Helper::Vector3D(srcDataset->getNumberOfBlocksInDims()).z() + i, offset,
+                                      count, srcData);
+                resize3D(srcData, dstData, dimsSrc3D.x(), dimsSrc3D.y(), dimsSrc3D.z(), dimsDst3D.x(), dimsDst3D.y(),
+                         dimsSrc3D.z());
+                tmpDataset->writeDataset(
+                    H5Helper::Vector3D(offset),
+                    H5Helper::Vector3D(H5Helper::Vector3D(count).z(), dimsDst3D.y(), dimsDst3D.x()), dstData);
             }
 
             // and after 2D slices in XZ plane
@@ -184,12 +193,15 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
                 if (y + yCount > dimsDst3D.y()) {
                     yCount = dimsDst3D.y() - y;
                 }
-                tmpDataset->readDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsSrc3D.z(), yCount, dimsDst3D.x()), srcData);
+                tmpDataset->readDataset(H5Helper::Vector3D(0, y, 0),
+                                        H5Helper::Vector3D(dimsSrc3D.z(), yCount, dimsDst3D.x()), srcData);
                 resize3D(srcData, dstData, dimsDst3D.x(), yCount, dimsSrc3D.z(), dimsDst3D.x(), yCount, dimsDst3D.z());
                 if (dimsSrc.getLength() == 4) {
-                    dstDataset->writeDataset(H5Helper::Vector4D(t, 0, y, 0), H5Helper::Vector4D(1, dimsDst3D.z(), yCount, dimsDst3D.x()), dstData);
+                    dstDataset->writeDataset(H5Helper::Vector4D(t, 0, y, 0),
+                                             H5Helper::Vector4D(1, dimsDst3D.z(), yCount, dimsDst3D.x()), dstData);
                 } else {
-                    dstDataset->writeDataset(H5Helper::Vector3D(0, y, 0), H5Helper::Vector3D(dimsDst3D.z(), yCount, dimsDst3D.x()), dstData);
+                    dstDataset->writeDataset(H5Helper::Vector3D(0, y, 0),
+                                             H5Helper::Vector3D(dimsDst3D.z(), yCount, dimsDst3D.x()), dstData);
                 }
             }
         }
@@ -212,9 +224,8 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
     dstDataset->setAttribute(H5Helper::SRC_SIZE_Z_ATTR, dimsSrc3D.z());
     dstDataset->setAttribute(H5Helper::SRC_DATASET_NAME_ATTR, srcDataset->getName());
 
-    if (srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR)
-            && srcDataset->hasAttribute(H5Helper::POSITION_Y_ATTR)
-            && srcDataset->hasAttribute(H5Helper::POSITION_X_ATTR)) {
+    if (srcDataset->hasAttribute(H5Helper::POSITION_Z_ATTR) && srcDataset->hasAttribute(H5Helper::POSITION_Y_ATTR)
+        && srcDataset->hasAttribute(H5Helper::POSITION_X_ATTR)) {
         hsize_t z = srcDataset->readAttributeI(H5Helper::POSITION_Z_ATTR);
         hsize_t y = srcDataset->readAttributeI(H5Helper::POSITION_Y_ATTR);
         hsize_t x = srcDataset->readAttributeI(H5Helper::POSITION_X_ATTR);
@@ -239,22 +250,29 @@ void Downsampling::resampleDataset(H5Helper::Dataset *srcDataset)
  * @param[out] dimsDst Destination Dims
  * @param[out] chunkDims Chunk dims
  */
-void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D maxChunkDims, float ratio, H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims)
+void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D maxChunkDims, float ratio,
+                                  H5Helper::Vector3D &dimsDst, H5Helper::Vector3D &chunkDims)
 {
     dimsDst.z(Helper::round(dimsSrc.z() * ratio));
     dimsDst.y(Helper::round(dimsSrc.y() * ratio));
     dimsDst.x(Helper::round(dimsSrc.x() * ratio));
     // Check < 1
-    if (dimsDst.z() < 1) dimsDst.z(1);
-    if (dimsDst.y() < 1) dimsDst.y(1);
-    if (dimsDst.x() < 1) dimsDst.x(1);
+    if (dimsDst.z() < 1)
+        dimsDst.z(1);
+    if (dimsDst.y() < 1)
+        dimsDst.y(1);
+    if (dimsDst.x() < 1)
+        dimsDst.x(1);
     // Chunk size
     chunkDims.z(maxChunkDims.x());
     chunkDims.y(maxChunkDims.y());
     chunkDims.x(maxChunkDims.z());
-    if (chunkDims.z() > dimsDst.z()) chunkDims.z(dimsDst.z());
-    if (chunkDims.y() > dimsDst.y()) chunkDims.y(dimsDst.y());
-    if (chunkDims.x() > dimsDst.x()) chunkDims.x(dimsDst.x());
+    if (chunkDims.z() > dimsDst.z())
+        chunkDims.z(dimsDst.z());
+    if (chunkDims.y() > dimsDst.y())
+        chunkDims.y(dimsDst.y());
+    if (chunkDims.x() > dimsDst.x())
+        chunkDims.x(dimsDst.x());
 }
 
 /**
@@ -266,20 +284,21 @@ void Downsampling::computeDstDims(H5Helper::Vector3D dimsSrc, H5Helper::Vector3D
  * @param[in] dstWidth Destination width
  * @param[in] dstHeight Destination height
  */
-void Downsampling::resize2D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth, hsize_t dstHeight)
+void Downsampling::resize2D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t dstWidth,
+                            hsize_t dstHeight)
 {
-    float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
+    float scaleWidth  = static_cast<float>(dstWidth) / srcWidth;
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (hssize_t y = 0; y < hssize_t(dstHeight); y++) {
-        #pragma omp parallel for
+#pragma omp parallel for
         for (hssize_t x = 0; x < hssize_t(dstWidth); x++) {
             float newX = static_cast<float>(x) / scaleWidth;
             float newY = static_cast<float>(y) / scaleHeight;
             // Nearest-neighbor interpolation
-            hsize_t xSrc = Helper::round(newX);
-            hsize_t ySrc = Helper::round(newY);
+            hsize_t xSrc                                = Helper::round(newX);
+            hsize_t ySrc                                = Helper::round(newY);
             dataDst[hsize_t(x) + hsize_t(y) * dstWidth] = dataSrc[xSrc + ySrc * srcWidth];
             // Linear interpolation
             /*hsize_t left = static_cast<hsize_t>(floor(newX));
@@ -291,9 +310,10 @@ void Downsampling::resize2D(const float *dataSrc, float *dataDst, hsize_t srcWid
             float bottomL = dataSrc[left + bottom * srcWidth] * wX + dataSrc[right + bottom * srcWidth] * (1 - wX);
             float topL = dataSrc[left + top * srcWidth] * wX + dataSrc[right + top * srcWidth] * (1 - wX);
             dataDst[hsize_t(x) + hsize_t(y) * dstWidth] = bottomL * wY + topL  * (1 - wY);*/
-            /*if (dataDst[hsize_t(x) + hsize_t(y) * dstWidth] != dataSrc[Helper::round(newX) + Helper::round(newY) * srcWidth]) {
-                Helper::printDebugTwoColumnsTab("Nearest", dataDst[hsize_t(x) + hsize_t(y) * dstWidth]);
-                Helper::printDebugTwoColumnsTab("Linear", dataSrc[Helper::round(newX) + Helper::round(newY) * srcWidth]);
+            /*if (dataDst[hsize_t(x) + hsize_t(y) * dstWidth] != dataSrc[Helper::round(newX) + Helper::round(newY) *
+            srcWidth]) { Helper::printDebugTwoColumnsTab("Nearest", dataDst[hsize_t(x) + hsize_t(y) * dstWidth]);
+                Helper::printDebugTwoColumnsTab("Linear", dataSrc[Helper::round(newX) + Helper::round(newY) *
+            srcWidth]);
             }*/
         }
     }
@@ -310,26 +330,28 @@ void Downsampling::resize2D(const float *dataSrc, float *dataDst, hsize_t srcWid
  * @param[in] dstHeight Destination height
  * @param[in] dstDepth Destination depth
  */
-void Downsampling::resize3D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth, hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth)
+void Downsampling::resize3D(const float *dataSrc, float *dataDst, hsize_t srcWidth, hsize_t srcHeight, hsize_t srcDepth,
+                            hsize_t dstWidth, hsize_t dstHeight, hsize_t dstDepth)
 {
-    float scaleWidth = static_cast<float>(dstWidth) / srcWidth;
+    float scaleWidth  = static_cast<float>(dstWidth) / srcWidth;
     float scaleHeight = static_cast<float>(dstHeight) / srcHeight;
-    float scaleDepth = static_cast<float>(dstDepth) / srcDepth;
+    float scaleDepth  = static_cast<float>(dstDepth) / srcDepth;
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (hssize_t z = 0; z < hssize_t(dstDepth); z++) {
-        #pragma omp parallel for
+#pragma omp parallel for
         for (hssize_t y = 0; y < hssize_t(dstHeight); y++) {
-            #pragma omp parallel for
+#pragma omp parallel for
             for (hssize_t x = 0; x < hssize_t(dstWidth); x++) {
                 // Nearest-neighbor interpolation
-                float newX = static_cast<float>(x) / scaleWidth;
-                float newY = static_cast<float>(y) / scaleHeight;
-                float newZ = static_cast<float>(z) / scaleDepth;
+                float newX   = static_cast<float>(x) / scaleWidth;
+                float newY   = static_cast<float>(y) / scaleHeight;
+                float newZ   = static_cast<float>(z) / scaleDepth;
                 hsize_t xSrc = Helper::round(newX);
                 hsize_t ySrc = Helper::round(newY);
                 hsize_t zSrc = Helper::round(newZ);
-                dataDst[hsize_t(x) + hsize_t(y) * dstWidth + hsize_t(z) * dstWidth * dstHeight] = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcHeight];
+                dataDst[hsize_t(x) + hsize_t(y) * dstWidth + hsize_t(z) * dstWidth * dstHeight]
+                    = dataSrc[xSrc + ySrc * srcWidth + zSrc * srcWidth * srcHeight];
                 // Linear interpolation
                 /*hsize_t left = static_cast<hsize_t>(floor(newX));
                 hsize_t right = static_cast<hsize_t>(ceil(newX));
@@ -340,13 +362,15 @@ void Downsampling::resize3D(const float *dataSrc, float *dataDst, hsize_t srcWid
                 float wX = ceil(newX) - newX;
                 float wY = ceil(newY) - newY;
                 float wZ = ceil(newZ) - newZ;
-                float bottomLRN = dataSrc[left + bottom * srcWidth + nearZ * srcWidth * srcHeight] * wX + dataSrc[right + bottom * srcWidth + nearZ * srcWidth * srcHeight] * (1 - wX);
-                float bottomLRF = dataSrc[left + bottom * srcWidth + farZ * srcWidth * srcHeight] * wX + dataSrc[right + bottom * srcWidth + farZ * srcWidth * srcHeight] * (1 - wX);
-                float bottomLR = bottomLRN * wZ + bottomLRF  * (1 - wZ);
-                float topLRN = dataSrc[left + top * srcWidth + nearZ * srcWidth * srcHeight] * wX + dataSrc[right + top * srcWidth + nearZ * srcWidth * srcHeight] * (1 - wX);
-                float topLRF = dataSrc[left + top * srcWidth + farZ * srcWidth * srcHeight] * wX + dataSrc[right + top * srcWidth + farZ * srcWidth * srcHeight] * (1 - wX);
-                float topLR = topLRN * wZ + topLRF  * (1 - wZ);
-                dataDst[hsize_t(x) + hsize_t(y) * dstWidth + hsize_t(z) * dstWidth * dstHeight] = bottomLR * wY + topLR  * (1 - wY);*/
+                float bottomLRN = dataSrc[left + bottom * srcWidth + nearZ * srcWidth * srcHeight] * wX + dataSrc[right
+                + bottom * srcWidth + nearZ * srcWidth * srcHeight] * (1 - wX); float bottomLRF = dataSrc[left + bottom
+                * srcWidth + farZ * srcWidth * srcHeight] * wX + dataSrc[right + bottom * srcWidth + farZ * srcWidth *
+                srcHeight] * (1 - wX); float bottomLR = bottomLRN * wZ + bottomLRF  * (1 - wZ); float topLRN =
+                dataSrc[left + top * srcWidth + nearZ * srcWidth * srcHeight] * wX + dataSrc[right + top * srcWidth +
+                nearZ * srcWidth * srcHeight] * (1 - wX); float topLRF = dataSrc[left + top * srcWidth + farZ * srcWidth
+                * srcHeight] * wX + dataSrc[right + top * srcWidth + farZ * srcWidth * srcHeight] * (1 - wX); float
+                topLR = topLRN * wZ + topLRF  * (1 - wZ); dataDst[hsize_t(x) + hsize_t(y) * dstWidth + hsize_t(z) *
+                dstWidth * dstHeight] = bottomLR * wY + topLR  * (1 - wY);*/
             }
         }
     }

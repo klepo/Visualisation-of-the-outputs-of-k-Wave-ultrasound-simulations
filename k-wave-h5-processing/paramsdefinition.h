@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        8  September 2016 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with ParamsDefinition class declaration.
  *
@@ -72,8 +72,8 @@ public:
             Params();
             Params(Type type);
             void defineParam(Type type);
-            void setParam(unsigned int index, const void* value);
-            void readParam(unsigned int index, void* value);
+            void setParam(unsigned int index, const void *value);
+            void readParam(unsigned int index, void *value);
             std::string getParamString(unsigned int index);
             Type getParamType(unsigned int index) const;
             size_t getCount() const;
@@ -84,7 +84,8 @@ public:
              * @param[in] paramsC Params
              * @return std::ostream
              */
-            friend std::ostream &operator<<(std::ostream &os, Params const &paramsC) {
+            friend std::ostream &operator<<(std::ostream &os, Params const &paramsC)
+            {
                 std::string str;
                 Params params = paramsC;
                 str.append("count: " + std::to_string(params.getCount()));
@@ -149,7 +150,8 @@ public:
          * @param[in] flag Flag
          * @return std::ostream
          */
-        friend std::ostream &operator<<(std::ostream &os, Flag const &flag) {
+        friend std::ostream &operator<<(std::ostream &os, Flag const &flag)
+        {
             return os << flag.getName();
         }
 

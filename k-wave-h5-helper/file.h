@@ -3,7 +3,7 @@
  * @author      Petr Kleparnik, VUT FIT Brno, ikleparnik@fit.vutbr.cz
  * @version     1.1
  * @date        30 July      2014 (created) <br>
- *              27 March     2019 (updated)
+ *              10 February  2023 (updated)
  *
  * @brief       The header file with H5Helper::File class declaration.
  *
@@ -249,13 +249,17 @@ size_t getSystemPhysicalMemoryCurrentlyUsedByProc();
 size_t getPeakSystemPhysicalMemoryCurrentlyUsedByProc();
 void convertlinearToMultiDim(hsize_t index, Vector &position, Vector size);
 void convertMultiDimToLinear(Vector position, hsize_t &index, Vector size);
-void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index);
-void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t index);
-void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex);
-void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex, hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex);
-bool fileExists(const std::string& name);
+void checkOrSetMinMaxValue(float &minV, float &maxV, float value, hsize_t &minVIndex, hsize_t &maxVIndex,
+                           hsize_t index);
+void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t value, hsize_t &minVIndex, hsize_t &maxVIndex,
+                           hsize_t index);
+void checkOrSetMinMaxValue(float &minV, float &maxV, float minVI, float maxVI, hsize_t &minVIndex, hsize_t &maxVIndex,
+                           hsize_t minVIIndex, hsize_t maxVIIndex);
+void checkOrSetMinMaxValue(hsize_t &minV, hsize_t &maxV, hsize_t minVI, hsize_t maxVI, hsize_t &minVIndex,
+                           hsize_t &maxVIndex, hsize_t minVIIndex, hsize_t maxVIIndex);
+bool fileExists(const std::string &name);
 void copyDataset(Dataset *srcDataset, File *dstFile, bool rewrite = true);
 void copyDataset(File *srcFile, File *dstFile, std::string name, bool rewrite = true);
-}
+} // namespace H5Helper
 
 #endif // FILE_H
