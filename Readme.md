@@ -1,7 +1,7 @@
 Visualisation of Ultrasound Propagation in Human Body 
 =====================
 This project contains some useful tools for k-Wave (http://www.k-wave.org) toolbox simulation outputs.
-These codes were before and then also simultaneously with the on-the-fly 
+These codes were developed before and then also simultaneously with the on-the-fly 
 compression and calculation of time-averaged acoustic Intensity in time-domain 
 ultrasound simulations.
 
