@@ -1,4 +1,4 @@
-Visualisation of Ultrasound Propagation in Human Body 
+Visualisation of the outputs of k-Wave ultrasound simulations
 =====================
 This project contains some useful tools for k-Wave (http://www.k-wave.org) toolbox simulation outputs.
 These codes were developed before and then also simultaneously with the on-the-fly 
