@@ -3,7 +3,7 @@ Visualisation of the outputs of k-Wave ultrasound simulations
 This project contains some useful tools for k-Wave (http://www.k-wave.org) toolbox simulation outputs.
 These codes were developed before and then also simultaneously with the on-the-fly 
 compression and calculation of time-averaged acoustic intensity in time-domain 
-ultrasound simulations (https://github.com/klepo/k-Wave-Fluid-OMP).
+ultrasound simulations (https://github.com/klepo/k-Wave-Fluid-OMP and https://github.com/klepo/k-Wave-Fluid-CUDA).
 
 Description
 -----------
